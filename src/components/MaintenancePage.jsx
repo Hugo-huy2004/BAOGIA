@@ -6,7 +6,7 @@ export default function MaintenancePage() {
       <div className="max-w-lg w-full text-center">
         {/* Logo */}
         <div className="mb-12 flex justify-center">
-          <HugoLogo className="text-5xl" />
+          <HugoLogo className="h-14 w-14" />
         </div>
 
         {/* Main Content */}

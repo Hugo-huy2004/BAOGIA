@@ -45,12 +45,52 @@
       "destination": "/user-guide/index.html"
     },
     {
+      "source": "/project",
+      "destination": "/project/index.html"
+    },
+    {
+      "source": "/project/hugo-studio",
+      "destination": "/project/hugo-studio/index.html"
+    },
+    {
+      "source": "/project/chanh-toa",
+      "destination": "/project/chanh-toa/index.html"
+    },
+    {
+      "source": "/project/hwj",
+      "destination": "/project/hwj/index.html"
+    },
+    {
+      "source": "/project/minh-oi-media",
+      "destination": "/project/minh-oi-media/index.html"
+    },
+    {
+      "source": "/project/l3go-coffee",
+      "destination": "/project/l3go-coffee/index.html"
+    },
+    {
+      "source": "/project/m-hike",
+      "destination": "/project/m-hike/index.html"
+    },
+    {
+      "source": "/2048",
+      "destination": "/2048/index.html"
+    },
+    {
       "source": "/banhocduong",
       "destination": "/banhocduong/index.html"
     },
     {
       "source": "/therapy",
       "destination": "/therapy/index.html"
+    },
+    {
+      "source": "/study",
+      "destination": "/study/index.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support/index.html"
     },
     {
       "source": "/radio",
@@ -69,14 +109,6 @@
       "destination": "/hugokit/index.html"
     },
     {
-      "source": "/support",
-      "destination": "/support/index.html"
-    },
-    {
-      "source": "/study",
-      "destination": "/study/index.html"
-    },
-    {
       "source": "/chess",
       "destination": "/chess/index.html"
     },
@@ -89,16 +121,104 @@
       "destination": "/snake/index.html"
     },
     {
-      "source": "/2048",
-      "destination": "/2048/index.html"
-    },
-    {
       "source": "/survivor",
       "destination": "/survivor/index.html"
     },
     {
-      "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
-      "destination": "/index.html"
+      "source": "/en/introduction",
+      "destination": "/en/introduction/index.html"
+    },
+    {
+      "source": "/en/services",
+      "destination": "/en/services/index.html"
+    },
+    {
+      "source": "/en/faq",
+      "destination": "/en/faq/index.html"
+    },
+    {
+      "source": "/en/booking",
+      "destination": "/en/booking/index.html"
+    },
+    {
+      "source": "/en/student-pricing",
+      "destination": "/en/student-pricing/index.html"
+    },
+    {
+      "source": "/en/project",
+      "destination": "/en/project/index.html"
+    },
+    {
+      "source": "/en/project/hugo-studio",
+      "destination": "/en/project/hugo-studio/index.html"
+    },
+    {
+      "source": "/en/project/chanh-toa",
+      "destination": "/en/project/chanh-toa/index.html"
+    },
+    {
+      "source": "/en/project/hwj",
+      "destination": "/en/project/hwj/index.html"
+    },
+    {
+      "source": "/en/project/minh-oi-media",
+      "destination": "/en/project/minh-oi-media/index.html"
+    },
+    {
+      "source": "/en/project/l3go-coffee",
+      "destination": "/en/project/l3go-coffee/index.html"
+    },
+    {
+      "source": "/en/project/m-hike",
+      "destination": "/en/project/m-hike/index.html"
+    },
+    {
+      "source": "/zh/introduction",
+      "destination": "/zh/introduction/index.html"
+    },
+    {
+      "source": "/zh/services",
+      "destination": "/zh/services/index.html"
+    },
+    {
+      "source": "/zh/faq",
+      "destination": "/zh/faq/index.html"
+    },
+    {
+      "source": "/zh/booking",
+      "destination": "/zh/booking/index.html"
+    },
+    {
+      "source": "/zh/student-pricing",
+      "destination": "/zh/student-pricing/index.html"
+    },
+    {
+      "source": "/zh/project",
+      "destination": "/zh/project/index.html"
+    },
+    {
+      "source": "/zh/project/hugo-studio",
+      "destination": "/zh/project/hugo-studio/index.html"
+    },
+    {
+      "source": "/zh/project/chanh-toa",
+      "destination": "/zh/project/chanh-toa/index.html"
+    },
+    {
+      "source": "/zh/project/hwj",
+      "destination": "/zh/project/hwj/index.html"
+    },
+    {
+      "source": "/zh/project/minh-oi-media",
+      "destination": "/zh/project/minh-oi-media/index.html"
+    },
+    {
+      "source": "/zh/project/l3go-coffee",
+      "destination": "/zh/project/l3go-coffee/index.html"
+    },
+    {
+      "source": "/zh/project/m-hike",
+      "destination": "/zh/project/m-hike/index.html"
     }
   ],
   "headers": [
@@ -119,7 +239,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "script-src 'self' 'sha256-n5rr5u24q410ZGvJoIgsywUKy2HJGuFtd09L53Ppj6I=' https://accounts.google.com https://images.dmca.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+          "value": "script-src 'self' 'sha256-dt0gJjom2X4+eFoWbZ08iMe++gq7Ug+lEyyrWKEGTdY=' https://accounts.google.com https://images.dmca.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
         }
       ]
     },

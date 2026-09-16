@@ -7,6 +7,7 @@ import { initSecurityShield } from './utils/security.js'
 import { installApiAuthInterceptor } from './services/apiAuthInterceptor.js'
 import { installClientMonitoring } from './utils/clientMonitoring.js'
 import { initSentryMonitoring } from './utils/sentryMonitoring.js'
+import { startBrandColorCycle } from './lib/brandColorCycle.js'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient.js'
 
@@ -30,6 +31,7 @@ initSecurityShield();
 installApiAuthInterceptor();
 initSentryMonitoring();
 installClientMonitoring();
+startBrandColorCycle();
 
 if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   // Dev should always load fresh Vite modules instead of any previously cached PWA assets.

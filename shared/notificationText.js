@@ -26,7 +26,7 @@ import { DEFAULT_DENOM, formatDenom } from "./joyCurrency.js";
  * định dạng ngày của ngôn ngữ đang dựng.
  */
 
-const LANGUAGES = ["vi", "en", "zh", "th", "ja", "ko", "id", "es", "fr"];
+const LANGUAGES = ["vi", "en", "zh"];
 
 export const NOTIFICATION_TEXT = {
   vi: {

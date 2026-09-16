@@ -4,6 +4,7 @@ import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSes
 import { useData } from "../context/DataContext";
 import { useTranslation } from "react-i18next";
 import LanguageSelect from "./LanguageSelect";
+import HugoLogo from "./HugoLogo";
 
 export default function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
@@ -134,7 +135,7 @@ export default function MobileDrawer() {
 
         <div className="flex items-center justify-between px-3 pb-3 pt-1">
           <div>
-            <h2 className="text-base font-extrabold tracking-[-0.02em] text-foreground">Hugo Studio</h2>
+            <h2 className="text-foreground"><HugoLogo className="h-7 w-7" /></h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">{t("navbar.hello", "Xin chào")}</p>
           </div>
           <button

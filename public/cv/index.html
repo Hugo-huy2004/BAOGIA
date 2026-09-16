@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV — Lê Gia Huy</title>
+<link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+<style>
+  /* Hai bản CV một trang, dùng chung một nguồn.
+     `npm run cv:pdf` xuất riêng tiếng Việt và tiếng Anh. */
+  @page { size: A4; margin: 9mm 10mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #0a6fe8;
+    --blue-dark: #0a4fa8;
+    --ink: #14181f;
+    --body: #3d434c;
+    --muted: #6d7580;
+    --faint: #949ca8;
+    --line: #e3e8ef;
+    --card: #f6f8fb;
+    --blue-wash: #eef5fe;
+  }
+
+  html, body { background: #fff; }
+  body {
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.6pt;
+    line-height: 1.46;
+    -webkit-font-smoothing: antialiased;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  a { color: inherit; text-decoration: none; }
+  .page { position: static; }
+  .page:not(:last-child) { page-break-after: always; }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0 14px;
+    padding-bottom: 9px;
+    border-bottom: 2.5px solid var(--blue);
+  }
+  .brand {
+    width: 8.5mm;
+    height: 8.5mm;
+    align-self: start;
+    margin-top: 0.4mm;
+    color: var(--blue);
+  }
+  .kicker {
+    color: var(--blue);
+    font-size: 7.3pt;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  h1 {
+    margin-top: 2px;
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1;
+  }
+  .role { margin-top: 4px; color: var(--blue-dark); font-size: 10.2pt; font-weight: 700; }
+  .contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .contact a { color: var(--body); font-size: 8pt; }
+  .contact a b { color: var(--blue); font-weight: 700; }
+  .stats { display: flex; gap: 14px; margin-top: 7px; }
+  .stat { display: flex; align-items: baseline; gap: 4px; }
+  .stat b { color: var(--blue); font-size: 11.5pt; font-weight: 700; }
+  .stat span { color: var(--muted); font-size: 7.3pt; }
+
+  /* ── Layout ─────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 30% minmax(0, 70%);
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .sidebar { display: flex; flex-direction: column; gap: 11px; }
+  .side-card {
+    padding: 10px 11px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+    break-inside: avoid;
+  }
+  .side-card.profile-card { border-color: #cfe2f8; background: var(--blue-wash); }
+  .section-label {
+    margin-bottom: 6px;
+    color: var(--blue);
+    font-size: 7.3pt;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .profile-text { color: var(--body); font-size: 8.5pt; line-height: 1.46; }
+  .skill-group { margin-bottom: 7px; }
+  .skill-group:last-of-type { margin-bottom: 0; }
+  .skill-group h3 { margin-bottom: 3px; font-size: 8pt; font-weight: 700; }
+  .tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tag {
+    padding: 1.5px 6px;
+    border: 1px solid #dde3ea;
+    border-radius: 999px;
+    background: #fff;
+    color: #4a525d;
+    font-size: 7.1pt;
+    line-height: 1.3;
+  }
+  .foundation { margin-top: 6px; color: var(--muted); font-size: 7.3pt; line-height: 1.4; }
+  .skill-note { margin-top: 3px; color: var(--muted); font-size: 7pt; line-height: 1.35; font-style: italic; }
+  .fact { margin-bottom: 6px; }
+  .fact:last-child { margin-bottom: 0; }
+  .fact-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .fact b { font-size: 8.2pt; font-weight: 700; }
+  .fact .level { color: var(--blue); font-size: 7.2pt; font-weight: 700; white-space: nowrap; }
+  .fact p { margin-top: 1px; color: var(--muted); font-size: 7.4pt; line-height: 1.38; }
+
+  /* ── Main ───────────────────────────────────────────── */
+  .main { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
+  /* KHÔNG chống cắt ở cả mục: mục dự án nay có sáu khối, ép nguyên mục nằm
+     gọn một trang thì nó nhảy hẳn sang trang sau, để trang đầu trống nửa dưới.
+     Chống cắt ở từng dự án là đủ. */
+  .main-section { break-inside: auto; }
+  .main-section > .section-label { margin-bottom: 5px; }
+
+  .project {
+    padding: 8px 11px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--blue);
+    border-radius: 10px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .project-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .project h3 { font-size: 9.6pt; font-weight: 700; line-height: 1.2; }
+  .date { color: var(--faint); font-size: 7.3pt; white-space: nowrap; }
+  .project-meta { margin: 2px 0 4px; color: var(--blue-dark); font-size: 7.5pt; font-weight: 700; }
+  .project-meta a { color: var(--muted); font-weight: 400; border-bottom: 1px solid #ccd4dd; }
+  ul { list-style: none; }
+  .project li {
+    position: relative;
+    margin-bottom: 2px;
+    padding-left: 10px;
+    color: var(--body);
+    font-size: 7.95pt;
+    line-height: 1.38;
+  }
+  .project li:last-child { margin-bottom: 0; }
+  .project li::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 1px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+  .project li b { color: var(--ink); font-weight: 700; }
+
+  /* Kinh nghiệm */
+  .exp-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    margin-bottom: 7px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .exp-item:last-child { margin-bottom: 0; }
+  .exp-item b { font-size: 8.3pt; }
+  .exp-item .exp-role { color: var(--blue-dark); font-weight: 700; font-size: 7.4pt; }
+  .exp-item p { grid-column: 1 / -1; color: var(--muted); font-size: 7.5pt; line-height: 1.36; }
+  .exp-item p a { color: var(--blue); font-weight: 700; }
+
+  /* ── Bản một cột cho hệ thống lọc CV (?layout=ats) ──────
+     Máy đọc PDF quét theo dòng ngang, nên hai cột bị trộn vào nhau: nửa dòng
+     sidebar dính nửa dòng dự án. Bản này bỏ cột, bỏ nền và viền — xấu hơn với
+     người, nhưng đọc đúng thứ tự với máy. Bản đẹp vẫn là bản gửi cho người. */
+  body.ats .layout { display: block; }
+  body.ats .sidebar, body.ats .main { display: block; }
+  body.ats .side-card, body.ats .project, body.ats .exp-item {
+    margin-bottom: 9px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+  }
+  body.ats .exp-item { display: block; }
+  body.ats .skill-note, body.ats .foundation { font-style: normal; }
+
+  .web-toolbar { display: none; }
+
+  @media screen {
+    html, body { background: #eef4fb; }
+    body { padding: 92px 24px 48px; }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 28px;
+      padding: 9mm 10mm;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(33, 72, 117, .14);
+    }
+    .web-toolbar {
+      position: fixed;
+      z-index: 20;
+      top: 16px;
+      left: 50%;
+      display: flex;
+      width: min(760px, calc(100% - 24px));
+      min-height: 58px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 9px 8px 16px;
+      border: 1px solid rgba(255,255,255,.76);
+      border-radius: 18px;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 14px 45px rgba(33,72,117,.16);
+      backdrop-filter: blur(20px);
+      transform: translateX(-50%);
+    }
+    .toolbar-brand, .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+    .toolbar-brand { color: var(--ink); font-size: 10pt; font-weight: 700; }
+    .toolbar-brand svg { width: 18px; color: #20cfe3; filter: drop-shadow(0 3px 5px rgba(32,207,227,.3)); }
+    .toolbar-button {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--body);
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .toolbar-button.primary { border-color: transparent; background: var(--blue); color: #fff; }
+  }
+
+  @media screen and (max-width: 760px) {
+    body { padding: 84px 10px 24px; font-size: 10pt; }
+    .page { width: 100%; min-height: 0; padding: 22px 16px; border-radius: 16px; }
+    .web-toolbar { top: 10px; min-height: 56px; padding-left: 12px; }
+    .toolbar-brand span { display: none; }
+    .toolbar-button { min-height: 38px; padding: 0 10px; font-size: 8.5pt; }
+    .hero { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+    .contact { grid-column: 1 / -1; align-items: flex-start; margin-top: 12px; }
+    .stats { flex-wrap: wrap; gap: 5px 12px; }
+    .layout { grid-template-columns: 1fr; }
+    .project-top { align-items: flex-start; }
+    h1 { font-size: 23pt; }
+  }
+
+  @media print {
+    .web-toolbar { display: none !important; }
+  }
+
+</style>
+</head>
+<body>
+
+<nav class="web-toolbar" aria-label="Điều khiển CV">
+  <a class="toolbar-brand" href="/introduction" aria-label="Trở về Portfolio Hugo Studio">
+    <svg viewBox="19 3 62 90" fill="currentColor" aria-hidden="true"><path d="M47.43 8.25 A3 3 0 0 1 52.57 8.25 L75.68 46.48 A30 30 0 1 1 24.32 46.48 Z"/></svg>
+    <span>Hugo Studio</span>
+  </a>
+  <div class="toolbar-actions">
+    <a class="toolbar-button" data-language-link href="/cv/index.html?lang=en">English</a>
+    <a class="toolbar-button primary" data-download-link href="/cv-le-gia-huy.pdf" download>Tải PDF</a>
+  </div>
+</nav>
+
+
+<!-- TIẾNG VIỆT -->
+<main class="page" data-language="vi">
+  <header class="hero">
+    <div>
+      <p class="kicker">Ứng tuyển thực tập · Product &amp; UI/UX Design</p>
+      <h1>Lê Gia Huy</h1>
+      <p class="role">Thiết kế sản phẩm &amp; lập trình web toàn phần</p>
+      <div class="stats"><div class="stat"><b>6</b><span>dự án đã hoàn thành</span></div><div class="stat"><b>4</b><span>đang chạy với người dùng thật</span></div><div class="stat"><b>B2</b><span>tiếng Anh VSTEP</span></div></div>
+    </div>
+    <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · www.hugowishpax.studio/introduction</a></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="side-card profile-card">
+        <h2 class="section-label">Hồ sơ</h2>
+        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. <b>Sáu dự án đã bàn giao</b>: mình vẽ giao diện trên Figma, dựng thành React rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Product/UI/UX Design.</b></p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Kỹ năng</h2>
+        <div class="skill-group"><h3>Product &amp; UI/UX</h3><div class="tags"><span class="tag">Figma</span><span class="tag">User Flow</span><span class="tag">Wireframe</span><span class="tag">Prototype</span><span class="tag">Responsive</span><span class="tag">Design System</span></div><p class="skill-note">Rèn qua sáu dự án thật, từ buổi lấy yêu cầu tới bản giao diện chạy được.</p></div><div class="skill-group"><h3>Lập trình</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Cả hai đầu: giao diện và máy chủ, thêm một ứng dụng di động (React Native, Java).</p></div><div class="skill-group"><h3>Vận hành</h3><div class="tags"><span class="tag">Triển khai</span><span class="tag">Đọc log &amp; xử lý sự cố</span><span class="tag">Tối ưu hiệu năng</span><span class="tag">SEO kỹ thuật</span><span class="tag">Review code</span></div><p class="skill-note">Tự nuôi các site trên production: tên miền, triển khai, theo dõi, xử lý sự cố.</p></div>
+        <p class="foundation">Nền từ trường: C#, Python, PHP, MySQL, Express, WebSocket. Triển khai trên Vercel, Render, Cloudflare, Netlify.</p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Ngôn ngữ</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
+          <p>Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật.</p>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Học vấn &amp; hoạt động</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
+          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027.</p>
+        </div>
+        <div class="fact">
+          <b>Huynh trưởng – Giáo lý viên cấp 2</b>
+          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông và quản lý nhóm.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="main-section">
+        <h2 class="section-label">Dự án</h2>
+        <article class="project"><div class="project-top"><h3>Hugo Studio — Hệ sinh thái công cụ số</h3><span class="date">04/2026 – nay</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · Vận hành · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Dựng một <b>khung dùng chung</b> cho cả hệ thống: một lớp định danh, một ví điểm, một kênh thông báo thời gian thực và một bộ vỏ giao diện — thêm ứng dụng mới là thêm nội dung vào khung, không dựng lại từ móng.</li><li>Chạy dạng <b>PWA cài về máy</b> và tự vận hành production: truy ra sự cố vượt hạn mức nhà cung cấp là do một vòng lặp gọi API mỗi 10 giây, giãn còn 5 phút rồi chia lại kiến trúc theo cách tính phí của từng nền tảng.</li></ul></article><article class="project"><div class="project-top"><h3>Xứ Đoàn Chánh Tòa Mỹ Tho — Cổng thông tin giáo xứ</h3><span class="date">08/2026 – nay</span></div><p class="project-meta">Người dùng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://chanhtoa.tnttgiaophanmytho.online">chanhtoa.tnttgiaophanmytho.online</a></p><ul><li>Next.js, React, TypeScript, Tailwind, Node.js, Firestore. Tra <b>giờ lễ 27 giáo phận</b> theo định vị, Kinh Thánh trọn bộ chia theo chương, vấn đáp đức tin — nội dung kết xuất phía máy chủ để tìm kiếm đọc được.</li><li>Nối thẳng với <b>fanpage Facebook</b> của giáo xứ qua Graph API: đăng một lần, tin hiện ở cả hai nơi; khoá truy cập giữ lại trên máy chủ và chặn thêm bằng Firestore rules.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Ứng dụng đi bộ đường dài (iOS &amp; Android)</h3><span class="date">06–09/2026</span></div><p class="project-meta">Bài tập môn phát triển di động · Thiết kế &amp; lập trình toàn phần · <a href="https://github.com/Hugo-huy2004/Hiking_App">github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>Làm <b>hai bản</b>: React Native trên Expo với TypeScript, và một bản Android thuần bằng Java — để so hai cách làm chứ không chọn bừa một bên.</li><li><b>Chạy được khi mất sóng</b>: SQLite trên máy là kho chính, Firebase chỉ đồng bộ nền. Ghi hành trình GPS chia pha, nhật ký thực địa gắn theo chuyến, màn hình SOS lấy toạ độ và nháy Morse ban đêm.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Nền tảng trang sức cao cấp</h3><span class="date">01–04/2026</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · <a href="https://hwj-demo.hugowishpax.studio">hwj-demo.hugowishpax.studio</a></p><ul><li>React, Tailwind, Node.js, MongoDB, Cloudinary, Google OAuth. <b>Giá bám thị trường</b>: lấy từ API giá vàng – bạc thời gian thực rồi hiện thành bảng bán ra – mua lại theo chỉ.</li><li>Ngôn ngữ thiết kế kiểu <b>ấn phẩm</b> cho hàng xa xỉ: không một nút “mua ngay”, thay bằng lời mời đặt lịch tư vấn sở hữu — tiết chế hợp với món hàng cân nhắc hàng tháng trời.</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media — Website studio phóng sự cưới</h3><span class="date">03–04/2026</span></div><p class="project-meta">Khách hàng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://minhoimedia.digital">minhoimedia.digital</a></p><ul><li>Làm trực tiếp với khách từ buổi lấy yêu cầu tới lúc bàn giao. Đặt <b>bảng giá năm gói ngay trên đường đi</b> thay vì bắt khách nhắn tin hỏi — khách đang mở ba studio cùng lúc.</li><li>HTML, CSS, JavaScript thuần, không khung: trang nhẹ, mở nhanh trên 4G, và chính chủ studio sửa được chữ mà không phải gọi cho ai.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Website quán cà phê</h3><span class="date">2026</span></div><p class="project-meta">Làm cùng Jason Phan · Thiết kế UI/UX · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Phụ trách <b>UI/UX</b>: hệ thống màu, nhịp chữ, luồng xem thực đơn và cách cắt ảnh không gian; phần dữ liệu và triển khai do đối tác — ranh giới rõ từ đầu.</li><li>Thực đơn 68 món <b>lọc theo tâm trạng</b> thay vì theo danh mục: cần tỉnh, muốn dịu lòng, ngồi lâu với bạn — chọn nhanh hơn đọc hết một bảng dài.</li></ul></article>
+      </section>
+    </section>
+  </div>
+</main>
+
+<!-- ENGLISH -->
+<main class="page" data-language="en" lang="en">
+  <header class="hero">
+    <div>
+      <p class="kicker">Applying for an internship · Product &amp; UI/UX Design</p>
+      <h1>Le Gia Huy</h1>
+      <p class="role">Product design &amp; full-stack web development</p>
+      <div class="stats"><div class="stat"><b>6</b><span>projects delivered</span></div><div class="stat"><b>4</b><span>live with real users</span></div><div class="stat"><b>B2</b><span>VSTEP English</span></div></div>
+    </div>
+    <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · www.hugowishpax.studio/introduction</a></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="side-card profile-card">
+        <h2 class="section-label">Profile</h2>
+        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I design in Figma, build in React and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I also write the server side (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking a Product/UI/UX Design internship.</b></p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Skills</h2>
+        <div class="skill-group"><h3>Product &amp; UI/UX</h3><div class="tags"><span class="tag">Figma</span><span class="tag">User Flows</span><span class="tag">Wireframing</span><span class="tag">Prototyping</span><span class="tag">Responsive</span><span class="tag">Design Systems</span></div><p class="skill-note">Sharpened on six real projects, from first conversation to a working interface.</p></div><div class="skill-group"><h3>Engineering</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Both ends: interface and server, plus a mobile app in React Native and Java.</p></div><div class="skill-group"><h3>Operations</h3><div class="tags"><span class="tag">Deployment</span><span class="tag">Log reading &amp; incident response</span><span class="tag">Performance</span><span class="tag">Technical SEO</span><span class="tag">Code review</span></div><p class="skill-note">I run these sites in production: domains, deploys, monitoring, incident response.</p></div>
+        <p class="foundation">University foundation: C#, Python, PHP, MySQL, Express, WebSocket. Deploys on Vercel, Render, Cloudflare, Netlify.</p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Languages</h2>
+        <div class="fact">
+          <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
+          <p>Level 4, 2024 · reads technical documentation.</p>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Education &amp; activities</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
+          <p>Information Technology · with the University of Greenwich (UK) and FPT University · graduating 10/2027.</p>
+        </div>
+        <div class="fact">
+          <b>Youth group leader – Catechist (level 2)</b>
+          <p>Running children’s activities, public speaking, group management.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="main-section">
+        <h2 class="section-label">Projects</h2>
+        <article class="project"><div class="project-top"><h3>Hugo Studio — An ecosystem of digital tools</h3><span class="date">04/2026 – now</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · Operations · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Built the <b>shared frame</b> the system rests on: one identity layer, one points wallet, one real-time notification channel, one interface shell — a new app is content poured in, not another foundation dug.</li><li>Runs as an <b>installable PWA</b>, operated by me: traced a provider quota overrun to a loop calling an API every 10 seconds, moved it to 5 minutes, then split the architecture along how each platform bills.</li></ul></article><article class="project"><div class="project-top"><h3>Chanh Toa My Tho — Parish information portal</h3><span class="date">08/2026 – now</span></div><p class="project-meta">Real users · Design &amp; full-stack development · <a href="https://chanhtoa.tnttgiaophanmytho.online">chanhtoa.tnttgiaophanmytho.online</a></p><ul><li>Next.js, React, TypeScript, Tailwind, Node.js, Firestore. <b>Mass times across 27 dioceses</b> found by location, the full Bible, a faith Q&amp;A — server-rendered so search engines can read it.</li><li>Wired straight into the parish <b>Facebook page</b> through the Graph API: post once and it appears in both places; the access key stays on the server, guarded by Firestore rules.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Hiking app for iOS &amp; Android</h3><span class="date">06–09/2026</span></div><p class="project-meta">Mobile development coursework · Design &amp; full-stack development · <a href="https://github.com/Hugo-huy2004/Hiking_App">github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>Built <b>twice</b>: React Native on Expo with TypeScript, and a native Android build in Java — to compare the two approaches properly rather than pick one on faith.</li><li><b>Works with no signal</b>: SQLite on the device is the primary store, Firebase syncs in the background. GPS journeys replayed in phases, field notes bound to each hike, an SOS screen with coordinates and Morse flashing.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Fine jewellery platform</h3><span class="date">01–04/2026</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · <a href="https://hwj-demo.hugowishpax.studio">hwj-demo.hugowishpax.studio</a></p><ul><li>React, Tailwind, Node.js, MongoDB, Cloudinary, Google OAuth. <b>Priced against the market</b>: live gold and silver rates from an API, shown as a sell and buyback table per mace.</li><li>A <b>publication</b> design language for luxury: not one “buy now” button, replaced by an invitation to book an acquisition consultation — restraint suits a purchase considered for months.</li></ul></article><article class="project"><div class="project-top"><h3>Minh Oi Media — Wedding studio website</h3><span class="date">03–04/2026</span></div><p class="project-meta">Real client · Design &amp; full-stack development · <a href="https://minhoimedia.digital">minhoimedia.digital</a></p><ul><li>Worked directly with the client from first conversation to handover. Put <b>five packages and their prices right on the path</b> instead of forcing an enquiry — couples compare three studios at once.</li><li>Plain HTML, CSS and JavaScript, no framework: light, fast on 4G, and the studio edits the words in the file without calling anyone.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Café website</h3><span class="date">2026</span></div><p class="project-meta">With Jason Phan · UI/UX design · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Owned the <b>UI/UX</b>: colour system, typographic rhythm, the menu flow and how the room is cropped; data and deployment were my partner's.</li><li>Sixty-eight items <b>filtered by mood</b> rather than by category: need to wake up, want to settle down, staying a while with friends — faster than reading a long table.</li></ul></article>
+      </section>
+    </section>
+  </div>
+</main>
+
+<script src="cv.js"></script>
+</body>
+</html>

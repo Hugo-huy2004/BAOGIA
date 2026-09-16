@@ -4,12 +4,12 @@ import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
 import LanguageSelect from "./LanguageSelect";
+import HugoLogo from "./HugoLogo";
 
 function NavLink({ to, active, children }) {
-  const className = `inline-flex h-11 items-center rounded-full px-3.5 text-[12px] font-semibold leading-none transition-all duration-200 select-none ${
-    active
-      ? "bg-card text-foreground shadow-[0_1px_5px_hsl(var(--shadow)/0.09),inset_0_1px_0_rgba(255,255,255,0.7)]"
-      : "text-muted-foreground hover:text-foreground"
+  // Chữ trần, không viên thuốc: mục đang mở chỉ đậm màu hơn.
+  const className = `inline-flex h-11 items-center text-[13px] leading-none transition-colors duration-200 select-none ${
+    active ? "font-semibold text-foreground" : "font-medium text-muted-foreground hover:text-foreground"
   }`;
   return <Link to={to} className={className}>{children}</Link>;
 }
@@ -34,12 +34,11 @@ export default function Navbar() {
           className="flex h-11 flex-shrink-0 items-center gap-2 text-sm font-extrabold leading-none tracking-[-0.02em] text-foreground transition-opacity hover:opacity-75 sm:text-base"
           aria-label="Hugo Studio Home"
         >
-          <span>Hugo Studio</span>
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+          <HugoLogo className="h-7 w-7" />
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center justify-center gap-0.5 rounded-full border border-border/45 bg-muted/55 p-1 lg:flex">
+        <nav className="hidden items-center justify-center gap-7 lg:flex">
           <NavLink to="/introduction" active={isAt("/introduction")}>
             {t("navbar.home", "Giới thiệu")}
           </NavLink>
@@ -57,7 +56,7 @@ export default function Navbar() {
         </nav>
 
         {/* Right controls */}
-        <div className="ml-auto flex h-11 flex-shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex h-11 flex-shrink-0 items-center gap-1.5 sm:gap-2">
 
           <button
             type="button"

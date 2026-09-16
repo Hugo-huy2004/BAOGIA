@@ -40,7 +40,11 @@ const CULTURAL_THEMES = {
     heroGradient: "linear-gradient(135deg, #FAFAF5 0%, #F5F0E8 100%)",
     pattern: `%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cpath d='M40 10 Q55 10 55 25 Q55 40 40 40 Q25 40 25 25 Q25 10 40 10Z' fill='none' stroke='%23DE2910' stroke-width='0.4' opacity='0.05'/%3E%3Cpath d='M0 50 Q15 50 15 65 Q15 80 0 80' fill='none' stroke='%23DE2910' stroke-width='0.3' opacity='0.04'/%3E%3Cpath d='M80 50 Q65 50 65 65 Q65 80 80 80' fill='none' stroke='%23DE2910' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E`,
     //祥云 cloud motif
-    fontFamily: "'Noto Serif SC', 'Noto Serif CJK SC', 'Source Han Serif SC', serif",
+    // Phông hệ thống trước, Noto sau: máy không cài Noto Serif SC sẽ rơi về
+    // `serif` và trình duyệt chọn một phông thư pháp — trang bán hàng đọc như
+    // thiệp mời. PingFang (macOS/iOS) và Microsoft YaHei (Windows) là thứ Apple
+    // và các trang Trung Quốc thật sự dùng: cùng cỡ chữ nhưng rõ hơn hẳn.
+    fontFamily: "'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Noto Sans SC', 'Source Han Sans SC', system-ui, sans-serif",
     heroOpacity: 0.05,
   },
   th: {

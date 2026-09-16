@@ -1,7 +1,7 @@
 import fs from "fs";
 
 const localesDir = "src/i18n/locales";
-const languages = ["vi", "zh", "ja", "ko", "th", "es", "fr", "id"];
+const languages = ["vi", "zh"];
 
 const enData = JSON.parse(fs.readFileSync(`${localesDir}/en/translation.json`, "utf8"));
 
@@ -9,9 +9,13 @@ const enData = JSON.parse(fs.readFileSync(`${localesDir}/en/translation.json`, "
 function collectMissing(sourceObj, targetObj, path = "", missingList = []) {
   for (const key of Object.keys(sourceObj)) {
     const newPath = path ? `${path}.${key}` : key;
-    if (typeof sourceObj[key] === "object" && sourceObj[key] !== null && !Array.isArray(sourceObj[key])) {
+    // Mảng cũng đi xuống như object (Object.keys của mảng là "0","1","2"…).
+    // Trước đây mảng bị coi là một lá: mảng-các-object thì mọi chuỗi bên trong
+    // được copy nguyên tiếng Anh sang 8 ngôn ngữ kia mà không ai thấy, vì
+    // nhánh dịch chỉ xử lý được mảng-các-chuỗi.
+    if (typeof sourceObj[key] === "object" && sourceObj[key] !== null) {
       if (!targetObj[key] || typeof targetObj[key] !== "object") {
-        targetObj[key] = {};
+        targetObj[key] = Array.isArray(sourceObj[key]) ? [] : {};
       }
       collectMissing(sourceObj[key], targetObj[key], newPath, missingList);
     } else {

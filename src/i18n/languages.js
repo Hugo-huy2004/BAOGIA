@@ -1,13 +1,13 @@
+/* Ba ngôn ngữ, có chủ ý.
+   Trước đây là chín. Sáu bộ kia (th, ja, ko, id, es, fr) do máy dịch, chưa ai
+   soát, và mỗi bộ là một chunk 380–650 KB tải về cho đúng một người dùng chọn
+   nó. Giữ ba thứ tiếng có người đọc lại được còn hơn khoe con số chín.
+   Thêm lại một ngôn ngữ = thêm dòng ở đây + tệp locales/<mã>/translation.json
+   + nhánh trong FULL_LOCALES của config.js. */
 export const SUPPORTED_LANGUAGES = [
   { code: "vi", label: "Tiếng Việt", locale: "vi-VN" },
   { code: "en", label: "English", locale: "en-US" },
   { code: "zh", label: "简体中文", locale: "zh-CN" },
-  { code: "th", label: "ไทย", locale: "th-TH" },
-  { code: "ja", label: "日本語", locale: "ja-JP" },
-  { code: "ko", label: "한국어", locale: "ko-KR" },
-  { code: "id", label: "Bahasa Indonesia", locale: "id-ID" },
-  { code: "es", label: "Español", locale: "es-ES" },
-  { code: "fr", label: "Français", locale: "fr-FR" },
 ];
 
 // One app-owned key is the source of truth. `i18nextLng` and `ui-store` are

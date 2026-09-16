@@ -248,7 +248,7 @@ export default function PaymentGatewayPage() {
     <div className="min-h-screen bg-background px-4 py-6 text-foreground sm:py-10">
       <main className="mx-auto w-full max-w-3xl">
         <header className="mb-5 flex items-center justify-between">
-          <a href="/" aria-label="Hugo Studio"><HugoLogo className="h-8 w-auto" /></a>
+          <a href="/" aria-label="Hugo Studio"><HugoLogo className="h-8 w-8" /></a>
           <span className="rounded-full border border-border bg-card px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
             PayOS API · VietQR
           </span>

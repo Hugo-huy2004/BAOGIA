@@ -172,7 +172,7 @@
       "webDev": "Web Development",
       "personalInfo": "Personal Info",
       "teammateInfo": "Teammate Info",
-      "bioEdu": "Bio Edu Service",
+      "bioEdu": "Hugo Edu+ Service",
       "webService": "Web Service",
       "hobbies": "Hobbies",
       "philosophy": "Philosophy",
@@ -500,7 +500,7 @@
         ]
       },
       "meta": {
-        "title": "Peter Hugo Wishpax Lê — Software Engineering & Product Design Portfolio",
+        "title": "Peter Hugo Wishpax Lê — Engineering & Design Portfolio",
         "description": "The personal portfolio of Peter Hugo Wishpax Lê, a final-year Software Engineering student at Greenwich Vietnam, encompassing his education, technical repertoire and selected digital products.",
         "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, software engineer portfolio, Software Engineering student, Greenwich Vietnam, React projects"
       },
@@ -508,11 +508,427 @@
       "weak3": "My degree covered many languages broadly rather than one deeply — I can read and modify code, but I am not yet specialised in any single language.",
       "horsePrompt": "RIDING THE HIGH HORSE! SHOW SOME SUPPORT, NEIGH!",
       "donateBtn": "Support Hugo (Donate)"
+    },
+    "apple": {
+      "meta": {
+        "title": "Peter Hugo Wishpax Le — Software Engineering Student & Product Builder",
+        "description": "Hi, I'm Hugo. A final-year Software Engineering student at Greenwich Vietnam who built and runs a system of 22 apps in production.",
+        "keywords": "Peter Hugo Wishpax Le, Hugo Le, developer portfolio, software engineering student, Greenwich Vietnam, React, Node.js"
+      },
+      "hero": {
+        "kicker": "Peter Hugo Wishpax Le",
+        "line1": "A little design.",
+        "line2": "A lot of late nights.",
+        "status1": "Final-year Software Engineering student at Greenwich Vietnam.",
+        "status2": "Open to internships and full-time roles.",
+        "cta": "Get to know me",
+        "cv": "Download CV",
+        "swipe": "Swipe to read on",
+        "scroll": "Scroll to read on"
+      },
+      "portrait": {
+        "chapters": [
+          {
+            "kicker": "Hello",
+            "title": "I'm Hugo.",
+            "body": "Born in My Tho, now in my final year of Software Engineering at Greenwich Vietnam. I study by day. By night I build whatever I just learned."
+          },
+          {
+            "kicker": "The start",
+            "title": "One line of code. Then I could not stop.",
+            "body": "I started out curious about how a button works. Then how a whole page works. Then what happens when real people use it and everything breaks at two in the morning."
+          },
+          {
+            "kicker": "Today",
+            "title": "I built a whole system. On my own.",
+            "body": "Hugo Studio is 22 apps sharing one account, one points wallet and one data layer, running on web, PWA and iOS from a single codebase. Interface, server, database, deployment — I do all of it, and I am also the one on call when it breaks."
+          },
+          {
+            "kicker": "What I learned",
+            "title": "Software is only real once someone uses it.",
+            "body": "Classroom projects always work, because the brief clears the road first. Real users lose signal halfway, tap a button twice, and open the app on a phone from 2019. That is where I actually learned the job."
+          }
+        ]
+      },
+      "highlights": {
+        "title": "The highlights.",
+        "items": [
+          {
+            "label": "Right now",
+            "lines": [
+              "Final year, Software Engineering.",
+              "Greenwich Vietnam."
+            ]
+          },
+          {
+            "label": "Role",
+            "lines": [
+              "Design, frontend, backend, infrastructure.",
+              "One person, end to end."
+            ]
+          },
+          {
+            "label": "In production",
+            "lines": [
+              "22 apps, 3 languages.",
+              "Web, PWA and iOS."
+            ]
+          },
+          {
+            "label": "Looking for",
+            "lines": [
+              "An internship where I learn faster.",
+              "And a team, so I stop building alone."
+            ]
+          }
+        ]
+      },
+      "craft": {
+        "kicker": "How I work",
+        "title": "Working first. Beautiful second.",
+        "body": "I start from the user flow and the error states, then move to color and motion. Every screen has to read at 400px wide, be reachable with one thumb and open on a weak connection. Any animation that explains nothing gets cut. And every screen has a fallback for the moment the server does not answer."
+      },
+      "stats": {
+        "items": [
+          {
+            "value": "22",
+            "label": "apps I built and keep running"
+          },
+          {
+            "value": "3",
+            "label": "interface languages, translated string by string"
+          },
+          {
+            "value": "6",
+            "label": "original games, written without an engine"
+          }
+        ],
+        "note": "Counted directly in the Hugo Studio source in September 2026: the app registry, the locale directories and the game files. The system ships continuously, so these numbers change with each release; actual figures will vary over time."
+      },
+      "skills": {
+        "kicker": "Skills",
+        "title": "Deep enough to fix it myself.",
+        "frontend": {
+          "title": "Interface.",
+          "stack": "React · Vite · Tailwind · Zustand · Framer Motion",
+          "desc": "I build responsive interfaces, split the code per screen and keep it smooth on weak phones. So nobody waits on a large download to see a small page."
+        },
+        "backend": {
+          "title": "Server.",
+          "stack": "Node.js · Express · WebSocket · REST · JWT",
+          "desc": "I write the APIs, the permission layer on signed sessions, and the realtime layer behind the wallet and the chessboard. So one person's data stays out of another person's reach."
+        },
+        "data": {
+          "title": "Data.",
+          "stack": "MongoDB · Mongoose · Redis · MySQL",
+          "desc": "I design the schemas, add the indexes and reread the queries when a page starts to drag. So a free tier still carries real traffic."
+        },
+        "ship": {
+          "title": "Shipping.",
+          "stack": "Vercel · Render · Cloudflare · PWA · Capacitor",
+          "desc": "I handle deployment, domains, edge caching and the iOS packaging. No more maintaining three separate builds for three platforms."
+        }
+      },
+      "education": {
+        "kicker": "Education",
+        "title": "Taught at school. Built at home.",
+        "body": "Greenwich Vietnam gave me the Software Engineering foundation. The rest came from building a real system by hand and patching it every time someone reported a bug. I learn fastest when the knowledge has to run on somebody else's machine.",
+        "partnerLabel": "Built alongside",
+        "partnerRole": "Co-development partner",
+        "highSchool": {
+          "label": "High school",
+          "name": "Nguyen Dinh Chieu High School",
+          "detail": "My Tho · Founded 1879",
+          "logoAlt": "Nguyen Dinh Chieu High School My Tho logo",
+          "period": "09/2020 – 06/2023",
+          "year": "2020"
+        },
+        "university": {
+          "label": "University",
+          "name": "University of Greenwich",
+          "detail": "Software Engineering · Final year",
+          "logoAlt": "Greenwich Vietnam and FPT Education logo",
+          "period": "08/2023 – Present",
+          "year": "2023"
+        },
+        "now": "Now"
+      },
+      "marquee": "Technologies I have studied",
+      "offhours": {
+        "kicker": "Off the clock",
+        "title": "I do leave the keyboard.",
+        "body": "I drew these seven chibis myself, as stickers for the system. They are the only place on this page allowed to be loud — the rest I keep quiet.",
+        "alt": "Hugo chibi number {{n}}"
+      },
+      "wall": {
+        "kicker": "The evidence",
+        "title": "Swipe through what I built.",
+        "desc": "Each app solves its own problem, yet they share one account, one points wallet and one data layer. All of it is live, not a mockup.",
+        "cta": "See the project",
+        "ariaWall": "Product wall, swipe horizontally",
+        "ariaPrev": "Previous product",
+        "ariaNext": "Next product",
+        "portal": {
+          "kind": "Platform · PWA",
+          "title": "Hugo Portal.",
+          "desc": "One home screen that brings 22 apps, the points wallet and notifications together.",
+          "role": "I built the shared app shell, the navigation and the data layer that survives a dropped connection."
+        },
+        "bio": {
+          "kind": "Digital profile · Web",
+          "title": "Hugo Bio .edu.",
+          "desc": "A page of your own for a profile, projects and links, at a URL named after you.",
+          "role": "I built the editor, the responsive layout and the .edu email verification flow."
+        },
+        "joy": {
+          "kind": "Infrastructure · Wallet",
+          "title": "JOY.",
+          "desc": "An internal points wallet connecting activity, achievements and rewards across the apps.",
+          "role": "I built the balance ledger, the transaction history and server-signed QR codes that block forged data."
+        },
+        "arcade": {
+          "kind": "Games · Canvas",
+          "title": "Hugo Arcade.",
+          "desc": "Six original games that run straight in the browser, with nothing to install.",
+          "role": "I built the real-time game loop, the touch controls and the chess engine."
+        },
+        "psy": {
+          "kind": "Mental health",
+          "title": "HugoPSY.",
+          "desc": "A mood journal and a supportive chat, with crisis hotlines on every screen.",
+          "role": "I encrypt chat content before it is stored and keep a reply layer that runs entirely on the device."
+        }
+      },
+      "values": {
+        "kicker": "What I hold to",
+        "title": "My approach.",
+        "body": "A user's data is something I am lent, not something I own. That is why every screen in the system asks only for the information the feature genuinely needs, and why the first question on any new feature is how little it can know about a person and still work.",
+        "c1": "Identity is read from a session the server has verified – never from a parameter the browser sends up.",
+        "c2": "Private chat content is encrypted before it reaches the database – I cannot read it either.",
+        "c3": "Diagnostics carry the path, the timestamp and the error code – never anything a user typed."
+      },
+      "commitments": {
+        "kicker": "Three commitments",
+        "title": "You bring the goal. I hold to three things.",
+        "previous": "View the previous commitment",
+        "next": "View the next commitment",
+        "p1": {
+          "title": "Understand before building.",
+          "desc": "I clarify the goal, the audience and the scope before writing code. Every decision has to serve the problem you actually want solved."
+        },
+        "p2": {
+          "title": "Beauty has to work.",
+          "desc": "The interface must stay clear on phones, load quickly and work with keyboard or touch. Motion stays only when it helps someone understand the story."
+        },
+        "p3": {
+          "title": "Hand over real ownership.",
+          "desc": "The product is deployed, explained and organised so you can keep running it. Small updates should never become a reason for you to depend on me."
+        }
+      },
+      "donate": {
+        "prompt": "Servers run on electricity. Electricity runs on coffee.",
+        "cta": "Support Hugo Studio"
+      },
+      "contact": {
+        "kicker": "Contact",
+        "title": "Tell me about it.",
+        "body": "A project, an internship, or simply a hello. I read my messages every day and usually reply within 24 hours.",
+        "zalo": "Zalo",
+        "email": "Email",
+        "fb": "Facebook",
+        "tiktok": "TikTok",
+        "learnMore": "Learn more about Hugo Studio services"
+      },
+      "supporters": {
+        "title": "The people supporting Hugo Studio",
+        "empty": "This space is waiting for your name."
+      },
+      "footnote": "Interface artwork on this page is vector graphics redrawn from the real products, not screenshots. School names, partner names and contact links are real. Apps in the member area require sign-in, and some open only in the PWA installed on a phone.",
+      "reel": {
+        "spiralKicker": "The start",
+        "spiralTitle": "It all starts with one drop.",
+        "worksKicker": "Shipped",
+        "worksTitle": "Three things that left my machine.",
+        "logoTitle": "Hugo Studio",
+        "logoTagline": "One person. The whole system."
+      },
+      "works": {
+        "minhoi": {
+          "kind": "Client · Website",
+          "title": "Minh Oi Media",
+          "alt": "Screenshot of the Minh Oi Media wedding films homepage"
+        },
+        "hwj": {
+          "kind": "Product · Demo",
+          "title": "HWJ",
+          "alt": "Screenshot of the HWJ demo site"
+        },
+        "more": {
+          "kind": "More",
+          "title": "See every project",
+          "alt": ""
+        }
+      }
+    },
+    "film": {
+      "label": "Hugo Studio · How I work",
+      "heading": "What I actually deliver.",
+      "pagesCaption": "A website with many pages.",
+      "pagesNav": "Home · About · Services · Contact",
+      "landingCaption": "One page.\nOne job.",
+      "landingCta": "Get in touch",
+      "finale": [
+        "Accelerate.",
+        "SEO."
+      ],
+      "chapters": [
+        {
+          "eyebrow": "01",
+          "title": "Multi-page website.",
+          "desc": "For when you have several things to say: about, services, work, contact. One page per job, one shared interface, and content you can edit without calling me."
+        },
+        {
+          "eyebrow": "02",
+          "title": "Landing page.",
+          "desc": "For when only one thing needs to happen: a number left behind, a booking, a purchase. One page, one invitation, nowhere to get lost."
+        },
+        {
+          "eyebrow": "03",
+          "title": "SEO.",
+          "desc": "A light page, structured data, titles and descriptions written for readers first. So the people typing what they need find you, not your competitor."
+        }
+      ],
+      "progress": [
+        "Many pages",
+        "Landing page",
+        "SEO"
+      ],
+      "cta": "See pricing",
+      "gaugeUnit": "performance score"
+    },
+    "story": {
+      "hero": {
+        "line1": "First pixel.",
+        "line2": "Last line of code.",
+        "line3": "Same pair of hands.",
+        "lede": "I'm {{name}}, a freelance web developer. From a brochure site to a full application system, I design it, build it and ship it. And every project here has a live demo you can open right now.",
+        "ctaStart": "Start a project",
+        "ctaCv": "View CV",
+        "ctaCvAria": "View {{name}}'s CV"
+      },
+      "work": {
+        "label": "Projects",
+        "heading": "From scratch. To the finish.",
+        "subtitle": "Three projects running for real, with real users. Open one and it works — no sign-up.",
+        "viewAll": "See all projects"
+      },
+      "services": {
+        "label": "Services",
+        "heading": "Three ways to go further.",
+        "chapter1": {
+          "eyebrow": "01 · Multi-page website",
+          "title": "One website. Everything you want to say.",
+          "description": "About, services, work and contact. Each page has one job. All of them keep the same beat."
+        },
+        "chapter2": {
+          "eyebrow": "02 · Landing page",
+          "title": "One page. All it takes.",
+          "description": "Message, image and call to action land exactly where they should. Views become customers."
+        },
+        "chapter3": {
+          "eyebrow": "03 · Performance & SEO",
+          "title": "From 0 to 100. Then further.",
+          "description": "Lighter pages. Cleaner structure. Google can read it, and people can find it."
+        },
+        "progress1": "Multi-page",
+        "progress2": "Landing page",
+        "progress3": "SEO boost",
+        "speedUnit": "performance score",
+        "mergeLabel": "Launch the campaign",
+        "seoBurst1": "Speed",
+        "seoBurst2": "SEO",
+        "cta": "More about the services"
+      },
+      "profile": {
+        "kicker": "Profile",
+        "heading": "Learned at school.\nSharpened on real work.",
+        "summary": "I like building things people open every day. Interface, API, database — three layers, one person. And once something is live, keeping it running is my job too.",
+        "educationHeading": "Education",
+        "school1": {
+          "school": "Nguyen Dinh Chieu High School",
+          "period": "09/2020 – 06/2023",
+          "degree": "High school diploma",
+          "description": "My foundation was shaped at a school whose history dates to 1879, formerly Collège de Mytho. More than a century of commitment to learning in My Tho provided the setting in which I developed discipline, a habit of working through difficult problems and a collaborative approach."
+        },
+        "school2": {
+          "school": "Greenwich Vietnam",
+          "period": "08/2023 – Present",
+          "degree": "BSc Computing · In progress",
+          "description": "Studying through the partnership between the University of Greenwich, UK, and FPT University. I apply that academic foundation to software engineering, system design, and web and mobile development — carrying ideas from the classroom into products that people use."
+        },
+        "milestoneNow": "Now",
+        "techHeading": "The stack I use",
+        "techNote": "Every one of these has run in a real project.",
+        "catFrontend": "Frontend",
+        "catBackend": "Backend",
+        "catDatabase": "Data",
+        "catDevops": "Operations",
+        "promiseLabel": "Commitments",
+        "promiseHeading": "Peace of mind, from mockup\nto handover.",
+        "promise1": {
+          "title": "Free consultation.",
+          "desc": "Message me first and we pin the scope down properly. Nothing spent yet, and you already know what you're getting."
+        },
+        "promise2": {
+          "title": "See the mockup before you decide.",
+          "desc": "You approve the design first, then we go on — nothing bought sight unseen."
+        },
+        "promise3": {
+          "title": "Bugs fixed for life.",
+          "desc": "Anything that comes from code I wrote, I fix free. No time limit."
+        },
+        "cvLabel": "View the full CV"
+      },
+      "contact": {
+        "heading1": "Got an idea?",
+        "heading2": "One message starts it.",
+        "desc": "Leave a message. I reply within 24 hours.",
+        "emailLabel": "Email directly",
+        "nameLabel": "Full name",
+        "namePlaceholder": "Jane Doe",
+        "emailFieldLabel": "Your email",
+        "emailPlaceholder": "email@example.com",
+        "messageLabel": "Message",
+        "messagePlaceholder": "What you need, your current site (if any), the deadline you have in mind...",
+        "submit": "Send message",
+        "mailSubject": "Enquiry from {{name}}"
+      }
+    },
+    "spell": {
+      "line": "Hello. Say {{a}}, {{b}} or {{c}} — say it, see it.",
+      "listening": "Listening.",
+      "spells": [
+        {
+          "say": "Drop hearts",
+          "keys": "drop hearts, hearts, heart, love",
+          "kind": "heart"
+        },
+        {
+          "say": "Fireworks",
+          "keys": "fireworks, firework, sparks, boom",
+          "kind": "spark"
+        },
+        {
+          "say": "Rain drops",
+          "keys": "rain drops, raindrops, droplets, rain",
+          "kind": "drop"
+        }
+      ]
     }
   },
   "servicesPage": {
     "meta": {
-      "title": "Website Consulting For Students, Individuals And Small Shops | Hugo Studio",
+      "title": "Website Consulting For Students & Small Shops | Hugo Studio",
       "description": "Tell Hugo what you need before choosing a solution. Direct 1-to-1 consulting for students, individuals and small shops, with scope and cost agreed before work begins.",
       "keywords": "student website, student portfolio, personal website, small business website, website consultation, Hugo Studio"
     },
@@ -1197,7 +1613,7 @@
     },
     "meta": {
       "title": "Frequently Asked Questions About Hugo Studio",
-      "description": "Answers about website design services, Bio pages for learners, pricing, delivery time and how Hugo Studio works alongside each project.",
+      "description": "Answers about website design services, Bio pages for students, cost, timelines, and how Hugo Studio works alongside each project.",
       "keywords": "Hugo Studio questions, website design service, student Bio page, website cost"
     }
   },
@@ -1247,9 +1663,13 @@
         "title": "What may I help with?",
         "hint": "Choose the nearest fit; nothing is settled yet."
       },
+      "warranty": {
+        "title": "Support and Warranty",
+        "hint": "Determine the level of post-launch assistance."
+      },
       "budget": {
-        "title": "Indicative investment",
-        "hint": "A rough figure lets me recommend a proportionate scope."
+        "title": "How much are you planning to invest?",
+        "hint": "This number commits you to nothing. It only helps me set the order — what is worth doing first, and what can wait."
       },
       "timeline": {
         "title": "When do you need it?",
@@ -1290,19 +1710,39 @@
         "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
       }
     },
+    "warranties": {
+      "noSupport": {
+        "title": "Self-managed (No Support)",
+        "desc": "Source code delivery only. Suitable if you have an in-house IT team."
+      },
+      "standard": {
+        "title": "Standard (3 Months)",
+        "desc": "Covers technical bugs. Excludes new features."
+      },
+      "extended": {
+        "title": "Extended (1 Year)",
+        "desc": "Includes server issue resolution and up to 2 minor updates."
+      },
+      "comprehensive": {
+        "title": "Comprehensive (Monthly)",
+        "desc": "Ongoing maintenance, security updates, backups, and continuous support."
+      }
+    },
     "sections": {
       "project": "What would you like help with?",
       "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
-      "budget": "Indicative investment",
-      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
+      "warranty": "Support & Warranty Policy",
+      "warrantyHint": "Can be adjusted later once the scope is finalized.",
+      "budget": "Planned investment",
+      "budgetHint": "Pick the nearest range. You can change it at any time.",
       "timeline": "Preferred timeframe",
       "notes": "A little more context (optional)",
       "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
       "timelineHint": "Choose whichever is closest to your expectation."
     },
     "budgets": {
-      "unsure": "Not determined",
-      "underOne": "Below VND 1m",
+      "unsure": "Let me suggest",
+      "underOne": "Under VND 1m",
       "oneToThree": "VND 1–3m",
       "threeToEight": "VND 3–8m",
       "overEight": "Above VND 8m"
@@ -1350,6 +1790,7 @@
     "summary": {
       "title": "Enquiry summary",
       "project": "Requirement",
+      "warranty": "Warranty",
       "budget": "Investment",
       "timeline": "Timeframe",
       "notes": "Notes",
@@ -2309,11 +2750,94 @@
       "adminChangeDescription": "To request a change, please contact a Hugo Studio administrator."
     },
     "settings": {
-      "customizeThemeDesc": "Customize portal interface theme",
-      "appNotifications": "App Notifications",
-      "appNotificationsDesc": "Receive system activity alerts and updates",
-      "enableNotifications": "Enable Notifications",
-      "biometricNotSupported": "Biometric login is not supported on this device"
+      "title": "Settings",
+      "desc": "Your notifications, quick login, and a few other things, all in one place.",
+      "account": {
+        "summary": "Account information, payments, and settings",
+        "bioTitle": "Hugo Bio profile",
+        "bioDescription": "Customize your appearance, card, and social links",
+        "publicIdentityNote": "Your profile name and image appear publicly across the Hugo Studio network.",
+        "notifications": "Notifications",
+        "notificationsDescription": "Configure Web Push notifications",
+        "privacy": "Privacy and access",
+        "privacyDescription": "Privacy and biometric sign-in",
+        "topUpJoy": "Add JOY",
+        "redeemCode": "Redeem code",
+        "giftJoy": "Gift JOY",
+        "language": "Language",
+        "publicBio": "Public Bio page",
+        "publicBioDescription": "Open your public Bio page",
+        "signOut": "Sign out",
+        "personalInformation": "Personal information",
+        "saveInformation": "Save information",
+        "notificationSettings": "Notification settings",
+        "pushDescription": "Get updates about events, messages, and rewards",
+        "done": "Done",
+        "privacyBiometrics": "Privacy and biometrics",
+        "biometricUnsupported": "This device doesn't support Face ID or WebAuthn.",
+        "chooseLanguage": "Choose language"
+      },
+      "groupNotifications": "Notifications",
+      "groupLogin": "Login",
+      "groupPreferences": "More stuff",
+      "pushTitle": "Push notifications",
+      "pushDesc": "Get a little ping about JOY, your packages, and other cool updates — even when the app is closed.",
+      "pushProcessing": "Just a sec...",
+      "pushOn": "On",
+      "pushOff": "Off",
+      "pushUnsupported": "Your browser can't do push notifications yet.",
+      "pushEnabledToast": "Notifications are on now!",
+      "pushDisabledToast": "Notifications are off now.",
+      "pushDeniedToast": "Notifications got blocked. You can turn them back on in your browser settings.",
+      "pushErrorToast": "Oops, that didn't work. Try again?",
+      "soundTitle": "Notification sound",
+      "soundDesc": "Make a little sound when something new comes in — even when your phone is locked.",
+      "soundOn": "On",
+      "soundOff": "Off",
+      "languageTitle": "App language",
+      "languageDesc": "Pick the language you want to see — we'll remember it next time!",
+      "groupWidgets": "Floating buttons",
+      "hbotTitle": "Culi the helper",
+      "hbotDesc": "Show the little floating Culi helper button. Turn it off if it's blocking something.",
+      "donationTitle": "Coffee button",
+      "donationDesc": "Show the little floating button for sending the Hugo Studio team a coffee.",
+      "comingSoonTitle": "Coming soon",
+      "comingSoonDesc": "More fun stuff (like themes and privacy) is on its way!",
+      "logout": "Log out",
+      "page": {
+        "profileSettings": "Profile settings",
+        "showBio": "Show Bio page",
+        "openBioPublic": "Open public Bio page",
+        "systemSettings": "System settings",
+        "appearance": "Appearance & Theme",
+        "linkCards": "Link cards",
+        "projectsWorks": "Projects & Works",
+        "prefsNotifs": "Preferences & notifications",
+        "quickLogin": "Quick login",
+        "smartPrefs": "Smart preferences",
+        "language": "Language",
+        "changeAvatar": "Change avatar",
+        "pushStatusOn": "Push notifications on",
+        "pushStatusPrompt": "Get important alerts",
+        "save": "Save changes",
+        "saving": "Saving...",
+        "weatherBgTitle": "Live weather background",
+        "weatherBgDesc": "Lively by day & in storms, auto-off on clear nights to save battery.",
+        "weatherAlertTitle": "Severe weather alerts",
+        "weatherAlertDesc": "Reminds you to prepare when weather turns bad — auto-on once Location & Notifications are granted.",
+        "soundDescShort": "Auto-mute late night (22:00–07:00), back on by day.",
+        "donationDescShort": "Tucked away so it won't bother you; enable when you want to support Hugo."
+      },
+      "biometric": {
+        "title": "Fingerprint or Face login",
+        "desc": "Use your fingerprint or face instead of logging in with Google every time.",
+        "removeBtn": "Remove",
+        "registerBtn": "+ Turn this on",
+        "registering": "Just a sec...",
+        "registerSuccess": "Nice! Fingerprint or Face login is on for this device!",
+        "registerError": "Oops, that didn't work. Try again?",
+        "deviceComputer": "Computer"
+      }
     },
     "account": {
       "appleAccount": "Hugo Account",
@@ -3267,96 +3791,6 @@
       "reopensMonday": "Reopens Monday",
       "alreadyClaimedToday": "Checked in today",
       "claimToday": "Check in · +{{amount, joy}}"
-    },
-    "settings": {
-      "title": "Settings",
-      "desc": "Your notifications, quick login, and a few other things, all in one place.",
-      "account": {
-        "summary": "Account information, payments, and settings",
-        "bioTitle": "Hugo Bio profile",
-        "bioDescription": "Customize your appearance, card, and social links",
-        "publicIdentityNote": "Your profile name and image appear publicly across the Hugo Studio network.",
-        "notifications": "Notifications",
-        "notificationsDescription": "Configure Web Push notifications",
-        "privacy": "Privacy and access",
-        "privacyDescription": "Privacy and biometric sign-in",
-        "topUpJoy": "Add JOY",
-        "redeemCode": "Redeem code",
-        "giftJoy": "Gift JOY",
-        "language": "Language",
-        "publicBio": "Public Bio page",
-        "publicBioDescription": "Open your public Bio page",
-        "signOut": "Sign out",
-        "personalInformation": "Personal information",
-        "saveInformation": "Save information",
-        "notificationSettings": "Notification settings",
-        "pushDescription": "Get updates about events, messages, and rewards",
-        "done": "Done",
-        "privacyBiometrics": "Privacy and biometrics",
-        "biometricUnsupported": "This device doesn't support Face ID or WebAuthn.",
-        "chooseLanguage": "Choose language"
-      },
-      "groupNotifications": "Notifications",
-      "groupLogin": "Login",
-      "groupPreferences": "More stuff",
-      "pushTitle": "Push notifications",
-      "pushDesc": "Get a little ping about JOY, your packages, and other cool updates — even when the app is closed.",
-      "pushProcessing": "Just a sec...",
-      "pushOn": "On",
-      "pushOff": "Off",
-      "pushUnsupported": "Your browser can't do push notifications yet.",
-      "pushEnabledToast": "Notifications are on now!",
-      "pushDisabledToast": "Notifications are off now.",
-      "pushDeniedToast": "Notifications got blocked. You can turn them back on in your browser settings.",
-      "pushErrorToast": "Oops, that didn't work. Try again?",
-      "soundTitle": "Notification sound",
-      "soundDesc": "Make a little sound when something new comes in — even when your phone is locked.",
-      "soundOn": "On",
-      "soundOff": "Off",
-      "languageTitle": "App language",
-      "languageDesc": "Pick the language you want to see — we'll remember it next time!",
-      "groupWidgets": "Floating buttons",
-      "hbotTitle": "Culi the helper",
-      "hbotDesc": "Show the little floating Culi helper button. Turn it off if it's blocking something.",
-      "donationTitle": "Coffee button",
-      "donationDesc": "Show the little floating button for sending the Hugo Studio team a coffee.",
-      "comingSoonTitle": "Coming soon",
-      "comingSoonDesc": "More fun stuff (like themes and privacy) is on its way!",
-      "logout": "Log out",
-      "page": {
-        "profileSettings": "Profile settings",
-        "showBio": "Show Bio page",
-        "openBioPublic": "Open public Bio page",
-        "systemSettings": "System settings",
-        "appearance": "Appearance & Theme",
-        "linkCards": "Link cards",
-        "projectsWorks": "Projects & Works",
-        "prefsNotifs": "Preferences & notifications",
-        "quickLogin": "Quick login",
-        "smartPrefs": "Smart preferences",
-        "language": "Language",
-        "changeAvatar": "Change avatar",
-        "pushStatusOn": "Push notifications on",
-        "pushStatusPrompt": "Get important alerts",
-        "save": "Save changes",
-        "saving": "Saving...",
-        "weatherBgTitle": "Live weather background",
-        "weatherBgDesc": "Lively by day & in storms, auto-off on clear nights to save battery.",
-        "weatherAlertTitle": "Severe weather alerts",
-        "weatherAlertDesc": "Reminds you to prepare when weather turns bad — auto-on once Location & Notifications are granted.",
-        "soundDescShort": "Auto-mute late night (22:00–07:00), back on by day.",
-        "donationDescShort": "Tucked away so it won't bother you; enable when you want to support Hugo."
-      },
-      "biometric": {
-        "title": "Fingerprint or Face login",
-        "desc": "Use your fingerprint or face instead of logging in with Google every time.",
-        "removeBtn": "Remove",
-        "registerBtn": "+ Turn this on",
-        "registering": "Just a sec...",
-        "registerSuccess": "Nice! Fingerprint or Face login is on for this device!",
-        "registerError": "Oops, that didn't work. Try again?",
-        "deviceComputer": "Computer"
-      }
     },
     "versionAd": {
       "eyebrow": "Version 2.0 · Just launched",
@@ -6442,8 +6876,8 @@
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
+    "metaTitle": "Hugo Edu+ — A free Bio page for students | Hugo Studio",
+    "metaDesc": "Verify a school email and get your own Bio page, free for 365 days. Three ready themes you can switch any time, plus a student rate if you need a full website package.",
     "backToServices": "Back to Services",
     "giftSpark": "12 Months of Spark — On the House!",
     "title": "Your Dream Bio Link",
@@ -7163,5 +7597,935 @@
       "again": "Scan again",
       "cameraError": "Could not open the camera. Check its permission."
     }
+  },
+  "servicePkg": {
+    "connect": {
+      "name": "Connection package",
+      "price": "350,000 – 900,000₫ · one-off",
+      "body": "Pointing your domain, installing the security certificate, publishing the site to your hosting, connecting the database and the inbox that receives form submissions. Required if you want Hugo Studio to handle this part."
+    },
+    "handCoded": {
+      "title": "Hand-written code. All of it.",
+      "body": "Every line of the interface is written for your project, never assembled from a purchased theme or a drag-and-drop builder. The page loads only what it needs, and it does not depend on somebody else's plugin release schedule."
+    },
+    "excludes": [
+      {
+        "title": "Domain name.",
+        "body": "You buy it and you own it. Hugo Studio advises on the name and walks you through the purchase, but does not sell domains or register one in its own name."
+      },
+      {
+        "title": "Hosting and database.",
+        "body": "Hosting, VPS and database are bought and owned by you. Hugo Studio neither provides nor resells infrastructure."
+      },
+      {
+        "title": "Connecting the infrastructure.",
+        "body": "Setup and connection belong to the Connection package (350,000 – 900,000₫), billed separately from the design fee."
+      },
+      {
+        "title": "Pre-built platforms.",
+        "body": "Hugo Studio takes on custom-coded projects only, not builds or maintenance on pre-built platforms. If that is what you need, you will hear it in the first conversation instead of halfway through."
+      },
+      {
+        "title": "Source material.",
+        "body": "Copy, product photography, logo and brand files come from you. Tell us early if you need writing or photography, so it can be quoted."
+      },
+      {
+        "title": "Third-party costs.",
+        "body": "Ad spend, licensed fonts, paid stock imagery, payment gateways, bulk email services — paid by you, directly to the provider."
+      }
+    ],
+    "policy": [
+      {
+        "title": "50% deposit.",
+        "body": "Paid before work starts. The balance is due on acceptance, before the live handover."
+      },
+      {
+        "title": "Two rounds of revisions.",
+        "body": "Two rounds of layout and copy changes are included. From the third round on, or when the direction changes after sign-off, the extra work is quoted first."
+      },
+      {
+        "title": "The work is yours.",
+        "body": "Once paid in full, the design, copy and source code of the project belong to you. The libraries, framework and internal tooling Hugo Studio reuses across projects remain Hugo Studio's, licensed to you in perpetuity within this project. Hugo Studio keeps only the right to show the project in its portfolio, unless you ask otherwise."
+      },
+      {
+        "title": "Stopping midway.",
+        "body": "If you stop the project, the work completed is handed over as it stands and the deposit is not refunded. If the stop is Hugo Studio's fault, or Hugo Studio stops, everything not yet delivered is refunded in full."
+      }
+    ],
+    "priceNotice": {
+      "updated": "Updated 09/2026",
+      "lines": [
+        "All figures are in Vietnamese dong (VND) and are indicative ranges — not a fixed price list and not a binding offer.",
+        "The final price is stated in the quote and the contract for each project, once both sides agree on the scope of work.",
+        "Excludes the domain name, hosting, database, the Connection package and any amount paid to a third-party provider.",
+        "Ranges may change over time and with the actual workload. A figure signed into a contract does not change."
+      ]
+    },
+    "extraFees": [
+      {
+        "title": "Extra page",
+        "price": "450,000 – 900,000₫ / page",
+        "body": "Applies when the page count goes beyond the agreed list. The closer a page is to one that already exists, the closer it sits to the lower figure."
+      },
+      {
+        "title": "Third revision round onward",
+        "price": "250,000 – 600,000₫ / round",
+        "body": "The first two rounds are included. Later rounds are priced on the actual work and quoted before anything starts."
+      },
+      {
+        "title": "Rush delivery",
+        "price": "+25% of the package",
+        "body": "When you need the timeline compressed below the range stated in the package policy."
+      },
+      {
+        "title": "Maintenance after warranty",
+        "price": "350,000₫ / month",
+        "body": "Routine checks and small updates, up to two hours a month. Anything beyond that is 200,000₫ per hour."
+      }
+    ],
+    "studentDiscount": {
+      "title": "Students booking a paid package: 15% off",
+      "body": "With your student status verified, Hugo One, Hugo Story and Hugo Flow+ are 15% off the design fee. It applies to personal projects, coursework or club work, one project per person per academic year, and never to amounts paid to third-party providers."
+    },
+    "items": {
+      "hugo-one": {
+        "title": "One page. One purpose.",
+        "lede": "A static page that loads fast, reads in one pass and ends on a single action. For when you have one thing to say, and you want it said clearly.",
+        "intro": [
+          "A landing page is not a small website. It is one act of persuasion. Someone arrives, understands what you sell, believes you can deliver, and clicks. Anything that does not serve that sequence comes out.",
+          "With only one page, reading order is everything. The main message sits in the first screen. Proof arrives exactly when the visitor starts weighing it up. The action button is always where the thumb already is."
+        ],
+        "audience": [
+          "An ad campaign that needs somewhere to send its traffic.",
+          "A personal profile, portfolio or online CV that deserves its own link.",
+          "A single service, course or event that needs a compact launch.",
+          "Testing an idea before committing to a full website."
+        ],
+        "includes": [
+          {
+            "title": "A one-page design, made for you.",
+            "body": "No reused template. Layout, typeface and colour follow your brand."
+          },
+          {
+            "title": "Copy and call to action.",
+            "body": "The words you supply, arranged and lightly edited into a single reading line. One main action, repeated where it belongs."
+          },
+          {
+            "title": "Right on every screen.",
+            "body": "Tested on real phones, tablets and large displays — not by dragging a browser window narrower."
+          },
+          {
+            "title": "Contact form.",
+            "body": "The form itself and basic spam protection are included. Delivering submissions to your inbox needs the Connection package and a mail service account."
+          },
+          {
+            "title": "Foundational SEO.",
+            "body": "Title, description, social sharing image, sitemap and correct tag structure so Google can read the page."
+          },
+          {
+            "title": "Source code handover.",
+            "body": "All the source code and the instructions to run it again, so you or anyone else can take over."
+          },
+          {
+            "title": "Deployment.",
+            "body": "A live build on Hugo Studio's preview environment, with every flow checked before handover. Publishing it to your own domain and hosting needs the Connection package."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "30 days of free bug fixes.",
+            "body": "Display bugs, form bugs, code bugs — fixed at no charge from the day of handover."
+          },
+          {
+            "title": "7 days of small content edits.",
+            "body": "Change a line, swap an image, update a phone number. Changing the layout counts as a new revision round."
+          },
+          {
+            "title": "A reply within 24 working hours.",
+            "body": "Through the channel agreed at the start of the project. Anything that takes the site offline is handled first."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "5 – 10 days to build.",
+            "body": "Counted from the moment all copy and images arrive. Missing content stops the clock."
+          }
+        ],
+        "price": {
+          "from": "1,500,000₫",
+          "to": "3,500,000₫",
+          "note": "Most projects land between 2 and 2.8 million. The lower figure is for a five to six block page with content you have already prepared.",
+          "factors": [
+            "How many content blocks the page has — six and fourteen are two different jobs.",
+            "Whether the copy is ready or needs editing and rewriting.",
+            "How much motion and effect the page carries.",
+            "Extra integrations: maps, chat, booking, ad tracking.",
+            "A deadline shorter than five days."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Is Hugo One a good fit for running ads?",
+            "answer": "Yes. It suits a single product, service or campaign where you want traffic to land on a page with one clear action."
+          },
+          {
+            "question": "I already have the copy. Will you rework it?",
+            "answer": "Yes. What you supply is arranged and lightly edited into one reading line. Writing entirely new sales copy is quoted separately if you need it."
+          },
+          {
+            "question": "Does the contact form cost extra?",
+            "answer": "The form interface is part of Hugo One. For submissions to reach your inbox or another system, you need the Connection package and an account with the matching service."
+          },
+          {
+            "question": "Can I edit the page myself after handover?",
+            "answer": "You receive the source code, so you or someone else can take it over. Hugo One does not include a CMS, so content is updated in the code."
+          }
+        ],
+        "features": [
+          "A one-page design of your own",
+          "Right on every screen",
+          "Copy & call to action",
+          "Contact form",
+          "Foundational SEO",
+          "Deployment"
+        ]
+      },
+      "hugo-story": {
+        "title": "Several pages. One story.",
+        "lede": "A multi-page site for individuals, small venues and small businesses. Each page holds one role, and all of them lead to the same decision.",
+        "intro": [
+          "Pile everything onto one page and none of it gets read. Hugo Story separates it: who reads what, where, and where they go next.",
+          "The hard part is not the page count. It is the path between pages. Menus, in-text links and end-of-page buttons are arranged so there is always a next step, instead of a trip back to the home page and out."
+        ],
+        "audience": [
+          "A small business that needs room to present its services and its track record.",
+          "Restaurants, cafés, clinics and studios that need a menu, prices, photos and a map.",
+          "Freelancers with several service lines and a body of work to show.",
+          "Anyone using Facebook as a storefront who wants an address of their own."
+        ],
+        "includes": [
+          {
+            "title": "A page structure built to fit.",
+            "body": "Usually four to eight pages: about, services, work, news, contact. The list is agreed before design starts."
+          },
+          {
+            "title": "Content structure and navigation.",
+            "body": "Menus, readable URLs, internal links and an action at the end of every page."
+          },
+          {
+            "title": "Forms, maps and social links.",
+            "body": "A contact form that reaches your inbox, a map with directions, and links to the channels you already run."
+          },
+          {
+            "title": "SEO for every page.",
+            "body": "Each page gets its own title, description and sharing image. Sitemap and structured data for the whole site."
+          },
+          {
+            "title": "Right on every screen.",
+            "body": "Tested on real phones and computers, tables and multi-column images included."
+          },
+          {
+            "title": "Source code handover.",
+            "body": "All the source code and the instructions to run it again, so you or anyone else can take over."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "45 days of free bug fixes.",
+            "body": "Anything Hugo Studio built, from the day of handover."
+          },
+          {
+            "title": "14 days of small content edits.",
+            "body": "Change a line, swap an image, update opening hours on the pages delivered."
+          },
+          {
+            "title": "A walkthrough on updating it yourself.",
+            "body": "Online, screen recorded, so you can watch it again when you need to."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "2 – 4 weeks to build.",
+            "body": "Counted from the moment the page list is agreed and all content has arrived."
+          },
+          {
+            "title": "The page count is agreed first.",
+            "body": "Pages added after that are charged at the per-page rate, agreed before the work begins."
+          }
+        ],
+        "price": {
+          "from": "4,000,000₫",
+          "to": "8,000,000₫",
+          "note": "Most projects land between 5 and 6.5 million for five to six pages. Extra pages are charged at the rate below.",
+          "factors": [
+            "How many pages, and how involved each one is.",
+            "Whether you need a news or blog section you can post to yourself.",
+            "How ready the copy and the images are.",
+            "Multiple languages.",
+            "Migrating content from an existing website."
+          ]
+        },
+        "faq": [
+          {
+            "question": "How many pages does Hugo Story usually have?",
+            "answer": "Four to eight is the common range — about, services, work, articles and contact, for example. The final list is agreed before design starts."
+          },
+          {
+            "question": "Will I be able to publish articles myself?",
+            "answer": "The base package delivers a coded website without a CMS. Publishing your own posts needs a suitable data system or connection package, assessed separately; that cost sits outside the design fee."
+          },
+          {
+            "question": "Can you migrate my existing website?",
+            "answer": "Content migration is possible, but the effort depends on the number of pages, images and records. It is quoted separately once the current site has been reviewed."
+          },
+          {
+            "question": "Are the domain and hosting included?",
+            "answer": "No. You buy and own the domain and the hosting. Hugo Studio only advises on the purchase and connects them through the separately billed Connection package."
+          }
+        ],
+        "features": [
+          "A page structure built to fit",
+          "Content structure & navigation",
+          "Forms, maps & social links",
+          "SEO for every page",
+          "Right on every screen",
+          "Source code handover"
+        ]
+      },
+      "hugo-flow-plus": {
+        "title": "Sell. Right on your own site.",
+        "lede": "Catalogue, cart, checkout and order management — one system, in your name. For brands that actually sell, not just display.",
+        "intro": [
+          "A shop differs from a brochure site in one way: it has to be correct. No order may be lost. Stock may not drift. The money that arrives has to match the order.",
+          "So most of the work sits behind the interface. Order states, notifications for both sides, and an admin screen complete enough for one person to run the whole shop without opening the code."
+        ],
+        "audience": [
+          "Brands selling on marketplaces or social media that want a channel of their own without platform fees.",
+          "Shops that need orders, stock and customers in one place.",
+          "Services that take bookings, reservations or online payments.",
+          "Digital products that need to sell and deliver themselves."
+        ],
+        "includes": [
+          {
+            "title": "Product management.",
+            "body": "Catalogue, categories, variants, images, prices and stock status."
+          },
+          {
+            "title": "Cart and orders.",
+            "body": "Cart, discount codes, shipping fees, order states and notifications for both sides."
+          },
+          {
+            "title": "Online payments.",
+            "body": "One Vietnamese payment gateway, registered by you, connected to the site. Gateway fees are charged by the provider."
+          },
+          {
+            "title": "Customer accounts.",
+            "body": "Sign-in, purchase history and saved delivery addresses."
+          },
+          {
+            "title": "Admin screen.",
+            "body": "Where you view orders, edit products and follow basic sales figures. Hugo Studio builds the software; the data lives on infrastructure you own."
+          },
+          {
+            "title": "API integrations as needed.",
+            "body": "Shipping, invoicing, accounting or whichever tool you already use — the list is agreed before the quote."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "60 days of free bug fixes.",
+            "body": "Anything in the ordering and payment flow gets the highest priority."
+          },
+          {
+            "title": "30 days of operational support.",
+            "body": "Help while you find your footing in the first month of real trading."
+          },
+          {
+            "title": "Two admin walkthroughs.",
+            "body": "One before you open, one two weeks into trading."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "4 – 8 weeks to build.",
+            "body": "Depending on the integrations. Payment and shipping providers set their own approval timelines."
+          },
+          {
+            "title": "Paid in three parts.",
+            "body": "50% to start, 30% at internal testing, 20% when the shop opens."
+          },
+          {
+            "title": "Service accounts in your name.",
+            "body": "Payment gateway, carriers, infrastructure — all registered with your company details."
+          },
+          {
+            "title": "Customer data is yours.",
+            "body": "The site collects accounts, addresses and orders from your buyers. You decide what is collected and how it is used; Hugo Studio touches it only to build and to fix, at your request."
+          }
+        ],
+        "price": {
+          "from": "9,000,000₫",
+          "to": "20,000,000₫",
+          "note": "A basic shop usually lands between 10 and 14 million. Integrations are what push the figure furthest.",
+          "factors": [
+            "How many products and variants.",
+            "How many payment gateways and carriers to connect.",
+            "Whether it has to sync with existing inventory or accounting software.",
+            "How far the admin screen is customised.",
+            "What reporting and figures you need."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Does Hugo Flow+ build its own database?",
+            "answer": "No. Hugo Studio neither provides nor rents database infrastructure. The package connects to the systems and APIs you already have or have purchased."
+          },
+          {
+            "question": "What do I need ready before we start?",
+            "answer": "A product list, your pricing and delivery rules, a payment or shipping account, and API documentation if you want external services connected."
+          },
+          {
+            "question": "Who pays the payment and shipping fees?",
+            "answer": "You pay the providers directly. Those charges, and the Connection package, sit outside the Hugo Flow+ development fee."
+          },
+          {
+            "question": "Can features be added after the site is live?",
+            "answer": "Yes. New features are assessed and quoted separately. Bugs inside the accepted scope are still covered by the package warranty."
+          }
+        ],
+        "features": [
+          "Product management",
+          "Cart & orders",
+          "Online payments",
+          "Connects to your data",
+          "Order status pages",
+          "API integrations as needed"
+        ]
+      },
+      "hugo-edu-plus": {
+        "title": "A Bio page. Built for students.",
+        "lede": "One tidy link for your introduction, your projects and every link that matters. Free for 365 days once your student status is verified.",
+        "intro": [
+          "Students rarely need a website yet. They need a place to stand. One link to attach to an application, send to a lecturer, or paste on a profile.",
+          "Hugo Edu+ is that place. You fill it in, edit it and change its look inside your account. No code required. Nobody to wait for."
+        ],
+        "audience": [
+          "School and university students who need a page for themselves and their projects.",
+          "Learners building an internship application.",
+          "Clubs and project teams that need one shared link.",
+          "Anyone who wants to try a personal page before investing in a website."
+        ],
+        "includes": [
+          {
+            "title": "Free for 365 days.",
+            "body": "Counted from the day you are verified. No bank card, no automatic paid renewal."
+          },
+          {
+            "title": "Your own link, issued by Hugo Studio.",
+            "body": "A readable link with your name in it, tidy wherever you send it. Free — no domain to buy, no Connection package needed."
+          },
+          {
+            "title": "Photo and introduction.",
+            "body": "Your photo, a job title, an introduction and your contact details."
+          },
+          {
+            "title": "Projects and personal links.",
+            "body": "A project list with images and descriptions, plus every link you want to point people to."
+          },
+          {
+            "title": "Edit it yourself, in your account.",
+            "body": "Change it whenever you like. It publishes immediately, with nobody to ask."
+          },
+          {
+            "title": "Right on every screen.",
+            "body": "Several ready-made looks, switchable at any time."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "Support for the full 365 days.",
+            "body": "Display or account problems are handled within what Hugo Studio can support."
+          },
+          {
+            "title": "The data stays yours.",
+            "body": "When the term ends the page is hidden, and your data stays in your account to download or reopen."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "Verify once.",
+            "body": "A school email, or valid student documentation if your email is not on a school domain."
+          },
+          {
+            "title": "For individual students.",
+            "body": "Not for use as a shop or an official company page. That belongs to Hugo One and above."
+          },
+          {
+            "title": "One account, one Bio page.",
+            "body": "Need extra pages for a club or a team? Get in touch and we will sort it out."
+          },
+          {
+            "title": "The programme can change.",
+            "body": "Hugo Studio may adjust it or stop accepting new sign-ups. What has already been granted to you runs to the end of its term."
+          }
+        ],
+        "price": {
+          "from": "Free",
+          "to": "365 days",
+          "note": "Entirely free once you are verified, the Hugo Studio link included — there is no domain to buy. A bespoke design beyond the Bio templates starts around 1,500,000 – 3,000,000₫, scoped before anything is priced.",
+          "factors": [
+            "After 365 days: renew or move to a paid package. Nothing is charged automatically.",
+            "Bespoke design on request sits outside this package."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Who can use Hugo Edu+ for free?",
+            "answer": "School and university students, verified with a school email or valid student documentation through Hugo Studio's process."
+          },
+          {
+            "question": "When do the 365 days start?",
+            "answer": "From the moment your student status is verified and the benefits are opened — not from the day you created a Google account."
+          },
+          {
+            "question": "Do I lose my data after 365 days?",
+            "answer": "No. The page may be hidden under the policy, but the data stays in your account to download, renew or move to another package."
+          },
+          {
+            "question": "I am a student. Do I get a discount on a paid package?",
+            "answer": "Yes. Verified students get 15% off the design fee for Hugo One, Hugo Story and Hugo Flow+. It applies to personal projects, coursework or club work, one project per person per academic year, and never to amounts paid to third-party providers."
+          }
+        ],
+        "features": [
+          "Free for 365 days",
+          "Your own Bio link",
+          "Photo & introduction",
+          "Projects & personal links",
+          "Edit it in your account",
+          "Right on every screen"
+        ]
+      }
+    },
+    "detail": {
+      "backToAll": "All services",
+      "discussCta": "Discuss your project",
+      "verifyCta": "Verify your student status",
+      "navLabel": "Sections on this page",
+      "nav": {
+        "intro": "Overview",
+        "audience": "Who it fits",
+        "includes": "What's included",
+        "excludes": "Not included",
+        "warranty": "Warranty",
+        "price": "Pricing"
+      },
+      "introKicker": "Overview",
+      "introCaption": "in short.",
+      "audienceKicker": "Who it is for",
+      "audienceTitle": "Who this package fits.",
+      "includesKicker": "What's included",
+      "includesTitle": "What you get.",
+      "includesLede": "Everything below is part of the price, not an optional extra.",
+      "excludesKicker": "Not included",
+      "excludesTitle": "And what the price does not cover.",
+      "excludesLede": "Said upfront, so you can budget properly instead of finding out near handover.",
+      "warrantyKicker": "Warranty and support",
+      "warrantyTitle": "After handover.",
+      "policyKicker": "Package terms",
+      "policyTitle": "The rules, stated first.",
+      "priceKicker": "Price range",
+      "priceTitle": "The range, and why it moves.",
+      "priceScope": "Scope first. Price after. The final figure lives in the quote and the contract, and does not change once signed.",
+      "priceCta": "Request a quote",
+      "priceFactors": "What pushes the price up or down",
+      "extraFeesTitle": "Extras, priced in advance",
+      "priceNoticeTitle": "About these figures",
+      "faqKicker": "Frequently asked",
+      "faqTitle": "Ask first, save time later.",
+      "closingKicker": "Next step",
+      "closingTitle": "Tell me what you need.",
+      "closingTitleQuiet": "Scope first, price after.",
+      "closingCta": "Book a conversation",
+      "nextPackage": "See",
+      "sampleAlt": "Sample of",
+      "metaFallback": "Services | Hugo Studio"
+    },
+    "page": {
+      "heroKicker": "Services · Hugo Studio",
+      "heroLine1": "Your website.",
+      "heroLine2": "Your customer's",
+      "heroLine3": "first impression.",
+      "heroLede": "Landing pages and websites built so visitors understand at once, trust enough, and know exactly where to click.",
+      "heroCta": "Start a project",
+      "heroCtaAlt": "See the work",
+      "scrollHint": "Scroll through the packages",
+      "filmLabel": "Services",
+      "filmHeading": "Four packages. One standard.",
+      "filmCta": "Tell me what you need",
+      "detailCta": "See the package",
+      "demoCta": "Open your Bio",
+      "eduAction": "See Hugo Edu+ benefits",
+      "landingKicker": "Landing page",
+      "landingTitle1": "You don't have to say everything.",
+      "landingTitle2": "Just the right thing.",
+      "landingLede": "Your product, service or campaign, told briefly. From the ad to the submit button, all on one line of thought.",
+      "landingPoints": [
+        "The main message lands in the first screen.",
+        "Proof arrives exactly when the visitor starts weighing it up.",
+        "Every section leads back to one clear action."
+      ],
+      "processKicker": "End to end",
+      "processTitle": "Four steps. None of them vague.",
+      "process": [
+        {
+          "title": "Start from the goal.",
+          "body": "Who your customer is, where your advantage sits, what you want them to do. Those three first, then the design."
+        },
+        {
+          "title": "Build the story.",
+          "body": "Message, proof and content arranged into one reading line, with nowhere for a visitor to stall on a doubt."
+        },
+        {
+          "title": "Design and build.",
+          "body": "The story becomes a live interface: right on every screen, motion where it helps, and code the next person can read."
+        },
+        {
+          "title": "Hand over, then keep going.",
+          "body": "The site goes live and every main flow is checked. Once there is data, the tuning continues."
+        }
+      ],
+      "closingKicker": "Your next project",
+      "closingTitle1": "You bring the goal.",
+      "closingTitle2": "I build the way there.",
+      "closingLede": "There is no fixed price list, because no two projects are alike. The figure fades from memory. What stays is a website in your name, on your own domain.",
+      "closingCta": "Tell me about your project",
+      "closingCtaAlt": "See every project",
+      "catalogName": "Hugo Studio service packages",
+      "catalogIncludes": "Includes",
+      "schemaName": "Landing page, brochure website and dynamic website design"
+    }
+  },
+  "studentPage": {
+    "meta": {
+      "title": "Hugo Edu+ · Student benefits | Hugo Studio",
+      "description": "Verify once with a school email. Open a free Bio page for 365 days and Hugo Studio's learning tools.",
+      "keywords": "student benefits, free student Bio page, .edu email verification, learning tools, Hugo Edu+"
+    },
+    "heroEyebrow": "Hugo Edu+ · for verified students",
+    "heroTitle1": "A place to learn.",
+    "heroTitle2": "A year to grow.",
+    "heroLede": "Verify once. Open a Bio page of your own for 365 days, the learning tools, and every student benefit inside Hugo Studio.",
+    "heroCta": "Verify now",
+    "heroCtaAlt": "See the looks",
+    "startKicker": "Start here",
+    "daysUnit": "days",
+    "daysFree": "free",
+    "startTitle": "Your Bio. Your story. Updated whenever you like.",
+    "startLede": "No bank card. No plan to choose. Just a school email, or equivalent student documentation. What you get is not a discount code. It is a place on the web with your name on it.",
+    "verifyTitle": "Student verification",
+    "verifySub": "Automatic, if your email is a school address.",
+    "step1": "Sign in with Google",
+    "step1Desc": "Use your school Google account.",
+    "step2": "Check your student status",
+    "step2Ok": "Valid school email.",
+    "step2Pending": "Can be reviewed through equivalent documentation.",
+    "step2Todo": "Runs automatically after you sign in.",
+    "step3": "Open your benefits",
+    "step3Desc": "A Bio page for 365 days and the learning tools inside Hugo Studio.",
+    "pickAccount": "Choose a Google account",
+    "gisReady": "Google Sign-In is ready.",
+    "gisLoading": "Preparing verification…",
+    "openBenefits": "Open Hugo Edu+ benefits",
+    "pendingNote": "That email is not on a school domain. Send valid student documentation and it can be reviewed as an equivalent.",
+    "pendingCta": "Submit for review",
+    "themeKicker": "Looks",
+    "themeTitle1": "One page.",
+    "themeTitle2": "Three ways to look like you.",
+    "themeNote": "Change the look whenever you like, inside your account. The content stays; only the surface changes.",
+    "themes": {
+      "default": {
+        "name": "Default",
+        "note": "Your photo fills the screen and your name rises over it. People see you first and read second."
+      },
+      "flat": {
+        "name": "Flat",
+        "note": "Bright, square, no flourish. The kind people read to the end without noticing they were reading."
+      },
+      "brutalism": {
+        "name": "Block",
+        "note": "Thick borders, loud colour, typewriter letters. One glance and they remember your face."
+      }
+    },
+    "blocksKicker": "Inside a Bio page",
+    "blocksTitle": "What you put in it.",
+    "blocks": [
+      {
+        "title": "Photo and introduction",
+        "desc": "Your photo, display name, a one-line job title and an introduction in your own voice."
+      },
+      {
+        "title": "Projects",
+        "desc": "One image, one short description and one link to the running version, per project."
+      },
+      {
+        "title": "Links",
+        "desc": "Portfolio, GitHub, Behance, social profiles — gathered in one place, sent as one link."
+      },
+      {
+        "title": "Education",
+        "desc": "School, major, year, and what you are chasing this year."
+      },
+      {
+        "title": "Skills and services",
+        "desc": "What you can do, what you work with, and what you take on if anything."
+      },
+      {
+        "title": "Sharing",
+        "desc": "A link with your name in it, quick to open on a phone, easy to attach or paste anywhere."
+      }
+    ],
+    "insideKicker": "Inside Hugo Studio",
+    "insideTitle": "More than a Bio page.",
+    "benefits": [
+      {
+        "title": "A Bio page, free for 365 days.",
+        "desc": "You, your projects, every link that matters — on one address. Edit it whenever you like, right in your account."
+      },
+      {
+        "title": "Learning tools.",
+        "desc": "Web IDE, notes, documents, vocabulary. Learn, try and finish things without leaving the browser."
+      },
+      {
+        "title": "A study assistant.",
+        "desc": "Ask where you are stuck. It suggests a direction, explains the concept and points at the next step."
+      },
+      {
+        "title": "Somewhere to grow together.",
+        "desc": "Questions, shared projects and guidance — within what Hugo Studio can support."
+      }
+    ],
+    "faqKicker": "Questions",
+    "faqTitle": "Ask first, it is quicker.",
+    "closingKicker": "Hugo Edu+ terms",
+    "closingTitle1": "365 days to get started.",
+    "closingTitle2": "Help of your own when you need it.",
+    "closingLede": "Verified means opened, at no cost. Need something built for a portfolio, coursework or a technical piece? Message me. Scope first, money after.",
+    "closingCta": "Talk to Hugo",
+    "themePickerLabel": "Choose a look for your Bio page"
+  },
+  "projectsPage": {
+    "backLink": "Back to the introduction",
+    "kicker": "Work",
+    "title": "Every project.",
+    "lede": "Laid out along a timeline, from the first project to now. Each stop has a page of its own: the context, the decisions made, and screenshots from the running build.",
+    "metaTitle": "Work — Hugo Studio",
+    "allProjects": "All projects",
+    "viewDetail": "See the project",
+    "kinds": {
+      "personal": "Personal project",
+      "client": "Client work",
+      "live": "In real use"
+    },
+    "periodNow": "now",
+    "items": {
+      "hugo-studio": {
+        "tagline": "A single doorway to everything I build, installed like an app.",
+        "role": "Product owner · Design & full-stack development · Operations",
+        "summary": "It started with a nagging question: why does every tool I need insist on a new account? Hugo Studio is the answer — one way in, one sign-in, installed on the device like an app.",
+        "techNote": "The browser side is React with Vite and Tailwind. The server is Node.js with MongoDB, plus WebSocket for the wallet and instant notifications. Capacitor packages it when a native build is needed. Nothing sits on a ready-made platform — everything shares one identity layer, and that layer has to be mine to control.",
+        "highlights": [
+          {
+            "title": "It started as an irritation",
+            "body": "The first tools were written because I needed them myself: somewhere to track work, somewhere to study, somewhere to stop for a while. The more I wrote, the clearer it became that the friction wasn't in any one tool but in the gaps between them — a separate account each, a separate sign-in, a separate place for the data."
+          },
+          {
+            "title": "So the frame came first",
+            "body": "Instead of shipping more standalone products, the thing built first was the frame: one identity layer, one points wallet, one real-time notification channel, one shared interface shell. From then on a new app is content poured into the frame, not another foundation dug."
+          },
+          {
+            "title": "Installed, not fetched from a store",
+            "body": "The frame runs as a PWA: full screen, an icon on the home screen, push notifications, and still usable when the connection wavers. A fix reaches people in minutes instead of waiting in an approval queue."
+          },
+          {
+            "title": "And the night shift is mine",
+            "body": "One overrun of a provider quota turned out to be a loop calling an API every ten seconds. It went to five minutes, and then the architecture was split along the lines each platform actually bills for. Running it alone means owning the consequences — which is the part that teaches most."
+          }
+        ],
+        "shots": {
+          "study": "Learning — a staged path, graded on work you actually submit.",
+          "hugokit": "The toolkit — zip files, QR codes, image work, all in the browser.",
+          "arcade": "Games — hand-written, open and play, nothing to install.",
+          "services": "The services page — pricing and the booking flow.",
+          "portfolio": "The personal portfolio page."
+        },
+        "closing": "It grows every week. The part that matters most isn't what's on screen; it's the frame underneath — the reason the tenth app costs less effort than the first."
+      },
+      "chanh-toa": {
+        "tagline": "A parish portal: mass times across 27 dioceses, the full Bible, and answers on faith.",
+        "role": "Design & full-stack development",
+        "summary": "Mass times change constantly and nobody announces it. Travel a little, want to attend, and you end up asking around. This site exists so that question has one place to be answered.",
+        "techNote": "Next.js with React and TypeScript, the interface in Tailwind, the server side on Node.js, data in Firebase and Firestore, images processed with Sharp. Posts arrive from the parish Facebook page through the Graph API. Server rendering was the choice because most of this site is material search engines need to read: Mass times, every chapter of Scripture, every question of faith.",
+        "highlights": [
+          {
+            "title": "The question people ask most",
+            "body": "Turn on location and you see the nearest church and how long until the next Mass, across data covering 27 dioceses. Because the schedule keeps shifting, parishioners can correct it right on the card — the information stays alive through its readers, not through a one-time import."
+          },
+          {
+            "title": "Then come the questions people hesitate to ask",
+            "body": "After Mass times come the things people are shy to raise in person: the sacraments, moral questions, marriage. Each has a short answer to skim, and a longer one with catechism sources for anyone who wants to follow it through."
+          },
+          {
+            "title": "The whole of Scripture, chapter by chapter",
+            "body": "Old and New Testament in full, an illustration for each book, and an address of its own for every chapter so it can be sent straight to someone. The prayer section counts readings and keeps a daily streak — better at holding a habit than any reminder."
+          },
+          {
+            "title": "Wired straight into the parish page",
+            "body": "The parish already posts to its own Facebook page, and nobody wants to post a second time. The server calls the Facebook Graph API on a schedule, pulls new posts and their images, compresses them with Sharp and stores them in Firestore — post once on the page and it appears in both places. The access key stays on the server, guarded by Firestore rules, and never travels down to the browser; every write must carry an administrator identity."
+          }
+        ],
+        "shots": {
+          "home": "Home — today's scripture, the liturgical calendar, parish posts.",
+          "gio-le": "Mass times nationwide, counting down to the next one.",
+          "kinh-thanh": "The full Bible, an illustration for every book.",
+          "van-dap": "Questions of faith, grouped by theme.",
+          "kinh-nguyen": "Core prayers, with a counter and a daily streak.",
+          "gioi-thieu": "About — the parish history told in four chapters."
+        },
+        "closing": "The site is live and parishioners open it daily. For a parish portal, success isn't traffic — it's that nobody has to phone around to find out when Mass is."
+      },
+      "hwj": {
+        "tagline": "A fine jewellery platform priced against live gold and silver rates.",
+        "role": "Design & full-stack development",
+        "summary": "A single piece costs more than a motorbike. What does the storefront selling it look like? The answer here is a magazine — large serif type, plenty of air, and not one \"BUY NOW\" button.",
+        "techNote": "Built end to end: React and Tailwind in the browser; Node.js with MongoDB on the server for accounts, consultation bookings and the cart; product imagery on Cloudinary; sign-in through Google OAuth; and a metals API so pricing tracks live gold and silver rates.",
+        "highlights": [
+          {
+            "title": "It began as a doubt",
+            "body": "Card grids, discount badges, red buttons — the familiar e-commerce kit was built for things bought quickly. Put it next to something considered for months and it works against the very piece it is selling."
+          },
+          {
+            "title": "So the site was built like a publication",
+            "body": "Very large serif headlines, a wide grid, cream and antique gold. Products don't sit in a card grid; they sit inside an article with chapters, at the pace of an auction house catalogue."
+          },
+          {
+            "title": "Vocabulary in place of buttons",
+            "body": "\"Acquisition Consultation\" instead of \"Add to cart\". \"Registry no.\" instead of a product code. At this level, language positions a piece more than colour does, and an invitation to sit down reads better than an instruction to buy."
+          },
+          {
+            "title": "But the price can't just be beautiful",
+            "body": "Gold and silver rates come straight from a market API, shown as a sell and buyback table per mace. Behind the printed page, the server side carries accounts, consultation bookings and the cart — enough for an enquiry to travel its whole distance."
+          }
+        ],
+        "shots": {
+          "home": "Home — \"The Art of Preservation\".",
+          "collections": "The collections, laid out at the pace of a magazine.",
+          "valuation": "Live gold and silver valuation, tracking the market.",
+          "product": "A single piece — specification, materials, and a price derived from metal rates.",
+          "heritage": "The atelier timeline, told in chapters.",
+          "appointment": "Booking an acquisition consultation, in place of a buy button."
+        },
+        "closing": "This was a brief I set myself, and the biggest lesson is barely technical: at this end of the market, restraint sells more than urgency."
+      },
+      "minh-oi-media": {
+        "tagline": "A wedding documentary studio site — pricing, portfolio and the enquiry flow.",
+        "role": "Design & full-stack development",
+        "summary": "Couples choose a wedding studio with three tabs open at once. The one that makes them message first to learn the price gets closed first. Every decision here comes out of that one observation.",
+        "techNote": "Plain HTML, CSS and JavaScript — no framework at all. A page presenting five service packages does not need React; without a framework it stays light, opens fast on mobile data, and the client can edit the words in the file without calling anyone.",
+        "highlights": [
+          {
+            "title": "People ask the price before the name",
+            "body": "The wedding trade likes to hide prices to force an enquiry. Here the five packages sit right on the path, each listing exactly what the couple receives — readers rule themselves out, or in, before anyone has to answer a message."
+          },
+          {
+            "title": "The photograph speaks first",
+            "body": "The first screen is a full-bleed wedding photograph, not a slogan. For a studio, that first image is the entire proof of competence; every line of copy after it is only there to explain."
+          },
+          {
+            "title": "Portrait is the default",
+            "body": "Almost everyone reads this on a phone, mid-conversation about which studio to book. So the price list folds into a single column, with no wide table to drag sideways."
+          },
+          {
+            "title": "And no framework was needed",
+            "body": "Plain HTML, CSS and JavaScript. A page presenting five packages doesn't need React; without a framework it stays light, opens fast on 4G, and the studio can edit the words in the file without calling anyone."
+          }
+        ],
+        "shots": {
+          "home": "Home — a large photograph leads, the brand sits over it.",
+          "bang-gia": "Five packages, each spelling out what the client receives.",
+          "goi-dich-vu": "Every package lists everything included."
+        },
+        "closing": "Worked directly with the client, from the first requirements conversation through to handover. What they kept afterwards is a site they can look after themselves."
+      },
+      "l3go-coffee": {
+        "tagline": "A coffee shop site — drinks picked by how you feel. UI/UX, with Jason Phan.",
+        "role": "UI/UX design",
+        "summary": "A three-storey café in Cần Thơ, with a spiral staircase and walls of coloured glass brick. People choose a café by where they will sit, not by the coffee — so the site has to show the room before anyone decides to go.",
+        "techNote": "React and Tailwind. My part was the interface and the experience: the colour system, the typographic rhythm, the flow through the menu, and how the photographs of the space are cropped. Jason Phan handled the data layer and deployment.",
+        "highlights": [
+          {
+            "title": "The room is the product",
+            "body": "The spiral staircase, the glass-brick wall and the lattice of night lights are held at full size rather than chopped into a gallery. A reader needs to feel where their seat would be before caring what is on the menu."
+          },
+          {
+            "title": "A long menu nobody reads to the end",
+            "body": "Sixty-eight items, and nobody reads a coffee-tea-frappé table all the way down. So the filters follow the feeling someone arrives with: need to wake up, want to settle down, staying a while with friends. Choosing by mood is faster than choosing by category."
+          },
+          {
+            "title": "My part, and his",
+            "body": "Made with Jason Phan. Mine was the UI/UX: the colour system, the typographic rhythm, the flow through the menu and how the room is cropped. Building the data and shipping it was his — the line was clear from the start, so nobody stepped on anyone."
+          }
+        ],
+        "shots": {
+          "home": "Home — \"The right drink for the mood.\"",
+          "thuc-don": "The menu, filtered by mood instead of category.",
+          "khong-gian": "The space page — three storeys, spiral staircase."
+        },
+        "closing": "A short project, but the clearest lesson in it: the hard part of a menu isn't listing dishes, it's helping someone stop hesitating."
+      },
+      "m-hike": {
+        "tagline": "A hiking app for iOS and Android that keeps working with no signal.",
+        "role": "Design & full-stack development",
+        "summary": "Out on the trail the phone loses signal, which is exactly when it matters most. M-Hike is built around a single condition: everything has to work offline, and sync itself once the connection comes back.",
+        "techNote": "Two builds, one product. The cross-platform build is React Native on Expo with TypeScript, file-based routing through Expo Router, Leaflet maps and weather from Open-Meteo. The native build is Java with SQLiteOpenHelper and XML layouts. Both treat SQLite as the primary store and use Firebase Realtime Database to sync when there is a connection.",
+        "highlights": [
+          {
+            "title": "Works past the last bar of signal",
+            "body": "SQLite on the device is the primary store, not a cache: creating a hike, writing notes and reviewing them all work offline. Firebase Realtime Database is only a background sync layer, so another device opens on the same trip."
+          },
+          {
+            "title": "Record what you see, where you see it",
+            "body": "Every hike carries its own log: the wildlife, the state of the trail, the weather, with photos and a rating. Observations belong to the hike — delete the hike and they go with it, leaving no orphaned rows behind."
+          },
+          {
+            "title": "The route draws itself",
+            "body": "GPS records distance, pace and elevation gain, then replays the walk in phases: warm-up, steady, halfway, final, done. The training plan is generated from body metrics against WHO guidance, and the app states plainly that this is general guidance, not medical advice."
+          },
+          {
+            "title": "And one button for the worst case",
+            "body": "The SOS screen pulls GPS coordinates and prepares an emergency message and call, with a map link to send on. The background is pure black to preserve battery, while the screen edge flashes Morse for night search teams."
+          }
+        ],
+        "closing": "Coursework for the mobile development module at the University of Greenwich (Vietnam), built twice — native Android and React Native — to compare them properly rather than pick one on faith.",
+        "shots": {
+          "home": "Home — the weather, today's session and the next hike.",
+          "hikes": "The hike list: walked, planned, and marked as favourites.",
+          "hike-detail": "One hike — difficulty, distance, live weather, estimated energy.",
+          "stats": "Distance, completion rate and the last six months.",
+          "profile": "The body profile, and quick routes in: SOS, map, training plan.",
+          "sos": "The emergency screen — GPS coordinates, call 115, share a location."
+        }
+      }
+    },
+    "openSite": "Open {{label}}",
+    "roleLabel": "Role",
+    "periodLabel": "Period",
+    "partnerLabel": "Built with",
+    "techTitle": "What it is written in.",
+    "featuresTitle": "The story",
+    "shotsTitle": "Screens from the running build.",
+    "nextProject": "Next project",
+    "more": "More to come. This timeline is still growing.",
+    "metaDescription": "Laid out along a timeline, from the first project to now: the context, the decisions made, and screenshots from the running build.",
+    "openRepo": "View the source on GitHub"
   }
 }

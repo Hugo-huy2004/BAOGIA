@@ -1,4 +1,5 @@
 import { useEffect, Suspense, lazy } from "react";
+import i18n from "./i18n/config";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicToolPath } from "./config/publicTools";
@@ -48,7 +49,10 @@ const lazyRoute = (loader) =>
   lazy(() => Promise.all([loader(), ensureTranslations()]).then(([mod]) => mod));
 
 const IntroductionPage = lazyRoute(() => import("./pages/public/IntroductionPage"));
+const ProjectsPage = lazyRoute(() => import("./pages/public/ProjectsPage"));
+const ProjectDetailPage = lazyRoute(() => import("./pages/public/ProjectDetailPage"));
 const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
+const ServiceDetailPage = lazyRoute(() => import("./pages/public/ServiceDetailPage"));
 const BookingContactPage = lazyRoute(() => import("./pages/public/BookingContactPage"));
 const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
@@ -88,6 +92,7 @@ function VocabPathRedirect() {
 function AppContent() {
   const location = useLocation();
   const { data } = useData();
+  const isIntroductionRoute = location.pathname === "/introduction" || location.pathname === "/";
 
   useEffect(() => {
     const disposeBackgroundSync = BackgroundSyncEngine.initListener();
@@ -119,6 +124,7 @@ function AppContent() {
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
   const showFooter =
+    !isIntroductionRoute &&
     !isBioRoute &&
     !isPartnerBioRoute &&
     !isPreviewRoute &&
@@ -251,6 +257,9 @@ function AppContent() {
                 : <IntroductionPage />
             } />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:slug" element={<ServiceDetailPage />} />
+            <Route path="/project" element={<ProjectsPage />} />
+            <Route path="/project/:slug" element={<ProjectDetailPage />} />
             {/* Ví JOY không còn là app riêng — số dư, ưu đãi và mọi thao tác
                 nằm trong trang Tài khoản. Hai đường cũ đều dẫn về đó. */}
             <Route path="/joy" element={<Navigate to="/member/account" replace />} />
@@ -339,6 +348,30 @@ function AppContent() {
   );
 }
 
+
+/**
+ * Tiền tố ngôn ngữ trong đường dẫn — `/en/services`, `/zh/du-an`…
+ *
+ * Trang tĩnh cho SEO được sinh ra cho cả ba thứ tiếng, mỗi thứ một tiền tố
+ * (xem `scripts/generate-seo.mjs`). Người thật bấm từ kết quả Google sẽ rơi
+ * vào chính những địa chỉ đó, nên bộ định tuyến phải hiểu chúng — nếu không họ
+ * gặp trang 404 ngay sau khi React khởi động.
+ *
+ * Cách rẻ nhất: cắt tiền tố thành `basename` của router. Mọi khai báo route
+ * bên dưới giữ nguyên, không route nào phải viết hai lần.
+ */
+const LANG_PREFIXES = ["/en", "/zh"];
+const langPrefix = LANG_PREFIXES.find(
+  (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/"),
+);
+if (langPrefix) {
+  // Địa chỉ đã nói rõ ngôn ngữ thì nó thắng lựa chọn đã lưu: nội dung tĩnh
+  // vừa trả về cũng đang ở ngôn ngữ đó, đổi lại sẽ thành nửa nọ nửa kia.
+  const code = langPrefix.slice(1);
+  if (i18n.language !== code) i18n.changeLanguage(code);
+}
+
+
 export default function App() {
   useEffect(() => {
     const root = document.documentElement;
@@ -384,7 +417,7 @@ export default function App() {
       <SecurityBlockBoundary>
         <LazyMotion features={loadMotionFeatures}>
         <DataProvider>
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <BrowserRouter basename={langPrefix || undefined} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
               <RouteSeoPolicy />
               <NativeShell />

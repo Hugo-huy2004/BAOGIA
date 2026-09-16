@@ -388,7 +388,7 @@ export default function PartnerBioPage() {
       <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
         <div className="bg-white dark:bg-background border border-border/50 p-8 rounded-xl max-w-sm w-full shadow-2xl text-center space-y-6">
           <div className="flex justify-center">
-            <HugoLogo className="text-sm font-black" />
+            <HugoLogo className="h-8 w-8" />
           </div>
           <div className="space-y-2">
             <h2 className="text-base font-bold">{t("memberPortal.partnerBio.kichHoatBioLink")}</h2>

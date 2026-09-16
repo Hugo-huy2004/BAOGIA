@@ -1,0 +1,69 @@
+/**
+ * Khối tên gói nổi (variant "lockup"): tên đầy đủ "Hugo <hậu tố>" dựng nổi
+ * như khắc nổi trên bề mặt. Chữ "Hugo" mang màu chữ của trang, hậu tố mang
+ * gradient của gói.
+ *
+ * Mọi kích thước tính bằng `em` nên chỉ cần đặt cỡ chữ cho khối ngoài, logo
+ * và độ dày khối nổi co giãn theo. Đừng đặt px vào đây.
+ *
+ * Màu mặt chữ lấy từ `--pkg-paint` (gradient của gói, do PackageName truyền
+ * vào). Khối nổi làm bằng `drop-shadow` chứ không phải `text-shadow`: chữ đã
+ * bị `background-clip: text` làm trong suốt, `text-shadow` sẽ hiện xuyên qua
+ * mặt chữ và phá hỏng gradient, còn `drop-shadow` bám theo đúng hình chữ.
+ */
+
+.pkg-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  line-height: 1;
+}
+
+/* "Hugo" nổi cùng độ dày với hậu tố, nhưng giữ màu chữ của trang. */
+.pkg-lockup__house {
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  filter:
+    drop-shadow(0 -0.022em 0 rgb(255 255 255 / 0.85))
+    drop-shadow(0 0.055em 0.03em rgb(2 6 23 / 0.24))
+    drop-shadow(0 0.28em 0.42em rgb(2 6 23 / 0.16));
+}
+
+.pkg-lockup__word {
+  background-image: var(--pkg-paint);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  /* Thứ tự: viền sáng trên → cạnh dày dưới → bóng đổ mềm. */
+  filter:
+    drop-shadow(0 -0.022em 0 rgb(255 255 255 / 0.9))
+    drop-shadow(0 0.055em 0.03em rgb(2 6 23 / 0.28))
+    drop-shadow(0 0.28em 0.42em rgb(2 6 23 / 0.2));
+}
+
+.dark .pkg-lockup__house {
+  filter:
+    drop-shadow(0 -0.022em 0 rgb(255 255 255 / 0.22))
+    drop-shadow(0 0.055em 0.03em rgb(0 0 0 / 0.6))
+    drop-shadow(0 0.3em 0.5em rgb(0 0 0 / 0.42));
+}
+
+.dark .pkg-lockup__word {
+  filter:
+    drop-shadow(0 -0.022em 0 rgb(255 255 255 / 0.28))
+    drop-shadow(0 0.055em 0.03em rgb(0 0 0 / 0.65))
+    drop-shadow(0 0.3em 0.5em rgb(0 0 0 / 0.45));
+}
+
+/* Dòng chú giải đi kèm khối tên: nhỏ hơn, nhẹ hơn, không tranh chỗ. */
+.pkg-caption {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.42em;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  color: hsl(var(--muted-foreground));
+}

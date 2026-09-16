@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { estimateDelivery, getPackageFacts, warrantyUntil } from "../../../shared/projectPackages";
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { logoutAuth } from '../../services/authSession';
@@ -83,7 +84,7 @@ export default function AdminProjectDetailPage() {
     const warrantyEndFormatted = formatDate(warrantyEndDateObj);
     
     const handler = devName || project.handlerName || 'Nguyễn Văn A';
-    const pkg = project.servicePackage || 'Signature Portfolio';
+    const pkg = project.servicePackage || 'Chưa chọn gói';  // gói cũ đã bỏ, đừng để tên chết làm mặc định
     
     const logoHtml = `<span style="font-size: 18px; font-family: sans-serif; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap;"><strong style="color: #EF4444;">H</strong><strong style="color: #F97316;">u</strong><strong style="color: #EAB308;">g</strong><strong style="color: #22C55E;">o</strong> <strong style="color: #3B82F6;">S</strong><strong style="color: #6366F1;">t</strong><strong style="color: #A855F7;">u</strong><strong style="color: #EC4899;">d</strong><strong style="color: #06B6D4;">i</strong><strong style="color: #0ea5e9;">o</strong></span>`;
 
@@ -389,6 +390,49 @@ export default function AdminProjectDetailPage() {
         
         {/* Left Column (Status Updater & History) */}
         <div className="lg:col-span-5 space-y-6">
+          {/* Hồ sơ khách hàng — trước đây trang này chỉ hiện tên và mã truy cập,
+              admin phải mở lại danh sách mới biết khách mua gói gì, liên lạc ra
+              sao. Ngày bàn giao và hạn bảo hành suy ra từ gói, không gõ tay. */}
+          {(() => {
+            const facts = getPackageFacts(project.servicePackage);
+            const firstNote = [...(project.progressNotes || [])].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0];
+            const startedAt = firstNote?.createdAt || project.createdAt;
+            const eta = estimateDelivery(project.servicePackage, startedAt);
+            const doneNote = (project.progressNotes || []).find(n => n.status === 'Hoàn tất' || n.status === 'Hỗ trợ và bảo trì');
+            const wEnd = warrantyUntil(project.servicePackage, doneNote?.createdAt);
+            const daysLeft = wEnd ? Math.ceil((wEnd - new Date()) / 86400000) : null;
+            const fmt = (d) => d ? new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+            const Row = ({ label, value, mono }) => (
+              <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-2.5 last:border-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
+                <span className={`text-right text-xs font-semibold text-foreground ${mono ? 'font-mono' : ''}`}>{value || '—'}</span>
+              </div>
+            );
+            return (
+              <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm">
+                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Hồ sơ khách hàng</h4>
+                <div className="mt-4">
+                  <Row label="Gói dịch vụ" value={project.servicePackage} />
+                  <Row label="Trạng thái" value={project.status} />
+                  <Row label="Điện thoại" value={project.phone} mono />
+                  <Row label="Email" value={project.customerProfile?.email} />
+                  <Row label="Địa chỉ" value={project.customerProfile?.address} />
+                  <Row label="Người phụ trách" value={project.handlerName} />
+                  <Row label="Mở dự án" value={fmt(startedAt)} mono />
+                  {eta && !doneNote && <Row label="Dự kiến bàn giao" value={`${fmt(eta.from)} – ${fmt(eta.to)}`} mono />}
+                  {doneNote && <Row label="Đã bàn giao" value={fmt(doneNote.createdAt)} mono />}
+                  {wEnd && <Row label="Bảo hành" value={daysLeft > 0 ? `Còn ${daysLeft} ngày · đến ${fmt(wEnd)}` : `Hết hạn ${fmt(wEnd)}`} />}
+                  {facts?.payments && <Row label="Đợt thanh toán" value={`${facts.payments.join('/')}%`} mono />}
+                </div>
+                {!facts && (
+                  <p className="mt-3 text-[10px] leading-4 text-amber-600">
+                    Gói này không còn trong danh mục, nên không suy ra được ngày bàn giao và hạn bảo hành.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+
           {/* Status Updater */}
           <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm">
             <form onSubmit={handleOpenStatusModal} className="bg-muted dark:bg-black/20 p-5 rounded-md border border-border/50 space-y-4">

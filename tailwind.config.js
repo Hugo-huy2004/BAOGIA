@@ -30,6 +30,13 @@ export default {
         // Surface system
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        band: "var(--hw-band)",
+        tile: "var(--hw-tile)",
+        "hue-blue": "var(--hw-hue-blue)",
+        "hue-purple": "var(--hw-hue-purple)",
+        "hue-green": "var(--hw-hue-green)",
+        "hue-orange": "var(--hw-hue-orange)",
+        "hue-pink": "var(--hw-hue-pink)",
         card: {
           DEFAULT:    "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

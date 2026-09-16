@@ -52,14 +52,7 @@
     <link rel="preconnect" href="https://ia800000.us.archive.org" crossorigin />
     <link rel="dns-prefetch" href="https://ia800000.us.archive.org" />
 
-    <link
-      rel="icon"
-      type="image/png"
-      href="/favicon/favicon-96x96.png"
-      sizes="96x96"
-    />
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon/favicon.ico" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -103,7 +96,19 @@
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         document.documentElement.classList.add("dark");
       }
-      if (window.matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches || window.navigator.standalone === true) {
+      // Phải khớp ĐÚNG src/config/platform.js — nếu lệch thì paint đầu tiên
+      // dùng luật này, React dùng luật kia, và trang nháy một nhịp.
+      // `(display-mode: fullscreen)` cũng khớp với một TAB THƯỜNG bấm F11 /
+      // nút xanh macOS, nên chỉ tin nó trên điện thoại (manifest đặt
+      // display_override ['fullscreen'] cho PWA Android).
+      var mq = function (m) { return window.matchMedia("(display-mode: " + m + ")").matches; };
+      var mobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (
+        window.navigator.standalone === true
+        || mq("standalone") || mq("minimal-ui") || mq("window-controls-overlay")
+        || (mq("fullscreen") && mobile)
+      ) {
         document.documentElement.classList.add("standalone-pwa");
       }
       // ponytail: LƯỚI AN TOÀN cho ảnh khởi động. Máy nào khớp một thẻ
@@ -138,11 +143,14 @@
          khách, trong khi khách Việt chỉ dùng 0,6 KB trong đó — font CJK có
          hàng trăm khối unicode-range. Quicksand bỏ hẳn: không quy tắc CSS nào
          dùng tới nó. -->
+    <!-- Nạp thẳng, KHÔNG dùng mẹo media="print" + onload.
+         `onload=` là trình xử lý sự kiện nội tuyến; CSP production có
+         `script-src` mà không có `unsafe-inline` nên trình duyệt chặn nó.
+         Hậu quả: media kẹt ở "print", CSS font không bao giờ được áp — chạy
+         dev thì đẹp, deploy xong là mất chữ và mất icon. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
     />
 
     <!-- Google Material Symbols Outlined (display=block on purpose: icons must
@@ -150,29 +158,10 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
       rel="stylesheet"
-      media="print"
-      onload="this.media='all';document.documentElement.classList.add('msym-ready')"
     />
-    <style>
-      /* Hide icon ligature text until the Material Symbols CSS arrives
-         (display=block then keeps glyphs invisible while the font file loads)
-
-         LƯỚI AN TOÀN: `.msym-ready` CHỈ được gắn bởi `onload` của thẻ link trên.
-         Google Fonts chặn/rớt/mạng lởm → onload không bao giờ chạy → mọi icon
-         trong app `opacity: 0` VĨNH VIỄN: nút trống trơn, không cả chữ ligature
-         để đoán. Đó chính là "icon mất luôn". Animation dưới đây hiện icon lại
-         sau 3 giây bất kể chuyện gì xảy ra — xấu (hiện chữ "home", "settings")
-         còn hơn là mù. 3s khớp luôn với block period của `display=block`. */
-      html:not(.msym-ready) .material-symbols-outlined {
-        opacity: 0;
-        animation: msym-fallback 0s 3s forwards;
-      }
-      @keyframes msym-fallback { to { opacity: 1; } }
-    </style>
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
-    </noscript>
+    <!-- Không còn quy tắc ẩn icon theo class `.msym-ready`: class đó do
+         `onload` gắn, mà CSP chặn onload. `display=block` trong URL font đã
+         giữ glyph vô hình trong lúc tải, nên chữ ligature không loé ra. -->
     <!-- Website identity -->
     <script type="application/ld+json">
     {

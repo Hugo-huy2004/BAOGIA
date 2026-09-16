@@ -1,16 +1,12 @@
 import { apiFetch } from "./api";
 import { languageCode } from "../i18n/languages";
 
+// Phải khớp NEWS_EDITIONS ở server/services/studentNewsService.js: lệch một
+// mã là client xin ấn bản server không có và feed rơi về bản tiếng Anh.
 export const TODAY_NEWS_EDITIONS = Object.freeze({
   vi: "VN",
   en: "US",
   zh: "CN",
-  th: "TH",
-  ja: "JP",
-  ko: "KR",
-  id: "ID",
-  es: "ES",
-  fr: "FR",
 });
 
 const normalizedEdition = (language) => {

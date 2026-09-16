@@ -61,57 +61,57 @@ export default function CustomerPortalPage() {
   if (!project) return null;
 
   return (
-    <div className="brand-shell min-h-screen text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/72 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      {/* Đầu trang: tên khách và gói, không trang trí thêm. */}
+      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ef4444] via-[#6366f1] to-[#06b6d4] flex items-center justify-center text-white font-bold text-lg shadow-[0_14px_24px_-18px_rgba(59,130,246,0.55)]">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-muted text-sm font-semibold">
               {project.fullName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="font-bold text-sm">{project.fullName}</h1>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-[0.16em]">{project.servicePackage}</p>
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-semibold tracking-[-.01em]">{project.fullName}</h1>
+              <p className="truncate text-xs text-muted-foreground">{project.servicePackage}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="rounded-2xl border border-border/70 bg-card/80 px-4 py-2 text-xs font-bold transition-colors hover:bg-muted/80"
+            className="rounded-full border border-border px-4 py-2 text-xs font-semibold transition-colors hover:bg-muted"
           >
-            Đăng xuất
+            {t("customerPortal.logout", "Đăng xuất")}
           </button>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
         {/* Navigation Tabs */}
-        <div className="flex space-x-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="mb-10 flex gap-7 overflow-x-auto border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             onClick={() => setActiveTab('profile')}
-            className="brand-tab flex items-center gap-2"
-            data-active={activeTab === 'profile'}
+            className={`-mb-px shrink-0 border-b-2 pb-3 text-sm transition-colors ${
+              activeTab === 'profile' ? "border-foreground font-semibold text-foreground" : "border-transparent font-medium text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">person</span>
             {t("customerPortal.tabs.profile")}
           </button>
           <button
             onClick={() => setActiveTab('service')}
-            className="brand-tab flex items-center gap-2"
-            data-active={activeTab === 'service'}
+            className={`-mb-px shrink-0 border-b-2 pb-3 text-sm transition-colors ${
+              activeTab === 'service' ? "border-foreground font-semibold text-foreground" : "border-transparent font-medium text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">view_timeline</span>
             {t("customerPortal.tabs.service")}
           </button>
           <button
             onClick={() => setActiveTab('requests')}
-            className="brand-tab relative flex items-center gap-2"
-            data-active={activeTab === 'requests'}
+            className={`-mb-px relative shrink-0 border-b-2 pb-3 text-sm transition-colors ${
+              activeTab === 'requests' ? "border-foreground font-semibold text-foreground" : "border-transparent font-medium text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">forum</span>
             {t("customerPortal.tabs.requests")}
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-destructive text-[10px] font-bold text-white animate-pulse">
+              <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 text-[11px] font-semibold text-background">
                 {unreadCount}
               </span>
             )}
@@ -119,7 +119,7 @@ export default function CustomerPortalPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="animate-fadeIn">
+        <div>
           {activeTab === 'profile' && <CustomerProfileTab project={project} setProject={setProject} />}
           {activeTab === 'service' && <CustomerServiceTab project={project} />}
           {activeTab === 'requests' && <CustomerRequestsTab project={project} />}

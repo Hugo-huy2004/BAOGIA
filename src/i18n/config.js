@@ -30,12 +30,6 @@ const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
   en: () => import('./locales/en/translation.json'),
   zh: () => import('./locales/zh/translation.json'),
-  th: () => import('./locales/th/translation.json'),
-  ja: () => import('./locales/ja/translation.json'),
-  ko: () => import('./locales/ko/translation.json'),
-  id: () => import('./locales/id/translation.json'),
-  es: () => import('./locales/es/translation.json'),
-  fr: () => import('./locales/fr/translation.json'),
 };
 
 const resources = Object.fromEntries(

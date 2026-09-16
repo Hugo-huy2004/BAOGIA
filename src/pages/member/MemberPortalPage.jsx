@@ -41,6 +41,7 @@ import {
   setPortalThemePreference,
 } from "../../utils/portalThemePreference";
 import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
+import "../../styles/memberPortalShell.css";
 import "../../styles/memberPortal27.css";
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
@@ -715,6 +716,28 @@ function MemberPortalPage() {
     if (e) e.preventDefault();
     const data = override || formData;
     if (data.bio && data.bio.trim().split(/\s+/).filter(Boolean).length > 110) { showToast(t("memberPortal.toast.descLimitExceeded"), "error"); return; }
+    
+    // Validate Bio against content filters
+    if (data.bio && data.bio.trim() !== "") {
+      const { validateMessageContent } = await import("../../utils/contentFilter");
+      const validationResult = validateMessageContent(data.bio, t, "bio");
+      if (!validationResult.isValid) {
+        showToast(validationResult.errorMessage, "error");
+        return;
+      }
+      data.bio = validationResult.fixedMessage;
+    }
+    
+    if (data.displayName && data.displayName.trim() !== "") {
+      const { validateMessageContent, formatMessage } = await import("../../utils/contentFilter");
+      const nameValidation = validateMessageContent(data.displayName, t, "bio");
+      if (!nameValidation.isValid) {
+        showToast(nameValidation.errorMessage, "error");
+        return;
+      }
+      data.displayName = formatMessage(data.displayName);
+    }
+
     setSaving(true);
     try {
       if (isGuestMode) { setBio(data); memberService.saveGuestBio(data); showToast(t("memberPortal.toast.partnerSaveSuccess"), "success"); }

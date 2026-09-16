@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import NotificationBell from "../member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
 import { useTranslation } from "react-i18next";
+import HugoLogo from "../HugoLogo";
 
 const NAV_ITEMS = [
   { id: "today", labelKey: "memberPortal.navigation.today", icon: "today", path: "/member/today" },
@@ -75,71 +76,48 @@ export default function DesktopAppleLayout({
       {/* ── SIDEBAR ─────────────────────────────────────────────────────── */}
       <motion.aside
         initial={false}
-        animate={{ width: sidebarCollapsed ? 72 : 248 }}
+        animate={{ width: sidebarCollapsed ? 64 : 220 }}
         transition={{ type: "spring", stiffness: 360, damping: 34 }}
         className="desktop-apple-sidebar shrink-0 h-full flex flex-col overflow-hidden"
       >
-        {/* Brand */}
-        <div className="h-14 flex items-center gap-2.5 px-4 shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>widgets</span>
-          </div>
-          {!sidebarCollapsed && (
-            <span className="font-semibold text-foreground tracking-tight truncate">Hugo Studio</span>
-          )}
+        {/* Thanh tiêu đề sidebar — cao đúng bằng thanh công cụ bên phải để
+            hai đường kẻ ngang gặp nhau, đúng kiểu cửa sổ macOS. */}
+        <div className="h-14 shrink-0 flex items-center px-3.5">
+          <HugoLogo className="h-7 w-7 shrink-0" />
         </div>
 
-        {/* Nav groups */}
-        <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1 scrollbar-hide" aria-label={t("memberPortal.navigation.primaryNavigation")}>
+        <nav
+          className="flex-1 overflow-y-auto px-2 pb-2 scrollbar-hide"
+          aria-label={t("memberPortal.navigation.primaryNavigation")}
+        >
           {navigationItems.map((item) => {
-                const active = activeTab === item.id;
-                const label = t(item.labelKey);
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => navigate(item.path)}
-                    title={sidebarCollapsed ? label : undefined}
-                    aria-current={active ? "page" : undefined}
-                    data-section={item.id}
-                    className={`desktop-apple-nav-item w-full flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium ${
-                      active ? "is-active" : ""
-                    } ${sidebarCollapsed ? "justify-center" : ""}`}
+            const active = activeTab === item.id;
+            const label = t(item.labelKey);
+            return (
+              <div key={item.id}>
+                {/* Tài khoản là "bạn", không phải một mục của app: macOS tách
+                    nhóm bằng một đường kẻ mảnh chứ không bằng tiêu đề nhóm. */}
+                {item.id === "account" && <hr className="desktop-apple-nav-sep" />}
+                <button
+                  onClick={() => navigate(item.path)}
+                  title={sidebarCollapsed ? label : undefined}
+                  aria-current={active ? "page" : undefined}
+                  className={`desktop-apple-nav-item ${active ? "is-active" : ""} ${
+                    sidebarCollapsed ? "is-rail" : ""
+                  }`}
+                >
+                  <span
+                    className="material-symbols-outlined desktop-apple-nav-icon"
+                    style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}
                   >
-                    <span className="desktop-apple-nav-icon w-7 h-7 flex items-center justify-center shrink-0">
-                      <span className={`material-symbols-outlined text-[17px] ${active ? "text-primary" : "text-muted-foreground"}`} style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>
-                        {item.icon}
-                      </span>
-                    </span>
-                    {!sidebarCollapsed && <span className="truncate">{label}</span>}
-                  </button>
-                );
+                    {item.icon}
+                  </span>
+                  {!sidebarCollapsed && <span className="truncate">{label}</span>}
+                </button>
+              </div>
+            );
           })}
         </nav>
-
-        {/* Footer user chip */}
-        <button
-          onClick={() => navigate(isGuestMode ? "/login" : "/member/account")}
-          className={`shrink-0 m-2 flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted transition-colors ${sidebarCollapsed ? "justify-center" : ""}`}
-          title={t("memberPortal.navigation.account")}
-        >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="w-8 h-8 rounded-full object-cover shrink-0" />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary text-white font-semibold text-sm flex items-center justify-center shrink-0">
-              {displayName[0]?.toUpperCase()}
-            </div>
-          )}
-          {!sidebarCollapsed && (
-            <div className="min-w-0 text-left flex-1">
-              <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
-              <p className="text-xs text-muted-foreground truncate">
-                {isGuestMode
-                  ? t("memberPortal.navigation.signInToSync")
-                  : t("memberPortal.navigation.viewProfile")}
-              </p>
-            </div>
-          )}
-        </button>
       </motion.aside>
 
       {/* ── MAIN ────────────────────────────────────────────────────────── */}

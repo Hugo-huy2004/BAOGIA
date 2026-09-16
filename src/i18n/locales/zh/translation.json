@@ -464,11 +464,94 @@
       "adminChangeDescription": "如需修改，请联系 Hugo Studio 管理员。"
     },
     "settings": {
-      "customizeThemeDesc": "自定义门户界面主题",
-      "appNotifications": "应用通知",
-      "appNotificationsDesc": "接收系统活动与新动态通知",
-      "enableNotifications": "开启通知",
-      "biometricNotSupported": "当前设备不支持生物识别登录"
+      "title": "设置",
+      "desc": "您的通知、快速登录和一些其他功能，都在这里。",
+      "account": {
+        "summary": "账户信息、支付和设置",
+        "bioTitle": "Hugo Bio 个人资料",
+        "bioDescription": "自定义你的外观、会员卡和社交链接",
+        "publicIdentityNote": "您的用户名和头像在 Hugo Studio 网络上公开显示",
+        "notifications": "通知",
+        "notificationsDescription": "配置 Web Push 消息通知",
+        "privacy": "隐私和访问权限",
+        "privacyDescription": "隐私和生物识别登录",
+        "topUpJoy": "添加 JOY",
+        "redeemCode": "兑换码",
+        "giftJoy": "赠送JOY",
+        "language": "语言",
+        "publicBio": "公开 Bio 页面",
+        "publicBioDescription": "打开你的公开 Bio 页面",
+        "signOut": "退出登录",
+        "personalInformation": "个人信息",
+        "saveInformation": "保存信息",
+        "notificationSettings": "通知设置",
+        "pushDescription": "获取关于活动、消息和奖励的更新",
+        "done": "完成",
+        "privacyBiometrics": "隐私和生物识别",
+        "biometricUnsupported": "此设备不支持Face ID或WebAuthn",
+        "chooseLanguage": "选择语言"
+      },
+      "groupNotifications": "通知",
+      "groupLogin": "登录",
+      "groupPreferences": "更多内容",
+      "pushTitle": "推送通知",
+      "pushDesc": "即使应用程序关闭，也会收到关于JOY、包裹和其他酷更新的简短提醒",
+      "pushProcessing": "稍等...",
+      "pushOn": "在",
+      "pushOff": "不在",
+      "pushUnsupported": "您的浏览器目前无法进行推送通知。",
+      "pushEnabledToast": "现在已开启！",
+      "pushDisabledToast": "通知已关闭。",
+      "pushDeniedToast": "通知被阻止了。你可以在这里重新开启它们。",
+      "pushErrorToast": "哎呀，这不起作用。你想要再试一次吗？",
+      "soundTitle": "通知声音",
+      "soundDesc": "当有新内容出现时，即使手机锁屏也能发出轻微的声音。",
+      "soundOn": "在",
+      "soundOff": "不在",
+      "languageTitle": "语言选择",
+      "languageDesc": "请选择你想看到的语言——下次会记住。",
+      "groupWidgets": "浮出式按钮",
+      "hbotTitle": "隐藏Culi助手",
+      "hbotDesc": "显示Culi助手浮动按钮。如果它正在阻止某些东西，请将其关闭。",
+      "donationTitle": "Coffee button",
+      "donationDesc": "Show the little floating button for sending the Hugo Studio team a coffee.",
+      "comingSoonTitle": "Coming soon",
+      "comingSoonDesc": "More fun stuff (like themes and privacy) is on its way!",
+      "logout": "退出",
+      "page": {
+        "profileSettings": "Profile settings",
+        "showBio": "Show Bio page",
+        "openBioPublic": "公开公共生物页面",
+        "systemSettings": "系统设置",
+        "appearance": "外观与主题",
+        "linkCards": "链接卡片",
+        "projectsWorks": "项目与作品",
+        "prefsNotifs": "偏好设置与通知",
+        "quickLogin": "快速登录",
+        "smartPrefs": "智能预设",
+        "language": "语言",
+        "changeAvatar": "更换头像",
+        "pushStatusOn": "天气推送",
+        "pushStatusPrompt": "获取重要提醒",
+        "save": "保存更改",
+        "saving": "正在保存...",
+        "weatherBgTitle": "实时天气背景",
+        "weatherBgDesc": "白天和风暴中活跃，晴朗夜晚自动关闭以节省电池",
+        "weatherAlertTitle": "严重天气警报",
+        "weatherAlertDesc": "天气变坏时提醒你做好准备——自动开启，当位置和通知权限被授予。",
+        "soundDescShort": "晚22:00至07:00自动静音，日间恢复。",
+        "donationDescShort": "隐藏得很好，不会打扰你；启用时支持Hugo。"
+      },
+      "biometric": {
+        "title": "指纹登录",
+        "desc": "使用你的指纹或面部代替每次使用Google登录。",
+        "removeBtn": "+",
+        "registerBtn": "关闭",
+        "registering": "稍等...",
+        "registerSuccess": "Nice! Fingerprint or Face login已开启给这个设备！",
+        "registerError": "哎呀，这不起作用。你想要再试一次吗？",
+        "deviceComputer": "计算机"
+      }
     },
     "accountHub": {
       "done": "完成",
@@ -1158,7 +1241,8 @@
         "joyRulesTitle": "JOY 表格与规则",
         "joyRulesSubtitle": "如何获得 JOY、各项价格、手续费与上限——以表格呈现。",
         "joyRulesDetail": "每日收入、租用与买断价格、套餐、手续费"
-      }
+      },
+      "pinShort": "密码"
     },
     "bento": {
       "profileSub": "头像、名字及简介",
@@ -1902,96 +1986,6 @@
       "reopensMonday": "周一重新开放",
       "alreadyClaimedToday": "今天已检查",
       "claimToday": "检查入住 · +{{amount, joy}}"
-    },
-    "settings": {
-      "title": "设置",
-      "desc": "您的通知、快速登录和一些其他功能，都在这里。",
-      "account": {
-        "summary": "账户信息、支付和设置",
-        "bioTitle": "Hugo Bio 个人资料",
-        "bioDescription": "自定义你的外观、会员卡和社交链接",
-        "publicIdentityNote": "您的用户名和头像在 Hugo Studio 网络上公开显示",
-        "notifications": "通知",
-        "notificationsDescription": "配置 Web Push 消息通知",
-        "privacy": "隐私和访问权限",
-        "privacyDescription": "隐私和生物识别登录",
-        "topUpJoy": "添加 JOY",
-        "redeemCode": "兑换码",
-        "giftJoy": "赠送JOY",
-        "language": "语言",
-        "publicBio": "公开 Bio 页面",
-        "publicBioDescription": "打开你的公开 Bio 页面",
-        "signOut": "退出登录",
-        "personalInformation": "个人信息",
-        "saveInformation": "保存信息",
-        "notificationSettings": "通知设置",
-        "pushDescription": "获取关于活动、消息和奖励的更新",
-        "done": "完成",
-        "privacyBiometrics": "隐私和生物识别",
-        "biometricUnsupported": "此设备不支持Face ID或WebAuthn",
-        "chooseLanguage": "选择语言"
-      },
-      "groupNotifications": "通知",
-      "groupLogin": "登录",
-      "groupPreferences": "更多内容",
-      "pushTitle": "推送通知",
-      "pushDesc": "即使应用程序关闭，也会收到关于JOY、包裹和其他酷更新的简短提醒",
-      "pushProcessing": "稍等...",
-      "pushOn": "在",
-      "pushOff": "不在",
-      "pushUnsupported": "您的浏览器目前无法进行推送通知。",
-      "pushEnabledToast": "现在已开启！",
-      "pushDisabledToast": "通知已关闭。",
-      "pushDeniedToast": "通知被阻止了。你可以在这里重新开启它们。",
-      "pushErrorToast": "哎呀，这不起作用。你想要再试一次吗？",
-      "soundTitle": "通知声音",
-      "soundDesc": "当有新内容出现时，即使手机锁屏也能发出轻微的声音。",
-      "soundOn": "在",
-      "soundOff": "不在",
-      "languageTitle": "语言选择",
-      "languageDesc": "请选择你想看到的语言——下次会记住。",
-      "groupWidgets": "浮出式按钮",
-      "hbotTitle": "隐藏Culi助手",
-      "hbotDesc": "显示Culi助手浮动按钮。如果它正在阻止某些东西，请将其关闭。",
-      "donationTitle": "Coffee button",
-      "donationDesc": "Show the little floating button for sending the Hugo Studio team a coffee.",
-      "comingSoonTitle": "Coming soon",
-      "comingSoonDesc": "More fun stuff (like themes and privacy) is on its way!",
-      "logout": "退出",
-      "page": {
-        "profileSettings": "Profile settings",
-        "showBio": "Show Bio page",
-        "openBioPublic": "公开公共生物页面",
-        "systemSettings": "系统设置",
-        "appearance": "外观与主题",
-        "linkCards": "链接卡片",
-        "projectsWorks": "项目与作品",
-        "prefsNotifs": "偏好设置与通知",
-        "quickLogin": "快速登录",
-        "smartPrefs": "智能预设",
-        "language": "语言",
-        "changeAvatar": "更换头像",
-        "pushStatusOn": "天气推送",
-        "pushStatusPrompt": "获取重要提醒",
-        "save": "保存更改",
-        "saving": "正在保存...",
-        "weatherBgTitle": "实时天气背景",
-        "weatherBgDesc": "白天和风暴中活跃，晴朗夜晚自动关闭以节省电池",
-        "weatherAlertTitle": "严重天气警报",
-        "weatherAlertDesc": "天气变坏时提醒你做好准备——自动开启，当位置和通知权限被授予。",
-        "soundDescShort": "晚22:00至07:00自动静音，日间恢复。",
-        "donationDescShort": "隐藏得很好，不会打扰你；启用时支持Hugo。"
-      },
-      "biometric": {
-        "title": "指纹登录",
-        "desc": "使用你的指纹或面部代替每次使用Google登录。",
-        "removeBtn": "+",
-        "registerBtn": "关闭",
-        "registering": "稍等...",
-        "registerSuccess": "Nice! Fingerprint or Face login已开启给这个设备！",
-        "registerError": "哎呀，这不起作用。你想要再试一次吗？",
-        "deviceComputer": "计算机"
-      }
     },
     "versionAd": {
       "eyebrow": "版本2.0 · 正式发布",
@@ -3003,6 +2997,10 @@
         "fullDescription": "观看由管理员管理的 3D 短片、科幻电影和经典电影。",
         "description": "公共领域电影：经典、动画、科幻和纪录片",
         "title": "寒冷高级版"
+      },
+      "friends": {
+        "title": "朋友们",
+        "description": "查找人员、联系并查看彼此的个人资料"
       }
     },
     "dashboard": {
@@ -3682,7 +3680,21 @@
       "needPlan": "需在商店中租用或购买 Hugo Profile 才能公开发布。查看自己的记录始终免费。",
       "published": "发布记录。",
       "unpublished": "从您的个人资料页中移除了该记录。",
-      "saveError": "无法保存设置。"
+      "saveError": "无法保存设置。",
+      "evidencePrivate": "私人的",
+      "evidenceTitle": "学习证据",
+      "evidenceLoading": "正在加载证据...",
+      "evidenceDescription": "通过 Study 验证的课程会自动成为您记录中的私人里程碑。",
+      "evidenceRetry": "再试一次",
+      "evidenceLoadError": "无法加载学习证据。",
+      "evidenceCompletedAt": "已于 {{date}} 研究验证",
+      "evidenceEmpty": "尚无证据",
+      "evidenceEmptyHint": "完成分级学习课程以创建您的第一个里程碑。",
+      "evidenceDeleted": "证据已删除。",
+      "evidenceLoadMore": "加载更多证据",
+      "evidenceDelete": "删除证据",
+      "evidenceDeleteConfirm": "删除“{{title}}”？该证据不会自动重新创建。",
+      "evidenceDeleteError": "证据无法删除。请再试一次。"
     }
   },
   "companion": {
@@ -4652,7 +4664,7 @@
       "webDev": "网页开发",
       "personalInfo": "个人档案",
       "teammateInfo": "团队成员",
-      "bioEdu": "Bio Edu 服务",
+      "bioEdu": "Hugo Edu+ 服务",
       "webService": "建站服务",
       "hobbies": "兴趣爱好",
       "philosophy": "理念",
@@ -4691,7 +4703,7 @@
       "eduTitle": "教育 / 学历\\n\n- Bachelor of Science in Computer Science\n- Master of Arts in Information Technology\n\n如有任何问题，请联系support@hugostudio.com.",
       "highSchool": "阮庭沼高中",
       "highSchoolDesc": "我的学院（MyTho学院）",
-      "uni": "Greenwich越南",
+      "uni": "格林威治越南",
       "uniDesc": "格林威治大学",
       "hsBadge": "高中",
       "hsSub": "那是我编程思维成型和培养的地方",
@@ -4715,7 +4727,7 @@
       "highSchool": "高棉杜昂中学",
       "highSchoolDesc": "位于坚江的活力高中。",
       "highSchoolProvince": "前江省美湫市",
-      "uniTitle": "Greenwich越南",
+      "uniTitle": "格林威治越南",
       "uniDesc": "与英国格林威治大学相关的国际培训环境。",
       "uniTag": "附属大学"
     },
@@ -4912,7 +4924,7 @@
         },
         "university": {
           "label": "软件工程·毕业年份",
-          "name": "Greenwich越南",
+          "name": "越南格林威治大学",
           "detail": "无边界教育",
           "slogan": "格林威治越南与FPT教育的徽标",
           "logoAlt": "南越中学 Nguyen Dinh Chieu 学校 emblem"
@@ -4943,7 +4955,7 @@
       "howTitle": "我如何打造产品",
       "stat1v": "Gen Z",
       "stat1l": "Generation",
-      "stat2v": "Greenwich",
+      "stat2v": "格林威治",
       "stat2l": "大四 · 软件工程",
       "partnerLabel": "共同开发：",
       "contactTitle": "保持联系。",
@@ -4980,14 +4992,133 @@
         ]
       },
       "meta": {
-        "title": "Peter Hugo Wishpax Lê — Software Engineering & Product Design Portfolio",
-        "description": "The personal portfolio of Peter Hugo Wishpax Lê, a final-year Software Engineering student at Greenwich Vietnam, encompassing his education, technical repertoire and selected digital products.",
-        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, software engineer portfolio, Software Engineering student, Greenwich Vietnam, React projects"
+        "title": "Peter Hugo Wishpax Lê — 软件工程与产品设计作品集",
+        "description": "越南格林威治大学软件工程专业应届生 Peter Hugo Wishpax Lê 的个人作品集，收录学习经历、技术能力与已上线的数字产品。",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, 软件工程师作品集, 软件工程学生, 越南格林威治大学, React 项目"
       },
       "heroCvCta": "下载简历",
       "weak3": "My degree covered many languages broadly rather than one deeply — I can read and modify code, but I am not yet specialised in any single language.",
       "horsePrompt": "千里马在此！求支持，嘶嘶！",
       "donateBtn": "支持 Hugo (捐赠)"
+    },
+    "story": {
+      "hero": {
+        "line1": "起于一笔设计。",
+        "line2": "止于一行代码。",
+        "line3": "一手包办。",
+        "lede": "我是 {{name}}，自由接案的网页开发者。从简介网站到完整的应用系统，设计、编码、上线，都由我一人完成。每个项目都有可以直接打开试用的线上版本。",
+        "ctaStart": "开始一个项目",
+        "ctaCv": "查看简历",
+        "ctaCvAria": "查看 {{name}} 的简历"
+      },
+      "work": {
+        "label": "项目",
+        "heading": "有始，有终。",
+        "subtitle": "三个真正在运行的项目，面向真实用户。打开即可使用，无需注册。",
+        "viewAll": "查看全部项目"
+      },
+      "services": {
+        "label": "服务",
+        "heading": "三种方式，走得更远。",
+        "chapter1": {
+          "eyebrow": "01 · 多页网站",
+          "title": "一个网站，说清你想说的一切。",
+          "description": "关于、服务、作品与联系。每一页各司其职，节奏始终如一。"
+        },
+        "chapter2": {
+          "eyebrow": "02 · 单页落地页",
+          "title": "一页，也足以成事。",
+          "description": "信息、画面与行动按钮，都落在该在的位置。把浏览变成客户。"
+        },
+        "chapter3": {
+          "eyebrow": "03 · 性能与 SEO",
+          "title": "从 0 到 100，然后更远。",
+          "description": "页面更轻。结构更清楚。搜索引擎读得懂，客户找得到。"
+        },
+        "progress1": "多页网站",
+        "progress2": "落地页",
+        "progress3": "SEO 加速",
+        "speedUnit": "性能分",
+        "mergeLabel": "启动推广",
+        "seoBurst1": "加速",
+        "seoBurst2": "SEO",
+        "cta": "了解更多服务内容"
+      },
+      "profile": {
+        "kicker": "简介",
+        "heading": "课堂打底。\n项目练手。",
+        "summary": "我喜欢做人们每天都会打开的东西。界面、接口、数据库——三层，一个人做。上线之后的运维，也由我自己接着管。",
+        "educationHeading": "求学经历",
+        "school1": {
+          "school": "阮廷炤高中",
+          "period": "2020.09 – 2023.06",
+          "degree": "高中毕业",
+          "description": "我的求学之路起步于这所历史可追溯至1879年的学校，其前身为 Collège de Mytho。美湫逾百年的崇学传统，是我培养自律、解决问题的思维和协作精神的基础。"
+        },
+        "school2": {
+          "school": "格林威治越南",
+          "period": "2023.08 – 至今",
+          "degree": "计算机学士课程 · 在读",
+          "description": "就读于英国格林威治大学与 FPT 大学合作开设的课程。我将所学运用于软件工程、系统设计及网页与移动应用开发，让课堂知识转化为真正投入使用的产品。"
+        },
+        "milestoneNow": "至今",
+        "techHeading": "我用的技术",
+        "techNote": "这里的每一项，都在真实项目里跑过。",
+        "catFrontend": "前端",
+        "catBackend": "服务端",
+        "catDatabase": "数据",
+        "catDevops": "运维",
+        "promiseLabel": "承诺",
+        "promiseHeading": "从样稿到交付，\n都让你放心。",
+        "promise1": {
+          "title": "免费咨询。",
+          "desc": "先来聊聊，把范围定清楚。一分钱还没花，你已经知道会拿到什么。"
+        },
+        "promise2": {
+          "title": "先看样稿，再做决定。",
+          "desc": "设计稿你先过目，满意了再往下走——不用闭着眼睛买。"
+        },
+        "promise3": {
+          "title": "终身修 bug。",
+          "desc": "只要是我写的代码出的问题，免费修，不限时间。"
+        },
+        "cvLabel": "查看完整简历"
+      },
+      "contact": {
+        "heading1": "有想法吗？",
+        "heading2": "一条消息，就是开始。",
+        "desc": "留个言。24 小时内回复。",
+        "emailLabel": "直接发邮件",
+        "nameLabel": "姓名",
+        "namePlaceholder": "张三",
+        "emailFieldLabel": "你的邮箱",
+        "emailPlaceholder": "email@example.com",
+        "messageLabel": "留言",
+        "messagePlaceholder": "你需要做什么、现有网站（如果有）、希望的交付时间…",
+        "submit": "发送留言",
+        "mailSubject": "来自 {{name}} 的咨询"
+      }
+    },
+    "spell": {
+      "line": "你好。说一声{{a}}、{{b}} 或 {{c}}，说到，就看到。",
+      "listening": "正在聆听。",
+      "spells": [
+        {
+          "say": "撒爱心",
+          "keys": "撒爱心, 爱心, 心, 喜欢",
+          "kind": "heart"
+        },
+        {
+          "say": "放烟花",
+          "keys": "放烟花, 烟花, 火花, 炸",
+          "kind": "spark"
+        },
+        {
+          "say": "下水滴",
+          "keys": "下水滴, 水滴, 下雨, 雨",
+          "kind": "drop"
+        }
+      ]
     }
   },
   "servicesPage": {
@@ -5677,7 +5808,7 @@
     },
     "meta": {
       "title": "关于 Hugo Studio 的常见问题解答",
-      "description": "Answers about website design services, Bio pages for learners, pricing, delivery time and how Hugo Studio works alongside each project.",
+      "description": "关于网站设计服务、学生 Bio 页面、费用、周期，以及 Hugo Studio 如何陪伴每个项目的解答。",
       "keywords": "Hugo Studio questions, website design service, student Bio page, website cost"
     }
   },
@@ -5727,12 +5858,16 @@
         "title": "我能帮你什么？",
         "hint": "请选择最接近的选项；目前尚未做出决定。"
       },
+      "warranty": {
+        "title": "支持与保修",
+        "hint": "确定项目完成后的协助程度。"
+      },
       "budget": {
-        "title": "大致的投资金额让我能推荐一个相应的范围。",
-        "hint": "提供一个大概的投资数额，以便我为你推荐一个合适的范围。"
+        "title": "你打算投入多少？",
+        "hint": "这个数字不构成任何承诺。它只帮我排先后——先做值得先做的，其余的可以等。"
       },
       "timeline": {
-        "title": "When do you need it?",
+        "title": "你希望什么时候完成？",
         "hint": "设定一个时间框架可以使计划更加现实。"
       },
       "details": {
@@ -5770,22 +5905,42 @@
         "desc": "描述预期结果；Hugo将帮助您决定一个适当的策略。"
       }
     },
+    "warranties": {
+      "noSupport": {
+        "title": "自我管理 (无保修)",
+        "desc": "仅交付源代码。适合有内部IT团队的用户。"
+      },
+      "standard": {
+        "title": "标准 (3 个月)",
+        "desc": "涵盖技术错误。不包括新功能。"
+      },
+      "extended": {
+        "title": "扩展 (1 年)",
+        "desc": "包括服务器问题解决和最多2次小规模更新。"
+      },
+      "comprehensive": {
+        "title": "全面 (每月)",
+        "desc": "持续维护、安全更新、备份及不间断支持。"
+      }
+    },
     "sections": {
       "project": "您需要什么帮助？",
       "projectHint": "请选择最接近的选项。这里的内容不会阻止稍后选择不同的方向。",
-      "budget": "大致的投资金额让我能推荐一个相应的范围。",
-      "budgetHint": "这是一项适度的推荐；这不是一项财务承诺。",
+      "warranty": "保修与支持政策",
+      "warrantyHint": "确认范围后可随时调整。",
+      "budget": "预计投入",
+      "budgetHint": "选最接近的区间，随时可以改。",
       "timeline": "首选时间范围",
       "notes": "一些额外的背景信息（可选）",
       "notesHint": "选择一个提示开始，然后根据您的情况对其进行修改。",
       "timelineHint": "请选择最接近您期望的那个。"
     },
     "budgets": {
-      "unsure": "Not determined",
-      "underOne": "Below VND 1m",
-      "oneToThree": "VND 1–3m",
-      "threeToEight": "VND 3–8m",
-      "overEight": "Above VND 8m"
+      "unsure": "听你建议",
+      "underOne": "100 万越南盾以下",
+      "oneToThree": "100–300 万越南盾",
+      "threeToEight": "300–800 万越南盾",
+      "overEight": "800 万越南盾以上"
     },
     "timelines": {
       "flexible": "Flexible",
@@ -5830,7 +5985,8 @@
     "summary": {
       "title": "开始重新回答",
       "project": "咨询摘要",
-      "budget": "需求",
+      "warranty": "支持与保修",
+      "budget": "投入",
       "timeline": "投资",
       "notes": "时间框架",
       "age": "备注",
@@ -6100,8 +6256,8 @@
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "获取你的可爱个人简介页面 —— 免费12个月！ | Hugo Studio",
-    "metaDesc": "获得无广告、美观的便当型作品集链接。任何 .edu 邮箱地址即可享受快速定制且完全免费的服务！",
+    "metaTitle": "Hugo Edu+ —— 面向学生的免费 Bio 页面 | Hugo Studio",
+    "metaDesc": "用学校邮箱完成验证，即可获得专属 Bio 页面，免费 365 天。三套现成主题随时切换；若需要完整网站套餐，另有学生优惠。",
     "backToServices": "返回服务",
     "giftSpark": "Spark 的 12 个月 —— 免费提供！",
     "title": "你的梦想简介页面",
@@ -7550,5 +7706,1031 @@
       "again": "重新扫描",
       "cameraError": "无法打开摄像头，请检查权限。"
     }
+  },
+  "friends": {
+    "tabs": {
+      "map": "地图",
+      "requests": "要求",
+      "discover": "发现",
+      "friends": "朋友们"
+    },
+    "errors": {
+      "load": "无法加载您的好友。",
+      "action": "无法完成该操作。",
+      "search": "目前无法进行搜索。",
+      "locationSettings": "在浏览器或设备设置中启用 Hugo Studio 的位置。",
+      "locationRequired": "在启用共享之前设置您的位置。",
+      "location": "无法获取您的位置。允许访问并重试。",
+      "profile": "无法打开此配置文件。"
+    },
+    "title": "朋友们",
+    "installRequiredTitle": "首先安装好友",
+    "openStore": "开设雨果商店",
+    "back": "返回应用程序",
+    "subtitle": "在 Hugo Studio 中找到您的朋友并保持联系。",
+    "installRequiredBody": "老友记是一个单独的应用程序。从 Hugo Store 下载并在此帐户上使用。",
+    "search": "搜索",
+    "sections": "好友应用部分",
+    "close": "关闭个人资料",
+    "nearbyTitle": "你附近的人",
+    "searchTooShort": "输入至少 2 个字符进行搜索。",
+    "searchPlaceholder": "姓名、用户名或标题...",
+    "gpsLive": "GPS·近乎实时",
+    "refreshNearby": "刷新附近的人",
+    "ipApproximate": "IP·市级",
+    "networkEnabled": "现在建议使用您的大致 IP 区域。",
+    "locationPermissionBlocked": "位置权限已关闭。在浏览器或设备设置中启用它；该应用程序不会再询问。",
+    "nearbyEnabled": "附近的建议已开启。",
+    "networkPrivacy": "使用网络 IP 表示大致区域。 VPN 或移动网络可以移动此位置。",
+    "findNearby": "启用附近的位置和搜索",
+    "locationUnavailable": "GPS 和 IP 位置不可用。该应用程序下次将自动重试。",
+    "nearbyPrivacy": "GPS 询问一次，然后在应用程序打开时刷新。如果 GPS 不可用，应用程序会自动使用城市级 IP 位置。",
+    "locating": "自动定位",
+    "loading": "正在加载好友地图",
+    "locationSharingOn": "现在，分享的朋友可以看到您的大致位置。",
+    "shareLocationPrivacy": "只有也分享其位置的接受好友才能看到您的大致 PIN 码。",
+    "discoveryOff": "您在搜索中被隐藏，并且您的社交位置已被删除。",
+    "locationSharingOff": "您的位置对朋友隐藏。",
+    "shareLocation": "与朋友分享大概位置",
+    "distance": "大约 {{count}} 公里远",
+    "discoverable": "让其他会员找到我",
+    "discoveryOn": "其他成员现在可以找到您。",
+    "reject": "衰退",
+    "pending": "请求已发送",
+    "accept": "接受",
+    "add": "添加好友",
+    "alreadyFriends": "已经是朋友了",
+    "accepted": "您现在已连接。",
+    "declinedToast": "好友请求被拒绝。",
+    "declined": "请求不可用",
+    "sent": "好友请求已发送。",
+    "cancelled": "好友请求已取消。",
+    "cancelRequest": "取消请求",
+    "incoming": "传入请求",
+    "outgoing": "等待回复",
+    "emptyDiscoverTitle": "还没有人发现",
+    "removed": "好友已删除。",
+    "unfriend": "删除好友",
+    "noOutgoing": "没有请求正在等待。",
+    "emptyDiscoverBody": "成员必须启用发现才能出现在此处。",
+    "emptyFriendsTitle": "你的好友列表为空",
+    "noIncoming": "您没有新的请求。",
+    "fullProfile": "查看完整档案",
+    "enableSharing": "设置",
+    "mapPrivacy": "图钉四舍五入到大约 100 m，并且仅当两个朋友都启用位置共享时才会出现。",
+    "mapTitle": "好友地图",
+    "emptyMapTitle": "尚无共享位置",
+    "mutualFriends": "{{count}} 个共同的朋友",
+    "friendCount": "{{count}} 个朋友",
+    "emptyFriendsBody": "打开“发现”来搜索或查找您附近的人。",
+    "mapPrivacyShort": "仅在共享的朋友之间可见",
+    "peopleOnMap": "地图上有 {{count}} 个朋友",
+    "satellite": "卫星",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "mapSharingRequired": "启用位置共享以查看也在共享的朋友。",
+    "emptyMapBody": "您的朋友尚未与您分享大致位置。",
+    "mapGestureHint": "拖动·捏合进行缩放",
+    "approximatePin": "近似引脚",
+    "directions": "前往您最近的朋友的路线",
+    "friendMapTitle": "{{name}} 的大概位置",
+    "ipLocation": "城市级IP定位·不精准GPS",
+    "hidden": "隐",
+    "link": "关联",
+    "manage": "寻找朋友",
+    "editProfile": "编辑个人资料",
+    "playChess": "邀请下棋",
+    "visible": "可发现的",
+    "approximateLocation": "大概位置 · 打开个人资料"
+  },
+  "servicePkg": {
+    "connect": {
+      "name": "接入服务包",
+      "price": "350,000 – 900,000₫ · 一次性",
+      "body": "解析域名、安装安全证书、把网站部署到你的主机、连接数据库与接收表单的邮箱。若希望由 Hugo Studio 完成这部分，需要一并购买。"
+    },
+    "handCoded": {
+      "title": "100% 手写代码。",
+      "body": "界面的每一行代码都为这个项目而写，不套用现成模板，也不使用拖拽式建站工具。页面只加载真正需要的东西，不会因为第三方插件更新而出问题。"
+    },
+    "excludes": [
+      {
+        "title": "域名。",
+        "body": "由你自行购买并持有。Hugo Studio 提供选名建议和购买指引，但不出售域名，也不代持。"
+      },
+      {
+        "title": "主机与数据库。",
+        "body": "主机、VPS 和数据库均由你购买并拥有。Hugo Studio 不提供、也不转租任何基础设施。"
+      },
+      {
+        "title": "基础设施的接入工作。",
+        "body": "安装与连接属于接入服务包（350,000 – 900,000₫），与设计费分开计算。"
+      },
+      {
+        "title": "现成建站平台。",
+        "body": "Hugo Studio 只承接纯代码开发，不承接现成建站平台上的搭建或维护。如果你的需求属于这一类，第一次沟通时就会直说，不会做到一半才提。"
+      },
+      {
+        "title": "原始素材。",
+        "body": "文案、产品图、标志和品牌文件由你提供。如需撰写文案或拍摄，请提前告知以便单独报价。"
+      },
+      {
+        "title": "第三方费用。",
+        "body": "广告投放费、商用字体、付费图库、支付网关、邮件群发服务等，由你直接支付给服务商。"
+      }
+    ],
+    "policy": [
+      {
+        "title": "预付 50%。",
+        "body": "开工前支付定金，余款在验收后、正式交付前结清。"
+      },
+      {
+        "title": "含两轮修改。",
+        "body": "版面与文案的两轮修改已包含在价格内。第三轮起，或在定稿后改变方向，都会先报价再动工。"
+      },
+      {
+        "title": "成果归你所有。",
+        "body": "款项结清后，本项目的设计、文案与源代码归你所有。Hugo Studio 在多个项目间复用的代码库、框架与内部工具仍属 Hugo Studio，并授予你在本项目范围内的永久使用权。除非你另有要求，Hugo Studio 仅保留将项目收入作品集的权利。"
+      },
+      {
+        "title": "中途终止。",
+        "body": "你方终止时，已完成的部分按现状交付，定金不退。若因 Hugo Studio 的原因终止，或由 Hugo Studio 主动终止，未完成部分全额退还。"
+      }
+    ],
+    "priceNotice": {
+      "updated": "更新于 2026 年 09 月",
+      "lines": [
+        "所有金额以越南盾（VND）计价，为参考区间，并非固定价目表，也不构成具有约束力的要约。",
+        "正式价格以双方确认工作范围后的报价单与合同为准。",
+        "不含域名、主机、数据库、接入服务包，以及支付给第三方服务商的任何费用。",
+        "区间会随时间和实际工作量变动。已写入合同的金额不再变动。"
+      ]
+    },
+    "extraFees": [
+      {
+        "title": "增加一个页面",
+        "price": "450,000 – 900,000₫ / 页",
+        "body": "页面数量超出已确认清单时适用。越接近已有页面的版式，价格越靠近下限。"
+      },
+      {
+        "title": "第三轮起的修改",
+        "price": "250,000 – 600,000₫ / 轮",
+        "body": "前两轮已包含在价格内。之后按实际工作量计算，动工前先报价。"
+      },
+      {
+        "title": "加急",
+        "price": "套餐价 +25%",
+        "body": "当你需要把工期压缩到套餐条款所列区间以下时适用。"
+      },
+      {
+        "title": "质保期后的维护",
+        "price": "350,000₫ / 月",
+        "body": "每月两小时以内的例行检查与小幅更新。超出部分按每小时 200,000₫ 计算。"
+      }
+    ],
+    "studentDiscount": {
+      "title": "学生选购付费套餐：减 15%",
+      "body": "完成学生身份验证后，Hugo One、Hugo Story 与 Hugo Flow+ 的设计费减 15%。适用于个人项目、课程作业或社团项目，每人每学年一个项目，且不适用于支付给第三方服务商的费用。"
+    },
+    "items": {
+      "hugo-one": {
+        "title": "一个页面。一个目标。",
+        "lede": "一个静态页面：加载快，一口气读完，最后落在唯一一个动作上。适合你只需要讲清楚一件事的时候。",
+        "intro": [
+          "落地页不是缩小版的网站，而是一次完整的说服。访客进来，明白你卖什么，相信你做得到，然后点击。不服务于这条链路的内容，都会被拿掉。",
+          "只有一页，阅读顺序就是全部。核心信息放在第一屏。佐证出现在访客开始权衡的那一刻。行动按钮永远停在手指刚好够到的位置。"
+        ],
+        "audience": [
+          "需要一个落点来承接流量的广告投放。",
+          "想拥有独立链接的个人简介、作品集或在线简历。",
+          "需要轻量发布的一项服务、一门课程或一场活动。",
+          "在投入完整网站之前，先验证一个想法。"
+        ],
+        "includes": [
+          {
+            "title": "单页专属设计。",
+            "body": "不套用现成模板。版式、字体与配色都跟随你的品牌。"
+          },
+          {
+            "title": "文案与行动号召。",
+            "body": "把你提供的文字重新排列并适度润色，串成一条阅读线。一个主要动作，在该出现的地方重复。"
+          },
+          {
+            "title": "各种屏幕都好看。",
+            "body": "在真实的手机、平板和大屏上实测，而不是把浏览器窗口拉窄了事。"
+          },
+          {
+            "title": "联系表单。",
+            "body": "表单界面与基础防垃圾功能已含在价格内。要让提交内容进入你的邮箱，需要接入服务包和一个邮件服务账号。"
+          },
+          {
+            "title": "基础 SEO。",
+            "body": "标题、描述、社交分享图、站点地图，以及符合规范的标签结构，让 Google 读得懂。"
+          },
+          {
+            "title": "交付源代码。",
+            "body": "完整源代码与重新运行的说明，你或其他人都能接手。"
+          },
+          {
+            "title": "部署上线。",
+            "body": "在 Hugo Studio 的预览环境搭好可运行的版本，交付前把所有流程复查一遍。发布到你自己的域名和主机需要接入服务包。"
+          }
+        ],
+        "warranty": [
+          {
+            "title": "30 天免费修复。",
+            "body": "显示问题、表单问题、代码问题，自交付之日起免费修复。"
+          },
+          {
+            "title": "7 天小幅内容修改。",
+            "body": "改一句话、换一张图、更新电话号码。改版式则算作新的一轮修改。"
+          },
+          {
+            "title": "24 个工作小时内回复。",
+            "body": "通过项目开始时约定的渠道。导致网站无法访问的问题一律优先处理。"
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "工期 5 – 10 天。",
+            "body": "自收齐全部文案和图片起算。内容缺失则计时暂停。"
+          }
+        ],
+        "price": {
+          "from": "1,500,000₫",
+          "to": "3,500,000₫",
+          "note": "多数项目落在 200 万至 280 万之间。下限适用于 5 – 6 个内容区块、且文案已备好的页面。",
+          "factors": [
+            "页面上有多少内容区块——6 个和 14 个是两种工作量。",
+            "文案是现成的，还是需要润色、重写。",
+            "动效的多少与复杂度。",
+            "额外集成：地图、在线客服、预约、广告追踪。",
+            "工期短于 5 天的加急需求。"
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo One 适合用来投广告吗？",
+            "answer": "适合。当你有一个产品、服务或活动，希望把流量导向一个动作明确的页面时，这个套餐正合适。"
+          },
+          {
+            "question": "文案我已经有了，可以帮忙重新梳理吗？",
+            "answer": "可以。你提供的内容会被重新排列并适度润色，串成一条阅读线。若需要从零撰写销售文案，会另行报价。"
+          },
+          {
+            "question": "联系表单需要额外付费吗？",
+            "answer": "表单界面包含在 Hugo One 内。若要让提交内容送达你的邮箱或其他系统，需要额外购买接入服务包，并拥有相应的服务账号。"
+          },
+          {
+            "question": "交付之后我能自己改吗？",
+            "answer": "你会拿到源代码，自己改或交给别人接手都可以。Hugo One 不含内容管理系统，因此内容需要直接在代码中更新。"
+          }
+        ],
+        "features": [
+          "单页专属设计",
+          "各种屏幕都好看",
+          "文案与行动号召",
+          "联系表单",
+          "基础 SEO",
+          "部署上线"
+        ]
+      },
+      "hugo-story": {
+        "title": "多个页面。一个故事。",
+        "lede": "面向个人、小店与小型企业的多页展示网站。每个页面各司其职，最终都通向同一个决定。",
+        "intro": [
+          "要讲的事情多，却全部堆在一页上，结果是一件也没人读完。Hugo Story 把它们拆开：谁在哪里读什么，接下来又去哪里。",
+          "难的不是页面数量，而是页面之间的路径。菜单、正文内链和页尾按钮都经过安排，让访客始终有下一步，而不是退回首页然后离开。"
+        ],
+        "audience": [
+          "需要完整介绍服务与实力的小型企业。",
+          "需要菜单、价目、图片和地图的餐厅、咖啡馆、诊所与工作室。",
+          "业务线较多、且有作品可展示的自由职业者。",
+          "把社交主页当门面、想拥有一个属于自己的网址的人。"
+        ],
+        "includes": [
+          {
+            "title": "按需求搭建的页面结构。",
+            "body": "通常为 4 – 8 页：关于、服务、项目、动态、联系。清单在设计开始前确认。"
+          },
+          {
+            "title": "内容结构与导航。",
+            "body": "菜单、易读的网址、站内链接，以及每个页面结尾的行动按钮。"
+          },
+          {
+            "title": "表单、地图与社交链接。",
+            "body": "送达你邮箱的联系表单、指路地图，以及通往你现有渠道的链接。"
+          },
+          {
+            "title": "逐页 SEO。",
+            "body": "每个页面有独立的标题、描述与分享图。全站配备站点地图与结构化数据。"
+          },
+          {
+            "title": "各种屏幕都好看。",
+            "body": "在真实手机和电脑上实测，包含表格和多栏图片。"
+          },
+          {
+            "title": "交付源代码。",
+            "body": "完整源代码与重新运行的说明，你或其他人都能接手。"
+          }
+        ],
+        "warranty": [
+          {
+            "title": "45 天免费修复。",
+            "body": "凡属 Hugo Studio 搭建的部分，自交付之日起免费修复。"
+          },
+          {
+            "title": "14 天小幅内容修改。",
+            "body": "在已交付页面上改文字、换图片、更新营业时间。"
+          },
+          {
+            "title": "一次自助更新培训。",
+            "body": "线上进行并录屏，之后需要时可以回看。"
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "工期 2 – 4 周。",
+            "body": "自页面清单确认并收齐内容起算。"
+          },
+          {
+            "title": "页面数量先行确认。",
+            "body": "确认后再增加的页面按每页单价计算，动工前先达成一致。"
+          }
+        ],
+        "price": {
+          "from": "4,000,000₫",
+          "to": "8,000,000₫",
+          "note": "5 – 6 个页面的项目多数落在 500 万至 650 万之间。增加页面按下方单价计算。",
+          "factors": [
+            "页面数量，以及每个页面的复杂度。",
+            "是否需要可自行发布的动态／博客板块。",
+            "文案与图片的就绪程度。",
+            "多语言。",
+            "从旧网站迁移内容。"
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Story 一般做多少个页面？",
+            "answer": "常见范围是 4 – 8 页，例如关于、服务、项目、文章和联系。正式清单在设计开始前确认。"
+          },
+          {
+            "question": "以后我能自己发布文章吗？",
+            "answer": "基础套餐交付的是纯代码网站，不含内容管理系统。若需要自行发布，需另行评估合适的数据系统或接入服务包，这部分费用不含在设计费内。"
+          },
+          {
+            "question": "旧网站的内容可以迁移吗？",
+            "answer": "可以协助迁移，但工作量取决于页面、图片和数据的数量。这部分会在查看现有网站后单独报价。"
+          },
+          {
+            "question": "域名和主机包含在套餐里吗？",
+            "answer": "不包含。域名和主机由你自行购买并持有。Hugo Studio 只提供购买建议，并通过单独计费的接入服务包完成连接。"
+          }
+        ],
+        "features": [
+          "按需求搭建页面结构",
+          "内容结构与导航",
+          "表单、地图与社交链接",
+          "逐页 SEO",
+          "各种屏幕都好看",
+          "交付源代码"
+        ]
+      },
+      "hugo-flow-plus": {
+        "title": "卖货。就在你自己的网站上。",
+        "lede": "商品目录、购物车、支付与订单管理——同一套系统，挂在你的名下。面向真正在卖货的品牌，而不只是陈列。",
+        "intro": [
+          "卖货网站和展示网站只差一点：它必须准确。订单不能丢，库存不能错，进账要和订单对得上。",
+          "所以大部分功夫都在界面背后：订单状态、买卖双方的通知，以及一个足够用的后台，让一个人不打开代码也能把店开起来。"
+        ],
+        "audience": [
+          "已在电商平台或社交媒体销售、希望拥有免平台抽成的自有渠道的品牌。",
+          "需要把订单、库存和客户集中管理的店铺。",
+          "需要预约、占位或在线收款的服务。",
+          "需要自动售卖与交付的数字产品。"
+        ],
+        "includes": [
+          {
+            "title": "商品管理。",
+            "body": "目录、分类、规格、图片、价格与库存状态。"
+          },
+          {
+            "title": "购物车与订单。",
+            "body": "购物车、优惠码、运费、订单状态，以及买卖双方的通知。"
+          },
+          {
+            "title": "在线支付。",
+            "body": "对接一家由你注册的越南本地支付网关。网关手续费由服务商收取。"
+          },
+          {
+            "title": "客户账户。",
+            "body": "登录、购买记录与已保存的收货地址。"
+          },
+          {
+            "title": "管理后台。",
+            "body": "在这里查看订单、编辑商品、跟踪基础销售数据。软件由 Hugo Studio 搭建，数据存放在你自有的基础设施上。"
+          },
+          {
+            "title": "按需对接 API。",
+            "body": "物流、发票、财务，或你正在用的其他软件——清单在报价前确认。"
+          }
+        ],
+        "warranty": [
+          {
+            "title": "60 天免费修复。",
+            "body": "下单与支付链路上的问题享有最高优先级。"
+          },
+          {
+            "title": "30 天运营陪跑。",
+            "body": "真正开卖的第一个月里，遇到卡点随时支援。"
+          },
+          {
+            "title": "两次后台培训。",
+            "body": "一次在开卖前，一次在运营两周之后。"
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "工期 4 – 8 周。",
+            "body": "视对接数量而定。支付与物流服务商的审核时间由其自行决定。"
+          },
+          {
+            "title": "分三期付款。",
+            "body": "开工付 50%，内部测试付 30%，正式开卖付 20%。"
+          },
+          {
+            "title": "服务账号挂你名下。",
+            "body": "支付网关、物流公司、基础设施，全部用你的企业信息注册。"
+          },
+          {
+            "title": "客户数据归你所有。",
+            "body": "网站会收集买家的账户、地址与订单。收集与使用由你决定；Hugo Studio 仅在开发和修复的范围内、按你的要求接触这些数据。"
+          }
+        ],
+        "price": {
+          "from": "9,000,000₫",
+          "to": "20,000,000₫",
+          "note": "基础店铺通常落在 1,000 万至 1,400 万之间。把金额推高最多的，是对接数量。",
+          "factors": [
+            "商品与规格的数量。",
+            "需要对接的支付网关与物流公司数量。",
+            "是否需要与现有库存／财务软件同步。",
+            "管理后台的定制程度。",
+            "对报表与数据的要求。"
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Flow+ 会自建数据库吗？",
+            "answer": "不会。Hugo Studio 不提供也不出租数据库。本套餐只对接你已有或已购买的系统与 API。"
+          },
+          {
+            "question": "开工前我需要准备什么？",
+            "answer": "商品清单、定价与配送规则、支付或物流账号；若要对接外部服务，还需要相应的 API 文档。"
+          },
+          {
+            "question": "支付手续费和运费由谁承担？",
+            "answer": "由你直接支付给服务商。这些费用以及接入服务包的费用，都不含在 Hugo Flow+ 的开发费内。"
+          },
+          {
+            "question": "网站上线后还能加功能吗？",
+            "answer": "可以。新功能会单独评估并报价。已验收范围内的问题，仍按套餐质保期处理。"
+          }
+        ],
+        "features": [
+          "商品管理",
+          "购物车与订单",
+          "在线支付",
+          "对接你已有的数据",
+          "订单状态页",
+          "按需对接 API"
+        ]
+      },
+      "hugo-edu-plus": {
+        "title": "Bio 页面。专为学生而做。",
+        "lede": "用一个简洁的链接，介绍你自己、你的项目和所有重要链接。完成学生身份验证后，365 天免费。",
+        "intro": [
+          "学生通常还用不上一个网站，他们需要的是一个立足之地：一个可以附在申请材料里、发给老师、贴在个人主页上的链接。",
+          "Hugo Edu+ 就是这个地方。内容自己填、自己改，界面也在账户里自己换。不需要会写代码，也不必等别人代劳。"
+        ],
+        "audience": [
+          "需要一个页面来介绍自己和作品的中学生、大学生。",
+          "正在准备实习申请材料的学习者。",
+          "需要一个共用链接的社团与课题小组。",
+          "想在投入正式网站之前，先试试个人页面的人。"
+        ],
+        "includes": [
+          {
+            "title": "365 天免费。",
+            "body": "自验证通过之日起算。无需银行卡，不会自动续费扣款。"
+          },
+          {
+            "title": "专属链接，由 Hugo Studio 提供。",
+            "body": "一个带你名字、读得顺口的链接，发到哪里都得体。完全免费——不必买域名，也不需要接入服务包。"
+          },
+          {
+            "title": "头像与自我介绍。",
+            "body": "照片、职业标签、自我介绍与联系方式。"
+          },
+          {
+            "title": "项目与个人链接。",
+            "body": "带图片和说明的项目列表，以及你想指向的所有链接。"
+          },
+          {
+            "title": "在账户里自行更新。",
+            "body": "随时修改，即时生效，不用向任何人提交申请。"
+          },
+          {
+            "title": "各种屏幕都好看。",
+            "body": "多套现成界面，随时切换。"
+          }
+        ],
+        "warranty": [
+          {
+            "title": "365 天全程支持。",
+            "body": "显示或账户方面的问题，在 Hugo Studio 能够支持的范围内处理。"
+          },
+          {
+            "title": "数据归你所有。",
+            "body": "到期后页面暂时隐藏，数据仍保留在账户中，可随时导出或重新开启。"
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "验证一次即可。",
+            "body": "使用学校邮箱；若邮箱不属于学校域名，则提交在有效期内的学生证明。"
+          },
+          {
+            "title": "供学生个人使用。",
+            "body": "不得用作销售页面或企业官方页面。那类需求属于 Hugo One 及以上套餐。"
+          },
+          {
+            "title": "一个账户，一个 Bio 页面。",
+            "body": "社团或小组需要更多页面，可以单独沟通。"
+          },
+          {
+            "title": "计划可能调整。",
+            "body": "Hugo Studio 可能调整该计划或停止接受新的申请。已经开通的权益，仍会保留到期满为止。"
+          }
+        ],
+        "price": {
+          "from": "免费",
+          "to": "365 天",
+          "note": "通过验证后完全免费，含 Hugo Studio 提供的专属链接——你不需要购买域名。若需要 Bio 模板之外的定制设计，参考价为 1,500,000 – 3,000,000₫，先确认范围再谈价格。",
+          "factors": [
+            "365 天到期后：可续期或转为付费套餐，不会自动扣款。",
+            "按需定制的设计不在本套餐范围内。"
+          ]
+        },
+        "faq": [
+          {
+            "question": "谁可以免费使用 Hugo Edu+？",
+            "answer": "中学生、大学生或其他学习者，按 Hugo Studio 的流程用学校邮箱或有效学生证明完成验证即可。"
+          },
+          {
+            "question": "365 天从什么时候开始算？",
+            "answer": "从学生身份验证通过、权益开通的那一刻开始，而不是从你创建 Google 账户那天算起。"
+          },
+          {
+            "question": "365 天之后数据会丢失吗？",
+            "answer": "不会。页面可能按政策暂时隐藏，数据仍保留在账户中，可以导出、续期或转到其他套餐。"
+          },
+          {
+            "question": "我是学生，选购付费套餐有优惠吗？",
+            "answer": "有。通过验证的学习者，Hugo One、Hugo Story 与 Hugo Flow+ 的设计费减 15%。适用于个人项目、课程作业或社团项目，每人每学年一个项目，且不适用于支付给第三方服务商的费用。"
+          }
+        ],
+        "features": [
+          "365 天免费",
+          "专属 Bio 链接",
+          "头像与自我介绍",
+          "项目与个人链接",
+          "在账户里自行更新",
+          "各种屏幕都好看"
+        ]
+      }
+    },
+    "detail": {
+      "backToAll": "全部服务",
+      "discussCta": "聊聊你的项目",
+      "verifyCta": "验证学生身份",
+      "navLabel": "本页内容",
+      "nav": {
+        "intro": "介绍",
+        "audience": "适合谁",
+        "includes": "包含什么",
+        "excludes": "不包含",
+        "warranty": "质保",
+        "price": "费用"
+      },
+      "introKicker": "介绍",
+      "introCaption": "是什么。",
+      "audienceKicker": "适用人群",
+      "audienceTitle": "这个套餐适合谁。",
+      "includesKicker": "套餐包含",
+      "includesTitle": "你会得到什么。",
+      "includesLede": "以下所有项目都已含在价格内，不是另行加购的选项。",
+      "excludesLede": "先说清楚，方便你把预算算准，而不是快交付时才发现。",
+      "excludesKicker": "不包含",
+      "excludesTitle": "以及价格之外的部分。",
+      "warrantyKicker": "质保与支持",
+      "warrantyTitle": "交付之后。",
+      "policyKicker": "套餐条款",
+      "policyTitle": "规则，先讲明白。",
+      "priceKicker": "价格区间",
+      "priceTitle": "区间，以及它为什么会浮动。",
+      "priceScope": "先定范围，再谈价格。最终金额写在报价单和合同里，签了就不再变。",
+      "priceCta": "获取报价",
+      "priceFactors": "什么会把价格推高或拉低",
+      "extraFeesTitle": "常见加项，价格先公开",
+      "priceNoticeTitle": "关于价格",
+      "faqKicker": "常见问题",
+      "faqTitle": "先问清楚，省时间。",
+      "closingKicker": "下一步",
+      "closingTitle": "说说你需要什么。",
+      "closingTitleQuiet": "先定范围，再谈价格。",
+      "closingCta": "预约沟通",
+      "nextPackage": "查看",
+      "sampleAlt": "样例：",
+      "metaFallback": "服务 | Hugo Studio"
+    },
+    "page": {
+      "heroKicker": "服务 · Hugo Studio",
+      "heroLine1": "你的网站。",
+      "heroLine2": "客户的",
+      "heroLine3": "第一印象。",
+      "heroLede": "落地页与网站的做法是：让访客一眼看懂、足够相信，并且清楚该点哪里。",
+      "heroCta": "开始一个项目",
+      "heroCtaAlt": "看看做过的项目",
+      "scrollHint": "向下滚动，逐个了解套餐",
+      "filmLabel": "服务",
+      "filmHeading": "四个套餐。一个标准。",
+      "filmCta": "说说你的需求",
+      "detailCta": "查看套餐详情",
+      "demoCta": "打开你的 Bio",
+      "eduAction": "查看 Hugo Edu+ 权益",
+      "landingKicker": "落地页",
+      "landingTitle1": "不必把所有话都说完。",
+      "landingTitle2": "说对那一句就够。",
+      "landingLede": "把你的产品、服务或活动讲得足够短。从一条广告到提交按钮，都在同一条思路上。",
+      "landingPoints": [
+        "核心信息落在第一屏。",
+        "佐证出现在访客开始权衡的那一刻。",
+        "每个板块都指回同一个明确动作。"
+      ],
+      "processKicker": "从头到尾",
+      "processTitle": "四个步骤。没有一步是含糊的。",
+      "process": [
+        {
+          "title": "从目标开始。",
+          "body": "你的客户是谁、优势在哪里、你希望他们做什么。这三件事清楚了，才开始画。"
+        },
+        {
+          "title": "搭建叙事。",
+          "body": "信息、佐证与内容被排成一条阅读线，不给访客留下犹豫而停下的位置。"
+        },
+        {
+          "title": "设计与开发。",
+          "body": "叙事变成真正运行的界面：适配所有屏幕，动效恰到好处，代码换个人也读得懂。"
+        },
+        {
+          "title": "交付，然后继续。",
+          "body": "网站上线，逐条核对主要流程。有了数据之后，继续优化。"
+        }
+      ],
+      "closingKicker": "下一个项目",
+      "closingTitle1": "你带来目标。",
+      "closingTitle2": "我来铺通往那里的路。",
+      "closingLede": "没有固定价目表，因为没有两个项目是一样的。金额终会淡忘，留下的是一个挂在你名下、跑在你自己域名上的网站。",
+      "closingCta": "说说你的项目",
+      "closingCtaAlt": "查看全部项目",
+      "catalogName": "Hugo Studio 服务套餐",
+      "catalogIncludes": "包含",
+      "schemaName": "落地页、展示型网站与动态网站设计"
+    }
+  },
+  "studentPage": {
+    "meta": {
+      "title": "Hugo Edu+ · 学生专属权益 | Hugo Studio",
+      "description": "用学校邮箱验证一次，即可开通 365 天免费 Bio 页面以及 Hugo Studio 的学习工具。",
+      "keywords": "学生权益, 免费学生 Bio 页面, 学校邮箱验证, 学习工具, Hugo Edu+"
+    },
+    "heroEyebrow": "Hugo Edu+ · 面向已验证的学习者",
+    "heroTitle1": "一个学习的地方。",
+    "heroTitle2": "一年成长的时间。",
+    "heroLede": "验证一次，就能开通属于你的 Bio 页面 365 天，以及 Hugo Studio 里的学习工具和全部学生权益。",
+    "heroCta": "立即验证",
+    "heroCtaAlt": "看看界面",
+    "startKicker": "从这里开始",
+    "daysUnit": "天",
+    "daysFree": "免费",
+    "startTitle": "你的 Bio。你的故事。随时自己更新。",
+    "startLede": "不用银行卡，不用挑套餐。只需要一个学校邮箱，或者同等效力的学生证明。你拿到的不是优惠码，而是网络上一个写着你名字的位置。",
+    "verifyTitle": "学生身份验证",
+    "verifySub": "如果你用的是学校邮箱，会自动完成。",
+    "step1": "用 Google 登录",
+    "step1Desc": "使用你学校的 Google 账户。",
+    "step2": "核验学生身份",
+    "step2Ok": "学校邮箱有效。",
+    "step2Pending": "可改为提交同等证明进行人工审核。",
+    "step2Todo": "登录后自动进行。",
+    "step3": "开通权益",
+    "step3Desc": "365 天的 Bio 页面，以及 Hugo Studio 里的学习工具。",
+    "pickAccount": "点击选择 Google 账户",
+    "gisReady": "Google 登录已就绪。",
+    "gisLoading": "正在准备验证…",
+    "openBenefits": "开通 Hugo Edu+ 权益",
+    "pendingNote": "这个邮箱不属于学校域名。你可以提交在有效期内的学生证明，按同等方式审核。",
+    "pendingCta": "提交审核",
+    "themeKicker": "界面",
+    "themeTitle1": "一个页面。",
+    "themeTitle2": "三种像你的样子。",
+    "themeNote": "随时在账户里更换界面。内容不变，换的只是外衣。",
+    "themes": {
+      "default": {
+        "name": "默认",
+        "note": "照片铺满整屏，名字浮在上方。人们先看见你，再开始读。"
+      },
+      "flat": {
+        "name": "简洁",
+        "note": "明亮、方正、不花哨。那种一路读到底、却没意识到自己在阅读的排版。"
+      },
+      "brutalism": {
+        "name": "块面",
+        "note": "粗边框、重色块、打字机字体。扫一眼就记住你。"
+      }
+    },
+    "blocksKicker": "Bio 页面里有什么",
+    "blocksTitle": "你往里面放什么。",
+    "blocks": [
+      {
+        "title": "照片与自我介绍",
+        "desc": "头像、显示名称、一行职业标签，以及用你自己的语气写的介绍。"
+      },
+      {
+        "title": "项目",
+        "desc": "每个项目一张图、一段简短说明，以及一个指向实际成品的链接。"
+      },
+      {
+        "title": "链接",
+        "desc": "作品集、GitHub、Behance、社交主页——收在一处，用一个链接发出去。"
+      },
+      {
+        "title": "学习经历",
+        "desc": "学校、专业、年级，以及你今年正在追的东西。"
+      },
+      {
+        "title": "技能与服务",
+        "desc": "你会做什么、用什么工具，以及你是否接单。"
+      },
+      {
+        "title": "分享",
+        "desc": "一个带你名字的链接，手机上打开快，附在简历里或贴到个人主页都合适。"
+      }
+    ],
+    "insideKicker": "Hugo Studio 里面",
+    "insideTitle": "不只是一个 Bio 页面。",
+    "benefits": [
+      {
+        "title": "Bio 页面，365 天免费。",
+        "desc": "你本人、你的项目、所有重要链接——都在一个地址上。随时在账户里修改。"
+      },
+      {
+        "title": "学习工具。",
+        "desc": "Web IDE、笔记、资料、词汇。学习、尝试、把作品做完，都不用离开浏览器。"
+      },
+      {
+        "title": "学习助手。",
+        "desc": "卡在哪就问哪。给出方向、解释概念、指出下一步。"
+      },
+      {
+        "title": "一起进步的地方。",
+        "desc": "提问、展示项目、获得指点——在 Hugo Studio 能支持的范围内。"
+      }
+    ],
+    "faqKicker": "常见问题",
+    "faqTitle": "先问清楚，更省事。",
+    "closingKicker": "Hugo Edu+ 条款",
+    "closingTitle1": "365 天，够你起步。",
+    "closingTitle2": "需要时，还有单独的支持。",
+    "closingLede": "验证通过即开通，不收费用。如果需要为作品集、课程作业或技术部分单独定制，直接找我。先定范围，再谈价格。",
+    "closingCta": "联系 Hugo",
+    "themePickerLabel": "选择 Bio 页面的界面"
+  },
+  "projectsPage": {
+    "backLink": "返回介绍页",
+    "kicker": "项目",
+    "title": "全部项目。",
+    "lede": "按时间轴排列，从第一个项目直到现在。每一站都有独立页面：来龙去脉、当时的取舍，以及运行版本的截图。",
+    "metaTitle": "项目 — Hugo Studio",
+    "allProjects": "全部项目",
+    "viewDetail": "查看项目",
+    "kinds": {
+      "personal": "个人项目",
+      "client": "客户项目",
+      "live": "已投入使用"
+    },
+    "periodNow": "至今",
+    "items": {
+      "hugo-studio": {
+        "tagline": "通往我所做一切的唯一入口，像应用一样装进设备。",
+        "role": "产品负责人 · 设计与全栈开发 · 运营",
+        "summary": "一切始于一个恼人的问题：为什么每用一个工具，就得新建一个账号？Hugo Studio 就是答案——一个入口、一次登录，像应用一样装进设备。",
+        "techNote": "浏览器端用 React、Vite 与 Tailwind。服务端是 Node.js 加 MongoDB，钱包和即时通知走 WebSocket。需要原生版本时用 Capacitor 打包。没有建在任何现成平台上——所有东西共用同一层身份，而这一层必须握在自己手里。",
+        "highlights": [
+          {
+            "title": "起点是一股不耐烦",
+            "body": "最早那几个工具，是写给自己用的：记事的地方、学习的地方、歇一会儿的地方。写得越多越清楚，麻烦不在某一个工具，而在它们之间的缝隙——各有各的账号、各有各的登录、各存各的数据。"
+          },
+          {
+            "title": "所以先做的是骨架",
+            "body": "与其再添几件互不相干的产品，先搭起来的是骨架：一层身份、一个积分钱包、一条实时通知通道、一套共用的界面外壳。从那以后，新增一个应用只是往骨架里填内容，而不是重新打地基。"
+          },
+          {
+            "title": "装进设备，不经应用商店",
+            "body": "这套骨架以 PWA 运行：全屏打开、主屏有图标、能收推送，网络不稳时照样能用。一个修复几分钟就到用户手里，不必排队等审核。"
+          },
+          {
+            "title": "夜班也归自己",
+            "body": "有一次超出服务商配额，追下去是一个每十秒调用一次的循环。先放宽到五分钟，再按各平台真正的计费方式重新切分架构。自己做就自己担后果，这一段学到的最多。"
+          }
+        ],
+        "shots": {
+          "study": "学习——分阶段的路径，用真正交上来的作业评分。",
+          "hugokit": "工具箱——压缩文件、生成二维码、处理图片，都在浏览器里完成。",
+          "arcade": "游戏——手写的，打开就能玩，不用安装。",
+          "services": "服务页——价目与预约流程。",
+          "portfolio": "个人作品集页面。"
+        },
+        "closing": "它每周都在长。真正要紧的不是屏幕上看得见的部分，而是底下那套骨架——正因为有它，第十个应用比第一个省力。"
+      },
+      "chanh-toa": {
+        "tagline": "堂区信息门户：27 个教区的弥撒时间、圣经全文与信仰问答。",
+        "role": "设计与全栈开发",
+        "summary": "弥撒时间常改，却没人通知。走远一点想参与弥撒，就得四处打听。这个网站的存在，是为了让这个问题有一个固定的答案。",
+        "techNote": "Next.js 搭配 React 与 TypeScript，界面用 Tailwind，服务端跑在 Node.js 上，数据存于 Firebase 与 Firestore，图片由 Sharp 处理。文章通过 Graph API 从堂区的 Facebook 主页同步而来。之所以选择服务端渲染，是因为这个网站的大部分内容正是搜索引擎需要读到的：弥撒时间、圣经的每一章、每一条信仰问答。",
+        "highlights": [
+          {
+            "title": "问得最多的那个问题",
+            "body": "打开定位，就能看到最近的教堂和下一台弥撒还有多久，数据覆盖 27 个教区。时间既然常变，教友可以直接在卡片上更正——信息靠使用者活着，而不是靠一次性录入。"
+          },
+          {
+            "title": "接着是不好意思开口的问题",
+            "body": "弥撒时间之后，是那些当面难以启齿的疑问：圣事、伦理、婚姻。每一条都有一段可以速读的简答，也有一份附要理出处的长答，留给想问到底的人。"
+          },
+          {
+            "title": "全本圣经，按章阅读",
+            "body": "旧约新约齐全，每卷配一幅插画，每一章有自己的网址，可以直接发给别人。祈祷部分会记次数、保留连续天数——比任何提醒都更能维持习惯。"
+          },
+          {
+            "title": "与堂区脸书主页直接打通",
+            "body": "堂区本来就在自己的 Facebook 主页发布消息，没有人愿意再发第二遍。服务器按计划调用 Facebook Graph API，抓取新帖与配图，用 Sharp 压缩后存入 Firestore——在主页发一次，两边同时出现。访问密钥留在服务器上，并由 Firestore 规则把守，绝不下发到浏览器；任何写入都必须带管理员身份。"
+          }
+        ],
+        "shots": {
+          "home": "首页——当天圣言、礼仪日历、堂区文章。",
+          "gio-le": "全国弥撒时间查询，倒数到下一台弥撒。",
+          "kinh-thanh": "圣经全文，每卷配一幅插画。",
+          "van-dap": "信仰问答，按主题分组。",
+          "kinh-nguyen": "核心祈祷文，带计数与连续天数。",
+          "gioi-thieu": "关于——堂区历史，分四章讲述。"
+        },
+        "closing": "网站真的在运行，教友每天都在打开。对一个堂区门户来说，成功不是流量，而是再没有人需要打电话问几点有弥撒。"
+      },
+      "hwj": {
+        "tagline": "高端珠宝平台，价格实时跟随金银行情。",
+        "role": "设计与全栈开发",
+        "summary": "一件首饰比一辆摩托车还贵。卖它的页面该长什么样？这里的答案是一本杂志——大号衬线字、大量留白，以及一个“立即购买”按钮都没有。",
+        "techNote": "全栈完成：浏览器端用 React 与 Tailwind；服务端以 Node.js 搭配 MongoDB，处理账户、洽购预约与购物车；商品图片存放在 Cloudinary；登录通过 Google OAuth；价格取自金属行情 API，随金银实时价格浮动。",
+        "highlights": [
+          {
+            "title": "先是一个怀疑",
+            "body": "卡片网格、折扣角标、红色按钮——这套熟悉的电商工具，是为快速买下的商品设计的。把它放到需要斟酌数月的东西旁边，它反而在削弱这件东西。"
+          },
+          {
+            "title": "于是把网站当作一本刊物来做",
+            "body": "极大的衬线标题、疏朗的栅格、米色与古金。产品不待在卡片网格里，而是待在一篇分章节的文章里，节奏接近拍卖行图录。"
+          },
+          {
+            "title": "用词汇代替按钮",
+            "body": "用“Acquisition Consultation”代替“加入购物车”，用“Registry no.”代替商品编号。在这个价位，措辞比颜色更能确定一件东西的位置；一句坐下来谈谈的邀请，也比一道购买指令得体。"
+          },
+          {
+            "title": "但价格不能只是好看",
+            "body": "金银价格直接取自市场接口，按“钱”换算成卖出与回购两栏。纸面之后，服务端承担账户、洽购预约与购物车——足够让一次问询走完它该走的路。"
+          }
+        ],
+        "shots": {
+          "home": "首页 —— “The Art of Preservation”。",
+          "collections": "系列陈列，节奏如同一本杂志。",
+          "valuation": "金银实时估值，随市场更新。",
+          "product": "单件页面 —— 规格、材质，以及按金属价推算的价格。",
+          "heritage": "工坊年表，分章叙述。",
+          "appointment": "预约洽购，而非立即购买按钮。"
+        },
+        "closing": "这是给自己出的题，最大的收获几乎与技术无关：在这个价位，克制比催促更能成交。"
+      },
+      "minh-oi-media": {
+        "tagline": "婚礼纪实工作室网站——价目、作品集与咨询流程。",
+        "role": "设计与全栈开发",
+        "summary": "新人挑婚礼工作室时，会同时开着三个网站。谁要先私信才肯报价，谁就先被关掉。这里的每一个决定，都出自这一个观察。",
+        "techNote": "纯 HTML、CSS 与 JavaScript，没有用任何框架。一个介绍五个服务套餐的页面用不着 React；去掉框架之后页面很轻，在移动网络下打开很快，客户自己改文件里的文字也不必打电话找人。",
+        "highlights": [
+          {
+            "title": "先问价格，再问名字",
+            "body": "婚礼行业习惯把价格藏起来，逼客户来问。这里把五个套餐放在必经之路上，每个套餐把客户能拿到什么列清楚——读者会自己排除，或者自己对上号，不必等谁回消息。"
+          },
+          {
+            "title": "先让照片说话",
+            "body": "第一屏是一张满幅婚礼照片，不是标语。对一间工作室来说，第一张照片就是全部的能力证明；后面的文字只负责解释。"
+          },
+          {
+            "title": "竖屏是默认",
+            "body": "几乎所有人都在手机上看这个页面，边看边和另一半商量订哪一家。所以价目表收成一列，不留任何需要横向拖动的表格。"
+          },
+          {
+            "title": "而且用不上任何框架",
+            "body": "纯 HTML、CSS 与 JavaScript。一个介绍五个套餐的页面不需要 React；去掉框架，页面更轻、4G 下打开更快，店主自己就能改文件里的字，不用打电话找人。"
+          }
+        ],
+        "shots": {
+          "home": "首页——大幅照片在前，品牌压在上面。",
+          "bang-gia": "五个套餐的价目，逐条写明客户能拿到什么。",
+          "goi-dich-vu": "每个套餐都列出全部包含内容。"
+        },
+        "closing": "这个项目是直接对接客户做的，从第一次需求沟通到交付。客户最后留下的，是一个自己养得起的网站。"
+      },
+      "l3go-coffee": {
+        "tagline": "咖啡馆网站——按心情挑选饮品。负责 UI/UX，与 Jason Phan 合作。",
+        "role": "UI/UX 设计",
+        "summary": "芹苴的一间三层咖啡馆，旋转楼梯，彩色玻璃砖墙。人们靠坐在哪儿来挑咖啡馆，而不是靠咖啡本身——所以网站得先把空间给人看。",
+        "techNote": "React 与 Tailwind。我负责的是界面与体验：配色系统、文字节奏、浏览菜单的流程，以及空间照片的裁切方式。数据层与部署由 Jason Phan 负责。",
+        "highlights": [
+          {
+            "title": "空间才是产品",
+            "body": "旋转楼梯、玻璃砖墙、夜里的灯格，都用大图呈现，没有切碎成相册。读者得先感觉到自己会坐在哪里，才会在意这里卖什么。"
+          },
+          {
+            "title": "菜单很长，却没人读到底",
+            "body": "六十八款，而没有人会把咖啡、茶与冰沙的表格读完。于是筛选按人来时的状态来分：需要清醒、想安静下来、和朋友久坐。按心情挑，比按分类挑更快。"
+          },
+          {
+            "title": "我做的部分，和他做的部分",
+            "body": "与 Jason Phan 合作。我负责 UI/UX：色彩系统、文字节奏、看菜单的流程，以及空间照片的裁切方式。数据与上线由他负责——界线从一开始就清楚，谁也不会踩到谁。"
+          }
+        ],
+        "shots": {
+          "home": "首页——「对味的那一杯」。",
+          "thuc-don": "菜单按心情筛选，而不是按分类。",
+          "khong-gian": "空间页——三层楼，旋转楼梯。"
+        },
+        "closing": "项目不长，却把一件事说得最清楚：菜单难的不是把菜列出来，而是帮人别再犹豫。"
+      },
+      "m-hike": {
+        "tagline": "一款 iOS 与 Android 徒步应用：没有信号也照样能用。",
+        "role": "设计与全栈开发",
+        "summary": "在山里手机常常没有信号，而那恰恰是最需要它的时候。M-Hike 围绕一个前提来做：所有功能都必须能离线运行，等网络回来再自己同步。",
+        "techNote": "两个版本，同一个产品。跨平台版用 Expo 上的 React Native 与 TypeScript，以 Expo Router 做基于文件的导航，地图用 Leaflet，天气取自 Open-Meteo。原生版用 Java 搭配 SQLiteOpenHelper 与 XML 布局。两版都以 SQLite 为主数据库，有网络时通过 Firebase Realtime Database 同步。",
+        "highlights": [
+          {
+            "title": "没有信号也用得下去",
+            "body": "设备上的 SQLite 是主数据库而非缓存：新建行程、写记录、回看，都不需要网络。Firebase Realtime Database 只是后台同步层，换一台设备打开，仍是同一次行程。"
+          },
+          {
+            "title": "看到什么，就地记下",
+            "body": "每次行程都有自己的记录：遇到的动物、路况、天气，可附照片与评分。记录从属于行程——删掉行程，记录随之删除，不留下无主数据。"
+          },
+          {
+            "title": "路线会自己画出来",
+            "body": "GPS 记录距离、配速与爬升，再把这段路按阶段回放：热身、匀速、过半、冲刺、结束。训练计划依据身体指标并参照世卫组织建议生成，应用中明确写明这只是一般性建议，不能替代医疗意见。"
+          },
+          {
+            "title": "以及留给最坏情况的那个按钮",
+            "body": "SOS 页面抓取 GPS 坐标，预先写好求救短信与电话，并附可转发的地图链接。背景纯黑以省电，屏幕边缘则闪烁摩尔斯电码，供夜间搜救队辨认。"
+          }
+        ],
+        "closing": "这是越南格林威治大学移动开发课程的作业，特意做了两版——原生 Android 与 React Native——以便真正比较，而不是凭感觉选一边。",
+        "shots": {
+          "home": "首页 —— 天气、今天的训练与下一次行程。",
+          "hikes": "行程列表：已走、已计划、已收藏。",
+          "hike-detail": "单次行程 —— 难度、距离、实时天气、预估消耗。",
+          "stats": "距离、完成率，以及最近六个月。",
+          "profile": "身体档案，以及 SOS、地图、训练计划的快捷入口。",
+          "sos": "紧急页面 —— GPS 坐标、拨打 115、分享位置。"
+        }
+      }
+    },
+    "openSite": "打开 {{label}}",
+    "roleLabel": "角色",
+    "periodLabel": "时间",
+    "partnerLabel": "合作者",
+    "techTitle": "用什么写的。",
+    "featuresTitle": "故事",
+    "shotsTitle": "运行版本的截图。",
+    "nextProject": "下一个项目",
+    "more": "未完待续，这条时间轴还在延长。",
+    "metaDescription": "按时间轴排列，从第一个项目直到现在：来龙去脉、当时的取舍，以及运行版本的截图。",
+    "openRepo": "在 GitHub 上查看源码"
   }
 }

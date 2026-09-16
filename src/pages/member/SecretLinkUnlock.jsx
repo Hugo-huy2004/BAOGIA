@@ -151,7 +151,7 @@ export default function SecretLinkUnlock() {
             Bảo mật tối cao bởi
           </p>
           <div className="scale-75 origin-top opacity-50 hover:opacity-100 transition-opacity">
-            <HugoLogo />
+            <HugoLogo className="h-10 w-10" />
           </div>
         </div>
       </div>

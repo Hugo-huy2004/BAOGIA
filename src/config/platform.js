@@ -37,22 +37,73 @@ export const IS_WEB = !IS_NATIVE;
  * A function, not a const: display-mode flips when the user installs the PWA
  * mid-session.
  */
-/**
- * Media query list nhận diện "đang chạy như một app".
- *
- * Phải có CẢ `fullscreen`: manifest dùng display_override: ['fullscreen'] nên
- * Android chạy PWA ở chế độ fullscreen và `(display-mode: standalone)` là
- * FALSE ở đó. Chỉ bắt standalone thì mọi nhánh app-only (màn đăng nhập PWA,
- * ẩn navbar marketing, "đã cài rồi nên đừng mời cài nữa") lặng lẽ rơi về bản
- * web ngay trong app đã cài.
- */
+/* Query này CHỈ dùng để nghe thay đổi (người dùng cài PWA giữa phiên, hoặc
+   bấm F11) rồi chạy lại isStandalone(). Nó cố tình rộng — quyết định thật nằm
+   ở isStandalone() bên dưới. */
 export const APP_DISPLAY_QUERY =
   "(display-mode: standalone), (display-mode: fullscreen)";
 
-export const isStandalone = () =>
-  IS_NATIVE ||
-  window.matchMedia?.(APP_DISPLAY_QUERY).matches === true ||
-  window.navigator.standalone === true;
+const displayMode = (mode) => window.matchMedia?.(`(display-mode: ${mode})`).matches === true;
+
+/**
+ * `(display-mode: fullscreen)` KHÔNG chứng minh được là app đã cài.
+ *
+ * Chromium trả về đúng giá trị đó cho MỘT TAB THƯỜNG khi người dùng bấm F11
+ * hoặc nút xanh toàn màn hình của macOS. Bắt nó vô điều kiện nghĩa là: ai mở
+ * hugowishpax.studio trên máy tính rồi phóng to toàn màn hình đều bị coi là
+ * "đang dùng app đã cài" — /login đổi sang PWALoginPage, navbar biến mất,
+ * /introduction bị đá về /login. Đó chính là lỗi được báo.
+ *
+ * Nhưng không bỏ hẳn được: manifest đặt display_override ['fullscreen'] nên
+ * PWA Android chạy fullscreen thật và `standalone` là FALSE ở đó.
+ *
+ * Ranh giới: chỉ TIN fullscreen trên điện thoại. Desktop cài PWA thì Chrome
+ * mở ở chế độ standalone, nên nhánh này không cướp mất trường hợp nào.
+ *
+ * Chỉ "trên điện thoại" VẪN CHƯA ĐỦ. Mở web trên điện thoại (hoặc bật giả lập
+ * thiết bị trong DevTools) rồi cho cửa sổ toàn màn hình thì user agent là điện
+ * thoại và display-mode là fullscreen — y hệt PWA đã cài, nên /login đổi sang
+ * PWALoginPage giữa một tab web bình thường. Đó là lỗi được báo lần hai.
+ *
+ * Thứ phân biệt được hai trường hợp không nằm ở màn hình mà ở CÁCH MỞ: PWA
+ * luôn khởi động từ start_url của manifest, đang mang sẵn `?source=pwa`. Ghi
+ * cờ đó vào sessionStorage ngay lần tải đầu (tham số chỉ có ở điều hướng đầu
+ * tiên), và sessionStorage sống đúng bằng vòng đời của tab/app — vừa đúng
+ * nghĩa "phiên này được mở từ màn hình chính".
+ */
+const PWA_LAUNCH_KEY = "hugo-pwa-launch";
+
+/** Ghi cờ nếu phiên này khởi động từ start_url của manifest. */
+const rememberPwaLaunch = () => {
+  try {
+    if (new URLSearchParams(window.location.search).get("source") === "pwa") {
+      window.sessionStorage.setItem(PWA_LAUNCH_KEY, "1");
+    }
+  } catch {
+    // Chế độ riêng tư chặn sessionStorage. Không sao: fullscreen mất một tín
+    // hiệu, còn standalone/minimal-ui/navigator.standalone vẫn nhận ra PWA.
+  }
+};
+rememberPwaLaunch();
+
+const launchedAsApp = () => {
+  try {
+    return window.sessionStorage.getItem(PWA_LAUNCH_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
+export const isStandalone = () => {
+  if (IS_NATIVE) return true;
+  // iOS đã "Thêm vào màn hình chính" — tín hiệu riêng của WebKit, không mơ hồ.
+  if (window.navigator.standalone === true) return true;
+  if (displayMode("standalone") || displayMode("minimal-ui") || displayMode("window-controls-overlay")) {
+    return true;
+  }
+  // Fullscreen chỉ được tính khi phiên này thật sự mở từ màn hình chính.
+  return displayMode("fullscreen") && detectInstallTarget().isMobile && launchedAsApp();
+};
 
 /**
  * Nhận diện thiết bị/trình duyệt đủ chi tiết để hướng dẫn cài PWA cho ĐÚNG

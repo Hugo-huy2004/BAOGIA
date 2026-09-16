@@ -124,7 +124,7 @@ export default React.memo(function BrutalismTheme({ bio, isPreview = false, isOn
               }}
               className="w-32 h-32 rotate-2 bg-zinc-200 flex items-center justify-center"
             >
-              <HugoLogo className="text-lg sm:text-xl" />
+              <HugoLogo className="h-14 w-14" />
             </motion.div>
           )}
 

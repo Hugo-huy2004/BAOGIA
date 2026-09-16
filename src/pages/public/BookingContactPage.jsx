@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import "../../components/public/hwagfu/hwagfu.css";
 import RegionNote from "../../components/public/RegionNote";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -7,6 +8,7 @@ import { API_BASE } from "../../config/apiBase";
 import HugoLogo from "../../components/HugoLogo";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
+import { validateMessageContent } from "../../utils/contentFilter";
 
 const EMPTY_FORM = {
   ageBand: "",
@@ -14,6 +16,7 @@ const EMPTY_FORM = {
   email: "",
   phone: "",
   projectType: "",
+  warranty: "standard",
   budget: "unsure",
   timeline: "flexible",
   message: "",
@@ -21,7 +24,7 @@ const EMPTY_FORM = {
 };
 
 // Mỗi bước hỏi đúng một việc — form dài nhưng không bước nào phải nghĩ lâu.
-const STEP_IDS = ["age", "project", "budget", "timeline", "details", "contact", "review"];
+const STEP_IDS = ["age", "project", "warranty", "budget", "timeline", "details", "contact", "review"];
 const TOTAL_STEPS = STEP_IDS.length;
 
 const AGE_BANDS = [
@@ -36,6 +39,13 @@ const PROJECT_TYPES = [
   { id: "improve", icon: "build" },
   { id: "student", icon: "school" },
   { id: "unsure", icon: "help" },
+];
+
+const WARRANTIES = [
+  { id: "noSupport", icon: "cloud_off" },
+  { id: "standard", icon: "verified" },
+  { id: "extended", icon: "security" },
+  { id: "comprehensive", icon: "local_police" }
 ];
 
 const BUDGETS = ["unsure", "underOne", "oneToThree", "threeToEight", "overEight"];
@@ -57,12 +67,12 @@ function ChoiceButton({ active, icon, title, description, onClick, wide = false 
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`min-h-20 rounded-2xl border p-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 ${
+      className={`min-h-[5.5rem] rounded-[1.25rem] border p-5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
         wide ? "col-span-2" : ""
       } ${
         active
-          ? "border-foreground bg-foreground text-background shadow-[0_10px_28px_hsl(var(--shadow)/0.16)]"
-          : "border-border/70 bg-card text-foreground hover:border-foreground/30 hover:bg-muted/55"
+          ? "border-foreground bg-foreground text-background"
+          : "border-border bg-card text-foreground hover:border-foreground/40"
       }`}
     >
       <span className="flex items-start gap-3">
@@ -73,9 +83,9 @@ function ChoiceButton({ active, icon, title, description, onClick, wide = false 
           {icon}
         </span>
         <span className="min-w-0">
-          <strong className="block text-sm leading-snug">{title}</strong>
+          <strong className="block text-[0.95rem] font-semibold leading-snug tracking-[-.015em]">{title}</strong>
           {description && (
-            <span className={`mt-1 block text-[11px] leading-relaxed ${active ? "text-background/70" : "text-muted-foreground"}`}>
+            <span className={`mt-1.5 block text-[0.8rem] leading-6 ${active ? "text-background/75" : "text-muted-foreground"}`}>
               {description}
             </span>
           )}
@@ -89,8 +99,8 @@ function Field({ label, hint, children }) {
   return (
     <label className="block">
       <span className="flex items-baseline justify-between gap-3">
-        <span className="text-xs font-bold text-foreground">{label}</span>
-        {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
+        <span className="text-sm font-semibold tracking-[-.01em] text-foreground">{label}</span>
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </span>
       <span className="mt-2 block">{children}</span>
     </label>
@@ -101,14 +111,14 @@ function StepNav({ onBack, onForward, forwardLabel, submit = false }) {
   return (
     <div className={`grid gap-3 ${onBack ? "grid-cols-[auto_1fr]" : ""}`}>
       {onBack && (
-        <button type="button" onClick={onBack} className="min-h-12 rounded-full border border-border px-5 text-sm font-bold transition-colors hover:bg-muted">
+        <button type="button" onClick={onBack} className="btn-secondary min-h-12 justify-center">
           {forwardLabel.back}
         </button>
       )}
       <button
         type={submit ? "submit" : "button"}
         onClick={submit ? undefined : onForward}
-        className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+        className="btn-primary min-h-12 justify-center"
       >
         {forwardLabel.next}
         <span className="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
@@ -148,6 +158,7 @@ export default function BookingContactPage() {
   );
 
   const selectedProject = projectOptions.find((item) => item.id === formData.projectType);
+  const selectedWarranty = formData.warranty ? t(`bookingPage.warranties.${formData.warranty}.title`) : "—";
   const selectedBudget = t(`bookingPage.budgets.${formData.budget}`);
   const selectedTimeline = t(`bookingPage.timelines.${formData.timeline}`);
   const isTeen = formData.ageBand === "teen";
@@ -212,6 +223,21 @@ export default function BookingContactPage() {
       setToast({ message: t("bookingPage.toast.chooseProject"), type: "warning" });
       return;
     }
+    
+    if (stepId === "details") {
+      const validation = validateMessageContent(formData.message, t, formData.projectType);
+      
+      // Auto-update message with fixed spelling if modified
+      if (validation.fixedMessage && validation.fixedMessage !== formData.message) {
+        updateField("message", validation.fixedMessage);
+      }
+
+      if (!validation.isValid) {
+        setToast({ message: validation.errorMessage, type: "error" });
+        return;
+      }
+    }
+
     setStep((current) => Math.min(current + 1, TOTAL_STEPS));
     focusTitle();
   };
@@ -231,6 +257,7 @@ export default function BookingContactPage() {
     const structuredMessage = [
       `${t("bookingPage.summary.age")}: ${t(`bookingPage.ageBands.${formData.ageBand || "adult"}.title`)}`,
       `${t("bookingPage.summary.project")}: ${selectedProject?.title || "—"}`,
+      `${t("bookingPage.summary.warranty")}: ${selectedWarranty}`,
       `${t("bookingPage.summary.budget")}: ${selectedBudget}`,
       `${t("bookingPage.summary.timeline")}: ${selectedTimeline}`,
       formData.message ? `${t("bookingPage.summary.notes")}:\n${formData.message.trim()}` : "",
@@ -288,7 +315,7 @@ export default function BookingContactPage() {
   };
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-background px-4 py-8 text-foreground sm:px-6 sm:py-12 lg:py-16">
+    <main className="hwagfu-copy min-h-[calc(100vh-4rem)] bg-background px-5 py-16 text-foreground sm:px-8 sm:py-20 lg:py-28">
       <HugoNoticeToast
         open={Boolean(toast.message)}
         type={toast.type || "info"}
@@ -296,66 +323,45 @@ export default function BookingContactPage() {
         onClose={() => setToast({ message: "", type: "" })}
       />
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_15%,hsl(var(--primary)/0.08),transparent_27%),radial-gradient(circle_at_88%_80%,hsl(var(--foreground)/0.05),transparent_24%)]" />
 
-      <section className="relative mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
+      <section className="mx-auto grid w-full max-w-5xl gap-14 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <HugoLogo className="text-xs font-black tracking-tight" />
+          <HugoLogo className="h-7 w-7" />
 
-          <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
-            {t("bookingPage.header.eyebrow")}
-          </p>
-          <h1 className="mt-4 max-w-xl text-3xl font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-4xl lg:text-5xl">
+          <p className="mt-8 text-sm font-medium text-muted-foreground">{t("bookingPage.header.eyebrow")}</p>
+          <h1 className="mt-4 max-w-xl text-[clamp(2.3rem,1.8rem+2.1vw,3.4rem)] font-semibold leading-[1.06] tracking-[-.04em]">
             {t("bookingPage.header.title")}
           </h1>
-          <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-            {t("bookingPage.header.desc")}
-          </p>
-
-          <div className="mt-8 space-y-4 border-t border-border/60 pt-6">
-            {["brief", "scope", "reply"].map((item) => (
-              <div key={item} className="flex items-start gap-3">
-                <span className="material-symbols-outlined mt-0.5 text-[18px] text-muted-foreground" aria-hidden="true">
-                  {item === "brief" ? "edit_note" : item === "scope" ? "fact_check" : "schedule"}
-                </span>
-                <div>
-                  <p className="text-sm font-bold">{t(`bookingPage.expectations.${item}.title`)}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    {t(`bookingPage.expectations.${item}.desc`)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="mt-6 max-w-lg text-[1.02rem] leading-8 text-muted-foreground">{t("bookingPage.header.desc")}</p>
 
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
-            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-xs font-bold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+            className="mt-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-xs font-bold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
           >
             <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
             {t("footer.supportServer")}
           </button>
         </aside>
 
-        <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-[0_24px_70px_hsl(var(--shadow)/0.1)]">
-          <div className="border-b border-border/60 px-5 py-5 sm:px-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+        <div className="overflow-hidden rounded-[1.5rem] border border-border bg-card">
+          <div className="border-b border-border px-6 py-7 sm:px-9">
+            <p className="font-mono text-[0.68rem] font-medium uppercase tracking-[0.16em] text-muted-foreground">
               {isComplete ? t("bookingPage.progress.complete") : t("bookingPage.progress.label", { step, total: TOTAL_STEPS })}
             </p>
             <h2
               id="booking-form-title"
               tabIndex="-1"
-              className="mt-1 text-lg font-extrabold tracking-[-0.025em] outline-none sm:text-xl"
+              className="mt-2 text-2xl font-semibold tracking-[-.035em] outline-none sm:text-3xl"
             >
               {isComplete ? t("bookingPage.success.title") : t(`bookingPage.steps.${stepId}.title`)}
             </h2>
             {!isComplete && (
               <>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(`bookingPage.steps.${stepId}.hint`)}</p>
-                <div className="mt-4 flex gap-1" aria-hidden="true">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{t(`bookingPage.steps.${stepId}.hint`)}</p>
+                <div className="mt-6 flex gap-1.5" aria-hidden="true">
                   {STEP_IDS.map((id, index) => (
-                    <span key={id} className={`h-1.5 flex-1 rounded-full transition-colors ${index < step ? "bg-primary" : "bg-muted"}`} />
+                    <span key={id} className={`h-1 flex-1 rounded-full transition-colors ${index < step ? "bg-foreground" : "bg-border"}`} />
                   ))}
                 </div>
               </>
@@ -466,6 +472,26 @@ export default function BookingContactPage() {
                   ))}
                 </div>
                 <RegionNote scope="booking" />
+              </fieldset>
+              <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
+            </div>
+          ) : stepId === "warranty" ? (
+            <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
+              <fieldset>
+                <legend className="text-sm font-extrabold">{t("bookingPage.sections.warranty")}</legend>
+                <p className="mt-1 text-xs text-muted-foreground">{t("bookingPage.sections.warrantyHint")}</p>
+                <div className="mt-4 grid gap-3">
+                  {WARRANTIES.map((item) => (
+                    <ChoiceButton
+                      key={item.id}
+                      active={formData.warranty === item.id}
+                      icon={item.icon}
+                      title={t(`bookingPage.warranties.${item.id}.title`)}
+                      description={t(`bookingPage.warranties.${item.id}.desc`)}
+                      onClick={() => updateField("warranty", item.id)}
+                    />
+                  ))}
+                </div>
               </fieldset>
               <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
             </div>
@@ -639,6 +665,7 @@ export default function BookingContactPage() {
                   {[
                     { label: t("bookingPage.summary.age"), value: t(`bookingPage.ageBands.${formData.ageBand || "adult"}.title`) },
                     { label: t("bookingPage.summary.project"), value: selectedProject?.title },
+                    { label: t("bookingPage.summary.warranty"), value: selectedWarranty },
                     { label: t("bookingPage.summary.budget"), value: selectedBudget },
                     { label: t("bookingPage.summary.timeline"), value: selectedTimeline },
                     { label: t("bookingPage.summary.contact"), value: formData.fullName },

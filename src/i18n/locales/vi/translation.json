@@ -172,7 +172,7 @@
       "webDev": "Ngành Lập Trình",
       "personalInfo": "Hồ Sơ Cá Nhân",
       "teammateInfo": "Thông Tin Đồng Đội",
-      "bioEdu": "Dịch Vụ Bio Edu",
+      "bioEdu": "Dịch Vụ Hugo Edu+",
       "webService": "Dịch Vụ Làm Web",
       "hobbies": "Sở Thích Cá Nhân",
       "philosophy": "Thông Điệp",
@@ -508,6 +508,422 @@
       "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào.",
       "horsePrompt": "MÃ ĐÁO THÀNH NGỰA HÍ HÍ . ỦNG HỘ TỚ NHA",
       "donateBtn": "Ủng hộ Hugo (Donate)"
+    },
+    "apple": {
+      "meta": {
+        "title": "Peter Hugo Wishpax Lê — Sinh viên Kỹ thuật Phần mềm & Người dựng sản phẩm",
+        "description": "Chào, mình là Hugo. Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam, tự tay dựng và vận hành một hệ thống 22 ứng dụng đang chạy thật.",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, React, Node.js"
+      },
+      "hero": {
+        "kicker": "Peter Hugo Wishpax Lê",
+        "line1": "Một chút thiết kế.",
+        "line2": "Rất nhiều đêm muộn.",
+        "status1": "Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam.",
+        "status2": "Sẵn sàng thực tập và cơ hội việc làm.",
+        "cta": "Làm quen với mình",
+        "cv": "Tải CV",
+        "swipe": "Vuốt để đọc tiếp",
+        "scroll": "Cuộn để đọc tiếp"
+      },
+      "portrait": {
+        "chapters": [
+          {
+            "kicker": "Xin chào",
+            "title": "Mình là Hugo.",
+            "body": "Sinh ra ở Mỹ Tho, hiện học năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Ban ngày mình đi học. Ban đêm mình dựng thứ mà ban ngày vừa học được."
+          },
+          {
+            "kicker": "Bắt đầu",
+            "title": "Một dòng code. Rồi không dừng lại được.",
+            "body": "Mình bắt đầu vì tò mò một nút bấm hoạt động thế nào. Rồi tò mò cả trang chạy ra sao. Rồi tò mò chuyện gì xảy ra khi có người thật dùng nó và mọi thứ vỡ vào lúc hai giờ sáng."
+          },
+          {
+            "kicker": "Hôm nay",
+            "title": "Mình dựng cả một hệ thống. Một mình.",
+            "body": "Hugo Studio là 22 ứng dụng dùng chung một tài khoản, một ví điểm, một kho dữ liệu, chạy trên web, PWA và iOS bằng cùng một mã nguồn. Giao diện, máy chủ, cơ sở dữ liệu, triển khai — mình làm hết, và cũng chính mình trực khi nó hỏng."
+          },
+          {
+            "kicker": "Điều mình học được",
+            "title": "Sản phẩm chỉ thật khi có người dùng nó.",
+            "body": "Bài tập trên lớp luôn chạy đúng vì đề bài đã dọn sẵn đường. Người dùng thật thì mất sóng giữa chừng, bấm hai lần vào một nút, và mở app bằng chiếc điện thoại đời 2019. Mình học nghề từ chỗ đó."
+          }
+        ]
+      },
+      "highlights": {
+        "title": "Các điểm nổi bật.",
+        "items": [
+          {
+            "label": "Hiện tại",
+            "lines": [
+              "Năm cuối Kỹ thuật Phần mềm.",
+              "Greenwich Việt Nam."
+            ]
+          },
+          {
+            "label": "Vai trò",
+            "lines": [
+              "Thiết kế, frontend, backend, hạ tầng.",
+              "Một người làm hết."
+            ]
+          },
+          {
+            "label": "Đang chạy",
+            "lines": [
+              "22 ứng dụng, 3 ngôn ngữ.",
+              "Web, PWA và iOS."
+            ]
+          },
+          {
+            "label": "Tìm gì",
+            "lines": [
+              "Một chỗ thực tập để học nhanh hơn.",
+              "Và một đội để không phải làm một mình nữa."
+            ]
+          }
+        ]
+      },
+      "craft": {
+        "kicker": "Cách mình làm việc",
+        "title": "Chạy được trước. Đẹp sau.",
+        "body": "Mình bắt đầu từ luồng người dùng và trạng thái lỗi, rồi mới tới màu và chuyển động. Mọi màn hình phải đọc được ở bề ngang 400px, chạm được bằng một ngón cái và mở được khi sóng chập chờn. Chuyển động nào không giải thích được điều gì thì bị cắt. Và mỗi màn hình đều có một bản dự phòng cho lúc máy chủ không trả lời."
+      },
+      "stats": {
+        "items": [
+          {
+            "value": "22",
+            "label": "ứng dụng mình đã dựng và đang vận hành"
+          },
+          {
+            "value": "3",
+            "label": "ngôn ngữ giao diện, dịch đủ từng chuỗi"
+          },
+          {
+            "value": "6",
+            "label": "trò chơi tự viết, không dùng engine"
+          }
+        ],
+        "note": "Số liệu đếm trực tiếp trong mã nguồn Hugo Studio vào tháng 9 năm 2026: sổ đăng ký ứng dụng, thư mục ngôn ngữ và các tệp trò chơi. Hệ thống được cập nhật liên tục nên các con số thay đổi theo từng phiên bản; kết quả thực tế sẽ khác nhau tùy thời điểm."
+      },
+      "skills": {
+        "kicker": "Kỹ năng",
+        "title": "Đủ sâu để tự sửa khi hỏng.",
+        "frontend": {
+          "title": "Giao diện.",
+          "stack": "React · Vite · Tailwind · Zustand · Framer Motion",
+          "desc": "Mình dựng giao diện responsive, chia mã theo từng màn và giữ nó mượt trên điện thoại yếu. Nhờ đó, người dùng không phải chờ tải một khối lớn để xem một trang nhỏ."
+        },
+        "backend": {
+          "title": "Máy chủ.",
+          "stack": "Node.js · Express · WebSocket · REST · JWT",
+          "desc": "Mình viết API, phân quyền theo phiên đăng nhập đã ký và lớp realtime cho ví điểm lẫn bàn cờ. Để dữ liệu của một người không nằm trong tầm với của người khác."
+        },
+        "data": {
+          "title": "Dữ liệu.",
+          "stack": "MongoDB · Mongoose · Redis · MySQL",
+          "desc": "Mình thiết kế lược đồ, đánh chỉ mục và đọc lại truy vấn khi trang bắt đầu chậm. Nhờ đó, một gói miễn phí vẫn gánh được lượng truy cập thật."
+        },
+        "ship": {
+          "title": "Đưa lên mạng.",
+          "stack": "Vercel · Render · Cloudflare · PWA · Capacitor",
+          "desc": "Mình lo triển khai, tên miền, bộ nhớ đệm biên và đóng gói thành app iOS. Không còn phải bảo trì ba bản khác nhau cho ba nền tảng."
+        }
+      },
+      "education": {
+        "kicker": "Học vấn",
+        "title": "Học ở trường. Làm ở nhà.",
+        "body": "Greenwich Việt Nam cho mình nền tảng Kỹ thuật Phần mềm. Phần còn lại đến từ việc tự tay dựng một hệ thống thật rồi vá nó mỗi lần có người báo lỗi. Mình học nhanh nhất khi kiến thức phải chạy được trên máy của người khác.",
+        "partnerLabel": "Cùng phát triển với",
+        "partnerRole": "Đối tác đồng phát triển",
+        "highSchool": {
+          "label": "Trung học phổ thông",
+          "name": "THPT Nguyễn Đình Chiểu",
+          "detail": "Mỹ Tho · Thành lập 1879",
+          "logoAlt": "Logo THPT Nguyễn Đình Chiểu Mỹ Tho",
+          "period": "09/2020 – 06/2023",
+          "year": "2020"
+        },
+        "university": {
+          "label": "Đại học",
+          "name": "University of Greenwich",
+          "detail": "Kỹ thuật Phần mềm · Năm cuối",
+          "logoAlt": "Logo Greenwich Việt Nam liên kết FPT Education",
+          "period": "08/2023 – Nay",
+          "year": "2023"
+        },
+        "now": "Hiện tại"
+      },
+      "marquee": "Công nghệ mình được học",
+      "offhours": {
+        "kicker": "Ngoài giờ",
+        "title": "Mình cũng biết rời bàn phím.",
+        "body": "Bảy chibi này mình tự vẽ để làm sticker cho hệ thống. Chúng là chỗ duy nhất trên trang được phép màu mè — phần còn lại mình giữ cho yên tĩnh.",
+        "alt": "Chibi Hugo số {{n}}"
+      },
+      "wall": {
+        "kicker": "Bằng chứng",
+        "title": "Vuốt xem thứ mình đã dựng.",
+        "desc": "Mỗi ứng dụng giải một bài toán riêng nhưng dùng chung một tài khoản, một ví điểm và một kho dữ liệu. Tất cả đều đang chạy thật, không phải ảnh dựng.",
+        "cta": "Xem dự án",
+        "ariaWall": "Bức tường sản phẩm, vuốt ngang để xem",
+        "ariaPrev": "Sản phẩm trước",
+        "ariaNext": "Sản phẩm kế tiếp",
+        "portal": {
+          "kind": "Nền tảng · PWA",
+          "title": "Hugo Portal.",
+          "desc": "Một màn hình chính gom 22 ứng dụng, ví điểm và thông báo về cùng một chỗ.",
+          "role": "Mình dựng khung app dùng chung, điều hướng và lớp dữ liệu chạy được khi mất mạng."
+        },
+        "bio": {
+          "kind": "Hồ sơ số · Web",
+          "title": "Hugo Bio .edu.",
+          "desc": "Một trang riêng cho hồ sơ, dự án và liên kết, mở bằng đường dẫn theo tên bạn.",
+          "role": "Mình làm trình soạn thảo, bố cục responsive và luồng xác thực email .edu."
+        },
+        "joy": {
+          "kind": "Hạ tầng · Ví điểm",
+          "title": "JOY.",
+          "desc": "Ví điểm nội bộ nối hoạt động, thành tích và phần thưởng giữa các ứng dụng.",
+          "role": "Mình xây sổ số dư, lịch sử giao dịch và mã QR được máy chủ ký để chặn dữ liệu giả."
+        },
+        "arcade": {
+          "kind": "Trò chơi · Canvas",
+          "title": "Hugo Arcade.",
+          "desc": "Sáu trò chơi tự viết chạy thẳng trong trình duyệt, không cần cài đặt.",
+          "role": "Mình làm vòng lặp game theo thời gian thật, điều khiển cảm ứng và máy đánh cờ."
+        },
+        "psy": {
+          "kind": "Sức khỏe tinh thần",
+          "title": "HugoPSY.",
+          "desc": "Nhật ký cảm xúc và trò chuyện hỗ trợ, kèm đường dây nóng hiện sẵn ở mọi màn hình.",
+          "role": "Mình mã hóa nội dung trò chuyện trước khi lưu và giữ một lớp trả lời chạy hoàn toàn trên máy."
+        }
+      },
+      "values": {
+        "kicker": "Điều mình giữ",
+        "title": "Cách tiếp cận của mình.",
+        "body": "Dữ liệu của người dùng là thứ mình được mượn chứ không phải thứ mình sở hữu. Đó là lý do mọi màn hình trong hệ thống chỉ hỏi đúng những thông tin mà tính năng đó thực sự cần, và vì sao câu hỏi đầu tiên khi thêm một tính năng mới luôn là nó cần biết ít nhất bao nhiêu về một người thì mới chạy được.",
+        "c1": "Danh tính được đọc từ phiên đăng nhập đã được máy chủ xác minh – không bao giờ từ một tham số do trình duyệt gửi lên.",
+        "c2": "Nội dung trò chuyện riêng tư được mã hóa trước khi ghi xuống cơ sở dữ liệu – kể cả mình cũng không đọc được.",
+        "c3": "Dữ liệu chẩn đoán chỉ gồm đường dẫn, thời gian và mã lỗi – không kèm nội dung người dùng nhập."
+      },
+      "commitments": {
+        "kicker": "Ba lời cam kết",
+        "title": "Bạn giao mục tiêu. Mình giữ ba điều.",
+        "previous": "Xem cam kết trước",
+        "next": "Xem cam kết tiếp theo",
+        "p1": {
+          "title": "Hiểu trước khi làm.",
+          "desc": "Mình làm rõ mục tiêu, người dùng và phạm vi trước khi viết code. Mỗi quyết định đều phải phục vụ đúng vấn đề bạn muốn giải quyết."
+        },
+        "p2": {
+          "title": "Đẹp phải dùng được.",
+          "desc": "Giao diện phải rõ trên điện thoại, tải nhanh và dùng được bằng bàn phím lẫn cảm ứng. Chuyển động chỉ ở lại khi nó giúp người xem hiểu câu chuyện."
+        },
+        "p3": {
+          "title": "Bàn giao để bạn làm chủ.",
+          "desc": "Sản phẩm được triển khai, hướng dẫn và tổ chức để bạn tiếp tục vận hành. Mình không biến những chỉnh sửa nhỏ thành lý do để bạn phải phụ thuộc."
+        }
+      },
+      "donate": {
+        "prompt": "Máy chủ chạy bằng điện. Điện chạy bằng cà phê.",
+        "cta": "Ủng hộ Hugo Studio"
+      },
+      "contact": {
+        "kicker": "Liên hệ",
+        "title": "Kể mình nghe.",
+        "body": "Một dự án, một cơ hội thực tập, hoặc đơn giản là chào một câu. Mình đọc tin nhắn mỗi ngày và thường trả lời trong vòng 24 giờ.",
+        "zalo": "Zalo",
+        "email": "Email",
+        "fb": "Facebook",
+        "tiktok": "TikTok",
+        "learnMore": "Tìm hiểu thêm về dịch vụ của Hugo Studio"
+      },
+      "supporters": {
+        "title": "Những người bạn đồng hành cùng Hugo Studio",
+        "empty": "Chỗ này đang chờ tên bạn."
+      },
+      "footnote": "Đồ họa giao diện trên trang là hình vector dựng lại từ sản phẩm thật, không phải ảnh chụp màn hình. Tên trường, tên đối tác và các liên kết liên hệ là thông tin thật. Các ứng dụng trong khu vực thành viên yêu cầu đăng nhập, và một số ứng dụng chỉ mở trong bản PWA đã cài trên điện thoại.",
+      "reel": {
+        "spiralKicker": "Bắt đầu",
+        "spiralTitle": "Mọi thứ bắt đầu từ một giọt.",
+        "worksKicker": "Đã giao",
+        "worksTitle": "Ba thứ đã ra khỏi máy mình.",
+        "logoTitle": "Hugo Studio",
+        "logoTagline": "Một người. Toàn bộ hệ thống."
+      },
+      "works": {
+        "minhoi": {
+          "kind": "Khách hàng · Website",
+          "title": "Mình Ơi Media",
+          "alt": "Ảnh chụp trang chủ Mình Ơi Media, dịch vụ phóng sự cưới"
+        },
+        "hwj": {
+          "kind": "Sản phẩm · Demo",
+          "title": "HWJ",
+          "alt": "Ảnh chụp trang demo HWJ"
+        },
+        "more": {
+          "kind": "Còn nữa",
+          "title": "Xem tất cả dự án",
+          "alt": ""
+        }
+      }
+    },
+    "film": {
+      "label": "Hugo Studio · Cách mình làm",
+      "heading": "Những thứ mình mang lại.",
+      "pagesCaption": "Website nhiều trang.",
+      "pagesNav": "Trang chủ · Giới thiệu · Dịch vụ · Liên hệ",
+      "landingCaption": "Một trang.\nMột việc.",
+      "landingCta": "Liên hệ ngay",
+      "finale": [
+        "Tăng tốc.",
+        "SEO."
+      ],
+      "chapters": [
+        {
+          "eyebrow": "01",
+          "title": "Website nhiều trang.",
+          "desc": "Khi bạn có nhiều thứ để kể: giới thiệu, dịch vụ, dự án, liên hệ. Mỗi trang một việc, đi chung một bộ giao diện, và sửa nội dung được mà không cần gọi mình."
+        },
+        {
+          "eyebrow": "02",
+          "title": "Landing page.",
+          "desc": "Khi bạn chỉ cần một việc xảy ra: khách để lại số, đặt lịch, hoặc bấm mua. Một trang, một lời mời, không có chỗ nào để lạc."
+        },
+        {
+          "eyebrow": "03",
+          "title": "SEO.",
+          "desc": "Trang nhẹ, có cấu trúc dữ liệu, tiêu đề và mô tả viết cho người đọc trước. Để khách gõ đúng thứ họ cần là thấy bạn, chứ không phải thấy đối thủ."
+        }
+      ],
+      "progress": [
+        "Nhiều trang",
+        "Landing page",
+        "SEO"
+      ],
+      "cta": "Xem bảng giá",
+      "gaugeUnit": "điểm tốc độ"
+    },
+    "story": {
+      "hero": {
+        "line1": "Từ nét vẽ đầu.",
+        "line2": "Đến dòng code cuối.",
+        "line3": "Một tay làm hết.",
+        "lede": "Mình là {{name}}, lập trình viên web tự do. Từ trang giới thiệu đến hệ thống ứng dụng, mình thiết kế, viết code rồi đưa lên mạng. Và dự án nào cũng có bản demo để bạn mở ra dùng thử.",
+        "ctaStart": "Bắt đầu dự án",
+        "ctaCv": "Xem CV",
+        "ctaCvAria": "Xem CV của {{name}}"
+      },
+      "work": {
+        "label": "Dự án",
+        "heading": "Làm từ đầu. Làm đến cùng.",
+        "subtitle": "Ba dự án đang chạy thật, với người dùng thật. Mở ra là dùng được, không cần đăng ký.",
+        "viewAll": "Xem tất cả dự án"
+      },
+      "services": {
+        "label": "Dịch vụ",
+        "heading": "Ba cách để đi xa hơn.",
+        "chapter1": {
+          "eyebrow": "01 · Website nhiều trang",
+          "title": "Một website. Mọi điều bạn muốn kể.",
+          "description": "Giới thiệu, dịch vụ, dự án và liên hệ – mỗi trang một vai, tất cả chung một nhịp."
+        },
+        "chapter2": {
+          "eyebrow": "02 · Landing page",
+          "title": "Một trang. Đủ sức làm nên chuyện.",
+          "description": "Thông điệp, hình ảnh và nút hành động rơi đúng chỗ. Lượt xem thành khách hàng."
+        },
+        "chapter3": {
+          "eyebrow": "03 · Hiệu năng & SEO",
+          "title": "Từ 0 đến 100. Rồi đi xa hơn.",
+          "description": "Trang nhẹ. Cấu trúc rõ. Google đọc được, khách tìm được."
+        },
+        "progress1": "Nhiều trang",
+        "progress2": "Landing page",
+        "progress3": "Tăng tốc SEO",
+        "speedUnit": "điểm hiệu năng",
+        "mergeLabel": "Khởi chạy chiến dịch",
+        "seoBurst1": "Tăng tốc",
+        "seoBurst2": "SEO",
+        "cta": "Tìm hiểu thêm về dịch vụ"
+      },
+      "profile": {
+        "kicker": "Hồ sơ",
+        "heading": "Học ở trường.\nRèn ở dự án thật.",
+        "summary": "Mình thích làm những sản phẩm người ta mở ra dùng mỗi ngày. Giao diện, API, cơ sở dữ liệu – ba lớp, một người làm. Và thứ gì đã lên mạng thì mình nhận luôn phần vận hành.",
+        "educationHeading": "Quá trình học",
+        "school1": {
+          "school": "THPT Nguyễn Đình Chiểu",
+          "period": "09/2020 – 06/2023",
+          "degree": "Tốt nghiệp trung học phổ thông",
+          "description": "Trưởng thành từ ngôi trường có lịch sử từ năm 1879, tiền thân là Collège de Mytho. Truyền thống hiếu học hơn một thế kỷ tại Mỹ Tho là nền tảng để mình rèn tính kỷ luật, tư duy giải quyết vấn đề và tinh thần hợp tác."
+        },
+        "school2": {
+          "school": "Greenwich Việt Nam",
+          "period": "08/2023 – Hiện tại",
+          "degree": "Cử nhân Computing · Đang theo học",
+          "description": "Theo học chương trình hợp tác giữa University of Greenwich (Anh Quốc) và Đại học FPT. Mình đưa nền tảng học thuật ấy vào kỹ thuật phần mềm, thiết kế hệ thống và phát triển ứng dụng web, di động — từ kiến thức trên giảng đường đến sản phẩm vận hành thực tế."
+        },
+        "milestoneNow": "Hiện tại",
+        "techHeading": "Công nghệ mình dùng",
+        "techNote": "Cái nào ở đây cũng đã chạy trong một dự án thật.",
+        "catFrontend": "Giao diện",
+        "catBackend": "Máy chủ",
+        "catDatabase": "Dữ liệu",
+        "catDevops": "Vận hành",
+        "promiseLabel": "Cam kết",
+        "promiseHeading": "Yên tâm từ bản thử\nđến bàn giao.",
+        "promise1": {
+          "title": "Tư vấn miễn phí.",
+          "desc": "Nhắn mình trước để chốt phạm vi thật rõ. Bạn chưa mất gì, đã biết mình sắp nhận gì."
+        },
+        "promise2": {
+          "title": "Xem bản thử rồi mới quyết.",
+          "desc": "Bạn duyệt giao diện mẫu, ưng rồi mới đi tiếp – không phải mua mèo trong bị."
+        },
+        "promise3": {
+          "title": "Sửa lỗi trọn đời.",
+          "desc": "Lỗi sinh ra từ code mình viết thì mình sửa miễn phí, không giới hạn thời gian."
+        },
+        "cvLabel": "Xem CV đầy đủ"
+      },
+      "contact": {
+        "heading1": "Có ý tưởng?",
+        "heading2": "Nhắn là bắt đầu.",
+        "desc": "Để lại lời nhắn. Mình trả lời trong vòng 24 giờ.",
+        "emailLabel": "Email trực tiếp",
+        "nameLabel": "Họ và tên",
+        "namePlaceholder": "Nguyễn Văn A",
+        "emailFieldLabel": "Email liên hệ",
+        "emailPlaceholder": "email@example.com",
+        "messageLabel": "Lời nhắn",
+        "messagePlaceholder": "Bạn cần làm gì, website hiện tại (nếu có), thời hạn mong muốn...",
+        "submit": "Gửi lời nhắn",
+        "mailSubject": "Liên hệ từ {{name}}"
+      }
+    },
+    "spell": {
+      "line": "Xin chào. Nói {{a}}, {{b}} hay {{c}} – nói là thấy.",
+      "listening": "Đang nghe.",
+      "spells": [
+        {
+          "say": "Thả tim",
+          "keys": "tha tim, tim, trai tim, thuong, yeu",
+          "kind": "heart"
+        },
+        {
+          "say": "Pháo hoa",
+          "keys": "phao hoa, ban phao, phao, bung",
+          "kind": "spark"
+        },
+        {
+          "say": "Mưa giọt nước",
+          "keys": "mua giot nuoc, giot nuoc, mua, giot",
+          "kind": "drop"
+        }
+      ]
     }
   },
   "servicesPage": {
@@ -1247,9 +1663,13 @@
         "title": "Bạn đang cần hỗ trợ gì?",
         "hint": "Chọn một nhu cầu gần nhất, bạn vẫn đổi được sau."
       },
+      "warranty": {
+        "title": "Chính sách bảo hành",
+        "hint": "Xác định mức độ hỗ trợ sau khi dự án hoàn thành."
+      },
       "budget": {
-        "title": "Mức đầu tư dự kiến",
-        "hint": "Con số tham khảo để mình đề xuất phạm vi vừa sức."
+        "title": "Bạn dự tính đầu tư bao nhiêu?",
+        "hint": "Con số này không ràng buộc gì. Nó chỉ giúp mình xếp thứ tự – làm thứ đáng làm trước, phần còn lại để sau."
       },
       "timeline": {
         "title": "Bạn cần xong khi nào?",
@@ -1290,18 +1710,38 @@
         "desc": "Chỉ cần kể mục tiêu; Hugo sẽ giúp bạn xác định hướng phù hợp."
       }
     },
+    "warranties": {
+      "noSupport": {
+        "title": "Bàn giao tự quản (Không BH)",
+        "desc": "Nhận Source Code và tự triển khai. Phù hợp nếu bạn có đội ngũ IT."
+      },
+      "standard": {
+        "title": "Cơ bản (3 Tháng)",
+        "desc": "Sửa lỗi phát sinh do code. Không bao gồm thêm tính năng mới."
+      },
+      "extended": {
+        "title": "Mở rộng (1 Năm)",
+        "desc": "Bao gồm xử lý sự cố máy chủ và hỗ trợ 2 lần nâng cấp nhỏ."
+      },
+      "comprehensive": {
+        "title": "Trọn gói (Vận hành)",
+        "desc": "Bảo trì định kỳ, cập nhật bảo mật, backup dữ liệu và hỗ trợ liên tục."
+      }
+    },
     "sections": {
       "project": "Bạn đang cần hỗ trợ việc gì?",
       "projectHint": "Chọn phương án gần nhất. Bạn vẫn có thể thay đổi sau khi trao đổi.",
+      "warranty": "Chính sách Hỗ trợ / Bảo hành",
+      "warrantyHint": "Có thể thay đổi sau khi thống nhất phạm vi.",
       "budget": "Mức đầu tư dự kiến",
-      "budgetHint": "Thông tin này chỉ giúp mình đề xuất phạm vi vừa sức, chưa phải cam kết chi phí.",
+      "budgetHint": "Chọn khoảng gần nhất. Bạn đổi lại được bất cứ lúc nào.",
       "timeline": "Thời gian bạn mong muốn",
       "notes": "Mô tả thêm (không bắt buộc)",
       "notesHint": "Chạm vào câu gợi ý để thêm nhanh, rồi sửa lại theo tình huống của bạn.",
       "timelineHint": "Chọn mốc gần nhất với kỳ vọng của bạn."
     },
     "budgets": {
-      "unsure": "Chưa xác định",
+      "unsure": "Để mình gợi ý",
       "underOne": "Dưới 1 triệu",
       "oneToThree": "1–3 triệu",
       "threeToEight": "3–8 triệu",
@@ -1350,6 +1790,7 @@
     "summary": {
       "title": "Tóm tắt yêu cầu",
       "project": "Nhu cầu",
+      "warranty": "Bảo hành",
       "budget": "Mức đầu tư",
       "timeline": "Thời gian",
       "notes": "Ghi chú",
@@ -2310,11 +2751,94 @@
       "adminChangeDescription": "Nếu muốn thay đổi, vui lòng liên hệ quản trị viên Hugo Studio."
     },
     "settings": {
-      "customizeThemeDesc": "Tùy chỉnh giao diện portal",
-      "appNotifications": "Thông báo ứng dụng",
-      "appNotificationsDesc": "Nhận tin tức và thông báo hoạt động hệ thống",
-      "enableNotifications": "Bật thông báo",
-      "biometricNotSupported": "Thiết bị không hỗ trợ đăng nhập sinh trắc học"
+      "title": "Cài đặt",
+      "desc": "Quản lý thông báo, đăng nhập nhanh và các tuỳ chọn khác cho tài khoản của bạn.",
+      "account": {
+        "summary": "Thông tin tài khoản, thanh toán và cài đặt",
+        "bioTitle": "Hồ sơ Hugo Bio",
+        "bioDescription": "Tùy chỉnh giao diện, danh thiếp và liên kết xã hội",
+        "publicIdentityNote": "Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối Hugo Studio.",
+        "notifications": "Thông báo",
+        "notificationsDescription": "Cấu hình thông báo Web Push",
+        "privacy": "Quyền riêng tư và truy cập",
+        "privacyDescription": "Quyền riêng tư và đăng nhập sinh trắc",
+        "topUpJoy": "Nạp JOY",
+        "redeemCode": "Đổi mã",
+        "giftJoy": "Tặng JOY",
+        "language": "Ngôn ngữ",
+        "publicBio": "Trang Bio công khai",
+        "publicBioDescription": "Mở trang Bio công khai",
+        "signOut": "Đăng xuất tài khoản",
+        "personalInformation": "Thông tin cá nhân",
+        "saveInformation": "Lưu thông tin",
+        "notificationSettings": "Cài đặt thông báo",
+        "pushDescription": "Nhận thông báo về sự kiện, tin nhắn và điểm thưởng",
+        "done": "Xong",
+        "privacyBiometrics": "Quyền riêng tư và sinh trắc",
+        "biometricUnsupported": "Thiết bị không hỗ trợ Face ID hoặc WebAuthn.",
+        "chooseLanguage": "Chọn ngôn ngữ"
+      },
+      "groupNotifications": "Thông báo",
+      "groupLogin": "Đăng nhập",
+      "groupPreferences": "Tuỳ chọn",
+      "pushTitle": "Thông báo đẩy",
+      "pushDesc": "Nhận thông báo về JOY, gói dịch vụ, xác minh và các cập nhật quan trọng khác — ngay cả khi không mở Hugo Studio.",
+      "pushProcessing": "Đang xử lý...",
+      "pushOn": "Đã bật",
+      "pushOff": "Đang tắt",
+      "pushUnsupported": "Thiết bị/trình duyệt này không hỗ trợ thông báo đẩy.",
+      "pushEnabledToast": "Đã bật thông báo đẩy!",
+      "pushDisabledToast": "Đã tắt thông báo đẩy.",
+      "pushDeniedToast": "Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.",
+      "pushErrorToast": "Không thể thay đổi trạng thái thông báo lúc này.",
+      "soundTitle": "Âm thanh thông báo",
+      "soundDesc": "Phát âm thanh khi có thông báo mới — cả khi đang mở Hugo Studio và khi điện thoại nhận thông báo đẩy.",
+      "soundOn": "Đã bật",
+      "soundOff": "Đang tắt",
+      "languageTitle": "Ngôn ngữ mặc định",
+      "languageDesc": "Chọn ngôn ngữ hiển thị mặc định cho Hugo Studio — được nhớ cho lần truy cập sau.",
+      "groupWidgets": "Nút nổi",
+      "hbotTitle": "Trợ lý Culi",
+      "hbotDesc": "Hiện nút trợ lý Culi nổi trên màn hình. Tắt nếu nó che mất nội dung bạn đang xem.",
+      "donationTitle": "Nút mời cafe",
+      "donationDesc": "Hiện nút mời đội ngũ Hugo Studio một ly cafe nổi trên màn hình.",
+      "comingSoonTitle": "Sắp ra mắt",
+      "comingSoonDesc": "Thêm các tuỳ chọn cài đặt khác (giao diện, quyền riêng tư...) sẽ xuất hiện ở đây.",
+      "logout": "Đăng xuất",
+      "page": {
+        "profileSettings": "Cài đặt hồ sơ",
+        "showBio": "Hiển thị trang Bio",
+        "openBioPublic": "Mở trang Bio công khai",
+        "systemSettings": "Cài đặt hệ thống",
+        "appearance": "Giao diện & Theme",
+        "linkCards": "Danh thiếp liên kết",
+        "projectsWorks": "Dự án & Tác phẩm",
+        "prefsNotifs": "Tuỳ chọn & thông báo",
+        "quickLogin": "Đăng nhập nhanh",
+        "smartPrefs": "Tuỳ chọn thông minh",
+        "language": "Ngôn ngữ",
+        "changeAvatar": "Đổi ảnh đại diện",
+        "pushStatusOn": "Đang bật thông báo đẩy",
+        "pushStatusPrompt": "Nhận thông báo quan trọng",
+        "save": "Lưu thay đổi",
+        "saving": "Đang lưu...",
+        "weatherBgTitle": "Nền động theo thời tiết",
+        "weatherBgDesc": "Sống động ban ngày & khi mưa bão, tự tắt đêm quang để tiết kiệm pin.",
+        "weatherAlertTitle": "Cảnh báo thời tiết bất thường",
+        "weatherAlertDesc": "Nhắc bạn chuẩn bị khi trời trở xấu — tự bật khi đã có quyền Vị trí & Thông báo.",
+        "soundDescShort": "Tự động im lặng giờ khuya (22:00–07:00), tự bật lại ban ngày.",
+        "donationDescShort": "Ẩn gọn để không làm phiền; bật khi bạn muốn ủng hộ Hugo."
+      },
+      "biometric": {
+        "title": "Đăng nhập bằng vân tay / Face ID",
+        "desc": "Quét vân tay hoặc Face ID trên thiết bị này thay vì đăng nhập lại bằng Google mỗi lần.",
+        "removeBtn": "Xoá",
+        "registerBtn": "+ Bật cho thiết bị này",
+        "registering": "Đang xử lý...",
+        "registerSuccess": "Đã bật đăng nhập bằng vân tay/Face ID cho thiết bị này!",
+        "registerError": "Không thể bật đăng nhập vân tay. Hãy thử lại.",
+        "deviceComputer": "Máy tính"
+      }
     },
     "account": {
       "appleAccount": "Tài khoản Hugo",
@@ -3268,96 +3792,6 @@
       "reopensMonday": "Mở lại vào thứ Hai",
       "alreadyClaimedToday": "Đã điểm danh hôm nay",
       "claimToday": "Điểm danh · +{{amount, joy}}"
-    },
-    "settings": {
-      "title": "Cài đặt",
-      "desc": "Quản lý thông báo, đăng nhập nhanh và các tuỳ chọn khác cho tài khoản của bạn.",
-      "account": {
-        "summary": "Thông tin tài khoản, thanh toán và cài đặt",
-        "bioTitle": "Hồ sơ Hugo Bio",
-        "bioDescription": "Tùy chỉnh giao diện, danh thiếp và liên kết xã hội",
-        "publicIdentityNote": "Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối Hugo Studio.",
-        "notifications": "Thông báo",
-        "notificationsDescription": "Cấu hình thông báo Web Push",
-        "privacy": "Quyền riêng tư và truy cập",
-        "privacyDescription": "Quyền riêng tư và đăng nhập sinh trắc",
-        "topUpJoy": "Nạp JOY",
-        "redeemCode": "Đổi mã",
-        "giftJoy": "Tặng JOY",
-        "language": "Ngôn ngữ",
-        "publicBio": "Trang Bio công khai",
-        "publicBioDescription": "Mở trang Bio công khai",
-        "signOut": "Đăng xuất tài khoản",
-        "personalInformation": "Thông tin cá nhân",
-        "saveInformation": "Lưu thông tin",
-        "notificationSettings": "Cài đặt thông báo",
-        "pushDescription": "Nhận thông báo về sự kiện, tin nhắn và điểm thưởng",
-        "done": "Xong",
-        "privacyBiometrics": "Quyền riêng tư và sinh trắc",
-        "biometricUnsupported": "Thiết bị không hỗ trợ Face ID hoặc WebAuthn.",
-        "chooseLanguage": "Chọn ngôn ngữ"
-      },
-      "groupNotifications": "Thông báo",
-      "groupLogin": "Đăng nhập",
-      "groupPreferences": "Tuỳ chọn",
-      "pushTitle": "Thông báo đẩy",
-      "pushDesc": "Nhận thông báo về JOY, gói dịch vụ, xác minh và các cập nhật quan trọng khác — ngay cả khi không mở Hugo Studio.",
-      "pushProcessing": "Đang xử lý...",
-      "pushOn": "Đã bật",
-      "pushOff": "Đang tắt",
-      "pushUnsupported": "Thiết bị/trình duyệt này không hỗ trợ thông báo đẩy.",
-      "pushEnabledToast": "Đã bật thông báo đẩy!",
-      "pushDisabledToast": "Đã tắt thông báo đẩy.",
-      "pushDeniedToast": "Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.",
-      "pushErrorToast": "Không thể thay đổi trạng thái thông báo lúc này.",
-      "soundTitle": "Âm thanh thông báo",
-      "soundDesc": "Phát âm thanh khi có thông báo mới — cả khi đang mở Hugo Studio và khi điện thoại nhận thông báo đẩy.",
-      "soundOn": "Đã bật",
-      "soundOff": "Đang tắt",
-      "languageTitle": "Ngôn ngữ mặc định",
-      "languageDesc": "Chọn ngôn ngữ hiển thị mặc định cho Hugo Studio — được nhớ cho lần truy cập sau.",
-      "groupWidgets": "Nút nổi",
-      "hbotTitle": "Trợ lý Culi",
-      "hbotDesc": "Hiện nút trợ lý Culi nổi trên màn hình. Tắt nếu nó che mất nội dung bạn đang xem.",
-      "donationTitle": "Nút mời cafe",
-      "donationDesc": "Hiện nút mời đội ngũ Hugo Studio một ly cafe nổi trên màn hình.",
-      "comingSoonTitle": "Sắp ra mắt",
-      "comingSoonDesc": "Thêm các tuỳ chọn cài đặt khác (giao diện, quyền riêng tư...) sẽ xuất hiện ở đây.",
-      "logout": "Đăng xuất",
-      "page": {
-        "profileSettings": "Cài đặt hồ sơ",
-        "showBio": "Hiển thị trang Bio",
-        "openBioPublic": "Mở trang Bio công khai",
-        "systemSettings": "Cài đặt hệ thống",
-        "appearance": "Giao diện & Theme",
-        "linkCards": "Danh thiếp liên kết",
-        "projectsWorks": "Dự án & Tác phẩm",
-        "prefsNotifs": "Tuỳ chọn & thông báo",
-        "quickLogin": "Đăng nhập nhanh",
-        "smartPrefs": "Tuỳ chọn thông minh",
-        "language": "Ngôn ngữ",
-        "changeAvatar": "Đổi ảnh đại diện",
-        "pushStatusOn": "Đang bật thông báo đẩy",
-        "pushStatusPrompt": "Nhận thông báo quan trọng",
-        "save": "Lưu thay đổi",
-        "saving": "Đang lưu...",
-        "weatherBgTitle": "Nền động theo thời tiết",
-        "weatherBgDesc": "Sống động ban ngày & khi mưa bão, tự tắt đêm quang để tiết kiệm pin.",
-        "weatherAlertTitle": "Cảnh báo thời tiết bất thường",
-        "weatherAlertDesc": "Nhắc bạn chuẩn bị khi trời trở xấu — tự bật khi đã có quyền Vị trí & Thông báo.",
-        "soundDescShort": "Tự động im lặng giờ khuya (22:00–07:00), tự bật lại ban ngày.",
-        "donationDescShort": "Ẩn gọn để không làm phiền; bật khi bạn muốn ủng hộ Hugo."
-      },
-      "biometric": {
-        "title": "Đăng nhập bằng vân tay / Face ID",
-        "desc": "Quét vân tay hoặc Face ID trên thiết bị này thay vì đăng nhập lại bằng Google mỗi lần.",
-        "removeBtn": "Xoá",
-        "registerBtn": "+ Bật cho thiết bị này",
-        "registering": "Đang xử lý...",
-        "registerSuccess": "Đã bật đăng nhập bằng vân tay/Face ID cho thiết bị này!",
-        "registerError": "Không thể bật đăng nhập vân tay. Hãy thử lại.",
-        "deviceComputer": "Máy tính"
-      }
     },
     "versionAd": {
       "eyebrow": "Phiên bản 2.0 · Vừa ra mắt",
@@ -6484,8 +6918,8 @@
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Bio Của Riêng Bạn — Miễn Phí 12 Tháng | Hugo Studio",
-    "metaDesc": "Tôi tặng bạn một trang Bio đẹp, riêng biệt, không quảng cáo — miễn phí 12 tháng. Chỉ cần email giáo dục. Đó là lửa của bạn, hãy thắp sáng nó.",
+    "metaTitle": "Hugo Edu+ — Trang Bio miễn phí cho người học | Hugo Studio",
+    "metaDesc": "Xác minh email trường để nhận trang Bio riêng, miễn phí 365 ngày. Ba giao diện có sẵn, đổi lúc nào cũng được, và mức giảm riêng nếu bạn cần một gói website đầy đủ.",
     "backToServices": "Quay lại dịch vụ",
     "giftSpark": "Tôi Tặng Bạn Lửa — 12 Tháng",
     "title": "Trang Bio Của Riêng Bạn",
@@ -7233,5 +7667,935 @@
       "again": "Quét lại",
       "cameraError": "Không mở được camera. Hãy kiểm tra quyền truy cập."
     }
+  },
+  "servicePkg": {
+    "connect": {
+      "name": "Gói kết nối",
+      "price": "350.000 – 900.000₫ · một lần",
+      "body": "Trỏ tên miền, cài chứng chỉ bảo mật, đưa website lên nơi lưu trữ của bạn, nối cơ sở dữ liệu và hộp thư nhận form. Bắt buộc mua kèm nếu bạn muốn Hugo Studio thực hiện phần này."
+    },
+    "handCoded": {
+      "title": "Mã nguồn viết tay 100%.",
+      "body": "Từng dòng giao diện được viết riêng cho dự án, không dựng trên theme mua sẵn hay trình kéo thả. Trang chỉ nạp đúng thứ nó cần, và không phụ thuộc vào lịch cập nhật của một tiện ích bên ngoài."
+    },
+    "excludes": [
+      {
+        "title": "Tên miền.",
+        "body": "Bạn đứng tên mua và giữ quyền sở hữu. Hugo Studio tư vấn chọn tên, hướng dẫn mua, nhưng không bán và không đứng tên thay bạn."
+      },
+      {
+        "title": "Nơi lưu trữ và cơ sở dữ liệu.",
+        "body": "Hosting, VPS, cơ sở dữ liệu đều do bạn mua và sở hữu. Hugo Studio không cung cấp và không cho thuê lại hạ tầng."
+      },
+      {
+        "title": "Việc nối hạ tầng vào website.",
+        "body": "Phần cài đặt và kết nối nằm ở Gói kết nối (350.000 – 900.000₫ · một lần), tính riêng ngoài giá thiết kế."
+      },
+      {
+        "title": "Nền tảng dựng sẵn.",
+        "body": "Hugo Studio chỉ nhận dự án viết mã riêng, không nhận triển khai hay bảo trì trên các nền tảng dựng sẵn. Nếu nhu cầu của bạn thuộc nhóm đó, mình sẽ nói ngay từ buổi đầu để bạn không mất thời gian."
+      },
+      {
+        "title": "Nội dung gốc.",
+        "body": "Chữ, ảnh sản phẩm, logo và giấy tờ thương hiệu do bạn cung cấp. Cần viết nội dung hoặc chụp ảnh thì báo trước để tính thêm."
+      },
+      {
+        "title": "Chi phí của bên thứ ba.",
+        "body": "Phí quảng cáo, phông chữ bản quyền, kho ảnh trả phí, cổng thanh toán, dịch vụ gửi thư hàng loạt — bạn trả trực tiếp cho nhà cung cấp."
+      }
+    ],
+    "policy": [
+      {
+        "title": "Đặt cọc 50%.",
+        "body": "Cọc trước khi bắt đầu, phần còn lại thanh toán khi nghiệm thu, trước lúc bàn giao bản chạy thật."
+      },
+      {
+        "title": "Hai vòng chỉnh lớn.",
+        "body": "Đã có hai vòng chỉnh bố cục và nội dung trong giá. Từ vòng thứ ba, hoặc khi đổi hướng sau lúc đã chốt, tính thêm theo khối lượng."
+      },
+      {
+        "title": "Bản quyền thuộc về bạn.",
+        "body": "Thanh toán đủ là thiết kế, nội dung và mã nguồn của chính dự án thuộc về bạn. Riêng thư viện, khung mã và công cụ nội bộ mà Hugo Studio dùng lại giữa các dự án vẫn thuộc Hugo Studio, và bạn được quyền sử dụng vĩnh viễn trong phạm vi dự án này. Hugo Studio chỉ giữ thêm quyền đưa dự án vào hồ sơ năng lực, trừ khi bạn yêu cầu không."
+      },
+      {
+        "title": "Dừng giữa chừng.",
+        "body": "Bạn dừng dự án thì phần đã làm được bàn giao nguyên trạng và cọc không hoàn lại. Nếu việc dừng là do lỗi của Hugo Studio, hoặc Hugo Studio chủ động dừng, phần chưa thực hiện được hoàn lại đầy đủ."
+      }
+    ],
+    "priceNotice": {
+      "updated": "Cập nhật 09/2026",
+      "lines": [
+        "Toàn bộ con số tính bằng đồng Việt Nam (VNĐ) và là khoảng giá tham khảo, không phải bảng giá cố định hay lời chào hàng có giá trị ràng buộc.",
+        "Giá chính thức được ghi trong báo giá và hợp đồng của từng dự án, sau khi hai bên thống nhất phạm vi công việc.",
+        "Chưa bao gồm tên miền, nơi lưu trữ, cơ sở dữ liệu, Gói kết nối và mọi chi phí trả cho nhà cung cấp bên thứ ba.",
+        "Khoảng giá có thể thay đổi theo thời điểm và theo khối lượng thực tế. Con số đã ký trong hợp đồng thì không đổi."
+      ]
+    },
+    "extraFees": [
+      {
+        "title": "Thêm một trang",
+        "price": "450.000 – 900.000₫ / trang",
+        "body": "Áp dụng khi số trang vượt danh sách đã chốt. Trang càng giống một trang đã có thì càng gần mức sàn."
+      },
+      {
+        "title": "Vòng chỉnh từ thứ ba",
+        "price": "250.000 – 600.000₫ / vòng",
+        "body": "Hai vòng đầu đã nằm trong giá. Vòng sau tính theo khối lượng thật, báo trước khi làm."
+      },
+      {
+        "title": "Làm gấp",
+        "price": "+25% giá gói",
+        "body": "Khi bạn cần rút thời gian xuống dưới khoảng đã ghi trong chính sách của gói."
+      },
+      {
+        "title": "Bảo trì sau bảo hành",
+        "price": "350.000₫ / tháng",
+        "body": "Kiểm tra định kỳ và cập nhật nhỏ trong hai giờ mỗi tháng. Việc vượt mức đó tính 200.000₫ mỗi giờ."
+      }
+    ],
+    "studentDiscount": {
+      "title": "Người học đặt gói trả phí: giảm 15%",
+      "body": "Đã xác minh tư cách người học thì Hugo One, Hugo Story và Hugo Flow+ giảm 15% trên giá thiết kế. Áp cho dự án cá nhân, đồ án hoặc câu lạc bộ, mỗi người một dự án trong mỗi năm học. Không áp lên chi phí trả cho nhà cung cấp bên thứ ba."
+    },
+    "items": {
+      "hugo-one": {
+        "title": "Một trang. Trọn một mục tiêu.",
+        "lede": "Một trang tĩnh, tải nhanh, đọc một mạch và kết lại bằng đúng một hành động. Dành cho lúc bạn chỉ cần nói một điều, và nói cho thật rõ.",
+        "intro": [
+          "Landing page không phải website thu nhỏ. Nó là một lần thuyết phục. Khách vào, hiểu bạn bán gì, tin bạn làm được, rồi bấm. Thứ gì không phục vụ chuỗi đó thì bỏ đi.",
+          "Chỉ có một trang, nên thứ tự đọc là tất cả. Thông điệp chính nằm ngay màn hình đầu. Bằng chứng xuất hiện đúng lúc khách bắt đầu cân nhắc. Nút hành động luôn ở nơi tay vừa tới."
+        ],
+        "audience": [
+          "Chiến dịch quảng cáo cần một nơi để dẫn khách về.",
+          "Hồ sơ cá nhân, portfolio hoặc CV trực tuyến muốn có đường dẫn riêng.",
+          "Một dịch vụ, một khoá học hoặc một sự kiện cần ra mắt gọn.",
+          "Thử nghiệm ý tưởng trước khi đầu tư một website đầy đủ."
+        ],
+        "includes": [
+          {
+            "title": "Thiết kế riêng 01 trang.",
+            "body": "Không dùng lại mẫu có sẵn. Bố cục, phông chữ và màu bám theo thương hiệu của bạn."
+          },
+          {
+            "title": "Nội dung và nút kêu gọi hành động.",
+            "body": "Sắp xếp và biên tập lại chữ bạn đưa thành một đường đọc. Một hành động chính, nhắc lại đúng chỗ."
+          },
+          {
+            "title": "Hiển thị tốt trên mọi thiết bị.",
+            "body": "Kiểm tra thật trên điện thoại, máy tính bảng và màn hình lớn — không chỉ thu nhỏ cửa sổ trình duyệt."
+          },
+          {
+            "title": "Form liên hệ.",
+            "body": "Giao diện form và phần chống gửi rác cơ bản nằm trong giá. Để form gửi được về hộp thư của bạn thì cần Gói kết nối và một tài khoản dịch vụ thư."
+          },
+          {
+            "title": "SEO nền tảng.",
+            "body": "Tiêu đề, mô tả, ảnh chia sẻ mạng xã hội, sitemap và cấu trúc thẻ đúng chuẩn để Google đọc được."
+          },
+          {
+            "title": "Bàn giao mã nguồn.",
+            "body": "Toàn bộ mã nguồn và hướng dẫn chạy lại, để bạn hoặc người khác tiếp quản được."
+          },
+          {
+            "title": "Triển khai website.",
+            "body": "Dựng bản chạy thật trên môi trường xem thử của Hugo Studio và kiểm tra lại toàn bộ luồng trước khi bàn giao. Đưa lên tên miền và nơi lưu trữ của bạn thì cần Gói kết nối."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "30 ngày sửa lỗi miễn phí.",
+            "body": "Lỗi hiển thị, lỗi form, lỗi do mã nguồn — sửa không tính phí kể từ ngày bàn giao."
+          },
+          {
+            "title": "7 ngày chỉnh nội dung nhỏ.",
+            "body": "Sửa chữ, đổi ảnh, đổi số điện thoại. Đổi bố cục thì tính là vòng chỉnh mới."
+          },
+          {
+            "title": "Phản hồi trong 24 giờ làm việc.",
+            "body": "Qua kênh đã trao đổi từ đầu dự án. Lỗi khiến trang không truy cập được luôn được xử lý trước."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "Thời gian thực hiện 5 – 10 ngày.",
+            "body": "Tính từ lúc nhận đủ nội dung và ảnh. Thiếu nội dung là đồng hồ dừng."
+          }
+        ],
+        "price": {
+          "from": "1.500.000₫",
+          "to": "3.500.000₫",
+          "note": "Phần lớn dự án nằm ở 2 – 2,8 triệu. Mức sàn dành cho trang 5 – 6 khối với nội dung bạn đã chuẩn bị sẵn.",
+          "factors": [
+            "Số khối nội dung trên trang (6 khối hay 14 khối là hai khối lượng khác nhau).",
+            "Nội dung đã có sẵn hay cần biên tập, viết lại.",
+            "Mức độ chuyển động và hiệu ứng.",
+            "Tích hợp thêm: bản đồ, chat, lịch hẹn, theo dõi quảng cáo.",
+            "Tiến độ gấp dưới 5 ngày."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo One có phù hợp để chạy quảng cáo không?",
+            "answer": "Có. Gói này phù hợp khi bạn có một sản phẩm, dịch vụ hoặc chiến dịch và muốn đưa khách về một trang có một hành động chính rõ ràng."
+          },
+          {
+            "question": "Tôi đã có nội dung, Hugo có hỗ trợ sắp xếp lại không?",
+            "answer": "Có. Nội dung bạn cung cấp sẽ được sắp xếp và biên tập nhẹ để thành một mạch đọc. Viết nội dung bán hàng hoàn toàn mới sẽ được báo riêng nếu cần."
+          },
+          {
+            "question": "Form liên hệ có cần mua thêm không?",
+            "answer": "Phần giao diện form nằm trong Hugo One. Để form gửi được đến hộp thư hoặc hệ thống khác, bạn cần mua thêm gói kết nối và có tài khoản dịch vụ tương ứng."
+          },
+          {
+            "question": "Sau khi bàn giao tôi có tự sửa được không?",
+            "answer": "Bạn nhận mã nguồn để tự sửa hoặc nhờ người khác tiếp quản. Hugo One không bao gồm CMS, nên phần nội dung cần cập nhật trực tiếp trong mã nguồn."
+          }
+        ],
+        "features": [
+          "Thiết kế riêng 01 trang",
+          "Hiển thị tốt trên mọi thiết bị",
+          "Nội dung & nút kêu gọi hành động",
+          "Form liên hệ",
+          "SEO nền tảng",
+          "Triển khai website"
+        ]
+      },
+      "hugo-story": {
+        "title": "Nhiều trang. Một câu chuyện.",
+        "lede": "Website giới thiệu nhiều trang cho cá nhân, quán và doanh nghiệp nhỏ. Mỗi trang giữ một vai trò, tất cả cùng dẫn về một quyết định.",
+        "intro": [
+          "Nhiều điều để kể mà dồn hết vào một trang thì không điều nào được đọc. Hugo Story tách chúng ra: ai đọc gì, ở đâu, đi tiếp đến đâu.",
+          "Phần khó không nằm ở số trang. Nó nằm ở đường đi giữa các trang. Menu, liên kết trong bài và nút cuối trang được sắp để khách luôn có bước kế tiếp, thay vì quay về trang chủ rồi thoát."
+        ],
+        "audience": [
+          "Doanh nghiệp nhỏ cần nơi giới thiệu đầy đủ dịch vụ và năng lực.",
+          "Quán ăn, quán cà phê, phòng khám, studio cần trang thực đơn, bảng giá, hình ảnh và bản đồ.",
+          "Người làm nghề tự do có nhiều mảng dịch vụ và tuyển tập dự án.",
+          "Ai đang dùng Facebook làm mặt tiền và muốn một địa chỉ đứng tên mình."
+        ],
+        "includes": [
+          {
+            "title": "Hệ thống trang theo nhu cầu.",
+            "body": "Thường là 4 – 8 trang: giới thiệu, dịch vụ, dự án, tin tức, liên hệ. Chốt danh sách trước khi thiết kế."
+          },
+          {
+            "title": "Cấu trúc nội dung và điều hướng.",
+            "body": "Menu, đường dẫn thân thiện, liên kết nội bộ và nút hành động cuối mỗi trang."
+          },
+          {
+            "title": "Form, bản đồ và mạng xã hội.",
+            "body": "Form liên hệ gửi về hộp thư, bản đồ chỉ đường, liên kết sang các kênh bạn đang chạy."
+          },
+          {
+            "title": "SEO cho từng trang.",
+            "body": "Mỗi trang có tiêu đề, mô tả và ảnh chia sẻ riêng. Sitemap và dữ liệu có cấu trúc cho toàn site."
+          },
+          {
+            "title": "Hiển thị tốt trên mọi thiết bị.",
+            "body": "Kiểm tra thật trên điện thoại và máy tính, gồm cả bảng biểu và ảnh nhiều cột."
+          },
+          {
+            "title": "Bàn giao mã nguồn.",
+            "body": "Toàn bộ mã nguồn và hướng dẫn chạy lại, để bạn hoặc người khác tiếp quản được."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "45 ngày sửa lỗi miễn phí.",
+            "body": "Mọi lỗi thuộc phần Hugo Studio dựng, tính từ ngày bàn giao."
+          },
+          {
+            "title": "14 ngày chỉnh nội dung nhỏ.",
+            "body": "Sửa chữ, thay ảnh, cập nhật giờ mở cửa trên các trang đã bàn giao."
+          },
+          {
+            "title": "Một buổi hướng dẫn tự cập nhật.",
+            "body": "Trực tuyến, quay lại màn hình để bạn xem lại khi cần."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "Thời gian thực hiện 2 – 4 tuần.",
+            "body": "Tính từ lúc chốt danh sách trang và nhận đủ nội dung."
+          },
+          {
+            "title": "Chốt số trang trước.",
+            "body": "Thêm trang sau khi đã chốt được tính theo đơn giá mỗi trang, thống nhất trước khi làm."
+          }
+        ],
+        "price": {
+          "from": "4.000.000₫",
+          "to": "8.000.000₫",
+          "note": "Phần lớn dự án nằm ở 5 – 6,5 triệu cho 5 – 6 trang. Thêm trang thì tính theo đơn giá bên dưới.",
+          "factors": [
+            "Số trang và độ phức tạp của từng trang.",
+            "Có cần trang tin tức / blog tự đăng bài hay không.",
+            "Nội dung và hình ảnh đã sẵn sàng đến đâu.",
+            "Đa ngôn ngữ.",
+            "Chuyển dữ liệu từ website cũ sang."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Story thường có bao nhiêu trang?",
+            "answer": "Phạm vi phổ biến là 4–8 trang, ví dụ giới thiệu, dịch vụ, dự án, bài viết và liên hệ. Danh sách chính thức được chốt trước khi thiết kế."
+          },
+          {
+            "question": "Tôi có tự đăng bài viết sau này được không?",
+            "answer": "Gói cơ bản bàn giao website code và không kèm CMS. Nếu cần tự đăng bài, phải khảo sát thêm loại gói kết nối hoặc hệ thống dữ liệu phù hợp; chi phí đó không nằm trong giá thiết kế."
+          },
+          {
+            "question": "Có chuyển website cũ sang không?",
+            "answer": "Có thể hỗ trợ chuyển nội dung, nhưng khối lượng phụ thuộc số trang, ảnh và dữ liệu cũ. Phần chuyển dữ liệu được tách ra để báo giá sau khi xem website hiện tại."
+          },
+          {
+            "question": "Tên miền và nơi lưu trữ có được mua trong gói không?",
+            "answer": "Không. Bạn tự đứng tên mua tên miền và nơi lưu trữ. Hugo Studio chỉ hỗ trợ chọn mua và nối vào website thông qua Gói kết nối tính riêng."
+          }
+        ],
+        "features": [
+          "Hệ thống trang theo nhu cầu",
+          "Cấu trúc nội dung & điều hướng",
+          "Form, bản đồ & mạng xã hội",
+          "SEO cho từng trang",
+          "Hiển thị tốt trên mọi thiết bị",
+          "Bàn giao mã nguồn"
+        ]
+      },
+      "hugo-flow-plus": {
+        "title": "Bán hàng. Ngay trên trang của bạn.",
+        "lede": "Danh mục, giỏ hàng, thanh toán và quản lý đơn — cùng một hệ thống, mang tên bạn. Dành cho thương hiệu bán hàng thật, không chỉ trưng bày.",
+        "intro": [
+          "Website bán hàng khác website giới thiệu ở một chỗ: nó phải đúng. Đơn không được rơi. Tồn kho không được lệch. Tiền vào phải khớp với đơn.",
+          "Nên phần lớn công sức nằm sau giao diện. Trạng thái đơn hàng, thông báo cho cả hai phía, và một trang quản trị đủ để một người vận hành cả cửa hàng mà không cần mở mã nguồn."
+        ],
+        "audience": [
+          "Thương hiệu đang bán trên sàn hoặc mạng xã hội, muốn có kênh riêng không mất phí sàn.",
+          "Cửa hàng cần quản lý đơn, tồn kho và khách hàng ở một nơi.",
+          "Dịch vụ cần đặt lịch, đặt chỗ hoặc thu tiền trực tuyến.",
+          "Sản phẩm số cần bán và giao hàng tự động."
+        ],
+        "includes": [
+          {
+            "title": "Quản lý sản phẩm.",
+            "body": "Danh mục, phân loại, biến thể, ảnh, giá và tình trạng còn hàng."
+          },
+          {
+            "title": "Giỏ hàng và đơn hàng.",
+            "body": "Giỏ hàng, mã giảm giá, phí vận chuyển, trạng thái đơn và thông báo cho cả hai phía."
+          },
+          {
+            "title": "Thanh toán trực tuyến.",
+            "body": "Nối một cổng thanh toán tại Việt Nam do bạn đăng ký. Phí cổng do nhà cung cấp thu."
+          },
+          {
+            "title": "Tài khoản khách hàng.",
+            "body": "Đăng nhập, lịch sử mua và địa chỉ giao hàng đã lưu."
+          },
+          {
+            "title": "Trang quản trị.",
+            "body": "Nơi bạn xem đơn, sửa sản phẩm và theo dõi số liệu bán hàng cơ bản. Phần mềm do Hugo Studio dựng, còn dữ liệu nằm trên hạ tầng do bạn sở hữu."
+          },
+          {
+            "title": "Tích hợp API theo nhu cầu.",
+            "body": "Vận chuyển, hoá đơn, kế toán hoặc phần mềm bạn đang dùng — chốt danh sách trước khi báo giá."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "60 ngày sửa lỗi miễn phí.",
+            "body": "Ưu tiên cao nhất cho lỗi thuộc luồng đặt hàng và thanh toán."
+          },
+          {
+            "title": "30 ngày đồng hành vận hành.",
+            "body": "Hỗ trợ khi bạn gặp vướng trong tháng đầu bán hàng thật."
+          },
+          {
+            "title": "Hai buổi hướng dẫn quản trị.",
+            "body": "Một buổi trước khi mở bán, một buổi sau hai tuần vận hành."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "Thời gian thực hiện 4 – 8 tuần.",
+            "body": "Tuỳ số tích hợp. Cổng thanh toán và vận chuyển phụ thuộc thời gian duyệt của nhà cung cấp."
+          },
+          {
+            "title": "Thanh toán theo ba đợt.",
+            "body": "50% khi bắt đầu, 30% khi chạy thử nội bộ, 20% khi mở bán thật."
+          },
+          {
+            "title": "Tài khoản dịch vụ đứng tên bạn.",
+            "body": "Cổng thanh toán, đơn vị vận chuyển, hạ tầng — tất cả đăng ký bằng thông tin doanh nghiệp của bạn."
+          },
+          {
+            "title": "Dữ liệu khách hàng là của bạn.",
+            "body": "Website thu thập tài khoản, địa chỉ và đơn hàng của người mua. Bạn là bên quyết định việc thu thập và sử dụng số dữ liệu đó; Hugo Studio chỉ đụng tới trong phạm vi phát triển và sửa lỗi, theo yêu cầu của bạn."
+          }
+        ],
+        "price": {
+          "from": "9.000.000₫",
+          "to": "20.000.000₫",
+          "note": "Cửa hàng cơ bản thường nằm ở 10 – 14 triệu. Số tích hợp là thứ đẩy con số này đi xa nhất.",
+          "factors": [
+            "Số lượng sản phẩm và biến thể.",
+            "Số cổng thanh toán và đơn vị vận chuyển cần nối.",
+            "Có cần đồng bộ với phần mềm kho / kế toán sẵn có không.",
+            "Mức độ tuỳ biến của trang quản trị.",
+            "Yêu cầu về báo cáo và số liệu."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Flow+ có tự xây cơ sở dữ liệu riêng không?",
+            "answer": "Không. Hugo Studio không cung cấp hoặc cho thuê cơ sở quản lý dữ liệu. Gói này chỉ kết nối với hệ thống và API mà bạn đã có hoặc đã mua."
+          },
+          {
+            "question": "Tôi phải chuẩn bị gì trước khi bắt đầu?",
+            "answer": "Bạn cần danh sách sản phẩm, quy tắc giá và giao hàng, tài khoản thanh toán hoặc vận chuyển, cùng tài liệu API nếu muốn kết nối dịch vụ bên ngoài."
+          },
+          {
+            "question": "Phí thanh toán và phí vận chuyển do ai trả?",
+            "answer": "Bạn trả trực tiếp cho nhà cung cấp. Các khoản này, cùng chi phí mua Gói kết nối, không nằm trong giá phát triển Hugo Flow+."
+          },
+          {
+            "question": "Có thể thêm chức năng sau khi website đã chạy không?",
+            "answer": "Có. Chức năng mới được khảo sát và báo riêng. Lỗi thuộc phạm vi đã nghiệm thu vẫn được xử lý theo thời hạn bảo hành của gói."
+          }
+        ],
+        "features": [
+          "Quản lý sản phẩm",
+          "Giỏ hàng & đơn hàng",
+          "Thanh toán trực tuyến",
+          "Kết nối dữ liệu có sẵn",
+          "Trang trạng thái đơn hàng",
+          "Tích hợp API theo nhu cầu"
+        ]
+      },
+      "hugo-edu-plus": {
+        "title": "Trang Bio. Dành riêng cho người học.",
+        "lede": "Một đường dẫn gọn để giới thiệu bản thân, dự án và mọi liên kết quan trọng. Miễn phí 365 ngày sau khi xác minh tư cách người học.",
+        "intro": [
+          "Người đi học thường chưa cần một website. Họ cần một chỗ đứng. Một đường dẫn gửi kèm hồ sơ, gửi cho thầy cô, dán vào trang cá nhân.",
+          "Hugo Edu+ là chỗ đó. Bạn tự điền, tự sửa, tự đổi giao diện ngay trong tài khoản. Không cần biết lập trình. Không cần chờ ai làm hộ."
+        ],
+        "audience": [
+          "Học sinh, sinh viên cần một trang giới thiệu bản thân và dự án.",
+          "Người học đang xây hồ sơ xin thực tập.",
+          "Câu lạc bộ, nhóm đồ án cần một đường dẫn chung.",
+          "Ai muốn thử một trang cá nhân trước khi đầu tư website riêng."
+        ],
+        "includes": [
+          {
+            "title": "Miễn phí 365 ngày.",
+            "body": "Tính từ ngày xác minh. Không cần thẻ ngân hàng, không tự động gia hạn có phí."
+          },
+          {
+            "title": "Đường dẫn riêng, Hugo Studio cấp.",
+            "body": "Một đường dẫn theo tên bạn, đọc được, gửi đi đâu cũng gọn. Miễn phí — bạn không cần mua tên miền, không cần Gói kết nối."
+          },
+          {
+            "title": "Ảnh đại diện và giới thiệu.",
+            "body": "Ảnh, tiêu đề nghề nghiệp, phần giới thiệu và thông tin liên hệ."
+          },
+          {
+            "title": "Dự án và liên kết cá nhân.",
+            "body": "Danh sách dự án kèm ảnh và mô tả, cùng mọi liên kết bạn muốn dẫn tới."
+          },
+          {
+            "title": "Tự cập nhật trong tài khoản.",
+            "body": "Sửa lúc nào cũng được, hiện ra ngay, không cần gửi yêu cầu cho ai."
+          },
+          {
+            "title": "Hiển thị tốt trên mọi thiết bị.",
+            "body": "Nhiều giao diện dựng sẵn, đổi được bất cứ lúc nào."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "Hỗ trợ trong suốt 365 ngày.",
+            "body": "Lỗi hiển thị hoặc lỗi tài khoản được xử lý trong phạm vi Hugo Studio hỗ trợ được."
+          },
+          {
+            "title": "Dữ liệu là của bạn.",
+            "body": "Hết hạn thì trang tạm ẩn, dữ liệu vẫn còn trong tài khoản để bạn tải về hoặc mở lại."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "Xác minh một lần.",
+            "body": "Email trường, hoặc giấy tờ người học còn hiệu lực nếu email của bạn không thuộc tên miền trường."
+          },
+          {
+            "title": "Dùng cho cá nhân người học.",
+            "body": "Không dùng làm trang bán hàng hay trang chính thức của doanh nghiệp. Trường hợp đó thuộc Hugo One trở lên."
+          },
+          {
+            "title": "Một tài khoản, một trang Bio.",
+            "body": "Cần thêm trang cho câu lạc bộ hay nhóm thì trao đổi riêng."
+          },
+          {
+            "title": "Chương trình có thể thay đổi.",
+            "body": "Hugo Studio có thể điều chỉnh hoặc ngừng nhận đăng ký mới. Quyền lợi đã cấp cho bạn vẫn giữ nguyên đến hết thời hạn."
+          }
+        ],
+        "price": {
+          "from": "Miễn phí",
+          "to": "365 ngày",
+          "note": "Miễn phí hoàn toàn sau khi xác minh, gồm cả đường dẫn riêng do Hugo Studio cấp — bạn không phải mua tên miền. Cần thiết kế riêng ngoài mẫu Bio thì tham khảo từ 1.500.000 – 3.000.000₫, chốt phạm vi trước rồi mới tính.",
+          "factors": [
+            "Hết 365 ngày: gia hạn hoặc chuyển sang một gói trả phí, không tự động trừ tiền.",
+            "Thiết kế riêng theo yêu cầu nằm ngoài gói này."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Ai được dùng Hugo Edu+ miễn phí?",
+            "answer": "Học sinh, sinh viên hoặc người học có thể xác minh bằng email trường hoặc giấy tờ người học còn hiệu lực theo quy trình của Hugo Studio."
+          },
+          {
+            "question": "365 ngày được tính từ thời điểm nào?",
+            "answer": "Thời hạn bắt đầu từ lúc tư cách người học được xác minh và quyền lợi được mở, không phải từ ngày bạn tạo tài khoản Google."
+          },
+          {
+            "question": "Hết 365 ngày thì dữ liệu có bị mất không?",
+            "answer": "Không. Trang có thể tạm ẩn theo chính sách, còn dữ liệu vẫn nằm trong tài khoản để bạn tải về, gia hạn hoặc chuyển sang gói phù hợp."
+          },
+          {
+            "question": "Em là học sinh, sinh viên, muốn đặt một gói trả phí thì có được giảm không?",
+            "answer": "Có. Người học đã xác minh được giảm 15% trên giá thiết kế của Hugo One, Hugo Story và Hugo Flow+. Mức giảm áp cho dự án cá nhân, đồ án hoặc câu lạc bộ, mỗi người một dự án trong mỗi năm học, và không áp lên chi phí trả cho nhà cung cấp bên thứ ba."
+          }
+        ],
+        "features": [
+          "Miễn phí 365 ngày",
+          "Đường dẫn Bio riêng",
+          "Ảnh đại diện & giới thiệu",
+          "Dự án & liên kết cá nhân",
+          "Tự cập nhật trong tài khoản",
+          "Hiển thị tốt trên mọi thiết bị"
+        ]
+      }
+    },
+    "detail": {
+      "backToAll": "Tất cả dịch vụ",
+      "discussCta": "Trao đổi dự án",
+      "verifyCta": "Xác minh người học",
+      "navLabel": "Các phần trong trang",
+      "nav": {
+        "intro": "Giới thiệu",
+        "audience": "Dành cho ai",
+        "includes": "Gói bao gồm",
+        "excludes": "Chưa bao gồm",
+        "warranty": "Bảo hành",
+        "price": "Chi phí"
+      },
+      "introKicker": "Giới thiệu",
+      "introCaption": "là gì.",
+      "audienceKicker": "Dành cho tệp nhu cầu",
+      "audienceTitle": "Gói này hợp với ai.",
+      "includesKicker": "Gói bao gồm",
+      "includesTitle": "Bạn nhận được gì.",
+      "includesLede": "Toàn bộ hạng mục dưới đây nằm trong giá, không phải tuỳ chọn cộng thêm.",
+      "excludesKicker": "Chưa bao gồm",
+      "excludesTitle": "Và những gì không nằm trong giá.",
+      "excludesLede": "Nói trước để bạn dự trù đúng, thay vì phát hiện lúc sắp bàn giao.",
+      "warrantyKicker": "Bảo hành và hỗ trợ",
+      "warrantyTitle": "Sau khi bàn giao.",
+      "policyKicker": "Chính sách dành cho gói",
+      "policyTitle": "Luật chơi, nói trước.",
+      "priceKicker": "Chi phí dao động",
+      "priceTitle": "Khoảng giá, và vì sao nó dao động.",
+      "priceScope": "Phạm vi trước. Giá sau. Con số cuối cùng nằm trong báo giá và hợp đồng, và không đổi sau khi đã ký.",
+      "priceCta": "Nhận báo giá",
+      "priceFactors": "Điều gì đẩy giá lên hoặc kéo giá xuống",
+      "extraFeesTitle": "Chi phí phát sinh, có số sẵn",
+      "priceNoticeTitle": "Ghi chú về giá",
+      "faqKicker": "Câu hỏi thường gặp",
+      "faqTitle": "Hỏi trước cho đỡ mất thời gian.",
+      "closingKicker": "Bước tiếp theo",
+      "closingTitle": "Kể mình nghe bạn cần gì.",
+      "closingTitleQuiet": "Phạm vi trước, giá sau.",
+      "closingCta": "Đặt lịch trao đổi",
+      "nextPackage": "Xem gói",
+      "sampleAlt": "Bản mẫu",
+      "metaFallback": "Dịch vụ | Hugo Studio"
+    },
+    "page": {
+      "heroKicker": "Dịch vụ · Hugo Studio",
+      "heroLine1": "Website của bạn.",
+      "heroLine2": "Ấn tượng đầu tiên",
+      "heroLine3": "của khách hàng.",
+      "heroLede": "Landing page và website dựng để khách hiểu ngay, tin đủ và biết chính xác phải bấm vào đâu.",
+      "heroCta": "Bắt đầu dự án",
+      "heroCtaAlt": "Xem dự án đã làm",
+      "scrollHint": "Cuộn để xem từng gói",
+      "filmLabel": "Dịch vụ",
+      "filmHeading": "Bốn gói. Một tiêu chuẩn.",
+      "filmCta": "Kể nhu cầu của bạn",
+      "detailCta": "Xem chi tiết gói",
+      "demoCta": "Mở Bio của bạn",
+      "eduAction": "Xem quyền lợi Hugo Edu+",
+      "landingKicker": "Landing page",
+      "landingTitle1": "Không cần nói mọi thứ.",
+      "landingTitle2": "Chỉ cần nói đúng điều.",
+      "landingLede": "Sản phẩm, dịch vụ hay chiến dịch của bạn, kể lại thật ngắn. Từ mẩu quảng cáo đến nút gửi form, tất cả nằm trên một mạch.",
+      "landingPoints": [
+        "Thông điệp chính xuất hiện ngay trong màn hình đầu.",
+        "Bằng chứng được đặt đúng lúc khách bắt đầu cân nhắc.",
+        "Mỗi phần đều dẫn về một hành động rõ ràng."
+      ],
+      "processKicker": "Từ đầu đến cuối",
+      "processTitle": "Bốn bước. Không bước nào mơ hồ.",
+      "process": [
+        {
+          "title": "Bắt đầu từ mục tiêu.",
+          "body": "Khách của bạn là ai, lợi thế nằm ở đâu, bạn muốn họ làm gì. Rõ ba điều đó rồi mới vẽ."
+        },
+        {
+          "title": "Dựng câu chuyện.",
+          "body": "Thông điệp, bằng chứng và nội dung được xếp thành một đường đọc. Không chỗ nào để người ta dừng lại vì phân vân."
+        },
+        {
+          "title": "Thiết kế và phát triển.",
+          "body": "Câu chuyện thành giao diện chạy thật: vừa vặn mọi màn hình, chuyển động vừa đủ, mã nguồn ai tiếp quản cũng đọc được."
+        },
+        {
+          "title": "Bàn giao và tiếp tục.",
+          "body": "Website lên môi trường thật, kiểm tra từng luồng chính. Có dữ liệu rồi thì tối ưu tiếp."
+        }
+      ],
+      "closingKicker": "Dự án tiếp theo",
+      "closingTitle1": "Bạn mang mục tiêu.",
+      "closingTitle2": "Mình dựng đường đến đó.",
+      "closingLede": "Không có bảng giá cố định, vì không có hai dự án giống nhau. Con số rồi sẽ quên. Thứ ở lại là một website đứng tên bạn, chạy trên tên miền của bạn.",
+      "closingCta": "Kể mình nghe dự án",
+      "closingCtaAlt": "Xem toàn bộ dự án",
+      "catalogName": "Gói dịch vụ Hugo Studio",
+      "catalogIncludes": "Bao gồm",
+      "schemaName": "Thiết kế landing page, website giới thiệu và website động"
+    }
+  },
+  "studentPage": {
+    "meta": {
+      "title": "Hugo Edu+ · Đặc quyền cho người học | Hugo Studio",
+      "description": "Xác minh một lần bằng email giáo dục. Mở trang Bio miễn phí 365 ngày và bộ công cụ học tập của Hugo Studio.",
+      "keywords": "đặc quyền sinh viên, quyền lợi HSSV, Bio miễn phí 365 ngày, email edu, công cụ học tập"
+    },
+    "heroEyebrow": "Hugo Edu+ · dành cho người học đã xác minh",
+    "heroTitle1": "Một nơi để học.",
+    "heroTitle2": "Một năm để lớn lên.",
+    "heroLede": "Xác minh một lần. Mở trang Bio của riêng bạn trong 365 ngày, bộ công cụ học tập và mọi quyền lợi dành cho người học trong Hugo Studio.",
+    "heroCta": "Xác minh ngay",
+    "heroCtaAlt": "Xem giao diện",
+    "startKicker": "Bắt đầu ở đây",
+    "daysUnit": "ngày",
+    "daysFree": "miễn phí",
+    "startTitle": "Bio của bạn. Câu chuyện của bạn. Tự cập nhật mỗi ngày.",
+    "startLede": "Không thẻ ngân hàng. Không chọn gói. Chỉ một email trường, hoặc giấy tờ người học tương đương. Thứ bạn nhận không phải mã giảm giá. Là một chỗ đứng trên web, mang tên bạn.",
+    "verifyTitle": "Xác minh người học",
+    "verifySub": "Tự động, nếu email của bạn là email trường.",
+    "step1": "Đăng nhập bằng Google",
+    "step1Desc": "Dùng tài khoản Google của trường bạn.",
+    "step2": "Kiểm tra tư cách người học",
+    "step2Ok": "Email giáo dục hợp lệ.",
+    "step2Pending": "Có thể chuyển sang duyệt bằng hình thức tương đương.",
+    "step2Todo": "Chạy tự động sau khi đăng nhập.",
+    "step3": "Mở quyền lợi",
+    "step3Desc": "Trang Bio 365 ngày và bộ công cụ học tập trong Hugo Studio.",
+    "pickAccount": "Bấm để chọn tài khoản Google",
+    "gisReady": "Google Sign-In đã sẵn sàng.",
+    "gisLoading": "Đang chuẩn bị xác minh…",
+    "openBenefits": "Mở quyền lợi Hugo Edu+",
+    "pendingNote": "Email chưa thuộc tên miền trường. Bạn có thể gửi giấy tờ người học còn hiệu lực để mình duyệt theo hình thức tương đương.",
+    "pendingCta": "Gửi thông tin để duyệt",
+    "themeKicker": "Giao diện",
+    "themeTitle1": "Một trang.",
+    "themeTitle2": "Ba cách để ra dáng bạn.",
+    "themeNote": "Đổi giao diện bất cứ lúc nào trong tài khoản. Nội dung giữ nguyên, chỉ lớp áo thay đổi.",
+    "themes": {
+      "default": {
+        "name": "Mặc định",
+        "note": "Ảnh của bạn chiếm trọn màn hình, tên nổi lên trên. Người mở ra nhìn thấy bạn trước, đọc sau."
+      },
+      "flat": {
+        "name": "Phẳng",
+        "note": "Sáng, vuông vắn, không màu mè. Kiểu người ta đọc hết trang mà không kịp nhận ra mình đang đọc."
+      },
+      "brutalism": {
+        "name": "Khối",
+        "note": "Viền dày, màu gắt, chữ máy đánh. Lướt qua một lần là nhớ mặt."
+      }
+    },
+    "blocksKicker": "Trong một trang Bio",
+    "blocksTitle": "Bạn điền gì vào đó.",
+    "blocks": [
+      {
+        "title": "Ảnh và giới thiệu",
+        "desc": "Ảnh đại diện, tên hiển thị, một dòng nghề nghiệp và đoạn giới thiệu bằng giọng của bạn."
+      },
+      {
+        "title": "Dự án",
+        "desc": "Mỗi dự án một ảnh, một mô tả ngắn và một đường dẫn tới bản chạy thật."
+      },
+      {
+        "title": "Liên kết",
+        "desc": "Portfolio, GitHub, Behance, trang mạng xã hội — gom về một chỗ, một đường dẫn gửi đi."
+      },
+      {
+        "title": "Học tập",
+        "desc": "Trường, ngành, năm học và những gì bạn đang theo đuổi trong năm nay."
+      },
+      {
+        "title": "Kỹ năng và dịch vụ",
+        "desc": "Việc bạn làm được, công cụ bạn dùng, và phần bạn nhận làm nếu có."
+      },
+      {
+        "title": "Chia sẻ",
+        "desc": "Một đường dẫn theo tên, mở nhanh trên điện thoại, gửi kèm hồ sơ hay dán vào trang cá nhân."
+      }
+    ],
+    "insideKicker": "Bên trong Hugo Studio",
+    "insideTitle": "Không chỉ là một trang Bio.",
+    "benefits": [
+      {
+        "title": "Trang Bio, miễn phí 365 ngày.",
+        "desc": "Bản thân bạn, dự án của bạn, mọi liên kết quan trọng — trên một đường dẫn. Sửa lúc nào cũng được, ngay trong tài khoản."
+      },
+      {
+        "title": "Bộ công cụ học tập.",
+        "desc": "Web IDE, ghi chú, tài liệu, từ vựng. Học, thử và hoàn thiện sản phẩm mà không rời trình duyệt."
+      },
+      {
+        "title": "Trợ lý học tập.",
+        "desc": "Mắc ở đâu thì hỏi ở đó. Gợi ý hướng đi, giải thích khái niệm, chỉ ra bước tiếp theo."
+      },
+      {
+        "title": "Chỗ để cùng tiến bộ.",
+        "desc": "Hỏi đáp, khoe dự án, nhận định hướng — trong phạm vi Hugo Studio hỗ trợ được."
+      }
+    ],
+    "faqKicker": "Hỏi đáp",
+    "faqTitle": "Hỏi trước cho nhanh.",
+    "closingKicker": "Chính sách Hugo Edu+",
+    "closingTitle1": "365 ngày để bắt đầu.",
+    "closingTitle2": "Hỗ trợ riêng khi bạn cần.",
+    "closingLede": "Xác minh xong là mở, không mất phí. Cần làm riêng cho portfolio, đồ án hay phần kỹ thuật thì nhắn mình. Chốt phạm vi trước, rồi mới nói đến tiền.",
+    "closingCta": "Trao đổi với Hugo",
+    "themePickerLabel": "Chọn giao diện trang Bio"
+  },
+  "projectsPage": {
+    "backLink": "Về trang giới thiệu",
+    "kicker": "Dự án",
+    "title": "Tất cả dự án.",
+    "lede": "Xếp theo dòng thời gian, từ dự án đầu tiên tới nay. Mỗi mốc là một trang riêng: bối cảnh, những quyết định đã ra và ảnh chụp từ bản đang chạy.",
+    "metaTitle": "Dự án — Hugo Studio",
+    "allProjects": "Tất cả dự án",
+    "viewDetail": "Xem chi tiết",
+    "kinds": {
+      "personal": "Dự án cá nhân",
+      "client": "Khách hàng thật",
+      "live": "Người dùng thật"
+    },
+    "periodNow": "nay",
+    "items": {
+      "hugo-studio": {
+        "tagline": "Một cổng vào duy nhất, cài về máy như một ứng dụng.",
+        "role": "Product owner · Thiết kế & lập trình toàn phần · Vận hành",
+        "summary": "Mọi chuyện bắt đầu từ một câu hỏi phiền phức: vì sao mỗi công cụ mình cần lại bắt lập một tài khoản mới? Hugo Studio là câu trả lời — một cổng vào, một lần đăng nhập, cài thẳng về máy như một ứng dụng.",
+        "techNote": "Trình duyệt viết bằng React với Vite và Tailwind. Máy chủ là Node.js với MongoDB, thêm WebSocket cho ví điểm và thông báo tức thời. Capacitor đóng gói khi cần một bản chạy như ứng dụng gốc. Không dựng trên nền tảng có sẵn nào — chọn như vậy vì mọi thứ dùng chung một lớp định danh, mà lớp đó phải do mình kiểm soát.",
+        "highlights": [
+          {
+            "title": "Khởi đầu từ chỗ bực mình",
+            "body": "Những công cụ đầu tiên viết ra là vì tự mình cần trước: một chỗ ghi việc, một chỗ học, một chỗ nghỉ tay. Càng viết càng thấy cái phiền không nằm ở từng công cụ, mà ở khoảng trống giữa chúng — mỗi cái một tài khoản, một cách đăng nhập, một nơi lưu dữ liệu."
+          },
+          {
+            "title": "Nên phải có một cái khung",
+            "body": "Thay vì làm thêm sản phẩm rời, phần được dựng trước là cái khung: một lớp định danh, một ví điểm, một kênh thông báo thời gian thực, một bộ vỏ giao diện dùng chung. Từ đó trở đi, thêm một ứng dụng mới là thêm nội dung vào khung, không phải dựng lại từ móng."
+          },
+          {
+            "title": "Cài về máy, không qua chợ ứng dụng",
+            "body": "Cái khung ấy chạy dưới dạng PWA: mở toàn màn hình, có biểu tượng trên màn hình chính, nhận thông báo đẩy, và vẫn dùng được khi mạng chập chờn. Một bản sửa lỗi đến tay người dùng trong vài phút, không phải chờ ai duyệt."
+          },
+          {
+            "title": "Và tự trực đêm",
+            "body": "Một lần vượt hạn mức nhà cung cấp hoá ra đến từ một vòng lặp gọi API mỗi mười giây. Giãn xuống năm phút, rồi chia lại kiến trúc theo đúng cách tính phí của từng nền tảng. Tự làm thì tự chịu, và đó là phần dạy nhiều nhất."
+          }
+        ],
+        "shots": {
+          "2048": "2048 Mega — Minigame với giao diện tối giản, hiện đại.",
+          "apps": "Lưới ứng dụng — Một cổng vào duy nhất cho toàn bộ hệ sinh thái.",
+          "tasks": "Nhiệm vụ hàng ngày — Nuôi dưỡng Hạt mầm và tích điểm JOYlu.",
+          "arcade": "Hugo Arcade — Trung tâm trò chơi tích hợp.",
+          "assault": "Biên đội Boss 3D — Trò chơi hành động không gian trực tiếp trên web."
+        },
+        "closing": "Hệ thống vẫn lớn lên mỗi tuần. Phần đáng kể nhất không phải thứ nhìn thấy trên màn hình, mà là cái khung bên dưới — thứ khiến ứng dụng thứ mười tốn ít công hơn ứng dụng thứ nhất."
+      },
+      "chanh-toa": {
+        "tagline": "Cổng thông tin giáo xứ: tra giờ lễ 27 giáo phận, Kinh Thánh trọn bộ, vấn đáp đức tin.",
+        "role": "Thiết kế & lập trình toàn phần",
+        "summary": "Giờ lễ là thứ thay đổi liên tục mà không ai báo. Đi xa một chút, muốn dự lễ, người ta phải hỏi quanh. Trang này ra đời để câu hỏi ấy có một chỗ trả lời.",
+        "techNote": "Next.js với React và TypeScript, giao diện dựng bằng Tailwind, phần máy chủ chạy trên Node.js, dữ liệu nằm ở Firebase và Firestore, ảnh xử lý bằng Sharp. Bài viết lấy từ fanpage giáo xứ qua Graph API của Facebook. Chọn kết xuất phía máy chủ vì phần lớn nội dung là thứ Google cần đọc được: giờ lễ, từng chương Kinh Thánh, từng câu hỏi đức tin.",
+        "highlights": [
+          {
+            "title": "Câu hỏi thường gặp nhất",
+            "body": "Bật định vị là thấy nhà thờ gần nhất và lễ kế tiếp còn bao lâu, với dữ liệu phủ 27 giáo phận. Vì giờ lễ đổi luôn, chính giáo dân sửa được ngay tại thẻ đó — thông tin sống được là nhờ người dùng, không nhờ một lần nhập liệu."
+          },
+          {
+            "title": "Rồi tới những câu ngại hỏi",
+            "body": "Sau giờ lễ là những thắc mắc người ta ngại hỏi trực tiếp: bí tích, luân lý, hôn nhân. Mỗi câu có một lời đáp ngắn để đọc lướt, và một bản dài kèm nguồn giáo lý cho người muốn đi tới cùng."
+          },
+          {
+            "title": "Trọn bộ Lời Chúa, chia theo chương",
+            "body": "Cựu Ước và Tân Ước đầy đủ, mỗi sách một tranh minh hoạ, mỗi chương một địa chỉ riêng để gửi thẳng cho người khác. Phần kinh nguyện đếm lượt đọc và giữ chuỗi ngày — thứ giữ thói quen bền hơn mọi lời nhắc."
+          },
+          {
+            "title": "Nối thẳng với fanpage của giáo xứ",
+            "body": "Giáo xứ vốn đăng tin trên trang Facebook của mình, và không ai muốn đăng lại lần thứ hai. Máy chủ gọi Graph API của Facebook theo lịch, lấy bài mới cùng ảnh, nén lại bằng Sharp rồi lưu vào Firestore — đăng trên fanpage một lần là tin xuất hiện ở cả hai nơi. Khoá truy cập nằm lại trên máy chủ, chặn thêm bằng Firestore rules, và không bao giờ đi xuống trình duyệt; mọi yêu cầu ghi đều phải kèm định danh quản trị viên."
+          }
+        ],
+        "shots": {
+          "home": "Trang chủ — Lời Chúa hôm nay, lịch phụng vụ, bài viết của xứ đoàn.",
+          "gio-le": "Tra cứu giờ lễ toàn quốc, đếm ngược tới lễ kế tiếp.",
+          "kinh-thanh": "Kinh Thánh trọn bộ 73 cuốn, mỗi sách một bức tranh.",
+          "van-dap": "Vấn đáp giáo lý — 32 câu chia theo 7 chủ đề.",
+          "kinh-nguyen": "Kinh nguyện cốt lõi, có đếm lượt và chuỗi ngày.",
+          "gioi-thieu": "Giới thiệu — lịch sử giáo xứ kể thành bốn chương."
+        },
+        "closing": "Trang đang chạy thật, giáo dân mở mỗi ngày. Với một cổng thông tin giáo xứ, thành công không phải lượt truy cập, mà là không còn ai phải gọi điện hỏi mấy giờ có lễ."
+      },
+      "hwj": {
+        "tagline": "Nền tảng trang sức cao cấp, định giá bám giá vàng – bạc thời gian thực.",
+        "role": "Thiết kế & lập trình toàn phần",
+        "summary": "Một món trang sức đắt hơn chiếc xe máy. Giao diện bán nó trông như thế nào? Câu trả lời ở đây là một tờ tạp chí — chữ serif cỡ lớn, nhiều khoảng trắng, và không một nút “MUA NGAY” nào.",
+        "techNote": "Làm toàn phần: React và Tailwind ở phía trình duyệt; phía máy chủ dùng Node.js với MongoDB cho tài khoản, lịch hẹn tư vấn và giỏ hàng; ảnh sản phẩm để trên Cloudinary; đăng nhập qua Google OAuth; giá bán lấy từ API giá kim loại nên bám theo giá vàng – bạc thời gian thực.",
+        "highlights": [
+          {
+            "title": "Bắt đầu bằng một nghi ngờ",
+            "body": "Lưới thẻ sản phẩm, nhãn giảm giá, nút đỏ — bộ công cụ quen thuộc của thương mại điện tử được dựng cho hàng hoá mua nhanh. Đặt nó cạnh một món cần cân nhắc hàng tháng trời, nó tự phản lại chính món hàng."
+          },
+          {
+            "title": "Nên trang được dựng như một ấn phẩm",
+            "body": "Tiêu đề serif rất lớn, lưới rộng, tông kem và vàng cổ. Sản phẩm không nằm trong lưới thẻ mà nằm trong một bài viết có chương mục, đi đúng nhịp đọc của tập gấp nhà đấu giá."
+          },
+          {
+            "title": "Từ vựng thay cho nút bấm",
+            "body": "“Acquisition Consultation” thay cho “Thêm vào giỏ”. “Registry no.” thay cho mã sản phẩm. Ở phân khúc này, chữ nghĩa định vị món hàng nhiều hơn màu sắc, và một lời mời ngồi xuống nói chuyện thì đúng chỗ hơn một lệnh mua."
+          },
+          {
+            "title": "Nhưng giá thì không được phép đẹp suông",
+            "body": "Giá vàng và bạc lấy thẳng từ API thị trường, hiện thành bảng bán ra – mua lại theo chỉ. Phía sau trang giấy là phần máy chủ lo tài khoản, lịch hẹn tư vấn và giỏ hàng — đủ để một cuộc hỏi mua đi hết quãng đường của nó."
+          }
+        ],
+        "shots": {
+          "home": "Trang chủ — \"The Art of Preservation\".",
+          "collections": "Bộ sưu tập, bày theo nhịp một bài tạp chí.",
+          "valuation": "Bảng định giá vàng – bạc, cập nhật theo thị trường.",
+          "product": "Trang một món — thông số, chất liệu và giá suy từ giá kim loại.",
+          "heritage": "Dòng thời gian nhà xưởng, kể theo chương.",
+          "appointment": "Đặt lịch tư vấn sở hữu, thay cho nút mua ngay."
+        },
+        "closing": "Đây là dự án tự đặt đề bài cho mình, và bài học lớn nhất nằm ở chỗ ít ai gọi là kỹ thuật: ở phân khúc cao, tiết chế bán được nhiều hơn thúc giục."
+      },
+      "minh-oi-media": {
+        "tagline": "Website studio phóng sự cưới — bảng giá, portfolio và luồng liên hệ.",
+        "role": "Thiết kế & lập trình toàn phần",
+        "summary": "Khách chọn studio cưới bằng cách mở ba trang cùng lúc. Trang nào bắt nhắn tin mới nói giá, trang đó bị đóng trước. Toàn bộ thiết kế ở đây đi ra từ một quan sát đó.",
+        "techNote": "HTML, CSS và JavaScript thuần, không khung nào cả. Một trang giới thiệu năm gói dịch vụ không cần đến React; bỏ khung đi thì trang nhẹ, mở nhanh trên mạng 4G, và khách hàng tự sửa được chữ trong tệp mà không cần gọi cho ai.",
+        "highlights": [
+          {
+            "title": "Khách hỏi giá trước khi hỏi tên",
+            "body": "Ngành cưới quen giấu giá để ép khách liên hệ. Ở đây năm gói dịch vụ nằm ngay trên đường đi, mỗi gói liệt kê đủ thứ khách nhận được — người đọc tự loại mình ra hoặc tự thấy mình hợp, trước khi ai phải trả lời tin nhắn nào."
+          },
+          {
+            "title": "Ảnh nói trước, chữ nói sau",
+            "body": "Màn hình đầu tiên là một tấm ảnh cưới khổ lớn, không phải khẩu hiệu. Với một studio, tấm ảnh đầu tiên chính là toàn bộ phần chứng minh năng lực; mọi câu chữ đứng sau đó chỉ làm nhiệm vụ giải thích."
+          },
+          {
+            "title": "Màn hình dọc là mặc định",
+            "body": "Gần như ai cũng xem trang này trên điện thoại, trong lúc nhắn tin cho nhau chọn studio. Bảng giá vì thế xếp lại thành một cột, không có bảng ngang nào bắt kéo qua kéo lại."
+          },
+          {
+            "title": "Và không cần đến một khung nào",
+            "body": "HTML, CSS, JavaScript thuần. Một trang giới thiệu năm gói không cần React; bỏ khung đi thì trang nhẹ, mở nhanh trên 4G, và chính chủ studio sửa được chữ trong tệp mà không phải gọi cho ai."
+          }
+        ],
+        "shots": {
+          "home": "Trang chủ — ảnh khổ lớn dẫn trước, thương hiệu đè lên.",
+          "bang-gia": "Bảng giá năm gói, liệt kê rõ thứ khách nhận được.",
+          "goi-dich-vu": "Từng gói liệt kê đủ thứ khách nhận được."
+        },
+        "closing": "Dự án làm trực tiếp với khách, từ buổi trao đổi yêu cầu tới lúc bàn giao. Thứ khách giữ lại được sau đó là một trang họ tự chăm được."
+      },
+      "l3go-coffee": {
+        "tagline": "Website quán cà phê — thực đơn 68 món, chọn theo tâm trạng.",
+        "role": "Thiết kế UI/UX",
+        "summary": "Một quán ba tầng ở Cần Thơ, cầu thang xoắn và tường gạch kính màu. Người ta chọn quán bằng chỗ ngồi chứ không bằng vị cà phê — nên trang web phải cho thấy không gian trước khi khách quyết định đi.",
+        "techNote": "React và Tailwind. Phần mình đảm nhận là giao diện và trải nghiệm: hệ thống màu, nhịp chữ, luồng xem thực đơn và cách ảnh không gian được cắt. Phần dựng dữ liệu và triển khai do Jason Phan lo.",
+        "highlights": [
+          {
+            "title": "Không gian mới là sản phẩm",
+            "body": "Ảnh cầu thang xoắn, tường gạch kính và mặt lưới đèn đêm được để khổ lớn, không băm nhỏ thành thư viện ảnh. Người đọc cần cảm được chỗ ngồi của mình ở đâu trước khi quan tâm quán bán gì."
+          },
+          {
+            "title": "Thực đơn dài, nhưng không ai đọc hết",
+            "body": "Sáu mươi tám món, và không ai đọc hết một bảng cà phê – trà – đá xay. Bộ lọc vì thế xếp theo cảm giác người ta đang muốn: cần tỉnh, muốn dịu lòng, ngồi lâu với bạn. Chọn theo tâm trạng nhanh hơn chọn theo danh mục."
+          },
+          {
+            "title": "Phần mình làm, phần bạn ấy làm",
+            "body": "Dự án làm cùng Jason Phan. Phần mình đảm nhận là UI/UX: hệ thống màu, nhịp chữ, luồng xem thực đơn và cách cắt ảnh không gian. Phần dựng dữ liệu và triển khai thuộc về bạn ấy — ranh giới rõ từ đầu nên không ai giẫm chân ai."
+          }
+        ],
+        "shots": {
+          "home": "Trang chủ — \"Món đúng mood. Gốc đúng gu.\"",
+          "thuc-don": "Thực đơn lọc theo tâm trạng, không theo danh mục.",
+          "khong-gian": "Trang không gian — quán ba tầng, cầu thang xoắn."
+        },
+        "closing": "Một dự án ngắn, nhưng là lần thấy rõ nhất rằng phần khó của thực đơn không phải bày món, mà là giúp người ta thôi phân vân."
+      },
+      "m-hike": {
+        "tagline": "Ứng dụng đi bộ đường dài cho iOS và Android: đi được cả khi mất sóng.",
+        "role": "Thiết kế & lập trình toàn phần",
+        "summary": "Giữa rừng thì điện thoại mất sóng, mà đó lại đúng lúc cần tới nó nhất. M-Hike được dựng quanh một điều kiện duy nhất: mọi thứ phải chạy được khi không có mạng, và tự đồng bộ khi mạng quay lại.",
+        "techNote": "Hai bản, cùng một sản phẩm. Bản đa nền tảng viết bằng React Native trên Expo với TypeScript, điều hướng theo tệp bằng Expo Router, bản đồ Leaflet và thời tiết từ Open-Meteo. Bản Android thuần viết bằng Java với SQLiteOpenHelper và giao diện XML. Cả hai dùng SQLite làm kho chính và Firebase Realtime Database để đồng bộ khi có mạng.",
+        "closing": "Sản phẩm bài tập của môn phát triển ứng dụng di động tại Đại học Greenwich Việt Nam, làm thành hai bản — Android thuần và React Native — để so đến nơi đến chốn chứ không chọn bừa một bên.",
+        "highlights": [
+          {
+            "title": "Ngoài vùng phủ sóng vẫn dùng được",
+            "body": "SQLite trên máy là kho dữ liệu chính, không phải bộ nhớ đệm: tạo chuyến, ghi chép, xem lại đều không cần mạng. Firebase Realtime Database chỉ là lớp đồng bộ chạy nền, để mở máy khác lên vẫn thấy đúng chuyến ấy."
+          },
+          {
+            "title": "Ghi lại thứ nhìn thấy, ngay tại chỗ",
+            "body": "Mỗi chuyến đi có nhật ký riêng: gặp con gì, đường ra sao, trời thế nào, kèm ảnh và đánh giá. Ghi chép gắn chặt vào chuyến — xoá chuyến thì ghi chép đi theo, không để lại dữ liệu mồ côi trong máy."
+          },
+          {
+            "title": "Đường đi tự vẽ lại",
+            "body": "GPS ghi lại quãng đường, nhịp bước và độ cao, rồi phát lại thành một hành trình chia theo pha: khởi động, giữ nhịp, nửa đường, nước rút, kết thúc. Kế hoạch tập luyện sinh ra từ chỉ số cơ thể theo khuyến nghị của WHO, và trong ứng dụng có ghi rõ đây là hướng dẫn chung, không thay lời khuyên y tế."
+          },
+          {
+            "title": "Và một nút cho lúc xấu nhất",
+            "body": "Màn hình SOS lấy toạ độ GPS, dựng sẵn tin nhắn và cuộc gọi cấp cứu, kèm liên kết bản đồ gửi được cho người khác. Nền đen tuyền để tiết kiệm pin, còn cạnh màn hình nháy tín hiệu Morse cho đội tìm kiếm ban đêm."
+          }
+        ],
+        "shots": {
+          "home": "Trang chủ — thời tiết, buổi tập hôm nay và chuyến kế tiếp.",
+          "hikes": "Danh sách chuyến: đã đi, đã lên lịch, đánh dấu yêu thích.",
+          "hike-detail": "Một chuyến — độ khó, quãng đường, thời tiết trực tiếp, năng lượng ước tính.",
+          "stats": "Thống kê quãng đường, tỷ lệ hoàn thành và sáu tháng gần nhất.",
+          "profile": "Hồ sơ cơ thể và các lối đi nhanh: SOS, bản đồ, kế hoạch tập.",
+          "sos": "Màn hình cấp cứu — toạ độ GPS, gọi 115, chia sẻ vị trí."
+        }
+      }
+    },
+    "openSite": "Mở {{label}}",
+    "roleLabel": "Vai trò",
+    "periodLabel": "Thời gian",
+    "partnerLabel": "Cùng làm với",
+    "techTitle": "Viết bằng gì.",
+    "featuresTitle": "Câu chuyện",
+    "shotsTitle": "Ảnh từ bản đang chạy.",
+    "nextProject": "Dự án kế tiếp",
+    "more": "Còn nữa. Dây thời gian này vẫn đang dài ra.",
+    "metaDescription": "Xếp theo dòng thời gian, từ dự án đầu tiên tới nay: bối cảnh, những quyết định đã ra và ảnh chụp từ bản đang chạy.",
+    "openRepo": "Xem mã nguồn trên GitHub"
   }
 }

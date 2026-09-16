@@ -66,7 +66,7 @@ export default function AdminPanel() {
   const [userSubView, setUserSubView]   = useState("roster");     // roster | support | hugoteam
   const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | cinema | coder
   const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources | learners
-  const [systemSubView, setSystemSubView] = useState("settings"); // settings | oauth | monitor | projects
+  const [systemSubView, setSystemSubView] = useState("settings"); // settings | oauth | monitor
 
   const [authChecking, setAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -735,6 +735,9 @@ export default function AdminPanel() {
           </div>
         )}
 
+        {/* ── HUB: DỰ ÁN KHÁCH HÀNG ── */}
+        {activeTab === "projects" && <AdminProjectsTab showNotification={showNotification} />}
+
         {/* ── HUB 5: SECURITY SENTINEL & SYSTEM CONFIG ── */}
         {activeTab === "system" && (
           <div className="space-y-6">
@@ -760,13 +763,6 @@ export default function AdminPanel() {
                 <span className="material-symbols-outlined text-sm">monitor_heart</span>
                 <span>Giám Sát Cổng API 8099</span>
               </button>
-              <button
-                onClick={() => setSystemSubView("projects")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "projects" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">folder_open</span>
-                <span>Quản Lý Dự Án</span>
-              </button>
             </div>
 
             {systemSubView === "settings" && (
@@ -778,7 +774,6 @@ export default function AdminPanel() {
             )}
             {systemSubView === "oauth" && <AdminOAuthAppsTab />}
             {systemSubView === "monitor" && <AdminSystemTab showNotification={showNotification} />}
-            {systemSubView === "projects" && <AdminProjectsTab showNotification={showNotification} />}
           </div>
         )}
 

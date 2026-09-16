@@ -4,6 +4,7 @@ import { requireAdmin, requireCustomer, signCustomerToken } from '../middleware/
 import CustomerProject from '../models/CustomerProject.js';
 import CustomerMessage from '../models/CustomerMessage.js';
 import crypto from 'crypto';
+import { isValidProjectPackage } from '../../shared/projectPackages.js';
 
 const router = express.Router();
 
@@ -190,7 +191,17 @@ router.get('/', requireAdmin, async (req, res) => {
 // Create new project
 router.post('/', requireAdmin, async (req, res) => {
   try {
-    const { fullName, servicePackage, phone, handlerName, handlerPhone } = req.body;
+    const { fullName, servicePackage, phone, handlerName, handlerPhone, email, address, firstNote } = req.body;
+
+    // Tên gói phải nằm trong danh mục dùng chung với trang quản trị. Không có
+    // bước này thì một lần gõ nhầm sẽ nằm vĩnh viễn trong cơ sở dữ liệu và
+    // hiện thẳng ra cổng khách.
+    if (!fullName || !String(fullName).trim()) {
+      return res.status(400).json({ error: 'Thiếu tên khách hàng' });
+    }
+    if (!isValidProjectPackage(servicePackage)) {
+      return res.status(400).json({ error: 'Gói dịch vụ không hợp lệ' });
+    }
     
     // Generate unique code
     let loginCode;
@@ -202,15 +213,20 @@ router.post('/', requireAdmin, async (req, res) => {
     }
 
     const project = await CustomerProject.create({
-      fullName,
+      fullName: String(fullName).trim(),
       servicePackage,
       phone,
       handlerName,
       handlerPhone,
+      customerProfile: {
+        email: email || '',
+        address: address || '',
+        birthday: ''
+      },
       loginCode,
       status: 'Đang liên hệ',
       progressNotes: [{
-        note: 'Dự án được khởi tạo và đang trong quá trình liên hệ.',
+        note: (firstNote && String(firstNote).trim()) || 'Dự án được khởi tạo và đang trong quá trình liên hệ.',
         status: 'Đang liên hệ',
         createdAt: new Date()
       }]

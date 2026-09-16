@@ -52,9 +52,16 @@ for (const url of urls) {
   const twitterCard = capture(html, /<meta name="twitter:card" content="([^"]+)" \/>/);
   const h1Count = (html.match(/<h1(?:\s|>)/g) || []).length;
 
-  if (!title || title.length > 65) errors.push(`${pathname}: title thiếu hoặc dài quá 65 ký tự.`);
-  if (description.length < 70 || description.length > 200) {
-    errors.push(`${pathname}: description cần nằm trong khoảng 70–200 ký tự.`);
+  // Google cắt theo BỀ RỘNG hiển thị, không theo số ký tự — mà một chữ Hán
+  // rộng gấp đôi một chữ cái. Đếm ký tự trần thì mọi tiêu đề tiếng Trung đúng
+  // độ dài đều bị kêu là quá ngắn, nên đo bằng bề rộng cho cả ba ngôn ngữ.
+  const width = (text) =>
+    [...text].reduce((sum, ch) => sum + (/[\u1100-\u115f\u2e80-\ua4cf\uac00-\ud7a3\uf900-\ufaff\ufe30-\ufe4f\uff00-\uff60]/.test(ch) ? 2 : 1), 0);
+
+  if (!title || width(title) > 65) errors.push(`${pathname}: title thiếu hoặc rộng quá 65 (chữ Hán tính 2).`);
+  const descWidth = width(description);
+  if (descWidth < 70 || descWidth > 200) {
+    errors.push(`${pathname}: description rộng ${descWidth}, cần trong khoảng 70–200 (chữ Hán tính 2).`);
   }
   if (canonical !== url) errors.push(`${pathname}: canonical không khớp URL sitemap.`);
   if (ogUrl !== url || ogTitle !== title || ogDescription !== description) {

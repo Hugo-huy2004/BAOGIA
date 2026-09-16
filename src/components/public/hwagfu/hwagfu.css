@@ -1,0 +1,246 @@
+.hwagfu-copy {
+  --background: 0 0% 100%;
+  --foreground: 240 3% 12%;
+  --muted-foreground: 240 3% 42%;
+  --border: 240 3% 87%;
+  --hw-band: #f5f5f7;
+  --hw-tile: #fff;
+  --brand-start: #17ead9;
+  --brand-end: #6078ea;
+  --hw-hue-blue: #6078ea;
+  --hw-hue-purple: #6078ea;
+  --hw-hue-green: #047857;
+  --hw-hue-orange: #c2410c;
+  --hw-hue-pink: #be185d;
+  --action: #6078ea;
+  --action-hover: #4f68dc;
+
+  /* ── Cảnh Sài Gòn ở cuối ProfileStory — ban ngày ──────────────
+     Toàn bộ màu của CitySkyline đi qua đây. Trước kia mã màu nằm thẳng
+     trong JSX nên cảnh luôn là ban ngày, kể cả khi cả trang đã tối. */
+  --city-sky-1: #43a7df;
+  --city-sky-2: #6ec0e9;
+  --city-sky-3: #d9f1fb;
+  --city-cloud: #fff8e7;
+  --city-cloud-soft: rgb(255 248 231 / 0.9);
+  --city-far-a: #a9dcf2;
+  --city-far-b: #7bc8ed;
+  --city-1: #12577a;
+  --city-2: #0f777d;
+  --city-3: #7bc8ed;
+  --city-4: #ff9b62;
+  --city-5: #f9f0d5;
+  --city-6: #17638a;
+  --city-roof: #fff8e7;
+  --city-roof-opacity: 0.7;
+  --city-side: #064964;
+  --city-window: #fff8e7;
+  --city-window-off: #063f5a;
+  --city-window-filter: none;
+  --city-glass-1: #ddf8f4;
+  --city-glass-2: #72d6e2;
+  --city-glass-3: #2d92be;
+  --city-glass-4: #126687;
+  --city-ground: #f7eed5;
+  --city-river-1: #8cdaf6;
+  --city-river-2: #49afe0;
+  --city-tree-a: #4e8a3a;
+  --city-tree-b: #2d7251;
+  --city-trunk: #6d5839;
+  --city-caption: rgb(6 63 90 / 0.55);
+
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  overflow: clip;
+}
+
+.dark .hwagfu-copy {
+  --background: 0 0% 6%;
+  --foreground: 0 0% 97%;
+  --muted-foreground: 0 0% 67%;
+  --border: 0 0% 20%;
+  --hw-band: #1c1c1e;
+  --hw-tile: #2c2c2e;
+  --hw-hue-blue: #2997ff;
+  --hw-hue-purple: #b58cff;
+  --hw-hue-green: #34d399;
+  --hw-hue-orange: #fb923c;
+  --hw-hue-pink: #f472b6;
+
+  /* ── Cùng cảnh đó, ban đêm ────────────────────────────────────
+     Nhà tối lại để cửa sổ nổi lên; cửa sổ chuyển vàng neon và tự phát
+     sáng bằng --city-window-filter. Mây thành mảng mây đêm chứ không
+     xoá đi — bầu trời trống trông như lỗi hiển thị. */
+  --city-sky-1: #060a1c;
+  --city-sky-2: #101a3d;
+  --city-sky-3: #2a3563;
+  --city-cloud: #1c2450;
+  --city-cloud-soft: rgb(28 36 80 / 0.85);
+  --city-far-a: #141f47;
+  --city-far-b: #0e1736;
+  --city-1: #0a1b33;
+  --city-2: #0a2434;
+  --city-3: #12203f;
+  --city-4: #3a2140;
+  --city-5: #1a2142;
+  --city-6: #0d1a30;
+  --city-roof: #2a3667;
+  --city-roof-opacity: 0.55;
+  --city-side: #04101f;
+  --city-window: #ffe55c;
+  --city-window-off: #0a1226;
+  --city-window-filter: drop-shadow(0 0 2px rgb(255 229 92 / 0.95))
+    drop-shadow(0 0 7px rgb(255 196 40 / 0.6));
+  --city-glass-1: #16305a;
+  --city-glass-2: #1d4a7a;
+  --city-glass-3: #12314f;
+  --city-glass-4: #0a1a2e;
+  --city-ground: #121a30;
+  --city-river-1: #10254a;
+  --city-river-2: #0a1730;
+  --city-tree-a: #14361f;
+  --city-tree-b: #10302c;
+  --city-trunk: #1d1830;
+  --city-caption: rgb(190 210 255 / 0.5);
+}
+
+/* Cửa sổ toà nhà: ban ngày là ô sáng thường, ban đêm tự phát sáng.
+   Đặt filter trên chính ô cửa để ánh sáng chỉ toả ra từ nó, không
+   làm nhoè cả khối nhà. */
+.city-window {
+  filter: var(--city-window-filter);
+}
+
+/* Keep the same scroll film on phones, with devices above the chapter copy. */
+@media (max-width: 767px) {
+  [data-services-film] > .sticky { min-height: 0; }
+  .hw-services-stage { bottom: calc(15.25rem + env(safe-area-inset-bottom)); }
+  .hw-services-stage .hw-mac { width: min(80vw, 55svh); }
+  .hw-services-stage .hw-mac .hw-service-website {
+    width: 250%; height: 250%; transform: scale(.4); transform-origin: top left;
+  }
+  .hw-services-stage .hw-phone > [role="img"] { max-height: 38svh; }
+  .hw-services-copy { height: 9rem; }
+  .hw-services-copy > div > p { display: block; }
+  #services[data-standalone="true"] .hw-services-stage { top: 18svh; bottom: 50svh; }
+  #services[data-standalone="true"] .hw-services-copy {
+    inset: 51svh 1.25rem calc(5.5rem + env(safe-area-inset-bottom));
+    width: auto; height: auto; max-width: none;
+  }
+  #services[data-standalone="true"] .hw-services-copy > div {
+    justify-content: flex-start; overflow-y: auto;
+  }
+  #services[data-standalone="true"] .hw-services-copy h3 {
+    margin-top: .5rem; font-size: clamp(1.3rem, 5vw, 1.75rem);
+  }
+  #services[data-standalone="true"] .hw-services-copy > div > p + h3 + p {
+    margin-top: .5rem; font-size: .8rem; line-height: 1.5;
+  }
+  #services[data-standalone="true"] .hw-services-copy ul {
+    margin-top: .75rem; padding: .6rem .75rem; gap: .3rem .75rem; border-radius: 1rem;
+  }
+  #services[data-standalone="true"] .hw-services-copy li { font-size: .68rem; line-height: 1.4; }
+  #services[data-standalone="true"] .hw-services-copy li > span { flex-shrink: 0; }
+  #services[data-standalone="true"] .hw-services-copy > div > div { margin-top: .75rem; flex-wrap: wrap; }
+  .hw-service-pair { left: 0; right: 0; }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  #services[data-standalone="true"] .hw-services-stage { top: 16svh; bottom: 55svh; }
+  #services[data-standalone="true"] .hw-services-stage .hw-phone > [role="img"] { max-height: 32svh; }
+  #services[data-standalone="true"] .hw-services-copy { top: 47svh; }
+  #services[data-standalone="true"] .hw-services-copy > div > p + h3 + p { font-size: .75rem; line-height: 1.4; }
+  #services[data-standalone="true"] .hw-services-copy ul { margin-top: .5rem; padding-block: .4rem; }
+  #services[data-standalone="true"] .hw-services-copy li { font-size: .64rem; }
+  #services[data-standalone="true"] .hw-services-copy > div > div { margin-top: .5rem; }
+}
+
+.headline-hero { white-space: pre-line; font-weight: 600; font-size: clamp(2rem, 1rem + 4.6vw, 5rem); line-height: 1.15; letter-spacing: -.03em; text-wrap: balance; }
+.headline-section { white-space: pre-line; font-weight: 600; font-size: clamp(2rem, 1.45rem + 2.4vw, 3.5rem); line-height: 1.18; letter-spacing: -.025em; text-wrap: balance; }
+.headline-card { font-weight: 600; font-size: clamp(1.25rem, 1.1rem + .5vw, 1.5rem); line-height: 1.3; letter-spacing: -.015em; }
+.kicker { font-size: 1rem; line-height: 1.5; font-weight: 600; }
+.lede { font-size: clamp(1.0625rem, .98rem + .4vw, 1.3125rem); line-height: 1.6; color: hsl(var(--muted-foreground)); text-wrap: balance; }
+.headline-quiet { color: color-mix(in oklab, hsl(var(--foreground)) 55%, hsl(var(--background))); }
+.btn-primary,.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding-inline:1.375rem;border-radius:9999px;font-weight:500;text-decoration:none}.btn-primary{background:var(--action);color:#fff}.btn-primary:hover{background:var(--action-hover)}.btn-secondary{box-shadow:inset 0 0 0 1px hsl(var(--border));color:hsl(var(--foreground))}.btn-secondary:hover{background:color-mix(in oklab,hsl(var(--foreground)) 6%,transparent)}
+.link-more{display:inline-flex;align-items:center;gap:.25rem;font-weight:500;color:var(--hw-hue-blue);text-underline-offset:4px}.link-more:hover{text-decoration:underline}
+
+@keyframes rise-in{from{opacity:0;transform:translateY(.45em)}to{opacity:1;transform:none}}.animate-rise{animation:rise-in 1s cubic-bezier(.16,1,.3,1) both}
+@keyframes aura-drift{from{transform:translate3d(-4%,-3%,0) scale(1)}to{transform:translate3d(4%,3%,0) scale(1.08)}}.animate-aura{animation:aura-drift 20s ease-in-out infinite alternate}
+@keyframes aura-orbit{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(10%,-8%,0) scale(1.12)}66%{transform:translate3d(-8%,6%,0) scale(.94)}}.animate-aura-orbit{animation:aura-orbit 26s ease-in-out infinite}
+@keyframes orb-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(8deg)}}@keyframes orb-morph{0%,100%{border-radius:44% 56% 59% 41%/48% 45% 55% 52%}33%{border-radius:58% 42% 44% 56%/41% 58% 42% 59%}66%{border-radius:40% 60% 55% 45%/56% 40% 60% 44%}}@keyframes orb-glint{0%,70%{transform:translateX(0) skewX(-12deg)}100%{transform:translateX(400%) skewX(-12deg)}}.animate-orb-liquid{animation:orb-float 6s ease-in-out infinite,orb-morph 9s ease-in-out infinite}.animate-orb-glint{animation:orb-glint 5.5s ease-in-out infinite}
+@keyframes star-twinkle{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.12)}}.animate-twinkle{animation:star-twinkle 3.2s ease-in-out infinite}
+
+/* Tailwind 4's size/gradient shorthands used by the original source. */
+[class~="size-full"]{width:100%;height:100%}[class~="size-1.5"]{width:.375rem;height:.375rem}[class~="size-2"]{width:.5rem;height:.5rem}[class~="size-3"]{width:.75rem;height:.75rem}[class~="size-3.5"]{width:.875rem;height:.875rem}[class~="size-4"]{width:1rem;height:1rem}[class~="size-5"]{width:1.25rem;height:1.25rem}[class~="size-8"]{width:2rem;height:2rem}[class~="size-10"]{width:2.5rem;height:2.5rem}[class~="size-11"]{width:2.75rem;height:2.75rem}[class~="size-12"]{width:3rem;height:3rem}[class~="size-14"]{width:3.5rem;height:3.5rem}[class~="size-16"]{width:4rem;height:4rem}[class~="size-18"]{width:4.5rem;height:4.5rem}[class~="size-20"]{width:5rem;height:5rem}[class~="size-24"]{width:6rem;height:6rem}[class~="size-36"]{width:9rem;height:9rem}[class~="size-40"]{width:10rem;height:10rem}[class~="size-[0.28rem]"]{width:.28rem;height:.28rem}[class~="size-[13%]"]{width:13%;height:13%}[class~="size-[14%]"]{width:14%;height:14%}[class~="size-[18%]"]{width:18%;height:18%}[class~="size-[32rem]"]{width:32rem;height:32rem}[class~="size-[36%]"]{width:36%;height:36%}[class~="size-[43%]"]{width:43%;height:43%}[class~="size-[82%]"]{width:82%;height:82%}[class~="size-[84%]"]{width:84%;height:84%}[class~="size-[min(67vw,25rem)]"]{width:min(67vw,25rem);height:min(67vw,25rem)}[class~="size-(--vs)"]{width:var(--vs);height:var(--vs)}
+/* Cùng lý do với khối trên: nguồn gốc viết bằng tên lớp của Tailwind v4,
+   repo chạy v3.4. Lớp không có thật thì Tailwind bỏ qua trong im lặng — thẻ
+   dự án từng sập cao 0px vì `aspect-16/10`. Khai ở đây thay vì mở rộng
+   theme: mở rộng `spacing`/`opacity` sinh ra hàng trăm tiện ích không ai
+   dùng và đẩy ngân sách CSS lên hơn 4 KB. */
+[class~="bg-linear-to-r"]{background-image:linear-gradient(to right,var(--tw-gradient-stops))}[class~="bg-linear-to-l"]{background-image:linear-gradient(to left,var(--tw-gradient-stops))}[class~="bg-linear-to-t"]{background-image:linear-gradient(to top,var(--tw-gradient-stops))}[class~="bg-linear-to-b"]{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}[class~="bg-linear-to-br"]{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}
+[class~="aspect-16/10"]{aspect-ratio:16/10}
+[class~="rotate-8"]{--tw-rotate:8deg;transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x,0)) skewY(var(--tw-skew-y,0)) scaleX(var(--tw-scale-x,1)) scaleY(var(--tw-scale-y,1))}
+[class~="-rotate-7"]{--tw-rotate:-7deg;transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x,0)) skewY(var(--tw-skew-y,0)) scaleX(var(--tw-scale-x,1)) scaleY(var(--tw-scale-y,1))}
+[class~="z-25"]{z-index:25}[class~="z-35"]{z-index:35}
+[class~="bg-[#6078EA]/48"]{background-color:#6078ea7a}[class~="bg-[#35CFE1]/42"]{background-color:#35cfe16b}
+[class~="bg-[#498FE8]/36"]{background-color:#498fe85c}[class~="bg-[#17EAD9]/28"]{background-color:#17ead947}
+[class~="bg-white/12"]{background-color:#ffffff1f}[class~="border-white/24"]{border-color:#ffffff3d}
+[class~="bg-black/12"]{background-color:#0000001f}
+[class~="bg-foreground/12"]{background-color:hsl(var(--foreground)/.12)}
+.dark [class~="dark:bg-white/12"]{background-color:#ffffff1f}
+.group:hover [class~="group-hover:saturate-125"]{--tw-saturate:saturate(1.25);filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate) var(--tw-sepia,) var(--tw-drop-shadow,)}
+@media(min-width:640px){[class~="sm:-top-18"]{top:-4.5rem}[class~="sm:-left-18"]{left:-4.5rem}}
+@media(min-width:640px){[class~="sm:size-8"]{width:2rem;height:2rem}[class~="sm:size-9"]{width:2.25rem;height:2.25rem}[class~="sm:size-10"]{width:2.5rem;height:2.5rem}[class~="sm:size-12"]{width:3rem;height:3rem}[class~="sm:size-14"]{width:3.5rem;height:3.5rem}[class~="sm:size-16"]{width:4rem;height:4rem}[class~="sm:size-20"]{width:5rem;height:5rem}[class~="sm:size-24"]{width:6rem;height:6rem}[class~="sm:w-auto"]{width:auto}[class~="sm:h-auto"]{height:auto}}
+
+.hwagfu-contact{background:var(--hw-band);padding:5rem max(2rem,calc((100% - 72rem)/2))}.hwagfu-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem}.hwagfu-contact h2{font-size:clamp(3rem,5vw,4.5rem);font-weight:600;line-height:1;letter-spacing:-.05em}.hwagfu-contact h2 span{color:hsl(var(--muted-foreground))}.hwagfu-contact p{margin-top:1.75rem;font-size:1.2rem;color:hsl(var(--muted-foreground))}.hwagfu-contact-card{display:grid;gap:1.1rem;padding:0;border-radius:0;background:transparent}.hwagfu-contact-card label{font-size:.875rem}.hwagfu-contact-card input,.hwagfu-contact-card textarea{display:block;width:100%;margin-top:.45rem;border:0;border-radius:.9rem;background:var(--hw-tile);padding:.8rem;color:inherit}.hwagfu-contact-card textarea{height:7.5rem;resize:vertical}.hwagfu-contact-card button{height:2.8rem;border:0;border-radius:999px;background:var(--action);color:#fff}.hwagfu-email{display:inline-flex;align-items:center;gap:1rem;margin-top:2rem;color:inherit;text-decoration:none}.hwagfu-email i{display:grid;place-items:center;width:3rem;height:3rem;border-radius:50%;background:#e1edfb;color:#0071e3}.hwagfu-email span{display:flex;flex-direction:column;color:hsl(var(--muted-foreground))}.hwagfu-email b{color:hsl(var(--foreground))}
+@media(max-width:700px){.hwagfu-contact{padding:4rem 1.25rem}.hwagfu-contact-grid{grid-template-columns:1fr;gap:2.5rem}.hwagfu-contact-card{padding:0}}
+@media(prefers-reduced-motion:reduce){.animate-rise,.animate-aura,.animate-aura-orbit,.animate-orb-liquid,.animate-orb-glint,.animate-twinkle{animation:none!important}.scroll-fx{opacity:1!important;transform:none!important}}
+
+/* ── Câu thần chú trong cảnh dự án ────────────────────────────────────
+   Viết bằng CSS thường chứ không bằng lớp tiện ích Tailwind: tiện ích luôn
+   biên dịch vào CSS toàn cục, mà ngân sách global-css đang sát trần 390 KB.
+   Tệp này đi theo chunk của route /introduction. */
+.hw-spell-canvas { position: absolute; inset: 0; z-index: 45; width: 100%; height: 100%; pointer-events: none; }
+.hw-spell {
+  position: absolute; inset-inline: 0; bottom: 4svh; z-index: 46;
+  display: flex; flex-direction: column; align-items: center; gap: .55rem;
+  transition: opacity .5s ease, transform .5s ease;
+}
+.hw-spell[hidden] { display: flex !important; opacity: 0; transform: translateY(.75rem); pointer-events: none; visibility: hidden; transition: opacity .5s ease, transform .5s ease, visibility 0s linear .5s; }
+.hw-spell-heard { font-size: .9rem; color: hsl(var(--muted-foreground)); }
+/* Bong bóng thoại của quả cầu: có đuôi nhỏ chỉa lên chính nó. */
+.hw-spell-line {
+  position: relative; max-width: min(34rem, calc(100vw - 2.5rem));
+  border-radius: 1.25rem; padding: .7rem 1.15rem; text-align: center;
+  font-size: 1rem; line-height: 1.7; color: hsl(var(--foreground)); text-wrap: balance;
+  background: color-mix(in oklab, hsl(var(--background)) 78%, transparent); backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px hsl(var(--foreground) / .1), 0 20px 44px -26px rgb(6 18 46 / .75);
+}
+.hw-spell-line::after {
+  content: ""; position: absolute; top: -.35rem; left: 50%; width: .8rem; height: .8rem;
+  transform: translateX(-50%) rotate(45deg);
+  background: inherit; box-shadow: inset 1px 1px 0 hsl(var(--foreground) / .1);
+}
+.hw-spell-dot {
+  display: inline-block; width: .5rem; height: .5rem; margin-right: .45rem; vertical-align: baseline;
+  border-radius: 50%; background: #e0335f; animation: hw-spell-pulse 1.5s ease-in-out infinite;
+}
+.hw-spell-word {
+  border: 0; border-radius: 999px; padding: .1rem .6rem;
+  font: inherit; font-weight: 600; color: var(--action); cursor: pointer;
+  background: color-mix(in oklab, var(--action) 14%, transparent);
+}
+.hw-spell-word:hover { background: color-mix(in oklab, var(--action) 26%, transparent); }
+@keyframes hw-spell-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(224 51 95 / .55) } 50% { box-shadow: 0 0 0 .4rem rgb(224 51 95 / 0) } }
+@media (prefers-reduced-motion: reduce) { .hw-spell-dot { animation: none !important } }
+
+/* Ô lấp chỗ trống ở hàng cuối lưới thẻ (trang chi tiết gói).
+   Số cột còn thiếu khác nhau giữa 2 cột và 3 cột, mà Tailwind không sinh được
+   lớp động, nên bề rộng đi qua biến CSS do React tính rồi truyền vào.
+   `--fill-*` = 0 nghĩa là hàng cuối đã đủ thẻ, ô này biến mất. */
+.card-filler { display: none; }
+@media (min-width: 640px) {
+  .card-filler { display: var(--fill-sm-display, none); grid-column: span var(--fill-sm, 1); }
+}
+@media (min-width: 1024px) {
+  .card-filler { display: var(--fill-lg-display, none); grid-column: span var(--fill-lg, 1); }
+}

@@ -17,7 +17,7 @@ const MAX_ARTICLES = 180;
 // 10 phút để tin nóng chảy vào. Không có key GNews/NewsAPI nên chỉ đọc RSS —
 // làm mới dày cỡ này không đụng hạn mức nào.
 const FEED_REFRESH_MS = 10 * 60 * 1000;
-const SUPPORTED_LANGUAGES = new Set(['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr']);
+const SUPPORTED_LANGUAGES = new Set(['vi', 'en', 'zh']);
 // TODAY có đúng một ấn bản cho mỗi ngôn ngữ của ứng dụng. Đổi ngôn ngữ đồng
 // nghĩa đổi thị trường tin; IP không được phép tạo ra một cặp lệch như vi-US.
 // `domains` là hàng rào cuối cho cả RSS lẫn API bên thứ ba.
@@ -25,12 +25,6 @@ export const NEWS_EDITIONS = Object.freeze({
   vi: Object.freeze({ country: 'VN', locale: 'vi-VN', timeZone: 'Asia/Ho_Chi_Minh', domains: ['vnexpress.net', 'tuoitre.vn', 'thanhnien.vn', 'dantri.com.vn', 'vietnamnet.vn', 'dcctvn.org', 'gpcantho.com', 'tonggiaophanhanoi.org', 'tntt.vn', 'tgpsaigon.net', 'hdgmvietnam.com'] }),
   en: Object.freeze({ country: 'US', locale: 'en-US', timeZone: 'America/New_York', domains: ['npr.org', 'nytimes.com', 'catholicnewsagency.com', 'theconversation.com', 'nasa.gov', 'nsf.gov', 'energy.gov'] }),
   zh: Object.freeze({ country: 'CN', locale: 'zh-CN', timeZone: 'Asia/Shanghai', domains: ['people.com.cn', 'news.cn', 'xinhuanet.com'] }),
-  th: Object.freeze({ country: 'TH', locale: 'th-TH', timeZone: 'Asia/Bangkok', domains: ['thailand.go.th', 'tmd.go.th', 'thaipbs.or.th', 'mdes.go.th'] }),
-  ja: Object.freeze({ country: 'JP', locale: 'ja-JP', timeZone: 'Asia/Tokyo', domains: ['nhk.or.jp'] }),
-  ko: Object.freeze({ country: 'KR', locale: 'ko-KR', timeZone: 'Asia/Seoul', domains: ['korea.kr', 'yonhapnewstv.co.kr', 'yna.co.kr'] }),
-  id: Object.freeze({ country: 'ID', locale: 'id-ID', timeZone: 'Asia/Jakarta', domains: ['antaranews.com', 'theconversation.com'] }),
-  es: Object.freeze({ country: 'ES', locale: 'es-ES', timeZone: 'Europe/Madrid', domains: ['rtve.es', 'elpais.com', 'theconversation.com'] }),
-  fr: Object.freeze({ country: 'FR', locale: 'fr-FR', timeZone: 'Europe/Paris', domains: ['france24.com', 'lemonde.fr', 'radiofrance.fr', 'theconversation.com'] }),
 });
 
 export function resolveNewsEdition(language = 'en') {

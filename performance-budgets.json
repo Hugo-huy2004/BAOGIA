@@ -1,18 +1,67 @@
 {
   "assetsDirectory": "dist/assets",
   "budgets": [
-    { "name": "entry-js", "source": "html-script", "maxBytes": 730000 },
-    { "name": "global-css", "source": "html-style", "maxBytes": 390000 },
-    { "name": "member-portal", "pattern": "^MemberPortalPage-.*\\.js$", "maxBytes": 180000 },
-    { "name": "member-portal-css", "pattern": "^MemberPortalPage-.*\\.css$", "maxBytes": 44000 },
-    { "name": "account-settings", "pattern": "^MemberSettingsTab-.*\\.js$", "maxBytes": 50000 },
-    { "name": "bio-studio-js", "pattern": "^BioPreviewTab-.*\\.js$", "maxBytes": 10000 },
-    { "name": "bio-studio-css", "pattern": "^BioPreviewTab-.*\\.css$", "maxBytes": 14000 },
-    { "name": "pwa-permission-js", "pattern": "^PWAPermissionOnboarding-.*\\.js$", "maxBytes": 10000 },
-    { "name": "pwa-permission-css", "pattern": "^PWAPermissionOnboarding-.*\\.css$", "maxBytes": 7000 },
-    { "name": "member-radio", "pattern": "^MemberRadioTab-.*\\.js$", "maxBytes": 30000 },
-    { "name": "ban-hoc-duong", "pattern": "^BanhocduongTab-.*\\.js$", "maxBytes": 50000 },
-    { "name": "member-lesson-view", "pattern": "^LessonView-.*\\.js$", "maxBytes": 410000 }
+    {
+      "name": "entry-js",
+      "source": "html-script",
+      "maxBytes": 730000
+    },
+    {
+      "name": "global-css",
+      "source": "html-style",
+      "maxBytes": 390000
+    },
+    {
+      "name": "member-portal",
+      "pattern": "^MemberPortalPage-.*\\.js$",
+      "maxBytes": 180000
+    },
+    {
+      "name": "member-portal-css",
+      "pattern": "^MemberPortalPage-.*\\.css$",
+      "maxBytes": 60000,
+      "note": "CSS vỏ PWA (22,6 KB) chuyển từ index.css sang đây ngày 2026-09-16: nó chỉ nhắm vào .member-portal-shell và .mobile-portal-*, để trong tệp toàn cục là bắt cả khách vãng lai tải. Tổng byte một thành viên phải tải không tăng — chỉ đổi chỗ; ngân sách nâng từ 44000 lên 60000 cho khớp."
+    },
+    {
+      "name": "account-settings",
+      "pattern": "^MemberSettingsTab-.*\\.js$",
+      "maxBytes": 50000
+    },
+    {
+      "name": "bio-studio-js",
+      "pattern": "^BioPreviewTab-.*\\.js$",
+      "maxBytes": 10000
+    },
+    {
+      "name": "bio-studio-css",
+      "pattern": "^BioPreviewTab-.*\\.css$",
+      "maxBytes": 14000
+    },
+    {
+      "name": "pwa-permission-js",
+      "pattern": "^PWAPermissionOnboarding-.*\\.js$",
+      "maxBytes": 10000
+    },
+    {
+      "name": "pwa-permission-css",
+      "pattern": "^PWAPermissionOnboarding-.*\\.css$",
+      "maxBytes": 7000
+    },
+    {
+      "name": "member-radio",
+      "pattern": "^MemberRadioTab-.*\\.js$",
+      "maxBytes": 30000
+    },
+    {
+      "name": "ban-hoc-duong",
+      "pattern": "^BanhocduongTab-.*\\.js$",
+      "maxBytes": 50000
+    },
+    {
+      "name": "member-lesson-view",
+      "pattern": "^LessonView-.*\\.js$",
+      "maxBytes": 410000
+    }
   ],
   "forbiddenAssets": [
     {

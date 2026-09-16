@@ -32,8 +32,19 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
           accent: "from-emerald-500 to-teal-600",
         },
         {
+          // Quản lý dự án khách hàng trước đây nằm lọt trong hub "An Ninh &
+          // Cài Đặt" — sai chỗ nên không ai tìm ra. Đây là việc làm với khách,
+          // không phải cấu hình hệ thống, nên nó đứng riêng một mục.
+          id: "projects",
+          label: "4. Dự Án Khách Hàng",
+          subLabel: "Mở dự án, tiến độ & yêu cầu của khách",
+          icon: "work",
+          count: counts.totalProjects,
+          accent: "from-amber-500 to-orange-600",
+        },
+        {
           id: "ecosystem",
-          label: "4. Hệ Sinh Thái & Media",
+          label: "5. Hệ Sinh Thái & Media",
           subLabel: "HugoStore, Cinema & Coder",
           icon: "storefront",
           count: counts.utilityStore,
@@ -41,7 +52,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
         },
         {
           id: "system",
-          label: "5. An Ninh & Cài Đặt",
+          label: "6. An Ninh & Cài Đặt",
           subLabel: "Cấu hình 8099, OAuth & Passkey",
           icon: "shield_lock",
           count: counts.openTickets,
@@ -118,7 +129,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
         <div className="flex flex-col h-full">
           {/* Brand Header */}
           <div className="h-16 flex items-center justify-between px-6 shrink-0 border-b border-slate-200/60 dark:border-white/10">
-            <HugoLogo />
+            <HugoLogo className="h-7 w-7" />
             <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-extrabold border border-blue-500/20">
               v2.5 Armor
             </span>
@@ -151,6 +162,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
               dashboard: "Tổng quan",
               ai_sentinel: "AI & Sentinel",
               users: "Thành viên",
+              projects: "Dự án",
               ecosystem: "Hệ sinh thái",
               system: "An ninh",
             };

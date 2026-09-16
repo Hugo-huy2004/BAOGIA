@@ -107,7 +107,7 @@ export default React.memo(function FlatTheme({ bio, isPreview = false, isOnline 
               </div>
             ) : (
               <div className="relative w-28 h-28 rounded-full border-3 border-black z-10 bg-zinc-200 flex items-center justify-center">
-                <HugoLogo className="text-sm" />
+                <HugoLogo className="h-12 w-12" />
               </div>
             )
           }

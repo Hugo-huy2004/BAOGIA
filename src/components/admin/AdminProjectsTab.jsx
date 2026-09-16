@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts } from "../../../shared/projectPackages";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../config/apiBase';
@@ -28,13 +29,19 @@ export default function AdminProjectsTab({ showNotification }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // New Project Form
-  const [newProject, setNewProject] = useState({
+  // Gói mặc định lấy từ danh mục dùng chung, không gõ tay tên gói vào đây nữa.
+  const DEFAULT_PACKAGE = PROJECT_PACKAGE_GROUPS[0].options[0].id;
+  const EMPTY_PROJECT = {
     fullName: '',
-    servicePackage: 'Signature Portfolio',
+    servicePackage: DEFAULT_PACKAGE,
     phone: '',
     handlerName: '',
-    handlerPhone: ''
-  });
+    handlerPhone: '',
+    email: '',
+    address: '',
+    firstNote: ''
+  };
+  const [newProject, setNewProject] = useState(EMPTY_PROJECT);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,7 +79,7 @@ export default function AdminProjectsTab({ showNotification }) {
       });
       if (res.ok) {
         showNotification(t("admin.texts.txt_77"));
-        setNewProject({ fullName: '', servicePackage: 'Signature Portfolio', phone: '', handlerName: '', handlerPhone: '' });
+        setNewProject(EMPTY_PROJECT);
         fetchProjects();
       } else {
         const errorData = await res.json();
@@ -185,11 +192,54 @@ export default function AdminProjectsTab({ showNotification }) {
             <div className="space-y-1">
               <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_73")}</label>
               <select value={newProject.servicePackage} onChange={e => setNewProject({...newProject, servicePackage: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
-                <option value="Signature Portfolio">Signature Portfolio</option>
-                <option value="Premium Web">Premium Web</option>
-                <option value="Signature Web">Signature Web</option>
-                <option value="Student Bio">Student Bio</option>
+                {PROJECT_PACKAGE_GROUPS.map(group => (
+                  <optgroup key={group.id} label={group.label}>
+                    {group.options.map(option => (
+                      <option key={option.id} value={option.id}>{option.label}</option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
+              {(() => {
+                // Xem trước những gì gói này kéo theo, tính ngay tại đây — admin
+                // khỏi phải mở lại trang dịch vụ để nhớ bảo hành bao nhiêu ngày.
+                const picked = getPackageFacts(newProject.servicePackage);
+                if (!picked) return null;
+                const eta = estimateDelivery(newProject.servicePackage, new Date());
+                const fmt = (d) => d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+                return (
+                  <div className="space-y-1 pt-1">
+                    <p className="text-[10px] leading-4 text-slate-500">{picked.hint}</p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {eta && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          Bàn giao ~ {fmt(eta.from)} – {fmt(eta.to)}
+                        </span>
+                      )}
+                      {picked.warrantyDays > 0 && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          Bảo hành {picked.warrantyDays} ngày
+                        </span>
+                      )}
+                      {picked.payments && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          Thanh toán {picked.payments.join('/')}%
+                        </span>
+                      )}
+                      {picked.free && (
+                        <span className="rounded border border-emerald-300 dark:border-emerald-800 px-2 py-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                          Miễn phí
+                        </span>
+                      )}
+                      {picked.recurring && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          Chạy theo tháng
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             <div className="space-y-1">
               <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_74")}</label>
@@ -202,6 +252,19 @@ export default function AdminProjectsTab({ showNotification }) {
             <div className="space-y-1">
               <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_76")}</label>
               <input type="text" value={newProject.handlerPhone} onChange={e => setNewProject({...newProject, handlerPhone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Email khách</label>
+              <input type="email" value={newProject.email} onChange={e => setNewProject({...newProject, email: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Địa chỉ</label>
+              <input type="text" value={newProject.address} onChange={e => setNewProject({...newProject, address: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Ghi chú mở dự án</label>
+              <textarea rows={3} value={newProject.firstNote} onChange={e => setNewProject({...newProject, firstNote: e.target.value})} placeholder="Phạm vi đã chốt, hẹn gọi lại, thứ khách cần gửi…" className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+              <p className="pt-1 text-[10px] leading-4 text-slate-500">Hiện ở dòng đầu nhật ký tiến độ bên cổng khách. Bỏ trống thì dùng câu mặc định.</p>
             </div>
             <button type="submit" className="w-full flex items-center justify-center gap-1.5 py-3 rounded-md bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm transition-all">
               <span className="material-symbols-outlined text-sm">add</span> Tạo Dự Án

@@ -24,7 +24,7 @@ const readerLimiter = rateLimit({
 
 const normalizeLanguage = (value) => {
   const language = String(value || '').toLowerCase().split('-')[0];
-  return ['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr'].includes(language)
+  return ['vi', 'en', 'zh'].includes(language)
     ? language
     : 'en';
 };
