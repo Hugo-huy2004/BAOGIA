@@ -37,6 +37,15 @@ rồi nhặt hai mươi hai vật thể rời — đó là cảm giác "rối". 
 - Chip kỹ năng thành **một dòng chữ** nối bằng dấu chấm giữa — cùng chừng ấy chữ, đọc một hơi là hết.
 - Chỗ tiết kiệm được trả lại cho **cỡ chữ**: gạch đầu dòng dự án từ 7.95pt lên **10.1pt**, phần hồ sơ từ 8.5 lên **10.1pt**. Bản tiếng Trung nhích thêm một nấc nữa vì chữ vuông gói cùng nội dung vào ít chỗ hơn.
 
+## Trục nội dung: năng lực, không phải tính năng
+
+Mỗi gạch đầu dòng mở đầu bằng một **động từ nghề** — thiết kế, lập trình, tích
+hợp, triển khai, tối ưu, bảo mật, phối hợp — rồi tới công nghệ và phạm vi. Bản
+trước tả tính năng sản phẩm ("thực đơn lọc theo tâm trạng", "không một nút mua
+ngay"); đó là chữ của trang bán hàng, còn nhà tuyển dụng đọc CV để tìm năng lực.
+
+Dấu gạch trong toàn bộ tờ CV dùng "-", không dùng gạch dài (— hay –).
+
 ## Độ dài câu chữ
 
 Mỗi gạch đầu dòng **một ý, ≤20 từ**. Bản trước dài 25–48 từ vì giọng kể chuyện

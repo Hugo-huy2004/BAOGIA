@@ -9,7 +9,7 @@ document.querySelectorAll(".page").forEach((page) => {
 });
 
 document.documentElement.lang = language;
-document.title = language === "vi" ? "CV — Lê Gia Huy" : "CV — Le Gia Huy";
+document.title = language === "vi" ? "CV - Lê Gia Huy" : "CV - Le Gia Huy";
 
 // Nút ngôn ngữ xoay vòng vi → en → zh → vi: ba thứ tiếng mà bày ba nút thì
 // thanh công cụ chật, còn một nút "đổi" chung chung lại không nói được sắp
