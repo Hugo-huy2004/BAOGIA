@@ -78,7 +78,7 @@ Tiếng Anh — VSTEP B2 (bậc 4, 2024), đọc hiểu tài liệu kỹ thuật
 ## Học vấn & hoạt động
 
 - **Greenwich Việt Nam** (2022–2027) — Công nghệ Thông tin, liên kết University of
-  Greenwich (UK) và Đại học FPT. Dự kiến xếp loại: **Upper Second-Class Honours** (Bằng Giỏi).
+  Greenwich (UK) và Đại học FPT, dự kiến tốt nghiệp 10/2027.
 - **[Huynh trưởng – Giáo lý viên cấp 2](https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy)** — hướng dẫn hoạt động thiếu nhi, nói trước
   đám đông và quản lý nhóm.
 
