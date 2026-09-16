@@ -11,18 +11,17 @@ document.querySelectorAll(".page").forEach((page) => {
 document.documentElement.lang = language;
 document.title = language === "vi" ? "CV - Lê Gia Huy" : "CV - Le Gia Huy";
 
-// Nút ngôn ngữ xoay vòng vi → en → zh → vi: ba thứ tiếng mà bày ba nút thì
-// thanh công cụ chật, còn một nút "đổi" chung chung lại không nói được sắp
-// sang đâu.
-const NEXT = { vi: "en", en: "zh", zh: "vi" };
-const LABEL = { vi: "Tiếng Việt", en: "English", zh: "中文" };
+// Ba ngôn ngữ bày thẳng trên thanh công cụ, cái đang xem tô đậm — một nút xoay
+// vòng bắt người đọc bấm hai lần và đoán xem lần sau sẽ ra tiếng gì.
 const PDF = { vi: "/cv-le-gia-huy.pdf", en: "/cv-le-gia-huy-en.pdf", zh: "/cv-le-gia-huy-zh.pdf" };
 const DOWNLOAD = { vi: "Tải PDF", en: "Download PDF", zh: "下载 PDF" };
 
-const languageLink = document.querySelector("[data-language-link]");
+for (const link of document.querySelectorAll("[data-langs] a")) {
+  const code = link.dataset.lang;
+  link.href = `/cv/index.html?lang=${code}`;
+  if (code === language) link.setAttribute("aria-current", "page");
+}
+
 const downloadLink = document.querySelector("[data-download-link]");
-const next = NEXT[language];
-languageLink.href = `/cv/index.html?lang=${next}`;
-languageLink.textContent = LABEL[next];
 downloadLink.href = PDF[language];
 downloadLink.textContent = DOWNLOAD[language];

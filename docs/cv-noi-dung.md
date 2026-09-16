@@ -12,7 +12,8 @@ npm run cv:pdf        # xuất cả ba bản dưới
 | `public/cv-le-gia-huy.pdf` | Bản chính, tiếng Việt, gửi cho người đọc | 1 |
 | `public/cv-le-gia-huy-en.pdf` | Bản tiếng Anh | 1 |
 | `public/cv-le-gia-huy-zh.pdf` | Bản tiếng Trung | 1 |
-| `public/cv-le-gia-huy-ats.pdf` | **Một cột**, dùng để upload vào form tuyển dụng | 2 |
+| `public/cv-le-gia-huy-ats.pdf` | **Một cột** tiếng Việt, upload vào form tuyển dụng | 2 |
+| `public/cv-le-gia-huy-ats-en.pdf` | **Một cột** tiếng Anh, cho hệ thống lọc nước ngoài | 2 |
 
 Nút ngôn ngữ trên thanh công cụ xoay vòng vi → en → zh → vi (`public/cv/cv.js`).
 Bản tiếng Trung nặng ~1 MB vì PDF phải nhúng bộ chữ vuông; hai bản kia ~0.4 MB.
@@ -21,6 +22,23 @@ Bản tiếng Trung nặng ~1 MB vì PDF phải nhúng bộ chữ vuông; hai b�
 > nửa dòng sidebar với nửa dòng dự án. `?layout=ats` bỏ cột và bỏ nền — xấu hơn
 > với người, đọc đúng thứ tự với máy. Bản này dài hai trang là bình thường: máy
 > không quan tâm số trang, người mới quan tâm.
+
+```bash
+npm run check:cv      # soát hai bản ATS bằng chính cách máy đọc chúng
+```
+
+### Ba bẫy ATS đã vá
+
+1. **`letter-spacing` làm vỡ từ.** Nhãn mục giãn chữ cho đẹp, nhưng trình rút
+   chữ chèn dấu cách giữa các con chữ: "EDUCATION" ra thành `E D U C AT I O N`
+   và hệ thống lọc mất luôn nhãn mục đó. Bản ATS bỏ giãn chữ.
+2. **Dấu đầu dòng vẽ bằng CSS không tồn tại với máy.** `li::before` là hình
+   tròn định vị tuyệt đối — rút chữ ra chỉ còn một khối lùi lề không dấu. Bản
+   ATS thay bằng ký tự `- ` thật nằm trong luồng chữ.
+3. **Nhãn liên kết rút gọn làm mất địa chỉ.** Rút "github.com/…/HWJ_demo" còn
+   chữ "GitHub" thì bản cho người đọc gọn hơn, nhưng máy đọc chữ chứ không đọc
+   `href` — địa chỉ biến mất khỏi hồ sơ. Bản ATS in kèm địa chỉ đầy đủ
+   (`span.ats-only`).
 
 **Chưa có trong cả ba bản: số điện thoại.** Cố ý, vì `cv-le-gia-huy.pdf` được
 phục vụ công khai trên web. Khi gửi thẳng cho một công ty (nhất là công ty Việt
