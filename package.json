@@ -24,7 +24,7 @@
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
     "native:android": "npm run native:sync && npx cap open android",
-    "cv:pdf": "npm run cv:pdf:vi && npm run cv:pdf:en && npm run cv:pdf:ats",
+    "cv:pdf": "npm run cv:pdf:vi && npm run cv:pdf:en && npm run cv:pdf:zh && npm run cv:pdf:ats",
     "cv:pdf:vi": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy.pdf \"file://$PWD/public/cv/index.html?lang=vi\"",
     "cv:pdf:en": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy-en.pdf \"file://$PWD/public/cv/index.html?lang=en\"",
     "cv:pdf:ats": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy-ats.pdf \"file://$PWD/public/cv/index.html?lang=vi&layout=ats\"",
@@ -47,7 +47,8 @@
     "check:admin-auth": "node server/scripts/check-admin-auth.mjs",
     "check:telegram": "node server/scripts/check-telegram-bot.mjs",
     "check:money": "node server/scripts/check-money-stepup.mjs",
-    "check:vocab": "node server/scripts/check-vocab-srs.mjs"
+    "check:vocab": "node server/scripts/check-vocab-srs.mjs",
+    "cv:pdf:zh": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy-zh.pdf \"file://$PWD/public/cv/index.html?lang=zh\""
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",

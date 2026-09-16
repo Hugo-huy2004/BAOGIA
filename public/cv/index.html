@@ -22,6 +22,16 @@
     --blue-wash: #eef5fe;
   }
 
+  /* Bản tiếng Trung: chữ Hán trong Arial rơi về bộ dự phòng của hệ điều hành,
+     nét mảnh và cao thấp so le. Khai báo bộ chữ vuông đúng chuẩn, và nới cỡ
+     chữ một nấc vì cùng một cỡ thì chữ Hán đọc nhỏ hơn chữ Latin. */
+  [lang="zh"] {
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', Arial, sans-serif;
+    font-size: 10.9pt;
+    line-height: 1.5;
+  }
+  [lang="zh"] .tag { letter-spacing: 0; }
+
   html, body { background: #fff; }
   body {
     color: var(--ink);
@@ -82,9 +92,9 @@
     gap: 12px;
     margin-top: 10px;
   }
-  .sidebar { display: flex; flex-direction: column; gap: 11px; }
+  .sidebar { display: flex; flex-direction: column; gap: 8px; }
   .side-card {
-    padding: 10px 11px;
+    padding: 7px 10px;
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--card);
@@ -131,7 +141,7 @@
   .main-section > .section-label { margin-bottom: 5px; }
 
   .project {
-    padding: 8px 11px;
+    padding: 7px 11px;
     border: 1px solid var(--line);
     border-left: 3px solid var(--blue);
     border-radius: 10px;
@@ -301,13 +311,13 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Hồ sơ</h2>
-        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. <b>Sáu dự án đã bàn giao</b>: mình vẽ giao diện trên Figma, dựng thành React rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Product/UI/UX Design.</b></p>
+        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. <b>Sáu dự án đã bàn giao</b>: mình dựng giao diện thẳng trong trình duyệt bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Product/UI/UX Design.</b></p>
       </section>
 
       <section class="side-card">
         <h2 class="section-label">Kỹ năng</h2>
-        <div class="skill-group"><h3>Product &amp; UI/UX</h3><div class="tags"><span class="tag">Figma</span><span class="tag">User Flow</span><span class="tag">Wireframe</span><span class="tag">Prototype</span><span class="tag">Responsive</span><span class="tag">Design System</span></div><p class="skill-note">Rèn qua sáu dự án thật, từ buổi lấy yêu cầu tới bản giao diện chạy được.</p></div><div class="skill-group"><h3>Lập trình</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Cả hai đầu: giao diện và máy chủ, thêm một ứng dụng di động (React Native, Java).</p></div><div class="skill-group"><h3>Vận hành</h3><div class="tags"><span class="tag">Triển khai</span><span class="tag">Đọc log &amp; xử lý sự cố</span><span class="tag">Tối ưu hiệu năng</span><span class="tag">SEO kỹ thuật</span><span class="tag">Review code</span></div><p class="skill-note">Tự nuôi các site trên production: tên miền, triển khai, theo dõi, xử lý sự cố.</p></div>
-        <p class="foundation">Nền từ trường: C#, Python, PHP, MySQL, Express, WebSocket. Triển khai trên Vercel, Render, Cloudflare, Netlify.</p>
+        <div class="skill-group"><h3>Thiết kế giao diện</h3><div class="tags"><span class="tag">Bố cục</span><span class="tag">Phân cấp thị giác</span><span class="tag">Nhịp chữ</span><span class="tag">Hệ màu &amp; token</span><span class="tag">Responsive</span><span class="tag">Chế độ tối</span><span class="tag">Đa ngôn ngữ</span></div><p class="skill-note">Dựng thẳng trong trình duyệt bằng React + Tailwind rồi chỉnh trên bản chạy thật — không qua Figma.</p></div><div class="skill-group"><h3>Lập trình</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Cả hai đầu: giao diện và máy chủ, thêm một ứng dụng di động (React Native, Java).</p></div><div class="skill-group"><h3>Vận hành</h3><div class="tags"><span class="tag">Triển khai</span><span class="tag">Đọc log &amp; xử lý sự cố</span><span class="tag">Tối ưu hiệu năng</span><span class="tag">SEO kỹ thuật</span><span class="tag">Review code</span></div><p class="skill-note">Tự nuôi các site trên production: tên miền, triển khai, theo dõi, xử lý sự cố.</p></div>
+        <p class="foundation">Nền từ trường: Python, Express, WebSocket, SQLite · triển khai trên Vercel, Render, Cloudflare, Netlify.</p>
       </section>
 
       <section class="side-card">
@@ -322,11 +332,11 @@
         <h2 class="section-label">Học vấn &amp; hoạt động</h2>
         <div class="fact">
           <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
-          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027.</p>
+          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027. Điểm xét bằng hiện tại <b>68.5/100</b> — hạng 2:1 (Upper Second-Class), tương đương 3.7/4.0.</p>
         </div>
         <div class="fact">
           <b>Huynh trưởng – Giáo lý viên cấp 2</b>
-          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông và quản lý nhóm.</p>
+          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông, quản lý nhóm.</p>
         </div>
       </section>
     </aside>
@@ -356,13 +366,13 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Profile</h2>
-        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I design in Figma, build in React and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I also write the server side (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking a Product/UI/UX Design internship.</b></p>
+        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I build the interface in React and Tailwind, straight in the browser, and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I write the server side too (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking a Product/UI/UX Design internship.</b></p>
       </section>
 
       <section class="side-card">
         <h2 class="section-label">Skills</h2>
-        <div class="skill-group"><h3>Product &amp; UI/UX</h3><div class="tags"><span class="tag">Figma</span><span class="tag">User Flows</span><span class="tag">Wireframing</span><span class="tag">Prototyping</span><span class="tag">Responsive</span><span class="tag">Design Systems</span></div><p class="skill-note">Sharpened on six real projects, from first conversation to a working interface.</p></div><div class="skill-group"><h3>Engineering</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Both ends: interface and server, plus a mobile app in React Native and Java.</p></div><div class="skill-group"><h3>Operations</h3><div class="tags"><span class="tag">Deployment</span><span class="tag">Log reading &amp; incident response</span><span class="tag">Performance</span><span class="tag">Technical SEO</span><span class="tag">Code review</span></div><p class="skill-note">I run these sites in production: domains, deploys, monitoring, incident response.</p></div>
-        <p class="foundation">University foundation: C#, Python, PHP, MySQL, Express, WebSocket. Deploys on Vercel, Render, Cloudflare, Netlify.</p>
+        <div class="skill-group"><h3>Interface design</h3><div class="tags"><span class="tag">Layout</span><span class="tag">Visual hierarchy</span><span class="tag">Type rhythm</span><span class="tag">Colour tokens</span><span class="tag">Responsive</span><span class="tag">Dark mode</span><span class="tag">Multilingual</span></div><p class="skill-note">Built in the browser with React and Tailwind, tuned on the running build — no Figma.</p></div><div class="skill-group"><h3>Engineering</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">Both ends: interface and server, plus a mobile app (React Native, Java).</p></div><div class="skill-group"><h3>Operations</h3><div class="tags"><span class="tag">Deployment</span><span class="tag">Log reading &amp; incident response</span><span class="tag">Performance</span><span class="tag">Technical SEO</span><span class="tag">Code review</span></div><p class="skill-note">Run in production by me: domains, deploys, monitoring, incident response.</p></div>
+        <p class="foundation">Foundation: Python, Express, WebSocket, SQLite · deployed on Vercel, Render, Cloudflare, Netlify.</p>
       </section>
 
       <section class="side-card">
@@ -377,11 +387,11 @@
         <h2 class="section-label">Education &amp; activities</h2>
         <div class="fact">
           <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
-          <p>Information Technology · with the University of Greenwich (UK) and FPT University · graduating 10/2027.</p>
+          <p>Information Technology · University of Greenwich (UK) with FPT University · graduating 10/2027. Classification mark <b>68.5/100</b> — 2:1 (Upper Second-Class), ≈ 3.7/4.0.</p>
         </div>
         <div class="fact">
           <b>Youth group leader – Catechist (level 2)</b>
-          <p>Running children’s activities, public speaking, group management.</p>
+          <p>Children’s activities, public speaking, group management.</p>
         </div>
       </section>
     </aside>
@@ -395,6 +405,61 @@
   </div>
 </main>
 
-<script src="cv.js"></script>
+<!-- 中文 -->
+<main class="page" data-language="zh" lang="zh">
+  <header class="hero">
+    <div>
+      <p class="kicker">应聘实习 · 产品与 UI/UX 设计</p>
+      <h1>Lê Gia Huy</h1>
+      <p class="role">产品设计与全栈网站开发</p>
+      <div class="stats"><div class="stat"><b>6</b><span>已完成项目</span></div><div class="stat"><b>4</b><span>正在服务真实用户</span></div><div class="stat"><b>B2</b><span>VSTEP 英语</span></div></div>
+    </div>
+    <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>邮箱</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>作品集</b> · www.hugowishpax.studio/introduction</a></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="side-card profile-card">
+        <h2 class="section-label">简介</h2>
+        <p class="profile-text">格林威治越南大学信息技术专业在读。<b>已交付六个项目</b>：界面直接在浏览器里用 React 与 Tailwind 做出来，再由我自己上线。最强的是<b>界面</b>——版式、文字节奏、操作流程、响应式；服务端也写得了（Node.js、MongoDB、Firebase），所以设计出来的东西是能落地的，而不是停在稿子上。<b>正在寻找产品／UI/UX 设计实习岗位。</b></p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">技能</h2>
+        <div class="skill-group"><h3>界面设计</h3><div class="tags"><span class="tag">版式</span><span class="tag">视觉层级</span><span class="tag">文字节奏</span><span class="tag">色彩令牌</span><span class="tag">响应式</span><span class="tag">深色模式</span><span class="tag">多语言</span></div><p class="skill-note">直接在浏览器里用 React + Tailwind 做，再在运行版本上调整——不经过 Figma。</p></div><div class="skill-group"><h3>开发</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">React Native</span><span class="tag">Node.js</span><span class="tag">MongoDB</span><span class="tag">Firebase</span><span class="tag">Tailwind</span><span class="tag">PWA</span><span class="tag">Git</span></div><p class="skill-note">两端都写：界面与服务端，另加一个移动应用（React Native、Java）。</p></div><div class="skill-group"><h3>运维</h3><div class="tags"><span class="tag">部署</span><span class="tag">读日志与故障处理</span><span class="tag">性能优化</span><span class="tag">技术 SEO</span><span class="tag">代码评审</span></div><p class="skill-note">这些站点由我自己在生产环境维护：域名、部署、监控、故障处理。</p></div>
+        <p class="foundation">学校基础：Python、Express、WebSocket、SQLite。部署在 Vercel、Render、Cloudflare 与 Netlify。</p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">语言</h2>
+        <div class="fact">
+          <div class="fact-top"><b>英语</b><span class="level">VSTEP B2</span></div>
+          <p>四级，2024 年 · 能读技术文档。</p>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">学历与活动</h2>
+        <div class="fact">
+          <div class="fact-top"><b>格林威治越南</b><span class="level">2022–2027</span></div>
+          <p>信息技术 · 与英国格林威治大学及 FPT 大学合作办学 · 预计 2027 年 10 月毕业。目前学位成绩 <b>68.5/100</b> —— 二等一级（2:1），约合 3.7/4.0。</p>
+        </div>
+        <div class="fact">
+          <b>少年团团长 – 二级要理教员</b>
+          <p>带领儿童活动、公开演讲与团队管理。</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="main-section">
+        <h2 class="section-label">项目</h2>
+        <article class="project"><div class="project-top"><h3>Hugo Studio —— 数字工具生态</h3><span class="date">2026/04 – 至今</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · 运营 · <a href="https://www.hugowishpax.studio">演示 · hugowishpax.studio</a></p><ul><li>先搭起整套系统共用的<b>骨架</b>：一层身份、一个积分钱包、一条实时通知通道、一套界面外壳——新增应用只是往骨架里填内容，而不是重新打地基。</li><li>以<b>可安装的 PWA</b> 运行，并由我自己运维：把超出服务商配额的原因追到一个每十秒调用一次的循环，放宽到五分钟，再按各平台真正的计费方式重新切分架构。</li></ul></article><article class="project"><div class="project-top"><h3>美萩主教座堂青年团 —— 堂区信息门户</h3><span class="date">2026/08 – 至今</span></div><p class="project-meta">真实用户 · 设计与全栈开发 · <a href="https://chanhtoa.tnttgiaophanmytho.online">演示 · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">源码 · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js、React、TypeScript、Tailwind、Node.js、Firestore。按定位查询<b>27 个教区</b>的弥撒时间、全本圣经分章阅读、信仰问答——服务端渲染，便于搜索引擎读取。</li><li>通过 Graph API 与堂区 <b>Facebook 主页</b>直接打通：发一次，两边同时出现；访问密钥留在服务器上，并由 Firestore 规则把守。</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike —— 徒步应用（iOS 与 Android）</h3><span class="date">2026/06–09</span></div><p class="project-meta">移动开发课程作业 · 设计与全栈开发 · <a href="https://hiking.hugowishpax.studio">演示 · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">源码 · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>做了<b>两个版本</b>：Expo 上的 React Native（TypeScript），以及一版 Java 原生 Android——为了真正比较两种做法，而不是凭感觉选一边。</li><li><b>没有信号也能用</b>：设备上的 SQLite 是主数据库，Firebase 只在后台同步。GPS 行程按阶段回放，实地记录绑定到每次行程，SOS 页面抓取坐标并在夜间闪烁摩尔斯电码。</li></ul></article><article class="project"><div class="project-top"><h3>HWJ —— 高端珠宝平台</h3><span class="date">2026/01–04</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · <a href="https://hwj-demo.hugowishpax.studio">演示 · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">源码 · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React、Tailwind、Node.js、MongoDB、Cloudinary、Google OAuth。<b>价格随市场浮动</b>：取自金银实时行情接口，按“钱”换算成卖出与回购两栏。</li><li>为奢侈品采用<b>刊物式</b>的设计语言：没有一个“立即购买”按钮，取而代之的是预约洽购——克制更配得上需要斟酌数月的东西。</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media —— 婚礼纪实工作室网站</h3><span class="date">2026/03–04</span></div><p class="project-meta">真实客户 · 设计与全栈开发 · <a href="https://minhoimedia.digital">演示 · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">源码 · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>从第一次需求沟通到交付，全程直接对接客户。把<b>五个套餐与价格放在必经之路上</b>，而不是逼客户先私信询问——新人往往同时比较三家。</li><li>纯 HTML、CSS 与 JavaScript，不用框架：页面轻、4G 下打开快，店主自己就能改文件里的文字。</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee —— 咖啡馆网站</h3><span class="date">2026</span></div><p class="project-meta">与 Jason Phan 合作 · UI/UX 设计 · <a href="https://legocoffee.hwagfu.dev">演示 · legocoffee.hwagfu.dev</a></p><ul><li>我负责 <b>UI/UX</b>：色彩系统、文字节奏、看菜单的流程，以及空间照片的裁切方式；数据与上线由合作方负责。</li><li>六十八款饮品<b>按心情筛选</b>，而不是按分类：需要清醒、想安静下来、和朋友久坐——比读完一张长表更快。</li></ul></article>
+      </section>
+    </section>
+  </div>
+</main>
+
+<script src="./cv.js"></script>
 </body>
 </html>
