@@ -40,7 +40,7 @@ Nam — họ gọi điện), thêm một dòng SĐT vào `.contact` rồi xuất
 ## Header
 
 **LÊ GIA HUY** · Thiết kế sản phẩm & lập trình web toàn phần
-Ứng tuyển thực tập · Product & UI/UX Design
+Ứng tuyển thực tập · Công nghệ Thông tin
 
 contact@hugowishpax.studio · github.com/Hugo-huy2004 · www.hugowishpax.studio/introduction
 
