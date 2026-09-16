@@ -11,7 +11,11 @@ npm run cv:pdf        # xuất cả ba bản dưới
 |---|---|---|
 | `public/cv-le-gia-huy.pdf` | Bản chính, tiếng Việt, gửi cho người đọc | 1 |
 | `public/cv-le-gia-huy-en.pdf` | Bản tiếng Anh | 1 |
+| `public/cv-le-gia-huy-zh.pdf` | Bản tiếng Trung | 1 |
 | `public/cv-le-gia-huy-ats.pdf` | **Một cột**, dùng để upload vào form tuyển dụng | 2 |
+
+Nút ngôn ngữ trên thanh công cụ xoay vòng vi → en → zh → vi (`public/cv/cv.js`).
+Bản tiếng Trung nặng ~1 MB vì PDF phải nhúng bộ chữ vuông; hai bản kia ~0.4 MB.
 
 > Vì sao cần bản ATS: máy đọc PDF quét theo dòng ngang, nên bản hai cột bị trộn
 > nửa dòng sidebar với nửa dòng dự án. `?layout=ats` bỏ cột và bỏ nền — xấu hơn
@@ -23,7 +27,17 @@ phục vụ công khai trên web. Khi gửi thẳng cho một công ty (nhất l
 Nam — họ gọi điện), thêm một dòng SĐT vào `.contact` rồi xuất một tệp riêng,
 đừng ghi đè bản công khai.
 
-## Hai luật giữ tờ CV vừa một trang
+## Bố cục: ít hộp, nhiều khoảng trắng
+
+Bản trước có **chín khung viền** trên một trang A4 (ba thẻ cột trái, sáu thẻ dự
+án) và **hai mươi hai viên chip kỹ năng**. Mắt người đọc phải mở–đóng chín lần
+rồi nhặt hai mươi hai vật thể rời — đó là cảm giác "rối". Nay:
+
+- Không còn khung: mỗi mục phân tách bằng một nét kẻ mảnh dưới nhãn và khoảng trắng.
+- Chip kỹ năng thành **một dòng chữ** nối bằng dấu chấm giữa — cùng chừng ấy chữ, đọc một hơi là hết.
+- Chỗ tiết kiệm được trả lại cho **cỡ chữ**: gạch đầu dòng dự án từ 7.95pt lên 8.9pt, phần hồ sơ từ 8.5 lên 9.1pt.
+
+## Ba luật giữ tờ CV vừa một trang
 
 1. **Cột trái và cột phải cao bằng nhau** (grid stretch), nên trang cao bằng cột
    CAO HƠN. Rút bớt phần dự án mà không rút cột trái thì chiều cao không đổi.
@@ -31,6 +45,10 @@ Nam — họ gọi điện), thêm một dòng SĐT vào `.contact` rồi xuất
 2. **Đừng đặt `break-inside: avoid` cho cả mục `.main-section`.** Mục dự án nay
    có sáu khối; ép nguyên mục nằm gọn một trang thì nó nhảy hẳn sang trang sau và
    để trang đầu trống nửa dưới. Chống cắt ở từng `.project` là đủ.
+
+3. **Thẻ một dòng thì đừng cho nó một khung riêng.** Mục "Ngôn ngữ" trước đây
+   là một thẻ riêng chỉ chứa đúng một dòng, nhưng vẫn ăn trọn viền và khoảng
+   cách như ba thẻ kia — gộp vào thẻ học vấn tiết kiệm ~6mm ở cả ba bản.
 
 Đo nhanh trước khi xuất PDF: mở `public/cv/index.html?lang=vi` ở bề rộng 718px
 (đúng bề rộng vùng in), bật print media, đọc `.page` scrollHeight.
@@ -55,27 +73,29 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 
 ## Hồ sơ
 
-Sinh viên CNTT Greenwich Việt Nam. **Sáu dự án đã bàn giao**: vẽ giao diện trên
-Figma, dựng thành React rồi tự đưa lên chạy thật. Mạnh nhất ở phần **giao diện** —
+Sinh viên CNTT Greenwich Việt Nam. Mình dựng giao diện thẳng trong trình duyệt
+bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần **giao diện** —
 bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js,
 MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó.
-**Đang tìm vị trí thực tập Product/UI/UX Design.**
+**Đang tìm vị trí thực tập Công nghệ Thông tin.**
 
 > Bản trước viết theo lối cảm xúc ("khoảnh khắc người dùng khựng lại…") — đọc hay
 > nhưng không nói được mình làm gì bằng công cụ gì. CV không phải chỗ để gợi mở.
 
 ## Kỹ năng
 
-- **Product & UI/UX** — Figma · User Flow · Wireframe · Prototype · Responsive · Design System
+- **Thiết kế giao diện** — Bố cục · Phân cấp thị giác · Nhịp chữ · Hệ màu & token · Responsive · Chế độ tối · Đa ngôn ngữ
+  (ghi chú in kèm: *dựng thẳng trong trình duyệt bằng React + Tailwind rồi chỉnh trên bản chạy thật — không qua Figma*)
 - **Lập trình** — React · Next.js · TypeScript · React Native · Node.js · MongoDB · Firebase · Tailwind · PWA · Git
 - **Vận hành** — Triển khai · Đọc log & xử lý sự cố · Tối ưu hiệu năng · SEO kỹ thuật · Review code
-- Nền từ trường: C#, Python, PHP, MySQL, Express, WebSocket. Triển khai trên Vercel, Render, Cloudflare, Netlify.
+- Nền từ trường: Python · Express · WebSocket · SQLite · triển khai trên Vercel, Render, Cloudflare, Netlify.
 
-## Ngôn ngữ
+> Bản trước ghi Figma, User Flow, Wireframe, Prototype, Design System cùng C#,
+> PHP, MySQL. Chủ hồ sơ xác nhận không dùng bộ công cụ thiết kế đó, và ba ngôn
+> ngữ kia không để lại dấu vết nào trong repo — CV ghi thứ mình không dùng thì
+> hỏng ngay ở câu hỏi đầu tiên của vòng phỏng vấn.
 
-Tiếng Anh — VSTEP B2 (bậc 4, 2024), đọc hiểu tài liệu kỹ thuật.
-
-## Học vấn & hoạt động
+## Học vấn & hoạt động (kèm mục Ngôn ngữ)
 
 - **Greenwich Việt Nam** (2022–2027) — Công nghệ Thông tin, liên kết University of
   Greenwich (UK) và Đại học FPT, dự kiến tốt nghiệp 10/2027.
@@ -84,7 +104,9 @@ Tiếng Anh — VSTEP B2 (bậc 4, 2024), đọc hiểu tài liệu kỹ thuật
 
 ## Dự án — sáu khối, cùng một khuôn
 
-Mỗi dự án đúng **hai gạch đầu dòng**, không hơn. Bản cũ dành năm gạch cho Hugo
+Mỗi dự án đúng **hai gạch đầu dòng**, không hơn, và **hai đường dẫn**: bản chạy
+được (Demo) và mã nguồn (Mã nguồn). Hugo Studio và L3GO hiện chỉ có đường dẫn
+demo — repo của Hugo Studio còn chờ dọn lịch sử git, L3GO chưa có địa chỉ. Bản cũ dành năm gạch cho Hugo
 Studio và mỗi dự án còn lại một dòng; đọc ra thành "một dự án thật và vài thứ
 lặt vặt", trong khi các dự án nặng ngang nhau.
 

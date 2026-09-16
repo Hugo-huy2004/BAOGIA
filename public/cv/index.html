@@ -18,8 +18,6 @@
     --muted: #6d7580;
     --faint: #949ca8;
     --line: #e3e8ef;
-    --card: #f6f8fb;
-    --blue-wash: #eef5fe;
   }
 
   /* Bản tiếng Trung: chữ Hán trong Arial rơi về bộ dự phòng của hệ điều hành,
@@ -92,16 +90,16 @@
     gap: 12px;
     margin-top: 10px;
   }
-  .sidebar { display: flex; flex-direction: column; gap: 8px; }
+  .sidebar { display: flex; flex-direction: column; gap: 14px; }
   .side-card {
-    padding: 7px 10px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    background: var(--card);
+    padding: 0;
+    border: 0;
+    background: none;
     break-inside: avoid;
   }
-  .side-card.profile-card { border-color: #cfe2f8; background: var(--blue-wash); }
   .section-label {
+    padding-bottom: 3px;
+    border-bottom: 1px solid var(--line);
     margin-bottom: 6px;
     color: var(--blue);
     font-size: 7.3pt;
@@ -109,31 +107,35 @@
     letter-spacing: 1.2px;
     text-transform: uppercase;
   }
-  .profile-text { color: var(--body); font-size: 8.5pt; line-height: 1.46; }
+  .profile-text { color: var(--body); font-size: 9.1pt; line-height: 1.46; }
+  .tag + .tag::before {
+    content: " · ";
+    color: var(--faint);
+  }
   .skill-group { margin-bottom: 7px; }
   .skill-group:last-of-type { margin-bottom: 0; }
   .skill-group h3 { margin-bottom: 3px; font-size: 8pt; font-weight: 700; }
-  .tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tags { display: block; margin-top: 1px; }
   .tag {
-    padding: 1.5px 6px;
-    border: 1px solid #dde3ea;
-    border-radius: 999px;
-    background: #fff;
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: none;
     color: #4a525d;
     font-size: 7.1pt;
     line-height: 1.3;
   }
-  .foundation { margin-top: 6px; color: var(--muted); font-size: 7.3pt; line-height: 1.4; }
-  .skill-note { margin-top: 3px; color: var(--muted); font-size: 7pt; line-height: 1.35; font-style: italic; }
+  .foundation { margin-top: 6px; color: var(--muted); font-size: 7.8pt; line-height: 1.4; }
+  .skill-note { margin-top: 2px; color: var(--muted); font-size: 7.8pt; line-height: 1.35; font-style: italic; }
   .fact { margin-bottom: 6px; }
   .fact:last-child { margin-bottom: 0; }
   .fact-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
   .fact b { font-size: 8.2pt; font-weight: 700; }
   .fact .level { color: var(--blue); font-size: 7.2pt; font-weight: 700; white-space: nowrap; }
-  .fact p { margin-top: 1px; color: var(--muted); font-size: 7.4pt; line-height: 1.38; }
+  .fact p { margin-top: 2px; color: var(--muted); font-size: 8pt; line-height: 1.38; }
 
   /* ── Main ───────────────────────────────────────────── */
-  .main { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
+  .main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   /* KHÔNG chống cắt ở cả mục: mục dự án nay có sáu khối, ép nguyên mục nằm
      gọn một trang thì nó nhảy hẳn sang trang sau, để trang đầu trống nửa dưới.
      Chống cắt ở từng dự án là đủ. */
@@ -141,17 +143,17 @@
   .main-section > .section-label { margin-bottom: 5px; }
 
   .project {
-    padding: 7px 11px;
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--blue);
-    border-radius: 10px;
-    background: #fff;
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
     break-inside: avoid;
   }
+  .main-section .project:last-child { border-bottom: 0; }
   .project-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-  .project h3 { font-size: 9.6pt; font-weight: 700; line-height: 1.2; }
+  .project h3 { font-size: 10.2pt; font-weight: 700; line-height: 1.2; }
   .date { color: var(--faint); font-size: 7.3pt; white-space: nowrap; }
-  .project-meta { margin: 2px 0 4px; color: var(--blue-dark); font-size: 7.5pt; font-weight: 700; }
+  .project-meta { margin: 3px 0 5px; color: var(--blue-dark); font-size: 7.5pt; font-weight: 700; }
   .project-meta a { color: var(--muted); font-weight: 400; border-bottom: 1px solid #ccd4dd; }
   ul { list-style: none; }
   .project li {
@@ -159,8 +161,8 @@
     margin-bottom: 2px;
     padding-left: 10px;
     color: var(--body);
-    font-size: 7.95pt;
-    line-height: 1.38;
+    font-size: 8.9pt;
+    line-height: 1.45;
   }
   .project li:last-child { margin-bottom: 0; }
   .project li::before {
@@ -175,38 +177,19 @@
   }
   .project li b { color: var(--ink); font-weight: 700; }
 
-  /* Kinh nghiệm */
-  .exp-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 8px;
-    margin-bottom: 7px;
-    padding: 8px 10px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    background: #fff;
-    break-inside: avoid;
-  }
-  .exp-item:last-child { margin-bottom: 0; }
-  .exp-item b { font-size: 8.3pt; }
-  .exp-item .exp-role { color: var(--blue-dark); font-weight: 700; font-size: 7.4pt; }
-  .exp-item p { grid-column: 1 / -1; color: var(--muted); font-size: 7.5pt; line-height: 1.36; }
-  .exp-item p a { color: var(--blue); font-weight: 700; }
-
   /* ── Bản một cột cho hệ thống lọc CV (?layout=ats) ──────
      Máy đọc PDF quét theo dòng ngang, nên hai cột bị trộn vào nhau: nửa dòng
      sidebar dính nửa dòng dự án. Bản này bỏ cột, bỏ nền và viền — xấu hơn với
      người, nhưng đọc đúng thứ tự với máy. Bản đẹp vẫn là bản gửi cho người. */
   body.ats .layout { display: block; }
   body.ats .sidebar, body.ats .main { display: block; }
-  body.ats .side-card, body.ats .project, body.ats .exp-item {
+  body.ats .side-card, body.ats .project {
     margin-bottom: 9px;
     padding: 0;
     border: 0;
     border-radius: 0;
     background: #fff;
   }
-  body.ats .exp-item { display: block; }
   body.ats .skill-note, body.ats .foundation { font-style: normal; }
 
   .web-toolbar { display: none; }
@@ -299,7 +282,7 @@
 <main class="page" data-language="vi">
   <header class="hero">
     <div>
-      <p class="kicker">Ứng tuyển thực tập · Product &amp; UI/UX Design</p>
+      <p class="kicker">Ứng tuyển thực tập · Công nghệ Thông tin</p>
       <h1>Lê Gia Huy</h1>
       <p class="role">Thiết kế sản phẩm &amp; lập trình web toàn phần</p>
       <div class="stats"><div class="stat"><b>6</b><span>dự án đã hoàn thành</span></div><div class="stat"><b>4</b><span>đang chạy với người dùng thật</span></div><div class="stat"><b>B2</b><span>tiếng Anh VSTEP</span></div></div>
@@ -311,7 +294,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Hồ sơ</h2>
-        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. <b>Sáu dự án đã bàn giao</b>: mình dựng giao diện thẳng trong trình duyệt bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Product/UI/UX Design.</b></p>
+        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. Mình dựng giao diện thẳng trong trình duyệt bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Công nghệ Thông tin.</b></p>
       </section>
 
       <section class="side-card">
@@ -321,22 +304,18 @@
       </section>
 
       <section class="side-card">
-        <h2 class="section-label">Ngôn ngữ</h2>
-        <div class="fact">
-          <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
-          <p>Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật.</p>
-        </div>
-      </section>
-
-      <section class="side-card">
         <h2 class="section-label">Học vấn &amp; hoạt động</h2>
         <div class="fact">
           <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
-          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027. Điểm xét bằng hiện tại <b>68.5/100</b> — hạng 2:1 (Upper Second-Class), tương đương 3.7/4.0.</p>
+          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027.</p>
         </div>
         <div class="fact">
           <b>Huynh trưởng – Giáo lý viên cấp 2</b>
           <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông, quản lý nhóm.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
+          <p>Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật.</p>
         </div>
       </section>
     </aside>
@@ -354,7 +333,7 @@
 <main class="page" data-language="en" lang="en">
   <header class="hero">
     <div>
-      <p class="kicker">Applying for an internship · Product &amp; UI/UX Design</p>
+      <p class="kicker">Applying for an internship · Information Technology</p>
       <h1>Le Gia Huy</h1>
       <p class="role">Product design &amp; full-stack web development</p>
       <div class="stats"><div class="stat"><b>6</b><span>projects delivered</span></div><div class="stat"><b>4</b><span>live with real users</span></div><div class="stat"><b>B2</b><span>VSTEP English</span></div></div>
@@ -366,7 +345,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Profile</h2>
-        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I build the interface in React and Tailwind, straight in the browser, and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I write the server side too (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking a Product/UI/UX Design internship.</b></p>
+        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I build the interface in React and Tailwind, straight in the browser, and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I write the server side too (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking an Information Technology internship.</b></p>
       </section>
 
       <section class="side-card">
@@ -376,22 +355,18 @@
       </section>
 
       <section class="side-card">
-        <h2 class="section-label">Languages</h2>
-        <div class="fact">
-          <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
-          <p>Level 4, 2024 · reads technical documentation.</p>
-        </div>
-      </section>
-
-      <section class="side-card">
         <h2 class="section-label">Education &amp; activities</h2>
         <div class="fact">
           <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
-          <p>Information Technology · University of Greenwich (UK) with FPT University · graduating 10/2027. Classification mark <b>68.5/100</b> — 2:1 (Upper Second-Class), ≈ 3.7/4.0.</p>
+          <p>Information Technology · University of Greenwich (UK) with FPT University · graduating 10/2027.</p>
         </div>
         <div class="fact">
           <b>Youth group leader – Catechist (level 2)</b>
           <p>Children’s activities, public speaking, group management.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
+          <p>Level 4, 2024 · reads technical documentation.</p>
         </div>
       </section>
     </aside>
@@ -409,7 +384,7 @@
 <main class="page" data-language="zh" lang="zh">
   <header class="hero">
     <div>
-      <p class="kicker">应聘实习 · 产品与 UI/UX 设计</p>
+      <p class="kicker">应聘实习 · 信息技术</p>
       <h1>Lê Gia Huy</h1>
       <p class="role">产品设计与全栈网站开发</p>
       <div class="stats"><div class="stat"><b>6</b><span>已完成项目</span></div><div class="stat"><b>4</b><span>正在服务真实用户</span></div><div class="stat"><b>B2</b><span>VSTEP 英语</span></div></div>
@@ -421,7 +396,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">简介</h2>
-        <p class="profile-text">格林威治越南大学信息技术专业在读。<b>已交付六个项目</b>：界面直接在浏览器里用 React 与 Tailwind 做出来，再由我自己上线。最强的是<b>界面</b>——版式、文字节奏、操作流程、响应式；服务端也写得了（Node.js、MongoDB、Firebase），所以设计出来的东西是能落地的，而不是停在稿子上。<b>正在寻找产品／UI/UX 设计实习岗位。</b></p>
+        <p class="profile-text">格林威治越南大学信息技术专业在读。<b>已交付六个项目</b>：界面直接在浏览器里用 React 与 Tailwind 做出来，再由我自己上线。最强的是<b>界面</b>——版式、文字节奏、操作流程、响应式；服务端也写得了（Node.js、MongoDB、Firebase），所以设计出来的东西是能落地的，而不是停在稿子上。<b>正在寻找信息技术实习岗位。</b></p>
       </section>
 
       <section class="side-card">
@@ -431,22 +406,18 @@
       </section>
 
       <section class="side-card">
-        <h2 class="section-label">语言</h2>
-        <div class="fact">
-          <div class="fact-top"><b>英语</b><span class="level">VSTEP B2</span></div>
-          <p>四级，2024 年 · 能读技术文档。</p>
-        </div>
-      </section>
-
-      <section class="side-card">
         <h2 class="section-label">学历与活动</h2>
         <div class="fact">
           <div class="fact-top"><b>格林威治越南</b><span class="level">2022–2027</span></div>
-          <p>信息技术 · 与英国格林威治大学及 FPT 大学合作办学 · 预计 2027 年 10 月毕业。目前学位成绩 <b>68.5/100</b> —— 二等一级（2:1），约合 3.7/4.0。</p>
+          <p>信息技术 · 与英国格林威治大学及 FPT 大学合作办学 · 预计 2027 年 10 月毕业。</p>
         </div>
         <div class="fact">
           <b>少年团团长 – 二级要理教员</b>
           <p>带领儿童活动、公开演讲与团队管理。</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>英语</b><span class="level">VSTEP B2</span></div>
+          <p>四级，2024 年 · 能读技术文档。</p>
         </div>
       </section>
     </aside>
