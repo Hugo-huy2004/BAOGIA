@@ -9,7 +9,8 @@ document.querySelectorAll(".page").forEach((page) => {
 });
 
 document.documentElement.lang = language;
-document.title = language === "vi" ? "CV - Lê Gia Huy" : "CV - Le Gia Huy";
+const TITLE = { vi: "CV - Lê Gia Huy", en: "CV - Gia Huy, Le", zh: "CV - 黎家辉" };
+document.title = TITLE[language];
 
 // Ba ngôn ngữ bày thẳng trên thanh công cụ, cái đang xem tô đậm — một nút xoay
 // vòng bắt người đọc bấm hai lần và đoán xem lần sau sẽ ra tiếng gì.

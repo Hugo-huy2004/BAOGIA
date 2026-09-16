@@ -79,6 +79,12 @@
     letter-spacing: -0.8px;
     line-height: 1;
   }
+  .name-alt {
+    font-size: 12pt;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
   .role { margin-top: 4px; color: var(--blue-dark); font-size: 10.2pt; font-weight: 700; }
   .contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .contact a { color: var(--body); font-size: 8pt; }
@@ -94,8 +100,9 @@
     grid-template-columns: 30% minmax(0, 70%);
     gap: 16px;
     margin-top: 14px;
+    min-height: 252mm;
   }
-  .sidebar { display: flex; flex-direction: column; gap: 26px; }
+  .sidebar { display: flex; flex-direction: column; justify-content: space-between; gap: 26px; }
   .side-card {
     padding: 0;
     border: 0;
@@ -141,6 +148,11 @@
 
   /* ── Main ───────────────────────────────────────────── */
   .main { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+  .main > .main-section { flex: 1; }
+  /* Giãn KHE giữa các dự án chứ không giãn ruột từng khối: kéo giãn bên trong
+     làm mỗi dự án cao thấp khác nhau, đọc ra là lệch. */
+  .main-section { display: flex; flex-direction: column; justify-content: space-between; }
+  .main-section .project { flex: 0 0 auto; }
   /* KHÔNG chống cắt ở cả mục: mục dự án nay có sáu khối, ép nguyên mục nằm
      gọn một trang thì nó nhảy hẳn sang trang sau, để trang đầu trống nửa dưới.
      Chống cắt ở từng dự án là đủ. */
@@ -186,7 +198,7 @@
      Máy đọc PDF quét theo dòng ngang, nên hai cột bị trộn vào nhau: nửa dòng
      sidebar dính nửa dòng dự án. Bản này bỏ cột, bỏ nền và viền — xấu hơn với
      người, nhưng đọc đúng thứ tự với máy. Bản đẹp vẫn là bản gửi cho người. */
-  body.ats .layout { display: block; }
+  body.ats .layout { display: block; min-height: 0; }
   body.ats .sidebar, body.ats .main { display: block; }
   body.ats .side-card, body.ats .project {
     margin-bottom: 9px;
@@ -362,7 +374,7 @@
 <main class="page" data-language="en" lang="en">
   <header class="hero">
     <div>
-      <h1>Le Gia Huy</h1>
+      <h1>Gia Huy, Le</h1>
       <p class="role">Full-stack web development · Seeking an IT internship</p>
       </div>
     </div>
@@ -407,7 +419,7 @@
 <main class="page" data-language="zh" lang="zh">
   <header class="hero">
     <div>
-      <h1>Lê Gia Huy</h1>
+      <h1>黎家辉 <span class="name-alt">(Lê Gia Huy)</span></h1>
       <p class="role">全栈网站开发 · 正在寻找信息技术实习</p>
       </div>
     </div>

@@ -62,6 +62,17 @@ Tiêu chuẩn giữ lại: **không nói hai lần**. Những thứ đã cắt v
 Chỗ dôi ra **không nhồi thêm chữ** mà trả cho khoảng thở giữa các mục — đó mới
 là thứ làm tờ giấy trông đắt.
 
+## Dàn đều xuống hết trang, không để trống chân
+
+Hai cột trước đây dồn hết lên đầu rồi bỏ trống 26–40mm cuối trang. Nay `.layout`
+chốt `min-height: 252mm` (phần còn lại của khổ A4 sau đầu trang) và cả hai cột
+dùng `justify-content: space-between`, nên nội dung tự giãn kín trang — bản tiếng
+Trung ngắn hơn thì khe giữa các dự án tự rộng ra (6.1mm so với 3.6mm ở bản Việt),
+không phải chỉnh tay cho từng ngôn ngữ.
+
+Giãn **khe giữa các khối**, không giãn ruột từng khối: kéo giãn bên trong làm mỗi
+dự án cao thấp khác nhau, đọc ra là lệch.
+
 ## Bố cục: ít hộp, nhiều khoảng trắng
 
 Bản trước có **chín khung viền** trên một trang A4 (ba thẻ cột trái, sáu thẻ dự
@@ -109,6 +120,17 @@ mỗi `.project li`. Trên 20 từ là phải cắt.
 ---
 
 ## Header
+
+Tên viết theo lối của từng ngôn ngữ:
+
+| Bản | Tên in ra |
+|---|---|
+| vi | Lê Gia Huy |
+| en | Gia Huy, Le |
+| zh | 黎家辉 (Lê Gia Huy) — *家* là chữ "gia" trong gia đình |
+
+Bản tiếng Trung giữ kèm tên gốc trong ngoặc để nhà tuyển dụng đối chiếu được với
+hộ chiếu, bằng cấp và các hồ sơ khác.
 
 **LÊ GIA HUY** · Thiết kế sản phẩm & lập trình web toàn phần
 Ứng tuyển thực tập · Công nghệ Thông tin
