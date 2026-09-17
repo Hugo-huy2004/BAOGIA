@@ -9,7 +9,11 @@ document.querySelectorAll(".page").forEach((page) => {
 });
 
 document.documentElement.lang = language;
-const TITLE = { vi: "CV - Lê Gia Huy", en: "CV - Gia Huy, Le", zh: "CV - 黎家辉" };
+const TITLE = {
+  vi: "CV Lê Gia Huy · Lập Trình Web Toàn Phần | Tuyển Dụng & Thực Tập IT",
+  en: "CV - Gia Huy, Le · Full-Stack Web Developer | IT Internship & Hiring",
+  zh: "CV - 黎家辉 · 全栈网站开发工程师 | 软件求职与实习",
+};
 document.title = TITLE[language];
 
 // Ba ngôn ngữ bày thẳng trên thanh công cụ, cái đang xem tô đậm — một nút xoay
