@@ -148,11 +148,7 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 
 ## Hồ sơ
 
-Sinh viên CNTT Greenwich Việt Nam. Mình dựng giao diện thẳng trong trình duyệt
-bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần **giao diện** —
-bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js,
-MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó.
-**Đang tìm vị trí thực tập Công nghệ Thông tin.**
+Định hướng phát triển thành Kỹ sư Phần mềm Full-stack chuyên sâu, làm chủ quy trình kiến tạo sản phẩm số hoàn chỉnh: từ giao diện tối ưu trải nghiệm đến kiến trúc backend và hạ tầng đám mây tin cậy. Tìm kiếm cơ hội thực tập để giải quyết bài toán kỹ thuật thực tế và đóng góp lâu dài cho đội ngũ.
 
 > Bản trước viết theo lối cảm xúc ("khoảnh khắc người dùng khựng lại…") — đọc hay
 > nhưng không nói được mình làm gì bằng công cụ gì. CV không phải chỗ để gợi mở.
@@ -173,8 +169,7 @@ MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản
 
 ## Học vấn (kèm mục Ngôn ngữ)
 
-- **Greenwich Việt Nam** (2022–2027) — Công nghệ Thông tin, liên kết University of
-  Greenwich (UK) và Đại học FPT, dự kiến tốt nghiệp 10/2027.
+- **Greenwich Việt Nam** (2023–2027) — Công nghệ Thông tin, University of Greenwich (UK) - Hồ Chí Minh Campus, dự kiến tốt nghiệp 08/2027. GPA tích lũy quá trình học tập hiện tại 3.6/4.0.
 - **[Huynh trưởng – Giáo lý viên cấp 2](https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy)** — hướng dẫn hoạt động thiếu nhi, nói trước
   đám đông và quản lý nhóm.
 
