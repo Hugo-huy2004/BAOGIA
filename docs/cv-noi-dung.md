@@ -161,6 +161,8 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 - **Backend & dữ liệu** — Node.js · Express · REST API · WebSocket · MongoDB · Firebase/Firestore · SQLite
 - **DevOps & tích hợp** — Git · Vercel · Render · Cloudflare · Netlify · Google OAuth · Cloudinary · Facebook Graph API
   (ghi chú in kèm: *tự triển khai và vận hành sáu dự án trên production*)
+- **Kỹ năng mềm** — Làm việc nhóm · Giải quyết vấn đề · Chủ động học hỏi · Thích ứng nhanh · Quản lý thời gian
+  (phù hợp vị trí thực tập công nghệ thông tin; gắn liền với quá trình tự học công nghệ mới và điều phối dự án)
 
 > Bản trước trộn chữ nghề thiết kế ("phân cấp thị giác", "nhịp chữ") với tên
 > công nghệ, nên người sàng hồ sơ kỹ thuật không tìm ra thứ cần trong ba giây.
