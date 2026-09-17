@@ -1145,44 +1145,7 @@ html[lang="zh-TW"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):
 
 
 
-/* =========================================================
-   CULTURAL THEME COLORS (Overrides :root and .dark)
-   ========================================================= */
 
-/* VIETNAM: Crimson & Gold */
-html[lang="vi"], html[lang="vi-VN"] {
-  --primary: 354 84% 43%;
-  --primary-muted: 354 84% 43% / 0.12;
-  --accent: 43 100% 50%;
-  --radius: 0.875rem;
-}
-html[lang="vi"].dark, html[lang="vi-VN"].dark {
-  --primary: 354 84% 60%;
-  --primary-muted: 354 84% 60% / 0.12;
-  --accent: 43 100% 60%;
-}
-
-/* CHINA: Imperial Red & Yellow */
-html[lang="zh"], html[lang="zh-CN"], html[lang="zh-TW"] {
-  --primary: 0 100% 40%;
-  --primary-muted: 0 100% 40% / 0.12;
-  --accent: 45 100% 51%;
-  --radius: 0.5rem;
-}
-html[lang="zh"].dark, html[lang="zh-CN"].dark, html[lang="zh-TW"].dark {
-  --primary: 0 100% 55%;
-  --primary-muted: 0 100% 55% / 0.12;
-  --accent: 45 100% 60%;
-}
-
-/* Chinese Seal Logo Effect */
-html[lang="zh"] .education-logo,
-html[lang="zh-CN"] .education-logo,
-html[lang="zh-TW"] .education-logo {
-  filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(5) contrast(1.5) drop-shadow(0 0 2px rgba(255,0,0,0.3));
-  mix-blend-mode: multiply;
-  opacity: 0.85;
-}
 
 
 

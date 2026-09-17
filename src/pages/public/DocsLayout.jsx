@@ -1,6 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DocBlock from "../../components/docs/DocBlock";
+
+const DOCS_UI_TEXT = {
+  vi: {
+    tocAria: "Mục lục",
+    tocTitle: "Mục lục tài liệu",
+    lastUpdated: "Cập nhật lần cuối:",
+    quickToc: (n) => `Xem nhanh mục lục (${n} phần)`,
+    links: {
+      terms: "Điều khoản & Hướng dẫn sử dụng",
+      faq: "Hỏi đáp thường gặp",
+      student: "Đặc quyền HSSV",
+      booking: "Đặt lịch trao đổi",
+      home: "Trang chủ",
+    },
+  },
+  en: {
+    tocAria: "Table of Contents",
+    tocTitle: "Table of Contents",
+    lastUpdated: "Last updated:",
+    quickToc: (n) => `Quick Table of Contents (${n} sections)`,
+    links: {
+      terms: "Terms & Architectural Guide",
+      faq: "Frequently Asked Questions",
+      student: "Student Perks",
+      booking: "Book Consultation",
+      home: "Home",
+    },
+  },
+  zh: {
+    tocAria: "文档目录",
+    tocTitle: "文档目录与技术索引",
+    lastUpdated: "最后更新于：",
+    quickToc: (n) => `快速浏览目录 (${n} 个技术专题)`,
+    links: {
+      terms: "服务条款与架构指南",
+      faq: "常见问题答疑",
+      student: "高校学生专属特权",
+      booking: "预约工程咨询",
+      home: "返回首页",
+    },
+  },
+};
 
 /**
  * Khung chung cho trang Chính sách và Hướng dẫn: mục lục dính bên trái, nội
@@ -31,6 +74,10 @@ export default function DocsLayout({
   sections,
   footerNote,
 }) {
+  const { i18n } = useTranslation();
+  const lang = i18n.language?.startsWith("zh") ? "zh" : i18n.language?.startsWith("en") ? "en" : "vi";
+  const ui = DOCS_UI_TEXT[lang] || DOCS_UI_TEXT.vi;
+
   const [activeId, setActiveId] = useState(sections[0]?.id);
   const [selectedPillar, setSelectedPillar] = useState(defaultPillar);
 
@@ -85,10 +132,10 @@ export default function DocsLayout({
     <div className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 sm:py-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 lg:flex-row">
         <aside className="hidden h-fit w-72 shrink-0 lg:sticky lg:top-6 lg:block">
-          <nav className="max-h-[85vh] overflow-y-auto rounded-3xl border border-black/[0.08] dark:border-white/10 bg-card/80 p-3.5 backdrop-blur-md shadow-xs" aria-label="Mục lục">
+          <nav className="max-h-[85vh] overflow-y-auto rounded-3xl border border-black/[0.08] dark:border-white/10 bg-card/80 p-3.5 backdrop-blur-md shadow-xs" aria-label={ui.tocAria}>
             <div className="flex items-center justify-between px-2 pb-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                Mục lục tài liệu
+                {ui.tocTitle}
               </span>
               {version && (
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10.5px] font-bold text-primary">
@@ -146,7 +193,7 @@ export default function DocsLayout({
             {updatedAt && (
               <p className="mt-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <span className="material-symbols-outlined text-[15px]">schedule</span>
-                Cập nhật lần cuối: {updatedAt}
+                {ui.lastUpdated} {updatedAt}
               </p>
             )}
 
@@ -185,7 +232,7 @@ export default function DocsLayout({
           {/* Mục lục cho màn hình nhỏ */}
           <details className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/90 p-4 backdrop-blur-md lg:hidden shadow-xs">
             <summary className="cursor-pointer text-sm font-bold flex items-center justify-between">
-              <span>Xem nhanh mục lục ({sections.length} phần)</span>
+              <span>{ui.quickToc(sections.length)}</span>
               <span className="material-symbols-outlined text-base">expand_more</span>
             </summary>
             <ul className="mt-3.5 space-y-1.5 divide-y divide-border/50 pt-2">
@@ -245,11 +292,11 @@ export default function DocsLayout({
           )}
 
           <div className="mt-8 flex flex-wrap gap-2.5 pt-4 text-xs font-semibold">
-            <Link to="/terms-and-guide" className="rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-primary">Điều khoản & Hướng dẫn sử dụng</Link>
-            <Link to="/faq" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">Hỏi đáp thường gặp</Link>
-            <Link to="/student-pricing" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">Đặc quyền HSSV</Link>
-            <Link to="/booking" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">Đặt lịch trao đổi</Link>
-            <Link to="/" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">Trang chủ</Link>
+            <Link to="/terms-and-guide" className="rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-primary">{ui.links.terms}</Link>
+            <Link to="/faq" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">{ui.links.faq}</Link>
+            <Link to="/student-pricing" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">{ui.links.student}</Link>
+            <Link to="/booking" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">{ui.links.booking}</Link>
+            <Link to="/" className="rounded-full border border-border bg-card px-3.5 py-1.5 text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">{ui.links.home}</Link>
           </div>
         </main>
       </div>
