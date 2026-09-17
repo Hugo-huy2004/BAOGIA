@@ -377,10 +377,10 @@ const SCENES = {
         <Box x={78} y={96} w={58} h={46} r={10} stroke={LINE} />
         <Box x={14} y={150} w={122} h={40} r={10} stroke={LINE} />
         <rect x="6" y="212" width="138" height="42" rx="12" fill={SURFACE} />
-        {["Nhà", "Bio", "Ví", "Học", "Thêm"].map((label, index) => (
+        {["Hôm nay", "Ứng dụng", "Hoạt động", "Tài khoản"].map((label, index) => (
           <g key={label}>
-            <circle cx={20 + index * 27} cy={228} r="7" fill={index === 0 ? AX : LINE} opacity={index === 0 ? 1 : 0.5} />
-            <Txt x={20 + index * 27} y={246} anchor="middle" size={6} fill={index === 0 ? INK : DIM}>{label}</Txt>
+            <circle cx={25 + index * 33} cy={228} r="7" fill={index === 0 ? AX : LINE} opacity={index === 0 ? 1 : 0.5} />
+            <Txt x={25 + index * 33} y={246} anchor="middle" size={5.5} fill={index === 0 ? INK : DIM}>{label}</Txt>
           </g>
         ))}
       </Phone>

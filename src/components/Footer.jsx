@@ -182,9 +182,7 @@ export default function Footer() {
                   {t("footer.supportServer", "Ủng hộ máy chủ")}
                 </button>
               </li>
-              <li><Link to="/privacy-policy" className={linkClass}>{t("footer.privacyPolicy", "Chính sách bảo mật")}</Link></li>
-              <li><Link to="/terms" className={linkClass}>{t("footer.terms", "Điều khoản sử dụng")}</Link></li>
-              <li><Link to="/user-guide" className={linkClass}>{t("footer.userGuide", "Hướng dẫn sử dụng")}</Link></li>
+              <li><Link to="/terms-and-guide" className={linkClass}>{t("footer.termsAndGuide", "Điều khoản và hướng dẫn sử dụng")}</Link></li>
             </ul>
           </nav>
         </div>

@@ -67,6 +67,7 @@ const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricing
 const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
 const TermsPage = lazyRoute(() => import("./pages/public/TermsPage"));
 const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
+const TermsAndGuidePage = lazyRoute(() => import("./pages/public/TermsAndGuidePage"));
 const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
 const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
@@ -309,6 +310,7 @@ function AppContent() {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/user-guide" element={<UserGuidePage />} />
+            <Route path="/terms-and-guide" element={<TermsAndGuidePage />} />
             <Route path="/admin" element={
               <AdminProtectedRoute>
                 <AdminPanel />
