@@ -148,7 +148,8 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 
 ## Hồ sơ
 
-Định hướng phát triển thành Kỹ sư Phần mềm Full-stack chuyên sâu, làm chủ quy trình kiến tạo sản phẩm số hoàn chỉnh: từ giao diện tối ưu trải nghiệm đến kiến trúc backend và hạ tầng đám mây tin cậy. Tìm kiếm cơ hội thực tập để giải quyết bài toán kỹ thuật thực tế và đóng góp lâu dài cho đội ngũ.
+**Ngắn hạn**: Hoàn thành tốt chương trình đại học, thực tập chuyên sâu để cọ xát bài toán thực tế và làm chủ quy trình kiến tạo sản phẩm số.
+**Dài hạn**: Học Thạc sĩ nâng cao nền tảng học thuật; song song phát triển thành Kỹ sư Độc lập (Freelance Engineer), tự chủ kiến tạo và đồng hành cùng các giải pháp công nghệ cao cấp.
 
 > Bản trước viết theo lối cảm xúc ("khoảnh khắc người dùng khựng lại…") — đọc hay
 > nhưng không nói được mình làm gì bằng công cụ gì. CV không phải chỗ để gợi mở.
@@ -161,7 +162,7 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 - **Backend & dữ liệu** — Node.js · Express · REST API · WebSocket · MongoDB · Firebase/Firestore · SQLite
 - **DevOps & tích hợp** — Git · Vercel · Render · Cloudflare · Netlify · Google OAuth · Cloudinary · Facebook Graph API
   (ghi chú in kèm: *tự triển khai và vận hành sáu dự án trên production*)
-- **Kỹ năng mềm** — Lãnh đạo & quản lý nhóm · Thuyết trình & truyền đạt · Tổ chức & điều phối · Đào tạo & cố vấn · Giải quyết vấn đề
+- **Kỹ năng mềm** — Lãnh đạo & quản lý nhóm · Lên ý tưởng sản phẩm · Thuyết trình & truyền đạt · Tổ chức & điều phối · Giải quyết vấn đề
   (minh chứng qua 7 năm Huynh trưởng - Giáo lý viên Cấp 2 thuộc Ban Điều Hành Xứ đoàn Chánh Tòa Mỹ Tho và điều phối dự án kỹ thuật)
 
 > Bản trước trộn chữ nghề thiết kế ("phân cấp thị giác", "nhịp chữ") với tên
