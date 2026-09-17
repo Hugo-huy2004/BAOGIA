@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import BrutalismTheme from "../themes/BrutalismTheme";
 import DefaultTheme from "../themes/DefaultTheme";
+import FlatTheme from "../themes/FlatTheme";
 import { PhoneFrame } from "./hwagfu/ServicesStory";
 import { studentBioDemo } from "../../data/studentBioDemo";
 
