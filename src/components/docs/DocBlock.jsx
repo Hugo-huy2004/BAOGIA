@@ -6,13 +6,62 @@ import GuideArt from "../../pages/public/guideArt";
 import CommunicationDiagram from "./CommunicationDiagram";
 
 /**
- * Một khối nội dung tài liệu. Tách khỏi `DocsLayout` để trang chính sách công
- * khai và tài liệu trong tài khoản thành viên dùng CHUNG một bộ kiểu chữ —
- * "viết như policy" nghĩa là đúng cái renderer đó, không phải bản sao trông
- * hao hao rồi trôi mỗi nơi một kiểu.
- *
- * Các loại block: p | list | steps | table | note | figure | faq | code |
- * external-links | cards | diagram | security-flow | security-examples | age-card.
+ * Cấu hình màu sắc, icon và đường viền chuẩn Apple Support Callout.
+ * Thiết kế phân cấp rõ ràng: dải nhấn trái (accent pill) + squircle icon badge +
+ * tiêu đề nổi bật + nội dung có độ tương phản cao, không bị phai mờ.
+ */
+const TONE_CONFIG = {
+  info: {
+    border: "border-sky-500/20 dark:border-sky-400/25",
+    bg: "bg-sky-500/[0.04] dark:bg-sky-500/[0.08]",
+    accent: "bg-sky-500 dark:bg-sky-400",
+    iconBg: "bg-sky-500/10 dark:bg-sky-400/15 border-sky-500/25 text-sky-600 dark:text-sky-400",
+    titleColor: "text-sky-950 dark:text-sky-100",
+    textColor: "text-slate-700 dark:text-slate-300",
+    icon: "info",
+  },
+  tip: {
+    border: "border-emerald-500/20 dark:border-emerald-400/25",
+    bg: "bg-emerald-500/[0.04] dark:bg-emerald-500/[0.08]",
+    accent: "bg-emerald-500 dark:bg-emerald-400",
+    iconBg: "bg-emerald-500/10 dark:bg-emerald-400/15 border-emerald-500/25 text-emerald-600 dark:text-emerald-400",
+    titleColor: "text-emerald-950 dark:text-emerald-100",
+    textColor: "text-slate-700 dark:text-slate-300",
+    icon: "check_circle",
+  },
+  warn: {
+    border: "border-amber-500/25 dark:border-amber-400/25",
+    bg: "bg-amber-500/[0.04] dark:bg-amber-500/[0.08]",
+    accent: "bg-amber-500 dark:bg-amber-400",
+    iconBg: "bg-amber-500/10 dark:bg-amber-400/15 border-amber-500/25 text-amber-600 dark:text-amber-400",
+    titleColor: "text-amber-950 dark:text-amber-100",
+    textColor: "text-slate-700 dark:text-slate-300",
+    icon: "warning",
+  },
+  danger: {
+    border: "border-rose-500/20 dark:border-rose-400/25",
+    bg: "bg-rose-500/[0.04] dark:bg-rose-500/[0.08]",
+    accent: "bg-rose-500 dark:bg-rose-400",
+    iconBg: "bg-rose-500/10 dark:bg-rose-400/15 border-rose-500/25 text-rose-600 dark:text-rose-400",
+    titleColor: "text-rose-950 dark:text-rose-100",
+    textColor: "text-slate-700 dark:text-slate-300",
+    icon: "gavel",
+  },
+};
+
+function getToneConfig(tone) {
+  if (tone === "danger") return TONE_CONFIG.danger;
+  if (["warn", "warning"].includes(tone)) return TONE_CONFIG.warn;
+  if (["success", "tip", "verified"].includes(tone)) return TONE_CONFIG.tip;
+  return TONE_CONFIG.info;
+}
+
+/**
+ * Một khối nội dung tài liệu chuẩn Apple Design:
+ * - note: Apple Support Callout Card với icon squircle và dải nhấn bên lề
+ * - cards: Lưới 2 cột cân bằng (5x2), layout ngang với icon squircle phóng to nhẹ khi hover
+ * - diagram: Sơ đồ tương tác chuỗi giao tiếp kiến trúc
+ * - table, figure, faq, code, steps, list, external-links
  */
 export default function DocBlock({ block }) {
   if (block.type === "diagram") {
@@ -21,7 +70,7 @@ export default function DocBlock({ block }) {
 
   if (block.type === "cards") {
     return (
-      <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {block.items.map((item) => {
           const hasLink = Boolean(item.href);
           const isInternalLink = hasLink && !item.href.startsWith("http") && !item.href.startsWith("#");
@@ -38,30 +87,66 @@ export default function DocBlock({ block }) {
             <Tag
               key={item.title}
               {...props}
-              className={`group flex flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card p-4.5 transition-all duration-200 ${
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 p-4.5 sm:p-5 backdrop-blur-xs shadow-xs transition-all duration-200 ${
                 hasLink
-                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card hover:shadow-md hover:shadow-primary/5"
                   : "hover:border-border"
               }`}
             >
-              <div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-xs">
-                  <span className="material-symbols-outlined text-[20px]">{item.icon || "arrow_forward"}</span>
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-xs transition-all duration-200 group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground">
+                  <span className="material-symbols-outlined text-[22px]">{item.icon || "arrow_forward"}</span>
                 </div>
-                <h3 className="mt-3 text-[14.5px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">{item.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[14.5px] sm:text-[15px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 text-xs sm:text-[13px] leading-relaxed text-muted-foreground">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
               {item.badge && (
-                <div className="mt-3.5 flex items-center justify-between border-t border-border/40 pt-2.5 text-[11.5px] font-semibold text-primary">
-                  <span>{item.badge}</span>
+                <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-xs font-semibold text-primary min-w-0">
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/15">
+                    {item.badge}
+                  </span>
                   {hasLink && (
-                    <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                    <span className="inline-flex items-center gap-1 text-xs text-primary transition-transform group-hover:translate-x-1">
+                      <span>Truy cập</span>
+                      <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                    </span>
                   )}
                 </div>
               )}
             </Tag>
           );
         })}
+      </div>
+    );
+  }
+
+  if (block.type === "note") {
+    const cfg = getToneConfig(block.tone);
+
+    return (
+      <div className={`relative overflow-hidden rounded-2xl border p-4 sm:p-5 shadow-xs transition-all ${cfg.border} ${cfg.bg}`}>
+        {/* Apple-style left accent pill bar */}
+        <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${cfg.accent}`} aria-hidden="true" />
+
+        <div className="flex items-start gap-3.5 pl-1 sm:gap-4 sm:pl-2">
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-xs ${cfg.iconBg}`}>
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{cfg.icon}</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className={`text-[14.5px] sm:text-[15px] font-bold tracking-tight ${cfg.titleColor}`}>
+              {block.title}
+            </h4>
+            <p className={`mt-1.5 text-[13.5px] sm:text-sm leading-relaxed ${cfg.textColor}`}>
+              {block.text}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -80,11 +165,19 @@ export default function DocBlock({ block }) {
 
   if (block.type === "external-links") {
     return (
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {block.items.map((item) => (
-          <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
-            <span>{item.label}</span>
-            <span className="material-symbols-outlined text-lg text-muted-foreground" aria-hidden="true">open_in_new</span>
+          <a
+            key={item.href}
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex min-h-13 items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 px-4.5 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card hover:shadow-md"
+          >
+            <span className="transition-colors group-hover:text-primary">{item.label}</span>
+            <span className="material-symbols-outlined text-lg text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true">
+              open_in_new
+            </span>
           </a>
         ))}
       </div>
@@ -141,12 +234,12 @@ export default function DocBlock({ block }) {
   if (block.type === "table") {
     const wide = (block.head?.length || 0) > 2;
     return (
-      <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card/50 shadow-xs">
+      <div className="overflow-x-auto rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/60 backdrop-blur-xs shadow-xs">
         <table className={`w-full border-collapse text-left text-[13.5px] ${wide ? "min-w-[34rem]" : ""}`}>
           <thead>
             <tr className="border-b border-border bg-muted/50">
               {block.head.map((cell) => (
-                <th key={cell} scope="col" className="px-3.5 py-3 font-bold tracking-tight text-foreground">{cell}</th>
+                <th key={cell} scope="col" className="px-4 py-3.5 font-bold tracking-tight text-foreground">{cell}</th>
               ))}
             </tr>
           </thead>
@@ -154,7 +247,7 @@ export default function DocBlock({ block }) {
             {block.rows.map((row) => (
               <tr key={row[0]} className="transition-colors hover:bg-muted/30 align-top">
                 {row.map((cell, index) => (
-                  <td key={index} className="px-3.5 py-3 leading-relaxed text-muted-foreground">{cell}</td>
+                  <td key={index} className="px-4 py-3.5 leading-relaxed text-muted-foreground">{cell}</td>
                 ))}
               </tr>
             ))}
@@ -166,7 +259,7 @@ export default function DocBlock({ block }) {
 
   if (block.type === "figure") {
     return (
-      <figure className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs">
+      <figure className="overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 shadow-xs">
         <div className="px-3 pt-3 sm:px-5 sm:pt-5">
           <GuideArt kind={block.art} />
         </div>
@@ -181,44 +274,20 @@ export default function DocBlock({ block }) {
 
   if (block.type === "faq") {
     return (
-      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card/60 shadow-xs">
+      <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/70 shadow-xs">
         {block.items.map((item) => (
           <details key={item.q} className="group transition-colors hover:bg-muted/20">
-            <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4.5 py-3.5 text-[14.5px] font-semibold text-foreground">
-              {item.q}
+            <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[14.5px] font-bold text-foreground">
+              <span>{item.q}</span>
               <span className="material-symbols-outlined shrink-0 text-[20px] text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true">
                 expand_more
               </span>
             </summary>
-            <p className="px-4.5 pb-4 pt-1 text-[13.5px] leading-relaxed text-muted-foreground border-t border-border/40 bg-muted/10">{item.a}</p>
+            <div className="border-t border-border/40 bg-muted/10 px-5 pb-4.5 pt-3 text-[13.5px] sm:text-sm leading-relaxed text-muted-foreground">
+              {item.a}
+            </div>
           </details>
         ))}
-      </div>
-    );
-  }
-
-  if (block.type === "note") {
-    const isWarn = ["warn", "warning"].includes(block.tone);
-    const isDanger = block.tone === "danger";
-    const isSuccess = ["success", "tip", "verified"].includes(block.tone);
-
-    const styleClass = isDanger
-      ? "border-rose-500/30 bg-rose-500/[0.08] text-rose-950 dark:text-rose-200"
-      : isWarn
-        ? "border-amber-500/30 bg-amber-500/[0.08] text-amber-950 dark:text-amber-200"
-        : isSuccess
-          ? "border-emerald-500/30 bg-emerald-500/[0.08] text-emerald-950 dark:text-emerald-200"
-          : "border-blue-500/30 bg-blue-500/[0.08] text-blue-950 dark:text-blue-200";
-
-    const iconName = isDanger ? "gavel" : isWarn ? "warning" : isSuccess ? "check_circle" : "info";
-
-    return (
-      <div className={`rounded-2xl border p-4.5 backdrop-blur-xs shadow-xs ${styleClass}`}>
-        <p className="flex items-center gap-2 text-[14.5px] font-bold text-foreground">
-          <span className="material-symbols-outlined text-[19px] shrink-0" aria-hidden="true">{iconName}</span>
-          {block.title}
-        </p>
-        <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted-foreground">{block.text}</p>
       </div>
     );
   }
