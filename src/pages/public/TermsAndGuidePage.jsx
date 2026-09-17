@@ -52,29 +52,6 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
             "Cam kết tính sẵn sàng: Hệ thống nỗ lực vận hành ổn định 24/7. Trong các đợt bảo trì nâng cấp hạ tầng, lịch bảo trì sẽ được thông báo sớm trên bảng tin để người dùng chủ động công việc.",
           ],
         },
-        {
-          type: "cards",
-          items: [
-            {
-              title: "Sở hữu trọn vẹn",
-              desc: "Mọi sản phẩm, ghi chú học tập và profile cá nhân thuộc 100% quyền sở hữu của bạn.",
-              icon: "copyright",
-              badge: "Sở hữu trí tuệ",
-            },
-            {
-              title: "Cộng đồng văn minh",
-              desc: "Giao lưu học hỏi lành mạnh, không phát tán spam, mã độc hoặc ngôn từ kích động.",
-              icon: "diversity_3",
-              badge: "Quy tắc ứng xử",
-            },
-            {
-              title: "Ổn định & An tâm",
-              desc: "Hạ tầng tối ưu hóa liên tục, đảm bảo ứng dụng luôn sẵn sàng phục vụ học tập 24/7.",
-              icon: "speed",
-              badge: "Độ sẵn sàng",
-            },
-          ],
-        },
       ],
     },
     {
@@ -171,27 +148,15 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Tại Hugo Studio, chúng tôi tin rằng trải nghiệm số tuyệt vời phải luôn đi kèm với sự an tâm tuyệt đối. Quyền riêng tư của bạn không phải là một điều khoản phụ, mà là tiêu chuẩn kỹ thuật cốt lõi (Privacy by Design) định hình cách chúng tôi xây dựng từng tính năng.",
         },
         {
-          type: "cards",
+          type: "list",
           items: [
-            {
-              title: "Không bán dữ liệu",
-              desc: "Tuyệt đối không bao giờ chia sẻ, bán hoặc cho thuê thông tin cá nhân của bạn cho bất kỳ bên thứ ba hay mạng quảng cáo nào.",
-              icon: "lock",
-              badge: "Cam kết số 1",
-            },
-            {
-              title: "Không theo dõi lén lút",
-              desc: "Hệ thống không nhúng mã theo dõi hành vi xuyên trang (zero cross-site tracking) và không đọc dữ liệu ngoài ứng dụng.",
-              icon: "visibility_off",
-              badge: "Cam kết số 2",
-            },
-            {
-              title: "Bảo mật trên máy bạn",
-              desc: "Dữ liệu sinh trắc học Touch ID / Face ID được xử lý khép kín trong chip bảo mật thiết bị (Secure Enclave / TPM).",
-              icon: "fingerprint",
-              badge: "Cam kết số 3",
-            },
+            "Không bán dữ liệu: Tuyệt đối không bao giờ chia sẻ, bán hoặc cho thuê thông tin cá nhân của bạn cho bất kỳ bên thứ ba hay mạng quảng cáo nào.",
+            "Không theo dõi lén lút: Hệ thống không nhúng mã theo dõi hành vi xuyên trang (zero cross-site tracking) và không đọc dữ liệu ngoài ứng dụng.",
+            "Bảo mật trên máy bạn: Dữ liệu sinh trắc học Touch ID / Face ID được xử lý khép kín trong chip bảo mật thiết bị (Secure Enclave / TPM).",
           ],
+        },
+        {
+          type: "security-flow",
         },
         {
           type: "note",
@@ -312,33 +277,9 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Hệ sinh thái Hugo Studio được thiết kế với kiến trúc thích ứng cao cấp (Adaptive Architecture), mang lại trải nghiệm tương thích hoàn hảo giữa màn hình máy tính để bàn (macOS Desktop) và thiết bị di động cảm ứng (Mobile Native).",
         },
         {
-          type: "cards",
-          items: [
-            {
-              title: "Hôm nay (Today)",
-              desc: "Bảng tin trung tâm hiển thị thời tiết thời gian thực, chuỗi ngày học tập (Streak), lịch hẹn và tổng quan năng lượng ngày mới.",
-              icon: "wb_sunny",
-              badge: "Tab 1",
-            },
-            {
-              title: "Ứng dụng (Apps)",
-              desc: "Kho ứng dụng toàn diện gồm Hugo Learning, HugoPSY, Bàn học đường, Lofi Radio, HugoArcade và HugoAura.",
-              icon: "grid_view",
-              badge: "Tab 2",
-            },
-            {
-              title: "Hoạt động (Activity)",
-              desc: "Nhật ký tiến độ học lập trình, ván cờ vua, lịch sử biến động ví JOY và các cột mốc thành tích cá nhân.",
-              icon: "insights",
-              badge: "Tab 3",
-            },
-            {
-              title: "Tài khoản (Account)",
-              desc: "Quản trị thông tin cá nhân, hồ sơ Hugo Bio, cài đặt sinh trắc học Passkey, bảo mật mã PIN và trung tâm điều khiển dữ liệu.",
-              icon: "account_circle",
-              badge: "Tab 4",
-            },
-          ],
+          type: "figure",
+          art: "tabs",
+          caption: "Minh hoạ cấu trúc 4 tab chính trên di động: Hôm nay, Ứng dụng, Hoạt động, Tài khoản. Khi mở một tiện ích, thanh tab tự động ẩn để nhường trọn vẹn màn hình cho ứng dụng.",
         },
         {
           type: "table",
@@ -494,6 +435,11 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Chúng tôi loại bỏ hoàn toàn biểu mẫu nhập mật khẩu truyền thống dễ bị rò rỉ. Thay vào đó, Hugo Studio sử dụng Google One-Tap chuẩn OAuth 2.0 và công nghệ Passkey sinh trắc học chuẩn FIDO2 quốc tế.",
         },
         {
+          type: "figure",
+          art: "login",
+          caption: "Minh hoạ luồng đăng nhập một nút duy nhất qua Google One-Tap (chấm số 1): Hệ thống không tạo hay lưu trữ mật khẩu riêng.",
+        },
+        {
           type: "steps",
           items: [
             "Đăng nhập một chạm với Google: Nhấn nút 'Tiếp tục với Google' trên màn hình Đăng nhập. Cửa sổ xác thực chính thức của Google sẽ xuất hiện; chọn tài khoản email bạn muốn sử dụng.",
@@ -503,10 +449,13 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           ],
         },
         {
-          type: "note",
-          tone: "info",
-          title: "Không còn nỗi lo lộ mật khẩu",
-          text: "Passkey lưu trữ khóa mật mã bất đối xứng trên chip bảo mật của máy bạn. Không ai — kể cả quản trị viên máy chủ — có thể đánh cắp hoặc suy đoán ra khóa xác thực của bạn.",
+          type: "figure",
+          art: "passkey",
+          caption: "Minh hoạ quy trình kích hoạt Passkey: Bật tùy chọn Đăng nhập nhanh trong Cài đặt (chấm số 1) và chạm cảm biến vân tay Touch ID / Face ID trên máy bạn (chấm số 2).",
+        },
+        {
+          type: "diagram",
+          flow: "passkey",
         },
       ],
     },
@@ -522,6 +471,11 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Hugo Studio được xây dựng dưới dạng Progressive Web App (PWA), cho phép ứng dụng chạy độc lập, khởi động tức thì, hoạt động mượt mà ngay cả khi mạng chập chờn và hỗ trợ nhận thông báo đẩy Web Push.",
         },
         {
+          type: "figure",
+          art: "install",
+          caption: "Minh hoạ thao tác cài đặt PWA: Nút Chia sẻ ở thanh dưới Safari iOS (chấm số 1) > Thêm vào MH chính (chấm số 2), hoặc Menu ba chấm trên Chrome Android > Cài đặt ứng dụng.",
+        },
+        {
           type: "steps",
           items: [
             "Cài đặt trên iPhone & iPad (iOS Safari): Mở liên kết hugowishpax.studio bằng trình duyệt Safari. Nhấn vào biểu tượng Chia sẻ (nút hình vuông có mũi tên hướng lên ở thanh dưới) > cuộn xuống và chọn 'Thêm vào Màn hình chính' (Add to Home Screen) > nhấn 'Thêm'. Biểu tượng Hugo Studio sẽ xuất hiện trên màn hình chính như ứng dụng tải từ App Store.",
@@ -531,10 +485,9 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           ],
         },
         {
-          type: "note",
-          tone: "warn",
-          title: "Lưu ý về trình duyệt mở liên kết",
-          text: "Nếu bạn bấm vào liên kết từ ứng dụng Facebook, Messenger hoặc Zalo, trình duyệt tích hợp (In-App Browser) của họ có thể chặn tính năng cài đặt PWA. Hãy nhấn vào biểu tượng 3 chấm và chọn 'Mở trong trình duyệt mặc định' (Safari hoặc Chrome) để cài đặt chuẩn xác nhất.",
+          type: "figure",
+          art: "notifications",
+          caption: "Minh hoạ hai lớp cấp quyền thông báo: Bật công tắc Thông báo đẩy trong ứng dụng (chấm số 1) và nhấn 'Cho phép' trong hộp thoại hệ điều hành (chấm số 2).",
         },
       ],
     },
@@ -550,48 +503,18 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Hugo Bio giúp bạn sở hữu một trang đại diện trực tuyến độc quyền tại địa chỉ `hugowishpax.studio/@yourname`, tổng hợp toàn bộ liên kết mạng xã hội, dự án cá nhân và hồ sơ sự nghiệp với giao diện điện ảnh.",
         },
         {
+          type: "figure",
+          art: "bioEditor",
+          caption: "Minh hoạ quy trình tạo Bio: Điền tên hiển thị (chấm số 1), mô tả ngắn (chấm số 2), liên kết cá nhân (chấm số 3) trong cửa sổ soạn thảo, trang công khai hiển thị sắc nét trên điện thoại.",
+        },
+        {
           type: "steps",
           items: [
             "Đăng ký tên định danh độc quyền (@slug): Vào mục Tài khoản > Hồ sơ Bio. Nhập tên hiển thị và định danh @slug duy nhất của bạn để chia sẻ trên Instagram, TikTok, LinkedIn hay CV xin việc.",
             "Tải và căn chỉnh ảnh đại diện với CropModal: Chọn ảnh từ máy tính hoặc điện thoại. Hộp thoại CropModal thông minh sẽ tự động hỗ trợ bạn xoay, phóng to, thu nhỏ và cắt ảnh chuẩn tỉ lệ vuông 1:1 sắc nét.",
             "Thêm danh mục liên kết tùy biến: Nhập các liên kết GitHub, Portfolio cá nhân, Facebook, kênh YouTube hoặc bài viết nổi bật. Bạn có thể kéo thả để sắp xếp thứ tự hiển thị.",
-            "Chọn chủ đề màu sắc Aura Themes: Cá nhân hóa phong cách với 5 bộ màu ánh sáng điện ảnh cao cấp phù hợp với cá tính của bạn.",
+            "Chọn chủ đề màu sắc Aura Themes: Cá nhân hóa phong cách với 5 bộ màu ánh sáng điện ảnh cao cấp (Cyber Dark, Sunset Amber, Emerald Focus, Oceanic Blue, Neon Noir).",
             "Kích hoạt lớp thời tiết động (Weather Layer): Bật công tắc 'Hiển thị thời tiết'. Khi khách truy cập cho phép định vị, trang Bio của bạn sẽ hiển thị nhiệt độ và biểu tượng thời tiết địa phương theo thời gian thực rất sinh động.",
-          ],
-        },
-        {
-          type: "cards",
-          items: [
-            {
-              title: "Cyber Dark",
-              desc: "Tông màu đen huyền bí kết hợp ánh sáng tím neon hiện đại, phù hợp cho lập trình viên và người yêu công nghệ.",
-              icon: "terminal",
-              badge: "Aura Theme 1",
-            },
-            {
-              title: "Sunset Amber",
-              desc: "Ánh hoàng hôn ấm áp với dải màu vàng cam dịu mắt, mang lại cảm giác thân thiện, tích cực và truyền cảm hứng.",
-              icon: "wb_twilight",
-              badge: "Aura Theme 2",
-            },
-            {
-              title: "Emerald Focus",
-              desc: "Sắc xanh ngọc lục bảo tươi mát, tượng trưng cho sự sinh sôi, tập trung học hỏi và phát triển tri thức bền bỉ.",
-              icon: "eco",
-              badge: "Aura Theme 3",
-            },
-            {
-              title: "Oceanic Blue",
-              desc: "Gam màu xanh đại dương sâu thẳm, toát lên sự điềm tĩnh, chuyên nghiệp và đáng tin cậy cho hồ sơ công việc.",
-              icon: "water_drop",
-              badge: "Aura Theme 4",
-            },
-            {
-              title: "Neon Noir",
-              desc: "Độ tương phản cao với các vệt sáng sắc nét, tạo dấu ấn thẩm mỹ mạnh mẽ và cá tính không thể hòa lẫn.",
-              icon: "flare",
-              badge: "Aura Theme 5",
-            },
           ],
         },
       ],
@@ -608,6 +531,11 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Ví JOY là trung tâm quản lý điểm thưởng học tập và hoạt động ngoại khóa của bạn. Mọi giao dịch chuyển nhận giữa các thành viên được thực hiện bảo mật qua mã QR hạt phân tử động (Particle Connect QR).",
         },
         {
+          type: "figure",
+          art: "joy",
+          caption: "Minh hoạ Ví JOY: Thẻ số dư điểm (chấm số 1), lịch sử biến động cộng/trừ (chấm số 2) và mã QR hạt phân tử có đồng hồ đếm ngược an toàn (chấm số 3).",
+        },
+        {
           type: "steps",
           items: [
             "Tích lũy điểm JOY tự nhiên: Đăng nhập đều đặn mỗi ngày (+10 JOY), duy trì chuỗi Streak 7 ngày (+50 JOY), hoàn thành mỗi bài học lập trình (+25 JOY), và chiến thắng ván cờ vua trong Arcade (+30 JOY).",
@@ -617,10 +545,8 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           ],
         },
         {
-          type: "note",
-          tone: "info",
-          title: "Hạn mức bảo vệ an toàn",
-          text: "Mỗi tài khoản được thiết lập hạn mức chuyển tối đa mỗi ngày để ngăn chặn các giao dịch nhầm lẫn ngoài ý muốn. Mã QR hạt phân tử tự động làm mới sau 60 giây; mã đã hết hạn sẽ không thể thực hiện giao dịch.",
+          type: "diagram",
+          flow: "particle-qr",
         },
       ],
     },
@@ -646,27 +572,8 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           ],
         },
         {
-          type: "cards",
-          items: [
-            {
-              title: "Trình chạy mã trực tiếp",
-              desc: "Viết code và quan sát kết quả hiển thị tức thì trong khung Preview với công nghệ Code Runner.",
-              icon: "play_circle",
-              badge: "Tương tác",
-            },
-            {
-              title: "Máy chủ chấm tự động",
-              desc: "Hệ thống kiểm tra lỗi cú pháp, logic thuật toán và đưa ra gợi ý sửa sai cụ thể từng dòng code.",
-              icon: "fact_check",
-              badge: "Chấm điểm",
-            },
-            {
-              title: "Chứng chỉ mã hóa UUID",
-              desc: "Hoàn thành toàn bộ lộ trình để nhận chứng chỉ chính thức có mã định danh UUID chống làm giả.",
-              icon: "verified",
-              badge: "Chứng nhận",
-            },
-          ],
+          type: "diagram",
+          flow: "autograder",
         },
       ],
     },
@@ -680,6 +587,11 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
         {
           type: "p",
           text: "Một lập trình viên hay người làm việc sáng tạo giỏi cần có một tâm trí lành mạnh và giấc ngủ trọn vẹn. Bộ công cụ chăm sóc tinh thần của Hugo Studio giúp bạn phục hồi năng lượng và duy trì sự tỉnh táo mỗi ngày.",
+        },
+        {
+          type: "figure",
+          art: "sleep",
+          caption: "Minh hoạ nhật ký giấc ngủ: Ghi nhận giờ đi ngủ / thức dậy (chấm số 1), đánh giá chất lượng (chấm số 2) và biểu đồ nhịp sinh học tuần (chấm số 3).",
         },
         {
           type: "steps",
@@ -710,6 +622,11 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
           text: "Chúng tôi cung cấp dịch vụ thiết kế, phát triển website doanh nghiệp, Landing Page thương hiệu và ứng dụng Web App tùy biến với quy trình làm việc chuẩn mực, minh bạch 100% chi phí.",
         },
         {
+          type: "figure",
+          art: "booking",
+          caption: "Minh hoạ 4 bước chuẩn mực: 1. Xem bảng giá > 2. Đặt lịch tư vấn > 3. Chốt phạm vi bằng văn bản > 4. Đặt cọc 50% qua VietQR PayOS.",
+        },
+        {
           type: "steps",
           items: [
             "Bước 1 — Khảo sát & Dự toán tự động: Truy cập trang Dịch vụ (/services), chọn loại hình website bạn cần (Landing Page, Website bán hàng, Web App, PWA). Hệ thống sẽ tự động tính toán báo giá chi tiết từng hạng mục.",
@@ -717,6 +634,10 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
             "Bước 3 — Xác nhận & Đặt cọc 50% qua VietQR PayOS: Sau khi thống nhất hợp đồng, bạn quét mã VietQR tự động tích hợp cổng PayOS. Hệ thống tự động nhận diện thanh toán chính xác đến từng đồng và kích hoạt dự án ngay lập tức.",
             "Bước 4 — Triển khai, Nghiệm thu & Bàn giao Git: Bạn theo dõi tiến độ theo từng tuần. Sau khi nghiệm thu ưng ý, chúng tôi bàn giao 100% mã nguồn sạch trên kho lưu trữ Git riêng tư cùng tài liệu hướng dẫn vận hành.",
           ],
+        },
+        {
+          type: "diagram",
+          flow: "payos",
         },
         {
           type: "table",

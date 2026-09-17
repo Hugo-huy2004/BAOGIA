@@ -3,6 +3,7 @@ import SecurityFlowVideo from "../privacy/SecurityFlowVideo";
 import SecurityExamplesVideo from "../privacy/SecurityExamplesVideo";
 import AgeProtectionCard from "../privacy/AgeProtectionCard";
 import GuideArt from "../../pages/public/guideArt";
+import CommunicationDiagram from "./CommunicationDiagram";
 
 /**
  * Một khối nội dung tài liệu. Tách khỏi `DocsLayout` để trang chính sách công
@@ -11,38 +12,51 @@ import GuideArt from "../../pages/public/guideArt";
  * hao hao rồi trôi mỗi nơi một kiểu.
  *
  * Các loại block: p | list | steps | table | note | figure | faq | code |
- * external-links | cards | security-flow | security-examples | age-card.
+ * external-links | cards | diagram | security-flow | security-examples | age-card.
  */
 export default function DocBlock({ block }) {
+  if (block.type === "diagram") {
+    return <CommunicationDiagram flow={block.flow} />;
+  }
+
   if (block.type === "cards") {
     return (
       <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
         {block.items.map((item) => {
-          const isInternalLink = item.href && !item.href.startsWith("http") && !item.href.startsWith("#");
-          const Tag = isInternalLink ? Link : "a";
+          const hasLink = Boolean(item.href);
+          const isInternalLink = hasLink && !item.href.startsWith("http") && !item.href.startsWith("#");
+          const Tag = isInternalLink ? Link : hasLink ? "a" : "div";
           const props = isInternalLink
             ? { to: item.href }
-            : {
-                href: item.href,
-                ...(item.href?.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {}),
-              };
+            : hasLink
+              ? {
+                  href: item.href,
+                  ...(item.href?.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {}),
+                }
+              : {};
           return (
             <Tag
               key={item.title}
               {...props}
-              className={`group flex flex-col justify-between rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/90 backdrop-blur-md p-4.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md ${item.href ? "cursor-pointer" : ""}`}
+              className={`group flex flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card p-4.5 transition-all duration-200 ${
+                hasLink
+                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+                  : "hover:border-border"
+              }`}
             >
               <div>
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 text-primary shadow-xs">
-                  <span className="material-symbols-outlined text-[22px]">{item.icon || "arrow_forward"}</span>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-xs">
+                  <span className="material-symbols-outlined text-[20px]">{item.icon || "arrow_forward"}</span>
                 </div>
-                <h3 className="mt-3.5 text-[15px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">{item.title}</h3>
+                <h3 className="mt-3 text-[14.5px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">{item.title}</h3>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.desc}</p>
               </div>
               {item.badge && (
-                <div className="mt-3.5 flex items-center justify-between border-t border-border/50 pt-2.5 text-[11.5px] font-semibold text-primary">
+                <div className="mt-3.5 flex items-center justify-between border-t border-border/40 pt-2.5 text-[11.5px] font-semibold text-primary">
                   <span>{item.badge}</span>
-                  <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                  {hasLink && (
+                    <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+                  )}
                 </div>
               )}
             </Tag>
