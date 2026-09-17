@@ -119,23 +119,38 @@
     letter-spacing: 1.2px;
     text-transform: uppercase;
   }
-  .profile-text { color: var(--body); font-size: 10.1pt; line-height: 1.52; }
-  .tag + .tag::before {
-    content: " · ";
-    color: var(--faint);
+  .profile-text {
+    color: var(--body);
+    font-size: 10.1pt;
+    line-height: 1.52;
+    text-align: justify;
+    text-justify: inter-word;
+    text-wrap: pretty;
   }
   .skill-group { margin-bottom: 9px; }
   .skill-group:last-of-type { margin-bottom: 0; }
   .skill-group h3 { margin-bottom: 3px; font-size: 8.6pt; font-weight: 700; }
-  .tags { display: block; margin-top: 1px; }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0;
+    row-gap: 2px;
+    margin-top: 1px;
+  }
   .tag {
-    display: inline;
-    padding: 0;
-    border: 0;
-    background: none;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
     color: #4a525d;
     font-size: 8.2pt;
-    line-height: 1.5;
+    line-height: 1.4;
+  }
+  .tag:not(:last-child)::after {
+    content: "·";
+    margin: 0 4px;
+    color: var(--faint);
+    font-weight: 700;
   }
   .foundation { margin-top: 8px; color: var(--muted); font-size: 8.2pt; line-height: 1.4; }
   .skill-note { margin-top: 4px; color: var(--muted); font-size: 8.4pt; line-height: 1.35; font-style: italic; }
@@ -144,7 +159,15 @@
   .fact-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
   .fact b { font-size: 8.8pt; font-weight: 700; }
   .fact .level { color: var(--blue); font-size: 7.2pt; font-weight: 700; white-space: nowrap; }
-  .fact p { margin-top: 2px; color: var(--muted); font-size: 8.3pt; line-height: 1.38; }
+  .fact p {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 8.3pt;
+    line-height: 1.38;
+    text-align: justify;
+    text-justify: inter-word;
+    text-wrap: pretty;
+  }
 
   /* ── Main ───────────────────────────────────────────── */
   .main { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
@@ -180,6 +203,9 @@
     color: var(--body);
     font-size: 10.1pt;
     line-height: 1.5;
+    text-align: justify;
+    text-justify: inter-word;
+    text-wrap: pretty;
   }
   .project li:last-child { margin-bottom: 0; }
   .project li::before {
@@ -331,7 +357,6 @@
     <div>
       <h1>Lê Gia Huy</h1>
       <p class="role">Lập trình web toàn phần · Đang tìm thực tập Công nghệ Thông tin</p>
-      </div>
     </div>
     <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · www.hugowishpax.studio/introduction</a></div>
   </header>
@@ -345,7 +370,7 @@
 
       <section class="side-card">
         <h2 class="section-label">Kỹ năng</h2>
-        <div class="skill-group"><h3>Ngôn ngữ</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>Frontend</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native (Expo)</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>Backend &amp; dữ liệu</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST API</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps &amp; tích hợp</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>Kỹ năng mềm</h3><div class="tags"><span class="tag">Làm việc nhóm</span><span class="tag">Giải quyết vấn đề</span><span class="tag">Chủ động học hỏi</span><span class="tag">Thích ứng nhanh</span><span class="tag">Quản lý thời gian</span></div></div>
+        <div class="skill-group"><h3>Ngôn ngữ</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>Frontend</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native (Expo)</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>Backend &amp; dữ liệu</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST API</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps &amp; tích hợp</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>Kỹ năng mềm</h3><div class="tags"><span class="tag">Lãnh đạo &amp; quản lý nhóm</span><span class="tag">Thuyết trình &amp; truyền đạt</span><span class="tag">Tổ chức &amp; điều phối</span><span class="tag">Đào tạo &amp; cố vấn</span><span class="tag">Giải quyết vấn đề</span></div></div>
       </section>
 
       <section class="side-card">
@@ -353,6 +378,10 @@
         <div class="fact">
           <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2023-2027</span></div>
           <p>Công nghệ Thông tin · University of Greenwich (UK) - Hồ Chí Minh Campus · dự kiến tốt nghiệp 08/2027. GPA tích lũy quá trình học tập hiện tại 3.6/4.0.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>Huynh Trưởng · Cấp 2</b><span class="level">2018-2025</span></div>
+          <p>Giáo phận Mỹ Tho · <a href="https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy">Ban Điều Hành<span class="ats-only"> (chanhtoa.tnttgiaophanmytho.online)</span></a> · 7 năm lãnh đạo, tổ chức sự kiện và huấn luyện thiếu nhi.</p>
         </div>
         <div class="fact">
           <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
@@ -376,7 +405,6 @@
     <div>
       <h1>Gia Huy, Le</h1>
       <p class="role">Full-stack web development · Seeking an IT internship</p>
-      </div>
     </div>
     <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · www.hugowishpax.studio/introduction</a></div>
   </header>
@@ -390,7 +418,7 @@
 
       <section class="side-card">
         <h2 class="section-label">Skills</h2>
-        <div class="skill-group"><h3>Languages</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>Frontend</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native (Expo)</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>Backend &amp; data</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST APIs</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps &amp; integrations</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>Soft Skills</h3><div class="tags"><span class="tag">Team Collaboration</span><span class="tag">Problem Solving</span><span class="tag">Quick Learner</span><span class="tag">Adaptability</span><span class="tag">Time Management</span></div></div>
+        <div class="skill-group"><h3>Languages</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>Frontend</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native (Expo)</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>Backend &amp; data</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST APIs</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps &amp; integrations</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>Soft Skills</h3><div class="tags"><span class="tag">Team Leadership</span><span class="tag">Public Speaking</span><span class="tag">Event Coordination</span><span class="tag">Mentoring &amp; Coaching</span><span class="tag">Problem Solving</span></div></div>
       </section>
 
       <section class="side-card">
@@ -398,6 +426,10 @@
         <div class="fact">
           <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2023-2027</span></div>
           <p>Information Technology · University of Greenwich (UK) - Ho Chi Minh Campus · expected graduation 08/2027. Cumulative GPA 3.6/4.0.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>Youth Leader · Level 2</b><span class="level">2018-2025</span></div>
+          <p>My Tho Diocese · <a href="https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy">Executive Board<span class="ats-only"> (chanhtoa.tnttgiaophanmytho.online)</span></a> · 7 years of youth leadership, event coordination and training.</p>
         </div>
         <div class="fact">
           <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
@@ -421,7 +453,6 @@
     <div>
       <h1>黎家辉 <span class="name-alt">(Lê Gia Huy)</span></h1>
       <p class="role">全栈网站开发 · 正在寻找信息技术实习</p>
-      </div>
     </div>
     <div class="contact"><a href="mailto:contact@hugowishpax.studio"><b>邮箱</b> · contact@hugowishpax.studio</a><a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a><a href="https://www.hugowishpax.studio/introduction"><b>作品集</b> · www.hugowishpax.studio/introduction</a></div>
   </header>
@@ -435,7 +466,7 @@
 
       <section class="side-card">
         <h2 class="section-label">技能</h2>
-        <div class="skill-group"><h3>编程语言</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>前端</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native（Expo）</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>后端与数据</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST API</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps 与集成</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>软技能</h3><div class="tags"><span class="tag">团队协作</span><span class="tag">解决问题</span><span class="tag">自主学习</span><span class="tag">快速适应</span><span class="tag">时间管理</span></div></div>
+        <div class="skill-group"><h3>编程语言</h3><div class="tags"><span class="tag">JavaScript</span><span class="tag">TypeScript</span><span class="tag">Java</span><span class="tag">Python</span><span class="tag">HTML/CSS</span><span class="tag">SQL</span></div></div><div class="skill-group"><h3>前端</h3><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">React Native（Expo）</span><span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span></div></div><div class="skill-group"><h3>后端与数据</h3><div class="tags"><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">REST API</span><span class="tag">WebSocket</span><span class="tag">MongoDB</span><span class="tag">Firebase/Firestore</span><span class="tag">SQLite</span></div></div><div class="skill-group"><h3>DevOps 与集成</h3><div class="tags"><span class="tag">Git</span><span class="tag">Vercel</span><span class="tag">Render</span><span class="tag">Cloudflare</span><span class="tag">Netlify</span><span class="tag">Google OAuth</span><span class="tag">Cloudinary</span><span class="tag">Facebook Graph API</span></div></div><div class="skill-group"><h3>软技能</h3><div class="tags"><span class="tag">团队领导</span><span class="tag">公众演讲</span><span class="tag">活动统筹</span><span class="tag">指导与培训</span><span class="tag">解决问题</span></div></div>
       </section>
 
       <section class="side-card">
@@ -443,6 +474,10 @@
         <div class="fact">
           <div class="fact-top"><b>格林威治越南</b><span class="level">2023-2027</span></div>
           <p>信息技术 · 英国格林威治大学（胡志明校区） · 预计 2027 年 8 月毕业 · 目前累计 GPA 3.6/4.0。</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>青年团长 · 二级教理员</b><span class="level">2018-2025</span></div>
+          <p>美萩教区 · <a href="https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy">执行委员会<span class="ats-only"> (chanhtoa.tnttgiaophanmytho.online)</span></a> · 7年团队领导、活动统筹与青年培训。</p>
         </div>
         <div class="fact">
           <div class="fact-top"><b>英语</b><span class="level">VSTEP B2</span></div>
