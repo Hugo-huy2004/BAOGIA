@@ -4,11 +4,11 @@ import SecurityExamplesVideo from "../privacy/SecurityExamplesVideo";
 import AgeProtectionCard from "../privacy/AgeProtectionCard";
 import GuideArt from "../../pages/public/guideArt";
 import CommunicationDiagram from "./CommunicationDiagram";
+import DatabaseDiagram from "./DatabaseDiagram";
 
 /**
- * Cấu hình màu sắc, icon và đường viền chuẩn Apple Support Callout.
- * Thiết kế phân cấp rõ ràng: dải nhấn trái (accent pill) + squircle icon badge +
- * tiêu đề nổi bật + nội dung có độ tương phản cao, không bị phai mờ.
+ * Cấu hình màu sắc, icon và đường viền chuẩn Apple Technical Sheet & Reference Manual.
+ * Tông màu đơn sắc xanh kỹ thuật (Monochromatic Blue / Slate) với độ tương phản cao ở cả light/dark.
  */
 const TONE_CONFIG = {
   info: {
@@ -21,13 +21,13 @@ const TONE_CONFIG = {
     icon: "info",
   },
   tip: {
-    border: "border-emerald-500/20 dark:border-emerald-400/25",
-    bg: "bg-emerald-500/[0.04] dark:bg-emerald-500/[0.08]",
-    accent: "bg-emerald-500 dark:bg-emerald-400",
-    iconBg: "bg-emerald-500/10 dark:bg-emerald-400/15 border-emerald-500/25 text-emerald-600 dark:text-emerald-400",
-    titleColor: "text-emerald-950 dark:text-emerald-100",
+    border: "border-sky-500/20 dark:border-sky-400/25",
+    bg: "bg-sky-500/[0.04] dark:bg-sky-500/[0.08]",
+    accent: "bg-sky-500 dark:bg-sky-400",
+    iconBg: "bg-sky-500/10 dark:bg-sky-400/15 border-sky-500/25 text-sky-600 dark:text-sky-400",
+    titleColor: "text-sky-950 dark:text-sky-100",
     textColor: "text-slate-700 dark:text-slate-300",
-    icon: "check_circle",
+    icon: "verified",
   },
   warn: {
     border: "border-amber-500/25 dark:border-amber-400/25",
@@ -57,13 +57,18 @@ function getToneConfig(tone) {
 }
 
 /**
- * Một khối nội dung tài liệu chuẩn Apple Design:
- * - note: Apple Support Callout Card với icon squircle và dải nhấn bên lề
- * - cards: Lưới 2 cột cân bằng (5x2), layout ngang với icon squircle phóng to nhẹ khi hover
- * - diagram: Sơ đồ tương tác chuỗi giao tiếp kiến trúc
+ * Một khối nội dung tài liệu chuẩn Apple Design & Harvard Technical Report:
+ * - database-diagram: Sơ đồ ERD thực thể quan hệ cơ sở dữ liệu MongoDB
+ * - diagram: Sơ đồ tương tác chuỗi giao tiếp kiến trúc (Communication Sequence)
+ * - note: Apple Support Callout Card với dải nhấn bên lề và squircle icon badge
+ * - cards: Lưới 2 cột cân đối (5x2), layout ngang với icon squircle
  * - table, figure, faq, code, steps, list, external-links
  */
 export default function DocBlock({ block }) {
+  if (block.type === "database-diagram") {
+    return <DatabaseDiagram />;
+  }
+
   if (block.type === "diagram") {
     return <CommunicationDiagram flow={block.flow} />;
   }
@@ -87,18 +92,18 @@ export default function DocBlock({ block }) {
             <Tag
               key={item.title}
               {...props}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 p-4.5 sm:p-5 backdrop-blur-xs shadow-xs transition-all duration-200 ${
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-sky-500/15 dark:border-sky-500/20 bg-card/85 p-4.5 sm:p-5 backdrop-blur-xs shadow-xs transition-all duration-200 ${
                 hasLink
-                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card hover:shadow-md hover:shadow-primary/5"
+                  ? "cursor-pointer hover:-translate-y-0.5 hover:border-sky-500/50 hover:bg-card hover:shadow-md hover:shadow-sky-500/5"
                   : "hover:border-border"
               }`}
             >
               <div className="flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary shadow-xs transition-all duration-200 group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 shadow-xs transition-all duration-200 group-hover:scale-105 group-hover:bg-sky-500 group-hover:text-white">
                   <span className="material-symbols-outlined text-[22px]">{item.icon || "arrow_forward"}</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-[14.5px] sm:text-[15px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
+                  <h3 className="text-[14.5px] sm:text-[15px] font-bold tracking-tight text-foreground transition-colors group-hover:text-sky-600 dark:group-hover:text-sky-400">
                     {item.title}
                   </h3>
                   <p className="mt-1 text-xs sm:text-[13px] leading-relaxed text-muted-foreground">
@@ -107,12 +112,12 @@ export default function DocBlock({ block }) {
                 </div>
               </div>
               {item.badge && (
-                <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-xs font-semibold text-primary min-w-0">
-                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/15">
+                <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-xs font-semibold text-sky-600 dark:text-sky-400 min-w-0">
+                  <span className="inline-flex items-center rounded-full bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-600 dark:text-sky-400 border border-sky-500/15">
                     {item.badge}
                   </span>
                   {hasLink && (
-                    <span className="inline-flex items-center gap-1 text-xs text-primary transition-transform group-hover:translate-x-1">
+                    <span className="inline-flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 transition-transform group-hover:translate-x-1">
                       <span>Truy cập</span>
                       <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
                     </span>
@@ -172,10 +177,10 @@ export default function DocBlock({ block }) {
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex min-h-13 items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 px-4.5 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card hover:shadow-md"
+            className="group flex min-h-13 items-center justify-between gap-3 rounded-2xl border border-sky-500/15 dark:border-sky-500/20 bg-card/85 px-4.5 py-3 text-sm font-semibold text-foreground shadow-xs transition-all hover:-translate-y-0.5 hover:border-sky-500/40 hover:bg-card hover:shadow-md"
           >
-            <span className="transition-colors group-hover:text-primary">{item.label}</span>
-            <span className="material-symbols-outlined text-lg text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true">
+            <span className="transition-colors group-hover:text-sky-600 dark:group-hover:text-sky-400">{item.label}</span>
+            <span className="material-symbols-outlined text-lg text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-sky-500" aria-hidden="true">
               open_in_new
             </span>
           </a>
@@ -186,15 +191,15 @@ export default function DocBlock({ block }) {
 
   if (block.type === "code") {
     return (
-      <div className="overflow-hidden rounded-2xl border border-border bg-[#111218] text-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-sky-500/20 bg-[#090d16] text-white shadow-sm">
         {block.title && (
-          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 text-xs font-bold text-white/80">
-            <span className="material-symbols-outlined text-base" aria-hidden="true">code</span>
+          <div className="flex items-center gap-2 border-b border-sky-500/15 bg-sky-950/30 px-4 py-2.5 text-xs font-bold font-mono text-sky-400">
+            <span className="material-symbols-outlined text-base" aria-hidden="true">terminal</span>
             {block.title}
           </div>
         )}
-        <pre className="overflow-x-auto whitespace-pre-wrap break-words px-4 py-4 font-mono text-[11px] leading-6 text-white/85 sm:text-xs"><code>{block.code}</code></pre>
-        {block.text && <p className="border-t border-white/10 px-4 py-3 text-xs leading-relaxed text-white/60">{block.text}</p>}
+        <pre className="overflow-x-auto whitespace-pre-wrap break-words px-4 py-4 font-mono text-[11px] leading-6 text-slate-300 sm:text-xs"><code>{block.code}</code></pre>
+        {block.text && <p className="border-t border-white/10 bg-white/[0.02] px-4 py-3 text-xs leading-relaxed text-slate-400">{block.text}</p>}
       </div>
     );
   }
@@ -208,7 +213,7 @@ export default function DocBlock({ block }) {
       <ul className="space-y-2.5">
         {block.items.map((item) => (
           <li key={item} className="flex gap-3 text-[14.5px] leading-relaxed text-muted-foreground">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" aria-hidden="true" />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
             <span className="min-w-0">{item}</span>
           </li>
         ))}
@@ -221,7 +226,7 @@ export default function DocBlock({ block }) {
       <ol className="space-y-3">
         {block.items.map((item, index) => (
           <li key={item} className="flex gap-3 text-[14.5px] leading-relaxed text-muted-foreground">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/25 text-xs font-bold text-primary">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sky-500/10 ring-1 ring-sky-500/25 text-xs font-bold font-mono text-sky-600 dark:text-sky-400">
               {index + 1}
             </span>
             <span className="min-w-0 pt-0.5">{item}</span>
@@ -234,10 +239,10 @@ export default function DocBlock({ block }) {
   if (block.type === "table") {
     const wide = (block.head?.length || 0) > 2;
     return (
-      <div className="overflow-x-auto rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/60 backdrop-blur-xs shadow-xs">
+      <div className="overflow-x-auto rounded-2xl border border-sky-500/15 dark:border-sky-500/20 bg-card/70 backdrop-blur-xs shadow-xs">
         <table className={`w-full border-collapse text-left text-[13.5px] ${wide ? "min-w-[34rem]" : ""}`}>
           <thead>
-            <tr className="border-b border-border bg-muted/50">
+            <tr className="border-b border-border bg-sky-500/[0.04] dark:bg-sky-500/[0.08]">
               {block.head.map((cell) => (
                 <th key={cell} scope="col" className="px-4 py-3.5 font-bold tracking-tight text-foreground">{cell}</th>
               ))}
@@ -245,7 +250,7 @@ export default function DocBlock({ block }) {
           </thead>
           <tbody className="divide-y divide-border/60">
             {block.rows.map((row) => (
-              <tr key={row[0]} className="transition-colors hover:bg-muted/30 align-top">
+              <tr key={row[0]} className="transition-colors hover:bg-sky-500/[0.02] dark:hover:bg-sky-500/[0.05] align-top">
                 {row.map((cell, index) => (
                   <td key={index} className="px-4 py-3.5 leading-relaxed text-muted-foreground">{cell}</td>
                 ))}
@@ -259,7 +264,7 @@ export default function DocBlock({ block }) {
 
   if (block.type === "figure") {
     return (
-      <figure className="overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/80 shadow-xs">
+      <figure className="overflow-hidden rounded-2xl border border-sky-500/15 dark:border-sky-500/20 bg-card/85 shadow-xs">
         <div className="px-3 pt-3 sm:px-5 sm:pt-5">
           <GuideArt kind={block.art} />
         </div>
@@ -274,7 +279,7 @@ export default function DocBlock({ block }) {
 
   if (block.type === "faq") {
     return (
-      <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-black/[0.08] dark:border-white/10 bg-card/70 shadow-xs">
+      <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-sky-500/15 dark:border-sky-500/20 bg-card/80 shadow-xs">
         {block.items.map((item) => (
           <details key={item.q} className="group transition-colors hover:bg-muted/20">
             <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-5 py-4 text-[14.5px] font-bold text-foreground">
