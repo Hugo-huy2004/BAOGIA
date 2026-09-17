@@ -156,12 +156,9 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 
 ## Kỹ năng — xếp theo tầng kỹ thuật
 
-- **Ngôn ngữ** — JavaScript · TypeScript · Java · Python · HTML/CSS · SQL
-- **Frontend** — React · Next.js · React Native (Expo) · Tailwind CSS · PWA · Capacitor
-  (ghi chú in kèm: *responsive, chế độ tối, đa ngôn ngữ VI/EN/ZH; dựng giao diện thẳng trong trình duyệt*)
-- **Backend & dữ liệu** — Node.js · Express · REST API · WebSocket · MongoDB · Firebase/Firestore · SQLite
+- **Frontend & Di động** — JavaScript · TypeScript · HTML/CSS · React · Next.js · React Native (Expo) · Java (Android) · Tailwind CSS · PWA
+- **Backend & dữ liệu** — Node.js · Express · PHP · REST API · WebSocket · SQL · MongoDB · Firebase/Firestore · SQLite
 - **DevOps & tích hợp** — Git · Vercel · Render · Cloudflare · Netlify · Google OAuth · Cloudinary · Facebook Graph API
-  (ghi chú in kèm: *tự triển khai và vận hành sáu dự án trên production*)
 - **Kỹ năng mềm** — Lãnh đạo & quản lý nhóm · Lên ý tưởng sản phẩm · Thuyết trình & truyền đạt · Tổ chức & điều phối · Giải quyết vấn đề
   (minh chứng qua 7 năm Huynh trưởng - Giáo lý viên Cấp 2 thuộc Ban Điều Hành Xứ đoàn Chánh Tòa Mỹ Tho và điều phối dự án kỹ thuật)
 
