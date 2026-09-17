@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState, lazy, Suspense } from "react";
+import { useMemo, useEffect, useState, Suspense } from "react";
 import VerifiedProfilePanel from "../../components/public/VerifiedProfilePanel";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
@@ -7,21 +7,30 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-// Themes — lazy: một trang bio chỉ dùng ĐÚNG MỘT giao diện, nhưng import tĩnh
-// bắt khách tải cả ba (70 KB) trên một trang công khai. LivePreviewPage vốn đã
-// lazy đúng ba file này. Fallback dùng lại BioProfileSkeleton nên khách thấy
-// liền mạch một khung xương, không phải màn trắng.
-const DefaultTheme = lazy(() => import("../../components/themes/DefaultTheme"));
-const BrutalismTheme = lazy(() => import("../../components/themes/BrutalismTheme"));
-const FlatTheme = lazy(() => import("../../components/themes/FlatTheme"));
+// Universal Bio View: hỗ trợ 6 themes (Default, Frost, Graphite, Aurora, Brutalism, Flat) qua CSS
+import UniversalBioView from "../../components/themes/UniversalBioView";
 
 import { BioProfileSkeleton } from "../../components/ui/SkeletonLayouts";
 
 export default function BioPublicPage() {
   const { slug } = useParams();
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isCustomDomainHost = Boolean(
+    hostname &&
+    !["localhost", "127.0.0.1"].includes(hostname) &&
+    !hostname.endsWith("hugowishpax.studio") &&
+    !hostname.endsWith("vercel.app")
+  );
+
+  const swrKey = isCustomDomainHost ? `bio_domain_${hostname}` : slug ? `bio_${slug}` : null;
+
   const { data: bio, error, isLoading } = useSWR(
-    slug ? `bio_${slug}` : null,
+    swrKey,
     async () => {
+      if (isCustomDomainHost) {
+        const response = await dataApi.getBioByDomain(hostname);
+        return response.bio;
+      }
       const response = await dataApi.getBioBySlug(slug);
       return response.bio;
     },
@@ -31,13 +40,15 @@ export default function BioPublicPage() {
   const expired = error?.message === "Bio not found";
   const loading = isLoading;
 
+  const activeSlug = bio?.slug || slug;
+
   const [isOnline, setIsOnline] = useState(false);
   useEffect(() => {
     // Hỏi theo slug: trang công khai không còn cầm email của chủ Bio nữa.
-    if (!slug || !bio) return;
+    if (!activeSlug || !bio) return;
 
     const pollStatus = () => {
-      fetch(`${apiBase}/presence/status-by-slug?slug=${encodeURIComponent(slug)}`)
+      fetch(`${apiBase}/presence/status-by-slug?slug=${encodeURIComponent(activeSlug)}`)
         .then(r => r.json())
         .then(data => setIsOnline(!!data.online))
         .catch(() => {});
@@ -46,11 +57,19 @@ export default function BioPublicPage() {
     pollStatus();
     const interval = setInterval(pollStatus, 15000);
     return () => clearInterval(interval);
-  }, [slug, bio]);
+  }, [activeSlug, bio]);
 
-  // Initialize theme values early
-  const template = useMemo(() => bio?.theme?.template || "default", [bio]);
-  const canonicalUrl = `https://www.hugowishpax.studio/bio/${encodeURIComponent(slug || "")}`;
+  // Initialize theme values early (hỗ trợ xem trước qua URL query ?theme=...)
+  const template = useMemo(() => {
+    try {
+      const qTheme = new URLSearchParams(window.location.search).get("theme");
+      if (qTheme) return qTheme;
+    } catch (_) {}
+    return bio?.theme?.template || "workspace";
+  }, [bio]);
+  const canonicalUrl = isCustomDomainHost
+    ? `https://${hostname}`
+    : `https://www.hugowishpax.studio/bio/${encodeURIComponent(activeSlug || "")}`;
   // Trang Bio của thành viên dưới 18 không được đưa lên công cụ tìm kiếm.
   const unavailable = Boolean(error || bio?.status === "locked" || bio?.status === "pending" || bio?.isMinor);
 
@@ -105,14 +124,8 @@ export default function BioPublicPage() {
     );
   }
 
-  // Bảng hồ sơ có kiểm chứng nằm NGOÀI ba giao diện: nó tự ẩn khi chủ trang
-  // chưa bật công bố hoặc hết hạn thuê, nên đặt chung một chỗ là đủ cho cả ba
-  // thay vì sửa từng theme.
-  const themed = template === "flat"
-    ? <FlatTheme bio={bio} isOnline={isOnline} />
-    : template === "brutalism"
-      ? <BrutalismTheme bio={bio} isOnline={isOnline} />
-      : <DefaultTheme bio={bio} isOnline={isOnline} />;
+  // Bảng hồ sơ có kiểm chứng nằm NGOÀI giao diện: tự ẩn khi chưa bật công bố
+  const themed = <UniversalBioView bio={bio} isOnline={isOnline} customTemplate={template} />;
 
   return (
     <Suspense fallback={<BioProfileSkeleton />}>

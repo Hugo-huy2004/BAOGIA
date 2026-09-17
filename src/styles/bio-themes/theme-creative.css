@@ -1,0 +1,186 @@
+/**
+ * THEME: CREATIVE THEME (Vệt Sóng Màu Sáng Tạo - Liquid Glass Edition)
+ * ============================================================================
+ * Nền những dải sóng màu sắc rực rỡ sáng tạo đa sắc (Pop-Art Wave).
+ * 100% Các card sử dụng Liquid Glass trắng ngà đục cao cấp, giữ chữ và ảnh sắc nét tuyệt đối,
+ * không bị nhiễu nền, chuẩn mực thẩm mỹ hiện đại.
+ */
+
+[data-bio-theme="creative"].bio-canvas {
+  background-color: #fdf2f8;
+  background-image: url("/themes/bg-creative.png");
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 500px;
+  background-attachment: fixed;
+  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+}
+
+/* ── Ambient Layer ── */
+[data-bio-theme="creative"] .bio-film-ambient {
+  background: radial-gradient(circle at 50% 15%, rgba(236, 72, 153, 0.15), transparent 70%);
+}
+
+/* ── Avatar Gradient Nổi Bật ── */
+[data-bio-theme="creative"] .bio-avatar-wrapper {
+  padding: 4px;
+  background: linear-gradient(135deg, #06b6d4, #ec4899, #f59e0b);
+  border-radius: 50%;
+  box-shadow: 0 12px 30px rgba(236, 72, 153, 0.3);
+}
+
+[data-bio-theme="creative"] .bio-avatar {
+  border: 3px solid #ffffff;
+}
+
+[data-bio-theme="creative"] .bio-name {
+  color: #0f172a;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+}
+
+[data-bio-theme="creative"] .bio-slug {
+  color: #db2777;
+  background: rgba(253, 242, 248, 0.95);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+  font-weight: 600;
+}
+
+[data-bio-theme="creative"] .bio-headline {
+  color: #334155;
+}
+
+[data-bio-theme="creative"] .bio-pill-badge {
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.95);
+  color: #334155;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Quick Social Bar ── */
+[data-bio-theme="creative"] .bio-social-quick-btn {
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+[data-bio-theme="creative"] .bio-social-quick-btn:hover {
+  border-color: #ec4899;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 24px rgba(236, 72, 153, 0.25);
+}
+
+/* ── 100% THẺ LIQUID GLASS ĐỤC SẮC NÉT (CHỐNG NHIỄU NỀN) ── */
+[data-bio-theme="creative"] .bio-hero-liquid-card,
+[data-bio-theme="creative"] .bio-specs-sheet,
+[data-bio-theme="creative"] .bio-channel-pass,
+[data-bio-theme="creative"] .bio-icon-link-btn,
+[data-bio-theme="creative"] .bio-film-frame,
+[data-bio-theme="creative"] .bio-service-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 16px 40px -10px rgba(15, 23, 42, 0.08), inset 0 1px 2px rgba(255, 255, 255, 1);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+[data-bio-theme="creative"] .bio-statement-card {
+  background: #fdf2f8;
+  border: 1px solid #fce7f3;
+  border-left: 4px solid #ec4899;
+  border-radius: 16px;
+}
+
+[data-bio-theme="creative"] .bio-statement-text {
+  color: #1e293b;
+}
+
+[data-bio-theme="creative"] .bio-metric-cell,
+[data-bio-theme="creative"] .bio-meta-table {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+[data-bio-theme="creative"] .bio-metric-num,
+[data-bio-theme="creative"] .bio-meta-val {
+  color: #d946ef;
+}
+
+[data-bio-theme="creative"] .bio-skill-tag {
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  color: #be185d;
+}
+
+/* ── Links & Passes ── */
+[data-bio-theme="creative"] .bio-channel-icon-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-bio-theme="creative"] .bio-channel-label {
+  color: #0f172a;
+  font-weight: 750;
+}
+
+[data-bio-theme="creative"] .bio-channel-url-preview {
+  color: #64748b;
+}
+
+[data-bio-theme="creative"] .bio-channel-pass:hover {
+  border-color: #ec4899;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(236, 72, 153, 0.18);
+}
+
+/* ── Services ── */
+[data-bio-theme="creative"] .bio-section-caption {
+  color: #db2777;
+}
+
+[data-bio-theme="creative"] .bio-section-dash {
+  background: linear-gradient(90deg, transparent, #ec4899, transparent);
+  opacity: 0.45;
+}
+
+[data-bio-theme="creative"] .bio-service-title {
+  color: #0f172a;
+}
+
+[data-bio-theme="creative"] .bio-service-desc {
+  color: #475569;
+}
+
+[data-bio-theme="creative"] .bio-service-rate {
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #fbcfe8;
+}
+
+[data-bio-theme="creative"] .bio-service-inquire-btn {
+  background: #ec4899;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+}
+
+[data-bio-theme="creative"] .bio-service-inquire-btn:hover {
+  background: #db2777;
+}
+
+[data-bio-theme="creative"] .bio-service-inquire-btn.secondary {
+  background: #ffffff;
+  color: #ec4899;
+  border: 1.5px solid #fbcfe8;
+  box-shadow: none;
+}
+
+[data-bio-theme="creative"] .bio-frame-screen {
+  background: #fdf2f8;
+}

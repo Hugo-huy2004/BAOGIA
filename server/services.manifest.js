@@ -51,6 +51,8 @@ export const SERVICES = Object.freeze([
   { id: "email", prefix: "/api/email", module: "./routes/emailRoutes.js" },
   { id: "contact", prefix: "/api/contact", module: "./routes/contactRoutes.js" },
   { id: "data", prefix: "/api/data", module: "./routes/dataRoutes.js", cacheable: true },
+  { id: "legal-docs", prefix: "/api/legal-docs", module: "./routes/legalDocRoutes.js", public: true, cacheable: true },
+  { id: "bio-themes", prefix: "/api/bios/themes", module: "./routes/bioThemeRoutes.js", public: true, cacheable: true },
   { id: "bios", prefix: "/api/bios", module: "./routes/bioRoutes.js", cacheable: true },
   { id: "profile", prefix: "/api/profile", module: "./routes/profileRoutes.js" },
   { id: "friends", prefix: "/api/friends", module: "./routes/friendRoutes.js" },

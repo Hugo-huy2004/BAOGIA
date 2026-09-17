@@ -1,0 +1,19 @@
+/**
+ * HUGO BIO THEMES INDEX (6 THEMES ĐỘC BẢN CHUẨN)
+ * ============================================================================
+ * Nguồn tổng hợp 6 themes CSS chính thức của Hugo Studio:
+ * 1. Edu: Nền giáo dục 2D vẽ tay nghệ thuật
+ * 2. WorkSpace: Nền icon mặt cười 2D pastel tươi vui
+ * 3. Sunset: Nền mặt trời art 2D biển hoàng hôn
+ * 4. Brutalism: Đột phá cá tính (Neo Brutalism vàng + viền đen 3px)
+ * 5. Creative: Nền vệt sóng màu sắc sáng tạo rực rỡ
+ * 6. Studio: Hugo Studio Signature chuẩn điện ảnh độc bản
+ */
+
+@import "./bio-base.css";
+@import "./theme-edu.css";
+@import "./theme-workspace.css";
+@import "./theme-sunset.css";
+@import "./theme-brutalism.css";
+@import "./theme-creative.css";
+@import "./theme-studio.css";

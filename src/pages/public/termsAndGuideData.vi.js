@@ -3,6 +3,8 @@
  * Tiêu chuẩn Harvard Citation & Apple Technical Whitepaper
  */
 
+import { COMM_DIAGRAMS_VI, DB_DIAGRAM_VI } from "./diagramData.vi.js";
+
 export const UPDATED_AT_VI = "17/09/2026";
 
 export const META_VI = {
@@ -155,6 +157,7 @@ export const SECTIONS_VI = [
         {
           type: "diagram",
           flow: "particle-qr",
+          diagramData: COMM_DIAGRAMS_VI["particle-qr"],
         },
         {
           type: "cards",
@@ -251,6 +254,7 @@ export const SECTIONS_VI = [
         },
         {
           type: "database-diagram",
+          diagramData: DB_DIAGRAM_VI,
         },
         {
           type: "table",
@@ -369,6 +373,7 @@ export const SECTIONS_VI = [
         {
           type: "diagram",
           flow: "pwa-lifecycle",
+          diagramData: COMM_DIAGRAMS_VI["pwa-lifecycle"],
         },
         {
           type: "figure",
@@ -397,21 +402,21 @@ export const SECTIONS_VI = [
       blocks: [
         {
           type: "p",
-          text: "Hugo Studio áp dụng tiêu chuẩn an toàn thông tin theo triết lý 'Privacy by Design' (Bảo vệ quyền riêng tư ngay từ bản vẽ kiến trúc). Hệ sinh thái kiên quyết loại bỏ cơ chế xác thực bằng mật khẩu tĩnh truyền thống — nguồn gốc của hơn 80% các vụ rò rỉ dữ liệu trên thế giới — để chuyển dịch hoàn toàn sang chuẩn mật mã khóa công khai WebAuthn / FIDO2 (FIDO Alliance, 2023). Dưới đây là phân tích chứng minh toàn diện theo phương pháp luận nghiên cứu khoa học 5W1H:",
+          text: "Hugo Studio áp dụng tiêu chuẩn an toàn thông tin theo triết lý 'Privacy by Design' (Bảo vệ quyền riêng tư ngay từ bản vẽ kiến trúc). Hệ sinh thái kiên quyết loại bỏ cơ chế xác thực bằng mật khẩu tĩnh truyền thống — nguồn gốc của hơn 80% các vụ rò rỉ dữ liệu trên thế giới — để chuyển dịch hoàn toàn sang chuẩn mật mã khóa công khai WebAuthn / FIDO2 (FIDO Alliance, 2023). Dưới đây là phân tích chứng minh toàn diện:",
         },
 
         // ----------------------------------------------------
-        // KHUNG NGHIÊN CỨU 5W1H: MẬT MÃ HỌC WEBAUTHN / PASSKEY
+        // KHUNG PHÂN TÍCH: MẬT MÃ HỌC WEBAUTHN / PASSKEY
         // ----------------------------------------------------
         {
           type: "subheading",
-          badge: "NGHIÊN CỨU 5W1H",
-          title: "Khung Luận giải Khoa học 5W1H: Kỹ thuật Mật mã học Khóa Công khai Passkey (FIDO2)",
-          desc: "Hệ thống hóa toàn diện phương pháp nghiên cứu bảo mật từ bản chất toán học, mô hình đe dọa đến không gian thực thi phần cứng.",
+          badge: "PHÂN TÍCH CHUYÊN SÂU",
+          title: "Luận giải Kỹ thuật: Mật mã học Khóa Công khai Passkey (FIDO2)",
+          desc: "Hệ thống hóa toàn diện cơ chế bảo mật từ bản chất toán học, mô hình đe dọa đến không gian thực thi phần cứng.",
         },
         {
           type: "table",
-          head: ["Câu hỏi Khoa học (5W1H)", "Cơ sở Lý thuyết Mật mã học & Tiêu chuẩn Quốc tế", "Hiện thực hóa Kỹ thuật tại Hugo Studio"],
+          head: ["Câu hỏi Kiến trúc", "Cơ sở Lý thuyết Mật mã học & Tiêu chuẩn Quốc tế", "Hiện thực hóa Kỹ thuật tại Hugo Studio"],
           rows: [
             [
               "WHAT (Bản chất là gì?)",
@@ -521,6 +526,7 @@ export function verifyPasskeyAssertion({
         {
           type: "diagram",
           flow: "passkey",
+          diagramData: COMM_DIAGRAMS_VI["passkey"],
         },
         {
           type: "figure",
@@ -545,7 +551,7 @@ export function verifyPasskeyAssertion({
       pillar: "stress-defense",
       pillarTitle: "Chuyên mục VI: Phản biện Kiến trúc & Chịu tải Cực hạn",
       pillarIcon: "psychology_alt",
-      pillarDesc: "Báo cáo khoa học giải trình 3 bài toán cực hạn: 1.000.000 sinh viên truy cập đồng thời, phân tán toàn cầu và ứng phó khi loãng mạng / sập server.",
+      pillarDesc: "Báo cáo giải trình 3 bài toán cực hạn: 1.000.000 sinh viên truy cập đồng thời, phân tán toàn cầu và ứng phó khi loãng mạng / sập server.",
       blocks: [
         {
           type: "p",
@@ -553,17 +559,17 @@ export function verifyPasskeyAssertion({
         },
 
         // ----------------------------------------------------
-        // KHUNG NGHIÊN CỨU 5W1H: CHỊU TẢI 1M CCU & PHỤC HỒI
+        // KHUNG PHÂN TÍCH: CHỊU TẢI 1M CCU & PHỤC HỒI
         // ----------------------------------------------------
         {
           type: "subheading",
-          badge: "NGHIÊN CỨU 5W1H",
-          title: "Khung Luận giải Khoa học 5W1H: Khả năng Chịu tải 1.000.000 CCU & Phục hồi Cực hạn",
-          desc: "Hệ thống hóa toàn diện bài toán mở rộng quy mô triệu người dùng theo chuẩn luận án kỹ thuật phần mềm và hệ phân tán.",
+          badge: "PHÂN TÍCH CHUYÊN SÂU",
+          title: "Luận giải Kỹ thuật: Khả năng Chịu tải 1.000.000 CCU & Phục hồi Cực hạn",
+          desc: "Hệ thống hóa toàn diện bài toán mở rộng quy mô triệu người dùng theo chuẩn kỹ thuật phần mềm và hệ phân tán.",
         },
         {
           type: "table",
-          head: ["Câu hỏi Khoa học (5W1H)", "Cơ sở Lý thuyết Hệ Phân tán & Định luật Vật lý", "Hiện thực hóa Kiến trúc tại Hugo Studio"],
+          head: ["Câu hỏi Kiến trúc", "Cơ sở Lý thuyết Hệ Phân tán & Định luật Vật lý", "Hiện thực hóa Kiến trúc tại Hugo Studio"],
           rows: [
             [
               "WHAT (Bản chất là gì?)",
@@ -630,6 +636,7 @@ export function verifyPasskeyAssertion({
         {
           type: "diagram",
           flow: "scale-1m",
+          diagramData: COMM_DIAGRAMS_VI["scale-1m"],
         },
         {
           type: "note",
@@ -786,6 +793,7 @@ spec:
         {
           type: "diagram",
           flow: "global-latency",
+          diagramData: COMM_DIAGRAMS_VI["global-latency"],
         },
         {
           type: "table",
@@ -855,6 +863,7 @@ spec:
         {
           type: "diagram",
           flow: "circuit-breaker",
+          diagramData: COMM_DIAGRAMS_VI["circuit-breaker"],
         },
         {
           type: "table",
@@ -1055,6 +1064,7 @@ spec:
         {
           type: "diagram",
           flow: "third-party",
+          diagramData: COMM_DIAGRAMS_VI["third-party"],
         },
         {
           type: "table",
@@ -1083,6 +1093,7 @@ spec:
         {
           type: "diagram",
           flow: "payos",
+          diagramData: COMM_DIAGRAMS_VI["payos"],
         },
       ],
     },

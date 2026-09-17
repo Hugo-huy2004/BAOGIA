@@ -15,7 +15,7 @@ const apiUrl = () => {
 
 const ROWS = {
   pin: { icon: "password", vi: "Mã PIN giao dịch", desc: "Bảo vệ mọi lệnh chuyển JOY" },
-  money2fa: { icon: "verified_user", vi: "Xác thực 2 lớp cho giao dịch lớn", desc: "PIN + mã email khi chuyển số tiền lớn" },
+  money2fa: { icon: "verified_user", vi: "Xác thực 2 lớp cho giao dịch lớn", desc: "PIN + mã email khi chuyển JOY lớn" },
   hold: { icon: "shield_person", vi: "Rà soát giao dịch bất thường", desc: "Giao dịch lạ được giữ lại kiểm tra trước" },
   wallet: { icon: "account_balance_wallet", vi: "Ví đang hoạt động", desc: "Ví không bị khoá" },
 };

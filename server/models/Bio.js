@@ -20,6 +20,20 @@ const BioSchema = new mongoose.Schema(
       unique: true,
       index: true
     },
+    customDomain: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+      index: true,
+      default: null
+    },
+    customDomainStatus: {
+      type: String,
+      enum: ['none', 'pending', 'active'],
+      default: 'none'
+    },
     headline: {
       type: String,
       default: ''
@@ -175,9 +189,7 @@ const BioSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      default: '',
-      set: sealField,
-      get: unsealField
+      default: ''
     },
     // Riêng tư: không thuộc danh sách trường của trang Bio công khai.
     exactAddress: { type: String, default: '' },
@@ -780,14 +792,6 @@ BioSchema.index(
 );
 
 const SENSITIVE_FIELDS = [
-  'height',
-  'weight',
-  'measurements',
-  'address',
-  'education',
-  'skills',
-  'jobTitle',
-  'birthday',
   'exactAddress',
   'adminArea',
   'locality',

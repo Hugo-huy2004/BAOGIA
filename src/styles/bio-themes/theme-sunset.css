@@ -1,0 +1,193 @@
+/**
+ * THEME: SUNSET ART 2D (Hoàng Hôn Biển Nghệ Thuật - Liquid Glass Edition)
+ * ============================================================================
+ * Nền mặt trời lặn trên đại dương 2D phong cách Art Deco tối giản.
+ * 100% Các card sử dụng Dark Liquid Glass thủy tinh trong suốt phản chiếu ánh hoàng hôn.
+ */
+
+[data-bio-theme="sunset"].bio-canvas {
+  background-color: #1e1b4b;
+  background-image: url("/themes/bg-sunset.png");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+}
+
+/* ── Ambient Layer ── */
+[data-bio-theme="sunset"] .bio-film-ambient {
+  background: radial-gradient(circle at 50% 25%, rgba(244, 63, 94, 0.2), transparent 70%);
+}
+
+/* ── Avatar Hoàng Hôn ── */
+[data-bio-theme="sunset"] .bio-avatar-wrapper {
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 36px rgba(225, 29, 72, 0.35);
+}
+
+[data-bio-theme="sunset"] .bio-name {
+  color: #ffffff;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-bio-theme="sunset"] .bio-slug {
+  color: #fecdd3;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+[data-bio-theme="sunset"] .bio-headline {
+  color: #fed7aa;
+}
+
+[data-bio-theme="sunset"] .bio-pill-badge {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.65);
+  color: #f1f5f9;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* ── Quick Social Bar ── */
+[data-bio-theme="sunset"] .bio-social-quick-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(14px);
+  color: #0f172a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+[data-bio-theme="sunset"] .bio-social-quick-btn:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(244, 63, 94, 0.4);
+}
+
+/* ── 100% THẺ LIQUID GLASS DARK (BẢO VỆ CHỮ RÕ NÉT) ── */
+[data-bio-theme="sunset"] .bio-hero-liquid-card,
+[data-bio-theme="sunset"] .bio-specs-sheet,
+[data-bio-theme="sunset"] .bio-channel-pass,
+[data-bio-theme="sunset"] .bio-icon-link-btn,
+[data-bio-theme="sunset"] .bio-film-frame,
+[data-bio-theme="sunset"] .bio-service-card {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  color: #f8fafc;
+}
+
+[data-bio-theme="sunset"] .bio-section-caption {
+  color: #fb7185;
+}
+
+[data-bio-theme="sunset"] .bio-section-dash {
+  background: linear-gradient(90deg, transparent, #fb7185, transparent);
+  opacity: 0.5;
+}
+
+[data-bio-theme="sunset"] .bio-statement-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 4px solid #f43f5e;
+}
+
+[data-bio-theme="sunset"] .bio-statement-text {
+  color: #f1f5f9;
+}
+
+[data-bio-theme="sunset"] .bio-metric-cell,
+[data-bio-theme="sunset"] .bio-meta-table {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+[data-bio-theme="sunset"] .bio-metric-num,
+[data-bio-theme="sunset"] .bio-meta-val {
+  color: #fb923c;
+}
+
+[data-bio-theme="sunset"] .bio-metric-lbl,
+[data-bio-theme="sunset"] .bio-meta-lbl {
+  color: #cbd5e1;
+}
+
+[data-bio-theme="sunset"] .bio-skill-tag {
+  background: rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: #fecdd3;
+}
+
+/* ── Links & Passes ── */
+[data-bio-theme="sunset"] .bio-channel-icon-box {
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+[data-bio-theme="sunset"] .bio-channel-label {
+  color: #ffffff;
+  font-weight: 750;
+}
+
+[data-bio-theme="sunset"] .bio-channel-url-preview {
+  color: #94a3b8;
+}
+
+[data-bio-theme="sunset"] .bio-channel-arrow {
+  color: #f43f5e;
+}
+
+[data-bio-theme="sunset"] .bio-channel-pass:hover {
+  border-color: rgba(244, 63, 94, 0.6);
+  background: rgba(30, 41, 59, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(244, 63, 94, 0.25);
+}
+
+/* ── Services ── */
+[data-bio-theme="sunset"] .bio-service-title {
+  color: #ffffff;
+}
+
+[data-bio-theme="sunset"] .bio-service-desc {
+  color: #cbd5e1;
+}
+
+[data-bio-theme="sunset"] .bio-service-rate {
+  background: rgba(244, 63, 94, 0.25);
+  color: #fecdd3;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+[data-bio-theme="sunset"] .bio-service-inquire-btn {
+  background: #f43f5e;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+}
+
+[data-bio-theme="sunset"] .bio-service-inquire-btn:hover {
+  background: #e11d48;
+}
+
+[data-bio-theme="sunset"] .bio-service-inquire-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+}
+
+[data-bio-theme="sunset"] .bio-frame-screen {
+  background: rgba(0, 0, 0, 0.4);
+}

@@ -66,11 +66,11 @@ function getToneConfig(tone) {
  */
 export default function DocBlock({ block }) {
   if (block.type === "database-diagram") {
-    return <DatabaseDiagram />;
+    return <DatabaseDiagram data={block.diagramData} />;
   }
 
   if (block.type === "diagram") {
-    return <CommunicationDiagram flow={block.flow} />;
+    return <CommunicationDiagram data={block.diagramData} />;
   }
 
   if (block.type === "cards") {

@@ -3,19 +3,21 @@
  * 遵循哈佛文献引用规范 (Harvard Referencing) 与 苹果系统设计规范 (Apple Technical Whitepaper)
  */
 
+import { COMM_DIAGRAMS_ZH, DB_DIAGRAM_ZH } from "./diagramData.zh.js";
+
 export const UPDATED_AT_ZH = "2026年9月17日";
 
 export const META_ZH = {
   title: "服务条款与系统架构指南 | Hugo Studio 系统工程研究报告",
   description:
-    "基于哈佛学术规范与苹果技术白皮书标准的 Hugo Studio 系统架构报告与用户指南。涵盖100万CCU高并发防卫、全球Anycast延迟拓扑、5W1H实证检验及断网自愈架构。",
+    "基于哈佛学术规范与苹果技术白皮书标准的 Hugo Studio 系统架构报告与用户指南。涵盖100万CCU高并发防卫、全球Anycast延迟拓扑、深度技术实证检验及断网自愈架构。",
   keywords:
-    "Hugo Studio, 服务条款, 用户指南, 架构答辩, 100万CCU, 数据库关系图, ERD, PWA, 通行密钥, Passkey, JOY钱包, WebAuthn, PayOS, 哈佛学术引用, 5W1H",
+    "Hugo Studio, 服务条款, 用户指南, 架构答辩, 100万CCU, 数据库关系图, ERD, PWA, 通行密钥, Passkey, JOY钱包, WebAuthn, PayOS, 哈佛学术引用",
   eyebrow: "系统架构工程研究报告与技术白皮书",
   version: "v2.5.0 (哈佛与苹果设计规范)",
   pageTitle: "服务条款与系统架构指南",
   intro:
-    "Hugo Studio 生态系统的深度系统架构报告与全功能用户手册。深度融合针对1,000,000 CCU高并发抗压答辩的 5W1H 科学论证、断网物理隔离自愈架构，以及严格遵循哈佛规范的学术参考文献。",
+    "Hugo Studio 生态系统的深度系统架构报告与全功能用户手册。深度融合针对1,000,000 CCU高并发抗压答辩的全面技术论证、断网物理隔离自愈架构，以及严格遵循哈佛规范的学术参考文献。",
   footerLeft: "© 2026 Hugo Studio. 研发与系统架构设计：黎家辉 (Hugo Le).",
   footerRight: "安全内生设计 • 隐私优先 • 渐进式Web应用 (PWA)",
 };
@@ -145,6 +147,7 @@ export const SECTIONS_ZH = [
       {
         type: "diagram",
         flow: "joy-transfer",
+        diagramData: COMM_DIAGRAMS_ZH["joy-transfer"],
       },
       {
         type: "cards",
@@ -241,6 +244,7 @@ export const SECTIONS_ZH = [
       },
       {
         type: "database-diagram",
+        diagramData: DB_DIAGRAM_ZH,
       },
       {
         type: "table",
@@ -364,6 +368,7 @@ export const SECTIONS_ZH = [
       {
         type: "diagram",
         flow: "sw-offline",
+        diagramData: COMM_DIAGRAMS_ZH["sw-offline"],
       },
       {
         type: "figure",
@@ -380,29 +385,29 @@ export const SECTIONS_ZH = [
   },
 
   // ==========================================
-  // 专题 5: 安全工程、密码学与5W1H协议握手
+  // 专题 5: 安全工程、密码学与协议握手
   // ==========================================
   {
     id: "bao-mat-va-mat-ma-hoc",
-    title: "安全工程、密码学与 5W1H 协议握手实证",
+    title: "安全工程、密码学与协议握手实证",
     pillar: "security",
-    pillarTitle: "专题五：安全工程、密码学与 5W1H 实证",
+    pillarTitle: "专题五：安全工程与密码学",
     pillarIcon: "lock",
-    pillarDesc: "FIDO2/WebAuthn 非对称生物识别认证体系、TLS 1.3 通道加密及 5W1H 科学论证分析。",
+    pillarDesc: "FIDO2/WebAuthn 非对称生物识别认证体系、TLS 1.3 通道加密及深度技术论证分析。",
     blocks: [
       {
         type: "p",
-        text: "Hugo Studio 在信息安全领域严格贯彻'内生隐私设计 (Privacy by Design)'信条。系统彻底淘汰了导致全球超过 80% 数据泄露根源的传统静态密码认证方案，全面跃升至 W3C Web Authentication Level 2 / FIDO2 非对称公钥密码学体系 (FIDO Alliance, 2023)。以下为基于 5W1H 科学研究方法论构建的系统级论证：",
+        text: "Hugo Studio 在信息安全领域严格贯彻'内生隐私设计 (Privacy by Design)'信条。系统彻底淘汰了导致全球超过 80% 数据泄露根源的传统静态密码认证方案，全面跃升至 W3C Web Authentication Level 2 / FIDO2 非对称公钥密码学体系 (FIDO Alliance, 2023)。以下为全面的系统级技术论证：",
       },
       {
         type: "subheading",
-        badge: "5W1H 科学实证分析",
-        title: "5W1H 科学论证矩阵：WebAuthn / Passkey 非对称密码学认证体系",
-        desc: "严格遵循计算机科学学术规范，从数学理论基础、威胁对抗模型至底层硬件边界进行全面实证剖析。",
+        badge: "深度技术分析",
+        title: "技术论证矩阵：WebAuthn / Passkey 非对称密码学认证体系",
+        desc: "严格遵循计算机学术规范，从数学理论基础、威胁对抗模型至底层硬件边界进行全面实证剖析。",
       },
       {
         type: "table",
-        head: ["5W1H 研究问题", "密码学理论与国际标准规范", "Hugo Studio 工程落地实现方案"],
+        head: ["架构核心问题", "密码学理论与国际标准规范", "Hugo Studio 工程落地实现方案"],
         rows: [
           [
             "WHAT (技术本质是什么)",
@@ -512,6 +517,7 @@ export function verifyPasskeyAssertion({
       {
         type: "diagram",
         flow: "passkey",
+        diagramData: COMM_DIAGRAMS_ZH["passkey"],
       },
       {
         type: "figure",
@@ -528,11 +534,11 @@ export function verifyPasskeyAssertion({
   },
 
   // ==========================================
-  // 专题 6: 架构答辩：100万并发CCU、全球Anycast与5W1H容灾自愈
+  // 专题 6: 架构答辩：100万并发CCU、全球Anycast与容灾自愈
   // ==========================================
   {
     id: "phan-bien-va-chiu-tai",
-    title: "架构答辩：1,000,000 CCU 高并发承载、全球 Anycast 延迟与 5W1H 容灾自愈",
+    title: "架构答辩：1,000,000 CCU 高并发承载、全球 Anycast 延迟与容灾自愈",
     pillar: "stress-defense",
     pillarTitle: "专题六：系统架构学术答辩与极端抗压",
     pillarIcon: "psychology_alt",
@@ -540,17 +546,17 @@ export function verifyPasskeyAssertion({
     blocks: [
       {
         type: "p",
-        text: "在计算机科学与系统工程答辩中，可伸缩性 (Scalability) 与容错能力 (Fault Tolerance) 是衡量生产架构优劣的终极试金石 (Brewer, 2012; Kleppmann, 2017)。以下立足 Linux 内核底层调优至全球 Anycast 边缘拓扑，对三大极端工况展开详尽的定量与定性学术答辩：",
+        text: "在系统工程答辩中，可伸缩性 (Scalability) 与容错能力 (Fault Tolerance) 是衡量生产架构优劣的终极试金石 (Brewer, 2012; Kleppmann, 2017)。以下立足 Linux 内核底层调优至全球 Anycast 边缘拓扑，对三大极端工况展开详尽的定量与定性技术答辩：",
       },
       {
         type: "subheading",
-        badge: "5W1H 架构答辩矩阵",
-        title: "5W1H 科学论证矩阵：100万 CCU 极限并发与灾难恢复工程",
+        badge: "架构答辩矩阵",
+        title: "技术论证矩阵：100万 CCU 极限并发与灾难恢复工程",
         desc: "全面参照分布式系统理论、物理光学传输极限与实测基准数据构建的完整系统工程防御方案。",
       },
       {
         type: "table",
-        head: ["5W1H 研究问题", "分布式系统理论与物理法则依据", "Hugo Studio 工程落地架构实现"],
+        head: ["架构核心问题", "分布式系统理论与物理法则依据", "Hugo Studio 工程落地架构实现"],
         rows: [
           [
             "WHAT (技术挑战本质)",
@@ -615,6 +621,7 @@ export function verifyPasskeyAssertion({
       {
         type: "diagram",
         flow: "scale-1m",
+        diagramData: COMM_DIAGRAMS_ZH["scale-1m"],
       },
       {
         type: "note",
@@ -729,6 +736,7 @@ spec:
       {
         type: "diagram",
         flow: "global-latency",
+        diagramData: COMM_DIAGRAMS_ZH["global-latency"],
       },
       {
         type: "table",
@@ -776,6 +784,7 @@ spec:
       {
         type: "diagram",
         flow: "circuit-breaker",
+        diagramData: COMM_DIAGRAMS_ZH["circuit-breaker"],
       },
       {
         type: "table",
@@ -811,7 +820,7 @@ spec:
       },
       {
         type: "table",
-        head: ["客户端核心性能指标项", "真实环境下捕获的实测数据值", "Google 核心网页指标评级规范 (CWV)", "科学严谨性学术评估结论"],
+        head: ["客户端核心性能指标项", "真实环境下捕获的实测数据值", "Google 核心网页指标评级规范 (CWV)", "技术评估结论"],
         rows: [
           ["首字节时间 (TTFB)", "3.10 ms", "< 800 ms (优秀区间)", "表现绝佳 (直接命中本地离线缓存极速响应)"],
           ["首次内容绘制 (FCP)", "324 ms", "< 1,800 ms (优秀区间)", "在 0.32 秒内完成第一帧视觉界面绘制渲染"],
@@ -951,6 +960,7 @@ spec:
       {
         type: "diagram",
         flow: "third-party",
+        diagramData: COMM_DIAGRAMS_ZH["third-party"],
       },
       {
         type: "table",
@@ -975,6 +985,11 @@ spec:
             "Cloudflare 全球隐私保护宪章",
           ],
         ],
+      },
+      {
+        type: "diagram",
+        flow: "payos",
+        diagramData: COMM_DIAGRAMS_ZH["payos"],
       },
       {
         type: "external-links",

@@ -1,0 +1,870 @@
+/**
+ * BIO BASE STYLES (STUDIO PRODUCT PROFILE - LIQUID GLASS ARCHITECTURE)
+ * ============================================================================
+ * Cấu trúc semantic cho hiển thị hồ sơ cá nhân độc bản chuẩn Apple iOS Liquid Glass.
+ * - Tuyệt đối không dùng sidebar.
+ * - 100% Các card sử dụng Liquid Glass phân tầng, bảo vệ chữ và thông tin nổi bật rõ ràng.
+ * - Icon mạng xã hội hiển thị chính xác màu sắc thương hiệu của từng nền tảng (TikTok 3D Cyan/Red).
+ * - Hiệu ứng slide-up mượt mà khi vuốt/cuộn màn hình.
+ * - Bố cục thông minh, hoàn hảo trên cả Desktop lẫn Mobile.
+ */
+
+.bio-film-canvas {
+  width: 100%;
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 1.75rem 0.875rem 5rem;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+@media (min-width: 640px) {
+  .bio-film-canvas {
+    padding: 3rem 1.5rem 6rem;
+  }
+}
+
+/* Ambient Backdrop Glow */
+.bio-film-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ── Frosted Grain Scrim Layer (Lớp nhám mờ nghệ thuật phủ hình nền) ── */
+.bio-frosted-scrim-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  backdrop-filter: blur(1.5px) saturate(115%);
+  -webkit-backdrop-filter: blur(1.5px) saturate(115%);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-bio-theme="sunset"] .bio-frosted-scrim-layer,
+[data-bio-theme="studio"] .bio-frosted-scrim-layer {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.bio-frosted-grain-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+[data-bio-theme="studio"] .bio-frosted-grain-overlay {
+  opacity: 0.075;
+}
+
+/* ── Hugo Studio Cinematic Projector Spotlight & Framing ── */
+.bio-studio-spotlight {
+  position: fixed;
+  top: -20rem;
+  left: -20rem;
+  width: 45rem;
+  height: 45rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, rgba(59, 130, 246, 0.04) 40%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 2;
+  will-change: transform;
+  opacity: 0.8;
+}
+
+.bio-studio-frame {
+  display: none;
+  position: fixed;
+  inset: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 1.25rem;
+  pointer-events: none;
+  z-index: 25;
+}
+
+@media (min-width: 1024px) {
+  [data-bio-theme="studio"] .bio-studio-frame {
+    display: block;
+  }
+}
+
+/* ── The Studio Flow Container ── */
+.bio-film-flow {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .bio-film-flow {
+    gap: 2.25rem;
+  }
+}
+
+/* ── Scene / Section Block ── */
+.bio-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  position: relative;
+  width: 100%;
+}
+
+/* ── HIỆU ỨNG TRƯỢT NỔI (SLIDE-UP FILM SCROLL REVEAL) ── */
+@keyframes bioFilmSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bio-slide-in {
+  animation: bioFilmSlideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bio-scene:nth-child(1) { animation-delay: 0.04s; }
+.bio-scene:nth-child(2) { animation-delay: 0.14s; }
+.bio-scene:nth-child(3) { animation-delay: 0.24s; }
+.bio-scene:nth-child(4) { animation-delay: 0.34s; }
+.bio-scene:nth-child(5) { animation-delay: 0.44s; }
+.bio-scene:nth-child(6) { animation-delay: 0.54s; }
+
+/* Section Title Caption (Nhìn là hiểu) */
+.bio-section-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  padding-left: 0.4rem;
+}
+
+/* ── 1. THẺ LIQUID GLASS HERO PROFILE (BẢO VỆ CHỮ NỔI BẬT 100%) ── */
+.bio-hero-liquid-card {
+  width: 100%;
+  padding: 2rem 1.25rem 1.65rem;
+  border-radius: 28px;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.08), inset 0 1px 1.5px rgba(255, 255, 255, 0.8);
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .bio-hero-liquid-card {
+    padding: 2.5rem 1.75rem 2rem;
+  }
+}
+
+.bio-hero-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.15rem;
+  width: 100%;
+}
+
+.bio-avatar-frame {
+  position: relative;
+  display: inline-flex;
+}
+
+.bio-avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.bio-avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .bio-avatar {
+    width: 112px;
+    height: 112px;
+  }
+}
+
+.bio-avatar:hover {
+  transform: scale(1.04);
+}
+
+.bio-avatar-placeholder {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: rgba(128, 128, 128, 0.15);
+}
+
+.bio-online-indicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+}
+
+.bio-online-indicator.is-online {
+  background-color: #10b981;
+}
+
+.bio-online-indicator.is-offline {
+  background-color: #94a3b8;
+}
+
+.bio-identity-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.bio-name {
+  font-size: 1.85rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  margin: 0;
+  line-height: 1.2;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .bio-name {
+    font-size: 2.15rem;
+  }
+}
+
+.bio-slug {
+  font-size: 0.825rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.bio-headline {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0.3rem 0 0;
+  max-width: 480px;
+  word-break: break-word;
+}
+
+.bio-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.bio-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.725rem;
+  font-weight: 600;
+}
+
+/* ── Quick Social Bar (Icon chuẩn màu thương hiệu) ── */
+.bio-social-quick-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.bio-social-quick-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.bio-social-quick-btn:hover {
+  transform: translateY(-3px) scale(1.08);
+}
+
+/* ── 2. Hồ Sơ & Thông Số Kỹ Thuật (LIQUID GLASS SPECS SHEET) ── */
+.bio-specs-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.35rem;
+  border-radius: 32px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .bio-specs-sheet {
+    padding: 1.65rem;
+  }
+}
+
+.bio-section-dash {
+  width: 44px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  opacity: 0.2;
+  margin: 0 auto 0.25rem;
+}
+
+.bio-statement-card {
+  padding: 1.25rem 1.35rem;
+  border-radius: 18px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.bio-statement-mark.left {
+  position: absolute;
+  top: -0.65rem;
+  left: 0.35rem;
+  font-size: 3rem;
+  line-height: 1;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.bio-statement-mark.right {
+  position: absolute;
+  bottom: -1.25rem;
+  right: 0.5rem;
+  font-size: 3rem;
+  line-height: 1;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.bio-statement-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  word-break: break-word;
+  padding: 0 0.5rem;
+}
+
+/* Grid Thông số: 3 cột đều, responsive tự co trên màn hình hẹp */
+.bio-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 380px) {
+  .bio-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.bio-metric-cell {
+  padding: 0.85rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.3rem;
+  border-radius: 16px;
+  box-sizing: border-box;
+  min-width: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+}
+
+.bio-metric-cell:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.bio-metric-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bio-metric-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* Skills Cloud */
+.bio-skills-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.bio-skills-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bio-skill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+/* Meta Table */
+.bio-meta-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.15rem;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.bio-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.bio-meta-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  opacity: 0.75;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.bio-meta-val {
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* ── 3. Danh Thiếp Liên Kết (LIQUID GLASS CHANNELS) ── */
+.bio-channels-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bio-channel-pass {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  padding: 0.9rem 1.25rem;
+  text-decoration: none;
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+  width: 100%;
+}
+
+.bio-channel-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.bio-channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bio-channel-label {
+  font-size: 0.95rem;
+  font-weight: 750;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bio-channel-url-preview {
+  font-size: 0.725rem;
+  opacity: 0.65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bio-channel-arrow {
+  opacity: 0.45;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.bio-channel-pass:hover .bio-channel-arrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* ── Icon-Only Social Link Grid ── */
+.bio-icon-links-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+.bio-icon-link-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.bio-icon-link-btn:hover {
+  transform: translateY(-4px) scale(1.1);
+}
+
+/* ── 4. Dự Án Tiêu Biểu (LIQUID GLASS PRODUCT FRAMES) ── */
+.bio-works-reel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bio-film-frame {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bio-frame-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.bio-frame-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  display: block;
+}
+
+.bio-film-frame:hover .bio-frame-img {
+  transform: scale(1.03);
+}
+
+.bio-frame-meta {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.bio-frame-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bio-frame-title {
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  margin: 0;
+  word-break: break-word;
+}
+
+.bio-frame-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bio-frame-cta:hover {
+  opacity: 0.8;
+}
+
+.bio-frame-desc {
+  font-size: 0.825rem;
+  line-height: 1.55;
+  margin: 0;
+  opacity: 0.8;
+  word-break: break-word;
+}
+
+/* ── 5. Dịch Vụ Hợp Tác (LIQUID GLASS SERVICES) ── */
+.bio-services-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bio-service-card {
+  padding: 1.35rem;
+  border-radius: 20px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+}
+
+.bio-service-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bio-service-title {
+  font-size: 1.05rem;
+  font-weight: 750;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.bio-service-rate {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.bio-service-desc {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0;
+  opacity: 0.85;
+  word-break: break-word;
+}
+
+.bio-service-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.bio-service-inquire-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: fit-content;
+  box-sizing: border-box;
+}
+
+/* ── 6. Chân Trang & Hugo Studio Credits ── */
+.bio-epilogue-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.4rem;
+  padding: 1.5rem 1rem 0;
+  width: 100%;
+}
+
+.bio-epilogue-brand {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.bio-epilogue-copyright {
+  font-size: 0.7rem;
+  opacity: 0.55;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7. FULL-SCREEN SLIDE SNAP SCROLL (VUỐT TRƯỢT TỪNG TRANG CHUẨN ĐIỆN ẢNH)
+   ══════════════════════════════════════════════════════════════════════════ */
+.bio-slide-canvas {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.bio-slide-canvas::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.bio-slide-screen {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  height: 100dvh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bio-slide-card-wrap {
+  width: 100%;
+  max-width: 540px;
+  margin: auto;
+  position: relative;
+  z-index: 10;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bio-slide-card-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.bio-scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding-top: 0.75rem;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.bio-scroll-hint:hover {
+  transform: translateY(2px);
+}

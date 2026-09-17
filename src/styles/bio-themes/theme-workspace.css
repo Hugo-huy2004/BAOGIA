@@ -1,0 +1,184 @@
+/**
+ * THEME: WORKSPACE (Không Gian Làm Việc Vui Tươi 2D - Liquid Glass Edition)
+ * ============================================================================
+ * Nền họa tiết icon mặt cười 2D pastel tươi vui, tích cực.
+ * 100% Các card sử dụng Liquid Glass trắng sữa phân tầng, bảo vệ chữ,
+ * thiết kế bo squircle chuẩn mực Apple, tương phản cao, tràn đầy cảm hứng.
+ */
+
+[data-bio-theme="workspace"].bio-canvas {
+  background-color: #f7f6ed;
+  background-image: url("/themes/bg-workspace.png");
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 380px;
+  background-attachment: fixed;
+  color: #1e293b;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Inter", sans-serif;
+}
+
+/* ── Ambient Layer ── */
+[data-bio-theme="workspace"] .bio-film-ambient {
+  background: radial-gradient(circle at 50% 10%, rgba(253, 224, 71, 0.15), transparent 70%);
+}
+
+/* ── Avatar Vui Tươi ── */
+[data-bio-theme="workspace"] .bio-avatar-wrapper {
+  padding: 4px;
+  background: #ffffff;
+  border: 3px solid #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(56, 189, 248, 0.25);
+}
+
+[data-bio-theme="workspace"] .bio-name {
+  color: #0f172a;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+}
+
+[data-bio-theme="workspace"] .bio-slug {
+  color: #0284c7;
+  background: rgba(224, 242, 254, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+[data-bio-theme="workspace"] .bio-headline {
+  color: #334155;
+}
+
+[data-bio-theme="workspace"] .bio-pill-badge {
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+  color: #334155;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Quick Social Bar ── */
+[data-bio-theme="workspace"] .bio-social-quick-btn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+[data-bio-theme="workspace"] .bio-social-quick-btn:hover {
+  background: #ffffff;
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
+}
+
+/* ── 100% THẺ LIQUID GLASS CHUẨN (BẢO VỆ THÔNG TIN TUYỆT ĐỐI) ── */
+[data-bio-theme="workspace"] .bio-hero-liquid-card,
+[data-bio-theme="workspace"] .bio-specs-sheet,
+[data-bio-theme="workspace"] .bio-channel-pass,
+[data-bio-theme="workspace"] .bio-icon-link-btn,
+[data-bio-theme="workspace"] .bio-film-frame,
+[data-bio-theme="workspace"] .bio-service-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  box-shadow: 0 16px 40px -10px rgba(15, 23, 42, 0.07), inset 0 1px 2px rgba(255, 255, 255, 1);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+[data-bio-theme="workspace"] .bio-statement-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #f59e0b;
+  border-radius: 16px;
+}
+
+[data-bio-theme="workspace"] .bio-statement-text {
+  color: #334155;
+}
+
+[data-bio-theme="workspace"] .bio-metric-cell,
+[data-bio-theme="workspace"] .bio-meta-table {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+[data-bio-theme="workspace"] .bio-metric-num,
+[data-bio-theme="workspace"] .bio-section-caption {
+  color: #0284c7;
+}
+
+[data-bio-theme="workspace"] .bio-section-dash {
+  background: linear-gradient(90deg, transparent, #0284c7, transparent);
+  opacity: 0.35;
+}
+
+[data-bio-theme="workspace"] .bio-statement-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+[data-bio-theme="workspace"] .bio-skill-tag {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+}
+
+/* ── Links & Passes ── */
+[data-bio-theme="workspace"] .bio-channel-icon-box {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+[data-bio-theme="workspace"] .bio-channel-label {
+  color: #0f172a;
+  font-weight: 750;
+}
+
+[data-bio-theme="workspace"] .bio-channel-url-preview {
+  color: #64748b;
+}
+
+[data-bio-theme="workspace"] .bio-channel-pass:hover {
+  border-color: #38bdf8;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(56, 189, 248, 0.16);
+}
+
+/* ── Services ── */
+[data-bio-theme="workspace"] .bio-service-title {
+  color: #0f172a;
+}
+
+[data-bio-theme="workspace"] .bio-service-desc {
+  color: #475569;
+}
+
+[data-bio-theme="workspace"] .bio-service-rate {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+[data-bio-theme="workspace"] .bio-service-inquire-btn {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+[data-bio-theme="workspace"] .bio-service-inquire-btn:hover {
+  background: #0369a1;
+}
+
+[data-bio-theme="workspace"] .bio-service-inquire-btn.secondary {
+  background: #ffffff;
+  color: #0284c7;
+  border: 1.5px solid #bae6fd;
+  box-shadow: none;
+}
+
+[data-bio-theme="workspace"] .bio-frame-screen {
+  background: #f1f5f9;
+}

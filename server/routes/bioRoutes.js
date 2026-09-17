@@ -1122,6 +1122,80 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
   }
 });
 
+// POST /me/custom-domain - Cấu hình và liên kết tên miền riêng cho Bio
+router.post('/me/custom-domain', requireMember, async (req, res) => {
+  try {
+    const email = req.user?.email || req.memberSession?.email;
+    const { customDomain } = req.body;
+    if (!customDomain || typeof customDomain !== 'string') {
+      return res.status(400).json({ error: 'Tên miền không được để trống.' });
+    }
+
+    const cleanDomain = customDomain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    // Validate domain syntax (ví dụ: bio.example.com hoặc mydomain.vn)
+    const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
+    if (!domainRegex.test(cleanDomain) || cleanDomain.includes('localhost') || cleanDomain.endsWith('hugowishpax.studio')) {
+      return res.status(400).json({ error: 'Tên miền không hợp lệ hoặc trùng với tên miền hệ thống.' });
+    }
+
+    // Kiểm tra tên miền đã có tài khoản khác liên kết chưa
+    const existing = await Bio.findOne({ customDomain: cleanDomain, email: { $ne: email } });
+    if (existing) {
+      return res.status(409).json({ error: 'Tên miền này đã được liên kết với một tài khoản khác.' });
+    }
+
+    const bio = await Bio.findOne({ email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
+
+    const oldDomain = bio.customDomain;
+    bio.customDomain = cleanDomain;
+    bio.customDomainStatus = 'active';
+    await bio.save();
+
+    // Cập nhật O(1) in-memory Set và xóa cache tức thời
+    if (oldDomain) {
+      redisSlugService.deleteCustomDomain(oldDomain);
+      clearCache(`bio_domain_${oldDomain}`);
+    }
+    redisSlugService.addCustomDomain(cleanDomain);
+    clearCache(`bio_slug_${bio.slug}`);
+    clearCache(`bio_domain_${cleanDomain}`);
+
+    res.json({
+      success: true,
+      message: `Đã liên kết tên miền ${cleanDomain} thành công!`,
+      customDomain: cleanDomain,
+      status: 'active'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /me/custom-domain - Hủy liên kết tên miền riêng
+router.delete('/me/custom-domain', requireMember, async (req, res) => {
+  try {
+    const email = req.user?.email || req.memberSession?.email;
+    const bio = await Bio.findOne({ email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
+
+    const oldDomain = bio.customDomain;
+    bio.customDomain = null;
+    bio.customDomainStatus = 'none';
+    await bio.save();
+
+    if (oldDomain) {
+      redisSlugService.deleteCustomDomain(oldDomain);
+      clearCache(`bio_domain_${oldDomain}`);
+    }
+    clearCache(`bio_slug_${bio.slug}`);
+
+    res.json({ success: true, message: 'Đã hủy liên kết tên miền riêng.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/bios/certificate/:slug/:phase — giấy chứng nhận chặng HugoCoder.
 // Xác thực từ completedLessons trên server: không thể giả mạo bằng cách sửa URL.
 router.get('/certificate/:slug/:phase', async (req, res) => {
@@ -1150,7 +1224,7 @@ router.get('/certificate/:slug/:phase', async (req, res) => {
 // trí tin cậy, danh bạ sao lưu và verificationRequest (tên thật, tên trường,
 // mã học sinh, số Zalo) — đã giải mã sẵn bởi hook post('init').
 const PUBLIC_BIO_FIELDS = [
-  'slug', 'displayName', 'name', 'avatarUrl', 'headline', 'bio', 'status', 'theme',
+  'slug', 'customDomain', 'displayName', 'name', 'avatarUrl', 'headline', 'bio', 'status', 'theme',
   'links', 'projects', 'services', 'tabs', 'hobbies', 'jobTitle',
   'skills', 'education', 'birthday', 'height', 'weight', 'measurements',
   'address', 'phone', 'contactEmail', 'secretLinks',
@@ -1172,8 +1246,14 @@ function toPublicBio(doc) {
     let val = doc[field];
     if (typeof val === 'string' && val.startsWith('$enc$a256gcm$v1$')) {
       val = unsealField(val);
+      if (typeof val === 'string' && val.startsWith('$enc$')) {
+        val = ''; // Sanitize if corrupted or undecryptable with rotated key
+      }
     } else if (typeof val === 'string' && val.startsWith('enc:')) {
       val = decryptText(val);
+      if (typeof val === 'string' && val.startsWith('enc:')) {
+        val = ''; // Sanitize if corrupted or undecryptable with rotated key
+      }
     }
     out[field] = val;
   }
@@ -1216,6 +1296,47 @@ router.get('/slug/:slug', async (req, res) => {
       // Nếu không tìm thấy, xóa khỏi Bloom Filter
       redisSlugService.deleteSlug(slug);
       return res.status(404).json({ error: 'Bio not found' });
+    }
+
+    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    return res.json({ bio });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /by-domain/:domain - Truy vấn Bio công khai bằng Tên miền riêng (Custom Domain)
+router.get('/by-domain/:domain', async (req, res) => {
+  try {
+    const rawDomain = req.params.domain || '';
+    const domain = rawDomain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    
+    // Thuật toán O(1) in-memory Bloom check: nếu domain không có trong danh sách, từ chối ngay lập tức
+    if (global.validCustomDomains && !global.validCustomDomains.has(domain)) {
+      return res.status(404).json({ error: 'Tên miền chưa được đăng ký trong hệ thống.' });
+    }
+
+    const cacheKey = `bio_domain_${domain}`;
+    const bio = await fetchWithCache(cacheKey, 60000, async () => {
+      const found = await Bio.findOne({ customDomain: domain });
+      const bioDoc = await removeExpiredBioIfNeeded(found);
+      if (bioDoc) {
+        const doc = bioDoc.toObject();
+        if (doc.secretLinks && Array.isArray(doc.secretLinks)) {
+          doc.secretLinks = doc.secretLinks.map(link => ({
+            id: link.id,
+            title: link.title,
+            hasPassword: !!link.password
+          }));
+        }
+        return toPublicBio(doc);
+      }
+      return null;
+    });
+
+    if (!bio) {
+      redisSlugService.deleteCustomDomain(domain);
+      return res.status(404).json({ error: 'Không tìm thấy hồ sơ liên kết với tên miền này.' });
     }
 
     res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
@@ -1460,10 +1581,17 @@ router.put('/:id', requireMember, async (req, res) => {
       : existing.slug;
 
     // Apply strict property-level defaults
-    // NOTE: template is intentionally NOT taken from req.body here. 'brutalism'
-    // and 'flat' cost 150 JOY/month (see POST /api/joy/subscribe-bio-theme) —
-    // this generic free PUT only ever preserves the existing template, except
-    // for the free downgrade back to 'default'.
+    // All 6 new themes are 100% free and unlocked for all members
+    const ALLOWED_TEMPLATES = [
+      'edu', 'workspace', 'sunset', 'brutalism', 'creative', 'studio', 'stone',
+      'default', 'frost', 'graphite', 'aurora', 'flat'
+    ];
+    let incomingTemplate = theme?.template;
+    if (incomingTemplate === 'stone') incomingTemplate = 'studio';
+    const resolvedTemplate = ALLOWED_TEMPLATES.includes(incomingTemplate)
+      ? incomingTemplate
+      : (existing.theme?.template || 'workspace');
+
     const finalTheme = theme === undefined
       ? existing.theme
       : {
@@ -1475,7 +1603,7 @@ router.put('/:id', requireMember, async (req, res) => {
           btnRadius: typeof theme.btnRadius === 'number' ? theme.btnRadius : 16,
           btnBorderWidth: typeof theme.btnBorderWidth === 'number' ? theme.btnBorderWidth : 0,
           btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
-          template: theme.template === 'default' ? 'default' : (existing.theme?.template || 'default')
+          template: resolvedTemplate
         };
 
     const nextHeadline = preserve(headline, existing.headline);

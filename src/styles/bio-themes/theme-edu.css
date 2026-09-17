@@ -1,0 +1,182 @@
+/**
+ * THEME: EDU THEME (Giáo Dục 2D Nghệ Thuật - Liquid Glass Edition)
+ * ============================================================================
+ * Nền họa tiết giáo dục 2D vẽ tay nghệ thuật (bút chì, sổ tay, thước kẻ).
+ * 100% Các card sử dụng Liquid Glass trắng ngà phân tầng, bảo vệ chữ tuyệt đối,
+ * sắc nét, tương phản cao, tri thức và thanh lịch.
+ */
+
+[data-bio-theme="edu"].bio-canvas {
+  background-color: #fffaf0;
+  background-image: url("/themes/bg-edu.png");
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 460px;
+  background-attachment: fixed;
+  color: #431407;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Ambient Layer ── */
+[data-bio-theme="edu"] .bio-film-ambient {
+  background: radial-gradient(circle at 50% 15%, rgba(251, 146, 60, 0.15), transparent 70%);
+}
+
+/* ── Avatar Viền Cam Ấm ── */
+[data-bio-theme="edu"] .bio-avatar-wrapper {
+  padding: 4px;
+  background: #ffffff;
+  border: 3px solid #ea580c;
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(234, 88, 12, 0.22);
+}
+
+[data-bio-theme="edu"] .bio-name {
+  color: #431407;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+[data-bio-theme="edu"] .bio-slug {
+  color: #ea580c;
+  background: rgba(254, 215, 170, 0.6);
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+[data-bio-theme="edu"] .bio-headline {
+  color: #7c2d12;
+}
+
+[data-bio-theme="edu"] .bio-pill-badge {
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  color: #7c2d12;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.08);
+}
+
+/* ── Quick Social Bar ── */
+[data-bio-theme="edu"] .bio-social-quick-btn {
+  background: #ffffff;
+  border: 1.5px solid #fed7aa;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.1);
+  color: #431407;
+}
+
+[data-bio-theme="edu"] .bio-social-quick-btn:hover {
+  background: #fff7ed;
+  border-color: #ea580c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(234, 88, 12, 0.2);
+}
+
+/* ── 100% THẺ LIQUID GLASS CHUẨN (BẢO VỆ THÔNG TIN KHÔNG BỊ CHÌM/ĐÈ NỀN) ── */
+[data-bio-theme="edu"] .bio-hero-liquid-card,
+[data-bio-theme="edu"] .bio-specs-sheet,
+[data-bio-theme="edu"] .bio-channel-pass,
+[data-bio-theme="edu"] .bio-icon-link-btn,
+[data-bio-theme="edu"] .bio-film-frame,
+[data-bio-theme="edu"] .bio-service-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.5px solid rgba(254, 215, 170, 0.85);
+  box-shadow: 0 16px 40px -10px rgba(124, 45, 18, 0.08), inset 0 1px 2px rgba(255, 255, 255, 1);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+[data-bio-theme="edu"] .bio-section-caption {
+  color: #c2410c;
+}
+
+[data-bio-theme="edu"] .bio-section-dash {
+  background: linear-gradient(90deg, transparent, #ea580c, transparent);
+  opacity: 0.35;
+}
+
+[data-bio-theme="edu"] .bio-statement-card {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #ea580c;
+}
+
+[data-bio-theme="edu"] .bio-statement-text {
+  color: #7c2d12;
+}
+
+[data-bio-theme="edu"] .bio-metric-cell,
+[data-bio-theme="edu"] .bio-meta-table {
+  background: #ffffff;
+  border: 1px solid #ffedd5;
+}
+
+[data-bio-theme="edu"] .bio-metric-num,
+[data-bio-theme="edu"] .bio-meta-val {
+  color: #c2410c;
+}
+
+[data-bio-theme="edu"] .bio-skill-tag {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #7c2d12;
+}
+
+/* ── Channels & Passes ── */
+[data-bio-theme="edu"] .bio-channel-icon-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+}
+
+[data-bio-theme="edu"] .bio-channel-label {
+  color: #431407;
+  font-weight: 750;
+}
+
+[data-bio-theme="edu"] .bio-channel-url-preview {
+  color: #9a3412;
+}
+
+[data-bio-theme="edu"] .bio-channel-pass:hover {
+  border-color: #ea580c;
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(234, 88, 12, 0.16);
+}
+
+/* ── Services ── */
+[data-bio-theme="edu"] .bio-service-title {
+  color: #431407;
+}
+
+[data-bio-theme="edu"] .bio-service-desc {
+  color: #7c2d12;
+}
+
+[data-bio-theme="edu"] .bio-service-rate {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+[data-bio-theme="edu"] .bio-service-inquire-btn {
+  background: #ea580c;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+[data-bio-theme="edu"] .bio-service-inquire-btn:hover {
+  background: #c2410c;
+}
+
+[data-bio-theme="edu"] .bio-service-inquire-btn.secondary {
+  background: #ffffff;
+  color: #ea580c;
+  border: 1.5px solid #fed7aa;
+  box-shadow: none;
+}
+
+[data-bio-theme="edu"] .bio-service-inquire-btn.secondary:hover {
+  background: #fff7ed;
+}
+
+[data-bio-theme="edu"] .bio-frame-screen {
+  background: #ffedd5;
+}

@@ -1,0 +1,328 @@
+/**
+ * THEME: HUGO STUDIO SIGNATURE (Độc Bản Điện Ảnh Hugo Studio)
+ * ============================================================================
+ * Lấy cảm hứng trực tiếp từ trang Introduction (IntroductionPage.jsx & hwagfu):
+ * - Nền đen vũ trụ sâu thẳm #030712 kết hợp hào quang điện ảnh Aura (Cyan #00f0ff & Tím Sapphire).
+ * - 100% Thẻ Liquid Glass Deep Dark iOS27 với viền phản quang Specular Cyan.
+ * - Tiêu đề RainbowText óng ánh sang trọng, tương tác hạt phim 35mm và hiệu ứng ánh sáng rạp phim.
+ */
+
+[data-bio-theme="studio"].bio-canvas {
+  background-color: #040711;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Hào Quang Điện Ảnh Aura & Đốm Sáng Trôi Nổi ── */
+[data-bio-theme="studio"] .bio-film-ambient {
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% 15%, rgba(0, 240, 255, 0.22), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 40%, rgba(41, 151, 255, 0.18), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 15% 75%, rgba(0, 240, 255, 0.15), transparent 70%);
+  filter: blur(40px);
+  animation: studioAmbientPulse 10s ease-in-out infinite alternate;
+}
+
+@keyframes studioAmbientPulse {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.06) translateY(-15px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.98) translateY(10px);
+    opacity: 0.9;
+  }
+}
+
+/* ── Avatar Frame Chuẩn Hugo Studio Signature ── */
+[data-bio-theme="studio"] .bio-avatar-wrapper {
+  padding: 3.5px;
+  background: linear-gradient(135deg, #00f0ff, #2997ff, #38bdf8);
+  border-radius: 50%;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.85),
+    0 0 35px rgba(0, 240, 255, 0.55),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  animation: studioHaloGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes studioHaloGlow {
+  0% {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 240, 255, 0.4);
+  }
+  100% {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.95), 0 0 45px rgba(0, 240, 255, 0.7), 0 0 65px rgba(41, 151, 255, 0.4);
+  }
+}
+
+/* ── Tiêu đề Họ Tên hiển thị chuẩn xác như Introduction ── */
+[data-bio-theme="studio"] .bio-name {
+  color: #ffffff;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+  font-size: 1.85rem;
+  text-shadow: 
+    0 0 24px rgba(0, 240, 255, 0.75),
+    0 0 50px rgba(0, 240, 255, 0.4);
+}
+
+@media (min-width: 640px) {
+  [data-bio-theme="studio"] .bio-name {
+    font-size: 2.25rem;
+  }
+}
+
+[data-bio-theme="studio"] .bio-slug {
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.18);
+  font-weight: 500;
+}
+
+[data-bio-theme="studio"] .bio-headline {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+[data-bio-theme="studio"] .bio-pill-badge {
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: rgba(4, 7, 17, 0.8);
+  color: #f1f5f9;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* ── Thanh Icon Mạng Xã Hội Nhanh ── */
+[data-bio-theme="studio"] .bio-social-quick-btn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+}
+
+[data-bio-theme="studio"] .bio-social-quick-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: #00f0ff;
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 24px rgba(0, 240, 255, 0.5);
+}
+
+/* ── 100% THẺ LIQUID GLASS DEEP DARK CHUẨN IOS27 ── */
+[data-bio-theme="studio"] .bio-hero-liquid-card,
+[data-bio-theme="studio"] .bio-specs-sheet,
+[data-bio-theme="studio"] .bio-channel-pass,
+[data-bio-theme="studio"] .bio-icon-link-btn,
+[data-bio-theme="studio"] .bio-film-frame,
+[data-bio-theme="studio"] .bio-service-card {
+  background: rgba(8, 15, 30, 0.76);
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  border-radius: 26px;
+  box-shadow: 
+    0 24px 64px -12px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(0, 240, 255, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  color: #f8fafc;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-bio-theme="studio"] .bio-section-caption {
+  color: #00f0ff;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+
+[data-bio-theme="studio"] .bio-section-dash {
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  opacity: 0.6;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+/* ── Statement Card ── */
+[data-bio-theme="studio"] .bio-statement-card {
+  background: rgba(0, 240, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-left: 4px solid #00f0ff;
+}
+
+[data-bio-theme="studio"] .bio-statement-mark {
+  color: rgba(0, 240, 255, 0.3);
+}
+
+[data-bio-theme="studio"] .bio-statement-text {
+  color: #e2e8f0;
+}
+
+/* ── Metrics Grid ── */
+[data-bio-theme="studio"] .bio-metric-cell {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+}
+
+[data-bio-theme="studio"] .bio-metric-lbl {
+  color: #64748b;
+}
+
+[data-bio-theme="studio"] .bio-metric-num {
+  color: #00f0ff;
+}
+
+/* ── Skill Tags ── */
+[data-bio-theme="studio"] .bio-skill-tag {
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  color: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-bio-theme="studio"] .bio-skill-tag:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: #00f0ff;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+}
+
+/* ── Meta Table ── */
+[data-bio-theme="studio"] .bio-meta-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-bio-theme="studio"] .bio-meta-lbl {
+  color: #94a3b8;
+}
+
+[data-bio-theme="studio"] .bio-meta-val {
+  color: #f1f5f9;
+}
+
+/* ── Channel Pass Hover ── */
+[data-bio-theme="studio"] .bio-channel-pass:hover {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: #00f0ff;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 20px 48px -8px rgba(0, 0, 0, 0.8),
+    0 0 25px rgba(0, 240, 255, 0.25);
+}
+
+[data-bio-theme="studio"] .bio-channel-icon-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+[data-bio-theme="studio"] .bio-channel-label {
+  color: #ffffff;
+}
+
+[data-bio-theme="studio"] .bio-channel-url-preview {
+  color: #64748b;
+}
+
+[data-bio-theme="studio"] .bio-channel-arrow {
+  color: #00f0ff;
+}
+
+/* ── Product Film Frames (Dự án nổi bật) ── */
+[data-bio-theme="studio"] .bio-film-frame:hover {
+  border-color: #00f0ff;
+  box-shadow: 
+    0 28px 60px -10px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(0, 240, 255, 0.2);
+}
+
+[data-bio-theme="studio"] .bio-frame-title {
+  color: #ffffff;
+}
+
+[data-bio-theme="studio"] .bio-frame-desc {
+  color: #94a3b8;
+}
+
+[data-bio-theme="studio"] .bio-frame-cta {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: #00f0ff;
+}
+
+[data-bio-theme="studio"] .bio-frame-cta:hover {
+  background: #00f0ff;
+  color: #030712;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+}
+
+/* ── Service Card ── */
+[data-bio-theme="studio"] .bio-service-title {
+  color: #ffffff;
+}
+
+[data-bio-theme="studio"] .bio-service-rate {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: #00f0ff;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+[data-bio-theme="studio"] .bio-service-desc {
+  color: #94a3b8;
+}
+
+[data-bio-theme="studio"] .bio-service-inquire-btn {
+  background: #00f0ff;
+  color: #040711;
+  font-weight: 750;
+  border-radius: 9999px;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-bio-theme="studio"] .bio-service-inquire-btn:hover {
+  background: #38bdf8;
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.85);
+  transform: translateY(-2px) scale(1.02);
+}
+
+[data-bio-theme="studio"] .bio-service-inquire-btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: none;
+}
+
+[data-bio-theme="studio"] .bio-service-inquire-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #00f0ff;
+  color: #00f0ff;
+}
+
+/* ── Epilogue Card ── */
+[data-bio-theme="studio"] .bio-epilogue-card {
+  color: #64748b;
+}
+
+[data-bio-theme="studio"] .bio-epilogue-brand {
+  color: #00f0ff;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+[data-bio-theme="studio"] .bio-epilogue-copyright a {
+  color: #cbd5e1;
+}
+
+[data-bio-theme="studio"] .bio-epilogue-copyright a:hover {
+  color: #00f0ff;
+}

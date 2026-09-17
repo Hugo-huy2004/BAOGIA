@@ -209,15 +209,8 @@ export function initCronJobs() {
         }
       }
 
-      // Giao diện Bio thuê (Brutalism/Flat) hết hạn -> trả về Classic, kể cả
-      // với chủ tài khoản không đăng nhập lại, vì người khác vẫn xem được bio công khai.
-      const expiredThemes = await Bio.updateMany(
-        { 'bioThemeRental.expiresAt': { $lt: now }, 'theme.template': { $ne: 'default' } },
-        { $set: { 'theme.template': 'default', 'bioThemeRental.template': 'default', 'bioThemeRental.expiresAt': null } }
-      );
-      if (expiredThemes.modifiedCount > 0) {
-        console.log(`[CRON] Đã hoàn trả ${expiredThemes.modifiedCount} bio về giao diện Classic.`);
-      }
+      // Toàn bộ 6 giao diện Bio (Classic, Frost, Graphite, Aurora, Brutalism, Flat)
+      // hiện đã mở khóa miễn phí vĩnh viễn cho tất cả thành viên. Không cần quét thu hồi.
 
       console.log('[CRON] Quét hết hạn hoàn tất.');
     } catch (error) {

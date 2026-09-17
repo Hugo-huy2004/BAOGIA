@@ -232,6 +232,24 @@ export const dataApi = {
     }
   },
 
+  // Fetch public bio by custom domain
+  async getBioByDomain(domain) {
+    try {
+      const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
+      const response = await safeFetch(`${API_BASE_URL}/bios/by-domain/${encodeURIComponent(clean)}`, { headers: getAuthHeaders() });
+      
+      checkAuth(response.status);
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || 'Bio not found');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching bio by domain:', error);
+      throw error;
+    }
+  },
+
   // Unlock secret link
   async unlockSecretLink(slug, linkId, password) {
     try {

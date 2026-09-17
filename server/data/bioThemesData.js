@@ -1,0 +1,103 @@
+/**
+ * DANH MỤC THEMES CHO HUGO BIO & APP BIO (6 THEMES CHÍNH THỨC)
+ * =============================================================
+ * Mỗi theme đại diện cho một phong cách nghệ thuật độc bản,
+ * toàn bộ đều miễn phí, được tối ưu chuẩn Apple Display.
+ */
+
+export const BIO_THEMES = [
+  {
+    id: "edu",
+    name: "Edu Art",
+    vietnameseName: "Edu Theme (Giáo Dục 2D)",
+    description: "Nền họa tiết giáo dục 2D vẽ tay nghệ thuật (bút chì, thước kẻ, sổ tay), ấm áp, thanh lịch và tri thức.",
+    category: "education",
+    free: true,
+    price: 0,
+    accentColor: "#ea580c",
+    palette: ["#fffaf0", "#ea580c", "#fed7aa", "#431407"],
+    cssFile: "theme-edu.css",
+    bgPreview: "/themes/bg-edu.png",
+    icon: "school",
+    badge: "Mới • Miễn phí",
+  },
+  {
+    id: "workspace",
+    name: "WorkSpace Joy",
+    vietnameseName: "WorkSpace (Icon Cười 2D)",
+    description: "Nền họa tiết icon mặt cười 2D pastel tươi vui, tràn đầy năng lượng tích cực, kết nối cộng đồng sáng tạo.",
+    category: "lifestyle",
+    free: true,
+    price: 0,
+    accentColor: "#0284c7",
+    palette: ["#f7f6ed", "#0284c7", "#fdba74", "#0f172a"],
+    cssFile: "theme-workspace.css",
+    bgPreview: "/themes/bg-workspace.png",
+    icon: "sentiment_satisfied",
+    badge: "Mới • Miễn phí",
+  },
+  {
+    id: "sunset",
+    name: "Sunset Ocean Art",
+    vietnameseName: "Sunset (Mặt Trời Art 2D)",
+    description: "Nền mặt trời lặn trên biển 2D nghệ thuật và cánh chim trời, thẻ kính mờ cao cấp, lãng mạn và bay bổng.",
+    category: "art",
+    free: true,
+    price: 0,
+    accentColor: "#f43f5e",
+    palette: ["#1e1b4b", "#f43f5e", "#fb923c", "#ffffff"],
+    cssFile: "theme-sunset.css",
+    bgPreview: "/themes/bg-sunset.png",
+    icon: "wb_sunny",
+    badge: "Mới • Miễn phí",
+  },
+  {
+    id: "brutalism",
+    name: "Neo Brutalism",
+    vietnameseName: "Đột Phá Cá Tính",
+    description: "Viền đen dày đặc trưng 3px, đổ bóng 90 độ sắc cạnh, phong cách poster typography độc bản đường phố.",
+    category: "creative",
+    free: true,
+    price: 0,
+    accentColor: "#000000",
+    palette: ["#fef08a", "#000000", "#67e8f9", "#ffffff"],
+    cssFile: "theme-brutalism.css",
+    icon: "bolt",
+    badge: "Cá tính • Miễn phí",
+  },
+  {
+    id: "creative",
+    name: "Creative Wave",
+    vietnameseName: "Creative Theme (Vệt Màu Sáng Tạo)",
+    description: "Nền những dải sóng màu sắc rực rỡ sáng tạo đa sắc, năng động, phong cách Pop-Art đương đại.",
+    category: "creative",
+    free: true,
+    price: 0,
+    accentColor: "#ec4899",
+    palette: ["#fdf2f8", "#ec4899", "#06b6d4", "#0f172a"],
+    cssFile: "theme-creative.css",
+    bgPreview: "/themes/bg-creative.png",
+    icon: "palette",
+    badge: "Mới • Miễn phí",
+  },
+  {
+    id: "studio",
+    name: "Hugo Studio Signature",
+    vietnameseName: "Hugo Studio (Độc Bản Điện Ảnh)",
+    description: "Ngôn ngữ thị giác điện ảnh độc bản từ trang Introduction: hào quang Aura đa sắc, hạt phim 35mm, spotlight ảo ảnh và film scroll đỉnh cao.",
+    category: "signature",
+    free: true,
+    price: 0,
+    accentColor: "#00f0ff",
+    palette: ["#030712", "#00f0ff", "#3b82f6", "#ffffff"],
+    cssFile: "theme-studio.css",
+    bgPreview: null,
+    icon: "sparkles",
+    badge: "Độc bản • Miễn phí",
+  },
+];
+
+export function getBioThemeById(themeId) {
+  if (themeId === "stone") themeId = "studio";
+  return BIO_THEMES.find((t) => t.id === themeId) || BIO_THEMES[0];
+}

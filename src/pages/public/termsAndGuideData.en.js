@@ -3,19 +3,21 @@
  * Standards: Harvard Academic Referencing & Apple Technical Whitepaper
  */
 
+import { COMM_DIAGRAMS_EN, DB_DIAGRAM_EN } from "./diagramData.en.js";
+
 export const UPDATED_AT_EN = "September 17, 2026";
 
 export const META_EN = {
   title: "Terms & Architecture Guide | Hugo Studio Systems Research Report",
   description:
-    "Harvard-standard system architecture defense report and Apple Whitepaper user guide for Hugo Studio ecosystem. Features 1M CCU stress analysis, global Anycast latency matrix, 5W1H scientific proofs, and full academic references.",
+    "Harvard-standard system architecture defense report and Apple Whitepaper user guide for Hugo Studio ecosystem. Features 1M CCU stress analysis, global Anycast latency matrix, comprehensive technical proofs, and full academic references.",
   keywords:
-    "Hugo Studio, Terms of Service, User Guide, Architecture Defense, 1M CCU, Database Diagram, ERD, PWA, Passkey, JOY Wallet, WebAuthn, PayOS, Harvard Referencing, 5W1H",
+    "Hugo Studio, Terms of Service, User Guide, Architecture Defense, 1M CCU, Database Diagram, ERD, PWA, Passkey, JOY Wallet, WebAuthn, PayOS, Harvard Referencing",
   eyebrow: "Systems Architecture Research & Technical Manual",
   version: "v2.5.0 (Harvard & Apple Standard)",
   pageTitle: "Terms of Service & Architectural Guide",
   intro:
-    "Comprehensive system architecture report and end-user specification manual for the Hugo Studio ecosystem. Integrates rigorous 5W1H scientific justifications for 1,000,000 CCU high-concurrency, air-gap network cutoff resilience, and peer-reviewed Harvard references.",
+    "Comprehensive system architecture report and end-user specification manual for the Hugo Studio ecosystem. Integrates rigorous technical justifications for 1,000,000 CCU high-concurrency, air-gap network cutoff resilience, and peer-reviewed Harvard references.",
   footerLeft: "© 2026 Hugo Studio. Researched and Engineered by Gia Huy Le (Hugo).",
   footerRight: "Security by Design • Privacy by Design • Progressive Web App",
 };
@@ -141,6 +143,7 @@ export const SECTIONS_EN = [
       {
         type: "diagram",
         flow: "joy-transfer",
+        diagramData: COMM_DIAGRAMS_EN["joy-transfer"],
       },
       {
         type: "cards",
@@ -235,6 +238,7 @@ export const SECTIONS_EN = [
       },
       {
         type: "database-diagram",
+        diagramData: DB_DIAGRAM_EN,
       },
       {
         type: "table",
@@ -356,6 +360,7 @@ export const SECTIONS_EN = [
       {
         type: "diagram",
         flow: "sw-offline",
+        diagramData: COMM_DIAGRAMS_EN["sw-offline"],
       },
       {
         type: "figure",
@@ -374,25 +379,25 @@ export const SECTIONS_EN = [
   // SECTION 5
   {
     id: "bao-mat-va-mat-ma-hoc",
-    title: "Security Engineering, Cryptography & 5W1H Protocol Handshake",
+    title: "Security Engineering, Cryptography & Protocol Handshake",
     pillar: "security",
     pillarTitle: "Category V: Security Engineering & Cryptography",
     pillarIcon: "lock",
-    pillarDesc: "In-depth research report on FIDO2/WebAuthn asymmetric biometric authentication, TLS 1.3 channel encryption, and 5W1H scientific proof.",
+    pillarDesc: "In-depth technical report on FIDO2/WebAuthn asymmetric biometric authentication, TLS 1.3 channel encryption, and comprehensive proof of security.",
     blocks: [
       {
         type: "p",
-        text: "Hugo Studio strictly implements information security under the 'Privacy by Design' doctrine. The platform categorically rejects static password authentication — the root cause of over 80% of global data breaches — transitioning fully to W3C Web Authentication Level 2 / FIDO2 public-key cryptography (FIDO Alliance, 2023). Below is the comprehensive scientific justification formulated under the 5W1H research methodology:",
+        text: "Hugo Studio strictly implements information security under the 'Privacy by Design' doctrine. The platform categorically rejects static password authentication — the root cause of over 80% of global data breaches — transitioning fully to W3C Web Authentication Level 2 / FIDO2 public-key cryptography (FIDO Alliance, 2023). Below is the comprehensive technical justification:",
       },
       {
         type: "subheading",
-        badge: "5W1H SCIENTIFIC PROOF",
-        title: "5W1H Scientific Justification: WebAuthn / Passkey Public-Key Cryptography",
+        badge: "IN-DEPTH ANALYSIS",
+        title: "Technical Justification: WebAuthn / Passkey Public-Key Cryptography",
         desc: "Systematic formalization of security research from mathematical foundations and threat models to hardware execution boundaries.",
       },
       {
         type: "table",
-        head: ["5W1H Research Question", "Cryptographic Theory & International Standards", "Concrete Engineering Implementation in Hugo Studio"],
+        head: ["Architectural Question", "Cryptographic Theory & International Standards", "Concrete Engineering Implementation in Hugo Studio"],
         rows: [
           [
             "WHAT (Technical Essence)",
@@ -502,6 +507,7 @@ export function verifyPasskeyAssertion({
       {
         type: "diagram",
         flow: "passkey",
+        diagramData: COMM_DIAGRAMS_EN["passkey"],
       },
       {
         type: "figure",
@@ -520,7 +526,7 @@ export function verifyPasskeyAssertion({
   // SECTION 6
   {
     id: "phan-bien-va-chiu-tai",
-    title: "Architectural Defense: 1,000,000 CCU Concurrency, Global Anycast & 5W1H Resilience",
+    title: "Architectural Defense: 1,000,000 CCU Concurrency, Global Anycast & Resilience",
     pillar: "stress-defense",
     pillarTitle: "Category VI: Architectural Defense & Extreme Concurrency",
     pillarIcon: "psychology_alt",
@@ -532,13 +538,13 @@ export function verifyPasskeyAssertion({
       },
       {
         type: "subheading",
-        badge: "5W1H DEFENSE MATRIX",
-        title: "5W1H Scientific Justification: Extreme 1M CCU Concurrency & Disaster Recovery",
+        badge: "DEFENSE MATRIX",
+        title: "Technical Justification: Extreme 1M CCU Concurrency & Disaster Recovery",
         desc: "Comprehensive formalization of million-user scaling and fault recovery following computer science research standards.",
       },
       {
         type: "table",
-        head: ["5W1H Research Question", "Distributed Systems Theory & Physical Laws", "Concrete Engineering Architecture in Hugo Studio"],
+        head: ["Architectural Question", "Distributed Systems Theory & Physical Laws", "Concrete Engineering Architecture in Hugo Studio"],
         rows: [
           [
             "WHAT (Technical Challenge)",
@@ -603,6 +609,7 @@ export function verifyPasskeyAssertion({
       {
         type: "diagram",
         flow: "scale-1m",
+        diagramData: COMM_DIAGRAMS_EN["scale-1m"],
       },
       {
         type: "note",
@@ -717,6 +724,7 @@ spec:
       {
         type: "diagram",
         flow: "global-latency",
+        diagramData: COMM_DIAGRAMS_EN["global-latency"],
       },
       {
         type: "table",
@@ -764,6 +772,7 @@ spec:
       {
         type: "diagram",
         flow: "circuit-breaker",
+        diagramData: COMM_DIAGRAMS_EN["circuit-breaker"],
       },
       {
         type: "table",
@@ -799,7 +808,7 @@ spec:
       },
       {
         type: "table",
-        head: ["Client Performance Metric", "Empirical Test Measurement", "Google Core Web Vitals Standard", "Scientific Assessment"],
+        head: ["Client Performance Metric", "Empirical Test Measurement", "Google Core Web Vitals Standard", "Technical Assessment"],
         rows: [
           ["Time to First Byte (TTFB)", "3.10 ms", "< 800 ms (Good)", "Exceptional (Immediate local cache hit)"],
           ["First Contentful Paint (FCP)", "324 ms", "< 1,800 ms (Good)", "Full visual UI painted in 0.32s"],
@@ -935,6 +944,7 @@ spec:
       {
         type: "diagram",
         flow: "third-party",
+        diagramData: COMM_DIAGRAMS_EN["third-party"],
       },
       {
         type: "table",
@@ -959,6 +969,11 @@ spec:
             "Cloudflare Global Privacy Charter",
           ],
         ],
+      },
+      {
+        type: "diagram",
+        flow: "payos",
+        diagramData: COMM_DIAGRAMS_EN["payos"],
       },
       {
         type: "external-links",

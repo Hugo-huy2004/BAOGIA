@@ -1,1 +1,1 @@
-export { default } from "../MemberSettingsTabRemade";
+export { default } from "../MemberSettingsTab";

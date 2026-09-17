@@ -1,0 +1,162 @@
+/**
+ * THEME: NEO BRUTALISM (Đột Phá Cá Tính)
+ * ============================================================================
+ * Phong cách poster độc bản đường phố.
+ * Đặc trưng: Viền đen dày 3px, đổ bóng cứng 90 độ, icon sắc nét tương phản mạnh mẽ.
+ */
+
+[data-bio-theme="brutalism"].bio-canvas {
+  background: #fef08a;
+  color: #000000;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* ── Hero Card Brutalist ── */
+[data-bio-theme="brutalism"] .bio-hero-liquid-card {
+  background: #ffffff;
+  border: 3.5px solid #000000;
+  border-radius: 0;
+  box-shadow: 6px 6px 0 #000000;
+}
+
+/* ── Avatar Square Cutout ── */
+[data-bio-theme="brutalism"] .bio-avatar-wrapper {
+  padding: 4px;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: 5px 5px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-avatar,
+[data-bio-theme="brutalism"] .bio-section-caption {
+  color: #000000;
+  font-weight: 900;
+}
+
+[data-bio-theme="brutalism"] .bio-avatar-placeholder {
+  border-radius: 0;
+}
+
+[data-bio-theme="brutalism"] .bio-section-dash {
+  background: #000000;
+  opacity: 1;
+  border-radius: 0;
+  height: 3px;
+}
+
+[data-bio-theme="brutalism"] .bio-name {
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  background: #ffffff;
+  border: 3px solid #000000;
+  padding: 0.35rem 1rem;
+  box-shadow: 4px 4px 0 #000000;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+[data-bio-theme="brutalism"] .bio-slug {
+  font-weight: 800;
+  color: #000000;
+  background: #a7f3d0;
+  border: 2px solid #000000;
+  padding: 0.1rem 0.6rem;
+  display: inline-block;
+  margin-top: 0.25rem;
+  border-radius: 0;
+}
+
+[data-bio-theme="brutalism"] .bio-pill-badge {
+  border-radius: 0;
+  border: 2px solid #000000;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+/* ── Social Quick Icon Buttons ── */
+[data-bio-theme="brutalism"] .bio-social-quick-btn {
+  background: #ffffff;
+  border: 2.5px solid #000000;
+  border-radius: 0;
+  color: #000000;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-social-quick-btn:hover {
+  background: #67e8f9;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #000000;
+}
+
+/* ── Hard Cut Cards ── */
+[data-bio-theme="brutalism"] .bio-specs-sheet,
+[data-bio-theme="brutalism"] .bio-statement-card,
+[data-bio-theme="brutalism"] .bio-meta-table,
+[data-bio-theme="brutalism"] .bio-film-frame,
+[data-bio-theme="brutalism"] .bio-channel-pass,
+[data-bio-theme="brutalism"] .bio-icon-link-btn,
+[data-bio-theme="brutalism"] .bio-service-card {
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 0;
+  box-shadow: 5px 5px 0 #000000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-bio-theme="brutalism"] .bio-statement-card {
+  background: #ffedd5;
+  border: 2.5px solid #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-channel-pass:hover,
+[data-bio-theme="brutalism"] .bio-film-frame:hover,
+[data-bio-theme="brutalism"] .bio-service-card:hover {
+  background: #67e8f9;
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-metric-cell {
+  background: #fed7aa;
+  border: 2px solid #000000;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-skill-tag {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 0;
+  color: #000000;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-channel-icon-box {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 0;
+}
+
+[data-bio-theme="brutalism"] .bio-service-rate {
+  background: #a7f3d0;
+  border: 2px solid #000000;
+  border-radius: 0;
+  color: #000000;
+  font-weight: 800;
+}
+
+[data-bio-theme="brutalism"] .bio-service-inquire-btn {
+  background: #000000;
+  color: #fef08a;
+  border: 2px solid #000000;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+[data-bio-theme="brutalism"] .bio-service-inquire-btn:hover {
+  background: #67e8f9;
+  color: #000000;
+}

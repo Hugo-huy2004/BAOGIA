@@ -121,7 +121,15 @@ function AppContent() {
       if (timerId) window.clearTimeout(timerId);
     };
   }, []);
-  const isBioRoute = location.pathname.startsWith('/bio/');
+
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isCustomDomainHost = Boolean(
+    hostname &&
+    !["localhost", "127.0.0.1"].includes(hostname) &&
+    !hostname.endsWith("hugowishpax.studio") &&
+    !hostname.endsWith("vercel.app")
+  );
+  const isBioRoute = location.pathname.startsWith('/bio/') || location.pathname.startsWith('/b/') || isCustomDomainHost;
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
   const showFooter =
@@ -177,6 +185,14 @@ function AppContent() {
     return <MaintenancePage />;
   }
 
+  if (isCustomDomainHost) {
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
+        <BioPublicPage />
+      </Suspense>
+    );
+  }
+
   if (isLearningRoute || isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
@@ -188,6 +204,7 @@ function AppContent() {
           <Route path="/hugoso/:page" element={<HugoLearningPage />} />
           <Route path="/hugoso/:page/:sub" element={<HugoLearningPage />} />
           <Route path="/bio/:slug" element={<BioPublicPage />} />
+          <Route path="/b/:slug" element={<BioPublicPage />} />
           <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
@@ -304,6 +321,7 @@ function AppContent() {
                 : <Navigate to="/login" replace />
             } />
             <Route path="/bio/:slug" element={<BioPublicPage />} />
+            <Route path="/b/:slug" element={<BioPublicPage />} />
           <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
