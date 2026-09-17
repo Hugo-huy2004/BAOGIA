@@ -204,19 +204,59 @@ export default function DocBlock({ block }) {
     );
   }
 
+  if (block.type === "subheading") {
+    return (
+      <div className="pt-6 sm:pt-8 pb-2 border-b border-sky-500/15 dark:border-sky-500/20">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {block.badge && (
+            <span className="inline-flex items-center rounded-md bg-sky-500/10 px-2 py-0.5 font-mono text-xs font-bold text-sky-600 dark:text-sky-400 border border-sky-500/25">
+              {block.badge}
+            </span>
+          )}
+          <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+            {block.title}
+          </h3>
+        </div>
+        {block.desc && (
+          <p className="mt-1.5 text-xs sm:text-[13.5px] leading-relaxed text-muted-foreground">
+            {block.desc}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   if (block.type === "p") {
     return <p className="text-[15px] leading-relaxed text-muted-foreground">{block.text}</p>;
   }
 
   if (block.type === "list") {
     return (
-      <ul className="space-y-2.5">
-        {block.items.map((item) => (
-          <li key={item} className="flex gap-3 text-[14.5px] leading-relaxed text-muted-foreground">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
-            <span className="min-w-0">{item}</span>
-          </li>
-        ))}
+      <ul className="space-y-3">
+        {block.items.map((item, idx) => {
+          if (typeof item === "object" && item !== null) {
+            return (
+              <li
+                key={item.label || idx}
+                className="flex items-start gap-3.5 rounded-xl border border-sky-500/10 dark:border-sky-500/15 bg-card/60 p-3.5 sm:p-4 text-[13.5px] sm:text-sm leading-relaxed text-muted-foreground transition-colors hover:border-sky-500/25 hover:bg-card/90"
+              >
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                  <span className="material-symbols-outlined text-[17px]">{item.icon || "check_circle"}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block font-semibold text-foreground mb-0.5">{item.label}</strong>
+                  <span>{item.text}</span>
+                </div>
+              </li>
+            );
+          }
+          return (
+            <li key={item} className="flex gap-3 text-[14.5px] leading-relaxed text-muted-foreground">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" aria-hidden="true" />
+              <span className="min-w-0">{item}</span>
+            </li>
+          );
+        })}
       </ul>
     );
   }

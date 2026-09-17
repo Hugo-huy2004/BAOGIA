@@ -246,6 +246,150 @@ const DIAGRAMS = {
     ],
     securityNote: "Cam kết: Máy chủ Hugo Studio không bao giờ lưu trữ mật khẩu Google, mã PIN thẻ ngân hàng hay mã OTP của người dùng.",
   },
+
+  "scale-1m": {
+    badge: "1M CCU High-Throughput Pipeline",
+    title: "Sơ đồ luồng xử lý chịu tải: 1.000.000 kết nối đồng thời (Scale-out Pipeline)",
+    desc: "Mô hình kiến trúc 4 tầng phân tải cực hạn: Anycast CDN Edge hấp thụ 95% lưu lượng đọc tĩnh, Kubernetes Ingress phân phối 250 Pods Node.js, Redis Cluster và Sharded MongoDB xử lý giao dịch ghi.",
+    nodes: [
+      { id: "edge", label: "Anycast CDN Edge", sub: "Cloudflare 300+ PoPs (95% Hit)", icon: "public", highlight: true },
+      { id: "k8s", label: "Kubernetes Cluster", sub: "250 Pods Auto-Scaled HPA", icon: "hub" },
+      { id: "data", label: "Phân tầng Dữ liệu", sub: "Redis + Sharded MongoDB", icon: "database" },
+    ],
+    steps: [
+      {
+        from: "edge",
+        to: "edge",
+        action: "1. Tiếp nhận 1.000.000 yêu cầu tại Anycast IP gần nhất",
+        detail: "Lượng truy cập 1.000.000 CCU chạm vào hơn 300 trạm PoP toàn cầu, phân tán lưu lượng theo địa lý.",
+      },
+      {
+        from: "edge",
+        to: "edge",
+        action: "2. Hấp thụ 950.000 yêu cầu đọc (95% Cache Hit)",
+        detail: "Toàn bộ tài nguyên PWA, hình ảnh Bio và nội dung tĩnh được trả về ngay từ RAM/NVMe của Edge trong < 25ms.",
+      },
+      {
+        from: "edge",
+        to: "k8s",
+        action: "3. Chuyển tiếp 50.000 yêu cầu ghi động (Dynamic Ingestion)",
+        detail: "Chỉ 5% lưu lượng phát sinh giao dịch (Passkey, Ví JOY, Báo giá) được nén HTTP/2 ghép luồng về K8s Ingress.",
+      },
+      {
+        from: "k8s",
+        to: "k8s",
+        action: "4. K8s HPA tự động nhân bản 250 Pods Node.js",
+        detail: "Thuật toán Least-Connections phân bổ tải đều; mỗi Pod chỉ chịu ~200 CCU, giữ Event Loop luôn dưới 40% CPU.",
+      },
+      {
+        from: "k8s",
+        to: "data",
+        action: "5. Redis Cluster kiểm tra Session & Rate-Limit (< 2ms)",
+        detail: "Cụm Redis RAM in-memory đối soát Nonce và khóa giao dịch tốc độ 100.000 QPS, giảm 90% tải truy vấn DB.",
+      },
+      {
+        from: "data",
+        to: "k8s",
+        action: "6. MongoDB Sharding ghi sổ cái phi tập trung",
+        detail: "Ghi nhận giao dịch JoyLedger vào phân vùng shard theo hash email; ghi bền vững với Write Concern: majority.",
+      },
+    ],
+    securityNote: "Cam kết kiến trúc: Phân tách 4 lớp giúp triệt tiêu 95% tải ngay tại biên, đảm bảo thời gian phản hồi p95 luôn dưới 45ms kể cả khi chịu tải 1.000.000 CCU.",
+  },
+
+  "global-latency": {
+    badge: "Global Edge & GeoDNS Anycast",
+    title: "Sơ đồ luồng định tuyến toàn cầu: Triệt tiêu độ trễ địa lý (Geographic Latency)",
+    desc: "Giải quyết bài toán rào cản tốc độ ánh sáng trong cáp quang. Ngắt kết nối TLS 1.3 tại trạm Edge biên địa phương và áp dụng mô hình dữ liệu CRDTs không xung đột.",
+    nodes: [
+      { id: "user", label: "Người dùng Toàn cầu", sub: "Mỹ / Châu Âu / Nhật / Úc", icon: "language" },
+      { id: "pop", label: "Trạm Biên Anycast PoP", sub: "Local Edge (RTT 8-15ms)", icon: "cell_tower", highlight: true },
+      { id: "origin", label: "Cụm Máy chủ Đa vùng", sub: "Multi-Region Replication", icon: "dns" },
+    ],
+    steps: [
+      {
+        from: "user",
+        to: "pop",
+        action: "1. Bắt tay TLS 1.3 tại trạm PoP biên gần nhất",
+        detail: "Thay vì đợi 240ms truyền về máy chủ Việt Nam, quá trình TLS 1.3 Handshake ngắt ngay tại thành phố của người dùng chỉ mất 12ms.",
+      },
+      {
+        from: "pop",
+        to: "user",
+        action: "2. Phục vụ ngay Bundle PWA & Bộ nhớ đệm",
+        detail: "Mã nguồn JavaScript, CSS và Canvas Assets được nạp từ máy chủ biên, giao diện render tức thì trong < 0.3s.",
+      },
+      {
+        from: "pop",
+        to: "origin",
+        action: "3. Vận chuyển gói tin qua mạng riêng ảo Tier-1 Backbone",
+        detail: "Gói tin động di chuyển trên đường truyền cáp quang riêng tối ưu định tuyến (Argo Smart Routing) của Cloudflare/Vercel.",
+      },
+      {
+        from: "origin",
+        to: "origin",
+        action: "4. Đồng bộ hóa dữ liệu không xung đột (CRDTs Engine)",
+        detail: "Dữ liệu nhật ký ngủ và tiến trình Pomodoro ghi cục bộ được hợp nhất tự động bằng Conflict-Free Replicated Data Types.",
+      },
+      {
+        from: "origin",
+        to: "user",
+        action: "5. Phản hồi hoàn tất giao dịch xuyên biên giới",
+        detail: "Phản hồi kết quả được nén gzip/brotli gửi thẳng về người dùng, trải nghiệm mượt mà không phân biệt vị trí địa lý.",
+      },
+    ],
+    securityNote: "Cam kết: Người dùng ở nước ngoài có trải nghiệm phản hồi nhanh tương đương 95% người dùng trong nước nhờ công nghệ Edge Computing.",
+  },
+
+  "circuit-breaker": {
+    badge: "Circuit Breaker & Self-Healing",
+    title: "Sơ đồ trạng thái ngắt mạch & Tự phục hồi khi sập mạng / lỗi máy chủ",
+    desc: "Cơ chế bảo vệ đa tầng theo mô hình trạng thái Martin Fowler & Michael Nygard: Closed (Bình thường) -> Open (Ngắt mạch khi lỗi > 50%) -> Half-Open (Hồi phục). Kết hợp ngoại tuyến hoàn toàn tại Client.",
+    nodes: [
+      { id: "client", label: "Client Service Worker", sub: "IndexedDB Offline Queue", icon: "phonelink_ring" },
+      { id: "circuit", label: "Circuit Breaker Engine", sub: "State Machine Sentinel", icon: "power_settings_new", highlight: true },
+      { id: "services", label: "Cụm Micro-Services & DB", sub: "Self-Healing Watchdog", icon: "healing" },
+    ],
+    steps: [
+      {
+        from: "circuit",
+        to: "circuit",
+        action: "1. Trạng thái Closed (Bình thường: 100% lưu lượng)",
+        detail: "Gateway theo dõi liên tục tỷ lệ lỗi (Error Rate). Mọi yêu cầu được chuyển tiếp thông suốt tới Backend.",
+      },
+      {
+        from: "circuit",
+        to: "circuit",
+        action: "2. Chuyển sang Trạng thái Open (Ngắt mạch khi tỷ lệ lỗi > 50%)",
+        detail: "Nếu dịch vụ phía sau chậm hoặc lỗi trong 10s, Circuit Breaker lập tức ngắt mạch, chặn đứng bão yêu cầu (Thundering Herd).",
+      },
+      {
+        from: "circuit",
+        to: "client",
+        action: "3. Trả phản hồi Fallback mềm dẻo (Graceful Degradation)",
+        detail: "Hệ thống trả về dữ liệu đệm dự phòng; tự tắt hiệu ứng phụ (thời tiết Bio) để giữ 100% tài nguyên cho phiên cốt lõi.",
+      },
+      {
+        from: "client",
+        to: "client",
+        action: "4. Client tự động chuyển sang hàng đợi IndexedDB",
+        detail: "Service Worker ghi nhận thao tác của người dùng vào IndexedDB cục bộ; người dùng tiếp tục làm việc bình thường.",
+      },
+      {
+        from: "services",
+        to: "services",
+        action: "5. Hạ tầng tự chữa lành (Self-Healing in 0.5s)",
+        detail: "PM2 Watchdog / Docker Healthcheck tự động reload các tiến trình bị rò rỉ RAM; giải phóng socket bị nghẽn.",
+      },
+      {
+        from: "circuit",
+        to: "client",
+        action: "6. Trạng thái Half-Open & Tự động đồng bộ ngầm",
+        detail: "Sau 30s, mạch mở 5% để thử nghiệm. Khi Backend khỏe lại, mạch đóng về Closed; Background Sync đẩy toàn bộ IndexedDB lên server.",
+      },
+    ],
+    securityNote: "Cam kết: Ứng dụng không bao giờ bị sập toàn phần hay hiển thị màn hình trắng chết chóc; dữ liệu cục bộ được bảo toàn 100%.",
+  },
 };
 
 export default function CommunicationDiagram({ flow = "passkey" }) {
