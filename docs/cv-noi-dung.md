@@ -158,6 +158,7 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 
 - **Frontend & Di động** — JavaScript · TypeScript · HTML/CSS · React · Next.js · React Native (Expo) · Java (Android) · Tailwind CSS · PWA
 - **Backend & dữ liệu** — Node.js · Express · PHP · REST API · WebSocket · SQL · MongoDB · Firebase/Firestore · SQLite
+- **Ứng dụng AI** — Prompt Engineering · Quản lý dự án với AI · Tích hợp AI (Gemini/OpenAI) · Tự động hoá
 - **DevOps & tích hợp** — Git · Vercel · Render · Cloudflare · Netlify · Google OAuth · Cloudinary · Facebook Graph API
 - **Kỹ năng mềm** — Lãnh đạo & quản lý nhóm · Lên ý tưởng sản phẩm · Thuyết trình & truyền đạt · Tổ chức & điều phối · Giải quyết vấn đề
   (minh chứng qua 7 năm Huynh trưởng - Giáo lý viên Cấp 2 thuộc Ban Điều Hành Xứ đoàn Chánh Tòa Mỹ Tho và điều phối dự án kỹ thuật)
@@ -170,7 +171,7 @@ Ba con số: **6** dự án đã hoàn thành · **4** đang chạy với ngư�
 ## Học vấn (kèm mục Hoạt động & Ngôn ngữ)
 
 - **Greenwich Việt Nam** (2023–2027) — Công nghệ Thông tin, University of Greenwich (UK) - Hồ Chí Minh Campus, dự kiến tốt nghiệp 08/2027. GPA tích lũy quá trình học tập hiện tại 3.6/4.0.
-- **[Huynh trưởng · Cấp 2](https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy)** (2018–2025) — Giáo phận Mỹ Tho · Ban Điều Hành · 7 năm lãnh đạo, tổ chức sự kiện và huấn luyện thiếu nhi.
+- **[Huynh trưởng · Cấp 2](https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy)** (2018–2025) — Giáo phận Mỹ Tho · Ban Điều Hành · Web · [chanhtoa.tnttgiaophanmytho.online](https://chanhtoa.tnttgiaophanmytho.online/gioi-thieu/xu-doan?bio=bdh-le-gia-huy) · 7 năm lãnh đạo, tổ chức sự kiện và huấn luyện thiếu nhi.
 - **Tiếng Anh** — VSTEP B2 (Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật).
 
 ## Dự án — sáu khối, cùng một khuôn
