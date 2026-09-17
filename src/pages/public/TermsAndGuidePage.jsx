@@ -571,6 +571,44 @@ export default function TermsAndGuidePage({ defaultPillar = "all" }) {
         },
         {
           type: "note",
+          tone: "info",
+          title: "Tuyên ngôn Triết lý: Tại sao Người dùng luôn được Hưởng Miễn phí 100% Toàn bộ Tính năng?",
+          text: "Đối với tác giả Lê Gia Huy, mỗi người dùng không phải là 'khách hàng để kinh doanh dữ liệu', mà chính là một Tester siêu thực tế và là một người đồng sáng tạo vô giá.\n\nTrong phòng thí nghiệm hay các bài kiểm thử tự động (Unit Test / Synthetic Benchmark), mã nguồn có thể đạt 100% chỉ số xanh. Nhưng chỉ khi bước ra đời thực — khi một bạn sinh viên mở ứng dụng trên chiếc điện thoại cũ trong giảng đường chập chờn sóng mạng, khi một người đi làm bật bài tập thở HugoPSY lúc nửa đêm để xoa dịu âu lo, hay khi một bạn trẻ tự hào chia sẻ trang Hugo Bio đầu tiên của mình — đó mới là phép thử chân thực và khắc nghiệt nhất cho một kiến trúc phần mềm.\n\nTác giả cần biết người dùng thực sự cần gì, trải nghiệm thực tế ra sao, giao diện còn cấn ở đâu và hệ thống cần cải tiến điều gì. Những phản hồi trung thực, những lần phát hiện lỗi phần cứng hay những đóng góp ý tưởng từ bạn chính là nguồn tài nguyên quý báu nhất giúp Hugo Studio liên tục tôi luyện và hoàn thiện mỗi ngày.",
+        },
+        {
+          type: "table",
+          head: ["Khía cạnh triết lý", "Mô hình Nền tảng Thương mại Hóa (Big Tech)", "Mô hình Đồng sáng tạo tại Hugo Studio (Co-Creation)"],
+          rows: [
+            [
+              "Vị thế của người dùng",
+              "Người dùng là 'sản phẩm' bị khai thác dữ liệu hành vi để bán cho các mạng lưới quảng cáo.",
+              "Người dùng là 'Tester Siêu Thực Tế' và là Đồng Tác Giả giúp hoàn thiện hệ thống.",
+            ],
+            [
+              "Chính sách tính năng cốt lõi",
+              "Thu phí tính năng nâng cao (Freemium/Paywall), ép nâng cấp gói thuê bao hàng tháng.",
+              "Miễn phí 100% trọn đời cho toàn bộ công cụ cá nhân, học tập, sức khỏe và trang Bio.",
+            ],
+            [
+              "Quảng cáo & Thu thập ngầm",
+              "Chèn banner, popup quảng cáo theo dõi chéo (Cross-site tracking) gây xao nhãng.",
+              "Tuyệt đối KHÔNG quảng cáo, KHÔNG theo dõi hành vi ngầm, mã nguồn minh bạch.",
+            ],
+            [
+              "Vòng lặp phản hồi (Feedback Loop)",
+              "Hộp thư tự động vô cảm, người dùng khó tiếp cận đội ngũ kỹ sư thực sự.",
+              "Kênh trao đổi trực tiếp với tác giả Lê Gia Huy; mọi góp ý đều được phân tích và vá lỗi tức thì.",
+            ],
+          ],
+        },
+        {
+          type: "note",
+          tone: "tip",
+          title: "Mô hình Tài chính Tự chủ: Làm sao để Duy trì Hệ sinh thái Miễn phí?",
+          text: "Nhiều người dùng thường băn khoăn: 'Nếu miễn phí hoàn toàn thì lấy kinh phí đâu để duy trì máy chủ, cơ sở dữ liệu và hạ tầng CDN toàn cầu?'.\n\nCâu trả lời rất rõ ràng và minh bạch: Hugo Studio vận hành theo mô hình tài chính cộng sinh (Cross-subsidization Model). Toàn bộ chi phí máy chủ, băng thông và nghiên cứu công nghệ được tài trợ và bù đắp từ các Hợp đồng dịch vụ thiết kế web doanh nghiệp (B2B Web Development & Architecture Consulting) cho các khách hàng trả phí, kết hợp với các khoản ủng hộ tự nguyện (Donation) từ cộng đồng yêu mến dự án. Nhờ đó, sinh viên và người dùng cá nhân được đảm bảo quyền lợi sử dụng MIỄN PHÍ VĨNH VIỄN mà không bao giờ phải lo lắng về việc bị thu phí trong tương lai.",
+        },
+        {
+          type: "note",
           tone: "warn",
           title: "Cơ chế Kiểm toán Quản trị Bất biến (AdminAuditLog Engine)",
           text: "Mọi thao tác quản trị viên (đăng nhập tài khoản admin, điều chỉnh điểm thưởng, rà soát vi phạm, cập nhật cấu hình dịch vụ) đều được máy chủ tự động chụp ảnh dữ liệu (Snapshot) và ghi vết vào bảng AdminAuditLog. Bảng này bị cấm hoàn toàn câu lệnh UPDATE và DELETE, đảm bảo không một ai — kể cả người nắm khóa máy chủ — có thể xóa dấu vết hành động của mình.",
