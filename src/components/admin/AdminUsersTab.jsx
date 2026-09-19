@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import UserDetailModal from './UserDetailModal';
 import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
-import { toDenom } from '../../../shared/joyCurrency.js';
+import { toDenom } from '../../../shared/joyCurrency';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 

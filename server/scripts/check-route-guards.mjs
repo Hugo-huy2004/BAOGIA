@@ -57,6 +57,7 @@ const PUBLIC_ROUTES = {
 
   // ── Nội dung công khai thật sự ───────────────────────────────────────────
   "bioRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
+  "bioRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
   "bioRoutes.js GET /certificate/:slug/:phase": "chứng chỉ công khai, dùng để khoe",
   "bioRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
   "profileRoutes.js GET /public/:slug": "hồ sơ công khai theo slug",
@@ -65,6 +66,10 @@ const PUBLIC_ROUTES = {
   "hugoTeamRoutes.js GET /developers": "danh sách đội ngũ, hiện trên trang giới thiệu",
   "contactRoutes.js GET /zalo": "liên kết Zalo công khai",
   "dataRoutes.js GET /": "cấu hình trang công khai (đã bật cache CDN)",
+  "bioThemeRoutes.js GET /": "danh mục giao diện Bio, đọc từ hằng số BIO_THEMES — không có dữ liệu người dùng",
+  "bioThemeRoutes.js GET /:themeId": "một giao diện trong danh mục đó, cũng từ hằng số",
+  "legalDocRoutes.js GET /": "danh mục văn bản pháp lý — bản chất là phải ai cũng đọc được",
+  "legalDocRoutes.js GET /:docId": "toàn văn một văn bản pháp lý, đọc từ hằng số LEGAL_DOCUMENTS",
   "packageRoutes.js GET /": "danh mục gói dịch vụ — bảng giá công khai",
   "todayRoutes.js GET /feed": "bảng tin công khai",
   "coderLessonRoutes.js GET /": "danh mục 100 bài — trang /study công khai cần xem trước",
@@ -83,7 +88,6 @@ const PUBLIC_ROUTES = {
   "radioRoutes.js GET /station": "proxy tra đài từ Radio Browser, không đụng dữ liệu người dùng",
   "radioRoutes.js POST /stations": "như trên",
   "radioRoutes.js POST /click": "đếm lượt bấm gửi về Radio Browser",
-  "cinemaRoutes.js GET /stream/:token": "token phát phim ký sẵn, hết hạn ngắn",
 
   // ── Gửi form từ khách chưa đăng nhập ─────────────────────────────────────
   "bookingRoutes.js POST /": "khách chưa có tài khoản vẫn phải đặt lịch được",

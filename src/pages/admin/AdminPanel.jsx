@@ -22,7 +22,6 @@ import AdminLearnersTab from "../../components/admin/AdminLearnersTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
-import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AdminRobotTab from "../../components/admin/AdminRobotTab";
 import AdminOAuthAppsTab from "../../components/admin/AdminOAuthAppsTab";
@@ -53,7 +52,7 @@ export default function AdminPanel() {
     const initial = params.get("tab");
     if (!initial) return "dashboard";
     if (["brain", "workforce", "sentinel", "robot"].includes(initial)) return "ai_sentinel";
-    if (["cinema", "coder"].includes(initial)) return "ecosystem";
+    if (["coder"].includes(initial)) return "ecosystem";
     if (["oauth", "projects"].includes(initial)) return "system";
     if (["audit"].includes(initial)) return "dashboard";
     return initial;
@@ -64,7 +63,7 @@ export default function AdminPanel() {
   const [dashSubView, setDashSubView]   = useState("overview");   // overview | audit
   const [aiSubView, setAiSubView]       = useState("brain");      // brain | workforce | sentinel | robot
   const [userSubView, setUserSubView]   = useState("roster");     // roster | support | hugoteam
-  const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | cinema | coder
+  const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | coder
   const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources | learners
   const [systemSubView, setSystemSubView] = useState("settings"); // settings | oauth | monitor
 
@@ -687,13 +686,6 @@ export default function AdminPanel() {
                 <span>Dịch Vụ &amp; Gói VIP</span>
               </button>
               <button
-                onClick={() => setEcoSubView("cinema")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "cinema" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">movie</span>
-                <span>Quản Trị Phim Cinema</span>
-              </button>
-              <button
                 onClick={() => setEcoSubView("coder")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "coder" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
@@ -704,7 +696,6 @@ export default function AdminPanel() {
 
             {ecoSubView === "store" && <AdminUtilityStoreTab />}
             {ecoSubView === "services" && <AdminServicesTab triggerConfirm={triggerConfirm} />}
-            {ecoSubView === "cinema" && <AdminCinemaTab showNotice={showNotification} />}
             {ecoSubView === "coder" && (
               <div className="space-y-6">
                 <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit">

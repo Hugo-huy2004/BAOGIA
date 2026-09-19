@@ -1,36 +1,26 @@
 
 /**
- * Nút quay lại dùng chung cho mọi ứng dụng trong portal.
- *
- * Trước đây mỗi app tự vẽ một kiểu: pill viền tròn, nút tròn 36px, chữ trần,
- * icon-only... — mỗi màn một cỡ chạm khác nhau. Ở đây gom về một hình khối duy
- * nhất, cao 44px đúng ngưỡng chạm tối thiểu, nền chỉ hiện khi tương tác.
- *
- * `tone="onDark"` dành cho nền tối đặc (game, overlay) nơi token `muted` của
- * theme sáng sẽ chìm mất.
+ * Nút đóng/thoát tiện ích chuẩn hoá duy nhất — hình tròn đỏ icon 'x' (macOS close standard).
+ * Đồng bộ tất cả button thoát ứng dụng về một mẫu duy nhất.
  */
 export default function BackButton({
   onClick,
-  label = "Quay lại",
-  tone = "default",
-  iconOnly = false,
+  label = "Đóng",
   className = "",
+  style = {},
 }) {
-  const palette = tone === "onDark"
-    ? "text-white hover:bg-white/12 active:bg-white/20"
-    : "text-foreground hover:bg-muted active:bg-muted";
-
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`inline-flex h-11 shrink-0 items-center gap-1 rounded-xl transition-colors ${
-        iconOnly ? "w-11 justify-center" : "pl-2 pr-3.5"
-      } ${palette} ${className}`}
+      title={label}
+      style={style}
+      className={`group relative inline-flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-[#ff5f57] text-[#700000] border border-[#d63d35]/40 shadow-md shadow-red-500/20 transition-all duration-150 hover:bg-[#e0443e] hover:scale-110 active:scale-95 cursor-pointer select-none ${className}`}
     >
-      <span className="material-symbols-outlined text-[22px]">arrow_back</span>
-      {!iconOnly && <span className="text-[15px] font-medium">{label}</span>}
+      <span className="material-symbols-outlined text-[17px] sm:text-[19px] font-black leading-none">
+        close
+      </span>
     </button>
   );
 }

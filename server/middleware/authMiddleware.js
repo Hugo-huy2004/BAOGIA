@@ -4,7 +4,6 @@ import Admin from '../models/Admin.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
-import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 
@@ -42,7 +41,7 @@ const extractToken = (req, cookieName) => {
  * /joy/balance là 153ms cho 2 truy vấn — tức riêng cổng chặn này ăn khoảng một
  * nửa độ trễ của endpoint đã-xác-thực rẻ nhất.
  *
- * VÌ SAO ĐỆM ĐƯỢC: `joyDenom` chốt một lần lúc onboarding rồi khoá.
+ * VÌ SAO ĐỆM ĐƯỢC: các trường hồ sơ bắt buộc chốt một lần rồi ít đổi.
  * `locationAnomaly` là cờ bảo mật, nên đệm có rủi ro — bù lại (a) TTL 30 giây,
  * đúng bằng TTL mà securityEnforcement.js đã dùng cho chính quyết định chặn
  * tài khoản, và (b) mọi nơi ghi cờ đều gọi `invalidateMemberGate()`. Cửa sổ xấu
@@ -58,7 +57,7 @@ const GATE_CACHE_MS = 30 * 1000;
 const GATE_CACHE_MAX = 5000;
 const gateCache = new Map();
 
-/** Xoá bản đệm của một email. Gọi ở MỌI nơi ghi locationAnomaly hoặc joyDenom. */
+/** Xoá bản đệm của một email. Gọi ở MỌI nơi ghi locationAnomaly hoặc trường hồ sơ bắt buộc. */
 export function invalidateMemberGate(email) {
   if (email) gateCache.delete(String(email).toLowerCase());
 }
@@ -71,10 +70,9 @@ async function readMemberGate(email) {
   const Bio = (await import('../models/Bio.js')).default;
   // Một truy vấn cho mọi cổng chặn — chỉ cần biết các trường có giá trị hay chưa,
   // không giải mã nội dung nhạy cảm ở middleware.
-  const bio = await Bio.findOne({ email }, 'locationAnomaly joyDenom countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity').lean();
+  const bio = await Bio.findOne({ email }, 'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity').lean();
   const value = bio ? {
     locationAnomaly: !!bio.locationAnomaly,
-    joyDenom: bio.joyDenom,
     profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
       || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
       || !bio.religion || !bio.ethnicity,
@@ -271,13 +269,14 @@ export const requireMember = async (req, res, next) => {
               message: 'Phát hiện vị trí truy cập bất thường. Vui lòng xác thực lại bằng mã PIN.'
             });
           }
-          // Chưa chọn đơn vị JOY thì KHÔNG dùng được hệ thống. Chặn ở server chứ
-          // không chỉ ẩn giao diện: mọi số tiền hiện ra đều đã đổi theo đơn vị
-          // của tài khoản, nên tài khoản không có đơn vị là mọi màn tiền đang
-          // đọc một mặc định mà người dùng chưa từng đồng ý.
+          // JOY chỉ còn MỘT đơn vị duy nhất nên không còn gì để người dùng chọn —
+          // cổng `joyDenom` cũ đã bị bỏ. Nó so `JOY_DENOMS[bio.joyDenom]` với
+          // bảng chỉ có khoá theo mã ngôn ngữ (en/vi…), trong khi hồ sơ ghi
+          // 'JOY' và schema mặc định là '', nên MỌI thành viên đều rơi vào 403
+          // trên MỌI route member — và onboarding không bao giờ hỏi để thoát ra.
           //
-          // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chọn.
-          if (bio && (!JOY_DENOMS[bio.joyDenom] || bio.profileIncomplete) && !isProfileSetupRoute(req.originalUrl)) {
+          // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chặn.
+          if (bio && bio.profileIncomplete && !isProfileSetupRoute(req.originalUrl)) {
             return res.status(403).json({
               error: 'PROFILE_INCOMPLETE',
               message: 'Bạn cần hoàn tất thông tin hồ sơ bắt buộc trước khi dùng Hugo Studio.'

@@ -288,68 +288,90 @@
 }
 
 .desktop-apple-sidebar {
-  /* Sidebar macOS là một tấm kính có đúng MỘT đường kẻ tóc ở mép phải. Không
-     có bóng đổ giữa sidebar và nội dung: bóng làm nó nổi lên như panel trôi,
-     trong khi macOS coi hai bên là cùng một mặt phẳng cửa sổ. */
+  /* Sidebar macOS Sequoia / iPadOS: Kính mờ đa tầng Liquid Glass với viền tóc siêu mịn */
   border-width: 0 1px 0 0;
-  background: var(--portal-glass-strong);
+  border-color: hsl(var(--border) / 0.35);
+  background: hsl(var(--background) / 0.72);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  backdrop-filter: blur(36px) saturate(190%);
 }
 
-/* ── Hàng điều hướng, dựng theo đúng số đo sidebar macOS ─────────────────
-   Hàng cao 28px, bo 6px, thụt 8px mỗi bên. Chữ 13px thường — KHÔNG đậm:
-   macOS chỉ tăng nét cho hàng đang chọn. Hàng chọn tô ĐẶC màu nhấn với chữ
-   trắng; đó là dấu hiệu nhận ra sidebar macOS ngay từ xa, khác hẳn viên
-   thuốc nhạt của iOS. Icon để trần, không ô màu: ô màu bo góc là ngôn ngữ
-   của Cài đặt trên iPhone, không phải của Finder hay Mail. */
+/* ── Hàng điều hướng chuẩn Apple macOS Sequoia ────────────────────────
+   Chiều cao 36px, bo tròn 10px kiểu squircle Apple, padding đều.
+   Trạng thái Active dạng viên thuốc phát quang mềm mại, không dùng khối xanh đặc. */
 .desktop-apple-nav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 6px;
-  color: hsl(var(--foreground) / 0.88);
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  transition: background 120ms ease, color 120ms ease;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: hsl(var(--foreground) / 0.72);
+  font-size: 13.5px;
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  transition: all 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
 }
 
 .desktop-apple-nav-item:hover {
   background: hsl(var(--foreground) / 0.06);
+  color: hsl(var(--foreground) / 0.95);
 }
 
 .desktop-apple-nav-item.is-active {
-  background: hsl(var(--primary));
-  color: #fff;
-  font-weight: 500;
+  background: hsl(var(--primary) / 0.12);
+  border-color: hsl(var(--primary) / 0.25);
+  color: hsl(var(--primary));
+  font-weight: 550;
+  box-shadow: 0 1px 4px hsl(var(--primary) / 0.08), inset 0 1px 0 hsl(0 0% 100% / 0.15);
+}
+
+.dark .desktop-apple-nav-item.is-active {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.28);
+  color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .desktop-apple-nav-item.is-rail {
   justify-content: center;
-  height: 32px;
+  height: 38px;
   padding: 0;
+  border-radius: 10px;
 }
 
 .desktop-apple-nav-icon {
   flex: none;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1;
-  color: hsl(var(--foreground) / 0.5);
-  transition: color 120ms ease;
+  color: hsl(var(--foreground) / 0.55);
+  transition: color 150ms ease, transform 150ms ease;
 }
 
-.desktop-apple-nav-item.is-active .desktop-apple-nav-icon { color: #fff; }
-.desktop-apple-nav-item:hover:not(.is-active) .desktop-apple-nav-icon { color: hsl(var(--foreground) / 0.75); }
+.desktop-apple-nav-item:hover:not(.is-active) .desktop-apple-nav-icon {
+  color: hsl(var(--foreground) / 0.9);
+  transform: scale(1.05);
+}
 
-/* Ngăn nhóm: một đường kẻ tóc, không phải tiêu đề nhóm — bốn mục thì tiêu đề
-   nhóm chỉ là đồ trang trí. */
+.desktop-apple-nav-item.is-active .desktop-apple-nav-icon {
+  color: hsl(var(--primary));
+}
+
+.dark .desktop-apple-nav-item.is-active .desktop-apple-nav-icon {
+  color: #38bdf8;
+}
+
+/* Ngăn nhóm: một đường kẻ tóc mờ tinh tế */
 .desktop-apple-nav-sep {
   height: 1px;
-  margin: 8px;
+  margin: 10px 4px;
   border: 0;
-  background: hsl(var(--foreground) / 0.1);
+  background: hsl(var(--border) / 0.4);
 }
 
 .portal-liquid-tabbar {

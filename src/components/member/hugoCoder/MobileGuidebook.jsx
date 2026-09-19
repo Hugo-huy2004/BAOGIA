@@ -11,9 +11,9 @@ import InteractivePuzzles from "./InteractivePuzzles";
 import { renderMobileIllustration, renderVisualArtwork } from "./VisualIllustrations";
 import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
-import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
+import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices";
 import { joyText } from "../../../lib/joyDisplay";
-import { getLessonReading } from "./lessons/reading.js";
+import { getLessonReading } from "./lessons/reading";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;

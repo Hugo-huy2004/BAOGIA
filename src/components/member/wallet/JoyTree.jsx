@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { TREE_STAGES, TREE_BONUS_JOY, treeStage } from "../../../../shared/joyPrices.js";
+import { TREE_STAGES, TREE_BONUS_JOY, treeStage } from "../../../../shared/joyPrices";
 
 /**
  * Cây Nhiệm Vụ 3D Chuẩn Đồ Họa (Hugo Quest Studio)

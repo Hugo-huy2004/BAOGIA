@@ -8,8 +8,7 @@ import { useNotifications } from "../../hooks/useNotifications";
 import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
 import { useJoyStore } from "../../stores/joyStore";
-import { selectJoyAccount, setJoyDenom, setJoyRates } from "../../lib/joyDisplay";
-import { fetchJoyRates } from "../../services/joyApi";
+import { selectJoyAccount, setJoyDenom } from "../../lib/joyDisplay";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
@@ -245,10 +244,7 @@ function MemberPortalPage() {
   } = useMemberBootstrap(memberSession?.email, !isGuestMode);
   const patchMemberBio = React.useCallback((patch) => {
     if (!patch) return;
-    if (patch.joyDenom) {
-      setJoyDenom(patch.joyDenom, memberSession?.email);
-      fetchJoyRates().then((rates) => rates && setJoyRates(rates));
-    }
+    if (patch.joyDenom) setJoyDenom(patch.joyDenom, memberSession?.email);
     setBio((previous) => previous ? { ...previous, ...patch } : patch);
     queryClient.setQueryData(
       memberBootstrapKey(memberSession?.email),
@@ -262,26 +258,6 @@ function MemberPortalPage() {
   // được nhìn thấy đơn vị của nhau trong lúc chờ hồ sơ máy chủ tải về.
   React.useEffect(() => {
     selectJoyAccount(memberSession?.email);
-  }, [memberSession?.email]);
-
-  // Tỷ giá là trạng thái sống của cả hệ thống, không phải ảnh chụp lúc đăng
-  // nhập. Đồng bộ định kỳ và khi người dùng quay lại tab để ví, bảng tỷ giá và
-  // sàn đầu tư luôn dùng cùng phiên gần nhất.
-  React.useEffect(() => {
-    if (!memberSession?.email) return undefined;
-    let alive = true;
-    const syncRates = () => fetchJoyRates().then((rates) => {
-      if (alive && rates) setJoyRates(rates);
-    });
-    syncRates();
-    const timer = window.setInterval(syncRates, 5 * 60 * 1000);
-    const onVisibility = () => { if (document.visibilityState === "visible") syncRates(); };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      alive = false;
-      window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
   }, [memberSession?.email]);
 
   const activeTab = tab || (isGuestMode ? "apps" : "today");
@@ -325,7 +301,8 @@ function MemberPortalPage() {
 
   useEffect(() => {
     if (retiredUtility) navigate("/member/apps", { replace: true });
-  }, [retiredUtility, navigate]);
+    if (tab === "wallet") navigate("/member/utilities/joy_wallet", { replace: true });
+  }, [retiredUtility, tab, navigate]);
   const handleSelectPsychologySubTab = (subTabId) => {
     navigate(`/member/utilities/psychology/${subTabId}`);
   };
@@ -523,7 +500,7 @@ function MemberPortalPage() {
           // Ví vẫn nạp bình thường; modal chỉ hỏi phần hồ sơ còn thiếu và tự
           // đóng nếu server báo không thiếu gì.
           hydrateWallet(memberSession.email, bootstrapData.wallet);
-          if (!b.onboardingCompleted || b.profileMissing?.length) setShowOnboarding(true);
+          if (!b.onboardingCompleted) setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
@@ -900,8 +877,8 @@ function MemberPortalPage() {
   const isFullscreenUtility = (activeTab === "utilities" && (
     // Danh sách nằm ở shared/appRegistry.js — MemberUtilitiesTab đọc cùng một
     // bản. Trước đây mỗi file giữ một mảng hardcode và chúng đã lệch nhau.
-    FULLSCREEN_APP_IDS.includes(subTab) ||
-    (subTab === "psychology" && isMobileView)
+    (FULLSCREEN_APP_IDS.includes(subTab) && (isMobileView || (typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches))) ||
+    ((subTab === "psychology" || subTab === "joy_wallet" || subTab === "bio") && isMobileView)
   ));
 
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
@@ -971,6 +948,7 @@ function MemberPortalPage() {
                 studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null}
                 vocabRoute={vocabRouteFromUrl}
                 onVocabRouteChange={handleVocabRouteChange}
+                renderAccountForm={renderAccountForm}
               />
             </React.Suspense>
           </ErrorBoundary>

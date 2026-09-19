@@ -9,9 +9,9 @@ import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJ
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
-import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP } from "../../../../shared/joyPrices.js";
+import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP } from "../../../../shared/joyPrices";
 import { useJoy } from "../../../lib/joyDisplay";
-import { denomKey, transferBreakdown, CROSS_DENOM_FEE } from "../../../../shared/joyCurrency.js";
+import { denomKey, transferBreakdown, CROSS_DENOM_FEE } from "../../../../shared/joyCurrency";
 
 // Ngưỡng một lần gửi — cùng bộ số server kiểm lại khi nhận lệnh.
 const MIN_SEND = 10;

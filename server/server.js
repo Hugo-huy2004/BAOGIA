@@ -533,11 +533,6 @@ server.listen(PORT, () => {
   // Loan tin realtime giữa các process (chỉ hoạt động khi có REDIS_URL).
   initRealtimeFanout();
 
-  // Tỷ giá JOY nạp ở MỌI process, không nằm trong khối cron: đây là đọc dữ liệu
-  // vào bộ nhớ, không có tác dụng phụ, và process web nào cũng cần nó để quy đổi
-  // tiền cho đúng.
-  import('./utils/joyRateService.js').then(({ ensureLiveFactors }) => ensureLiveFactors()).catch(() => {});
-
   if (!RUN_CRON) return;
 
   // Initialize birthday automation check

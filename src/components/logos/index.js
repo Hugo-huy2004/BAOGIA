@@ -1,14 +1,14 @@
-import CreativeCommonsBadge from './CreativeCommonsBadge.jsx';
-import W3CBadge from './W3CBadge.jsx';
-import GoogleSafeBrowsingBadge from './GoogleSafeBrowsingBadge.jsx';
-import DMCABadge from './DMCABadge.jsx';
-import NortonSafeWebBadge from './NortonSafeWebBadge.jsx';
-import TrustpilotBadge from './TrustpilotBadge.jsx';
-import PrivacyBadge from './PrivacyBadge.jsx';
-import VietnamBadge from './VietnamBadge.jsx';
-import SSLBadge from './SSLBadge.jsx';
-import GreenWebBadge from './GreenWebBadge.jsx';
-import GDPRCompliantBadge from './GDPRCompliantBadge.jsx';
+import CreativeCommonsBadge from './CreativeCommonsBadge';
+import W3CBadge from './W3CBadge';
+import GoogleSafeBrowsingBadge from './GoogleSafeBrowsingBadge';
+import DMCABadge from './DMCABadge';
+import NortonSafeWebBadge from './NortonSafeWebBadge';
+import TrustpilotBadge from './TrustpilotBadge';
+import PrivacyBadge from './PrivacyBadge';
+import VietnamBadge from './VietnamBadge';
+import SSLBadge from './SSLBadge';
+import GreenWebBadge from './GreenWebBadge';
+import GDPRCompliantBadge from './GDPRCompliantBadge';
 
 // Các badge dưới đây do chính dịch vụ tương ứng yêu cầu chủ site gắn vào, nên
 // chúng ở lại. Hai lưu ý khi sửa hoặc thêm mới:

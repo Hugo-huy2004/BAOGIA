@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import {
-  JOY_DENOMS, DEFAULT_DENOM, denomKey, denomOf, toDenom, fromDenom, factorOf, setLiveFactors,
-} from "../../shared/joyCurrency.js";
+  JOY_DENOMS, DEFAULT_DENOM, denomKey,
+} from "../../shared/joyCurrency";
 import { localeForLanguage } from "../i18n/languages";
 
 /**
@@ -45,7 +45,6 @@ const readStored = (subject) => {
 // trước trên cùng thiết bị. Chỉ nạp cache sau khi biết đúng tài khoản.
 let active = '';
 let activeSubject = '';
-let liveRates = null;
 let i18nRef = null;
 const listeners = new Set();
 let revision = 0;
@@ -82,54 +81,39 @@ export function setJoyDenom(value, subject = activeSubject) {
 /** Tài khoản đã thật sự chọn đơn vị chưa. `false` = chưa được hỏi. */
 export const joyDenomChosen = () => Boolean(active);
 
-/**
- * Nạp bảng tỷ giá ngày (GET /joy/rates). Gọi một lần sau khi đăng nhập; hỏng
- * thì đừng gọi — mọi thứ tự chạy bằng hệ số nền.
- */
-export function setJoyRates(rates) {
-  setLiveFactors(rates?.factors || null);
-  liveRates = rates || null;
-  publish();
-}
-
-/** Bảng tỷ giá đang dùng (cho màn hình thị trường). `null` khi chưa nạp. */
-export const joyRates = () => liveRates;
-
-/** Hệ số đang áp dụng cho đơn vị của tài khoản. */
-export const joyFactor = () => factorOf(formatting());
-
 /** Đơn vị dùng để ĐỊNH DẠNG; chưa chọn thì tạm lấy mặc định cho khỏi vỡ. */
 const formatting = () => active || DEFAULT_DENOM;
 
-export const joyDenom = () => active;
-export const joyCode = () => denomOf(formatting()).code;
-export const joyName = () => denomOf(formatting()).name;
+export const joyDenom = () => "JOY";
+export const joyCode = () => "JOY";
+export const joyName = () => "JOY";
 
-/** JOY gốc → SỐ theo đơn vị tài khoản (không kèm mã). Chỉ để hiển thị. */
-export const joyValue = (joy) => toDenom(joy, formatting()).amount;
+/** JOY gốc → SỐ (không kèm mã). Chỉ có 1 đơn vị JOY duy nhất. */
+export const joyValue = (joy) => {
+  const parsed = Number(joy);
+  return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+};
 
-/** Số người dùng gõ theo đơn vị của họ → JOY gốc, để gửi lên server. */
-export const joyToRaw = (amount) => fromDenom(amount, formatting());
+/** Số người dùng gõ → số JOY (làm tròn). */
+export const joyToRaw = (amount) => {
+  const parsed = Number(amount);
+  return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+};
 
 const currentLocale = () => localeForLanguage(
   i18nRef?.resolvedLanguage || i18nRef?.language || "vi",
 );
 
-/** SỐ đã định dạng theo ngôn ngữ, KHÔNG kèm mã đơn vị: "24.621.550". */
+/** SỐ đã định dạng theo ngôn ngữ: "1.000". */
 export const joyNumber = (joy) => joyValue(joy).toLocaleString(currentLocale());
 
-/** Chuỗi đầy đủ kèm mã đơn vị: "24.621.550 JOYmi". */
-export const joyText = (joy) => `${joyNumber(joy)} ${joyCode()}`;
+/** Chuỗi đầy đủ kèm mã đơn vị JOY duy nhất: "1.000 JOY". */
+export const joyText = (joy) => `${joyNumber(joy)} JOY`;
 
 /**
- * Đăng ký hai bộ định dạng cho i18next, gọi một lần lúc khởi tạo i18n.
- *
- *   "{{amount, joy}}"    → 24.621.550 JOYmi
- *   "{{amount, joynum}}" → 24.621.550          (khi câu đã có mã đơn vị ở chỗ khác)
- *
- * Nhờ vậy chuỗi dịch chỉ cần bỏ chữ "JOY" đi, còn nơi gọi `t()` vẫn truyền
- * NGUYÊN số JOY gốc như cũ — không có chỗ nào phải tự nhân hệ số, tức là không
- * có chỗ nào nhân sai.
+ * Đăng ký hai bộ định dạng cho i18next:
+ *   "{{amount, joy}}"    → 1.000 JOY
+ *   "{{amount, joynum}}" → 1.000
  */
 export function registerJoyFormat(i18n) {
   i18nRef = i18n;
@@ -141,20 +125,16 @@ const subscribe = (fn) => { listeners.add(fn); return () => listeners.delete(fn)
 const snapshot = () => revision;
 
 /**
- * Hook cho component: trả về bộ định dạng gắn với đơn vị hiện tại và tự vẽ lại
- * khi đơn vị đổi (người dùng vừa xong onboarding chẳng hạn).
+ * Hook cho component: trả về bộ định dạng 1 đơn vị JOY duy nhất của Hugo Studio.
  */
 export function useJoy() {
-  // Mốc thay đổi gộp cả đơn vị lẫn tỷ giá: đổi cái nào cũng phải vẽ lại số tiền.
-  // Snapshot chỉ là số phiên bản để ép vẽ lại; đơn vị đọc thẳng từ module state.
   useSyncExternalStore(subscribe, snapshot, snapshot);
-  const denom = active;
   return {
-    denom,
-    chosen: Boolean(denom),
-    rates: liveRates,
-    code: denomOf(denom || DEFAULT_DENOM).code,
-    name: denomOf(denom || DEFAULT_DENOM).name,
+    denom: "JOY",
+    chosen: true,
+    rates: null,
+    code: "JOY",
+    name: "JOY",
     value: joyValue,
     number: joyNumber,
     text: joyText,

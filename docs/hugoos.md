@@ -148,7 +148,7 @@ Mỗi đợt: khai báo `destinations` trong registry cho app đó, và gọi
 Nguyên tắc: gõ `hugowishpax.studio/<tên-app>` là trải nghiệm được ngay, không
 cần tài khoản; đăng nhập mới bỏ giới hạn. Hạ tầng đã có sẵn, ba mảnh:
 
-1. Một mục trong `src/config/publicTools.js` (tiêu đề ≤ 65 ký tự — `check:seo`
+1. Một mục trong `src/config/publicTools.ts` (tiêu đề ≤ 65 ký tự — `check:seo`
    bắt buộc — mô tả, `heading`, `summary`, và `gate`).
 2. Một nhánh trong `src/pages/public/UtilityPublicPage.jsx` dựng app đó với
    `isGuestMode` + `requireAccount`.
@@ -166,7 +166,7 @@ tài khoản), `demo` (3 lượt/ngày cho khách), `result` (cần tài khoản
 đầu** mà không cần tài khoản. Trước đây cả bộ nằm sau một `FeatureGate` 1500
 JOY — khách chỉ thấy bức tường. Giờ `HugoCoderHub` nhận `previewLessons`: khoá
 theo từng bài thay vì chặn cả app, bài 11 trở đi mới hiện thẻ đăng nhập và mở
-gói. Số bài miễn phí khai báo trong `publicTools.js` chứ không trong hub — trang
+gói. Số bài miễn phí khai báo trong `publicTools.ts` chứ không trong hub — trang
 công khai chỉ cần con số, import từ hub sẽ kéo cả bộ học vào bundle.
 
 Từng game một URL không cần `case` riêng: mục nào khai báo `game` thì

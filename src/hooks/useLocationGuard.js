@@ -7,8 +7,8 @@
  * location is never reset.
  */
 import { useEffect, useRef } from "react";
-import { getCachedGeolocation } from "../utils/geoCache.js";
-import { getMemberToken } from "../services/authSession.js";
+import { getCachedGeolocation } from "../utils/geoCache";
+import { getMemberToken } from "../services/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 

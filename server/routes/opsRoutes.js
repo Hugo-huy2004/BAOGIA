@@ -7,6 +7,7 @@ import {
   reportSpecialistIncident,
   specialistForClientEvent,
 } from '../services/aiIncidentResponseService.js';
+import { telemetryBuffer } from '../services/telemetryRingBuffer.js';
 
 const router = express.Router();
 const events = [];
@@ -69,7 +70,8 @@ function normalizeEvent(body = {}, req) {
 router.post('/client-event', telemetryLimiter, (req, res) => {
   try {
     const event = normalizeEvent(req.body, req);
-    
+    telemetryBuffer.push({ ...event, userId: req.memberEmail || req.ip });
+
     // Only accumulate events in memory in development mode to prevent RAM exhaustion / DDoS in production
     if (process.env.NODE_ENV !== 'production') {
       events.push(event);

@@ -182,7 +182,24 @@ export default function DesignSubTab({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Thanh trạng thái giao diện đang áp dụng */}
+        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="text-foreground text-[12px] truncate">
+              Đang dùng: <strong className="font-extrabold text-primary">{AVAILABLE_THEMES.find(t => t.id === currentTemplate)?.vietnameseTitle || "Edu Theme"}</strong>
+            </span>
+          </div>
+          <span className="text-[10.5px] text-muted-foreground font-medium shrink-0 hidden xs:inline">
+            Chạm thẻ để đổi ngay
+          </span>
+        </div>
+
+        {/* Lưới chọn giao diện: 2 cột trên điện thoại để nhìn tổng quan dễ chọn, 3 cột trên máy tính */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
           {AVAILABLE_THEMES.map((theme) => {
             const isSelected = currentTemplate === theme.id;
 
@@ -191,55 +208,67 @@ export default function DesignSubTab({
                 key={theme.id}
                 type="button"
                 onClick={() => handleSelectTheme(theme)}
-                className={`rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                className={`group rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between active:scale-[0.98] ${
                   isSelected
                     ? "bg-primary/10 border-primary shadow-xs ring-2 ring-primary text-foreground"
                     : "bg-card hover:bg-card/90 border-border/60 hover:border-border text-foreground/90 shadow-2xs"
                 }`}
               >
                 {/* Visual Background Thumbnail Banner */}
-                <div className="w-full h-16 relative overflow-hidden border-b border-border/40 bg-muted/40">
+                <div className="w-full h-20 sm:h-24 relative overflow-hidden border-b border-border/40 bg-muted/40">
                   {theme.bgPreview ? (
                     <img
                       src={theme.bgPreview}
                       alt={theme.title}
-                      className="w-full h-full object-cover opacity-90 transition-transform duration-300 hover:scale-105"
+                      className="w-full h-full object-cover opacity-90 transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : theme.isStudio ? (
                     <div className="w-full h-full bg-[#030712] border-b border-cyan-500/30 flex flex-col items-center justify-center relative overflow-hidden">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,240,255,0.25),transparent_70%)]" />
-                      <div className="relative z-10 flex items-center gap-1.5 font-mono text-[10px] font-bold text-cyan-400 tracking-[0.2em] uppercase">
+                      <div className="relative z-10 flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-bold text-cyan-400 tracking-[0.15em] uppercase">
                         <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
                         <span>HUGO STUDIO</span>
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full h-full bg-amber-200 border-b-2 border-black flex items-center justify-center font-black text-black text-xs uppercase tracking-widest">
+                    <div className="w-full h-full bg-amber-200 border-b-2 border-black flex items-center justify-center font-black text-black text-[10px] sm:text-xs uppercase tracking-widest">
                       NEO BRUTALISM
                     </div>
                   )}
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-md">
+                  {isSelected ? (
+                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground rounded-full p-1 shadow-md ring-1 ring-background">
                       <Check className="size-3.5 stroke-[3]" />
+                    </div>
+                  ) : (
+                    <div className="absolute top-1.5 right-1.5 bg-black/30 backdrop-blur-xs text-white/70 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-[13px]">touch_app</span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-3.5 flex-1 flex flex-col justify-between gap-3">
+                <div className="p-2.5 sm:p-3.5 flex-1 flex flex-col justify-between gap-2 sm:gap-3">
                   <div>
-                    <h4 className="text-sm font-bold tracking-tight text-foreground flex items-center gap-1.5">
-                      {theme.vietnameseTitle}
-                    </h4>
-                    <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed line-clamp-2">
+                    <div className="flex items-center justify-between gap-1">
+                      <h4 className="text-xs sm:text-sm font-bold tracking-tight text-foreground truncate">
+                        {theme.vietnameseTitle}
+                      </h4>
+                      {isSelected && (
+                        <span className="text-[10px] font-extrabold text-primary shrink-0 sm:hidden">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    {/* Mô tả chi tiết: ẩn trên màn hình nhỏ để thẻ gọn gàng dễ so sánh, hiển thị đầy đủ trên tablet/desktop */}
+                    <p className="hidden sm:block text-[11.5px] text-muted-foreground mt-1 leading-relaxed line-clamp-2">
                       {theme.desc}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-muted-foreground">
+                  <div className="pt-1.5 sm:pt-2 border-t border-border/40 flex items-center justify-between gap-1">
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">
                       {theme.title}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
                       {theme.badgeText}
                     </span>
                   </div>

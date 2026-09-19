@@ -31,8 +31,8 @@ export const LEGAL_DOCUMENTS = {
               type: "steps",
               items: [
                 "Mọi tiện ích cốt lõi đều có thể trải nghiệm hoàn toàn miễn phí hoặc tích lũy điểm thưởng JOY qua nỗ lực học tập và check-in hàng ngày.",
-                "Các gói dịch vụ phát triển trang web, hợp đồng thương mại hoặc mua sắm tiện ích bổ sung đều có báo giá rõ ràng, thanh toán một lần qua cổng Napas 24/7 (VietQR) có hóa đơn điện tử.",
-                "Khi hệ thống điều chỉnh chính sách hoặc biểu giá, toàn bộ thông tin được niêm yết công khai trước ít nhất 14 ngày trên trang Điều khoản & Hướng dẫn sử dụng.",
+                "Nền tảng vận hành theo tôn chỉ phi lợi nhuận, cung cấp không gian cá nhân Bio miễn phí trọn đời cho người dùng sáng tạo và học tập.",
+                "Khi hệ thống điều chỉnh chính sách, toàn bộ thông tin được niêm yết công khai trước ít nhất 14 ngày trên trang Điều khoản & Hướng dẫn sử dụng.",
               ],
             },
           ],
@@ -142,9 +142,9 @@ export const LEGAL_DOCUMENTS = {
                   "Nếu máy chủ bị xâm nhập, kẻ tấn công cũng không thể trích xuất vân tay hay khóa riêng tư của người dùng.",
                 ],
                 [
-                  "Dữ liệu thanh toán (PaymentLink)",
-                  "Khởi tạo liên kết thanh toán VietQR động. Chỉ lưu trữ mã đơn hàng, số tiền đối soát và trạng thái Webhook HMAC.",
-                  "Không bao giờ lưu số tài khoản ngân hàng, thông tin thẻ tín dụng hay mã CVV/OTP của khách hàng.",
+                  "Cấu hình Bio & Không gian cá nhân (BioTheme)",
+                  "Lưu trữ giao diện, liên kết cá nhân và chủ đề màu sắc tùy biến do người dùng lựa chọn.",
+                  "Người dùng toàn quyền chỉnh sửa, ẩn hoặc xóa hoàn toàn trang Bio cá nhân bất cứ lúc nào.",
                 ],
                 [
                   "Nhật ký kiểm toán (AdminAuditLog)",
@@ -241,8 +241,8 @@ export const LEGAL_DOCUMENTS = {
               type: "steps",
               items: [
                 "Core platform utilities remain fully accessible for free or unlockable via organic JOY points earned through study and daily discipline.",
-                "Commercial engineering contracts and web development retain fixed itemized quotes, settled via State Bank of Vietnam Napas 24/7 VietQR rails with cryptographic invoices.",
-                "Policy updates or fee schedule amendments are broadcast publicly at least 14 days in advance via official documentation.",
+                "The platform operates on a non-profit ethos, providing lifetime free personal Bio workspaces for creative expression and learning.",
+                "Policy updates are broadcast publicly at least 14 days in advance via official documentation.",
               ],
             },
           ],
@@ -352,9 +352,9 @@ export const LEGAL_DOCUMENTS = {
                   "Even under total database exfiltration, attackers cannot deduce user biometrics or private keys.",
                 ],
                 [
-                  "PaymentLink (Invoices)",
-                  "Dynamic VietQR generation with HMAC Webhook reconciliations.",
-                  "Zero storage of debit cards, bank PINs, or OTPs. Settlements execute directly on banking rails.",
+                  "BioTheme & Personal Space",
+                  "Stores themes, custom links, and layout configurations selected by the user.",
+                  "Users retain full autonomy to edit, hide, or permanently purge their personal Bio space at any time.",
                 ],
                 [
                   "AdminAuditLog (Audit Trail)",

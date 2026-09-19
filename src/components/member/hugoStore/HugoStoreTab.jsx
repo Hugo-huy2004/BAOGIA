@@ -8,13 +8,11 @@ import { useJoyStore } from "../../../stores/joyStore";
 import StoreHome from "./StoreHome";
 import StoreAppDetail from "./StoreAppDetail";
 import GiftSheet from "./GiftSheet";
-import { ArtDefs } from "./ui/AppArt";
 import { useStorePlans } from "./hooks/useStorePlans";
 import { useTapGuard } from "./hooks/useTapGuard";
 import { useAppInstall } from "../../../hooks/useAppInstall";
 import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
 import { STORE_ITEMS, exchangeItemKey, storeName } from "./storeData";
-import "./hugo-store.css";
 
 const API = import.meta.env.VITE_API_URL || "/api";
 
@@ -30,34 +28,29 @@ const postJson = async (path, body) => {
   return data;
 };
 
-/** Đoán cách tra người nhận từ một chuỗi người dùng gõ vào. */
 const recipientField = (handle) => (
   handle.includes("@") ? { toEmail: handle }
     : /^[0-9+\s.-]{8,}$/.test(handle) ? { toPhone: handle }
       : { toReferralCode: handle }
 );
 
-/**
- * Khung chờ trong lúc bảng giá về. Vẽ ngay bằng dữ liệu rỗng thì lưới hiện một
- * loạt app "miễn phí" rồi mới nhảy sang có giá khi bảng giá tới.
- */
 const StoreSkeleton = () => (
-  <div className="hgs-grid px-3" aria-hidden="true">
-    {Array.from({ length: 9 }, (_, i) => (
-      <div key={i} className="hgs-skeleton h-[96px] rounded-[14px]" />
-    ))}
+  <div className="flex flex-col space-y-10 px-5 py-4 w-full" aria-hidden="true">
+    <div className="flex overflow-hidden gap-4">
+      <div className="animate-pulse bg-muted/60 rounded-[20px] shrink-0 w-[85vw] max-w-[320px] aspect-[16/9]" />
+      <div className="animate-pulse bg-muted/60 rounded-[20px] shrink-0 w-[85vw] max-w-[320px] aspect-[16/9]" />
+    </div>
+    <div>
+      <div className="animate-pulse bg-muted/60 rounded-md w-32 h-6 mb-4" />
+      <div className="flex overflow-hidden gap-4">
+        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
+        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
+        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
+      </div>
+    </div>
   </div>
 );
 
-/**
- * Hugo Chợ — ứng dụng độc lập, chiếm trọn màn hình, lối ra là nút quay lại.
- *
- * Hai màn: lưới ứng dụng (StoreHome) và trang một ứng dụng (StoreAppDetail).
- * Không có tab, không có giỏ hàng, và KHÔNG tự dựng màn thanh toán: mọi thứ có
- * phí đều mở `JoyExchangeModal` (phiếu trao đổi JOY dùng chung toàn hệ thống)
- * với một khoá `item`, còn giá thì `/api/joy/exchange-quote` báo. Client không
- * tính tiền.
- */
 export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOpenUtility }) {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
@@ -93,15 +86,10 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
 
-  // Large title cuộn khuất thì thanh nav mới kẻ viền và hiện tiêu đề nhỏ.
-  // Ngưỡng đo bằng scrollTop chứ không bằng IntersectionObserver: mốc quan sát
-  // sẽ phải nằm trong StoreHome/StoreAppDetail, mà hai màn đó tháo lắp liên
-  // tục nên ref lúc có lúc không.
   const handleScroll = useCallback((e) => {
     setScrolled(e.currentTarget.scrollTop > 34);
   }, []);
 
-  // Sheet/phiếu mở thì giấu mọi thanh điều hướng còn sót của portal.
   const overlayOpen = Boolean(exchange || giftAppId);
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: overlayOpen } }));
@@ -110,11 +98,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
 
   const planIndex = useMemo(() => new Map(plans.map(p => [p.appId, p])), [plans]);
 
-  /**
-   * App/game tĩnh + bậc giá động + trạng thái cài đặt, gộp thành một đơn vị cho
-   * lớp vẽ. `ladder` tra theo `planId` chứ không theo `id`: game Cờ Caro mở
-   * bằng gói Trò Chơi nên bảng giá của nó chính là bảng giá Trò Chơi.
-   */
   const entries = useMemo(
     () => STORE_ITEMS.map(app => {
       const plan = app.planId ? planIndex.get(app.planId) || null : null;
@@ -138,7 +121,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   const detail = detailId ? entryOf(detailId) : null;
   const giftPlan = giftAppId ? planIndex.get(giftAppId) : null;
 
-  /** Sau mỗi giao dịch: đồng bộ số dư, bảng bậc và lịch sử. */
   const afterExchange = useCallback((result) => {
     if (result?.balance != null) {
       useJoyStore.getState().setBalance(result.balance);
@@ -147,11 +129,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     reloadPlans();
     loadOrders();
   }, [onBioUpdate, reloadPlans, loadOrders]);
-
-  // ── Mua bằng JOY: bốn hành động, dùng chung một phiếu ────────────────────
-  // Nhận thẳng đối tượng bảng bậc (`ladder`) chứ không nhận id của ô người dùng
-  // vừa bấm: game Cờ Caro mở bằng gói Trò Chơi, nên id trên ô và id của gói
-  // KHÁC nhau, và tra ngược lại bằng id ô là mua nhầm thứ.
 
   const handleTrial = useCallback(async (ladder) => {
     try {
@@ -184,7 +161,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     });
   }, [bio?.email]);
 
-  /** Chọn xong người nhận → đóng sheet, mở đúng phiếu trao đổi của bậc đó. */
   const handleGiftContinue = useCallback(({ appId, tier, handle, message }) => {
     const plan = planIndex.get(appId);
     if (!plan) return;
@@ -195,14 +171,12 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     });
   }, [planIndex]);
 
-  /** Tải: cùng một cơ chế với Thư viện và Arcade (xem hooks/useAppInstall). */
   const handleInstall = useCallback((entry) => {
     install(entry.app.id, {
       onDone: () => showToast?.(t("utilities.store.app.installedToast", { app: entry.app.label }), "success"),
     });
   }, [install, showToast, t]);
 
-  /** Mở: game đi qua Arcade — đó là nơi quản lý và chạy chúng. */
   const handleOpen = useCallback((entry) => {
     if (entry.app.game) {
       navigate(`/member/utilities/arcade?game=${entry.app.id.replace("arcade_", "")}&from=store`, {
@@ -213,7 +187,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     onOpenUtility?.(entry.app.id);
   }, [navigate, onOpenUtility]);
 
-  /** Mở trang một app — luôn về đầu trang, không thừa hưởng chỗ cuộn của lưới. */
   const openDetail = useCallback((appId) => {
     setDetailId(appId);
     scrollRef.current?.scrollTo({ top: 0 });
@@ -225,35 +198,38 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   }, []);
 
   return (
-    <div className="hgs flex h-full min-h-0 flex-col text-left">
-      {/* Gradient dùng chung cho mọi hình minh hoạ — xem ui/AppArt.jsx */}
-      <ArtDefs />
-
-      {/* ── Thanh nav ────────────────────────────────────────────────────────
-          Chỉ giữ nút quay lại, số dư và một tiêu đề nhỏ hiện ra khi large
-          title đã cuộn khuất — đúng cách UINavigationController làm. Large
-          title nằm trong vùng cuộn ở dưới, không ở đây. */}
-      <header data-scrolled={scrolled} className="hgs-nav shrink-0 px-4 pb-2">
-        <div className="flex h-11 items-center gap-2">
-          <BackButton onClick={detail ? leaveDetail : onBack} iconOnly className="hgs-iconbtn" />
-          <span className="hgs-nav-title hgs-ink min-w-0 flex-1 truncate text-center">
+    <div className="flex flex-col h-[100dvh] lg:h-full w-full bg-background relative overflow-hidden">
+      {/* FIXED HEADER WITH BLUR */}
+      <header 
+        className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 transition-all duration-300 ${
+          scrolled || detail ? "bg-background/80 backdrop-blur-lg border-b border-border/40 shadow-sm" : "bg-transparent"
+        }`}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {detail && (
+            <button
+              type="button"
+              onClick={leaveDetail}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground py-1 px-2.5 rounded-full bg-muted/60 active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm">arrow_back</span>
+              <span>Cửa hàng</span>
+            </button>
+          )}
+          <span className={`font-semibold text-[16px] text-foreground transition-opacity duration-300 ${scrolled || detail ? "opacity-100" : "opacity-0"}`}>
             {detail ? detail.app.label : storeName()}
           </span>
-          {/* JOY giữ đồng xu vàng làm dấu hiệu ngữ nghĩa, chỉ bọc lại bằng
-              viên nang xám cho khớp phần còn lại. */}
-          <span className="flex h-8 shrink-0 items-center rounded-full bg-[var(--hgs-fill)] px-2.5">
-            <JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />
-          </span>
+        </div>
+        <div className="flex items-center bg-muted/60 px-3 py-1.5 rounded-full border border-border/50 shadow-sm backdrop-blur-md mr-12">
+          <JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />
         </div>
       </header>
 
-      {/* ── Dòng nội dung ────────────────────────────────────────────────────
-          `tapGuard` gắn ở đây vì mọi nút của cửa hàng đều nằm trong vùng cuộn
-          này: vuốt để cuộn xong nhả tay sẽ không mở nhầm app hay phiếu mua. */}
+      {/* SCROLLABLE CONTENT */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="hgs-scroll min-h-0 flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto pb-20 pt-14 hide-scrollbar"
         {...tapGuard}
       >
         {loading && plans.length === 0 ? (
@@ -296,7 +272,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
         />
       )}
 
-      {/* Phiếu trao đổi JOY dùng chung — cửa hàng không có hoá đơn riêng. */}
       <JoyExchangeModal
         open={Boolean(exchange)}
         bio={bio}

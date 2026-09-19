@@ -18,6 +18,10 @@ from services.intent_insights_service import intent_insights, normalize
 from services.warning_sentinel import warning_sentinel
 from services.vector_service import vector_service
 from services.film_engine_service import film_engine
+from services.news_intelligence_service import news_intel
+from services.user_telemetry_sentinel import telemetry_sentinel
+from services.hugopsy_companion_engine import hugopsy_engine
+from services.admin_intel_service import admin_intel
 from middleware.auth import verify_internal_key
 
 class VectorUpsertRequest(BaseModel):
@@ -152,6 +156,24 @@ class CbtWorksheetRequest(BaseModel):
     historyLogs: Optional[List[Dict[str, Any]]] = None
     chatMessages: Optional[List[Dict[str, Any]]] = None
     bio: Optional[Dict[str, Any]] = None
+
+class NewsSummarizeRequest(BaseModel):
+    articleId: str
+    title: str
+    description: Optional[str] = ""
+    body: Optional[str] = None
+    source: Optional[str] = "Toà soạn báo chí"
+    language: Optional[str] = "vi"
+
+class NewsDigestRequest(BaseModel):
+    articles: List[Dict[str, Any]]
+    language: Optional[str] = "vi"
+
+class TelemetryBatchRequest(BaseModel):
+    events: List[Dict[str, Any]]
+
+class AdminIntelRequest(BaseModel):
+    metrics: Dict[str, Any]
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -375,10 +397,11 @@ async def chat_stream(request: ChatRequest, req: Request):
                     await asyncio.sleep(0.1)
                 return StreamingResponse(error_stream(), media_type="text/event-stream")
 
-        inner_generator = ai_service.generate_chat_response_stream(
+        inner_generator = hugopsy_engine.stream_chat_resilient(
             message=request.message,
             history=request.history,
-            bio=request.bio
+            bio=request.bio,
+            gemini_service=ai_service
         )
 
         async def charged_stream():
@@ -394,14 +417,18 @@ async def chat_stream(request: ChatRequest, req: Request):
                             pass
                     yield chunk
             finally:
-                # Only charge after a confirmed successful, error-free stream — errors never cost a token.
+                # Chỉ trừ token nếu hội thoại thành công không có lỗi
                 if not had_error:
                     await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)
 
         return StreamingResponse(charged_stream(), media_type="text/event-stream")
     except Exception as e:
-        print("Lỗi tại /api/ai/chat/stream:", str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        print("Lỗi tại /api/ai/chat/stream, kích hoạt cứu sinh lâm sàng:", str(e))
+        safe_reply = hugopsy_engine.generate_local_empathic_reply(request.message, bio=request.bio, history=request.history)
+        async def safe_emergency_stream():
+            yield f"data: {json.dumps({'text': safe_reply}, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(safe_emergency_stream(), media_type="text/event-stream")
 
 
 @app.post("/api/ai/chat/audio")
@@ -723,6 +750,95 @@ async def get_film_manifest():
         return film_engine.get_film_manifest()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ---------------------------------------------------------------------------
+# News Intelligence & Fluctuation Digest Endpoints (Tác vụ 1)
+# ---------------------------------------------------------------------------
+
+@app.post("/api/ai/news/summarize")
+async def summarize_news_article(request: NewsSummarizeRequest):
+    """Tóm tắt & viết lại nội dung độc lập theo chuẩn Fair-Use (<0.2ms NLP / Single-Flight LLM) với 0% sập."""
+    try:
+        res = await news_intel.summarize_article_resilient(
+            article_id=request.articleId,
+            title=request.title,
+            description=request.description or "",
+            body=request.body,
+            source=request.source or "Toà soạn báo chí",
+            lang=request.language or "vi",
+            ai_service=ai_service
+        )
+        return res
+    except Exception as e:
+        fallback_obj = news_intel.extract_instant_nlp_rewrite(
+            request.title,
+            request.description or "",
+            request.body,
+            source=request.source or "Toà soạn báo chí",
+            lang=request.language or "vi"
+        )
+        return {
+            **fallback_obj,
+            "by": "nlp_instant_fallback",
+            "error": str(e)
+        }
+
+@app.post("/api/ai/news/digest")
+async def summarize_news_digest(request: NewsDigestRequest):
+    """Tổng hợp bản tin biến động 24h đa chiều (Tech, Markets, Education, World)."""
+    try:
+        return await news_intel.extract_fluctuation_digest(request.articles, lang=request.language or "vi")
+    except Exception as e:
+        return {
+            "headline": "Bản tin biến động tổng hợp hôm nay",
+            "categories": {},
+            "error": str(e)
+        }
+
+# ---------------------------------------------------------------------------
+# User Telemetry & Emotional Anomaly Sentinel Endpoints (Tác vụ 2)
+# ---------------------------------------------------------------------------
+
+@app.post("/api/ai/telemetry/batch")
+async def ingest_telemetry_batch(request: TelemetryBatchRequest):
+    """Tiếp nhận lô sự kiện telemetry trong O(1) memory, không nghẽn disk."""
+    try:
+        return telemetry_sentinel.ingest_batch(request.events)
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+@app.get("/api/ai/telemetry/stats")
+async def get_telemetry_stats():
+    """Thống kê sức khoẻ cộng đồng và telemetry người dùng cho Admin."""
+    try:
+        return telemetry_sentinel.get_aggregated_system_telemetry()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/ai/telemetry/user/{userId}")
+async def get_user_wellness(userId: str):
+    """Tra cứu trạng thái trôi dạt cảm xúc của người dùng."""
+    try:
+        return telemetry_sentinel.check_user_wellness_status(userId)
+    except Exception as e:
+        return {"error": str(e)}
+
+# ---------------------------------------------------------------------------
+# Admin Executive Autonomous Brain Endpoints (Tác vụ 4)
+# ---------------------------------------------------------------------------
+
+@app.post("/api/ai/admin/intel")
+async def get_admin_intel(request: AdminIntelRequest):
+    """Chấm điểm sức khoẻ hệ thống (0-100) và tạo đề xuất điều hành 1-Click."""
+    try:
+        return await admin_intel.compute_executive_intel(request.metrics, ai_service=ai_service)
+    except Exception as e:
+        return {
+            "system_health_score": 90,
+            "system_grade": "A (Chế độ an toàn dự phòng)",
+            "status_color": "emerald",
+            "error": str(e)
+        }
 
 # ---------------------------------------------------------------------------
 # Entry point

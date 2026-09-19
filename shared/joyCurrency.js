@@ -27,48 +27,40 @@
  * `factor` — 1 JOY gốc bằng bao nhiêu đơn vị hiển thị (luôn là số nguyên ≥ 1)
  */
 export const JOY_DENOMS = {
-  en: { code: "JOYka", name: "Kavo", factor: 1 },
-  es: { code: "JOYve", name: "Velu", factor: 5 },
-  fr: { code: "JOYve", name: "Velu", factor: 5 },
-  zh: { code: "JOYra", name: "Rami", factor: 10 },
-  id: { code: "JOYse", name: "Sela", factor: 16 },
-  vi: { code: "JOYmi", name: "Mira", factor: 25 },
-  th: { code: "JOYti", name: "Tinu", factor: 50 },
-  ja: { code: "JOYzo", name: "Zoma", factor: 150 },
-  ko: { code: "JOYlu", name: "Luno", factor: 1350 },
+  en: { code: "JOY", name: "JOY", factor: 1 },
+  es: { code: "JOY", name: "JOY", factor: 1 },
+  fr: { code: "JOY", name: "JOY", factor: 1 },
+  zh: { code: "JOY", name: "JOY", factor: 1 },
+  id: { code: "JOY", name: "JOY", factor: 1 },
+  vi: { code: "JOY", name: "JOY", factor: 1 },
+  th: { code: "JOY", name: "JOY", factor: 1 },
+  ja: { code: "JOY", name: "JOY", factor: 1 },
+  ko: { code: "JOY", name: "JOY", factor: 1 },
 };
 
 export const DEFAULT_DENOM = "vi";
 
 /**
- * ĐƠN VỊ CHUẨN của cả hệ thống: Kavo (bản tiếng Anh), hệ số 1 — tức 1 Kavo
- * đúng bằng 1 JOY gốc, không hơn không kém. Mọi đơn vị khác đều được NIÊM YẾT
- * theo nó, đúng cách bảng tỷ giá quốc tế lấy một đồng làm gốc rồi quy mọi đồng
- * còn lại về đó.
- *
- * Vì sao là bản tiếng Anh: nó là đơn vị MẠNH NHẤT trong bảng (một Kavo đổi được
- * 1350 Luno, 25 Mira…), nên mọi tỷ giá quy về nó đều là số ≥ 1 — đọc bảng không
- * phải nhìn số 0,00074. Đây cũng là lý do bảng tỷ giá thật lấy đồng mạnh làm gốc.
+ * ĐƠN VỊ CHUẨN DUY NHẤT: JOY của Hugo Studio.
+ * Giá trị siêu lớn, là vé thông hành quyền lực nhất của toàn hệ sinh thái.
+ * 1 JOY = 1 JOY duy nhất, không quy đổi sang bất kỳ đơn vị tương đương nào.
  */
-export const BASE_DENOM = "en";
+export const BASE_DENOM = "vi";
 
-/** Danh sách chọn theo trải nghiệm ngôn ngữ/quốc gia — giữ cả Pháp và Tây Ban Nha. */
+/** Danh sách chọn theo ngôn ngữ — đều trả về 1 đơn vị JOY duy nhất. */
 export const DENOM_ACCOUNT_OPTIONS = Object.entries(JOY_DENOMS).map(([key, denom]) => ({
   key,
   ...denom,
   localeKeys: [key],
 }));
 
-/** Danh sách bảng tỷ giá — gộp các vùng dùng chung đúng một mã đơn vị. */
-export const DENOM_OPTIONS = Object.entries(JOY_DENOMS).reduce((list, [key, denom]) => {
-  const existing = list.find((item) => item.code === denom.code);
-  if (existing) existing.localeKeys.push(key);
-  else list.push({ key, ...denom, localeKeys: [key] });
-  return list;
-}, []);
+/** Danh sách đơn vị hiển thị chuẩn — 1 đơn vị JOY duy nhất. */
+export const DENOM_OPTIONS = [
+  { key: "vi", code: "JOY", name: "JOY", factor: 1, localeKeys: Object.keys(JOY_DENOMS) }
+];
 
-/** Phí đổi đơn vị khi gửi JOY sang người dùng đơn vị khác. */
-export const CROSS_DENOM_FEE = 0.15;
+/** Không có phí đổi đơn vị vì chỉ có 1 đơn vị JOY duy nhất. */
+export const CROSS_DENOM_FEE = 0;
 
 /** Mã ngôn ngữ (vi-VN, en_US…) → khoá đơn vị. Lạ thì về đơn vị mặc định. */
 export function denomKey(language) {
@@ -78,28 +70,9 @@ export function denomKey(language) {
 
 export const denomOf = (language) => JOY_DENOMS[denomKey(language)];
 
-// ── TỶ GIÁ SỐNG ────────────────────────────────────────────────────
-// `factor` ở bảng trên là hệ số NỀN. Tỷ giá thật chạy quanh nó theo ngày, do
-// server tính (server/utils/joyRateService.js) và nạp vào đây một lần lúc khởi
-// động màn hình. Không có tỷ giá thì mọi thứ chạy đúng bằng hệ số nền — thị
-// trường hỏng không được phép làm hỏng ví.
-//
-// Đây vẫn CHỈ LÀ LỚP HIỂN THỊ: giá của mọi thứ trong app niêm yết bằng JOY gốc,
-// nên tỷ giá lên xuống không làm ai mua được nhiều hay ít hơn. Nó đổi CÁCH VIẾT
-// con số, không đổi sức mua — đó là lý do thả nổi được mà không mở ra kẽ hở
-// mua rẻ bán đắt nào.
-let liveFactors = null;
-
-/** Nạp tỷ giá ngày (map khoá đơn vị → hệ số). `null` để quay về hệ số nền. */
-export function setLiveFactors(map) {
-  liveFactors = (map && typeof map === "object") ? map : null;
-}
-
-/** Hệ số đang có hiệu lực của một đơn vị. */
-export function factorOf(language) {
-  const key = denomKey(language);
-  const live = Number(liveFactors?.[key]);
-  return Number.isFinite(live) && live > 0 ? live : JOY_DENOMS[key].factor;
+/** Hệ số luôn bằng 1 — 1 JOY duy nhất, không nhân chia quy đổi. */
+export function factorOf() {
+  return 1;
 }
 
 /** JOY gốc → số hiển thị theo đơn vị của người đó (luôn là số nguyên). */

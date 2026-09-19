@@ -91,13 +91,13 @@ function TeamShell({ onBack, children }) {
             scrolled={scrolled}
             large
             title="Hugo Team"
-            left={<BackButton onClick={onBack} />}
+            left={null}
             right={(
               <button
                 type="button"
                 onClick={() => setRulesOpen(true)}
                 aria-label={t("memberPortal.team.rules.title")}
-                className="grid h-[30px] w-[30px] place-items-center rounded-full text-[17px] font-bold"
+                className="grid h-[30px] w-[30px] place-items-center rounded-full text-[17px] font-bold mr-11"
                 style={{ background: "hsl(var(--muted))", color: "hsl(var(--foreground))" }}
               >
                 !

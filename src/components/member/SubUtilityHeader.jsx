@@ -13,10 +13,8 @@ export default function SubUtilityHeader({ title, icon, colorClass, onBack, appI
     // KHÔNG dùng margin âm ở đây. Trang không có đệm hai bên trên điện thoại,
     // nên `-mx-*` làm header rộng hơn trang đúng bằng ngần ấy và tràn ra ngoài
     // — mọi app dùng header này đều bị cắt mép.
-    <header className="sticky top-0 z-40 mb-5 flex w-full items-center gap-1 border-b border-border/60 bg-background/80 px-1 py-1.5 backdrop-blur-xl">
-      {onBack ? <BackButton onClick={onBack} /> : <span className="h-11 w-1 shrink-0" />}
-
-      <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5">
+    <header className="sticky top-0 z-40 mb-5 flex w-full items-center justify-between gap-2 border-b border-border/60 bg-background/80 px-3 py-2 backdrop-blur-xl">
+      <div className="flex min-w-0 items-center gap-2">
         <span className={`material-symbols-outlined shrink-0 text-[20px] ${colorClass || "text-muted-foreground"}`}>
           {icon}
         </span>
@@ -24,7 +22,9 @@ export default function SubUtilityHeader({ title, icon, colorClass, onBack, appI
       </div>
 
       {/* Ẩn khi đã chạy dạng PWA độc lập */}
-      <StandaloneInstallButton appTitle={title} appId={appId} />
+      <div className="mr-10">
+        <StandaloneInstallButton appTitle={title} appId={appId} />
+      </div>
     </header>
   );
 }

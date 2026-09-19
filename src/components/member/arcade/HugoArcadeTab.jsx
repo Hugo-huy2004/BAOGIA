@@ -255,7 +255,6 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
         {/* Nav bar iOS: tiêu đề nhỏ chỉ hiện sau khi large title cuộn khuất. */}
         <header className={`arc-topbar${scrolled ? " is-scrolled" : ""}`}>
           <div className="arc-col">
-            <BackButton onClick={onBack} iconOnly />
             <span className="arc-topbar-title">{activeTab === "rank" ? t("arcadeGame.rankTitle") : "Hugo Arcade"}</span>
             <JoyChip balance={joyBalance} />
             {!subscribed && (

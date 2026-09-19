@@ -7,4 +7,4 @@ export {
   isAuraThemeFree,
   isAuraThemeId,
   resolveActivePortalTheme,
-} from "../../shared/auraThemes.js";
+} from "../../shared/auraThemes";

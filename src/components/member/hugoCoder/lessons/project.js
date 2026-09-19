@@ -951,7 +951,7 @@ TODO 5: @media (prefers-reduced-motion: reduce) { ... } */
     theory: `### KIẾN THỨC CỐT LÕI
 Ba đòn tối ưu tải trang cho đồ án:
 
-1. **Route-level splitting**: trang nặng hiếm vào (Admin, Report) tách chunk — \`const Admin = () => import("./pages/admin.js")\` (React: React.lazy + Suspense).
+1. **Route-level splitting**: trang nặng hiếm vào (Admin, Report) tách chunk — \`const Admin = () => import("./pages/admin")\` (React: React.lazy + Suspense).
 2. **Ảnh lazy 2 cấp**:
 > Cấp 1 — thuộc tính native: \`<img loading="lazy" width height>\` (trình duyệt tự lo).
 > Cấp 2 — **IntersectionObserver** khi cần kiểm soát (ảnh nền, animation vào màn hình):
@@ -989,7 +989,7 @@ Nguyên tắc bất di bất dịch: đo Lighthouse TRƯỚC và SAU (bài 59) �
     ],
     tasks: ["Viết dynamic import cho trang nặng và IntersectionObserver (data-src, rootMargin, unobserve) cho ảnh."],
     starterCode: `// BÀI 82 — Cột mốc 12: Lazy loading sâu
-// TODO 1: loadAdminPage() — await import("./pages/admin.js")
+// TODO 1: loadAdminPage() — await import("./pages/admin")
 // TODO 2: IntersectionObserver — isIntersecting -> src = dataset.src -> unobserve, rootMargin 200px
 // TODO 3: chú thích bảng đo Lighthouse trước/sau (LCP, KB)
 `,

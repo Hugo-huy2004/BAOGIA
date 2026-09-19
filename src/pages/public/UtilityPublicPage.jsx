@@ -17,7 +17,6 @@ const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 const HugoKitApp = lazy(() => import("../../components/member/hugoKit/HugoKitApp"));
-const SupportCenterApp = lazy(() => import("../../components/member/support/SupportCenterApp"));
 const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
 const StudyWithHugoApp = lazy(() => import("../../components/member/study/StudyWithHugoApp"));
 
@@ -236,7 +235,7 @@ export default function UtilityPublicPage() {
     };
 
     // Game một-URL: mọi mục có `game` dùng chung một nhánh, thêm game mới chỉ
-    // là thêm một mục trong publicTools.js chứ không phải một `case` nữa.
+    // là thêm một mục trong publicTools.ts chứ không phải một `case` nữa.
     if (toolConfig?.game) {
       return (
         <StandaloneGameShell
@@ -259,18 +258,6 @@ export default function UtilityPublicPage() {
             chatMessages={therapyState.chatMessages}
             claimedChallengesToday={therapyState.claimedChallengesToday}
             onUpdateCompanionState={handleTherapyStateUpdate}
-          />
-        );
-      // Hướng dẫn đọc được không cần tài khoản; tab Yêu cầu tự đổi thành thẻ
-      // mời đăng nhập khi `isGuestMode`, nên không cần chặn gì thêm ở đây.
-      case "support":
-      case "supporter":
-        return (
-          <SupportCenterApp
-            bio={player}
-            isGuestMode={!isAuthenticated}
-            requireAccount={handleIntercept}
-            onClose={() => navigate("/introduction")}
           />
         );
       // Study đứng riêng được: xem trọn lộ trình 100 bài và học thật 10 bài đầu

@@ -3,7 +3,7 @@
  * Standards: Harvard Academic Referencing & Apple Technical Whitepaper
  */
 
-import { COMM_DIAGRAMS_EN, DB_DIAGRAM_EN } from "./diagramData.en.js";
+import { COMM_DIAGRAMS_EN, DB_DIAGRAM_EN } from "./diagramData.en";
 
 export const UPDATED_AT_EN = "September 17, 2026";
 
@@ -12,7 +12,7 @@ export const META_EN = {
   description:
     "Harvard-standard system architecture defense report and Apple Whitepaper user guide for Hugo Studio ecosystem. Features 1M CCU stress analysis, global Anycast latency matrix, comprehensive technical proofs, and full academic references.",
   keywords:
-    "Hugo Studio, Terms of Service, User Guide, Architecture Defense, 1M CCU, Database Diagram, ERD, PWA, Passkey, JOY Wallet, WebAuthn, PayOS, Harvard Referencing",
+    "Hugo Studio, Terms of Service, User Guide, Architecture Defense, 1M CCU, Database Diagram, ERD, PWA, Passkey, JOY Wallet, WebAuthn, Harvard Referencing",
   eyebrow: "Systems Architecture Research & Technical Manual",
   version: "v2.5.0 (Harvard & Apple Standard)",
   pageTitle: "Terms of Service & Architectural Guide",
@@ -760,7 +760,7 @@ spec:
           {
             icon: "power_settings_new",
             label: "3. 3-State Circuit Breaker Pattern",
-            text: "External microservices (PayOS gateway, weather APIs, webhooks) are isolated via Circuit Breakers (Nygard, 2018). If error rates exceed 50% within a 10s sliding window, the circuit trips to OPEN, returning cached fallbacks in 0ms without blocking the libuv event loop. After a 30s sleep window, HALF-OPEN probes test recovery.",
+            text: "External microservices (weather APIs, AI Gateway, webhooks) are isolated via Circuit Breakers (Nygard, 2018). If error rates exceed 50% within a 10s sliding window, the circuit trips to OPEN, returning cached fallbacks in 0ms without blocking the libuv event loop. After a 30s sleep window, HALF-OPEN probes test recovery.",
           },
           {
             icon: "restart_alt",
@@ -957,10 +957,10 @@ spec:
             "Google Terms & Privacy Standards",
           ],
           [
-            "PayOS (Napas VietQR)",
-            "Payment link generation and bank-grade QR reconciliation for B2B contracts.",
-            "Transactions processed on State Bank of Vietnam PCI-DSS licensed gateways. Hugo NEVER stores bank PINs or CVV codes.",
-            "PayOS & Napas Gateways",
+            "Telegram Notification Gateway",
+            "Emergency alerts, operational telemetry, and administrative system notifications.",
+            "Operates via official Telegram Bot APIs. Transmits only sanitized error logs and status summaries.",
+            "Telegram Bot API Standard",
           ],
           [
             "Cloudflare & Vercel Edge",
@@ -971,15 +971,9 @@ spec:
         ],
       },
       {
-        type: "diagram",
-        flow: "payos",
-        diagramData: COMM_DIAGRAMS_EN["payos"],
-      },
-      {
         type: "external-links",
         items: [
           { label: "Google Privacy & Terms Policy", href: "https://policies.google.com/privacy" },
-          { label: "PayOS Payment Gateway Security Policy", href: "https://payos.vn/docs" },
           { label: "Cloudflare Enterprise Security & Compliance", href: "https://www.cloudflare.com/privacypolicy/" },
           { label: "W3C WebAuthn Level 2 Official Standard", href: "https://www.w3.org/TR/webauthn-2/" },
         ],

@@ -16,6 +16,7 @@ export function useStorePlans(email) {
 
   const reload = useCallback(async () => {
     if (!email) { setLoading(false); return; }
+    setLoading(true);
     try {
       const r = await fetch(`${API}/store/plans`, { credentials: "include" });
       if (!r.ok) return;

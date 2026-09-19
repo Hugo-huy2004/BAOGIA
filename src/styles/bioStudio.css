@@ -394,80 +394,78 @@
   .bio-studio-device iframe { height: min(720px, 72dvh); }
 }
 
-@media (max-width: 639px) {
-  .bio-studio { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
-
-  .bio-studio-navbar {
-    top: 0;
-    min-height: 58px;
-    gap: 7px;
-    padding: 6px;
-    border-radius: 20px;
-  }
-
-  .bio-studio-app-icon { display: none; }
-  .bio-studio-navbar-copy small { display: none; }
-  .bio-studio-navbar-copy strong { font-size: 15px; }
-  .bio-studio-navbar-actions { gap: 4px; }
-  .bio-studio-open-button { width: 44px; padding: 0; }
-  .bio-studio-open-button > span:first-child { display: none; }
-
-  .bio-studio-overview {
-    min-height: 102px;
-    gap: 10px;
-    margin-top: 10px;
-    padding: 16px;
-    border-radius: 24px;
-  }
-
-  .bio-studio-overview-main { gap: 12px; }
-  .bio-studio-page-mark {
-    width: 52px;
-    height: 52px;
-    border-radius: 17px;
-  }
-  .bio-studio-overview-main h1 { font-size: 24px; }
-  .bio-studio-overview-main > div > span { max-width: 190px; font-size: 11px; }
-  .bio-studio-status { padding-inline: 9px; font-size: 11px; }
-
-  .bio-studio-workspace { gap: 12px; margin-top: 12px; }
-  .bio-studio-editor,
-  .bio-studio-preview {
-    padding: 14px;
-    border-radius: 24px;
-  }
-
-  .bio-studio-section-heading h2,
-  .bio-studio-preview-heading h2 { font-size: 20px; }
-
-  .bio-studio-save-button {
-    width: 44px;
-    padding: 0;
-    font-size: 0;
-  }
-  .bio-studio-save-button .material-symbols-outlined { font-size: 19px; }
-
-  .bio-studio-segmented { margin-top: 14px; }
-  .bio-studio-segmented button {
-    min-height: 56px;
+@media (max-width: 767px) {
+  .bio-studio {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+    padding-bottom: 0;
+    border-radius: 0;
+    display: flex;
     flex-direction: column;
-    gap: 3px;
-    padding-inline: 4px;
-    font-size: 10.5px;
+    overflow: hidden;
   }
-  .bio-studio-segmented button .material-symbols-outlined { font-size: 19px; }
+
+  .bio-studio-navbar { display: none !important; }
+
+  .bio-studio-workspace {
+    margin-top: 0;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bio-studio-editor {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
 
   .bio-studio-editor-content {
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 18px;
+    margin-top: 10px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
   }
 
   .bio-studio-editor-content :is(input, textarea, select) { font-size: 16px !important; }
-  .bio-studio-membership { padding: 14px; border-radius: 18px; }
-  .bio-studio-preview { padding-top: 16px; }
-  .bio-studio-device { border-radius: 22px; }
-  .bio-studio-device iframe { height: 68dvh; }
+
+  .bio-studio-segmented {
+    margin-top: 2px !important;
+    padding: 3px !important;
+    border-radius: 14px !important;
+    background: hsl(var(--muted) / .65) !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+
+  .bio-studio-segmented button {
+    min-height: 40px !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+    border-radius: 11px !important;
+  }
+
+  .bio-studio-segmented button .material-symbols-outlined { font-size: 16px !important; }
+
+  .bio-studio-preview {
+    padding: 12px !important;
+    border-radius: 20px !important;
+    margin-top: 12px;
+  }
+
+  .bio-studio-device { border-radius: 20px; }
+  .bio-studio-device iframe { height: 62dvh; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -553,10 +551,4 @@ details.bio-studio-preview > summary::-webkit-details-marker { display: none; }
 
 details.bio-studio-preview[open] .bio-studio-preview-caret { transform: rotate(180deg); }
 
-@media (max-width: 639px) {
-  /* Thẻ soạn thảo bớt đệm để nội dung được nhiều chỗ hơn trên màn nhỏ. */
-  .bio-studio-editor { padding: 14px; border-radius: 22px; }
-  .bio-studio-segmented { margin-top: 0; }
-  .bio-studio-segmented button { min-height: 44px; }
-  .bio-studio-workspace { gap: 12px; margin-top: 12px; }
-}
+

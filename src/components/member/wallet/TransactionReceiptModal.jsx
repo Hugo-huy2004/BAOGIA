@@ -8,7 +8,7 @@ import { useJoy } from "../../../lib/joyDisplay";
  * Hiển thị chi tiết hóa đơn biến động cộng/trừ JOY với giao diện iOS 27 Glassmorphism sắc nét.
  */
 export default function TransactionReceiptModal({ tx, onClose, showToast }) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const joy = useJoy();
 

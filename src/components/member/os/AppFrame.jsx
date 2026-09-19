@@ -78,8 +78,8 @@ export default function AppFrame({
           large={false}
           title={title}
           subtitle={subtitle}
-          left={onBack ? <BackButton onClick={onBack} label={backLabel || t("utilities.library.back", "Quay lại")} /> : null}
-          right={actions}
+          left={null}
+          right={actions ? <div className="mr-10">{actions}</div> : null}
         />
       </div>
 

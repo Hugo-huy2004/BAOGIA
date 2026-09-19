@@ -1,10 +1,10 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
+import { getWalletOverview, claimDailyCheckin } from '../controllers/joyWalletController.js';
 import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
-import { getRates, getRateHistory, ensureLiveFactors } from '../utils/joyRateService.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { checkMoneyStepUp, sendMoneyOtpEmail } from '../services/moneyStepUp.js';
 import { assessTransferHold } from '../services/transferHold.js';
@@ -208,30 +208,12 @@ const EXCHANGE_ITEMS = {
 
 const router = express.Router();
 
-/**
- * Chưa chọn đơn vị hiển thị thì KHÔNG động được vào ví.
- *
- * Màn onboarding đã chặn ở giao diện, nhưng chặn ở giao diện không phải là
- * chặn: người dùng chưa từng được hỏi mà ví vẫn trừ được thì con số họ nhìn
- * thấy lúc đó là đơn vị hệ thống tự quyết hộ — sai ngay ở màn xác nhận số tiền.
- *
- * Chỉ chặn lệnh GHI. Lệnh ĐỌC vẫn phải chạy: chính portal cần đọc để dựng được
- * màn hỏi. Route admin không có `req.memberEmail` nên không dính.
- */
-router.use(async (req, res, next) => {
-  if (req.method === 'GET' || !req.memberEmail) return next();
-  try {
-    const bio = await Bio.findOne({ $or: [{ email: req.memberEmail }, { contactEmail: req.memberEmail }] })
-      .select('joyDenom').lean();
-    if (JOY_DENOMS[bio?.joyDenom]) return next();
-    return res.status(409).json({
-      error: 'JOY_DENOM_REQUIRED',
-      message: 'Bạn cần chọn đơn vị hiển thị JOY trước khi dùng ví.',
-    });
-  } catch {
-    return next();   // lỗi tra cứu không được biến thành khoá ví
-  }
-});
+// ── ENDPOINTS VÍ JOY: MỘT LƯỢT GỌI CHO CẢ MÀN VÍ ─────────────────────────
+// `requireMember` là cổng DUY NHẤT xác định người gọi là ai. Controller chỉ đọc
+// `req.memberEmail`, không tự giải mã token và không nhận email từ query — ví là
+// nơi rò một dòng là rò số dư + lịch sử giao dịch của người khác.
+router.get('/wallet/overview', requireMember, getWalletOverview);
+router.post('/wallet/claim-daily', requireMember, claimDailyCheckin);
 
 // Phone-based P2P JOY transfer — "send JOY by phone like MoMo" without real
 // SMS/OTP infra (none exists in this codebase): Bio.phone is enforced unique
@@ -1759,13 +1741,9 @@ router.post('/transfer', requireMember, async (req, res) => {
       return rejectRequest(400, `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.`);
     }
 
-    // Phí đổi đơn vị: hai bên khác đơn vị JOY thì cộng thêm 15%. Đơn vị đọc từ
-    // `Bio.joyDenom` của CẢ HAI phía — không bao giờ từ body hay header ngôn ngữ.
-    // Client khai được đơn vị là khai được "cùng đơn vị" để khỏi trả phí.
-    // Nạp bảng tỷ giá của giờ hiện tại TRƯỚC khi lập hoá đơn: hoá đơn phải
-    // dùng đúng con số bảng biến động đang bày cho người dùng xem, không phải
-    // hệ số nền tĩnh.
-    await ensureLiveFactors();
+    // JOY chỉ còn MỘT đơn vị nên không có phí đổi đơn vị: `conversionFee` luôn 0.
+    // Bỏ luôn lần nạp tỷ giá trước đây đứng ở đây — nó thêm một lượt đọc DB vào
+    // đường tiền chỉ để tính một khoản bằng 0.
     const bill = transferBreakdown(numAmount, sender.joyDenom, recipient.joyDenom, TRANSFER_FEE_RATE);
     const feeAmount = bill.creativeFee;
     const conversionFee = bill.conversionFee;
@@ -1925,40 +1903,6 @@ router.post('/exchange-chat-tokens', requireMember, async (req, res) => {
     res.json({ success: true, balance: result.balance, bonusChatTokens: bio.bonusChatTokens });
   } catch (error) {
     res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * Bảng tỷ giá JOY của hôm nay.
- *
- * Ai đăng nhập cũng đọc được cùng một bảng — tỷ giá là của cả hệ thống, không
- * phải của riêng ai, và không có gì nhạy cảm trong đó. Tính một lần mỗi ngày
- * rồi cả ngày đọc lại từ bản ghi (xem joyRateService).
- */
-router.get('/rates', requireMember, async (req, res) => {
-  try {
-    const rates = await getRates();
-    res.set('Cache-Control', 'private, max-age=600');
-    return res.json(rates);
-  } catch (error) {
-    console.error('Error fetching JOY rates:', error);
-    return res.status(500).json({ error: 'Lỗi tải tỷ giá JOY' });
-  }
-});
-
-/**
- * Chuỗi tỷ giá để vẽ biểu đồ. `hours` giới hạn 1…2160 (90 ngày, đúng bằng thời
- * gian giữ bản ghi) để một tham số bịa không kéo cả collection lên.
- */
-router.get('/rates/history', requireMember, async (req, res) => {
-  try {
-    const hours = Math.min(2160, Math.max(1, Number(req.query.hours) || 24));
-    const points = await getRateHistory({ hours });
-    res.set('Cache-Control', 'private, max-age=300');
-    return res.json({ hours, points });
-  } catch (error) {
-    console.error('Error fetching JOY rate history:', error);
-    return res.status(500).json({ error: 'Lỗi tải lịch sử tỷ giá' });
   }
 });
 

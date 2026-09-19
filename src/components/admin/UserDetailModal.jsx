@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import adminBrainApi from '../../services/api/AdminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
-import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency.js';
+import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency';
 import { maskPhone } from '../../utils/phoneSecurity';
 import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from '../../lib/profileDisplay';
 

@@ -7,6 +7,7 @@ import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import { trackOpen } from "./os/appUsage";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
 import { readInstalledApps } from "../../hooks/useAppInstall";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
@@ -16,16 +17,13 @@ const HugoProfileTab = lazy(() => import("./HugoProfileTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
-const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
-const HugoWalletApp = lazy(() => import("./wallet/HugoWalletApp"));
-const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
-const HugoInvestTab = lazy(() => import("./invest/HugoInvestTab"));
-const SupportCenterApp = lazy(() => import("./support/SupportCenterApp"));
+const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
 const FriendsApp = lazy(() => import("./FriendsApp"));
 const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
+import BackButton from "./shared/BackButton";
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -56,9 +54,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   const fallback = <TabFallbackSkeleton />;
   const friendsInstalled = readInstalledApps(bio).includes("friends");
 
-  // Cùng một nguồn với MemberPortalPage (shared/appRegistry.js). HugoPSY thêm
+  const isMobile = useIsMobile();
+  // Cùng một nguồn với MemberPortalPage (shared/appRegistry.js). HugoPSY & Bio thêm
   // vào đây vì trên điện thoại nó cũng dựng vỏ toàn màn hình.
   const isFullscreenLikeUtility = selectedUtility === "psychology"
+    || (selectedUtility === "bio" && isMobile)
     || FULLSCREEN_APP_IDS.includes(selectedUtility);
 
   // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
@@ -70,7 +70,24 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     : null;
 
   return (
-    <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
+    <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden relative" : "space-y-6 animate-fadeIn relative"}>
+      {/* ── Nút Đóng / Thoát Ứng Dụng Chuẩn Hoá Toàn Cục (Top-Right Red X Circle) ── */}
+      {selectedUtility !== null && (
+        <div
+          className="fixed z-[9999] pointer-events-auto"
+          style={{
+            top: "max(12px, env(safe-area-inset-top, 12px))",
+            right: "max(14px, env(safe-area-inset-right, 14px))",
+          }}
+        >
+          <BackButton
+            onClick={() => onSelectUtility(null)}
+            label={t("common.close", "Đóng tiện ích")}
+            className="shadow-xl ring-2 ring-black/10 dark:ring-white/10"
+          />
+        </div>
+      )}
+
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard — always mounted so event listeners & state persist */}
       <div style={{ display: selectedUtility === null ? "block" : "none" }}>
@@ -123,10 +140,9 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {/* Ví JOY — ứng dụng riêng, toàn màn hình. Mọi panel bên trong là component
-          dùng chung với trang Tài khoản, nên không có hai bản ví trôi lệch nhau. */}
+      {/* Ví JOY — ứng dụng riêng chuẩn React.ts Apple Wallet, toàn màn hình. */}
       {selectedUtility === "joy_wallet" && (
-        <HugoWalletApp
+        <JoyWalletApp
           bio={bio}
           publicLink={publicLink}
           onBack={() => onSelectUtility(null)}
@@ -202,11 +218,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
 
-      {/* Info & Version */}
-      {selectedUtility === "info" && (
-        <MemberInfoVersionTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
-      )}
-
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
         <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} />
@@ -220,35 +231,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           onBioUpdate={onBioUpdate}
           onBack={() => onSelectUtility(null)}
           onOpenUtility={onSelectUtility}
-        />
-      )}
-
-      {/* Sàn chứng khoán ảo — học đầu tư bằng JOY */}
-      {selectedUtility === "invest" && (
-        <HugoInvestTab
-          onBack={() => onSelectUtility(null)}
-          showToast={showToast}
-          onSelectUtility={onSelectUtility}
-        />
-      )}
-
-      {/* Hugo Cinema */}
-      {selectedUtility === "cinema" && (
-        <HugoCinemaTab
-          onBack={() => onSelectUtility(null)}
-          bio={bio}
-          showToast={showToast}
-        />
-      )}
-
-      {/* Trung Tâm Hỗ Trợ — hướng dẫn viết sẵn và yêu cầu gửi thẳng cho quản
-          trị viên. Id cũ "helpdesk" KHÔNG vào đây: nó đã sáp nhập vào HugoKit ở
-          trên, và khi cả hai nhánh cùng nhận "helpdesk" thì hai app dựng chồng
-          lên nhau trong cùng một màn. */}
-      {selectedUtility === "supporter" && (
-        <SupportCenterApp
-          bio={bio}
-          onClose={() => onSelectUtility(null)}
         />
       )}
       </Suspense>

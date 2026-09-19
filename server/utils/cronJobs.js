@@ -2,7 +2,6 @@ import cron from 'node-cron';
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
-import { computeRates } from './joyRateService.js';
 
 export function initCronJobs() {
   // Nhắc "vượt mốc hoà vốn" của sàn ảo — giá bước 30s nhưng nhắc thì 5 phút là
@@ -48,24 +47,6 @@ export function initCronJobs() {
       }
     } catch (error) {
       console.error('[CRON] Nhắc hoà vốn sàn ảo:', error.message);
-    }
-  });
-
-  // Một điểm tỷ giá JOY mỗi giờ — đây là thứ vẽ nên đường trong màn Tỷ Giá.
-  //
-  // Job riêng vì nó gọi ra Internet (giá vàng): mạng treo cũng không được kéo
-  // theo hai job dọn dẹp bên dưới. Bản thân `computeRates` đã tự chịu lỗi và
-  // quay về hệ số nền, ở đây chỉ ghi lại cho người trực biết. Chỉ log mỗi 6 giờ
-  // để log không thành 24 dòng giống nhau mỗi ngày.
-  cron.schedule('2 * * * *', async () => {
-    try {
-      const rates = await computeRates({ force: true });
-      if (new Date().getUTCHours() % 6 === 0) {
-        // `gold` đã gỡ khỏi joyRateService — log theo tín hiệu nội bộ còn lại.
-        console.log(`[CRON] Tỷ giá JOY ${rates.key}: thu nhập TB ${Math.round(rates.income?.overall || 0)} JOY/ngày, netFlow ${rates.flows?.netFlow ?? 0}`);
-      }
-    } catch (error) {
-      console.error('[CRON] Không tính được tỷ giá JOY:', error.message);
     }
   });
 
@@ -215,6 +196,22 @@ export function initCronJobs() {
       console.log('[CRON] Quét hết hạn hoàn tất.');
     } catch (error) {
       console.error('[CRON] Lỗi khi quét hết hạn:', error);
+    }
+  });
+
+  // Pre-warming định kỳ mỗi 10 phút cho bản tin Today:
+  // Tải trước và giữ ấm cache cho 3 ấn bản chính (vi, en, zh) trên Node.js.
+  // Người dùng mở tab Today sẽ luôn nhận dữ liệu tức thì (< 5ms) mà không phải đợi RSS fan-out.
+  cron.schedule('*/10 * * * *', async () => {
+    try {
+      const { studentNewsService } = await import('../services/studentNewsService.js');
+      const coreEditions = ['vi', 'en', 'zh'];
+      for (const lang of coreEditions) {
+        await studentNewsService.getFeed({ language: lang, category: 'all', limit: 30 })
+          .catch((err) => console.warn(`[CRON Today Prewarm Warning] ${lang}:`, err.message));
+      }
+    } catch (err) {
+      console.warn('[CRON Today Prewarm Error]:', err.message);
     }
   });
 }

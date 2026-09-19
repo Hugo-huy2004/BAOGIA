@@ -1,15 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import App from './App'
 import './index.css'
 import './i18n/config.js'
-import { initSecurityShield } from './utils/security.js'
-import { installApiAuthInterceptor } from './services/apiAuthInterceptor.js'
-import { installClientMonitoring } from './utils/clientMonitoring.js'
-import { initSentryMonitoring } from './utils/sentryMonitoring.js'
-import { startBrandColorCycle } from './lib/brandColorCycle.js'
+import { initSecurityShield } from './utils/security'
+import { installApiAuthInterceptor } from './services/apiAuthInterceptor'
+import { installClientMonitoring } from './utils/clientMonitoring'
+import { initSentryMonitoring } from './utils/sentryMonitoring'
+import { startBrandColorCycle } from './lib/brandColorCycle'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClient } from './lib/queryClient.js'
+import { queryClient } from './lib/queryClient'
 
 // Dynamic import 404 auto-healing: when a new build deployment replaces hashed JS chunks,
 // Vite fires 'vite:preload-error'. Automatically reload the window to fetch new manifest.

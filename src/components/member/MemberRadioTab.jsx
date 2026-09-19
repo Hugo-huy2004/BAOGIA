@@ -7,7 +7,7 @@ import {
   resolveByName, rememberFound, forgetFound, foundStations, lastStationId,
 } from "../../services/radioBrain";
 import { setMediaSession, setMediaPlaybackState } from "../../services/mediaSession";
-import RadioTokenStatus, { RadioStoreModal, useRadioHeartbeat } from "./RadioTokenStatus";
+
 import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore";
 
 // Đài hỏng thì tự nhảy sang đài khác, nhưng có trần: mỗi lần nhảy là một lượt
@@ -127,7 +127,9 @@ export default function MemberRadioTab({
   onPageChange,
 }) {
   const { t } = useTranslation();
-  const standaloneApp = typeof onPageChange === "function";
+  const isPWA = typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches;
+  const hasNavigation = typeof onPageChange === "function";
+  const standaloneApp = hasNavigation && isPWA;
   const page = RADIO_APP_PAGES.some((item) => item.id === activePage) ? activePage : "home";
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
@@ -151,10 +153,6 @@ export default function MemberRadioTab({
   const [sleepTimer, setSleepTimer] = useState(null);
   const [sleepTimeLeft, setSleepTimeLeft] = useState(0);
 
-  // Token nghe — MỘT nguồn duy nhất cho cả thanh trạng thái lẫn cổng chặn phát.
-  const [showStore, setShowStore] = useState(false);
-  const { tokenStatus, loading: tokenLoading, refetch: refetchTokens } = useRadioHeartbeat(bio, isPlaying);
-
   // Đài người dùng tự tìm, nhớ trong máy giữa các phiên.
   const [foundList, setFoundList] = useState(foundStations);
   const [search, setSearch] = useState("");
@@ -174,7 +172,7 @@ export default function MemberRadioTab({
   // Nút "chuyển kênh" trên màn hình khoá cần hàm bốc ngẫu nhiên, mà hàm đó khai
   // báo bên dưới — giữ qua ref để effect ở trên gọi được bản mới nhất.
   const playRandomRef = useRef(() => {});
-  const autoSkipRef = useRef({ n: 0, skipped: [] });
+  const autoSkipRef = useRef                                      ({ count: 0, skipped: [] });
 
   const healthLabel = useCallback((id) => t(`utilities.radio.health.${stationStatus(id)}`), [t]);
 
@@ -389,15 +387,7 @@ export default function MemberRadioTab({
 
   handleFailureRef.current = handlePlaybackFailure;
 
-  const outOfTokens = Boolean(tokenStatus && !tokenStatus.canListen);
-
   const playStation = (station, { chained = false } = {}) => {
-    if (outOfTokens) {
-      showToast?.(t("utilities.radio.toast.outOfTokens"), "warning");
-      setShowStore(true);
-      return;
-    }
-
     if (nowPlaying?.stationuuid === station.stationuuid && isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -405,7 +395,7 @@ export default function MemberRadioTab({
     }
 
     retriedRef.current = false;
-    if (!chained) autoSkipRef.current = { n: 0, skipped: [] };
+    if (!chained) autoSkipRef.current = { count: 0, skipped: [] };
     setNowPlaying(station);
     setIsBuffering(true);
     setIsPlaying(false);
@@ -440,11 +430,6 @@ export default function MemberRadioTab({
       setIsPlaying(false);
       return;
     }
-    if (outOfTokens) {
-      showToast?.(t("utilities.radio.toast.outOfTokens"), "warning");
-      setShowStore(true);
-      return;
-    }
     if (nowPlaying) {
       playStation(nowPlaying);
       return;
@@ -468,15 +453,6 @@ export default function MemberRadioTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nowPlaying, isPlaying]);
 
-  // Hết token giữa chừng thì dừng ngay, không đợi người dùng bấm.
-  useEffect(() => {
-    if (outOfTokens && isPlaying) {
-      audioRef.current?.pause();
-      setIsPlaying(false);
-      showToast?.(t("utilities.radio.toast.outOfTokens"), "warning");
-    }
-  }, [outOfTokens, isPlaying, showToast, t, setIsPlaying]);
-
   // Bốc một đài khoẻ bất kỳ trong danh mục đang xem. Đài từng phát được có
   // trọng số gấp ba, đài đang hỏng bị loại — nên "ngẫu nhiên" gần như luôn ra
   // tiếng ngay lần đầu.
@@ -495,7 +471,7 @@ export default function MemberRadioTab({
     if (!name || searching) return;
     setSearching(true);
     try {
-      const found = await resolveByName(name);
+      const found = await resolveByName(name, undefined);
       if (!found) {
         showToast?.(t("utilities.radio.toast.notFound", { name }), "warning");
         return;
@@ -529,375 +505,259 @@ export default function MemberRadioTab({
 
   return (
     <div className={standaloneApp
-      ? "h-full min-h-0 overflow-hidden bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.14),transparent_34rem),radial-gradient(circle_at_90%_70%,rgba(59,130,246,0.1),transparent_30rem)] text-foreground flex flex-col"
-      : "text-foreground"}
+      ? "h-full min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.14),transparent_34rem),radial-gradient(circle_at_90%_70%,rgba(59,130,246,0.1),transparent_30rem)] text-foreground flex flex-col"
+      : "w-full selection:bg-teal-500/20 pb-24 md:pb-6 text-foreground flex flex-col"}
     >
+      {/* ── 1. HEADER & QUAY LẠI ── */}
       {standaloneApp ? (
-        <>
-          <header
-            className="relative z-30 shrink-0 border-b border-white/50 bg-background/72 px-3 pb-3 shadow-[0_12px_38px_rgba(15,23,42,0.08)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#06090d]/72"
-            style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
-          >
-            <div className="mx-auto flex max-w-7xl items-center gap-3">
-              <button
-                type="button"
-                onClick={onBack}
-                aria-label="Quay lại kho ứng dụng"
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/60 bg-white/55 text-foreground shadow-sm transition active:scale-95 dark:border-white/10 dark:bg-white/[0.07]"
-              >
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
-              <button type="button" onClick={() => onPageChange("home")} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg shadow-teal-500/20">
-                  <span className="material-symbols-outlined">radio</span>
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[16px] font-black tracking-tight">HugoRadio</span>
-                  <span className="block truncate text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Radio trực tuyến · Hugo Studio</span>
-                </span>
-              </button>
-              {nowPlaying && (
-                <span className="hidden min-w-0 items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-2 sm:flex">
-                  <span className={`h-2 w-2 shrink-0 rounded-full ${isPlaying ? "animate-pulse bg-emerald-400" : "bg-muted-foreground/50"}`} />
-                  <span className="max-w-40 truncate text-[11px] font-bold">{nowPlaying.name}</span>
-                </span>
-              )}
+        <header
+          className="sticky top-0 z-30 shrink-0 border-b border-white/50 bg-background/72 px-3 pb-3 shadow-[0_12px_38px_rgba(15,23,42,0.08)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#06090d]/72"
+          style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+        >
+          <div className="mx-auto flex max-w-5xl items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3 text-left">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg shadow-teal-500/20">
+                <span className="material-symbols-outlined">radio</span>
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[16px] font-black tracking-tight">HugoRadio</span>
+                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Đài phát thanh trực tuyến</span>
+              </span>
+            </div>
+          </div>
+        </header>
+      ) : (
+        <div className="hidden md:flex items-center justify-between border-b border-border/40 pb-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-black text-foreground tracking-tight m-0">HugoRadio</h2>
+                <span className="px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10.5px] font-bold">RADIO TRỰC TUYẾN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header cho mobile trình duyệt thường (nếu có) */}
+      {!standaloneApp && (
+        <div className="md:hidden w-full mb-4">
+          <header className="px-4 py-3 rounded-2xl border border-border/40 bg-card/70 backdrop-blur-xl flex items-center justify-between z-20 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
+              <h3 className="font-bold text-sm tracking-tight text-foreground m-0">HugoRadio</h3>
+            </div>
+            <div className="flex flex-col items-end mr-10">
+              <p className="text-[10px] uppercase font-bold text-teal-500/80 m-0">Đang trực tuyến</p>
             </div>
           </header>
-
-          <nav className="relative z-20 shrink-0 border-b border-border/60 bg-background/58 px-3 py-2 backdrop-blur-2xl">
-            <div className="mx-auto flex max-w-4xl items-center gap-1 overflow-x-auto no-scrollbar">
-              {RADIO_APP_PAGES.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onPageChange(item.id)}
-                  aria-current={page === item.id ? "page" : undefined}
-                  className={`flex h-11 shrink-0 items-center gap-2 rounded-2xl px-3.5 text-[12px] font-bold transition-all ${
-                    page === item.id
-                      ? "bg-foreground text-background shadow-md"
-                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </nav>
-        </>
-      ) : (
-        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
+        </div>
       )}
 
-      <main className={standaloneApp
-        ? "min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-5 sm:px-6"
-        : ""}
-      >
-      <div className={standaloneApp ? "mx-auto w-full max-w-7xl" : ""}>
-
-      {standaloneApp && page === "home" && (
-        <section className="mb-5 overflow-hidden rounded-[28px] border border-white/60 bg-card/65 p-5 shadow-[0_22px_65px_rgba(15,23,42,0.1)] backdrop-blur-3xl dark:border-white/10 sm:p-7">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-            <div>
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-10">
+        
+        {/* ── 2. TRÌNH PHÁT (NOW PLAYING) ── */}
+        <section className="relative overflow-hidden rounded-[32px] border border-white/60 bg-gradient-to-br from-card/80 to-muted/30 p-6 sm:p-8 shadow-[0_22px_65px_rgba(15,23,42,0.1)] backdrop-blur-3xl dark:border-white/10 dark:from-card/60 dark:to-background/40 flex flex-col gap-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-teal-600 dark:text-teal-300">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" /> Đang phát trực tiếp
+                <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-400 animate-pulse" : isBuffering ? "bg-amber-400 animate-pulse" : "bg-muted-foreground"}`} /> 
+                {stateLabel}
               </span>
-              <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.04em] sm:text-5xl">Một không gian nghe riêng của Hugo Studio.</h1>
-              <p className="mt-3 max-w-xl text-[13px] font-semibold leading-relaxed text-muted-foreground sm:text-[15px]">
-                Tin tức Việt Nam, radio quốc tế, âm nhạc và không gian tập trung — phát xuyên suốt khi cậu chuyển sang ứng dụng khác.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2.5">
-                <button type="button" onClick={() => onPageChange("stations")} className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-foreground px-5 text-[13px] font-black text-background shadow-lg transition active:scale-95">
-                  <span className="material-symbols-outlined text-[19px]">play_circle</span> Chọn đài để nghe
-                </button>
-                <button type="button" onClick={playRandom} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card/70 px-5 text-[13px] font-black transition active:scale-95">
-                  <span className="material-symbols-outlined text-[19px]">shuffle</span> Phát ngẫu nhiên
-                </button>
-              </div>
+              <h1 className="mt-4 max-w-xl text-3xl font-black tracking-[-0.03em] sm:text-4xl truncate">
+                {nowPlaying ? nowPlaying.name : t("utilities.radio.state.pickStation")}
+              </h1>
+              {nowPlaying && (
+                <p className="mt-2 text-[14px] font-semibold text-muted-foreground truncate flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${STATUS_DOT[healthTick >= 0 ? stationStatus(nowPlaying.stationuuid) : "unknown"]}`} />
+                  {healthLabel(nowPlaying.stationuuid)}
+                  {healthTick >= 0 && learnedUrl(nowPlaying.stationuuid) ? ` · ${t("utilities.radio.learnedUrl")}` : ""}
+                </p>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {RADIO_APP_PAGES.filter((item) => !["home", "about"].includes(item.id)).map((item) => (
-                <button key={item.id} type="button" onClick={() => onPageChange(item.id)} className="group min-h-32 rounded-3xl border border-border/70 bg-background/55 p-4 text-left transition hover:-translate-y-0.5 hover:border-teal-500/35 hover:shadow-lg active:scale-[0.98]">
-                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-teal-500/10 text-teal-600 transition group-hover:bg-teal-500 group-hover:text-white dark:text-teal-300">
-                    <span className="material-symbols-outlined">{item.icon}</span>
-                  </span>
-                  <span className="mt-4 block text-[13px] font-black">{item.label}</span>
-                  <span className="mt-1 block text-[10px] font-semibold text-muted-foreground">
-                    {item.id === "stations" ? "Danh mục đài chọn lọc" : item.id === "discover" ? "Tìm đài trên toàn cầu" : "Nghe rồi tự động tắt"}
-                  </span>
-                </button>
-              ))}
+
+            {/* Icon Trực quan */}
+            <div className={`hidden sm:flex w-24 h-24 shrink-0 rounded-2xl flex-col items-center justify-center border-2 shadow-inner transition-colors duration-500 ${isPlaying ? "bg-teal-50 border-teal-200 text-teal-600 dark:bg-teal-950 dark:border-teal-800 dark:text-teal-400" : "bg-muted border-border text-muted-foreground"}`}>
+               <span className="material-symbols-outlined text-[48px]">
+                 {isBuffering ? "sync" : isPlaying ? "graphic_eq" : "radio"}
+               </span>
+            </div>
+          </div>
+
+          {/* Điều khiển Play/Pause/Skip */}
+          <div className="flex items-center gap-4 pt-2">
+            <button onClick={() => step(-1)} aria-label={t("utilities.radio.control.prev")}
+              className="w-14 h-14 shrink-0 rounded-full border-2 border-border/60 bg-background/50 hover:bg-muted text-foreground flex items-center justify-center active:scale-95 transition-all">
+              <span className="material-symbols-outlined text-2xl">skip_previous</span>
+            </button>
+
+            <button onClick={togglePlayPause} aria-label={isPlaying ? t("utilities.radio.control.stop") : t("utilities.radio.control.play")}
+              className="w-16 h-16 shrink-0 rounded-full bg-foreground text-background flex items-center justify-center active:scale-95 transition-transform shadow-xl shadow-foreground/20 hover:scale-105">
+              <span className="material-symbols-outlined text-[34px]">{(isPlaying || isBuffering) ? "pause" : "play_arrow"}</span>
+            </button>
+
+            <button onClick={() => step(1)} aria-label={t("utilities.radio.control.next")}
+              className="w-14 h-14 shrink-0 rounded-full border-2 border-border/60 bg-background/50 hover:bg-muted text-foreground flex items-center justify-center active:scale-95 transition-all">
+              <span className="material-symbols-outlined text-2xl">skip_next</span>
+            </button>
+            
+            <div className="w-px h-10 bg-border/60 mx-2 hidden sm:block"></div>
+
+            <button onClick={playRandom}
+              className="hidden sm:flex items-center gap-2 h-14 px-5 rounded-full border-2 border-border/60 bg-background/50 hover:bg-muted text-foreground font-bold active:scale-95 transition-all">
+              <span className="material-symbols-outlined">shuffle</span> Phát ngẫu nhiên
+            </button>
+          </div>
+
+          {/* Âm lượng & Hẹn giờ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 p-4 rounded-2xl bg-background/40 border border-border/40">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[20px] text-muted-foreground w-6 text-center">
+                {volume === 0 ? "volume_off" : volume < 50 ? "volume_down" : "volume_up"}
+              </span>
+              <input
+                type="range" min="0" max="100" step="1" value={volume}
+                onChange={(e) => setVolume(Number(e.target.value))}
+                className="flex-1 h-2 bg-border/50 rounded-lg appearance-none cursor-pointer accent-teal-500"
+              />
+              <span className="w-10 text-right text-[13px] tabular-nums font-bold text-muted-foreground">{volume}%</span>
+            </div>
+            <div className="flex items-center md:justify-end gap-3">
+              <button onClick={cycleSleepTimer}
+                className={`flex flex-1 md:flex-none items-center justify-center gap-2 h-10 px-4 rounded-xl border text-[13px] font-bold active:scale-95 transition-all ${
+                  sleepTimer ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" : "border-border/50 bg-muted/50 text-foreground"
+                }`}>
+                <span className="material-symbols-outlined text-[18px]">bedtime</span>
+                <span>
+                  {sleepTimer
+                    ? (sleepTimeLeft > 0 ? t("utilities.radio.control.sleepRunning", { time: formatSleepTime(sleepTimeLeft) }) : t("utilities.radio.control.sleepArmed", { minutes: sleepTimer }))
+                    : t("utilities.radio.control.sleep")}
+                </span>
+              </button>
             </div>
           </div>
         </section>
-      )}
 
-      {(!standaloneApp || page !== "about") && <div className="mb-4">
-        <RadioTokenStatus status={tokenStatus} loading={tokenLoading} onBuyMore={() => setShowStore(true)} />
-      </div>}
-
-      {/* ─── Đang phát ────────────────────────────────────────────────────────
-          Phẳng và tĩnh: nền đặc, viền mảnh, một màu nhấn duy nhất (info). */}
-      {(!standaloneApp || ["home", "stations", "sleep"].includes(page)) && (
-      <div className="mb-5 rounded-[26px] bg-card/75 border border-border/80 p-4 md:p-5 flex flex-col gap-4 shadow-sm backdrop-blur-2xl">
-        <div className="flex items-center gap-3">
-          <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center ${
-            isPlaying ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground"
-          }`}>
-            <span className="material-symbols-outlined text-3xl">
-              {isBuffering ? "sync" : isPlaying ? "graphic_eq" : "radio"}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-bold uppercase tracking-wide text-muted-foreground">{stateLabel}</p>
-            <p className="text-[17px] font-bold leading-tight truncate text-foreground mt-0.5">
-              {nowPlaying ? nowPlaying.name : t("utilities.radio.state.pickStation")}
-            </p>
-            {nowPlaying && (
-              <p className="text-[13px] text-muted-foreground mt-0.5 truncate">
-                {healthLabel(nowPlaying.stationuuid)}
-                {healthTick >= 0 && learnedUrl(nowPlaying.stationuuid) ? ` · ${t("utilities.radio.learnedUrl")}` : ""}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Điều khiển chính — mọi nút tối thiểu 44px */}
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => step(-1)} aria-label={t("utilities.radio.control.prev")}
-            className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
-            <span className="material-symbols-outlined">skip_previous</span>
-          </button>
-
-          <button onClick={togglePlayPause} aria-label={isPlaying ? t("utilities.radio.control.stop") : t("utilities.radio.control.play")}
-            className="w-14 h-14 shrink-0 rounded-full bg-info text-info-foreground flex items-center justify-center active:scale-95 transition-transform">
-            <span className="material-symbols-outlined text-3xl">{(isPlaying || isBuffering) ? "stop" : "play_arrow"}</span>
-          </button>
-
-          <button onClick={() => step(1)} aria-label={t("utilities.radio.control.next")}
-            className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
-            <span className="material-symbols-outlined">skip_next</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="material-symbols-outlined text-lg text-muted-foreground">
-            {volume === 0 ? "volume_off" : volume < 50 ? "volume_down" : "volume_up"}
-          </span>
-          <input
-            type="range" min="0" max="100" step="1" value={volume}
-            aria-label={t("utilities.radio.control.volume")}
-            onChange={(e) => setVolume(Number(e.target.value))}
-            className="flex-1 h-11 accent-info cursor-pointer"
-          />
-          <span className="w-10 text-right text-[13px] tabular-nums text-muted-foreground">{volume}%</span>
-        </div>
-
-        <div className="flex items-center justify-center gap-2.5 flex-wrap">
-          <button onClick={playRandom}
-            className="flex items-center gap-2 h-11 px-4 rounded-full border border-border bg-card text-foreground text-sm font-bold active:scale-95 transition-transform">
-            <span className="material-symbols-outlined text-lg">shuffle</span>
-            <span>{t("utilities.radio.control.shuffle")}</span>
-          </button>
-          <button onClick={cycleSleepTimer}
-            className={`flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold active:scale-95 transition-transform ${
-              sleepTimer ? "border-info text-info bg-card" : "border-border bg-card text-foreground"
-            }`}>
-            <span className="material-symbols-outlined text-lg">bedtime</span>
-            <span>
-              {sleepTimer
-                ? (sleepTimeLeft > 0
-                    ? t("utilities.radio.control.sleepRunning", { time: formatSleepTime(sleepTimeLeft) })
-                    : t("utilities.radio.control.sleepArmed", { minutes: sleepTimer }))
-                : t("utilities.radio.control.sleep")}
-            </span>
-          </button>
-        </div>
-      </div>
-      )}
-
-      {/* ─── Tìm đài bất kỳ ────────────────────────────────────────────────── */}
-      {(!standaloneApp || page === "discover") && (
-      <form onSubmit={submitSearch} className="flex items-center gap-2 mb-4">
-        <div className="flex-1 flex items-center gap-2 px-4 h-12 rounded-xl bg-card border border-border">
-          <span className="material-symbols-outlined text-lg text-muted-foreground">search</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("utilities.radio.searchPlaceholder")}
-            className="flex-1 min-w-0 bg-transparent outline-none text-[15px] font-semibold text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
-        <button type="submit" disabled={searching || !search.trim()}
-          className="h-12 px-5 rounded-xl bg-info text-info-foreground font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-40">
-          {searching ? t("utilities.radio.searching") : t("utilities.radio.searchAction")}
-        </button>
-      </form>
-      )}
-
-      {/* ─── Danh mục ──────────────────────────────────────────────────────── */}
-      {(!standaloneApp || ["stations", "discover"].includes(page)) && (
-      <>
-      <div className="flex items-center gap-2 overflow-x-auto mb-5 pb-1 no-scrollbar">
-        {foundList.length > 0 && (
-          <button onClick={() => setActiveCategory(FOUND_CATEGORY)}
-            className={`shrink-0 flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold whitespace-nowrap transition-colors ${
-              activeCategory === FOUND_CATEGORY ? "bg-info text-info-foreground border-info" : "bg-card text-foreground border-border"
-            }`}>
-            <span className="material-symbols-outlined text-lg">bookmark</span>
-            <span>{t("utilities.radio.categories.found", { n: foundList.length })}</span>
-          </button>
-        )}
-        {RADIO_CATEGORIES.map((cat) => (
-          <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
-            className={`shrink-0 flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold whitespace-nowrap transition-colors ${
-              activeCategory === cat.id ? "bg-info text-info-foreground border-info" : "bg-card text-foreground border-border"
-            }`}>
-            <span className="material-symbols-outlined text-lg">{cat.icon}</span>
-            <span>{t(cat.labelKey)}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* ─── Bảng đài ──────────────────────────────────────────────────────── */}
-      {loadingCategory === activeCategory ? (
-        <div className="flex items-center justify-center py-12 text-muted-foreground text-[15px]">
-          <span className="material-symbols-outlined animate-spin mr-2">refresh</span>
-          {t("utilities.radio.loading")}
-        </div>
-      ) : stations.length === 0 ? (
-        <div className="flex items-center justify-center py-12 text-muted-foreground text-[15px]">
-          {t("utilities.radio.noStations")}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
-          {stations.map((station) => {
-            const active = nowPlaying?.stationuuid === station.stationuuid;
-            // healthTick chỉ để buộc vẽ lại sau khi sổ theo dõi đổi.
-            const status = healthTick >= 0 ? stationStatus(station.stationuuid) : "unknown";
-            return (
-              // Nút xoá phải là anh em của thẻ đài, không nằm trong nó: nút
-              // lồng trong nút vừa sai HTML vừa kẹt bàn phím.
-              <div key={station.stationuuid} className="relative">
-                <button onClick={() => playStation(station)}
-                  className={`w-full h-full text-left p-4 rounded-2xl border bg-card flex flex-col gap-3 transition-colors ${
-                    active ? "border-info" : "border-border"
-                  } ${status === "dead" ? "opacity-55" : ""}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${
-                      active ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      <span className="material-symbols-outlined text-xl">
-                        {active && isBuffering ? "sync" : active && isPlaying ? "graphic_eq" : "radio"}
-                      </span>
-                    </div>
-                    <span title={t(`utilities.radio.health.${status}`)}
-                      className={`w-2 h-2 mt-1 shrink-0 rounded-full ${STATUS_DOT[status]} ${status === "unknown" ? "border border-border" : ""}`} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold line-clamp-2 leading-snug text-foreground">{station.name}</span>
-                    <span className="text-[13px] text-muted-foreground mt-1">
-                      {station.country || t(`utilities.radio.health.${status}`)}
-                    </span>
-                  </div>
-                </button>
-                {station.found && (
-                  <button type="button" aria-label={t("utilities.radio.removeFound", { name: station.name })}
-                    onClick={() => dropFound(station.stationuuid)}
-                    className="absolute top-2 right-2 w-9 h-9 rounded-full bg-muted border border-border text-muted-foreground flex items-center justify-center active:scale-95 transition-transform">
-                    <span className="material-symbols-outlined text-base">close</span>
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-      </>
-      )}
-
-      {/* ─── Nguồn & bản quyền ─────────────────────────────────────────────── */}
-      {(!standaloneApp || page === "about") && (
-      <div className="space-y-4">
-      {standaloneApp && (
-        <div className="rounded-[28px] border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-2xl sm:p-7">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-300">
-            <span className="material-symbols-outlined">info</span>
-          </span>
-          <h1 className="mt-4 text-2xl font-black tracking-tight">Về HugoRadio</h1>
-          <p className="mt-2 max-w-2xl text-[13px] font-semibold leading-relaxed text-muted-foreground">
-            Trình phát radio trực tuyến của Hugo Studio. Audio tiếp tục phát khi cậu chuyển app, hỗ trợ Media Session trên màn hình khóa và tự chuyển đài khi luồng hiện tại mất tín hiệu.
-          </p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {[
-              ["verified", "Luồng công khai", "Không tải xuống hay ghi âm"],
-              ["headphones", "Phát nền", "Điều khiển từ màn hình khóa"],
-              ["health_and_safety", "Tự phục hồi", "Học URL tốt và bỏ qua đài lỗi"],
-            ].map(([icon, title, desc]) => (
-              <div key={title} className="rounded-2xl border border-border/60 bg-background/50 p-4">
-                <span className="material-symbols-outlined text-teal-500">{icon}</span>
-                <p className="mt-2 text-[12px] font-black">{title}</p>
-                <p className="mt-1 text-[10px] font-semibold text-muted-foreground">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="rounded-2xl border border-border bg-muted p-4 flex items-start gap-3">
-        <span className="material-symbols-outlined text-lg text-muted-foreground shrink-0">gavel</span>
-        <div className="text-[13px] text-muted-foreground leading-relaxed">
-          <p className="font-bold text-foreground">{t("utilities.radio.legal.title")}</p>
-          <p className="mt-1">{t("utilities.radio.legal.body")}</p>
-          <p className="mt-1">{t("utilities.radio.legal.source")}</p>
-        </div>
-      </div>
-      </div>
-      )}
-
-      {standaloneApp && page === "sleep" && (
-        <section className="rounded-[28px] border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-2xl sm:p-7">
-          <div className="flex items-start gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-indigo-500/10 text-indigo-500">
-              <span className="material-symbols-outlined">bedtime</span>
-            </span>
-            <div>
-              <h2 className="text-lg font-black">Nghe rồi ngủ</h2>
-              <p className="mt-1 text-[11px] font-semibold leading-relaxed text-muted-foreground">Chọn thời lượng. Mười lăm giây cuối âm lượng sẽ hạ dần trước khi dừng.</p>
+        {/* ── 3. KHÁM PHÁ / TÌM KIẾM ── */}
+        <section>
+          <form onSubmit={submitSearch} className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-3 px-4 h-14 rounded-2xl bg-card border border-border/60 shadow-sm focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all">
+              <span className="material-symbols-outlined text-[22px] text-muted-foreground">search</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("utilities.radio.searchPlaceholder")}
+                className="flex-1 min-w-0 bg-transparent outline-none text-[16px] font-semibold text-foreground placeholder:text-muted-foreground/70"
+              />
             </div>
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-2.5">
-            {SLEEP_STEPS.map((minutes) => (
-              <button
-                key={minutes}
-                type="button"
-                onClick={() => setSleepTimer(sleepTimer === minutes ? null : minutes)}
-                className={`min-h-16 rounded-2xl border text-[13px] font-black transition active:scale-95 ${sleepTimer === minutes ? "border-indigo-500 bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" : "border-border bg-background/55 text-foreground"}`}
-              >
-                {minutes} phút
+            <button type="submit" disabled={searching || !search.trim()}
+              className="h-14 px-6 rounded-2xl bg-teal-500 text-white font-bold text-[15px] active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 shadow-md shadow-teal-500/20">
+              {searching ? t("utilities.radio.searching") : t("utilities.radio.searchAction")}
+            </button>
+          </form>
+        </section>
+
+        {/* ── 4. DANH MỤC & LƯỚI ĐÀI (STATIONS) ── */}
+        <section className="flex flex-col gap-5">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
+            {foundList.length > 0 && (
+              <button onClick={() => setActiveCategory(FOUND_CATEGORY)}
+                className={`shrink-0 flex items-center gap-2 h-11 px-5 rounded-full border-2 text-[14px] font-bold whitespace-nowrap transition-all ${
+                  activeCategory === FOUND_CATEGORY ? "bg-teal-50 text-teal-700 border-teal-500 dark:bg-teal-950 dark:text-teal-300" : "bg-card text-foreground border-border/50 hover:border-border"
+                }`}>
+                <span className="material-symbols-outlined text-[18px]">bookmark</span>
+                <span>{t("utilities.radio.categories.found", { n: foundList.length })}</span>
+              </button>
+            )}
+            {RADIO_CATEGORIES.map((cat) => (
+              <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
+                className={`shrink-0 flex items-center gap-2 h-11 px-5 rounded-full border-2 text-[14px] font-bold whitespace-nowrap transition-all ${
+                  activeCategory === cat.id ? "bg-teal-50 text-teal-700 border-teal-500 dark:bg-teal-950 dark:text-teal-300" : "bg-card text-foreground border-border/50 hover:border-border"
+                }`}>
+                <span className="material-symbols-outlined text-[18px]">{cat.icon}</span>
+                <span>{t(cat.labelKey)}</span>
               </button>
             ))}
           </div>
-          <p className="mt-4 rounded-2xl bg-muted/60 p-3 text-center text-[11px] font-bold text-muted-foreground">
-            {sleepTimer
-              ? sleepTimeLeft > 0 ? `Còn ${formatSleepTime(sleepTimeLeft)} trước khi tự tắt` : `Đã đặt ${sleepTimer} phút · bộ đếm chạy khi radio phát`
-              : "Chưa đặt hẹn giờ"}
-          </p>
+
+          {loadingCategory === activeCategory ? (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-4">
+              <span className="material-symbols-outlined animate-spin text-[32px] text-teal-500">refresh</span>
+              <span className="text-[15px] font-bold">{t("utilities.radio.loading")}</span>
+            </div>
+          ) : stations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
+              <span className="material-symbols-outlined text-[48px] opacity-20">radio_button_unchecked</span>
+              <span className="text-[15px] font-bold">{t("utilities.radio.noStations")}</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {stations.map((station) => {
+                const active = nowPlaying?.stationuuid === station.stationuuid;
+                const status = healthTick >= 0 ? stationStatus(station.stationuuid) : "unknown";
+                // Lấy style riêng cho danh mục này, nếu không có thì fallback
+                const catObj = RADIO_CATEGORIES.find(c => c.id === activeCategory) || RADIO_CATEGORIES[0];
+                
+                return (
+                  <div key={station.stationuuid} className="group relative">
+                    <button onClick={() => playStation(station)}
+                      className={`w-full text-left rounded-3xl border-2 flex flex-col transition-all overflow-hidden ${
+                        active ? "border-teal-500 ring-4 ring-teal-500/20" : "border-border/60 bg-card hover:border-border hover:shadow-lg"
+                      } ${status === "dead" ? "opacity-50 grayscale" : ""}`}>
+                      
+                      {/* Ảnh bìa / Gradient Banner của đài */}
+                      <div className={`w-full aspect-square relative flex items-center justify-center bg-gradient-to-br ${catObj.activeClass} p-4`}>
+                        <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
+                        <h3 className="relative z-10 text-white font-black text-2xl text-center leading-tight drop-shadow-md line-clamp-3">
+                          {station.name}
+                        </h3>
+                        {/* Status Dot */}
+                        <div className="absolute top-3 right-3 z-20 flex items-center justify-center w-8 h-8 rounded-full bg-black/30 backdrop-blur-md">
+                           <span title={t(`utilities.radio.health.${status}`)} className={`w-3 h-3 rounded-full ${STATUS_DOT[status]} ${status === "unknown" ? "border-2 border-white/40" : ""}`} />
+                        </div>
+                        {/* Play/Pause Overlay khi hover hoặc active */}
+                        <div className={`absolute inset-0 z-10 bg-black/40 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300 ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                           <span className="material-symbols-outlined text-white text-[48px] drop-shadow-lg">
+                             {active && isBuffering ? "sync" : active && isPlaying ? "graphic_eq" : "play_circle"}
+                           </span>
+                        </div>
+                      </div>
+
+                      {/* Tên và Location */}
+                      <div className="p-4 bg-card flex flex-col">
+                        <span className="text-[14px] font-bold line-clamp-1 text-foreground">{station.name}</span>
+                        <span className="text-[12px] font-semibold text-muted-foreground mt-0.5 line-clamp-1">
+                          {station.country || t(`utilities.radio.health.${status}`)}
+                        </span>
+                      </div>
+                    </button>
+                    {station.found && (
+                      <button type="button" aria-label={t("utilities.radio.removeFound", { name: station.name })}
+                        onClick={() => dropFound(station.stationuuid)}
+                        className="absolute -top-2 -right-2 z-30 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center active:scale-95 transition-transform shadow-lg hover:bg-red-600">
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
-      )}
 
-      </div>
+        {/* ── 5. THÔNG TIN & BẢN QUYỀN ── */}
+        <section className="mt-8 pt-8 border-t border-border/60">
+          <div className="rounded-2xl border border-border/80 bg-muted/40 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <span className="material-symbols-outlined text-[32px] text-muted-foreground shrink-0">info</span>
+            <div className="text-[13px] text-muted-foreground leading-relaxed flex-1">
+              <p className="font-bold text-foreground mb-1">Về HugoRadio</p>
+              <p>Trình phát radio trực tuyến. Audio tiếp tục phát khi cậu chuyển app, hỗ trợ Media Session và tự phục hồi khi mất tín hiệu. {t("utilities.radio.legal.body")}</p>
+              <p className="mt-1 font-semibold">{t("utilities.radio.legal.source")}</p>
+            </div>
+          </div>
+        </section>
       </main>
-
-      {showStore && (
-        <RadioStoreModal
-          bio={bio}
-          showToast={showToast}
-          onClose={() => setShowStore(false)}
-          onPurchased={refetchTokens}
-        />
-      )}
-      </div>
+    </div>
   );
 }

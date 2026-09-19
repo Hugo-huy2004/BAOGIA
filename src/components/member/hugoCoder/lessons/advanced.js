@@ -1205,11 +1205,11 @@ Nhưng một bundle khổng lồ = trang đầu tải cả code của những tr
 
 \`\`\`javascript
 // import tĩnh — nằm đầu file, vào bundle chính
-import { format } from "./date-utils.js";
+import { format } from "./date-utils";
 
 // import động — chỉ tải KHI CHẠY ĐẾN, tách thành chunk riêng
 async function openChart() {
-  const { renderChart } = await import("./chart-utils.js");
+  const { renderChart } = await import("./chart-utils");
   renderChart();
 }
 \`\`\`
@@ -1234,7 +1234,7 @@ Khuôn quyết định: thứ màn hình đầu cần → import tĩnh; thứ n�
     ],
     tasks: ["Viết async openChart dùng await import() bên trong xử lý sự kiện click."],
     starterCode: `// BÀI 41: Code Splitting bằng dynamic import
-// TODO 1: async function openChart() { const { renderChart } = await import("./chart-utils.js"); renderChart(); }
+// TODO 1: async function openChart() { const { renderChart } = await import("./chart-utils"); renderChart(); }
 // TODO 2: document.getElementById("btn-chart").addEventListener("click", openChart)
 // TODO 3: chú thích 3 ứng viên đáng chẻ trong app thật
 `,
@@ -1833,7 +1833,7 @@ Network-First đảo thứ tự: \`fetch(e.request).catch(() => caches.match(e.r
 
 \`\`\`javascript
 import { describe, test, expect } from "vitest";
-import { calcTotal } from "./fees.js";
+import { calcTotal } from "./fees";
 
 describe("calcTotal — phí giao dịch 10%", () => {
   test("cộng đúng 10% phí", () => {

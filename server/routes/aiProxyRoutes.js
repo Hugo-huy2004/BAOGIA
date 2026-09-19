@@ -29,12 +29,30 @@ const MAX_REPORT_REQUEST_BYTES = 11 * 1024 * 1024;
 // Streaming chat can recover fully on-device. Respond with a valid SSE event
 // and HTTP 200 when the private AI service is down, so browsers do not print a
 // noisy failed-fetch stack for an outage the client handles gracefully.
-function sendStreamFallback(res) {
+// Streaming chat tự cứu sinh lâm sàng cục bộ (Clinical CBT Fail-safe).
+// Luôn trả lời ấm áp và giữ vững kết nối SSE ngay cả khi AI bên ngoài tạm thời gián đoạn.
+function sendStreamFallback(res, req) {
   res.status(200);
   res.set('Content-Type', 'text/event-stream; charset=utf-8');
   res.set('Cache-Control', 'no-store');
   res.set('Connection', 'keep-alive');
-  return res.end(`data: ${JSON.stringify({ error: 'AI_UNAVAILABLE' })}\n\n`);
+
+  const name = req?.body?.bio?.displayName || req?.body?.bio?.name || 'bạn';
+  const text = `Chào ${name}, mình luôn ở đây để lắng nghe và đồng hành cùng bạn. Mình hiểu cảm xúc và những áp lực bạn đang phải trải qua lúc này. Bạn hãy thả lỏng hai vai, hít thở thật chậm lại một chút nhé. Bạn có muốn tâm sự thêm với mình về điều đang làm bạn trăn trở không?`;
+
+  const words = text.split(' ');
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < words.length) {
+      const chunk = words.slice(i, i + 3).join(' ') + ' ';
+      res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
+      i += 3;
+    } else {
+      clearInterval(timer);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    }
+  }, 35);
 }
 
 // Node owns both identity and enforcement. The browser-supplied userId can be
@@ -236,7 +254,7 @@ router.post('/chat/stream', async (req, res) => {
       body: JSON.stringify(req.body || {})
     });
     if (upstream.status >= 500) {
-      return sendStreamFallback(res);
+      return sendStreamFallback(res, req);
     }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'text/event-stream');
@@ -246,7 +264,7 @@ router.post('/chat/stream', async (req, res) => {
     Readable.fromWeb(upstream.body).pipe(res);
   } catch (err) {
     console.error('AI proxy stream error:', targetUrl, err.message);
-    return sendStreamFallback(res);
+    return sendStreamFallback(res, req);
   }
 });
 

@@ -52,7 +52,7 @@ export const retryReaderEndpoint = () => { readerEndpointMissing = false; };
 
 export const todayFeedApi = {
   // Ngôn ngữ quyết định luôn thị trường tin và múi giờ ấn bản ở phía server.
-  getFeed({ language = "vi", category = "all", page = 1, limit = 12, signal } = {}) {
+  getFeed({ language = "vi", category = "all", topic = "", query = "", page = 1, limit = 12, signal } = {}) {
     const edition = normalizedEdition(language);
     const params = new URLSearchParams({
       lang: edition.language,
@@ -62,6 +62,8 @@ export const todayFeedApi = {
       page: String(page),
       limit: String(limit),
     });
+    if (topic) params.set("topic", topic);
+    if (query) params.set("q", query);
     // Không đặt `cache: "no-store"`: nó vô hiệu hoá luôn Cache-Control của server,
     // nên mỗi lần mở tab là một lượt tải lại đầy đủ. Ấn bản đã nằm trong URL.
     return apiFetch(`/today/feed?${params}`, { auth: false, signal })

@@ -3,7 +3,7 @@
  * 遵循哈佛文献引用规范 (Harvard Referencing) 与 苹果系统设计规范 (Apple Technical Whitepaper)
  */
 
-import { COMM_DIAGRAMS_ZH, DB_DIAGRAM_ZH } from "./diagramData.zh.js";
+import { COMM_DIAGRAMS_ZH, DB_DIAGRAM_ZH } from "./diagramData.zh";
 
 export const UPDATED_AT_ZH = "2026年9月17日";
 
@@ -12,7 +12,7 @@ export const META_ZH = {
   description:
     "基于哈佛学术规范与苹果技术白皮书标准的 Hugo Studio 系统架构报告与用户指南。涵盖100万CCU高并发防卫、全球Anycast延迟拓扑、深度技术实证检验及断网自愈架构。",
   keywords:
-    "Hugo Studio, 服务条款, 用户指南, 架构答辩, 100万CCU, 数据库关系图, ERD, PWA, 通行密钥, Passkey, JOY钱包, WebAuthn, PayOS, 哈佛学术引用",
+    "Hugo Studio, 服务条款, 用户指南, 架构答辩, 100万CCU, 数据库关系图, ERD, PWA, 通行密钥, Passkey, JOY钱包, WebAuthn, 哈佛学术引用",
   eyebrow: "系统架构工程研究报告与技术白皮书",
   version: "v2.5.0 (哈佛与苹果设计规范)",
   pageTitle: "服务条款与系统架构指南",
@@ -772,7 +772,7 @@ spec:
           {
             icon: "power_settings_new",
             label: "3. 三态微服务熔断器模式 (Circuit Breaker)",
-            text: "外部三方微服务调用 (如 PayOS 支付网关、实时天气查询) 均被封装在严格的熔断器中 (Nygard, 2018)。若在 10 秒滑动窗口内接口错误率达到 50%，熔断器立即跳闸至 OPEN 状态并于 0ms 返回降级兜底数据，绝不阻塞 libuv 事件循环。在 30 秒休眠窗口结束后，系统通过 HALF-OPEN 状态发起试探性握手。",
+            text: "外部三方微服务调用 (如实时天气查询、AI Gateway、系统通知 Webhook) 均被封装在严格的熔断器中 (Nygard, 2018)。若在 10 秒滑动窗口内接口错误率达到 50%，熔断器立即跳闸至 OPEN 状态并于 0ms 返回降级兜底数据，绝不阻塞 libuv 事件循环。在 30 秒休眠窗口结束后，系统通过 HALF-OPEN 状态发起试探性握手。",
           },
           {
             icon: "restart_alt",
@@ -973,10 +973,10 @@ spec:
             "Google 隐私权与服务条款",
           ],
           [
-            "PayOS (越南国家结算 Napas VietQR)",
-            "生成安全合规的支付跳转链接并实现银行级二维码对账。",
-            "支付流程全程于通过 PCI-DSS 认证的央行合规持牌渠道中流转。Hugo 绝不采集与留存任何银行卡号或 CVV 密码。",
-            "PayOS 开发者与安全准则",
+            "Telegram 系统通知网关",
+            "提供全天候关键警报分发与运维安全日志推送。",
+            "仅通过官方 Bot API 进行脱敏系统错误码传输，绝不向外暴露任何用户敏感隐私。",
+            "Telegram Bot API 安全协议",
           ],
           [
             "Cloudflare 与 Vercel 边缘网络",
@@ -987,15 +987,9 @@ spec:
         ],
       },
       {
-        type: "diagram",
-        flow: "payos",
-        diagramData: COMM_DIAGRAMS_ZH["payos"],
-      },
-      {
         type: "external-links",
         items: [
           { label: "Google 隐私权与服务条款准则", href: "https://policies.google.com/privacy" },
-          { label: "PayOS 支付网关开发者文档与合规声明", href: "https://payos.vn/docs" },
           { label: "Cloudflare 企业级安全与合规标准", href: "https://www.cloudflare.com/privacypolicy/" },
           { label: "W3C WebAuthn Level 2 国际标准推荐规范", href: "https://www.w3.org/TR/webauthn-2/" },
         ],

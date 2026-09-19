@@ -181,16 +181,13 @@ function ToneSymbol({ tone, icon }) {
   );
 }
 
-function StudyTopBar({ copy, percent, onBack }) {
+function StudyTopBar({ copy, percent }) {
   return (
     <header className="study-topbar">
-      <button type="button" className="study-back" onClick={onBack} aria-label={copy.back}>
-        <ArrowLeft aria-hidden="true" />
-      </button>
       <div className="study-nav-title">
         <strong>{copy.largeTitle}</strong>
       </div>
-      <div className="study-nav-progress" aria-label={`${copy.progress}: ${percent}%`}>
+      <div className="study-nav-progress mr-10" aria-label={`${copy.progress}: ${percent}%`}>
         <b>{percent}%</b>
         <small>{copy.progress}</small>
       </div>

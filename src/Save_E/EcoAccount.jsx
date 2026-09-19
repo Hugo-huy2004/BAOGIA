@@ -8,7 +8,7 @@ import { notify } from "../lib/notify";
 import memberService from "../services/classes/MemberService";
 // Đuôi .jsx tường minh: macOS không phân biệt hoa/thường nên "./EcoRadio" bắt
 // trúng ecoRadio.js (file helper) trước — build đứt vì file đó không có default export.
-import EcoRadio from "./EcoRadio.jsx";
+import EcoRadio from "./EcoRadio";
 import EcoGames from "./EcoGames";
 import EcoFold from "./EcoFold";
 import { joyText } from "../lib/joyDisplay";

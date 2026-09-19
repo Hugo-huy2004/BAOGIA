@@ -87,49 +87,6 @@ export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail,
   return data;
 }
 
-/**
- * Lịch sử ví + tổng kết N ngày trong một lượt gọi.
- * Nhãn (`title`) và nhóm (`group`) do máy chủ gắn — client không giữ bản sao
- * nào của danh mục nguồn JOY.
- */
-/**
- * Bảng tỷ giá JOY của hôm nay. Hỏng thì trả `null` — app chạy tiếp bằng hệ số
- * nền, mất thị trường không được phép làm mất ví.
- */
-export async function fetchJoyRates() {
-  try {
-    const res = await fetch(`${getApiUrl()}/joy/rates`, {
-      credentials: "include",
-      cache: "no-cache",
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-const rateHistoryCache = new Map();
-
-/** Chuỗi điểm tỷ giá để vẽ biểu đồ (có bộ nhớ đệm TTL 15s chống lặp request khi đăng nhập). */
-export async function fetchJoyRateHistory(hours = 24) {
-  const cacheKey = `history_${hours}`;
-  const now = Date.now();
-  const cached = rateHistoryCache.get(cacheKey);
-
-  if (cached && now - cached.timestamp < 15000) {
-    return cached.data;
-  }
-
-  const res = await fetch(`${getApiUrl()}/joy/rates/history?hours=${hours}`, { credentials: "include" });
-  if (!res.ok) throw new Error("RATE_HISTORY_FAILED");
-  const data = await res.json();
-  const points = Array.isArray(data.points) ? data.points : [];
-
-  rateHistoryCache.set(cacheKey, { timestamp: now, data: points });
-  return points;
-}
-
 export async function fetchJoyHistory({ limit = 50, days = 30 } = {}) {
   const res = await fetch(
     `${getApiUrl()}/joy/history?limit=${limit}&days=${days}`,

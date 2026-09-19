@@ -2,7 +2,7 @@
 // Chosen because it's modern, fast, free, and needs NO API key (zero setup /
 // no secret to leak), returning current conditions + is_day in one call.
 
-import { getCachedGeolocation } from "./geoCache.js";
+import { getCachedGeolocation } from "./geoCache";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 // No-key IP geolocation fallback (city-level) so a public bio can show local

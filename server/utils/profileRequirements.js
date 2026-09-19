@@ -61,18 +61,16 @@ export const PROFILE_FIELDS = [
     },
   },
   {
-    // Hỏi NGAY sau ngôn ngữ và chỉ hỏi một lần trong đời tài khoản. Xem chú thích
-    // ở `Bio.joyDenom`: đơn vị đổi được tuỳ ý là né được phí đổi đơn vị.
+    // Đơn vị JOY chuẩn duy nhất của Hugo Studio
     key: 'joyDenom',
     type: 'choice',
     label: 'Đơn vị JOY',
-    hint: 'Chọn một lần rồi cố định. Đổi ngôn ngữ giao diện sau này KHÔNG đổi đơn vị này.',
-    options: DENOM_ACCOUNT_OPTIONS.map(({ key }) => ({ value: key })),
-    required: true,
-    isMissing: (bio) => !JOY_DENOMS[bio.joyDenom],
-    apply(bio, value) {
-      if (!JOY_DENOMS[value]) throw new Error('Đơn vị JOY không hợp lệ.');
-      bio.joyDenom = value;
+    hint: 'Hugo Studio dùng một đơn vị JOY chuẩn duy nhất.',
+    options: [{ value: 'JOY' }],
+    required: false,
+    isMissing: () => false,
+    apply(bio) {
+      bio.joyDenom = 'JOY';
     },
   },
   {

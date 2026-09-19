@@ -89,10 +89,6 @@
       "destination": "/study/index.html"
     },
     {
-      "source": "/support",
-      "destination": "/support/index.html"
-    },
-    {
       "source": "/radio",
       "destination": "/radio/index.html"
     },

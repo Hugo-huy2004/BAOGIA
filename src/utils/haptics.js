@@ -45,6 +45,7 @@ export const hapticMerge = () => triggerHaptic(16);
 export const hapticWin = () => triggerHaptic([20, 40, 20, 40, 30]);
 export const hapticLose = () => triggerHaptic(60);
 export const hapticPaymentSuccess = () => triggerHaptic([15, 30, 25, 45, 10]);
+export const hapticSuccess = () => triggerHaptic([15, 30, 25, 45, 10]);
 export const hapticPinTap = () => triggerHaptic(6);
 export const hapticQrScan = () => triggerHaptic([10, 20, 10]);
 

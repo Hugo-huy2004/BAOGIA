@@ -230,18 +230,19 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     const downloadedGames = readDownloadedGameAppIds();
     const diskHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
     const diskInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
-    setHomeScreenApps(prev => {
-      const merged = appInstallationPolicy.normalizeHomeScreen(
-        [...prev, ...diskHome],
-        [...installedApps, ...diskInst],
-      );
-      return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
-    });
     setInstalledApps(prev => {
       const merged = appInstallationPolicy.normalizeInstalled([...prev, ...diskInst]);
       return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
-  }, [installedApps, isVisible]);
+    setHomeScreenApps(prev => {
+      const currentInst = appInstallationPolicy.normalizeInstalled([...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames]);
+      const merged = appInstallationPolicy.normalizeHomeScreen(
+        [...prev, ...diskHome],
+        currentInst,
+      );
+      return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
+    });
+  }, [isVisible]);
 
   // One-time migration for games downloaded by older builds that only stored
   // their state on this device. This makes those installs portable via bootstrap.
@@ -769,7 +770,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "vocab": import("./vocab/HugoVocabApp"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;
         case "aura": import("./MemberAuraTab"); break;
-        case "info": import("./MemberInfoVersionTab"); break;
         case "bio": import("./BioPreviewTab"); break;
         default: break;
       }

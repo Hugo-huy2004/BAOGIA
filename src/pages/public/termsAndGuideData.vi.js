@@ -3,7 +3,7 @@
  * Tiêu chuẩn Harvard Citation & Apple Technical Whitepaper
  */
 
-import { COMM_DIAGRAMS_VI, DB_DIAGRAM_VI } from "./diagramData.vi.js";
+import { COMM_DIAGRAMS_VI, DB_DIAGRAM_VI } from "./diagramData.vi";
 
 export const UPDATED_AT_VI = "17/09/2026";
 
@@ -67,9 +67,9 @@ export const SECTIONS_VI = [
               "Không bị quảng cáo theo dõi, bảo vệ quyền riêng tư, rèn luyện sự tập trung và duy trì nhịp sinh học lành mạnh.",
             ],
             [
-              "Khách hàng doanh nghiệp & Đối tác",
-              "Cổng khảo sát, cấu hình và tính toán chi phí thiết kế web thông minh, kết nối cổng thanh toán tự động VietQR qua PayOS.",
-              "Minh bạch 100% ngân sách phần mềm, không phí ẩn, bảo hành 6 tháng và bàn giao toàn bộ mã nguồn sạch trên Git.",
+              "Người sáng tạo & Cộng đồng học thuật",
+              "Cung cấp không gian Bio cá nhân hóa nghệ thuật, công cụ học tập và giao lưu kết nối tri thức hoàn toàn phi lợi nhuận.",
+              "Minh bạch 100%, bảo vệ quyền riêng tư tuyệt đối, tôn trọng tác quyền và hỗ trợ cộng đồng mở.",
             ],
             [
               "Mục tiêu kiến trúc kỹ thuật",
@@ -148,9 +148,9 @@ export const SECTIONS_VI = [
               "Chess.js Engine, Local Storage Elo Rating và Dynamic CSS Chromatic Animation.",
             ],
             [
-              "Báo Giá Dịch Vụ Web",
-              "Hệ thống khảo sát và tính toán chi phí thiết kế website tự động theo thời gian thực; tích hợp tạo hợp đồng và thanh toán PayOS VietQR.",
-              "Dynamic Cost Estimation Matrix, PayOS API v2, Webhook HMAC-SHA256 xác thực thanh toán liên ngân hàng Napas 24/7.",
+              "Khảo Sát Giải Pháp Kiến Trúc",
+              "Hệ thống khảo sát và tư vấn cấu hình kiến trúc kỹ thuật hệ thống phần mềm thông minh theo thời gian thực.",
+              "Dynamic Architecture Estimation Matrix, tư vấn khả năng chịu tải và tối ưu hiệu năng PWA.",
             ],
           ],
         },
@@ -212,11 +212,11 @@ export const SECTIONS_VI = [
               badge: "Ánh sáng",
             },
             {
-              title: "Báo Giá Dịch Vụ Web",
-              desc: "Công cụ khảo sát và ước tính chi phí thiết kế web thông minh, thanh toán VietQR qua PayOS.",
+              title: "Khảo Sát Giải Pháp",
+              desc: "Công cụ khảo sát cấu hình và ước tính năng lực kiến trúc kỹ thuật web thông minh.",
               icon: "calculate",
               href: "/services",
-              badge: "Báo giá",
+              badge: "Giải pháp",
             },
             {
               title: "Hỏi Đáp Thường Gặp",
@@ -281,9 +281,9 @@ export const SECTIONS_VI = [
               "Khi quét mã QR hạt phân tử thành công, lệnh P2P thực hiện transaction nguyên tử: Tạo đồng thời 1 dòng trừ JOY của người gửi và 1 dòng cộng JOY của người nhận.",
             ],
             [
-              "UserProfile ↔ PaymentLink",
+              "UserProfile ↔ BioTheme",
               "1 : N (Tùy chọn)",
-              "Giao dịch thanh toán PayOS được gắn với email tài khoản nếu người dùng đã đăng nhập; đồng thời hỗ trợ người dùng vãng lai theo mã đơn hàng số nguyên orderCode độc nhất.",
+              "Lưu trữ cấu hình giao diện, bảng màu và các thành phần hiển thị Bio cá nhân do người dùng thiết lập; tự do thay đổi bất cứ lúc nào.",
             ],
             [
               "Admin ↔ AdminAuditLog",
@@ -345,8 +345,8 @@ export const SECTIONS_VI = [
               "Chi phí hoa hồng chợ ứng dụng",
               "Mất 15% - 30% doanh thu",
               "Mất 15% - 30% doanh thu",
-              "0% (Tự chủ cổng thanh toán)",
-              "0% (Tích hợp trực tiếp PayOS / Napas 24/7)",
+              "0% (Nền tảng phi lợi nhuận)",
+              "0% (Hoàn toàn miễn phí, không thu phí dịch vụ)",
             ],
             [
               "Thời gian cập nhật phiên bản",
@@ -851,7 +851,7 @@ spec:
             {
               icon: "power_settings_new",
               label: "3. Cơ chế Ngắt mạch Tự động 3 Trạng thái (Circuit Breaker State Machine)",
-              text: "Áp dụng mô hình Circuit Breaker (Nygard, 2018) cho các dịch vụ con bên ngoài (Cổng thanh toán PayOS, API thời tiết, Webhook thông báo). Nếu tỷ lệ lỗi vượt quá 50% trong 10 giây, Circuit Breaker lập tức chuyển sang trạng thái OPEN, trả về dữ liệu dự phòng cục bộ (Fallback) ngay lập tức mà không làm treo tắc nghẽn Event Loop. Sau 30 giây, chuyển sang HALF-OPEN để thăm dò lưu lượng và tự động khôi phục về CLOSED khi dịch vụ ổn định.",
+              text: "Áp dụng mô hình Circuit Breaker (Nygard, 2018) cho các dịch vụ bên ngoài (API thời tiết, AI Gateway, Webhook thông báo). Nếu tỷ lệ lỗi vượt quá 50% trong 10 giây, Circuit Breaker lập tức chuyển sang trạng thái OPEN, trả về dữ liệu dự phòng cục bộ (Fallback) ngay lập tức mà không làm treo tắc nghẽn Event Loop. Sau 30 giây, chuyển sang HALF-OPEN để thăm dò lưu lượng và tự động khôi phục về CLOSED khi dịch vụ ổn định.",
             },
             {
               icon: "restart_alt",
@@ -1077,10 +1077,10 @@ spec:
               "Hugo Studio KHÔNG BAO GIỜ biết mật khẩu Google của bạn. Google không được cấp quyền truy cập dữ liệu nội bộ của Hugo Studio.",
             ],
             [
-              "Cổng thanh toán PayOS (Napas 24/7)",
-              "Tạo mã thanh toán VietQR động và bắn Webhook xác thực giao dịch.",
-              "Mã đơn hàng (orderCode), số tiền thanh toán (VND) và nội dung chuyển khoản.",
-              "Hugo Studio KHÔNG LƯU số tài khoản ngân hàng, thông tin thẻ hay mã OTP của bạn. Giao dịch thực hiện trực tiếp trong app ngân hàng của bạn.",
+              "Hạ tầng Cảnh báo & Webhook (Telegram Bot)",
+              "Gửi thông báo khẩn cấp và cảnh báo giám sát hệ thống thời gian thực.",
+              "Chỉ gửi nội dung cảnh báo ẩn danh, mã lỗi hệ thống và nhật ký tổng kết.",
+              "Không chia sẻ dữ liệu người dùng ra bên ngoài; kết nối an toàn qua Bot API chính thức.",
             ],
             [
               "Cloudflare & Vercel Edge Network",
@@ -1089,11 +1089,6 @@ spec:
               "Tuân thủ tiêu chuẩn an toàn an ninh mạng toàn cầu, giảm độ trễ tải trang xuống dưới 50ms cho người dùng tại Việt Nam.",
             ],
           ],
-        },
-        {
-          type: "diagram",
-          flow: "payos",
-          diagramData: COMM_DIAGRAMS_VI["payos"],
         },
       ],
     },

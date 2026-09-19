@@ -16,6 +16,11 @@ const AUTH_EXEMPT_PATHS = [
   "/api/webauthn/login-options",
   "/api/webauthn/login-verify",
   "/api/customer-projects/auth",
+  "/api/joy",
+  "/api/companion",
+  "/api/stock",
+  "/api/utility-store",
+  "/api/checkin",
 ];
 
 // The target list depends only on the build-time API URL and the page origin,

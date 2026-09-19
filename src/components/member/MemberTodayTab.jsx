@@ -32,10 +32,15 @@ export default function MemberTodayTab({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [visible, setVisible] = useState(PAGE_SIZE);
   const { data, isLoading, isError, refetch, dataUpdatedAt } = useTodayFeed(language, category);
+  const dailyBriefing = data?.dailyBriefing;
   const feed = useMemo(() => data?.items || [], [data?.items]);
-  // Chủ đề rút ra từ chính ấn bản đang mở, không phải một danh sách cứng: hôm
-  // nào cả nước nói về "tuyển sinh" thì hôm đó có chip "tuyển sinh".
-  const topics = useMemo(() => extractTopics(feed), [feed]);
+  // Chủ đề ưu tiên lấy từ Node.js server (Smart Topics NLP tính sẵn),
+  // fallback tính tại máy khách nếu mất kết nối hoặc không có dữ liệu server.
+  const topics = useMemo(() => {
+    if (Array.isArray(data?.topics) && data.topics.length > 0) return data.topics;
+    if (Array.isArray(data?.meta?.topics) && data.meta.topics.length > 0) return data.meta.topics;
+    return extractTopics(feed);
+  }, [data?.topics, data?.meta?.topics, feed]);
   const articles = useMemo(
     () => feed.filter((article) => matchesTopic(article, topic) && matchesQuery(article, query)),
     [feed, topic, query],
@@ -179,6 +184,49 @@ export default function MemberTodayTab({
 
       <section aria-labelledby="today-feed-title">
         <h3 id="today-feed-title" className="sr-only">{t("memberPortal.today.topStories")}</h3>
+
+        {/* ── BẢN TIN TÓM TẮT BIẾN ĐỘNG HÔM NAY (TODAY'S EXECUTIVE BRIEFING) ── */}
+        {dailyBriefing?.shifts?.length > 0 && !query && !topic && category === "all" && (
+          <div className="today-briefing-card" aria-label="Bản tin biến động hôm nay">
+            <div className="today-briefing-header">
+              <div className="today-briefing-title">
+                <span className="material-symbols-outlined text-[18px]">bolt</span>
+                <span>{dailyBriefing.headline || "Bản Tin Tóm Tắt Biến Động 24 Giờ"}</span>
+              </div>
+              <span className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Tổng hợp tức thì (0ms)
+              </span>
+            </div>
+
+            <div className="today-briefing-grid">
+              {dailyBriefing.shifts.map((shift) => (
+                <button
+                  key={shift.id}
+                  type="button"
+                  onClick={() => {
+                    if (shift.articleId) {
+                      onNavigate(`/member/today/${shift.articleId}?c=all`);
+                    }
+                  }}
+                  className="today-shift-item"
+                >
+                  <div className="today-shift-item__top">
+                    <span className="today-shift-item__tag">
+                      <span className="material-symbols-outlined">{shift.icon || "trending_up"}</span>
+                      {shift.tag}
+                    </span>
+                    {shift.metric && (
+                      <span className="today-shift-item__metric">{shift.metric}</span>
+                    )}
+                  </div>
+                  <h4 className="today-shift-item__title">{shift.title}</h4>
+                  <p className="today-shift-item__takeaway">{shift.concreteTakeaway}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Thanh công cụ dính đỉnh: ô tìm kiếm + một nút lọc nhỏ. Sáu chip
             chuyên mục cũ chiếm hai hàng ngay trên đầu danh sách mà phần lớn

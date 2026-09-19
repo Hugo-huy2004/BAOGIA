@@ -12,15 +12,48 @@ import { sentryVitePlugin } from '@sentry/vite-plugin'
 const DEV_BACKEND = process.env.VITE_DEV_BACKEND_URL || 'http://localhost:8099'
 const DEV_WS = process.env.VITE_WS_URL || DEV_BACKEND.replace(/^http/, 'ws')
 
-/* Backend chưa bật thì mỗi request /api đổ ra một stack trace "http proxy error"
-   làm trôi hết log thật. Nuốt đúng trường hợp ECONNREFUSED; lỗi proxy khác vẫn
-   in đầy đủ. */
+/* Backend chưa bật hoặc client ngắt kết nối WebSocket đột ngột (HMR, reload tab,
+   chuyển trang) thì mỗi request /api hoặc /ws đổ ra stack trace "proxy error"
+   hoặc "ws proxy error: write EPIPE / ECONNRESET" làm trôi hết log thật.
+   Nuốt các lỗi ngắt kết nối vô hại này; lỗi proxy logic khác vẫn in đầy đủ. */
 const quietLogger = createLogger()
 const logError = quietLogger.error.bind(quietLogger)
+const IGNORABLE_PROXY_CODES = new Set(['ECONNREFUSED', 'EPIPE', 'ECONNRESET', 'ETIMEDOUT'])
 quietLogger.error = (msg, opts) => {
-  if (opts?.error?.code === 'ECONNREFUSED' && String(msg).includes('proxy error')) return
+  const code = opts?.error?.code
+  const message = String(msg || '')
+  const isProxy = message.includes('proxy error') || message.includes('proxy socket error')
+  const isIgnorable = IGNORABLE_PROXY_CODES.has(code) ||
+    message.includes('EPIPE') ||
+    message.includes('ECONNREFUSED') ||
+    message.includes('ECONNRESET') ||
+    message.includes('ETIMEDOUT')
+  if (isProxy && isIgnorable) return
+
   logError(msg, opts)
 }
+
+/* Dọn dẹp socket WebSocket khi client ngắt kết nối hoặc F5/HMR để tránh rò rỉ socket CLOSE_WAIT / EPIPE */
+const configureWsProxy = (proxy) => {
+  proxy.on('proxyReqWs', (proxyReq, _req, socket) => {
+    const cleanUp = () => {
+      try { if (!proxyReq.destroyed) proxyReq.destroy(); } catch {}
+    };
+    socket.on('close', cleanUp);
+    socket.on('error', cleanUp);
+    proxyReq.on('upgrade', (_proxyRes, proxySocket) => {
+      socket.on('close', () => {
+        try { if (!proxySocket.destroyed) proxySocket.destroy(); } catch {}
+      });
+      socket.on('error', () => {
+        try { if (!proxySocket.destroyed) proxySocket.destroy(); } catch {}
+      });
+      proxySocket.on('error', () => {
+        try { if (!socket.destroyed) socket.destroy(); } catch {}
+      });
+    });
+  });
+};
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -273,9 +306,9 @@ export default defineConfig(({ mode }) => {
     //  duyệt vẫn nói chuyện với Render — code cũ trả 400, trông như lỗi mình.)
     proxy: {
       // Chess WebSocket → Node.js backend
-      '/ws/chess': { target: DEV_WS, ws: true, changeOrigin: true, secure: false },
+      '/ws/chess': { target: DEV_WS, ws: true, changeOrigin: true, secure: false, configure: configureWsProxy },
       // Member wallet/notification realtime channel → Node.js backend
-      '/ws': { target: DEV_WS, ws: true, changeOrigin: true, secure: false },
+      '/ws': { target: DEV_WS, ws: true, changeOrigin: true, secure: false, configure: configureWsProxy },
       // Everything else → Node.js backend
       '/api': { target: DEV_BACKEND, changeOrigin: true, secure: false },
     },

@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { STUDY_LIFETIME } from "../../../shared/joyPrices";
-import { getCoderStageGate } from "../../../shared/coderProgression.js";
+import { getCoderStageGate } from "../../../shared/coderProgression";
 import { FileCode, FileText, FileJson
 } from "lucide-react";
 import { notify } from "../../lib/notify";
@@ -79,7 +79,7 @@ const getFileIcon = (fileName) => {
 
 
 import { useNavigate } from "react-router-dom";
-import { STUDY_ALL_STAGES_PRICE } from "../../../shared/joyPrices.js";
+import { STUDY_ALL_STAGES_PRICE } from "../../../shared/joyPrices";
 import { joyText } from "../../lib/joyDisplay";
 
 // Phí duy trì tháng và thưởng mỗi chặng, tính bằng JOY gốc.

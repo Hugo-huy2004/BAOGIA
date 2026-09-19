@@ -4,11 +4,11 @@ import remarkGfm from "remark-gfm";
 import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Gift, Library } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import { STAGE_THEME } from "./stageThemes";
-import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
+import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices";
 import { joyText } from "../../../lib/joyDisplay";
 import QuizQuestion from "./QuizQuestion";
 import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
-import { getLessonReading } from "./lessons/reading.js";
+import { getLessonReading } from "./lessons/reading";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;

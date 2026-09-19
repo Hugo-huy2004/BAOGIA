@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { PUBLIC_TOOLS, resolvePublicTool } from "../src/config/publicTools.js";
+import { PUBLIC_TOOLS, resolvePublicTool } from "../src/config/publicTools.ts";
 
 const MEMBER_SESSION_KEY = "price-doc-member-session";
 

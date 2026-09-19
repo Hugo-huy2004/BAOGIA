@@ -57,19 +57,9 @@ export const APP_REGISTRY = Object.freeze([
   }),
   manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
-  manifest({ id: "cinema", icon: "movie", tint: "purple", category: "arcade", badge: "cinema", storageMb: 4.8, version: "2.0.0", store: true, storeOrder: 9 }),
-  manifest({ id: "invest", icon: "trending_up", tint: "teal", category: "edu", badge: "new", storageMb: 5.0, store: true, storeOrder: 10 }),
   manifest({ id: "vocab", icon: "translate", tint: "rose", category: "edu", badge: "new", storageMb: 2.4, version: "1.0.0" }),
-  manifest({ id: "info", icon: "info", tint: "slate", category: "tools", badge: "system", storageMb: 0.8, version: "2.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
-  manifest({
-    id: "supporter", icon: "support_agent", tint: "teal", category: "tools", badge: "system", version: "3.0.0",
-    destinations: [
-      { id: "guides", icon: "menu_book", labelKey: "support.tabGuides" },
-      { id: "requests", icon: "confirmation_number", labelKey: "support.tabRequests" },
-    ],
-  }),
   manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),
   manifest({ id: "arcade_2048", icon: "casino", tint: "orange", category: "arcade", badge: "game", store: true, game: true, storePlanId: null, storeOrder: 15 }),
   manifest({ id: "arcade_caro", icon: "swords", tint: "blue", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 14 }),
@@ -93,12 +83,22 @@ export const REQUIRED_APP_IDS = Object.freeze([
   "psychology",
   "radio",
   "handle",
-  "info",
   "joy_wallet",
-  "supporter",
 ]);
 
-export const RETIRED_APP_IDS = Object.freeze(["deco", "map", "hugoskin", "ide", "hugoso", "helpdesk"]);
+export const RETIRED_APP_IDS = Object.freeze([
+  "deco",
+  "map",
+  "hugoskin",
+  "ide",
+  "hugoso",
+  "helpdesk",
+  "cinema",
+  "invest",
+  "supporter",
+  "support",
+  "info",
+]);
 
 /**
  * App chiếm trọn màn hình: portal bỏ thanh tab của mình, app tự dựng vỏ `h-full`
@@ -120,11 +120,8 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "friends",
   "handle",
   "team",
-  "cinema",
-  "invest",
   "radio",
   "vocab",
-  "supporter",
   // Id đã nghỉ hưu nhưng vẫn mở app kế nhiệm; bookmark cũ phải ra đúng vỏ.
   "ide",
   "hugoso",

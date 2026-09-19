@@ -215,9 +215,8 @@ export default function FriendsApp({ onBack }) {
     <div className="friends-app">
       <FriendsMap center={mapCenter} friends={visibleFriends} hasLocation={snapshot.settings.hasLocation && !focused} source={locationMode} focusedSlug={focusedFriend} onOpen={openProfile} />
       <header className="friends-topbar">
-        <button type="button" onClick={onBack} className="friends-round-button" aria-label={t("friends.back")}><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></button>
         <div className="min-w-0 flex-1"><p className="friends-wordmark">HUGO NEAR</p><span className="friends-location-pill"><span className={`friends-live-dot ${locationMode === "ip" ? "friends-live-dot--ip" : ""}`} />{locationLabel}</span></div>
-        <button type="button" onClick={() => setView("discover")} className="friends-round-button" aria-label={t("friends.search")}><span className="material-symbols-outlined" aria-hidden="true">search</span></button>
+        <button type="button" onClick={() => setView("discover")} className="friends-round-button mr-10" aria-label={t("friends.search")}><span className="material-symbols-outlined" aria-hidden="true">search</span></button>
       </header>
 
       {loading && <div className="friends-loader" aria-label={t("friends.loading")}><span /></div>}

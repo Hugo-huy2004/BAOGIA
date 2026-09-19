@@ -655,9 +655,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           the only app bar shown in that mode. Always visible on desktop. */}
       <div className={`psy-app-header relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
         <div className="psy-app-brand">
-          <button type="button" onClick={onBack} aria-label={t("utilities.library.back", "Quay lại")}>
-            <ChevronLeft />
-          </button>
           <span className="psy-app-icon"><BrainCircuit /></span>
           <div>
             <h2>HugoPSY</h2>
@@ -667,7 +664,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         <button
           type="button"
           onClick={() => setShowSettings(true)}
-          className="psy-settings-button"
+          className="psy-settings-button mr-11"
           title={t("companion.tab.settings", "Cài đặt")}
         >
           <Settings2 />

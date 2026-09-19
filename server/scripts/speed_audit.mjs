@@ -26,7 +26,6 @@ async function runBenchmark() {
   await measureEndpoint('Health Check / Security', '/checkin');
   await measureEndpoint('Public Bio Bloom Filter (Invalid Slug)', '/bio/slug/non-existent-random-slug-999999');
   await measureEndpoint('VietQR Bank Apps Catalogue', '/payos/bank-apps?platform=ios');
-  await measureEndpoint('Cinema Movies Catalogue', '/cinema/movies');
 
   console.log('\n--- MEMORY & EV-LOOP HEALTH ---');
   const mem = process.memoryUsage();

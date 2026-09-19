@@ -106,8 +106,6 @@ export const SERVICES = Object.freeze([
   { id: "presence", prefix: "/api/presence", module: "./routes/presenceRoutes.js" },
   { id: "radio", prefix: "/api/radio", module: "./routes/radioRoutes.js" },
   { id: "arcade", prefix: "/api/arcade", module: "./routes/arcadeRoutes.js" },
-  { id: "cinema", prefix: "/api/cinema", module: "./routes/cinemaRoutes.js" },
-  { id: "stock", prefix: "/api/stock", module: "./routes/stockRoutes.js" },
 
   // ── Webhook bên ngoài ─────────────────────────────────────────────────────
   // Telegram gọi vào bằng secret của chính nó, không có JWT thành viên.

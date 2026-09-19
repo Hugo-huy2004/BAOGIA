@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { JOY_DENOMS, denomKey } from "../../../shared/joyCurrency.js";
+import { JOY_DENOMS, denomKey } from "../../../shared/joyCurrency";
 import { languageLabel, persistAppLanguage } from "../../i18n/languages";
 import { countryDisplayName, formatFullAddress, RELIGION_LABELS } from "../../lib/profileDisplay";
-import { getCachedGeolocation } from "../../utils/geoCache.js";
+import { getCachedGeolocation } from "../../utils/geoCache";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
@@ -473,12 +473,12 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
                 : t("memberPortal.onboarding.next")}
           </button>
 
-          {/* Chỉ cho để sau khi không còn mục bắt buộc nào thiếu. */}
-          {!missing.length && onSkip && (
+          {/* Bỏ điều kiện bắt buộc, luôn cho phép "Để sau" để không gây ức chế */}
+          {onSkip && (
             <button
               onClick={onSkip}
               disabled={submitting}
-              className="mt-2 w-full py-2 text-[14px] font-medium text-muted-foreground disabled:opacity-50"
+              className="mt-2 w-full py-2 text-[14px] font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
             >
               {t("memberPortal.onboarding.skipButton")}
             </button>

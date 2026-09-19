@@ -5,7 +5,7 @@
  * tốn request chứ không sớm biết thêm điều gì.
  */
 import { useEffect, useState } from "react";
-import { getMemberToken } from "../services/authSession.js";
+import { getMemberToken } from "../services/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 

@@ -1,4 +1,5 @@
 import { generate } from './aiGateway.js';
+import { aiBridge } from './aiDistributedBridge.js';
 import SecurityEvent from '../models/SecurityEvent.js';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SupportTicket from '../models/SupportTicket.js';
@@ -71,7 +72,17 @@ export async function diagnoseSystemHealth() {
       todayJoyStats
     };
 
-    const prompt = `
+    // 1. Thử lấy phân tích trí tuệ điều hành chuyên sâu từ Python AI Server (0ms nếu cached)
+    let intel = null;
+    try {
+      intel = await aiBridge.getAdminIntel(contextData);
+    } catch {
+      // bỏ qua lỗi ngoại vi
+    }
+
+    let aiAnalysis = intel?.scoring_breakdown?.join('. ');
+    if (!aiAnalysis) {
+      const prompt = `
 Dựa vào dữ liệu thống kê thời gian thực của hệ thống dưới đây:
 ${JSON.stringify(contextData, null, 2)}
 
@@ -81,14 +92,16 @@ Hãy đưa ra đánh giá tóm tắt ngắn gọn:
 3. Đề xuất 2-3 hành động điều hành quan trọng nhất cần Admin chú ý hôm nay.
 `;
 
-    const aiAnalysis = await generate(prompt, {
-      systemInstruction: SYSTEM_PROMPT,
-      temperature: 0.3
-    });
+      aiAnalysis = await generate(prompt, {
+        systemInstruction: SYSTEM_PROMPT,
+        temperature: 0.3
+      });
+    }
 
     return {
       metrics: contextData,
-      analysis: aiAnalysis || 'Bộ Não Máy Tính hiện đã ghi nhận dữ liệu. Không phát hiện sự cố an ninh khẩn cấp.'
+      analysis: aiAnalysis || 'Bộ Não Máy Tính hiện đã ghi nhận dữ liệu. Không phát hiện sự cố an ninh khẩn cấp.',
+      executiveIntel: intel
     };
   } catch (error) {
     console.error('Error diagnosing system health:', error);

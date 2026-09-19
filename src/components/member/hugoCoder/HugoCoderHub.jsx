@@ -534,7 +534,7 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
 // chương trình chứ không riêng khoá này), nên ở đây không còn thanh tab.
 // Gate JOY một lần ở đây.
 // `previewLessons > 0` mở chế độ học thử (số bài miễn phí khai báo ở
-// config/publicTools.js): không bọc cả app trong FeatureGate
+// config/publicTools.ts): không bọc cả app trong FeatureGate
 // nữa mà khoá theo từng bài, nên khách thấy trọn lộ trình 100 bài và học ngay
 // được phần đầu. Portal thành viên không truyền gì, hành vi giữ nguyên.
 export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", previewLessons = 0, externalCourses, externalStages }) {

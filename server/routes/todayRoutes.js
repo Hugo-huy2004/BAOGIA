@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { resolveNewsEdition, studentNewsService } from '../services/studentNewsService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
@@ -6,7 +7,7 @@ import { requireMember } from '../middleware/authMiddleware.js';
 const router = express.Router();
 const feedLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 45,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many feed requests. Please try again shortly.' },
@@ -16,7 +17,7 @@ const feedLimiter = rateLimit({
 // một lượt gọi Gemini. Siết chặt hơn và chỉ mở cho thành viên đã đăng nhập.
 const readerLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 20,
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many article requests. Please try again shortly.' },
@@ -36,22 +37,31 @@ router.get('/feed', feedLimiter, async (req, res) => {
     const feed = await studentNewsService.getFeed({
       language,
       category: req.query.category,
+      topic: req.query.topic,
+      query: req.query.q || req.query.query,
       page: req.query.page,
       limit: req.query.limit,
     });
     if (feed.meta.language !== expectedEdition.language || feed.meta.country !== expectedEdition.country) {
       throw new Error(`Edition mismatch: expected ${expectedEdition.language}-${expectedEdition.country}`);
     }
-    // `private` = chỉ trình duyệt của chính người đó, không qua CDN/proxy dùng
-    // chung — nên không có chuyện giữ nhầm ấn bản của người khác. Ấn bản nào là
-    // ấn bản nào đã nằm ngay trong URL (`lang` + `edition`), nên đổi ngôn ngữ là
-    // đổi luôn khoá cache; client còn tự đối chiếu lại bằng assertTodayFeedEdition.
-    // `no-store` trước đây khiến MỖI lượt mở tab TODAY tải lại trọn gói JSON —
-    // đúng khoản băng thông + CPU đã làm nghẽn API cho mọi người.
-    res.set('Cache-Control', 'private, max-age=300');
-    res.set('Content-Language', expectedEdition.locale);
-    res.set('X-Today-Edition', expectedEdition.country);
-    return res.json(feed);
+
+    const bodyString = JSON.stringify(feed);
+    const etag = crypto.createHash('md5').update(bodyString).digest('hex');
+
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).end();
+    }
+
+    // `private, stale-while-revalidate` giúp trình duyệt hiển thị cache tức thì (< 5ms)
+    // trong khi server revalidate ngầm. ETag chống tải lại dữ liệu trùng.
+    res.set({
+      'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
+      'Content-Language': expectedEdition.locale,
+      'X-Today-Edition': expectedEdition.country,
+      ETag: etag,
+    });
+    return res.type('application/json').send(bodyString);
   } catch (error) {
     console.error('[Today Feed]', error);
     return res.status(502).json({ error: 'The student news feed is temporarily unavailable.' });
@@ -77,9 +87,29 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
       studentNewsService.readArticle(article),
       studentNewsService.summarizeArticle(article, { available: false, blocks: [] }, language),
     ]);
-    res.set('Cache-Control', 'private, max-age=900');
-    res.set('Content-Language', resolveNewsEdition(language).locale);
-    return res.json({ article, summary, content });
+
+    // Làm giàu trước từ vựng HSK/TOCFL trên Node nếu là bài tiếng Trung,
+    // loại bỏ hoàn toàn request phụ POST /api/vocab/lookup từ phía trình duyệt.
+    let vocabMap = null;
+    if (language === 'zh') {
+      const texts = [article.title, ...(summary?.points || [])];
+      vocabMap = await studentNewsService.enrichZhVocab(texts);
+    }
+
+    const payload = { article, summary, content, vocabMap };
+    const bodyString = JSON.stringify(payload);
+    const etag = crypto.createHash('md5').update(bodyString).digest('hex');
+
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).end();
+    }
+
+    res.set({
+      'Cache-Control': 'private, max-age=900, stale-while-revalidate=1800',
+      'Content-Language': resolveNewsEdition(language).locale,
+      ETag: etag,
+    });
+    return res.type('application/json').send(bodyString);
   } catch (error) {
     console.error('[Today Article]', error);
     return res.status(502).json({ error: 'Could not open this article right now.' });

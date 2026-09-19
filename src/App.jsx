@@ -152,11 +152,11 @@ function AppContent() {
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
-  // `/chess` giờ là trang game công khai của riêng nó (config/publicTools.js):
+  // `/chess` giờ là trang game công khai của riêng nó (config/publicTools.ts):
   // vào là chơi được ngay. Chỉ liên kết PHÒNG `/chess/<id>` mới cần đi đường cũ
   // vào Arcade của thành viên, nên đừng bắt cả tiền tố nữa.
   const isChessRoute = /^\/chess\/[^/]+/.test(location.pathname);
-  // /arcade is now a standalone public page (see config/publicTools.js), so it
+  // /arcade is now a standalone public page (see config/publicTools.ts), so it
   // must not be captured here — that branch redirects guests to /login, which
   // is exactly what the "play first, sign in to unlock levels" rule forbids.
   const isArcadeRoute = location.pathname.startsWith("/member/utilities/arcade");

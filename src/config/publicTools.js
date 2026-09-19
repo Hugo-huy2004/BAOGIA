@@ -6,9 +6,6 @@
  *   - UtilityPublicPage  — per-tool metadata and which gate to apply
  *   - scripts/generate-seo.mjs — static HTML + sitemap entries per tool
  *
- * Before this existed the allowed-path list was hardcoded in App.jsx and drifted
- * out of sync with the tools UtilityPublicPage could actually render.
- *
  * gate:
  *   "open"   — no account needed at all.
  *   "level"  — playable straight away; unlocking further levels needs a signed-in
@@ -55,16 +52,6 @@ export const PUBLIC_TOOLS = {
     heading: "Hugo Learning",
     summary:
       "Học theo lộ trình, đánh giá bằng bài làm. Đăng nhập để mở nội dung từng khoá và theo dõi tiến độ.",
-  },
-  support: {
-    gate: "demo",
-    aliases: ["supporter"],
-    title: "Trung Tâm Hỗ Trợ Hugo Studio — Câu Hỏi Thường Gặp",
-    description:
-      "Hướng dẫn sẵn có về ví JOY, đơn vị tiền, đăng nhập, cài ứng dụng và token; hoặc gửi yêu cầu để quản trị viên liên hệ lại.",
-    heading: "Trung Tâm Hỗ Trợ",
-    summary:
-      "Đọc hướng dẫn không cần tài khoản. Đăng nhập để gửi yêu cầu và theo dõi trả lời của quản trị viên.",
   },
   radio: {
     gate: "open",
