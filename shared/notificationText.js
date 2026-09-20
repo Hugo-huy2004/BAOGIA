@@ -128,6 +128,10 @@ export const NOTIFICATION_TEXT = {
     "event.joyLaterStage.locked.message": "Khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày. Tài khoản được khoá ba mươi ngày theo chính sách. Quý thành viên có quyền gửi kháng nghị để được xem xét.",
     "event.joyLaterStage.review.title": "Hồ sơ đã được chuyển lên xem xét",
     "event.joyLaterStage.review.message": "Khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày đã được lập hồ sơ trình quản trị. Hoàn tất khoản nợ trước khi hồ sơ được duyệt để tránh biện pháp vĩnh viễn.",
+    "event.joyCreditLimit.title": "Hạn mức JOYlater đã được xét",
+    "event.joyCreditLimit.message": "Hạn mức của Quý thành viên hiện là {{limit, joy}}, ứng với điểm hồ sơ {{score}}. Hạn mức được xét lại vào 17:00 thứ Bảy hằng tuần.",
+    "event.joyCreditDenied.title": "Hạn mức JOYlater chưa được cấp",
+    "event.joyCreditDenied.message": "Hồ sơ hiện đạt {{score}} điểm, chưa tới ngưỡng cấp hạn mức. Hệ thống sẽ tự xét lại vào 17:00 thứ Bảy, Quý thành viên không cần nộp lại.",
   },
 
   en: {
@@ -206,6 +210,10 @@ export const NOTIFICATION_TEXT = {
     "event.joyLaterStage.locked.message": "{{amount, joy}} has been outstanding for {{days}} days. The account is locked for thirty days under the policy. You are entitled to submit an appeal for review.",
     "event.joyLaterStage.review.title": "Your case has been referred for review",
     "event.joyLaterStage.review.message": "An outstanding balance of {{amount, joy}}, {{days}} days past due, has been referred to administration. Settle it before the case is decided to avoid permanent measures.",
+    "event.joyCreditLimit.title": "Your JOYlater limit has been assessed",
+    "event.joyCreditLimit.message": "Your limit is now {{limit, joy}}, on a profile score of {{score}}. It is reassessed every Saturday at 17:00.",
+    "event.joyCreditDenied.title": "No JOYlater limit granted yet",
+    "event.joyCreditDenied.message": "Your profile scores {{score}}, below the threshold for a limit. The system reassesses it every Saturday at 17:00; there is nothing for you to submit again.",
   },
 
   zh: {
@@ -284,6 +292,10 @@ export const NOTIFICATION_TEXT = {
     "event.joyLaterStage.locked.message": "{{amount, joy}} 逾期 {{days}} 天。依政策，账户封禁三十日。阁下有权提出申诉以待复核。",
     "event.joyLaterStage.review.title": "案卷已呈报复核",
     "event.joyLaterStage.review.message": "逾期 {{days}} 天、尚余 {{amount, joy}} 的欠款已呈报管理层。请于裁定前结清，以免招致永久措施。",
+    "event.joyCreditLimit.title": "JOYlater 额度已评定",
+    "event.joyCreditLimit.message": "阁下的额度现为 {{limit, joy}}，对应评分 {{score}}。额度于每周六 17:00 重新评定。",
+    "event.joyCreditDenied.title": "尚未核发 JOYlater 额度",
+    "event.joyCreditDenied.message": "阁下的评分为 {{score}}，未达核发门槛。系统将于每周六 17:00 自动重评，无须再次提交。",
   },
 };
 

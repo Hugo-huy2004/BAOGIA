@@ -252,6 +252,11 @@ export async function handleJoyLaterCallback({ data, by = 'admin' }) {
   const candidates = await Bio.find({ 'joyLoan.enforcedStage': 'review' }, 'email phone').lean();
   const match = candidates.find((b) => securityHash('email', b.email) === record.emailHash) || null;
   if (match) {
+    // Ghi vào hồ sơ tín dụng ngay: `barred` khác `rejected` ở chỗ nó KHÔNG hứa
+    // "thứ Bảy xét lại". Để nguyên `rejected` là nói dối người đã bị chặn cứng.
+    const { recordDefault } = await import('./joyCreditService.js');
+    await recordDefault(match.email).catch((err) => console.error('[joylater] ghi hồ sơ tín dụng:', err.message));
+
     await applyActorBlock({
       email: match.email,
       phone: match.phone || '',

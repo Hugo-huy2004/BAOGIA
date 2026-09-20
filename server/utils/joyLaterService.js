@@ -5,9 +5,15 @@ import JoyLedger from '../models/JoyLedger.js';
 import { awardJoy } from './joyService.js';
 import { bioAge, isAdultAge } from './memberAge.js';
 import {
-  JOYLATER, median, creditLimit, loanTotal, expectedDays, repaymentFor, eligibility,
+  JOYLATER, median, expectedDays,
   clampInstallments, nextInstallment, installmentSchedule, dueSchedule, overdueSteps, stepDue,
 } from '../../shared/joyLater.js';
+import {
+  RATES, weeklyRate, quote as quoteRates, cycleSchedule, clampCycles, garnish,
+} from '../../shared/joyLaterRates.js';
+import { allocate } from '../services/joyLaterAccrual.js';
+import { profileOf } from '../services/joyCreditService.js';
+import { canApply } from '../../shared/joyCredit.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -120,25 +126,68 @@ export async function joyLaterStatus(email) {
   const { assessDebt } = await import('../services/joyLaterEnforcement.js');
   const enforcement = outstanding > 0 ? await assessDebt(bio) : null;
 
-  const check = eligibility({
-    isAdult: isAdultAge(bioAge(bio)),
-    accountDays,
-    lifetimeEarned: earned,
-    hasOpenLoan: outstanding > 0,
-    medianDailyIncome: medianDaily,
-  });
+  // Hạn mức KHÔNG còn tính tại chỗ bằng "5 ngày thu nhập". Nó là con số đã được
+  // xét và ghi vào hồ sơ tín dụng (services/joyCreditService.js), xét lại 17:00
+  // thứ Bảy hằng tuần. Tính tại chỗ nghĩa là hạn mức nhảy theo từng ngày kiếm
+  // được nhiều hay ít — không ai dựa vào một con số như vậy mà lên kế hoạch.
+  const credit = await profileOf(bio.email);
+  const gate = canApply({ isAdult: isAdultAge(bioAge(bio)), accountDays, lifetimeEarned: earned });
+
+  const reasons = [];
+  if (credit.status === 'none') reasons.push('notApplied');
+  if (credit.status === 'pending') reasons.push('pending');
+  if (credit.status === 'rejected') reasons.push(...(credit.reasons || ['lowScore']));
+  if (credit.status === 'barred') reasons.push('barred');
+  if (outstanding > 0) reasons.push('openLoan');
 
   return {
-    ...check,
+    eligible: credit.status === 'approved' && outstanding === 0 && credit.limit > 0,
+    reasons,
+    limit: credit.status === 'approved' ? credit.limit : 0,
+
+    // Hồ sơ tín dụng, hiện nguyên cho chính chủ xem: điểm bao nhiêu, vì sao,
+    // lần xét kế tiếp khi nào. Một hạn mức không kèm lý do thì người bị từ chối
+    // chỉ thấy mình bị xử ép, và không biết phải làm gì để khác đi.
+    credit: {
+      status: credit.status,
+      score: credit.score || 0,
+      limit: credit.limit || 0,
+      netDaily: credit.netDaily || 0,
+      reasons: credit.reasons || [],
+      history: credit.history || [],
+      loansRepaid: credit.loansRepaid || 0,
+      loansDefaulted: credit.loansDefaulted || 0,
+      canApply: gate.ok && credit.status === 'none',
+      applyBlockedBy: gate.ok ? [] : gate.reasons,
+      nextReviewAt: nextSaturdayReview(),
+    },
+
     medianDaily,
     accountDays,
     lifetimeEarned: earned,
-    garnishRate: JOYLATER.garnishRate,
-    feeRate: JOYLATER.feeRate,
-    maxInstallments: JOYLATER.maxInstallments,
-    latePenaltyRate: JOYLATER.latePenaltyRate,
+    garnishRate: RATES.garnishRate,
+    weeklyRate: await currentWeeklyRate(),
+    cycleOptions: RATES.cycleOptions,
+    overdueMultiplier: RATES.overdueMultiplier,
+    lateInterestAnnual: RATES.lateInterestAnnual,
     loan: outstanding > 0 ? describeLoan(bio.joyLoan, medianDaily, enforcement) : null,
   };
+}
+
+/**
+ * 17:00 thứ Bảy gần nhất còn ở phía trước.
+ *
+ * Hiện mốc này trên màn hình là cách rẻ nhất để biến một quy tắc thành một lời
+ * hứa kiểm chứng được: người bị từ chối biết CHÍNH XÁC khi nào được xét lại,
+ * thay vì phải đoán hoặc bấm lại mỗi ngày.
+ */
+function nextSaturdayReview(now = new Date()) {
+  const at = new Date(now);
+  at.setHours(17, 0, 0, 0);
+  const daysUntilSaturday = (6 - at.getDay() + 7) % 7;
+  at.setDate(at.getDate() + daysUntilSaturday);
+  if (at <= now) at.setDate(at.getDate() + 7);
+  return at;
 }
 
 /**
@@ -215,29 +264,54 @@ function describeLoan(loan, medianDaily, enforcement = null) {
  * mức đang chọn: người dùng cần so "chia 4 đợt đắt hơn bao nhiêu" ngay trên màn,
  * và bắt client gọi bốn lần thì bốn con số về không cùng một thời điểm.
  */
-export async function quoteLoan(email, principal, installments = 1) {
-  const status = await joyLaterStatus(email);
-  const amounts = loanTotal(principal, installments);
+/**
+ * Lãi trong hạn của TUẦN NÀY, suy từ sức khoẻ đồng JOY.
+ *
+ * Đọc cùng `recoveryRate` mà bot quản gia dùng để đề xuất hệ số phát hành: JOY
+ * phát ra nhiều hơn thu về thì lãi vay tăng, vừa hãm nhu cầu vay vừa kéo JOY về
+ * kho. Hỏng thì về mốc chuẩn chứ KHÔNG chặn người ta vay — một lỗi thống kê
+ * không đáng để đóng cả sản phẩm.
+ */
+export async function currentWeeklyRate() {
+  try {
+    const { weeklyMetrics } = await import('../services/joyStabilityService.js');
+    const metrics = await weeklyMetrics(1);
+    return weeklyRate(metrics.recoveryRate);
+  } catch {
+    return RATES.weeklyBase;
+  }
+}
 
-  const options = Array.from({ length: JOYLATER.maxInstallments }, (_, i) => {
-    const plan = loanTotal(principal, i + 1);
+/**
+ * Báo giá TRƯỚC khi ký — trả về bảng của MỌI lựa chọn chu kỳ trong một lần gọi.
+ *
+ * Người vay cần so "trả trong 2 tuần đắt hơn 8 tuần bao nhiêu" ngay trên màn.
+ * Bắt client gọi bốn lần thì bốn con số về không cùng một thời điểm, mà lãi thì
+ * đổi theo tuần.
+ */
+export async function quoteLoan(email, principal, cycles = 1) {
+  const status = await joyLaterStatus(email);
+  const weekly = await currentWeeklyRate();
+  const chosen = quoteRates(principal, cycles, weekly);
+
+  const options = RATES.cycleOptions.map((count) => {
+    const plan = quoteRates(principal, count, weekly);
     return {
-      installments: plan.installments,
-      feeRate: plan.feeRate,
-      fee: plan.fee,
+      cycles: plan.cycles,
+      weeks: plan.cycles,
+      interest: plan.interest,
       total: plan.total,
-      schedule: plan.schedule,
-      perInstallment: plan.schedule[0],
-      expectedDays: expectedDays(plan.total, status.medianDaily),
+      perCycle: plan.perCycle,
+      weeklyPayment: plan.weeklyPayment,
     };
   });
 
   return {
     ...status,
-    ...amounts,
+    ...chosen,
+    weeklyRate: weekly,
     options,
-    withinLimit: amounts.principal > 0 && amounts.principal <= status.limit,
-    expectedDays: expectedDays(amounts.total, status.medianDaily),
+    withinLimit: chosen.principal > 0 && chosen.principal <= status.limit,
   };
 }
 
@@ -246,7 +320,7 @@ export async function quoteLoan(email, principal, installments = 1) {
  * bình thường) và ghi nợ gốc + phí. Không tự mua món hộ — như vậy mọi đường mua
  * hiện có (thuê tháng, mua vĩnh viễn, HugoSO…) dùng lại được không cần sửa.
  */
-export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemKey = '', installments = 1 } = {}) {
+export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemKey = '', cycles = 1, installments } = {}) {
   // Sổ đen tra TRƯỚC mọi thứ khác. Tra theo băm số điện thoại nên một tài khoản
   // mới lập bằng email khác vẫn bị bắt — đó là điểm của việc giữ hồ sơ ngoài Bio.
   const { blacklistCheck } = await import('../services/joyLaterEnforcement.js');
@@ -259,7 +333,8 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
     throw error;
   }
 
-  const quote = await quoteLoan(email, principal, installments);
+  const chosenCycles = clampCycles(cycles ?? installments ?? 1);
+  const quote = await quoteLoan(email, principal, chosenCycles);
   if (!quote.eligible) {
     const error = new Error('JOYLATER_NOT_ELIGIBLE');
     error.reasons = quote.reasons;
@@ -276,15 +351,26 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
     {
       $set: {
         'joyLoan.principal': quote.principal,
-        'joyLoan.fee': quote.fee,
-        'joyLoan.outstanding': quote.total,
-        'joyLoan.installments': quote.installments,
+        // Dư nợ lúc mở là ĐÚNG SỐ GỐC. Lãi chưa tồn tại — nó sinh ra từng ngày
+        // (services/joyLaterAccrual.js). Cộng sẵn cả lãi dự kiến vào đây là thu
+        // trước của người trả sớm khoản lãi họ sẽ không bao giờ nợ.
+        'joyLoan.outstanding': quote.principal,
+        'joyLoan.fee': 0,
+        'joyLoan.weeklyRate': quote.weeklyRate,
+        'joyLoan.cycles': quote.cycles,
+        'joyLoan.installments': quote.cycles,
+        'joyLoan.principalPaid': 0,
+        'joyLoan.interestAccrued': 0,
+        'joyLoan.interestPaid': 0,
+        'joyLoan.interestOverdue': 0,
+        'joyLoan.interestOnInterest': 0,
+        'joyLoan.lastAccruedAt': openedAt,
         'joyLoan.paid': 0,
         'joyLoan.penalty': 0,
         'joyLoan.penalized': [],
-        // Chốt LÚC MỞ và không tính lại: thu nhập sau này lên xuống cũng không
-        // được dời hạn của một lượt đang chạy.
-        'joyLoan.dueAt': dueSchedule(openedAt, quote.expectedDays, quote.installments),
+        'joyLoan.enforcedStage': 'ontime',
+        // Chốt LÚC MỞ và không tính lại: mỗi kỳ cách nhau đúng một tuần.
+        'joyLoan.dueAt': cycleSchedule(openedAt, quote.cycles),
         'joyLoan.openedAt': openedAt,
         'joyLoan.repaidAt': null,
         'joyLoan.itemLabel': itemLabel,
@@ -298,8 +384,9 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
   try {
     await awardJoy(
       bio.email, quote.principal, 'joylater_open',
-      `JOYlater: mở trước ${itemLabel || 'tính năng'} — cần hoàn ${quote.total} JOY `
-      + `(gồm ${quote.fee} cộng thêm, chia ${quote.installments} đợt)`,
+      `JOYlater: mở trước ${itemLabel || 'tính năng'} — gốc ${quote.principal} JOY, `
+      + `${quote.cycles} kỳ tuần, lãi ${(quote.weeklyRate * 100).toFixed(2)}%/tuần `
+      + `(dự kiến tổng ${quote.total} JOY nếu trả đúng hạn)`,
       { refId: itemKey, skipLoanGarnish: true },
     );
     // Ghi vào sổ tay SAU khi cộng ví thành công — nếu ghi trước rồi cộng ví
@@ -309,9 +396,9 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
         joyLoanHistory: {
           $each: [{
             principal: quote.principal,
-            fee: quote.fee,
+            fee: quote.interest,
             total: quote.total,
-            installments: quote.installments,
+            installments: quote.cycles,
             itemLabel,
             itemKey,
             openedAt: claimed.joyLoan.openedAt,
@@ -347,8 +434,9 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
 // cron hôm sau — một lỗi không ai báo, chỉ âm thầm làm mất lòng tin.
 export async function repayFromIncome(bio, incomeAmount) {
   const outstanding = Number(bio?.joyLoan?.outstanding) || 0;
-  const cut = repaymentFor(incomeAmount, outstanding);
+  const cut = garnish(incomeAmount, outstanding);
   if (cut <= 0) return null;
+  const split = allocate(cut, bio.joyLoan || {});
 
   // Trừ nguyên tử theo đúng số còn nợ đang thấy: hai lần nhận JOY song song
   // không được cùng trừ một phần nợ hai lần.
@@ -357,12 +445,29 @@ export async function repayFromIncome(bio, incomeAmount) {
     {
       // `paid` cộng song song với outstanding: lịch đợt soi `paid`, nên phần tự
       // giữ lại này chính là thứ làm người chơi đều tay không bao giờ bị trễ.
-      $inc: { 'joyLoan.outstanding': -cut, 'joyLoan.paid': cut },
+      // Cấn LÃI trước, GỐC sau. Tách hai con số ra là cách duy nhất để lãi
+      // chậm-trả-lãi (tầng 2) không sinh ra với người trả đều: phần hoàn của họ
+      // luôn phủ hết lãi đến hạn trước khi chạm vào gốc.
+      $inc: {
+        'joyLoan.outstanding': -cut,
+        'joyLoan.paid': cut,
+        'joyLoan.interestPaid': split.toInterest,
+        'joyLoan.principalPaid': split.toPrincipal,
+      },
       ...(outstanding - cut === 0 ? { $set: { 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' } } : {}),
     },
     { new: true },
   );
   if (!updated) return null;   // có giao dịch khác vừa trừ — lần nhận sau sẽ trừ tiếp
+
+  // Trả xong một lượt là tín hiệu MẠNH NHẤT của hồ sơ tín dụng — mạnh hơn mọi
+  // thứ khác cộng lại. Ghi ngay tại đây chứ không đợi kỳ xét thứ Bảy: người vừa
+  // hoàn xong mà tuần sau mới được cộng điểm thì không thấy việc mình làm có
+  // tác dụng gì.
+  if (Number(updated.joyLoan?.outstanding) === 0) {
+    const { recordRepaid } = await import('../services/joyCreditService.js');
+    await recordRepaid(updated.email).catch(() => { /* điểm hỏng không chặn việc hoàn nợ */ });
+  }
 
   await awardJoy(
     updated.email, -cut, 'joylater_repay',
@@ -494,13 +599,18 @@ export async function payInstallment(email) {
   const due = Math.min(step.index === step.of ? outstanding : step.due, outstanding);
   if (due <= 0) throw new Error('JOYLATER_NO_LOAN');
   if (bio.joyBalance < due) throw new Error('INSUFFICIENT_JOY');
+  const dueSplit = allocate(due, bio.joyLoan || {});
 
   // Điều kiện `outstanding` trong bộ lọc là chốt chặn đua: hai lần bấm song song
   // thì chỉ một lần khớp, lần kia không trừ gì cả.
   const updated = await Bio.findOneAndUpdate(
     { _id: bio._id, 'joyLoan.outstanding': outstanding },
     {
-      $inc: { 'joyLoan.outstanding': -due, 'joyLoan.paid': due },
+      $inc: {
+        'joyLoan.outstanding': -due, 'joyLoan.paid': due,
+        'joyLoan.interestPaid': dueSplit.toInterest,
+        'joyLoan.principalPaid': dueSplit.toPrincipal,
+      },
       ...(outstanding - due === 0 ? { $set: { 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' } } : {}),
     },
     { new: true },
@@ -540,7 +650,13 @@ export async function payOffJoyLater(email) {
   const cleared = await Bio.findOneAndUpdate(
     { _id: bio._id, 'joyLoan.outstanding': outstanding },
     {
-      $set: { 'joyLoan.outstanding': 0, 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' },
+      // Trả hết: mọi thứ còn lại đóng về 0 cùng một lúc, không cần chia tầng —
+      // chia tầng chỉ có nghĩa khi còn dư nợ để lãi bám vào.
+      $set: {
+        'joyLoan.outstanding': 0, 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime',
+        'joyLoan.interestPaid': Number(bio.joyLoan?.interestAccrued || 0),
+        'joyLoan.principalPaid': Number(bio.joyLoan?.principal || 0),
+      },
       $inc: { 'joyLoan.paid': outstanding },
     },
     { new: true },
@@ -554,4 +670,4 @@ export async function payOffJoyLater(email) {
   return joyLaterStatus(bio.email);
 }
 
-export { creditLimit, loanTotal, expectedDays, JOYLATER };
+export { expectedDays, JOYLATER, RATES };

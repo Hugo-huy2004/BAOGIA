@@ -1631,6 +1631,36 @@ router.get('/joylater', requireMember, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/joy/joylater/apply — nộp hồ sơ tín dụng. MỘT lần duy nhất.
+ *
+ * Từ đó hạn mức tự xét lại 17:00 thứ Bảy hằng tuần. Bị từ chối KHÔNG phải nộp
+ * lại — nếu không thì người mới sẽ kẹt vĩnh viễn ở màn "chưa đủ điều kiện" mà
+ * không biết phải bấm gì.
+ */
+router.post('/joylater/apply', requireMember, async (req, res) => {
+  try {
+    const { apply } = await import('../services/joyCreditService.js');
+    const profile = await apply(req.memberEmail);
+    res.json({
+      ok: true,
+      status: profile.status,
+      score: profile.score,
+      limit: profile.limit,
+      reasons: profile.reasons,
+    });
+  } catch (error) {
+    const known = {
+      ALREADY_APPLIED: [409, 'Hồ sơ đã được nộp trước đó. Hạn mức tự xét lại mỗi thứ Bảy.'],
+      NOT_ELIGIBLE_TO_APPLY: [403, 'Tài khoản chưa đủ điều kiện nộp hồ sơ.'],
+      BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ thành viên.'],
+    }[error.message];
+    if (known) return res.status(known[0]).json({ error: known[1], reasons: error.reasons || [] });
+    console.error('[joylater/apply]', error);
+    res.status(500).json({ error: 'Không nộp được hồ sơ. Vui lòng thử lại.' });
+  }
+});
+
 // GET /api/joy/joylater/history — mọi lượt đã mở, kèm từng dòng đã hoàn
 router.get('/joylater/history', requireMember, async (req, res) => {
   try {
@@ -1640,14 +1670,14 @@ router.get('/joylater/history', requireMember, async (req, res) => {
   }
 });
 
-// GET /api/joy/joylater/quote?amount=&installments= — báo giá TRƯỚC khi đồng ý
+// GET /api/joy/joylater/quote?amount=&cycles= — báo giá TRƯỚC khi đồng ý
 router.get('/joylater/quote', requireMember, async (req, res) => {
   try {
     const amount = Number(req.query.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ error: 'Số JOY muốn mở trước không hợp lệ.' });
     }
-    res.json(await quoteLoan(req.memberEmail, amount, req.query.installments));
+    res.json(await quoteLoan(req.memberEmail, amount, req.query.cycles ?? req.query.installments));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1656,17 +1686,17 @@ router.get('/joylater/quote', requireMember, async (req, res) => {
 // POST /api/joy/joylater/open — mở khoản ứng
 router.post('/joylater/open', requireMember, async (req, res) => {
   try {
-    const { amount, itemLabel, itemKey, installments } = req.body;
+    const { amount, itemLabel, itemKey, cycles, installments } = req.body;
     const numAmount = Number(amount);
     if (!Number.isFinite(numAmount) || numAmount <= 0) {
       return res.status(400).json({ error: 'Số JOY muốn mở trước không hợp lệ.' });
     }
-    // `installments` không cần kiểm ở đây: `clampInstallments` ở shared/joyLater
+    // `cycles` không cần kiểm ở đây: `clampCycles` ở shared/joyLaterRates
     // ép mọi giá trị về 1..4, và phí thì tính từ con số ĐÃ ép đó.
     res.json(await openJoyLaterLoan(req.memberEmail, Math.round(numAmount), {
       itemLabel: String(itemLabel || '').slice(0, 120),
       itemKey: String(itemKey || '').slice(0, 60),
-      installments,
+      cycles: cycles ?? installments,
     }));
   } catch (error) {
     const map = {

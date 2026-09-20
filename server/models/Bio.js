@@ -420,6 +420,23 @@ const BioSchema = new mongoose.Schema(
       penalized: { type: [Number], default: [] },
       openedAt:    { type: Date, default: null },
       repaidAt:    { type: Date, default: null },
+      // ── LÃI BA TẦNG (shared/joyLaterRates.js) ────────────────────────
+      // Lãi CHỐT LÚC MỞ và không đổi suốt lượt vay: lãi thả nổi trên một khoản
+      // đang chạy thì người vay không bao giờ biết mình sẽ phải trả bao nhiêu.
+      weeklyRate:    { type: Number, default: 0 },
+      // Số chu kỳ TUẦN đã chọn. Khoản cũ không có trường này và vẫn chạy theo
+      // `installments` + `dueAt` của chúng — không cần chuyển đổi dữ liệu.
+      cycles:        { type: Number, default: 0, min: 0 },
+      // Gốc và lãi đếm TÁCH NHAU. Gộp vào một `paid` duy nhất thì không còn
+      // biết một khoản hoàn đã cấn vào đâu, mà thứ tự cấn (lãi trước, gốc sau)
+      // lại quyết định tháng sau lãi chồng lên bao nhiêu.
+      principalPaid:     { type: Number, default: 0, min: 0 },
+      interestAccrued:   { type: Number, default: 0, min: 0 },
+      interestPaid:      { type: Number, default: 0, min: 0 },
+      // Hai tầng lãi phạt, tách riêng để hoá đơn nói rõ tiền đi đâu.
+      interestOverdue:   { type: Number, default: 0, min: 0 },
+      interestOnInterest:{ type: Number, default: 0, min: 0 },
+      lastAccruedAt:     { type: Date, default: null },
       // Bậc chế tài ĐÃ THI HÀNH và đã báo cho người vay (shared/joyLaterPolicy.js).
       // Lưu lại chứ không tính tại chỗ mỗi lần đọc vì hai lý do: người dùng chỉ
       // được chặn bởi thứ đã được báo trước, và một khoản nợ nằm đúng ranh giới

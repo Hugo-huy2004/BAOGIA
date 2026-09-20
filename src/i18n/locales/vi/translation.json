@@ -4346,11 +4346,18 @@
       "noDeadline": "Không có hạn chót. Số cần hoàn không tăng theo thời gian.",
       "notEligible": "Chưa dùng được JOYlater",
       "reason": {
-        "adult": "Chỉ dành cho thành viên từ 18 tuổi",
-        "accountAge": "Ví cần mở đủ {{minDays}} ngày (bạn: {{days}} ngày)",
-        "earned": "Cần từng kiếm đủ {{min, joy}} (bạn: {{earned, joy}})",
-        "openLoan": "Bạn đang có một lượt chưa hoàn xong",
-        "noIncome": "Chưa có thu nhập JOY đều đặn"
+        "adult": "Cần đủ 18 tuổi",
+        "accountAge": "Tài khoản cần hoạt động ít nhất 14 ngày",
+        "earned": "Cần từng kiếm đủ 1.000 JOY trong hệ thống",
+        "openLoan": "Đang có khoản chưa hoàn xong",
+        "noIncome": "Chưa có thu nhập JOY đều đặn",
+        "notApplied": "Chưa nộp hồ sơ đăng ký",
+        "pending": "Hồ sơ đang chờ xét",
+        "barred": "Đã có khoản quá hạn bị ghi nhận",
+        "defaulted": "Đã có khoản quá hạn bị ghi nhận",
+        "noNetIncome": "JOY thu vào chưa nhiều hơn JOY tiêu ra",
+        "lowEngagement": "Cần dùng hệ thống đều hơn",
+        "lowScore": "Điểm hồ sơ chưa đạt ngưỡng"
       },
       "howTitle": "JOYlater hoạt động thế nào",
       "how1": "Chọn số JOY muốn mở trước — mức tối đa tính theo JOY chính bạn kiếm được.",
@@ -4409,7 +4416,81 @@
         "transfer": "Không chuyển JOY",
         "spend": "Không tiêu JOY"
       },
-      "stageNext": "Còn {{days}} ngày nữa chuyển sang mức: {{stage}}"
+      "stageNext": "Còn {{days}} ngày nữa chuyển sang mức: {{stage}}",
+      "introEyebrow": "DÀNH RIÊNG CHO THÀNH VIÊN",
+      "introLead": "Mở khoá tính năng ngay hôm nay, hoàn lại dần bằng chính JOY kiếm được. Hạn mức do hệ thống xét, không phải con số cố định.",
+      "benefit": {
+        "unlock": "Nhận JOY vào ví ngay, dùng cho bất kỳ tính năng nào",
+        "cycles": "Chọn trả trong {{weeks}} tuần — lãi {{rate}}%/tuần trên phần gốc còn lại",
+        "noHidden": "Không phí ẩn, không phí mở, không phí trả sớm"
+      },
+      "applyCta": "Đăng ký hạn mức",
+      "applyCtaNote": "Xét ngay, chỉ nộp một lần duy nhất",
+      "applyBusy": "Đang xét hồ sơ…",
+      "applyApproved": "Đã duyệt hạn mức {{amount}}",
+      "applyPending": "Hồ sơ đã ghi nhận. Hạn mức được xét lại vào {{at}}.",
+      "gate": {
+        "notYet": "Chưa đủ điều kiện nộp hồ sơ",
+        "barred": "Tài khoản không còn được cấp hạn mức"
+      },
+      "reviewAt": "Hạn mức được xét lại tự động vào {{at}}. Không cần nộp lại hồ sơ.",
+      "repayTitle": "Hoàn lại thế nào",
+      "repay": {
+        "garnish": {
+          "title": "Tự động trích {{percent}}%",
+          "body": "Mỗi lần nhận JOY, {{percent}}% được giữ lại để hoàn khoản vay. Phần còn lại vẫn vào ví như thường."
+        },
+        "early": {
+          "title": "Trả sớm luôn rẻ hơn",
+          "body": "Lãi tính theo ngày trên phần gốc còn lại, nên trả trước hạn là bớt lãi ngay, không mất phí gì."
+        }
+      },
+      "ratesTitle": "Biểu lãi",
+      "week": "tuần",
+      "year": "năm",
+      "rate": {
+        "inTerm": {
+          "title": "Lãi trong hạn",
+          "body": "Tính trên dư nợ gốc còn trong hạn. Chốt lúc ký, không đổi suốt lượt vay."
+        },
+        "overdue": {
+          "title": "Lãi quá hạn",
+          "body": "Áp cho phần gốc đã tới hạn mà chưa hoàn. Các kỳ chưa tới lượt vẫn tính lãi trong hạn."
+        },
+        "onInterest": {
+          "title": "Lãi chậm trả lãi",
+          "body": "Tính trên phần lãi đã tới hạn mà chưa hoàn."
+        }
+      },
+      "ratesLegal": "Biểu lãi tuân theo giới hạn của Bộ luật Dân sự 2015 điều 466: lãi quá hạn không quá 150% lãi trong hạn, lãi chậm trả lãi không quá 10%/năm. Lãi trong hạn thay đổi theo tuần tuỳ lượng JOY đang lưu hành, và được chốt tại thời điểm ký.",
+      "faqTitle": "Câu hỏi thường gặp",
+      "faq": {
+        "howLimit": {
+          "q": "Hạn mức của tôi được tính thế nào?",
+          "a": "Theo bốn căn cứ: JOY thu vào trừ JOY tiêu ra mỗi ngày (quan trọng nhất), số dư đang có, mức độ dùng hệ thống, và lịch sử hoàn các khoản trước. Hạn mức luôn neo vào khả năng hoàn thực tế, nên kiếm nhiều mà tiêu gần hết thì hạn mức vẫn thấp."
+        },
+        "howRate": {
+          "q": "Vì sao lãi suất thay đổi?",
+          "a": "Lãi trong hạn chạy theo lượng JOY đang lưu hành: khi hệ thống phát ra nhiều hơn thu về thì lãi tăng, khi JOY co lại thì lãi giảm. Hiện tại là {{rate}}%/tuần. Con số này được chốt lúc ký và không đổi trong suốt lượt vay của bạn."
+        },
+        "whenReview": {
+          "q": "Bao lâu hạn mức được xét lại?",
+          "a": "Mỗi 17:00 thứ Bảy hằng tuần, tự động, không cần thao tác gì. Dùng hệ thống đều và hoàn đúng hạn thì hạn mức tăng dần."
+        },
+        "ifLate": {
+          "q": "Nếu tôi hoàn trễ thì sao?",
+          "a": "Quá 7 ngày sẽ tạm ngưng quyền chuyển JOY và mở khoản mới; quá 21 ngày đóng băng chi tiêu; quá 45 ngày khoá tài khoản 30 ngày; quá 90 ngày sẽ lập hồ sơ trình quản trị. Mỗi mức đều được thông báo trước kèm số ngày còn lại."
+        },
+        "canCancel": {
+          "q": "Tôi có thể hoàn sớm không?",
+          "a": "Được, bất cứ lúc nào và không mất phí. Lãi tính theo ngày nên hoàn càng sớm càng ít lãi. Ngoài ra {{percent}}% JOY bạn nhận được cũng tự động trích để hoàn dần."
+        }
+      },
+      "availableCredit": "Hạn mức khả dụng",
+      "usedAmount": "Đã dùng {{amount}}",
+      "rateNow": "{{rate}}%/tuần",
+      "scoreIs": "Điểm {{score}}",
+      "reviewShort": "Xét lại {{at}}"
     },
     "walletApp": {
       "eyebrow": "VÍ ĐIỆN TỬ",

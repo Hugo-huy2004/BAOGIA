@@ -24,6 +24,37 @@ export function initCronJobs() {
     }
   });
 
+  // Cộng lãi JOYlater — 00:30 giờ VN (17:30 UTC hôm trước), mỗi ngày.
+  //
+  // Chạy TRƯỚC bộ chế tài vài giờ là cố ý: chế tài đọc số ngày quá hạn và dư
+  // nợ, nên lãi của ngày hôm qua phải được ghi xong trước khi có ai bị leo bậc
+  // vì con số đó.
+  cron.schedule('30 17 * * *', async () => {
+    try {
+      const { accrueAll } = await import('../services/joyLaterAccrual.js');
+      const result = await accrueAll();
+      if (result.charged.length) {
+        console.log(`[CRON] Lãi JOYlater: ${result.charged.length}/${result.scanned} khoản, cộng ${result.total} JOY`);
+      }
+    } catch (error) {
+      console.error('[CRON] Lãi JOYlater:', error.message);
+    }
+  });
+
+  // Xét lại hạn mức tín dụng — 17:00 thứ Bảy giờ VN (10:00 UTC thứ Bảy).
+  //
+  // Cuối tuần để một tuần tròn đã khép lại mới đem ra chấm. Hàm tự chống chạy
+  // trùng bằng khoá tuần, nên nhiều process cùng chạy cron cũng chỉ xét một lần.
+  cron.schedule('0 10 * * 6', async () => {
+    try {
+      const { evaluateAll } = await import('../services/joyCreditService.js');
+      const result = await evaluateAll();
+      console.log(`[CRON] Hạn mức JOYlater: xét ${result.scanned} hồ sơ, ${result.changed.length} hồ sơ đổi hạn mức`);
+    } catch (error) {
+      console.error('[CRON] Hạn mức JOYlater:', error.message);
+    }
+  });
+
   // Chế tài nợ JOYlater — 10:00 giờ VN (03:00 UTC), mỗi ngày một lần.
   //
   // MỖI NGÀY MỘT LẦN là cố ý. Bậc thang tính theo NGÀY quá hạn, nên quét dày

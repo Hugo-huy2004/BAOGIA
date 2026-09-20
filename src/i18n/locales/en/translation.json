@@ -4305,11 +4305,18 @@
       "noDeadline": "No deadline. The amount never grows over time.",
       "notEligible": "JOYlater is not available yet",
       "reason": {
-        "adult": "Members aged 18 and over only",
-        "accountAge": "Your wallet must be at least {{minDays}} days old (yours: {{days}})",
-        "earned": "You need to have earned {{min, joy}} in total (you: {{earned, joy}})",
-        "openLoan": "You still have one open",
-        "noIncome": "No steady JOY income yet"
+        "adult": "Must be 18 or older",
+        "accountAge": "Account must be active for at least 14 days",
+        "earned": "Must have earned at least 1,000 JOY",
+        "openLoan": "An outstanding balance is still open",
+        "noIncome": "No steady JOY income yet",
+        "notApplied": "No application on file",
+        "pending": "Application under review",
+        "barred": "A past-due balance is on record",
+        "defaulted": "A past-due balance is on record",
+        "noNetIncome": "JOY earned does not yet exceed JOY spent",
+        "lowEngagement": "Use the system more regularly",
+        "lowScore": "Score is below the approval threshold"
       },
       "howTitle": "How JOYlater works",
       "how1": "Pick how much JOY you want up front — your maximum comes from what you earn.",
@@ -4368,7 +4375,81 @@
         "transfer": "No JOY transfers",
         "spend": "No JOY spending"
       },
-      "stageNext": "{{days}} days until the next level: {{stage}}"
+      "stageNext": "{{days}} days until the next level: {{stage}}",
+      "introEyebrow": "FOR MEMBERS",
+      "introLead": "Unlock features today and pay back gradually from the JOY you earn. Your limit is assessed by the system, not a fixed number.",
+      "benefit": {
+        "unlock": "JOY lands in your wallet immediately, usable on any feature",
+        "cycles": "Choose to repay over {{weeks}} weeks — {{rate}}%/week on the remaining principal",
+        "noHidden": "No hidden fees, no origination fee, no early-repayment fee"
+      },
+      "applyCta": "Apply for a limit",
+      "applyCtaNote": "Assessed instantly, applied for only once",
+      "applyBusy": "Assessing…",
+      "applyApproved": "Approved for {{amount}}",
+      "applyPending": "Your application is on file. Your limit is reassessed on {{at}}.",
+      "gate": {
+        "notYet": "Not yet eligible to apply",
+        "barred": "This account is no longer granted a limit"
+      },
+      "reviewAt": "Your limit is reassessed automatically on {{at}}. No need to apply again.",
+      "repayTitle": "How you pay back",
+      "repay": {
+        "garnish": {
+          "title": "{{percent}}% withheld automatically",
+          "body": "Each time you earn JOY, {{percent}}% goes towards the balance. The rest reaches your wallet as usual."
+        },
+        "early": {
+          "title": "Paying early always costs less",
+          "body": "Interest accrues daily on the remaining principal, so paying ahead of schedule cuts it immediately, at no fee."
+        }
+      },
+      "ratesTitle": "Rate schedule",
+      "week": "week",
+      "year": "year",
+      "rate": {
+        "inTerm": {
+          "title": "In-term interest",
+          "body": "On principal still within term. Fixed when you sign, unchanged for the life of the loan."
+        },
+        "overdue": {
+          "title": "Overdue interest",
+          "body": "On principal that is past due and unpaid. Cycles not yet due stay at the in-term rate."
+        },
+        "onInterest": {
+          "title": "Interest on late interest",
+          "body": "On interest that is due and unpaid."
+        }
+      },
+      "ratesLegal": "Rates follow the caps in Vietnam's Civil Code 2015, article 466: overdue interest may not exceed 150% of the in-term rate, and interest on late interest may not exceed 10% per year. The in-term rate moves weekly with JOY in circulation and is fixed at signing.",
+      "faqTitle": "Frequently asked",
+      "faq": {
+        "howLimit": {
+          "q": "How is my limit calculated?",
+          "a": "From four inputs: JOY earned minus JOY spent per day (the heaviest), your current balance, how regularly you use the system, and your repayment record. The limit is anchored to what you can actually repay, so earning a lot while spending nearly all of it still yields a low limit."
+        },
+        "howRate": {
+          "q": "Why does the rate change?",
+          "a": "The in-term rate moves with JOY in circulation: when the system issues more than it takes back, the rate rises; when JOY contracts, it falls. It is {{rate}}%/week right now. This number is fixed when you sign and does not change for the life of your loan."
+        },
+        "whenReview": {
+          "q": "How often is my limit reassessed?",
+          "a": "Every Saturday at 17:00, automatically, with nothing for you to do. Using the system regularly and repaying on time raises it over time."
+        },
+        "ifLate": {
+          "q": "What happens if I pay late?",
+          "a": "Past 7 days, transfers and new plans are suspended; past 21 days, spending is frozen; past 45 days, the account is locked for 30 days; past 90 days, a case is referred to administration. Every level is announced in advance with the days remaining."
+        },
+        "canCancel": {
+          "q": "Can I repay early?",
+          "a": "Yes, at any time and at no cost. Interest accrues daily, so the sooner you pay the less you owe. On top of that, {{percent}}% of the JOY you earn is withheld automatically towards the balance."
+        }
+      },
+      "availableCredit": "Available credit",
+      "usedAmount": "{{amount}} used",
+      "rateNow": "{{rate}}%/week",
+      "scoreIs": "Score {{score}}",
+      "reviewShort": "Review {{at}}"
     },
     "walletApp": {
       "eyebrow": "E-WALLET",

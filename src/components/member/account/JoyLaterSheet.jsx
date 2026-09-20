@@ -5,16 +5,20 @@ import {
   getJoyLaterHistory,
 } from "../../../services/joyApi";
 import JoyLaterHistory from "./JoyLaterHistory";
+import JoyLaterIntro from "./JoyLaterIntro";
+import JoyLaterLimitCard from "./JoyLaterLimitCard";
 import { notify } from "../../../lib/notify";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useJoy } from "../../../lib/joyDisplay";
 
-// JOYlater — mở khoá trước, hoàn lại dần bằng JOY kiếm được.
+// JOYlater — vay JOY theo chu kỳ tuần, có hạn mức được xét và có lãi.
 //
-// Vốn từ ở màn này cố tình KHÔNG phải vốn từ tín dụng (không "nợ", "lãi",
-// "hạn mức"): JOY không mua được bằng tiền và không đổi ra tiền, nên gọi nó là
-// khoản vay vừa sai thực tế vừa mời gọi hiểu lầm. Trong mã nguồn thì các biến
-// vẫn là `loan`/`fee` cho khớp cơ sở dữ liệu.
+// ── ĐỔI VỐN TỪ (20/09/2026) ─────────────────────────────────────────────────
+// Trước đây màn này cố tình TRÁNH vốn từ tín dụng ("nợ", "lãi", "hạn mức") vì
+// JOY không mua được bằng tiền. Nhưng sản phẩm nay có hạn mức được xét, lãi
+// tính theo ngày trên ba tầng, và chế tài khoá tài khoản khi quá hạn — gọi nó
+// bằng từ khác đi là làm nhẹ đi đúng những điều người dùng cần hiểu rõ nhất.
+// Nói thẳng "vay", "lãi", "quá hạn" là tôn trọng người đọc hơn.
 //
 // Màn này KHÔNG tự tính con số nào: mức tối đa, phần cộng thêm, số ngày dự kiến
 // đều lấy từ `/joy/joylater/quote`, cùng công thức server sẽ ghi vào hồ sơ.
@@ -32,7 +36,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
 
   const [status, setStatus] = useState(null);
   const [amount, setAmount] = useState("");
-  const [installments, setInstallments] = useState(1);
+  const [cycles, setCycles] = useState(1);
   const [quote, setQuote] = useState(null);
   const [history, setHistory] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -56,10 +60,10 @@ export default function JoyLaterSheet({ onBalanceChange }) {
     const rawJoy = toRaw(value);
     if (!Number.isFinite(rawJoy) || rawJoy <= 0) { setQuote(null); return undefined; }
     const timer = setTimeout(() => {
-      quoteJoyLater(Math.round(rawJoy), installments).then(setQuote).catch(() => setQuote(null));
+      quoteJoyLater(Math.round(rawJoy), cycles).then(setQuote).catch(() => setQuote(null));
     }, 350);
     return () => clearTimeout(timer);
-  }, [amount, installments, toRaw]);
+  }, [amount, cycles, toRaw]);
 
   const handleOpen = async () => {
     if (!quote?.withinLimit) return;
@@ -67,14 +71,14 @@ export default function JoyLaterSheet({ onBalanceChange }) {
     try {
       const next = await openJoyLater({
         amount: quote.principal,
-        installments,
+        cycles,
         itemLabel: t("memberPortal.joyLater.advanceLabel"),
         itemKey: "wallet",
       });
       setStatus(next);
       load();
       setAmount("");
-      setInstallments(1);
+      setCycles(1);
       setQuote(null);
       onBalanceChange?.();
       notify.success(t("memberPortal.joyLater.opened", { amount: money(quote.principal) }));
@@ -134,12 +138,25 @@ export default function JoyLaterSheet({ onBalanceChange }) {
 
   // Mốc so sánh của cả màn chọn: bảng giá khi hoàn MỘT LẦN. Mọi mức chia đợt đều
   // được nói bằng "cộng thêm bao nhiêu so với cách này".
-  const once = quote?.options?.find((option) => option.installments === 1);
-  const splitOptions = quote?.options?.filter((option) => option.installments > 1) || [];
-  const mode = installments === 1 ? "once" : "split";
+  const once = quote?.options?.find((option) => option.cycles === 1);
+  const splitOptions = quote?.options?.filter((option) => option.cycles > 1) || [];
+  const mode = cycles === 1 ? "once" : "split";
+
+  // CHƯA CÓ HẠN MỨC → màn giới thiệu + quy chế đầy đủ, không phải một dòng
+  // "chưa dùng được". Người chưa đủ điều kiện vẫn cần biết sản phẩm là gì, xét
+  // theo cái gì và làm sao để dùng được — nếu không, họ chỉ rời đi.
+  //
+  // Lưu ý thứ tự: kiểm `loan` TRƯỚC, vì người đang nợ mà hạn mức vừa bị xét về
+  // 0 thì vẫn phải thấy khoản nợ của mình, không phải màn mời đăng ký.
+  if (!loan && status.credit?.status !== "approved") {
+    return <JoyLaterIntro status={status} onApplied={load} />;
+  }
 
   return (
     <div className="space-y-4 px-1 pb-4">
+      {/* Thẻ hạn mức: còn bao nhiêu / đã dùng bao nhiêu / trên tổng bao nhiêu */}
+      {status.credit?.status === "approved" && <JoyLaterLimitCard status={status} />}
+
       {/* Đang có lượt chưa hoàn xong: hiện tiến độ, không mời mở trước tiếp */}
       {loan ? (
         <section className="jl-panel is-owing">
@@ -319,7 +336,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
               <div className="mt-1.5 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setInstallments(1)}
+                  onClick={() => setCycles(1)}
                   aria-pressed={mode === "once"}
                   className={`min-h-16 rounded-xl border p-2.5 text-left transition-colors ${
                     mode === "once"
@@ -334,7 +351,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setInstallments((current) => (current > 1 ? current : 2))}
+                  onClick={() => setCycles((current) => (current > 1 ? current : 2))}
                   aria-pressed={mode === "split"}
                   className={`min-h-16 rounded-xl border p-2.5 text-left transition-colors ${
                     mode === "split"
@@ -359,18 +376,18 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                 <div className="mt-2.5 space-y-1.5">
                   {splitOptions.map((option) => (
                     <button
-                      key={option.installments}
+                      key={option.cycles}
                       type="button"
-                      onClick={() => setInstallments(option.installments)}
-                      aria-pressed={installments === option.installments}
+                      onClick={() => setCycles(option.cycles)}
+                      aria-pressed={cycles === option.cycles}
                       className={`flex min-h-14 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-colors ${
-                        installments === option.installments
+                        cycles === option.cycles
                           ? "border-primary bg-primary/10"
                           : "border-border bg-background"
                       }`}
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-black text-foreground">
-                        {option.installments}
+                        {option.cycles}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-bold text-foreground">
@@ -408,7 +425,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
               <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.principalRow")}</dt><dd className="font-semibold">{money(quote.principal)}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.feeRow", { percent: Math.round(quote.feeRate * 100) })}</dt><dd className="font-semibold">+{money(quote.fee)}</dd></div>
               <div className="flex justify-between border-t border-dashed border-border pt-1"><dt className="font-bold">{t("memberPortal.joyLater.totalRow")}</dt><dd className="font-black">{money(quote.total)}</dd></div>
-              {quote.installments > 1 && (
+              {quote.cycles > 1 && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t("memberPortal.joyLater.perStepRow")}</dt>
                   <dd className="font-semibold">{money(quote.schedule[0])}</dd>

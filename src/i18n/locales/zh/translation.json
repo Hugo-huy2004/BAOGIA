@@ -2500,11 +2500,18 @@
       "noDeadline": "没有期限。需归还的数目不会随时间增长。",
       "notEligible": "暂时无法使用 JOYlater",
       "reason": {
-        "adult": "仅限 18 岁及以上会员",
-        "accountAge": "钱包需开通满 {{minDays}} 天（你：{{days}} 天）",
-        "earned": "需累计获得 {{min, joy}}（你：{{earned, joy}}）",
-        "openLoan": "你还有一笔没还完",
-        "noIncome": "还没有稳定的 JOY 收入"
+        "adult": "须年满十八周岁",
+        "accountAge": "账户须活跃满十四日",
+        "earned": "须累计获得 1,000 JOY",
+        "openLoan": "仍有未结清的欠款",
+        "noIncome": "还没有稳定的 JOY 收入",
+        "notApplied": "尚未提交申请",
+        "pending": "申请审核中",
+        "barred": "已有逾期记录",
+        "defaulted": "已有逾期记录",
+        "noNetIncome": "所得 JOY 尚未超过所耗 JOY",
+        "lowEngagement": "请更规律地使用系统",
+        "lowScore": "评分未达核准门槛"
       },
       "howTitle": "JOYlater 如何运作",
       "how1": "选要先拿多少 JOY——上限按你自己赚到的算。",
@@ -2563,7 +2570,81 @@
         "transfer": "不可转赠 JOY",
         "spend": "不可消费 JOY"
       },
-      "stageNext": "距下一级尚有 {{days}} 天：{{stage}}"
+      "stageNext": "距下一级尚有 {{days}} 天：{{stage}}",
+      "introEyebrow": "会员专属",
+      "introLead": "今日先行解锁功能，日后以所得 JOY 逐步偿还。额度由系统评定，并非固定数字。",
+      "benefit": {
+        "unlock": "JOY 即时入账，可用于任何功能",
+        "cycles": "可选 {{weeks}} 周分期 — 按剩余本金每周 {{rate}}%",
+        "noHidden": "无隐藏费用、无开办费、无提前还款费"
+      },
+      "applyCta": "申请额度",
+      "applyCtaNote": "即时评定，仅需申请一次",
+      "applyBusy": "评定中…",
+      "applyApproved": "已核定额度 {{amount}}",
+      "applyPending": "申请已受理。额度将于 {{at}} 重新评定。",
+      "gate": {
+        "notYet": "尚不符合申请条件",
+        "barred": "此账户不再核发额度"
+      },
+      "reviewAt": "额度将于 {{at}} 自动重新评定，无须再次申请。",
+      "repayTitle": "如何偿还",
+      "repay": {
+        "garnish": {
+          "title": "自动扣留 {{percent}}%",
+          "body": "每次获得 JOY 时，{{percent}}% 用于偿还，余额照常入账。"
+        },
+        "early": {
+          "title": "提前偿还必定更省",
+          "body": "利息按日计于剩余本金，提前偿还即刻减息，且不收任何费用。"
+        }
+      },
+      "ratesTitle": "利率表",
+      "week": "周",
+      "year": "年",
+      "rate": {
+        "inTerm": {
+          "title": "期内利息",
+          "body": "计于仍在期内的本金。签约时锁定，全期不变。"
+        },
+        "overdue": {
+          "title": "逾期利息",
+          "body": "计于已到期而未偿的本金。尚未到期的分期仍按期内利率。"
+        },
+        "onInterest": {
+          "title": "迟付利息之利息",
+          "body": "计于已到期而未付的利息。"
+        }
+      },
+      "ratesLegal": "利率遵循越南《民法典 2015》第 466 条上限：逾期利息不超过期内利率的 150%，迟付利息之利息不超过每年 10%。期内利率随流通中的 JOY 每周浮动，并于签约时锁定。",
+      "faqTitle": "常见问题",
+      "faq": {
+        "howLimit": {
+          "q": "额度如何计算？",
+          "a": "依四项：每日所得 JOY 减所耗 JOY（权重最高）、当前余额、使用系统的规律程度，以及既往偿还记录。额度锚定于实际偿还能力，故所得虽多而几乎耗尽者，额度仍低。"
+        },
+        "howRate": {
+          "q": "利率为何变动？",
+          "a": "期内利率随流通中的 JOY 浮动：系统发行多于回收时利率上调，JOY 收缩时下调。当前为每周 {{rate}}%。此数于签约时锁定，全期不变。"
+        },
+        "whenReview": {
+          "q": "额度多久重评一次？",
+          "a": "每周六 17:00 自动重评，无须任何操作。规律使用并按期偿还者，额度将逐步提高。"
+        },
+        "ifLate": {
+          "q": "逾期偿还会如何？",
+          "a": "逾期 7 日暂停转赠与新开分期；逾期 21 日冻结消费；逾期 45 日封禁账户三十日；逾期 90 日呈报管理层。每一级均事先告知并载明剩余天数。"
+        },
+        "canCancel": {
+          "q": "可以提前偿还吗？",
+          "a": "可以，随时且不收费用。利息按日计，愈早偿还所付愈少。此外，所得 JOY 的 {{percent}}% 亦自动扣留用于偿还。"
+        }
+      },
+      "availableCredit": "可用额度",
+      "usedAmount": "已用 {{amount}}",
+      "rateNow": "每周 {{rate}}%",
+      "scoreIs": "评分 {{score}}",
+      "reviewShort": "{{at}} 重评"
     },
     "walletApp": {
       "eyebrow": "电子钱包",
