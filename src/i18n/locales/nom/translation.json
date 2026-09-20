@@ -1,32 +1,2962 @@
 {
-  "__locale": "nom",
-  "__note": "Bản 𡨸喃 đang dựng dần. Khoá nào chưa có sẽ tự rơi về tiếng Việt quốc ngữ — đó là hành vi CÓ CHỦ Ý, không phải thiếu sót. Chỉ điền chữ nào đã tra được chắc chắn; chữ Nôm đoán bừa còn tệ hơn không có chữ, vì mục đích của ngôn ngữ này là để học.",
-  "common": {
-    "yes": "固",
-    "no": "空",
-    "search": "尋"
-  },
-  "memberPortal": {
-    "joy": {
-      "balance": "存款",
-      "wallet": "銀庫"
+  "aura": {
+    "focusBlock": "番 集中",
+    "pauseBtn": "暫 停",
+    "startBtn": "扒頭",
+    "workSession": "番 爫役",
+    "timelineScrub": "進呈 發 樂",
+    "liveWeather": "時節 直接",
+    "filterFree": "免費",
+    "filterIdentity": "本 色",
+    "filterMood": "感觸",
+    "badgeFree": "免費",
+    "badgeAura": "高級",
+    "themeUsed": "使用",
+    "playWarning": "亥𡀀 吏底 扒頭 音樂.",
+    "toastJoyReceived": "認 成功 +{{amount, joy}} 𠓨 財款.",
+    "receipt": {
+      "paymentSuccessful": "清算 成功",
+      "date": "𣈜",
+      "time": "𣇞",
+      "transaction": "碼 交易",
+      "duration": "時限: {{duration}}",
+      "total": "總共",
+      "paid": "㐌清 算",
+      "processing": "當處 理 交易…",
+      "cancel": "毀",
+      "pay": "清算"
     },
-    "card": {
-      "holder": "卡牌之主"
+    "buffering": "當載 樂…"
+  },
+  "navbar": {
+    "services": "役務",
+    "templates": "作 品",
+    "faq": "𠳨答",
+    "account": "財款",
+    "pricing": "報價",
+    "benefits": "權利 生員",
+    "loginAdmin": "登入 管治",
+    "hello": "吀嘲",
+    "login": "登入",
+    "language": "言語"
+  },
+  "footer": {
+    "services": "役務",
+    "links": "塘 引",
+    "introduction": "介紹",
+    "pricing": "榜價",
+    "partner": "對作",
+    "privacyPolicy": "政策保 密",
+    "supportServer": "擁護 𣛠主",
+    "userGuide": "向引 使用",
+    "terms": "條 款 使用"
+  },
+  "donationUI": {
+    "open": "𨷑 榜 擁護",
+    "error": "渚體 造清 算. 𢝙𢚸 試吏.",
+    "amountLabel": "數錢 貴成 員 㦖 擁護",
+    "nameLabel": "𠸜 𧵑貴 城圓",
+    "termsError": "𢝙𢚸 確認 條 款 款 擁護.",
+    "packs": {
+      "supporter": "𠊚同 行"
     }
   },
-  "nomLab": {
-    "scriptName": "𡨸喃",
-    "language": "㗂越",
-    "script": "文字",
-    "honorific": "貴成員",
-    "cardHolder": "卡牌之主",
-    "treasury": "銀庫",
-    "digits": {
-      "0": "零", "1": "一", "2": "二", "3": "三", "4": "四",
-      "5": "五", "6": "六", "7": "七", "8": "八", "9": "九"
+  "intro": {
+    "nav": {
+      "welcome": "嘲𢜏",
+      "hobbies": "所 適 個人",
+      "contacts": "連結",
+      "start": "扒頭",
+      "partners": "茹 創立",
+      "about": "𧗱 碎"
     },
-    "places": { "10": "十", "100": "百", "1000": "千", "10000": "萬", "100000000": "億" },
-    "time": { "day": "日", "month": "月", "year": "年" }
-  }
+    "about": {
+      "hello": "吀嘲, 碎 羅"
+    },
+    "slide1": {
+      "explore": "𠓨 世界"
+    },
+    "slide2": {
+      "badge": "✦ 立程 󰑼芸 術"
+    },
+    "slide3": {
+      "badge": "✦ 通信 個人",
+      "title2": "过程 學習",
+      "eduTitle": "學 問 / 朋 級",
+      "v1t": "德性 & 紀律"
+    },
+    "slide4": {
+      "title2": "仍 世界 數 固 灵魂."
+    },
+    "slide5": {
+      "idBenefitTitle": "權利",
+      "idValidityTitle": "效力",
+      "idAuth": "㐌確 實",
+      "benefitsTitle": "確實 成功, 伴 認得:"
+    },
+    "slide7": {
+      "badge": "✦ 所 適 個人"
+    },
+    "slide8": {
+      "principles": "元則 創造"
+    },
+    "slide9": {
+      "badge": "✦ 聯係"
+    },
+    "slide10": {
+      "title1": "登記 & 扒頭",
+      "title2": "行程 𢼂𧵑 伴.",
+      "registerBtn": "扒頭 免費"
+    },
+    "partners": {
+      "title1": "生員 𢆥𡳳,",
+      "founderRole": "生員 設計 & 發展",
+      "partnerRole": "對作 同 發展",
+      "openToWork": "産床 實習 & 機會 役 爫",
+      "stackTitle": "价値 碎 蹺𨆷",
+      "v3": "創造",
+      "v5": "同行"
+    },
+    "discoveries": {
+      "badge": "✦ 系生 態 便益",
+      "title1": "行旌 便益",
+      "title2": "仍勘 破 數 𧵑𥢆 伴.",
+      "hocduongTitle": "伴 學 塘"
+    },
+    "holo": {
+      "cta": "扒頭 預案"
+    },
+    "mascots": {
+      "m1w": "吀嘲!",
+      "m4w": "質量"
+    },
+    "cine": {
+      "nav1": "𧗱 碎",
+      "nav2": "便益",
+      "nav3": "役務",
+      "nav5": "報價",
+      "navPortfolio": "𧗱 碎",
+      "navServices": "役務",
+      "heroTitle2": "命 設計 吧 𡏦 産品 數.",
+      "heroCta": "䀡預 案",
+      "previewStatus": "當活 動",
+      "previewTagline": "沒 名姓 數, 饒 便益.",
+      "aboutLabel": "𧗱 命",
+      "education": {
+        "highSchool": {
+          "label": "忠𭓇 普 通"
+        }
+      },
+      "card4Title": "便益 學習.",
+      "learnMore": "尋曉 添",
+      "howTitle": "格 𨉟爫 産品",
+      "partnerLabel": "共 發展 貝",
+      "marqueeTitle": "工藝 命 得 學",
+      "work": {
+        "eyebrow": "系生 態 應用",
+        "items": [
+          {
+            "cta": "䀡預 案"
+          },
+          {
+            "badge": "保密",
+            "kind": "下層 産品",
+            "cta": "䀡預 案"
+          },
+          {
+            "kind": "立程 相作",
+            "cta": "䀡預 案"
+          }
+        ]
+      }
+    },
+    "apple": {
+      "hero": {
+        "status2": "産床 實習 吧 機會 役 爫."
+      },
+      "portrait": {
+        "chapters": [
+          {
+            "kicker": "吀嘲"
+          },
+          {
+            "kicker": "扒頭"
+          },
+          {
+            "kicker": "𣋚𠉞"
+          },
+          {
+            "kicker": "條 命 學 得"
+          }
+        ]
+      },
+      "highlights": {
+        "items": [
+          {
+            "label": "現在"
+          },
+          {
+            "lines": [
+              "Thiết kế, frontend, backend, hạ tầng.",
+              "沒𠊛 爫 歇."
+            ]
+          },
+          {
+            "label": "Đang chạy",
+            "lines": [
+              "22 ứng dụng, 3 ngôn ngữ.",
+              "Web, PWA và iOS."
+            ]
+          },
+          {
+            "label": "尋 之",
+            "lines": [
+              "Một chỗ thực tập để học nhanh hơn.",
+              "吧沒 隊底 空沛爫 沒 命 女."
+            ]
+          }
+        ]
+      },
+      "craft": {
+        "kicker": "格 𨉟爫 役"
+      },
+      "skills": {
+        "kicker": "技能",
+        "frontend": {
+          "title": "交面."
+        },
+        "backend": {
+          "title": "𣛠主."
+        },
+        "data": {
+          "title": "與料."
+        }
+      },
+      "education": {
+        "kicker": "學 問",
+        "partnerLabel": "共 發展 貝",
+        "partnerRole": "對作 同 發展",
+        "highSchool": {
+          "label": "忠𭓇 普 通"
+        },
+        "now": "現在"
+      },
+      "marquee": "工藝 命 得 學",
+      "offhours": {
+        "kicker": "外 𣇞"
+      },
+      "wall": {
+        "kicker": "凭證",
+        "cta": "䀡預 案",
+        "ariaPrev": "産品 𠓀",
+        "ariaNext": "産品 計 接"
+      },
+      "values": {
+        "title": "格 接近 𧵑𨉟."
+      },
+      "commitments": {
+        "p1": {
+          "title": "曉 𠓀欺 爫."
+        },
+        "p3": {
+          "title": "搬交 底 伴 爫 主."
+        }
+      },
+      "contact": {
+        "kicker": "聯係"
+      },
+      "reel": {
+        "spiralKicker": "扒頭",
+        "worksKicker": "㐌交",
+        "logoTagline": "沒𠊛. 全部 系統."
+      },
+      "works": {
+        "more": {
+          "kind": "群 女"
+        }
+      }
+    },
+    "film": {
+      "finale": [
+        "增 速.",
+        "SEO."
+      ],
+      "cta": "䀡榜 價",
+      "gaugeUnit": "點 速度"
+    },
+    "story": {
+      "hero": {
+        "line3": "沒 𢬣爫 歇.",
+        "ctaStart": "扒頭 預案"
+      },
+      "work": {
+        "label": "預案",
+        "heading": "爫 自頭. 爫 典共."
+      },
+      "services": {
+        "label": "役務",
+        "seoBurst1": "增 速",
+        "cta": "尋曉 添 𧗱 役務"
+      },
+      "profile": {
+        "educationHeading": "过程 學",
+        "milestoneNow": "現在",
+        "techHeading": "工藝 命 用",
+        "catFrontend": "交面",
+        "catBackend": "𣛠主",
+        "catDatabase": "與料",
+        "catDevops": "運行",
+        "promiseLabel": "甘結",
+        "promise1": {
+          "title": "咨問 免費."
+        }
+      },
+      "contact": {
+        "heading1": "固意 想?",
+        "messageLabel": "𠅜忍"
+      }
+    }
+  },
+  "servicesPage": {
+    "common": {
+      "youGet": "伴 認得"
+    },
+    "whispers": {
+      "between2": "速度 空沛󰑼 目標. 速度 羅 条件 先决."
+    },
+    "hero": {
+      "trust": [
+        "Trao đổi trực tiếp với người thiết kế và phát triển",
+        "範圍, 時間 吧 之費 得 統一 𠓀",
+        "Thiết kế cho điện thoại, tốc độ và khả năng tìm kiếm",
+        "HSSV có quyền lợi và hướng hỗ trợ riêng"
+      ]
+    },
+    "outcomes": {
+      "eyebrow": "章 頭 𧵑 預案"
+    },
+    "plans": {
+      "fix": {
+        "timeline": "𥪝𣈜 – 歆𡢐"
+      },
+      "website": {
+        "tagline": "認靣 完 整"
+      },
+      "system": {
+        "label": "運行 功役",
+        "tagline": "自動 化 营業"
+      }
+    },
+    "studentPlans": {
+      "orderCta": "聯係 登記",
+      "php": {
+        "includes": [
+          "Link Git riêng để bạn clone toàn bộ source về",
+          "Xử lý dữ liệu bằng PHP + cơ sở dữ liệu MySQL",
+          "登記, 登入 𪽡分 權 基本",
+          "File SQL và dữ liệu mẫu sẵn để chạy thử ngay",
+          "Tài liệu hướng dẫn: cài XAMPP, import database, luồng chạy từng chức năng"
+        ]
+      }
+    },
+    "demo": {
+      "loading": "當載 交面...",
+      "templates": {
+        "cafe": {
+          "subtitle": "茹行"
+        },
+        "portfolio": {
+          "title": "介紹 個人"
+        }
+      }
+    },
+    "care": {
+      "title": "空 勤爫 吏,"
+    },
+    "micro": {
+      "highlight": "空押 爫 吏 自頭",
+      "cta": "聯係 底 報價",
+      "customTitle": "要求 恪 外名 冊?"
+    },
+    "app": {
+      "title2": "爫 役台 伴."
+    },
+    "student": {
+      "title2": "沒 坭 底 扒頭 免費.",
+      "items": [
+        {
+          "title": "Bio cá nhân",
+          "desc": "Một trang giới thiệu bản thân, liên kết mạng xã hội, hành trình học tập và các dự án tiêu biểu."
+        },
+        {
+          "title": "便益 學習"
+        },
+        {
+          "title": "Bot hỗ trợ cá nhân",
+          "desc": "Hỏi nhanh, gợi ý cách học, nhắc việc và hỗ trợ nhu cầu cơ bản."
+        },
+        {
+          "title": "共同 𠳨答"
+        }
+      ]
+    },
+    "process": {
+      "title": "爫役"
+    },
+    "faq": {
+      "highlight": "答 實",
+      "items": [
+        {
+          "q": "Tôi cần chuẩn bị gì trước khi liên hệ?",
+          "a": "Bạn chỉ cần gửi mục tiêu, website hiện tại nếu có, thời gian mong muốn và 1-2 mẫu bạn thích. Chưa rõ hết cũng không sao — buổi trao đổi đầu tiên dùng để cùng làm rõ nhu cầu."
+        },
+        {
+          "q": "之費 得 確定 如勢芾?"
+        },
+        {
+          "q": "Quyền lợi HSSV miễn phí khác hỗ trợ riêng thế nào?",
+          "a": "Bio tiêu chuẩn và các tiện ích cốt lõi dành cho HSSV xác minh là miễn phí theo điều kiện công bố. Thiết kế độc quyền, portfolio chuyên sâu hoặc hỗ trợ kỹ thuật theo yêu cầu là phần riêng và luôn được trao đổi trước."
+        },
+        {
+          "q": "Chưa có ý tưởng hay thiết kế thì sao?",
+          "a": "Không sao. Bạn chỉ cần mô tả người sẽ xem trang và điều bạn muốn họ làm tiếp theo. Mình sẽ đề xuất cấu trúc, nội dung cần chuẩn bị và hướng hình ảnh phù hợp."
+        },
+        {
+          "q": "Bàn giao xong, website lỗi thì sao?",
+          "a": "Mỗi dự án đều chốt rõ thời gian bảo hành và hỗ trợ sau bàn giao. Mình hướng dẫn sử dụng, xử lý lỗi trong phạm vi đã thống nhất và báo trước nếu phát sinh một hạng mục mới."
+        }
+      ]
+    },
+    "finalCta": {
+      "title1": "每 預案 扒頭 朋",
+      "title2": "没局 路傳 𤑟𤉜."
+    },
+    "tabs": {
+      "student": "學生 & 生員"
+    },
+    "microJobs": {
+      "bug-ui": {
+        "time": "𥪝𣈜"
+      },
+      "style-content": {
+        "time": "𥪝𣈜"
+      },
+      "mobile-beauty": {
+        "time": "𥪝𣈜"
+      },
+      "web-widget": {
+        "time": "𥪝𣈜"
+      },
+      "deploy-domain": {
+        "time": "𥪝𣈜"
+      },
+      "seo-quick": {
+        "time": "𥪝𣈜"
+      },
+      "speed-optimize": {
+        "time": "𥪝𣈜"
+      }
+    },
+    "devices": {
+      "desktop": "𣛠 性",
+      "tablet": "𣛠 性 榜",
+      "mobile": "電話"
+    },
+    "proof": {
+      "eyebrow": "預案 㐌 搬交",
+      "scopeLabel": "範圍",
+      "buildLabel": "格爫"
+    },
+    "demoLibrary": {
+      "included": "固体 展開",
+      "fits": "符合 貝",
+      "details": {
+        "portfolio": {
+          "features": [
+            "介紹",
+            "預案",
+            "聯係"
+          ]
+        },
+        "cafe": {
+          "features": [
+            "實 單",
+            "Đặt bàn",
+            "版圖"
+          ]
+        },
+        "photography": {
+          "features": [
+            "Album",
+            "役務",
+            "Đặt lịch"
+          ]
+        },
+        "ecommerce": {
+          "features": [
+            "産品",
+            "Bộ lọc",
+            "Giỏ hàng"
+          ]
+        },
+        "jewelry": {
+          "features": [
+            "Bộ sưu tập",
+            "價 參考",
+            "咨問"
+          ]
+        },
+        "dashboard": {
+          "features": [
+            "總觀",
+            "報吿",
+            "分 權"
+          ]
+        }
+      }
+    }
+  },
+  "faqPage": {
+    "header": {
+      "title1": "解 答"
+    },
+    "faqs": [
+      {
+        "question": "Hugo Studio có giờ làm việc cố định không?",
+        "answer": "Mình làm việc trực tiếp 1-1 nên không gò bó thời gian. Quý khách có thể gửi tin nhắn bất cứ lúc nào, mình sẽ phản hồi ngay khi có thể."
+      },
+      {
+        "question": "Team Hugo Studio có bao nhiêu thành viên?",
+        "answer": "Mình là Hugo, sinh viên năm cuối ngành Kỹ thuật Phần mềm và là người thực hiện chính các dự án. Jason Phan đồng hành trong vai trò đối tác đồng phát triển, cùng trao đổi kỹ thuật và rà soát trải nghiệm full-stack."
+      },
+      {
+        "actionText": "認 優待 生員"
+      },
+      {
+        "question": "Chi phí thiết kế tại Hugo Studio như thế nào?",
+        "answer": "Vì mình làm việc trực tiếp 1-1 nên chi phí tập trung vào phần thiết kế và phát triển. Mình nhận một dự án tại một thời điểm và xếp lịch các dự án tiếp theo theo hàng đợi."
+      },
+      {
+        "question": "Ngày lễ, Hugo Studio có làm việc không?",
+        "answer": "Khi nào nghỉ lễ dài ngày mình sẽ có thông báo trực tiếp trên trang chủ. (Bật mí là đôi khi mình cũng đi du lịch xả stress chút xíu 🏖️)"
+      }
+    ]
+  },
+  "bookingPage": {
+    "progress": {
+      "label": "𨀈 {{step}} / {{total}}",
+      "complete": "完畢"
+    },
+    "steps": {
+      "warranty": {
+        "title": "政策保 行"
+      },
+      "details": {
+        "title": "目標 𧵑 預案"
+      },
+      "contact": {
+        "title": "命 聯係 吏平 格󰅹?",
+        "hint": "只 用底 返囬 要求, 空 公開."
+      }
+    },
+    "sections": {
+      "warranty": "正 冊 互助 / 保行"
+    },
+    "promptLabels": {
+      "identity": "介紹 本身 / 預案"
+    },
+    "form": {
+      "nameLabel": "𠸜 貴客",
+      "voucherLabel": "碼 優待",
+      "voucherHint": "空扒 纀𥙩 𥪝財 款 → 優待 𧵑碎"
+    },
+    "actions": {
+      "continue": "接俗",
+      "editAnswers": "𢀦吏 自頭"
+    },
+    "summary": {
+      "project": "需求",
+      "warranty": "保行",
+      "timeline": "時間",
+      "contact": "𠊛 聯係"
+    },
+    "success": {
+      "title": "𨉟㐌 認得 要求.",
+      "another": "改蔑 要求 恪",
+      "donateYes": "擁護 自願",
+      "donateNo": "空, 感恩"
+    }
+  },
+  "templatesPage": {
+    "hero": {
+      "title1": "宇宙",
+      "title2": "芸朮 數"
+    },
+    "core": {
+      "title2": "商號"
+    },
+    "typography": {
+      "badge": "言語"
+    },
+    "souls": {
+      "badge": "灵魂",
+      "title": "灵魂 宇宙",
+      "values": [
+        {
+          "title": "Tận Tâm",
+          "desc": "Tỉ mỉ từng tinh vân mã nguồn"
+        },
+        {
+          "title": "Thấu Hiểu",
+          "desc": "Lắng nghe tầng sâu của vũ trụ"
+        },
+        {
+          "title": "創造"
+        },
+        {
+          "title": "Kết Nối",
+          "desc": "Mạng lưới ngân hà bền chặt"
+        },
+        {
+          "title": "速度"
+        },
+        {
+          "title": "保衛"
+        }
+      ]
+    },
+    "demos": {
+      "title1": "榜 調遣",
+      "title2": "實祭",
+      "templates": [
+        {
+          "title": "Studio Chụp Ảnh",
+          "short": "Chụp Ảnh",
+          "subtitle": "Nhiếp ảnh gia"
+        },
+        {
+          "subtitle": "茹行"
+        },
+        {
+          "title": "Web Bán Vàng",
+          "short": "Bán Vàng",
+          "subtitle": "Tiệm vàng"
+        },
+        {
+          "title": "介紹 個人"
+        },
+        {
+          "title": "Trang Bán Hàng",
+          "short": "E-Commerce",
+          "subtitle": "Đa ngành"
+        },
+        {
+          "title": "Trang Quản Lý",
+          "short": "Dashboard",
+          "subtitle": "Dashboard"
+        }
+      ]
+    },
+    "archive": {
+      "badge": "留貯",
+      "desc": "追及 直接 𠓨 基礎 與料 各 預案 實祭 㐌特 展開, 原本 吧空 界限."
+    }
+  },
+  "loginPage": {
+    "toast": {
+      "loginError": "耒燈 入",
+      "invalidLink": "塘 引 空合 例 或 歇限",
+      "adminError": "𠸜 登入 或密 口 空 正確"
+    },
+    "biometric": {
+      "verifying": "當 確實...",
+      "or": "或"
+    },
+    "header": {
+      "titleCustomer": "管治 預案",
+      "titleAdmin": "登入 管治",
+      "descCustomer": "蹺唯 進渡 & 管理 役務 𧵑貴 客",
+      "descAdmin": "追及 系統 榜 調遣 𧵑茹 發展"
+    },
+    "tabs": {
+      "customer": "會 員",
+      "admin": "管治"
+    },
+    "customerForm": {
+      "title": "追及 管治 預案",
+      "securityTitle": "保密 通信"
+    },
+    "adminForm": {
+      "title": "登入 管治",
+      "desc": "入 通信 確實 茹 發展",
+      "usernameLabel": "𠸜 登入",
+      "passwordLabel": "密口"
+    }
+  },
+  "customerPortal": {
+    "header": {
+      "logout": "登出"
+    },
+    "tabs": {
+      "service": "役務",
+      "requests": "要求"
+    },
+    "profile": {
+      "title": "通信 個人",
+      "phone": "數電 話",
+      "birthday": "𣈜生",
+      "address": "地指",
+      "updateSuccess": "㐌 及日 成功.",
+      "saveBtn": "留 通信",
+      "savingBtn": "當留..."
+    },
+    "service": {
+      "title": "總觀 預案",
+      "status": "狀態",
+      "startDate": "𣈜 扒頭",
+      "notesTitle": "日記 & 及日",
+      "completed": "完畢",
+      "maintenance": "保持",
+      "summary": "總結 預案"
+    },
+    "requests": {
+      "supportTitle": "隊伍 互助",
+      "supportSubtitle": "管理 預案 𧵑貴 客"
+    }
+  },
+  "adminPanel": {
+    "sidebar": {
+      "dashboard": "榜 調遣",
+      "users": "管理 城圓",
+      "logout": "登出",
+      "projects": "預案",
+      "fullAccess": "全權 系統",
+      "logoutAccount": "登出 財款 管治",
+      "utilities": "便益",
+      "systemUtilities": "便益 系統",
+      "utilityStore": "商店 便益"
+    },
+    "bottomNav": {
+      "users": "管理",
+      "support": "互助"
+    },
+    "core": {
+      "loading": "當載 系統...",
+      "errorMsg": "𢝙𢚸 登入 吏.",
+      "modalConfirmTitle": "確認 操作",
+      "modalConfirm": "確認"
+    },
+    "modals": {
+      "delPassLabel": "入密 口 管治:"
+    }
+  },
+  "adminProjects": {
+    "page": {
+      "title": "管理 預案",
+      "workspace": "空間 管治"
+    },
+    "tab": {
+      "searchPlaceholder": "尋劎 預案, 數電 話...",
+      "filterDate": "𣈜 登記",
+      "deleteWarn": "行動 尼空 體 完 作."
+    }
+  },
+  "adminProjectDetail": {
+    "notFound": "空 尋𧡊 預案",
+    "updateSuccess": "及日 狀態 成功.",
+    "detailTitle": "之節 預案",
+    "accessCodeShort": "碼 追及:",
+    "updateProcessTitle": "及日 進呈 預案",
+    "newStatusLabel": "狀態 買",
+    "statusOptions": {
+      "contacting": "當 聯係",
+      "implementing": "當 實現",
+      "testing": "當 檢查",
+      "completed": "完畢"
+    },
+    "updateBtn": "及日",
+    "historyTitle": "歷史 及日 進呈",
+    "maintenance": "保持",
+    "emptyHistory": "𣗓固 歷史 及日.",
+    "modal": {
+      "title": "及日 狀態",
+      "noticeTitle": "通報 管治 員",
+      "keepStatus": "眾碎 當 𧡊 貴管 治 㦖",
+      "cancelBtn": "毀",
+      "confirmBtn": "確認",
+      "checkInfoBtn": "檢查 通信",
+      "projectStatusLabel": "狀態 預案",
+      "securityTitle": "確明 保密",
+      "completeBtn": "完畢",
+      "successTitle": "成功.",
+      "successDesc": "狀態 預案 㐌特 及日."
+    }
+  },
+  "adminTabs": {
+    "users": {
+      "roleAdmin": "管治 員",
+      "roleMember": "城圓",
+      "lastLogin": "登入 吝 𡳳:",
+      "deletePrompt": "行動 尼空 體 完 作."
+    },
+    "settings": {
+      "onlineSys": "系統 直線",
+      "maintenance": "保持 系統",
+      "advanced": "性能 㨢高",
+      "adImage": "影 廣告:",
+      "adUploading": "當 載𨖲...",
+      "adStatus": "狀態:",
+      "adShow": "顯是 廣告",
+      "currentPassword": "密口 現在",
+      "newPassword": "密口 買",
+      "confirmPassword": "確認 密口 買",
+      "changePasswordBtn": "及日 密口"
+    },
+    "bookings": {
+      "markRead": "打唒 㐌 處理",
+      "budget": "銀冊:"
+    },
+    "packages": {
+      "duration": "時限:",
+      "days": "𣈜",
+      "months": "𣎃",
+      "years": "𢆥",
+      "newCodeBtn": "碼 買",
+      "benefits": "權利:",
+      "andMore": "吧 {{count}} 權利 恪...",
+      "manageSearch": "尋",
+      "defaultBadge": "默定",
+      "grantedOn": "級 𣈜:",
+      "createDurationType": "類 時限:",
+      "createDurationValue": "价値 時限:"
+    },
+    "joyGiftCards": {
+      "countLabel": "数量 碼",
+      "createBtn": "造碼",
+      "justCreated": "馬皮 造",
+      "loading": "當載..."
+    },
+    "utilityStore": {
+      "headerDesc": "管理 産品 吧 單行 𧵑 商店 便益.",
+      "createTitle": "造 産品 買",
+      "nameLabel": "𠸜 産品",
+      "createBtn": "造 産品",
+      "saveSuccess": "㐌留 産品.",
+      "listTitle": "名冊 産品",
+      "loading": "當載...",
+      "inactive": "㐌 隱",
+      "unlimited": "空 界限",
+      "disableBtn": "隱",
+      "enableBtn": "現",
+      "ordersTitle": "單行 𧵆低",
+      "productTypeLabel": "類 産品",
+      "extendDaysLabel": "數 𣈜 增 旱使 用",
+      "imageLabel": "形影 産品",
+      "imageUploading": "當載 影..."
+    }
+  },
+  "adminSupport": {
+    "totalReq": "總 數 要求",
+    "pending": "𣗓 處理",
+    "resolved": "㐌𤋵 決",
+    "statusTitle": "狀態 要求",
+    "filterResolved": "㐌𤋵 決",
+    "reqResolved": "㐌 處理",
+    "before": "𠓀"
+  },
+  "memberPortal": {
+    "titleStudent": "榜 調遣 生員",
+    "titlePartner": "制度 對作",
+    "navigation": {
+      "today": "𣋚𠉞",
+      "apps": "應用",
+      "activity": "活動",
+      "account": "財款",
+      "primaryNavigation": "調向 正",
+      "memberFallback": "貴成 員",
+      "newActivity": "活動 買",
+      "recentActivity": "活動 𧵆低",
+      "notificationFallback": "固 及日 買仃 朱貴 城圓.",
+      "signInToSync": "登入 底 同步",
+      "quick": {
+        "apps": {
+          "title": "應用",
+          "description": "𨷑 公惧 𧵑貴 城圓"
+        },
+        "wallet": {
+          "title": "銀庫",
+          "description": "數餘 吧 交易"
+        },
+        "profile": {
+          "description": "通信 吧 交面"
+        }
+      }
+    },
+    "today": {
+      "localEdition": "印 本 {{country}}",
+      "updatedAt": "及日 {{time}}",
+      "category": {
+        "academic": "學 術",
+        "technology": "工藝",
+        "community": "共同",
+        "world": "時事"
+      },
+      "tryAgain": "試吏",
+      "preview": "本 䀡𠓀",
+      "safePreview": "䀡𠓀 安全",
+      "previewTitle": "䀡𠓀: {{title}}"
+    },
+    "notificationCenter": {
+      "title": "活動",
+      "markAllRead": "讀 歇",
+      "markingAllRead": "當 及日",
+      "markAllReadError": "渚體 打唒 㐌 讀. 𢝙𢚸 試吏.",
+      "balance": "數餘 {{value, joy}}",
+      "emptyFilterTitle": "空固 之 於 目 尼",
+      "emptyTitle": "𣗓固 活 動󰅹",
+      "filters": {
+        "unread": "𣗓 讀 ({{count}})",
+        "joy": "交易",
+        "account": "財款",
+        "system": "系統"
+      },
+      "days": {
+        "today": "𣋚𠉞"
+      }
+    },
+    "tabs": {
+      "partner": "對作",
+      "utilities": "便益",
+      "history": "通報",
+      "joy": "銀庫",
+      "settings": "個人",
+      "verify": "確明",
+      "verifyEduPending": "生員 𣗓 確明"
+    },
+    "status": {
+      "active": "㐌 確明"
+    },
+    "accountSections": {
+      "profile": "通信 個人",
+      "achievements": "成績"
+    },
+    "widget": {
+      "designLabel": "設計",
+      "shareLabel": "𢺺𢩿",
+      "publicTheme": "主題 顯是 公開",
+      "links": "連結",
+      "projectCategory": "預案"
+    },
+    "bioPreview": {
+      "live": "當活 動",
+      "previewLabel": "本 䀡𠓀",
+      "designLabel": "交面 & 主題",
+      "achievementsLabel": "預案 & 成績",
+      "expiryLabel": "歇限:",
+      "startDate": "𣈜 扒頭",
+      "daysLeft": "群 {{count}} 𣈜"
+    },
+    "verify": {
+      "title": "完畢 通信 生員",
+      "birthday": "生日",
+      "schoolLevel": "級 學",
+      "studentId": "碼 學生 / 生員",
+      "logoutBtn": "登出"
+    },
+    "historyActions": {
+      "markAllRead": "打唒 㐌 讀"
+    },
+    "joyWallet": {
+      "statReferrals": "㐌 介紹",
+      "statReferralCode": "碼介 紹",
+      "sectionWallet": "管理 銀庫",
+      "sectionStore": "商店",
+      "actionMissions": "任務",
+      "actionStore": "商店"
+    },
+    "logout": "登出",
+    "sidebar": {
+      "personal": "個人",
+      "theme": "交面",
+      "links": "連結",
+      "projects": "預案",
+      "services": "役務",
+      "career": "事業",
+      "physical": "形 體"
+    },
+    "bio": {
+      "basicInfo": "通信 基本",
+      "nickname": "别名",
+      "birthday": "生日",
+      "contactInfo": "通信 聯係",
+      "phone": "數電 話",
+      "localSave": "留貯 直接 𨕭 設備 𧵑貴 城圓",
+      "uploading": "當載...",
+      "placeholderName": "户𠸜 𧵑貴 城圓...",
+      "noHeadline": "𣗓固 標題",
+      "inactive": "𣗓 激活",
+      "themeLabel": "交面 {{template}}",
+      "saving": "當留...",
+      "loading": "當載..."
+    },
+    "accountProfile": {
+      "friends": "伴𤿤",
+      "missions": "任務",
+      "jobTitle": "藝 業",
+      "skillsHobbies": "技能 / 所 適",
+      "unspecified": "𣗓 開報",
+      "joyWalletTitle": "銀庫",
+      "theme": "交面",
+      "security": "保密",
+      "notifications": "通報",
+      "language": "言語",
+      "search": "尋劎",
+      "joyApp": "應用 銀庫",
+      "interfaceAndSystemGroup": "交面 & 系統",
+      "systemLanguage": "言語 系統",
+      "securityAndPrivacyGroup": "保密 & 權 𥢆西",
+      "devicePermissions": "權 設備 & 定 位",
+      "logout": "登出 財款",
+      "memberDocuments": "材料 城圓",
+      "projects": "預案",
+      "residenceAddress": "地指 居住",
+      "locationVerified": "位置 㐌特 確明 𨕭 版圖",
+      "noVerifiedLocation": "𣗓固 位置 㐌 確明",
+      "verificationTitle": "確明 通信"
+    },
+    "settings": {
+      "account": {
+        "notifications": "通報",
+        "privacy": "權 𥢆西 吧 追及",
+        "language": "言語",
+        "signOut": "登出 財款",
+        "personalInformation": "通信 個人",
+        "saveInformation": "留 通信"
+      },
+      "groupNotifications": "通報",
+      "groupLogin": "登入",
+      "pushProcessing": "當處 理...",
+      "soundTitle": "音聲 通報",
+      "languageTitle": "言語 默定",
+      "logout": "登出",
+      "page": {
+        "projectsWorks": "預案 & 作 品",
+        "language": "言語",
+        "pushStatusPrompt": "認通 報 關重",
+        "saving": "當留...",
+        "weatherAlertTitle": "警報 時節 不常"
+      },
+      "biometric": {
+        "registering": "當處 理...",
+        "deviceComputer": "𣛠 性"
+      }
+    },
+    "account": {
+      "eduVerified": "名姓 教育 㐌 確明",
+      "personalInformation": "通信 個人",
+      "about": "介紹",
+      "verifiedIdentity": "名姓 教育",
+      "verifiedIdentityDescription": "各 通信 用底 確明 學生, 生員 得 系統 保衛.",
+      "membershipTier": "項 城圓",
+      "birthMonthYear": "𣎃/𫷜生",
+      "optionalDetails": "通信 補充",
+      "saveTitle": "及日 財款"
+    },
+    "accountHub": {
+      "opening": "當 𨷑…",
+      "perksLoadError": "空載 得 優待.",
+      "title": "財款",
+      "verified": "㐌 確明",
+      "overviewAria": "總觀 財款",
+      "balance": "數餘",
+      "missions": "任務",
+      "open": "𨷑",
+      "today": "𣋚𠉞",
+      "perks": "優待",
+      "center": "中心",
+      "claimJoy": "認 {{amount, joy}}",
+      "walletSection": "銀庫",
+      "myPerks": "優待 𧵑碎",
+      "todayMissions": "任務 𣋚𠉞",
+      "loading": "當載…",
+      "missionProgress": "完成 {{completed}}/{{total}} 𣋚𠉞",
+      "walletHistory": "歷史 銀庫",
+      "perksStore": "商店 優待",
+      "privacySection": "權 𥢆西 吧通 報",
+      "systemSection": "系統",
+      "balanceSubtitle": "數餘 {{balance, joy}}",
+      "memberDocument": "材料 城圓",
+      "missionCopy": {
+        "claimedJoy": "㐌認 {{amount, joy}}.",
+        "claiming": "當 認…",
+        "heading": "任務 𣋚𠉞 ({{completed}}/{{total}})",
+        "loading": "當載 任務…",
+        "empty": "𣗓固 任務 買 𣋚𠉞.",
+        "rewardClaimed": "㐌認 賞",
+        "rewardReady": "賞 +{{amount, joy}}",
+        "incomplete": "𣗓 完成 · +{{amount, joy}}",
+        "claimed": "㐌認",
+        "claim": "認",
+        "goTo": "𨷑 {{app}}"
+      },
+      "redeemCopy": {
+        "giftError": "碼 空用 得.",
+        "giftSuccess": "㐌 共 {{amount, joy}} 𠓨 銀庫.",
+        "referralError": "碼介 紹 空合 例.",
+        "enterCode": "入碼",
+        "referralCode": "碼 𠊛 介紹",
+        "referralHint": "每 財款 旨入 得 沒吝.",
+        "referralCount": "㐌 介紹 {{count}} 𠊛 · 碼 𧵑貴 城圓"
+      },
+      "historyCopy": {
+        "loadError": "空載 得 歷史.",
+        "today": "𣋚𠉞",
+        "received": "認",
+        "spent": "㐌用",
+        "loading": "當載 歷史…",
+        "balanceAfter": "群 {{balance}}",
+        "filters": {
+          "in": "認",
+          "out": "用"
+        },
+        "groups": {
+          "checkin": "點名",
+          "friends": "伴𤿤",
+          "learning": "學習",
+          "other": "恪"
+        }
+      },
+      "notificationCopy": {
+        "markRead": "打唒 㐌 讀",
+        "title": "通報",
+        "unread": "𣗓 讀",
+        "noUnread": "空固 通報 𣗓 讀"
+      },
+      "radioCopy": {
+        "live": "當 發 直接",
+        "paused": "暫 停",
+        "pause": "暫 停",
+        "play": "發",
+        "stop": "停 發"
+      },
+      "perksCopy": {
+        "noExpiry": "空歇 限",
+        "discount": "減 {{percent}}%",
+        "perk": "優待",
+        "usedOn": "㐌用 𣈜 {{date}}",
+        "expiresOn": "限 用: {{date}}",
+        "loading": "當載 優待…",
+        "retry": "試吏",
+        "opensInBirthMonth": "𨷑 𠓨 {{month}} — 𣎃 生日 𧵑貴 城圓.",
+        "pastVouchers": "㐌用 吧 歇限 ({{count}})",
+        "fulfilled": "· 㐌交",
+        "cancelled": "· 㐌 毀"
+      },
+      "documents": {
+        "rightsTitle": "權吧 追及",
+        "rightsSubtitle": "範圍 追及, 權 設備 吧 責任 𧵑 𠄩边",
+        "rightsDetail": "權使 用, 權 設備 吧 責任 𧵑 𠄩边",
+        "privilegesTitle": "特權 城圓",
+        "conditionsTitle": "權吧 義務 城圓",
+        "fullTextTitle": "條 款 全聞",
+        "fullTextDetail": "條 款, 保密 吧 歸則 城圓 朋𠃩 言語"
+      }
+    },
+    "bento": {
+      "profileSub": "影代 面, 𠸜 & 介紹"
+    },
+    "package": {
+      "status": "狀態",
+      "startDate": "𣈜 扒頭",
+      "expireDate": "𣈜 歇限",
+      "unlimited": "空 界限",
+      "features": "權利 & 性能",
+      "addedDuration": "時限 共添",
+      "days": "𣈜",
+      "years": "𢆥",
+      "months": "𣎃",
+      "activeStatus": "當活 動"
+    },
+    "empty": "𣗓固 設立",
+    "student": "伴 學",
+    "design": {
+      "free": "免費",
+      "daysRemaining": "群 {{count}} 𣈜"
+    },
+    "links": {
+      "addLink": "添 連結"
+    },
+    "career": {
+      "title": "學 問事 業",
+      "skills": "技能 專 門"
+    },
+    "physical": {
+      "title": "形 體 & 地點",
+      "height": "朝高",
+      "weight": "斤󰠱",
+      "location": "區域"
+    },
+    "other": {
+      "title": "通信 恪",
+      "hobbies": "所 適"
+    },
+    "updating": "當 及日...",
+    "crop": {
+      "cancel": "毀"
+    },
+    "confirm": {
+      "title": "確認 操作",
+      "confirm": "確認"
+    },
+    "toast": {
+      "verifySuccessTitle": "確明 財款 成功. 🎉",
+      "verifyRejectedTitle": "要求 確 明僃 辭咥",
+      "acceptTermsWarning": "𢝙𢚸 同 意 𠇍調 款.",
+      "sessionExpired": "番 爫役 㐌歇 限 保密. 系統 自動 登出 底 保衛 財款.",
+      "loadError": "空体 載 與料 城圓.",
+      "partnerLinkAdded": "㐌添 連結 對作."
+    },
+    "headlineEmpty": "𣗓 設立 標題 小史",
+    "linksLabel": "連結",
+    "achievementsLabel": "成績",
+    "settingsPage": {
+      "saveBtn": "留",
+      "savingBtn": "當留...",
+      "rechargeBtn": "納",
+      "logoutBtn": "登出",
+      "profileMenu": "通信",
+      "designMenu": "交面",
+      "linksMenu": "連結",
+      "achievementsMenu": "成績",
+      "defaultName": "𠊛󱨳"
+    },
+    "utilitiesPage": {
+      "title": "系生 態 便益 數",
+      "tabTitle": "便益 城圓",
+      "nfc": {
+        "retry": "試吏",
+        "detectedDevice": "設備 發現"
+      },
+      "vcard": {
+        "mobileInstructionTitle": "載 直接 𨕭殿 話",
+        "syncingText": "系統 當 自動 𥙩 名簿...",
+        "backupDbTitle": "名簿 留貯",
+        "searchPlaceholder": "尋 𠸜 或 數電 話...",
+        "toastFillRequired": "𢝙𢚸 入𠸜 吧 數電 話.",
+        "resyncBtn": "及日",
+        "colName": "𠸜",
+        "colPhone": "數電 話",
+        "colAction": "操作"
+      },
+      "signature": {
+        "configTitle": "構形 𡨸記",
+        "accentColor": "牟色 主道",
+        "showAvatar": "顯是 影代 面",
+        "previewTitle": "䀡𠓀 𡨸記"
+      },
+      "techbadges": {
+        "configTitle": "構形 徽號",
+        "previewTitle": "䀡𠓀 徽號"
+      },
+      "githubstats": {
+        "themeLabel": "交面 顯是"
+      }
+    },
+    "onboarding": {
+      "title": "嘲𢜏 貴成 員. 🎉",
+      "missingTitle": "補充 通信 群少",
+      "invalidFields": "沒 數 通信 𣗓 合例. 𢝙𢚸 檢查 吏.",
+      "genericError": "渚體 留 通信. 𢝙𢚸 試吏.",
+      "day": "𣈜",
+      "month": "𣎃",
+      "year": "𢆥",
+      "dayAria": "𣈜生",
+      "yearAria": "𫷜生",
+      "monthOption": "𣎃 {{month}}",
+      "phoneLabel": "數電 話",
+      "phonePlaceholder": "入 數電 話 𧵑貴 城圓",
+      "referralLabel": "碼介 紹 (閙固)",
+      "submitting": "當處 理...",
+      "submitButton": "完畢",
+      "fields": {
+        "birthDate": {
+          "label": "𣈜生"
+        },
+        "guardianConsent": {
+          "label": "確認 𧵑 吒媄 或𠊛 監護"
+        },
+        "language": {
+          "label": "言語 正"
+        }
+      },
+      "next": "接俗",
+      "stepOf": "𨀈 {{current}}/{{total}}"
+    },
+    "birthdaySurprise": {
+      "monthTitle": "𣎃 生日.",
+      "dayTitle": "祝𢜠 生日.",
+      "dayGreeting": "祝𢜠 生日, {{name}}.",
+      "acceptWish": "認𠳒 祝"
+    },
+    "birthdayWheel": {
+      "congratulations": "祝𢜠.",
+      "youReceived": "貴成 員 認得",
+      "accountDays": "+{{count}} 𣈜 維持 財款"
+    },
+    "locationAnomaly": {
+      "title": "發現 位置 登入 不常",
+      "trust": "低羅 碎 — 及日 位置 買",
+      "logout": "空沛 碎 — 登出"
+    },
+    "permissions": {
+      "eyebrow": "設立 沒吝",
+      "pushTitle": "通報 關重",
+      "viewGuide": "向引"
+    },
+    "joy": {
+      "card": {
+        "availableBalance": "數餘 可用",
+        "referralsToTier": "群 {{count}} → {{tier}}",
+        "locked": "𣗓 𨷑鎖"
+      },
+      "particle": {
+        "share": "𢺺𢩿",
+        "confirm": "確認",
+        "sending": "當處 理...",
+        "success": "成功.",
+        "tabSearch": "尋劎",
+        "tabMyQr": "碼 𧵑碎",
+        "searchResults": "結果 尋劎",
+        "noUserFound": "空 尋𧡊 𠊛󱨳",
+        "recent": "𧵆低",
+        "verifying": "當 確明 碼...",
+        "recipientLabel": "𠊛認",
+        "amountPlaceholder": "最少 {{amount, joy}}",
+        "fee": "費 創造",
+        "total": "總",
+        "notePlaceholder": "入 𠅜忍...",
+        "chipThanks": "感恩.",
+        "next": "接俗",
+        "totalDeduction": "總 除",
+        "cancel": "毀",
+        "modeReceiveLabel": "認",
+        "me": "碎",
+        "intentEmpty": "入𠸜, 數電 話或 碼介 紹",
+        "sharePanelOpened": "㐌𨷑 榜 𢺺𢩿",
+        "noUserFoundHint": "檢查 吏 數電 話或 此入 碼介 紹 正確.",
+        "dynamicCode": "碼 動",
+        "shareCode": "𢺺𢩿 碼",
+        "autoVerifyTitle": "確明 自動 𠓀欺 轉",
+        "verifyingRecipient": "當 確明 𠊛認…",
+        "receiptFee": "費 創造",
+        "cardCodeFind": "尋𠊛 認",
+        "cardCodeNotFound": "空 尋𧡊 城圓 貝馬 尼."
+      },
+      "exchange": {
+        "paid": "㐌清 算",
+        "loadError": "空載 得 化 單.",
+        "trader": "𠊛 交易",
+        "servicePrice": "駕役 務",
+        "fee": "費 創造",
+        "totalPayment": "總 清算",
+        "currentBalance": "數餘 現在",
+        "cancel": "毀",
+        "processing": "當處 理...",
+        "confirmBtn": "確認"
+      },
+      "walletTitle": "銀庫 𧵑貴 城圓",
+      "referral": {
+        "countLabel": "貴成 員 㐌 介紹 {{count}} 𠊛"
+      },
+      "sections": {
+        "wallet": "銀庫",
+        "store": "商店",
+        "history": "歷史",
+        "missions": "任務"
+      },
+      "applyReferral": {
+        "title": "入碼 介紹"
+      },
+      "store": {
+        "loading": "當載 産品...",
+        "empty": "商店 現 𣗓固 産品.",
+        "lowStock": "群 {{count}}",
+        "confirmSubtitle": "𢝙𢚸 檢查 吏 通信 𠓀欺 確認",
+        "confirmProduct": "産品",
+        "confirmPerk": "權利",
+        "confirmPrice": "價",
+        "confirmProcessing": "當處 理...",
+        "searchPlaceholder": "尋 産品…",
+        "noResults": "空 尋𧡊 産品 符合.",
+        "totalPayment": "總 清算"
+      },
+      "send": {
+        "phoneLabel": "數電 話 𠊛認",
+        "lookupButton": "尋𠊛 認",
+        "notFound": "空 尋𧡊 𠊛󱨳 貝 數電 話 尼.",
+        "recipientLabel": "𠳚細",
+        "amountPlaceholder": "最多 {{amount, joy}}/吝",
+        "cancelButton": "毀"
+      },
+      "missions": {
+        "title": "任務 𣋚𠉞",
+        "claimed": "㐌認",
+        "notDoneYet": "𣗓 完成",
+        "empty": "空体 載 任務 𣅶尼."
+      }
+    },
+    "checkin": {
+      "loading": "當載 點名...",
+      "dayLabel": "𣈜 {{day}}",
+      "claimButton": "點名",
+      "alreadyClaimed": "㐌 點名",
+      "claimSuccess": "點名 成功. +{{amount, joy}}",
+      "claimError": "空体 點名 𣅶尼.",
+      "dayReward": "𣈜 {{day}} · +{{amount, joy}}",
+      "claiming": "當 認…",
+      "reopensMonday": "𨷑 吏 𠓨 次𠄩",
+      "alreadyClaimedToday": "㐌 點名 𣋚𠉞",
+      "claimToday": "點名 · +{{amount, joy}}"
+    },
+    "versionAd": {
+      "features": {
+        "security": "保密 曰吏"
+      },
+      "optOut": "空 現 吏 女"
+    },
+    "infoVersion": {
+      "guideTitle": "向引 使用",
+      "versionLabel": "番版 現在",
+      "highlights": {
+        "store": {
+          "title": "沒 商店 應用 實事"
+        },
+        "wallet": {
+          "title": "銀庫 時間 實"
+        }
+      },
+      "compare": {
+        "architecture": {
+          "aspect": "建築 系統"
+        },
+        "search": {
+          "aspect": "查究 城圓"
+        },
+        "auth": {
+          "aspect": "登入"
+        },
+        "ai": {
+          "aspect": "性 能埃"
+        },
+        "notify": {
+          "aspect": "通報",
+          "new": "沒 系統 通報 得 𢺺𢩿 於 每尼"
+        }
+      },
+      "semverTitle": "格 讀 數 番版",
+      "semverPatchName": "𡮈",
+      "semver": {
+        "minor": {
+          "title": "數 次𠄩 — 添 性能"
+        }
+      },
+      "ecosystemTitle": "系生 態 應用",
+      "mock": {
+        "wallet": "銀庫"
+      },
+      "cardUnlocked": "貴成 員 㐌 𨷑鎖 項 尼",
+      "rankNext": "群 {{count}} 𠊛 女 底𨖲 項 {{tier}}.",
+      "rankMax": "貴成 員 當 於 項 髙一. 空群 咦抵 𨷑鎖 女 — 祝𢜠.",
+      "tierNow": "項 𧵑貴 城圓",
+      "tierCond": "介紹 {{count}} 𠊛",
+      "tierCondBase": "固 𣦍欺 造 財款",
+      "readBonusButton": "認 {{amount, joy}}",
+      "readBonusClaiming": "當 認...",
+      "readBonusClaimed": "㐌認 {{amount, joy}}",
+      "readBonusSuccess": "㐌認 {{amount, joy}}. 感恩 貴成 員 㐌 讀 歇.",
+      "readBonusError": "𣗓 認得 分賞, 試吏 𠢞𨉟.",
+      "bonusButton": "認 {{amount, joy}}",
+      "bonusClaiming": "當 認..."
+    },
+    "team": {
+      "han": "· 限",
+      "batDauThucHien": "扒頭 實現",
+      "huy": "毀",
+      "badge": "機會 参加 預案 實祭",
+      "heroTitle": "同行 預案 共同",
+      "nonProfit": "非利 潤",
+      "careWeek1Label": "旬投 先",
+      "reqTitle": "要求 & 条件",
+      "reqWorkLabel": "同行:",
+      "reqTimeLabel": "時間:",
+      "reqNatureLabel": "性質:",
+      "applyTitle": "産床 扒頭?",
+      "applyDescB": "吧",
+      "pendingTitle": "單 𧵑貴 城圓 當 得 審定",
+      "contactTitle": "固勾 𠳨? 聯係 碎",
+      "toastNeedLogin": "𢝙𢚸 登入",
+      "endsOn": "歇: {{date}}",
+      "journey": "行程",
+      "inProgress": "當 實現",
+      "journeyHours": "行程 {{goal}} 𣉹垌 行",
+      "sectionTasks": "任務",
+      "sectionHours": "𣉹垌 行",
+      "statusDoing": "當 實現",
+      "statusDone": "完成",
+      "statusCancelled": "㐌 毀",
+      "logRejected": "辭咥",
+      "fieldDate": "𣈜",
+      "fieldWhat": "貴成 員 㐌 同行 役 之?",
+      "saving": "當留...",
+      "toastInvalidHours": "入 𣈜 吧 數 𣇞 合例",
+      "boardTodo": "役 勤爫",
+      "boardFeed": "𣳔 時間",
+      "rules": {
+        "sections": [
+          {
+            "title": "時間 吧 甘結"
+          },
+          {
+            "title": "認 役 吧 搬交"
+          },
+          {
+            "title": "Ghi giờ",
+            "items": [
+              "Ghi giờ theo ngày thực tế đã làm, mỗi lần từ 0,25 đến 24 giờ. Ghi trong ngày hoặc chậm nhất cuối tuần, đừng dồn cuối tháng.",
+              "Gắn giờ vào đúng việc khi giờ đó thuộc một việc cụ thể — đây là cách đối soát nhanh nhất khi có sai lệch.",
+              "Phần ghi rõ Quý thành viên đã làm gì; một dòng cụ thể hơn mười chữ chung chung.",
+              "Giờ ở trạng thái chờ duyệt vẫn tự xoá được. Giờ đã duyệt thì không, muốn sửa phải nhắn.",
+              "Khai giờ không đúng thực tế là căn cứ để thu hồi tư cách thành viên."
+            ]
+          },
+          {
+            "items": [
+              "Kênh chính là ô trao đổi trong app; mọi tin đều lưu lại nên về sau tra được.",
+              "Việc cần chứng từ hoặc liên quan tài khoản thì gửi email contact@hugowishpax.studio từ email tài khoản của Quý thành viên.",
+              "時間 返囬 通嘗 羅 𥪝𣈜 爫役 計 接."
+            ]
+          },
+          {
+            "title": "Chất lượng và ghi công",
+            "items": [
+              "Code Quý thành viên viết phải là của Quý thành viên hoặc có giấy phép cho phép dùng. Chép nguyên khối từ nguồn khác mà không nói rõ là vi phạm.",
+              "Không đưa khoá bí mật, mật khẩu hay dữ liệu thật của người dùng vào mã nguồn hay ảnh chụp màn hình.",
+              "Đóng góp được ghi công trên GitHub theo đúng phần Quý thành viên làm.",
+              "Dữ liệu và nội dung nội bộ của dự án chỉ dùng trong phạm vi công việc, không mang ra ngoài."
+            ]
+          },
+          {
+            "title": "權利"
+          }
+        ]
+      }
+    },
+    "partnerBio": {
+      "dangXacThucQuyen": "當 確實 權 對作...",
+      "khongCoQuyenTruy": "空固 權 追及",
+      "anhDaiDien": "影代 面",
+      "hinhAnhHienThi": "形影 顯是 中心 𨕭 設備 𧵑 對作.",
+      "bietDanh": "别名",
+      "gioiThieu": "介紹",
+      "hocVan": "學 問",
+      "ngheNghiep": "藝 業",
+      "soDienThoai": "數電 話",
+      "heThongDongBo": "系統 同步 與料 盎𩄲 𧵑 對作.",
+      "dangLuu": "當留...",
+      "luuThongTin": "留 通信",
+      "chuaNhapTen": "𣗓 入𠸜",
+      "veBanThan": "𧗱 本身",
+      "congViec": "功役",
+      "cacLienKet": "各 連結",
+      "duongDanCongKhai": "塘 引 公開:",
+      "huy": "毀"
+    },
+    "joyLater": {
+      "loading": "當載…",
+      "principalRow": "數 𨷑 𠓀",
+      "feeRow": "共添 ({{percent}}%)",
+      "progress": "㐌 完 {{paid, joynum}} / {{total, joy}} ({{percent}}%)",
+      "itemRow": "㐌𨷑",
+      "payOffNow": "完 歇𣦍",
+      "payOffTitle": "完 歇𣦍",
+      "opened": "㐌添 {{amount, joy}} 𠓨 銀庫",
+      "reason": {
+        "openLoan": "當𣎏 餘 女渚 完畢",
+        "tooNew": "財款 群 過 買 貝 系統"
+      },
+      "feeShort": "共 {{percent}}%",
+      "paidStep": "㐌 完 {{amount, joy}}",
+      "payOffRest": "完 歇 分群 吏 · {{amount, joy}}",
+      "payOnce": "完 沒吝",
+      "payOnceHint": "共添 𠃣一, {{percent}}%",
+      "extraVsOnce": "共添 {{amount, joy}}",
+      "historyTitle": "歷史 𨷑 𠓀",
+      "historyOpen": "當 完",
+      "historyAdded": "共添",
+      "historyReturned": "㐌 完",
+      "historyManual": "貴成 員 主 洞還",
+      "stage": {
+        "grace": "㐌過 限 {{days}} 𣈜",
+        "restricted": "限 制詞 𣈜 過限 次 {{days}}"
+      },
+      "restrict": {
+        "new_loan": "空 𨷑 款 買"
+      },
+      "year": "𢆥",
+      "usedAmount": "㐌 用 {{amount}}",
+      "scoreIs": "點 {{score}}"
+    },
+    "walletApp": {
+      "title": "銀庫",
+      "navAria": "調向 銀庫",
+      "tabOverview": "總觀",
+      "tabMissions": "任務",
+      "tabHistory": "歷史",
+      "sub_perks": "特權 𧵑碎",
+      "sub_store": "商店 特權",
+      "sub_redeem": "入碼 介紹",
+      "balanceLabel": "數餘",
+      "latest": "交易 買 一",
+      "more": "恪",
+      "sub_checkin": "點名",
+      "cardReferrals": "㐌 介紹",
+      "cardSince": "成 垣辝",
+      "currentTier": "項 現在",
+      "nextTier": "項 計 接",
+      "tierNeed": "介紹 添 {{count}} 𠊛 底𨖲 {{tier}}",
+      "tierTop": "貴成 員 當 於 項 髙一",
+      "tierOwned": "當𣎏",
+      "tierLocked": "𣗓 達",
+      "tree": {
+        "ancient": "古樹",
+        "claimBonus": "認 賞 {{amount, joy}}"
+      },
+      "convert": "比價",
+      "convAmountIn": "數錢 ({{code}})",
+      "convUseBalance": "用 歇 數餘 · {{amount}}",
+      "denomPickYourBalance": "數餘 𧵑貴 城圓",
+      "denomConfirm": "用 單位 尼",
+      "denomSaving": "當留…",
+      "sub_convert": "比價",
+      "recent": "交易 𧵆低",
+      "filterIn": "認 𠓨",
+      "noTxInFilter": "空固 交易 芇冲 目 尼.",
+      "syncing": "同步…",
+      "online": "直線"
+    },
+    "identityCheck": {
+      "title": "檢查 通信 定期",
+      "ask": {
+        "phone": "底 保衛 財款, 𢝙𢚸 入吏 數電 話 貴成 員 㐌 登記.",
+        "birthday": "底 保衛 財款, 𢝙𢚸 入吏 𣈜𣎃/𫷜生 𧵑貴 城圓."
+      },
+      "placeholder": {
+        "phone": "數電 話 㐌 登記"
+      },
+      "submit": "確認",
+      "passed": "㐌 確明. 感恩 貴成 員."
+    }
+  },
+  "memberTabs": {
+    "achievements": {
+      "title": "成績",
+      "addNew": "添 買",
+      "project": "預案",
+      "service": "役務"
+    },
+    "services": {
+      "addNew": "添 役務 買",
+      "nameLabel": "𠸜 役務 *",
+      "addButton": "添 役務",
+      "listTitle": "名冊 役務"
+    },
+    "projects": {
+      "addNew": "添 預案 買",
+      "nameLabel": "𠸜 預案 *",
+      "addButton": "添 預案",
+      "listTitle": "名冊 㐌添",
+      "viewBtn": "䀡預 案"
+    },
+    "partner": {
+      "title": "役務 對作 連結",
+      "emptyTitle": "空固 役務 對作 激活",
+      "searchPlaceholder": "尋劎 對作 連結..."
+    },
+    "manage": {
+      "applyCode": "使用 碼"
+    },
+    "history": {
+      "labels": {
+        "welcome": "嘲𢜏",
+        "system": "系統",
+        "profile_updated": "及日",
+        "birthday": "生日"
+      },
+      "time": {
+        "hours_ago": "𣇞 𠓀",
+        "days_ago": "𣈜 𠓀"
+      },
+      "days": {
+        "today": "𣋚𠉞",
+        "this_week": "旬尼"
+      },
+      "filter": {
+        "joy": "銀庫",
+        "system": "系統",
+        "account": "財款"
+      },
+      "refreshed": "㐌爫 買 名冊 通報",
+      "inbox_title": "通報",
+      "refresh": "爫買 通報",
+      "mark_read": "打唒 㐌 讀",
+      "balance_short": "餘",
+      "events_recorded": "通報 買認",
+      "newest_first": "買 一 𠓀",
+      "claimed": "㐌認",
+      "copied": "㐌劄"
+    }
+  },
+  "admin": {
+    "texts": {
+      "txt_3": "㐌留 連結. 💾",
+      "txt_5": "㐌 聯係",
+      "txt_6": "狀態",
+      "txt_8": "𠅜忍",
+      "txt_19": "打唒 𣗓 聯係",
+      "txt_20": "打唒 㐌 聯係",
+      "txt_21": "空固 𠅜忍",
+      "txt_25": "空固 𠅜忍",
+      "txt_26": "總 城圓",
+      "txt_27": "當活 動",
+      "txt_29": "無時 限",
+      "txt_31": "活動",
+      "txt_34": "群 限",
+      "txt_35": "歇限",
+      "txt_36": "無時 限",
+      "txt_44": "城圓",
+      "txt_45": "時限",
+      "txt_46": "狀態",
+      "txt_47": "行動",
+      "txt_49": "活動",
+      "txt_50": "限:",
+      "txt_51": "永遠",
+      "txt_56": "增",
+      "txt_57": "減",
+      "txt_59": "𨷑鎖",
+      "txt_62": "活動",
+      "txt_64": "歇限",
+      "txt_65": "𨷑",
+      "txt_74": "數電 話 客",
+      "txt_75": "𠊛 處理 預案",
+      "txt_77": "造 預案 成功.",
+      "txt_80": "𢝙𢚸 入密 口",
+      "txt_81": "密口 空 正確",
+      "txt_86": "完畢",
+      "txt_89": "𠸜 對作:",
+      "txt_91": "造 & 出",
+      "txt_92": "空 尋𧡊 對作 符合.",
+      "txt_94": "造 & 出",
+      "txt_97": "㐌添 對作 成功.",
+      "txt_106": "尋 對作...",
+      "txt_110": "時限:",
+      "txt_111": "單位:",
+      "txt_117": "𣈜",
+      "txt_118": "𢆥",
+      "txt_119": "𣎃",
+      "txt_120": "永遠",
+      "txt_121": "榜 調遣",
+      "txt_122": "登出",
+      "txt_124": "㐌 聯係",
+      "txt_125": "狀態",
+      "txt_127": "𠅜忍",
+      "txt_139": "𢝙𢚸 入密 口 管治.",
+      "txt_140": "密口 管治 空 正確. 𢝙𢚸 入吏.",
+      "txt_144": "㐌 𨷑鎖 連結 𠊛󱨳. 🔓",
+      "txt_147": "㐌 打唒 聯係. 📞",
+      "txt_155": "㐌𤋵 決 要求 互助. ✅",
+      "txt_159": "㐌添 對作 成功.",
+      "txt_179": "㐌生 碼 買 成功.",
+      "txt_180": "固磊 欺爫 買 碼.",
+      "txt_189": "管理 城圓",
+      "txt_191": "對作 連結",
+      "txt_193": "管理 預案",
+      "txt_196": "管理",
+      "txt_198": "對作",
+      "txt_200": "互助",
+      "txt_202": "管理 城圓",
+      "txt_204": "對作 連結",
+      "txt_214": "打唒 𣗓 聯係",
+      "txt_215": "打唒 㐌 聯係",
+      "txt_216": "空固 𠅜忍",
+      "txt_220": "當 聯係",
+      "txt_222": "當 實現",
+      "txt_223": "當 檢查",
+      "txt_224": "完畢",
+      "txt_225": "完畢",
+      "txt_226": "確認 行動",
+      "txt_228": "同 意",
+      "txt_229": "名冊 城圓",
+      "txt_233": "城圓",
+      "txt_235": "群",
+      "txt_236": "𣈜"
+    },
+    "payments": {
+      "tab_title": "轉 款",
+      "form_title": "轉 款",
+      "history_title": "歷史 轉 款",
+      "table_id": "碼 交易",
+      "table_amount": "數錢",
+      "table_status": "狀態",
+      "table_time": "時間",
+      "table_actions": "行動"
+    }
+  },
+  "companion": {
+    "tab": {
+      "subtitle": "𠊛伴 同行 精神",
+      "today": "𣋚𠉞",
+      "statsDays": "𣈜 同行",
+      "statsNoTest": "渚打 價",
+      "chat": "心事",
+      "sleep": "職𥄭",
+      "evaluation": "打价",
+      "loading": "當載...",
+      "activeRoadmap": "路程 當活 動",
+      "reducedDays": "-{{count}} 𣈜 🎉",
+      "roadmapProgress": "𣈜 {{current}}/{{total}} · 扒頭 {{date}}",
+      "cancelRoadmap": "停 路程",
+      "progress": "進呈",
+      "activeStatus": {
+        "unsupported": "空 互助"
+      },
+      "bonusLabel": "賞",
+      "skip": "補戈",
+      "adaptiveAlert": {
+        "before": "𠓀: {{count}} 𣈜",
+        "newDuration": "買: {{count}} 𣈜"
+      },
+      "stopRoadmap": {
+        "title": "停 路程?",
+        "subtitle": "操作 尼空 體 完 作",
+        "confirm": "確認 停"
+      },
+      "pushError": "空体 登記 通報 𣅶尼."
+    },
+    "crisis": {
+      "title": "伴 空 沒 命",
+      "hotlineLabel": "總 臺 咨問 心理",
+      "imSafeShort": "伵㐌 安全"
+    },
+    "profile": {
+      "title": "通信 個人",
+      "notSet": "𣗓 及日",
+      "birthday": "生日",
+      "statsAnomalies": "不常"
+    },
+    "evaluation": {
+      "notSet": "空 確定",
+      "severities": {
+        "normal": "平常"
+      },
+      "activeDays": "𣈜 使用",
+      "tableColRecent": "吝 近一",
+      "tableColScore": "點",
+      "tableColAlert": "警報",
+      "detailReport": "報吿 之節",
+      "anomaliesCount": "注意 ({{count}})",
+      "stableTitle": "完成 穩定",
+      "scaleNames": {
+        "Mf": "男女 性",
+        "Pt": "衰弱 心神",
+        "Sc": "心神 分裂"
+      }
+    }
+  },
+  "friends": {
+    "title": "伴𤿤",
+    "tabs": {
+      "friends": "伴𤿤",
+      "map": "版圖"
+    },
+    "search": "尋劎",
+    "refreshNearby": "及日 𠊛𧵆 低",
+    "locating": "當 自定 位",
+    "loading": "當載 版圖 伴𤿤",
+    "add": "結 貴成 員",
+    "reject": "辭咥",
+    "alreadyFriends": "㐌 羅 伴𤿤",
+    "removed": "㐌 𠦄䯻 貴成 員.",
+    "incoming": "𠳒 𠶆且",
+    "unfriend": "𠦄䯻 貴成 員",
+    "emptyDiscoverTitle": "𣗓 尋 𧡊埃",
+    "mapTitle": "版圖 伴𤿤",
+    "enableSharing": "設立",
+    "emptyMapTitle": "𣗓固 位置 得 𢺺𢩿",
+    "link": "連結",
+    "visible": "固体 尋𧡊",
+    "hidden": "當 隱",
+    "manage": "尋 & 結 貴成 員",
+    "errors": {
+      "load": "空体 載 名冊 伴𤿤.",
+      "search": "空体 尋劎 𣅶尼.",
+      "action": "空体 完畢 操作."
+    }
+  },
+  "utilities": {
+    "categories": {
+      "education": "學習",
+      "tools": "公惧"
+    },
+    "library": {
+      "positionUpdated": "㐌 及日 位置 應用.",
+      "focusStopped": "㐌𤎕 音聲 集中",
+      "focusPlaying": "當 發 音聲 集中",
+      "searchPlaceholder": "尋 應用 或 便益…",
+      "noSpotlightResults": "空 尋𧡊 應用 符合",
+      "searchResults": "結果 尋劎",
+      "installed": "㐌載",
+      "store": "商店",
+      "memberFallback": "城圓",
+      "yourApps": "應用 𧵑貴 城圓",
+      "noResults": "空 尋𧡊 應用",
+      "open": "𨷑",
+      "get": "載",
+      "installWhere": "載 “{{app}}” 𠓨 兜?",
+      "libraryOnly": "只 書院",
+      "cancel": "毀",
+      "availability": "可用",
+      "openApp": "𨷑 應用",
+      "widget": {
+        "stop": "停",
+        "companionOnline": "同行 直線",
+        "sleep": "職𥄭",
+        "study": "學習"
+      },
+      "size": {
+        "small": "𡮈"
+      }
+    },
+    "catalog": {
+      "radio": {
+        "description": "信息 吧 樂 集中"
+      },
+      "info": {
+        "title": "通信 吧 番版",
+        "description": "通信 系統 吧 日記 及日"
+      },
+      "joy_wallet": {
+        "title": "銀庫"
+      },
+      "friends": {
+        "title": "伴𤿤"
+      }
+    },
+    "dashboard": {
+      "title": "便益 城圓",
+      "fileTools": {
+        "btnText": "𨷑 公惧"
+      },
+      "psychology": {
+        "btnText": "𨷑 便益"
+      }
+    },
+    "radio": {
+      "categories": {
+        "vnNews": "臺 越南",
+        "music": "音樂",
+        "found": "㐌 尋 ({{n}})"
+      },
+      "state": {
+        "playing": "當 發",
+        "paused": "暫 停",
+        "idle": "産床"
+      },
+      "control": {
+        "prev": "臺 𠓀",
+        "play": "發",
+        "stop": "停",
+        "shuffle": "偶然"
+      },
+      "health": {
+        "good": "臺 尼 𭛁卒"
+      },
+      "learnedUrl": "㐌 學 地指 買",
+      "searchAction": "尋",
+      "searching": "當 尋…",
+      "loading": "當載…",
+      "token": {
+        "freeLeft": "免費 旬尼: {{n}}/{{total}}",
+        "resetIn": "納 吏 {{when}}"
+      },
+      "store": {
+        "balance": "數餘 𧵑貴 城圓",
+        "fee": "費 創造 ({{percent}}%)",
+        "total": "總共",
+        "short": "群少 {{amount, joy}}.",
+        "buying": "當處 理…"
+      }
+    },
+    "store": {
+      "error": "交易 空 成功.",
+      "search": {
+        "placeholder": "尋 應用 吧 物品",
+        "empty": "空 尋𧡊 之"
+      },
+      "home": {
+        "apps": "應用",
+        "appsHint": "分𡘯 免費, 𨷑 羅 用",
+        "ordersHint": "仍 單 𧵆低",
+        "balance": "數餘 𧵑貴 城圓"
+      },
+      "expiring": {
+        "today": "歇限 𣋚𠉞",
+        "tomorrow": "群 沒 𣈜",
+        "days": "群 {{count}} 𣈜"
+      },
+      "app": {
+        "free": "免費",
+        "using": "當用",
+        "owned": "㐌 所有",
+        "open": "󰘉𣦍",
+        "locked": "𣗓 𨷑鎖",
+        "choose": "格 𨷑",
+        "install": "載",
+        "installing": "當載 {{percent}}%",
+        "installedToast": "㐌載 {{app}}"
+      },
+      "tier": {
+        "free": "免費",
+        "start": "扒頭",
+        "rentCta": "𥙩繪",
+        "renewCta": "加限",
+        "ownCta": "所有",
+        "popular": "普 變",
+        "current": "當用",
+        "used": "㐌用",
+        "short": "群少 {{joy, joy}}"
+      },
+      "packs": {
+        "system_validity": {
+          "title": "加限 系統",
+          "subtitle": "矯𨱽 𣈜 使用 財款"
+        },
+        "general": {
+          "title": "物品 恪",
+          "subtitle": "仍 次 𫨩呼 群吏"
+        },
+        "soldOut": "歇",
+        "fallback": "物品 商店",
+        "perkValidity": "+{{count}} 𣈜 使用"
+      },
+      "gift": {
+        "title": "贈 {{app}}",
+        "to": "𠳚細",
+        "searching": "當 尋…",
+        "notFound": "空 尋 𧡊埃 貝 通信 尼.",
+        "code": "碼 {{code}}",
+        "message": "𠅜忍",
+        "continue": "接俗 · {{joy, joy}}"
+      },
+      "cart": {
+        "checkout": "清算"
+      }
+    },
+    "vcard": {
+      "formTitle": "設立 通信 名簿",
+      "fields": {
+        "firstName": "𠸜",
+        "phone": "數電 話",
+        "address": "地指"
+      },
+      "autoMechanism": "機制 自動"
+    },
+    "signature": {
+      "designLayout": "設計 交面",
+      "fields": {
+        "showAvatar": "顯是 影代 面"
+      },
+      "previewTitle": "䀡𠓀 顯是",
+      "fallbackName": "𠸜 城圓",
+      "fallbackTitle": "城圓"
+    },
+    "secretLink": {
+      "fields": {
+        "password": "密口"
+      },
+      "placeholders": {
+        "password": "入密 口 底 𨷑鎖"
+      },
+      "btnCreate": "造 買",
+      "btnUpdate": "及日"
+    },
+    "fileTools": {
+      "extract": {
+        "processing": "當處 理..."
+      }
+    },
+    "qrCode": {
+      "wifiPasswordLabel": "密口"
+    },
+    "ide": {
+      "openLocalFolder": "𨷑 書目 局 部",
+      "projectDirectory": "書目 預案",
+      "folderPrefix": "📂 書目:",
+      "folder": "書目",
+      "cancel": "補戈",
+      "confirm": "確認",
+      "saving": "當留...",
+      "autoSaveError": "耒字 動 留",
+      "folderCreated": "㐌造 書目: {{path}}",
+      "fileSaveSuccess": "㐌留 \"{{name}}\" 成功 𠓨 𣛠 性.",
+      "folderExists": "書目 㐌 存在.",
+      "tutorialOpened": "㐌 𨷑排 學 {{lang}}",
+      "phpUrlGuide": "追及 http://localhost:8000 𨕭 𣛠 性 𧵑貴 城圓 底䀡 結果.",
+      "tutorialsTitle": "材料 & 學習",
+      "banCoDongY": "貴成 員 固銅 意 用",
+      "khong": "空?",
+      "dangKyThanhCong": "登記 成功. 皆斷 學 尼㐌 得 𨷑鎖.",
+      "thuMuc": "書目",
+      "khongHanhDongNay": "\" 空? 行動 尼空 體 完 作.",
+      "moThuMucCuc": "𨷑 書目 局 部",
+      "dang": "當",
+      "truyCapHttpLocalhost": "追及 http://localhost:8000 𨕭 𣛠 性 𧵑貴 城圓 底䀡 結果."
+    },
+    "hugoso": {
+      "daMoKhoa": "㐌 𨷑鎖",
+      "xinChao": "吀嘲,",
+      "homNayMinhCung": "𣋚𠉞 命 󰠃完城 沒 技能 實.",
+      "tiepTucHoc": "接俗 學",
+      "lamNgayTrenCong": "爫𬆄 𨕭 公惧 實",
+      "khongHocChiDe": "空 學 只 底䀡.",
+      "moKhongGianLam": "𨷑 空間 爫役 買",
+      "homNay": "𣋚𠉞",
+      "khoaHoc": "課學",
+      "thucHanh": "實行",
+      "tienDo": "進渡",
+      "phuongPhap": "方法",
+      "kiemDinhDongBo": "檢定 同步",
+      "buoc": "· 𨀈",
+      "giaoTrinh": "教程",
+      "buoc2": "𨀈",
+      "hieu": "曉",
+      "lam": "爫",
+      "motSanPhamThat": "沒 産品 實",
+      "kiemTra": "檢查",
+      "motCauHoiLien": "沒句 𠳨 連結",
+      "chuanBiThucHanh": "准僃 實行",
+      "mo": "𨷑",
+      "huongDanChiTiet": "向引 之節",
+      "khaDungTinhNang": "可用 性能",
+      "kiemTraKienThuc": "檢查 見識 於 𨀈",
+      "chinhXac": "正確.",
+      "chuaChinhXac": "𣗓 正確.",
+      "deThucHanh": "底 實行",
+      "huongDan": "· 向引",
+      "yToiThieuDa": "意 最少 㐌特 認靣",
+      "toiXacNhanDa": "碎 確認 㐌 直接 實現 操作 𨕭",
+      "daHoanThanh": "㐌 完成",
+      "dangTaiKhoaHoc": "當載 課學",
+      "dungVaLamTheo": "停 吧 爫蹺",
+      "baoCaoNghienCuu": "報吿 研究",
+      "mucTieuQuanTrong": "目標 關重 一 吧 時限 𧵑貴 城圓 󰑼之?",
+      "banHuongDanTuong": "本 向引 相作",
+      "chuong": "章",
+      "giaKhoaHoc": "價 課學",
+      "dangXacNhan": "當 確認…"
+    },
+    "profile": {
+      "sectionStudent": "確明",
+      "verified": "㐌 確明",
+      "notVerified": "𣗓 確明",
+      "sectionLearning": "學習",
+      "certificate": "證認 完成",
+      "granted": "㐌 級",
+      "notYet": "𣗓 達",
+      "evidenceTitle": "明證 學習",
+      "evidencePrivate": "𥢆西",
+      "evidenceLoading": "當載 明證…",
+      "evidenceLoadError": "𣗓 載得 明證 學習.",
+      "evidenceRetry": "試吏",
+      "evidenceEmpty": "𣗓 固銘 症󰅹",
+      "sectionTeam": "同行 預案",
+      "tasksDone": "𭛣㐌 驗收",
+      "saveError": "空 留 得 設立."
+    }
+  },
+  "adminDashboard": {
+    "kpi": {
+      "totalUsers": "總 城圓",
+      "active": "當活 動"
+    },
+    "recentUsers": {
+      "title": "城圓 買 一",
+      "empty": "𣗓固 城圓"
+    },
+    "distribution": {
+      "title": "分補 𠊛󱨳",
+      "empty": "𣗓固 與料",
+      "activeLabel": "活動",
+      "rejectedLabel": "辭咥"
+    },
+    "statusInfo": {
+      "active": "當活 動",
+      "rejected": "辭咥"
+    },
+    "aiInsight": {
+      "analyzing": "當 分析 系統...",
+      "defaultMessage": "系統 當活 動 平常.",
+      "analyzeBtn": "分析"
+    },
+    "activity": {
+      "title": "活動 𧵆低"
+    },
+    "time": {
+      "hours_ago": "𣇞 𠓀",
+      "days_ago": "𣈜 𠓀"
+    }
+  },
+  "adminAICenter": {
+    "header": {
+      "subtitle": "中心 智慧 人造 — 分析, 自動 化, 管理 聰明"
+    },
+    "insightCard": {
+      "scoreLabel": "指數 打价",
+      "suggestedActions": "行動 題出"
+    },
+    "userDeepDive": {
+      "noInfo": "空固 通信 分析."
+    },
+    "broadcast": {
+      "targetActive": "當活 動"
+    },
+    "actionLog": {
+      "reportGenerated": "報吿 㐌造",
+      "done": "完成."
+    }
+  },
+  "hugoPsy": {
+    "coach": {
+      "private": "𥢆西"
+    },
+    "chat": {
+      "trucTuyen": "● 直線",
+      "ngay": "𣈜",
+      "trangThaiTinhThan": "狀態 精神",
+      "tracNghiemNhanCach": "測 驗因 格",
+      "giacNgu": "職𥄭",
+      "danhGia": "打价"
+    },
+    "evaluation": {
+      "tongQuan": "總觀",
+      "haoQuangCamXuc": "毫光 感觸",
+      "lichSuTienTrinh": "歷史 & 進呈",
+      "batDauTuDanh": "扒頭 自 打价",
+      "troChuyenAiNgay": "路傳 埃𣦍",
+      "onDinh": "穩定",
+      "hoatDong": "活動",
+      "chuaThucHien": "𣗓 實現",
+      "tuDanhGiaLai": "自 打价 吏",
+      "chuaCoChuDe": "𣗓固 主題 特殊.",
+      "lichSuHoatDong": "歷史 活動 & 自 打价",
+      "binhThuong": "平常"
+    },
+    "tab": {
+      "loTrinh": "路程",
+      "ngay": "𣈜",
+      "ngay2": "𣈜",
+      "batDau": "· 扒頭"
+    },
+    "sleep": {
+      "boCamBien": "部 感 變:",
+      "chuaLienKet": "𣗓 連結",
+      "tuDong": "自動",
+      "daLienKet": "㐌 連結",
+      "lienKetThietBi": "連結 設備",
+      "hien": "現",
+      "dangPhanTich": "當 分析…",
+      "tinHieuGanNhat": "信號 近一:",
+      "diemSoGiacNgu": "點 數 職𥄭",
+      "thoiLuong": "時 量",
+      "chatLuong": "質量",
+      "onDinh": "穩定",
+      "thoiDiem": "時點",
+      "gio": "𣇞",
+      "ngayQua": "𣈜戈 ✓",
+      "chatLuongGiacNgu": "質量 職𥄭?",
+      "xacNhanLuu": "確認 & 留",
+      "boQua": "補戈",
+      "ngay": "𣈜",
+      "chatLuongGiacNgu2": "質量 職𥄭",
+      "hoatDongTruocKhi": "活動 𠓀 欺𥄭",
+      "vanDong": "運動",
+      "moiTruong": "媒場",
+      "nhieu": "饒",
+      "giacMo": "聀𢠩",
+      "luu": "留",
+      "taiLichSuGiac": "載 歷史 職𥄭",
+      "mucTieu": "目標:",
+      "lan": "吝",
+      "tuDong2": "自動 ✓",
+      "trangThai": "狀態",
+      "canhBao": "警報",
+      "lichSu": "歷史 (",
+      "vanDong2": "運動:",
+      "moiTruong2": "媒場:",
+      "giacMo2": "聀𢠩: \""
+    }
+  },
+  "hugoCoderLearning": {
+    "back": "應用",
+    "loading": "當 准僃 行程 學…",
+    "tabs": {
+      "learn": "學",
+      "resources": "學 料",
+      "quality": "質量",
+      "progress": "進渡"
+    },
+    "hero": {
+      "kicker": "學每 𣈜, 𡏦 産品 實",
+      "continue": "接俗 行程"
+    },
+    "path": {
+      "eyebrow": "路程 個人"
+    },
+    "sync": {
+      "passDescription": "檢查 結果 吧 留 進渡",
+      "linked": "同步",
+      "passed": "㐌 達"
+    },
+    "quality": {
+      "title": "質量 空址 羅沒 唎許.",
+      "metricsLabel": "指數 質量 課學",
+      "points": {
+        "goal": {
+          "title": "目標 固体 檢 證"
+        }
+      }
+    },
+    "resources": {
+      "title": "學 料",
+      "documents": "材料"
+    },
+    "lesson": {
+      "stepOf": "𨀈 {{current}}/{{total}}",
+      "steps": {
+        "guide": "爫蹺 向引",
+        "practice": "此適"
+      },
+      "path": "路程",
+      "continue": "接俗"
+    },
+    "guidebook": {
+      "sachHuongDanLap": "冊 向引 立程",
+      "hoanThanh": "% 完成",
+      "daChinhPhuc": "㐌 征復",
+      "trenTongSo": "𨕭 總 數",
+      "phiBaoTriDa": "費保 持㐌 歇限.",
+      "ngay": "𣈜",
+      "daKichHoatCon": "㐌 激活 (群",
+      "ngay2": "𣈜)",
+      "mucLucLoTrinh": "目 陸路 程",
+      "banSeHoc": "貴學 員 𠱊 學",
+      "thachThuc": "𡂓𠲧:",
+      "chucMungHoanThanh": "祝𢜠 完成",
+      "daNhanThuong800": "㐌認 賞 {{amount, joy}} ✓",
+      "nhanPhanThuong800": "認 分賞 ( {{amount, joy}})",
+      "doAnChuaDat": "圖案 𣗓 達 要求 ❌",
+      "phanHoi": "返囬:",
+      "nhanChungNhanHoan": "認 證認 完成",
+      "trongGoiNayBan": "冲𫋻 尼 貴學 員 認得",
+      "giaHanPhiBao": "加限 費保 持 𣎃",
+      "tongQuanMucTieu": "總觀 & 目標",
+      "thuThachMoRong": "此適 𨷑 𢌌:",
+      "thucHanhTuongTac": "實行 相作",
+      "hoanThanhXuatSac": "完成 出 色.",
+      "taiLieuSachHoc": "材料 & 冊 學 術",
+      "choBaiNay": "朱排 尼"
+    },
+    "puzzles": {
+      "kiemTraThuTu": "檢查 次序",
+      "yeuCauGiaoDien": "要求 交面:",
+      "xacNhanMauSac": "確認 牟色",
+      "dinhNghia": "定義",
+      "xinChao": "\"吀嘲\"",
+      "tuKiemTraAnh": "自 檢查 影 完畢",
+      "dangNapBoCau": "當 納 部 句𠳨 測 驗...",
+      "ketQuaKiemTra": "結果 檢查:",
+      "cauHoi": "句𠳨",
+      "cau": "句",
+      "cauTruoc": "句 𠓀",
+      "cauTiep": "句 接",
+      "xacNhanDapAn": "確認 答 案",
+      "duAnChuaDat": "預案 𣗓 達 要求 ❌"
+    },
+    "treasure": {
+      "title": "行程 𧵑貴 學員",
+      "stepsLeft": "群 {{count}} 𨀈",
+      "atLast": "𨀈 𡳳 共",
+      "opened": "㐌𨷑",
+      "locked": "𣗓 𨷑",
+      "here": "貴學 員 當 於低"
+    }
+  },
+  "arcadeGame": {
+    "loading": "當載...",
+    "pause": "暫 停",
+    "paused": "㐌暫 停",
+    "replay": "制吏",
+    "score": "點",
+    "levelLabel": "級",
+    "survivor": {
+      "level": "級 {{level}}",
+      "skills": "技能 當𣎏"
+    },
+    "result": {
+      "win": "戰勝",
+      "lose": "試吏"
+    },
+    "bestScore": "· 紀錄 {{score}}",
+    "downloading": "當載 {{percent}}%",
+    "spotlight": "心 點 𣋚𠉞",
+    "wins": "戰勝",
+    "newBest": "紀錄 買.",
+    "beatBest": "越 {{score}}",
+    "best": "紀錄",
+    "g2048Level": "級 {{level}}",
+    "g2048Undone": "㐌怪 吏 没𦀎",
+    "g2048Score": "點",
+    "snakeStage4Kicker": "此適 速度",
+    "snakeLevelUp": "級 {{level}} · 速度 吧 此適 增",
+    "ready": "産床",
+    "chessLevelEasy": "集事",
+    "chessEasy": "易",
+    "chessLevelMid": "戰 術",
+    "chessYouWhite": "貴成 員軍 𤽸)",
+    "chessWhitePlayer": "𠊚𨔈 𤽸",
+    "caroYou": "貴成 員",
+    "shellBest": "紀錄 𧵑貴 城圓: {{best}}",
+    "lbRealtime": "總 點 及日 時間 實 • {{date}}",
+    "lbTotalScore": "總 點",
+    "snakeCurrentMission": "任務 現在",
+    "chessVsBotDesc": "擒君 𤽸 · 此適 智慧 術 算",
+    "chessHistory": "歷史:",
+    "openApp": "𨷑",
+    "getApp": "認",
+    "levelEasy": "易"
+  },
+  "arcadeIntro": {
+    "endless": "無限",
+    "reward": "分賞",
+    "games": {
+      "snake": {
+        "title": "𢆥 世界. 沒 塘𧼋."
+      }
+    }
+  },
+  "studentBenefitsPage": {
+    "marketValue": "价市場",
+    "perYear": "/𢆥",
+    "giftToYou": "碎 贈 貴客",
+    "verificationTitle": "確實 — 別 貴客 󰑼埃",
+    "orManual": "或 𡀮 空自 現",
+    "benefits": {
+      "free": {
+        "title": "空 沒 同"
+      },
+      "yours": {
+        "title": "只羅 𧵑貴 客"
+      }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "止復 務 越南."
+    }
+  },
+  "paymentGateway": {
+    "dangChuanBiThong": "當 准僃 通信 清算…",
+    "giaoDichKhongHop": "交易 空合 例",
+    "lienKetKhongTon": "連結 空 存在 或 㐌歇 限.",
+    "camOnBanDa": "感恩 貴客 㐌 同行",
+    "thanhToanThanhCong": "清算 成功",
+    "soTien": "數錢",
+    "ma": "碼",
+    "giaoDichDaHuy": "交易 㐌 毀",
+    "khoanUngHoTu": "款 擁護 自願",
+    "yeuCauThanhToan": "要求 清算",
+    "moUngDungNgan": "𨷑 應用 銀行",
+    "timUngDungNgan": "尋 應用 銀行",
+    "timTenNganHang": "尋 𠸜 銀行…",
+    "tuDien": "自 填",
+    "thanhToanBang": "清算 朋",
+    "mo": "𨷑",
+    "khaNangMoTruc": "可能 𨷑 直接 附属 設備 吧 番版 應用 銀庫.",
+    "soTaiKhoan": "數 財款",
+    "nguoiNhan": "𠊛認:",
+    "dangHuy": "當 毀…"
+  },
+  "userGuide": {
+    "huongDanSuDung": "向引 使用"
+  },
+  "studentPricing": {
+    "banNhanDuoc": "伴 認得",
+    "dacQuyenNguoiHoc": "特權 𠊛學",
+    "kiemDuyetTuDong": "檢閲 自動",
+    "xacMinhOTren": "確明 於 𨕭 底認"
+  },
+  "saveE": {
+    "impact": {
+      "cheDoThuong": "制度 常"
+    },
+    "account": {
+      "viJoy": "銀庫",
+      "layMaMoi": "𥙩 碼 買",
+      "homNayChuaDiem": "𣋚𠉞 𣗓 點名",
+      "homNayDaDiem": "𣋚𠉞 㐌 點名",
+      "ngay": "𣈜",
+      "diemDanhKhongThanh": "點名 空 成功.",
+      "diemDanh": "點名",
+      "lichSuGiaoDich": "歷史 交易",
+      "soDienThoaiNguoi": "數電 話 𠊛認",
+      "dangChuyen": "當 轉…",
+      "thongTinCaNhan": "通信 個人",
+      "tenHienThi": "𠸜 顯是",
+      "soDienThoai": "數電 話",
+      "dangLuu": "當留…",
+      "luuThongTin": "留 通信",
+      "dangXuat": "登出"
+    }
+  },
+  "cinema": {
+    "cat": {
+      "classic": "經典",
+      "cartoon": "活 形",
+      "horror": "驚異",
+      "doc": "材料"
+    },
+    "action": {
+      "like": "適",
+      "save": "留",
+      "saved": "㐌留",
+      "savedOn": "㐌添 𠓨 名冊 留",
+      "share": "𢺺𢩿"
+    },
+    "play": "發",
+    "info": "通信",
+    "myList": "名冊 𧵑碎",
+    "nav": {
+      "search": "尋劎"
+    },
+    "retry": "試吏"
+  },
+  "joyRate": {
+    "baseUnit": "單位 準",
+    "yourUnit": "𧵑貴 城圓",
+    "updated": "及日 {{time}}"
+  },
+  "os": {
+    "tools": "公惧",
+    "recent": "𧵆低",
+    "continue": "接俗",
+    "noRecent": "𣗓固 之𧵆 低",
+    "noRecentBody": "仍之 貴成 員 𨷑 𠱊 現 於低 底 𨷑 吏𠴌.",
+    "activity": "活動",
+    "overview": "總觀"
+  },
+  "support": {
+    "tabGuides": "向引",
+    "tabRequests": "要求",
+    "statResolved": "㐌者 𠳒",
+    "loadError": "𣗓 載得 名冊 要求.",
+    "requestsTitle": "要求 𧵑貴 城圓",
+    "statusResolved": "㐌者 𠳒",
+    "g3q": "登入 吧 保密 財款",
+    "guestSignIn": "登入 或 登記"
+  },
+  "kit": {
+    "search": "尋 公惧",
+    "open": "𨷑 連結",
+    "result": "結果",
+    "groups": {
+      "text": "文 本",
+      "security": "保密"
+    },
+    "password": {
+      "title": "造 密口",
+      "length": "度 𨱽",
+      "digits": "𡨸 數",
+      "symbols": "記 自特 別",
+      "generate": "造 買"
+    },
+    "text": {
+      "title": "公惧 文 本",
+      "decode": "解 碼",
+      "chars": "記自",
+      "lines": "𣳔"
+    },
+    "image": {
+      "working": "當處 理…",
+      "error": "空 處理 得 影 尼"
+    },
+    "backToList": "𧗱名 冊 公惧"
+  },
+  "servicePkg": {
+    "excludes": [
+      {
+        "title": "Tên miền.",
+        "body": "Bạn đứng tên mua và giữ quyền sở hữu. Hugo Studio tư vấn chọn tên, hướng dẫn mua, nhưng không bán và không đứng tên thay bạn."
+      },
+      {
+        "title": "坭 留貯 吧 基礎 與料."
+      },
+      {
+        "title": "Việc nối hạ tầng vào website.",
+        "body": "Phần cài đặt và kết nối nằm ở Gói kết nối (350.000 – 900.000₫ · một lần), tính riêng ngoài giá thiết kế."
+      },
+      {
+        "title": "Nền tảng dựng sẵn.",
+        "body": "Hugo Studio chỉ nhận dự án viết mã riêng, không nhận triển khai hay bảo trì trên các nền tảng dựng sẵn. Nếu nhu cầu của bạn thuộc nhóm đó, mình sẽ nói ngay từ buổi đầu để bạn không mất thời gian."
+      },
+      {
+        "title": "Nội dung gốc.",
+        "body": "Chữ, ảnh sản phẩm, logo và giấy tờ thương hiệu do bạn cung cấp. Cần viết nội dung hoặc chụp ảnh thì báo trước để tính thêm."
+      },
+      {
+        "title": "之費 𧵑 邊 次𠀧."
+      }
+    ],
+    "policy": [
+      {
+        "title": "Đặt cọc 50%.",
+        "body": "Cọc trước khi bắt đầu, phần còn lại thanh toán khi nghiệm thu, trước lúc bàn giao bản chạy thật."
+      },
+      {
+        "title": "Hai vòng chỉnh lớn.",
+        "body": "Đã có hai vòng chỉnh bố cục và nội dung trong giá. Từ vòng thứ ba, hoặc khi đổi hướng sau lúc đã chốt, tính thêm theo khối lượng."
+      },
+      {
+        "title": "本權 屬 𧗱 伴."
+      },
+      {
+        "title": "Dừng giữa chừng.",
+        "body": "Bạn dừng dự án thì phần đã làm được bàn giao nguyên trạng và cọc không hoàn lại. Nếu việc dừng là do lỗi của Hugo Studio, hoặc Hugo Studio chủ động dừng, phần chưa thực hiện được hoàn lại đầy đủ."
+      }
+    ],
+    "extraFees": [
+      {
+        "title": "Thêm một trang",
+        "price": "450.000 – 900.000₫ / trang",
+        "body": "Áp dụng khi số trang vượt danh sách đã chốt. Trang càng giống một trang đã có thì càng gần mức sàn."
+      },
+      {
+        "title": "Vòng chỉnh từ thứ ba",
+        "price": "250.000 – 600.000₫ / vòng",
+        "body": "Hai vòng đầu đã nằm trong giá. Vòng sau tính theo khối lượng thật, báo trước khi làm."
+      },
+      {
+        "title": "Làm gấp",
+        "price": "+25% giá gói",
+        "body": "Khi bạn cần rút thời gian xuống dưới khoảng đã ghi trong chính sách của gói."
+      },
+      {
+        "title": "保持 𨍦保 行"
+      }
+    ],
+    "items": {
+      "hugo-story": {
+        "price": {
+          "factors": [
+            "Số trang và độ phức tạp của từng trang.",
+            "Có cần trang tin tức / blog tự đăng bài hay không.",
+            "Nội dung và hình ảnh đã sẵn sàng đến đâu.",
+            "多 言語.",
+            "Chuyển dữ liệu từ website cũ sang."
+          ]
+        }
+      },
+      "hugo-flow-plus": {
+        "includes": [
+          {
+            "title": "管理 産品."
+          },
+          {
+            "title": "Giỏ hàng và đơn hàng.",
+            "body": "Giỏ hàng, mã giảm giá, phí vận chuyển, trạng thái đơn và thông báo cho cả hai phía."
+          },
+          {
+            "title": "清算 直線."
+          },
+          {
+            "title": "Tài khoản khách hàng.",
+            "body": "Đăng nhập, lịch sử mua và địa chỉ giao hàng đã lưu."
+          },
+          {
+            "title": "Trang quản trị.",
+            "body": "Nơi bạn xem đơn, sửa sản phẩm và theo dõi số liệu bán hàng cơ bản. Phần mềm do Hugo Studio dựng, còn dữ liệu nằm trên hạ tầng do bạn sở hữu."
+          },
+          {
+            "title": "Tích hợp API theo nhu cầu.",
+            "body": "Vận chuyển, hoá đơn, kế toán hoặc phần mềm bạn đang dùng — chốt danh sách trước khi báo giá."
+          }
+        ],
+        "price": {
+          "factors": [
+            "数量 産品 吧 變 體.",
+            "Số cổng thanh toán và đơn vị vận chuyển cần nối.",
+            "Có cần đồng bộ với phần mềm kho / kế toán sẵn có không.",
+            "Mức độ tuỳ biến của trang quản trị.",
+            "要求 𧗱 報吿 吧 数料."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Flow+ có tự xây cơ sở dữ liệu riêng không?",
+            "answer": "Không. Hugo Studio không cung cấp hoặc cho thuê cơ sở quản lý dữ liệu. Gói này chỉ kết nối với hệ thống và API mà bạn đã có hoặc đã mua."
+          },
+          {
+            "question": "碎沛 准僃 之 𠓀欺 扒頭?"
+          },
+          {
+            "question": "Phí thanh toán và phí vận chuyển do ai trả?",
+            "answer": "Bạn trả trực tiếp cho nhà cung cấp. Các khoản này, cùng chi phí mua Gói kết nối, không nằm trong giá phát triển Hugo Flow+."
+          },
+          {
+            "question": "Có thể thêm chức năng sau khi website đã chạy không?",
+            "answer": "Có. Chức năng mới được khảo sát và báo riêng. Lỗi thuộc phạm vi đã nghiệm thu vẫn được xử lý theo thời hạn bảo hành của gói."
+          }
+        ],
+        "features": [
+          "管理 産品",
+          "Giỏ hàng & đơn hàng",
+          "清算 直線",
+          "Kết nối dữ liệu có sẵn",
+          "Trang trạng thái đơn hàng",
+          "Tích hợp API theo nhu cầu"
+        ]
+      },
+      "hugo-edu-plus": {
+        "includes": [
+          {
+            "title": "Miễn phí 365 ngày.",
+            "body": "Tính từ ngày xác minh. Không cần thẻ ngân hàng, không tự động gia hạn có phí."
+          },
+          {
+            "title": "Đường dẫn riêng, Hugo Studio cấp.",
+            "body": "Một đường dẫn theo tên bạn, đọc được, gửi đi đâu cũng gọn. Miễn phí — bạn không cần mua tên miền, không cần Gói kết nối."
+          },
+          {
+            "title": "影代 面 吧 介紹.",
+            "body": "影, 標題 藝 業, 分 介紹 吧 通信 聯係."
+          },
+          {
+            "title": "預案 吧連 結 個人."
+          },
+          {
+            "title": "自 及日 𥪝財 款."
+          },
+          {
+            "title": "Hiển thị tốt trên mọi thiết bị.",
+            "body": "Nhiều giao diện dựng sẵn, đổi được bất cứ lúc nào."
+          }
+        ],
+        "warranty": [
+          {
+            "title": "Hỗ trợ trong suốt 365 ngày.",
+            "body": "Lỗi hiển thị hoặc lỗi tài khoản được xử lý trong phạm vi Hugo Studio hỗ trợ được."
+          },
+          {
+            "title": "與料 羅𧵑 伴."
+          }
+        ],
+        "policyExtra": [
+          {
+            "title": "確明 沒吝."
+          },
+          {
+            "title": "Dùng cho cá nhân người học.",
+            "body": "Không dùng làm trang bán hàng hay trang chính thức của doanh nghiệp. Trường hợp đó thuộc Hugo One trở lên."
+          },
+          {
+            "title": "Một tài khoản, một trang Bio.",
+            "body": "Cần thêm trang cho câu lạc bộ hay nhóm thì trao đổi riêng."
+          },
+          {
+            "title": "Chương trình có thể thay đổi.",
+            "body": "Hugo Studio có thể điều chỉnh hoặc ngừng nhận đăng ký mới. Quyền lợi đã cấp cho bạn vẫn giữ nguyên đến hết thời hạn."
+          }
+        ],
+        "price": {
+          "from": "免費"
+        },
+        "features": [
+          "Miễn phí 365 ngày",
+          "Đường dẫn Bio riêng",
+          "影代 面 & 介紹",
+          "預案 & 連結 個人",
+          "自 及日 𥪝財 款",
+          "Hiển thị tốt trên mọi thiết bị"
+        ]
+      }
+    },
+    "detail": {
+      "verifyCta": "確明 𠊛學",
+      "nav": {
+        "intro": "介紹",
+        "warranty": "保行",
+        "price": "之費"
+      },
+      "introKicker": "介紹",
+      "introCaption": "󰑼之.",
+      "includesTitle": "伴 認得 之.",
+      "excludesTitle": "吧 仍之 空 𦣰𥪝 價.",
+      "warrantyKicker": "保行 吧 互助",
+      "warrantyTitle": "𡢐欺 搬交.",
+      "priceKicker": "之費 摇動",
+      "priceScope": "範圍 畧駕 𡢐昆 數 𡳳 共 𦣰𥪝 報價 吧 合 同, 吧 空𣋇 𡢐欺 㐌記.",
+      "priceCta": "認 報價"
+    },
+    "page": {
+      "heroLine2": "印 象頭 先",
+      "heroCta": "扒頭 預案",
+      "heroCtaAlt": "䀡預 案㐌 爫",
+      "filmLabel": "役務",
+      "landingPoints": [
+        "Thông điệp chính xuất hiện ngay trong màn hình đầu.",
+        "Bằng chứng được đặt đúng lúc khách bắt đầu cân nhắc.",
+        "每 分調 引 𧗱 沒 行動 𤑟𤉜."
+      ],
+      "processKicker": "自頭𦥃𡳜",
+      "process": [
+        {
+          "title": "Bắt đầu từ mục tiêu.",
+          "body": "Khách của bạn là ai, lợi thế nằm ở đâu, bạn muốn họ làm gì. Rõ ba điều đó rồi mới vẽ."
+        },
+        {
+          "title": "Dựng câu chuyện.",
+          "body": "Thông điệp, bằng chứng và nội dung được xếp thành một đường đọc. Không chỗ nào để người ta dừng lại vì phân vân."
+        },
+        {
+          "title": "設計 吧 發展."
+        },
+        {
+          "title": "搬交 吧 接俗."
+        }
+      ]
+    }
+  },
+  "studentPage": {
+    "heroTitle1": "沒 坭 底 學.",
+    "startKicker": "扒頭 於低",
+    "daysUnit": "𣈜",
+    "daysFree": "免費",
+    "verifyTitle": "確明 𠊛學",
+    "step3": "𨷑 權利",
+    "gisLoading": "當 准僃 確明…",
+    "themeKicker": "交面",
+    "themes": {
+      "default": {
+        "name": "默定"
+      },
+      "brutalism": {
+        "name": "塊"
+      }
+    },
+    "blocks": [
+      {
+        "title": "影 吧 介紹"
+      },
+      {
+        "title": "預案"
+      },
+      {
+        "title": "連結"
+      },
+      {
+        "title": "學習"
+      },
+      {
+        "title": "技能 吧 役務",
+        "desc": "役 貴客 爫 得, 公惧 當用, 吧 分 認 爫 添 閙固."
+      },
+      {
+        "title": "𢺺𢩿"
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Trang Bio, miễn phí 365 ngày.",
+        "desc": "Bản thân Quý khách, dự án của Quý khách, mọi liên kết quan trọng — trên một đường dẫn. Sửa lúc nào cũng được, ngay trong tài khoản."
+      },
+      {
+        "title": "部 公惧 學習."
+      },
+      {
+        "title": "助理 學習."
+      },
+      {
+        "title": "Chỗ để cùng tiến bộ.",
+        "desc": "Hỏi đáp, khoe dự án, nhận định hướng — trong phạm vi Hugo Studio hỗ trợ được."
+      }
+    ],
+    "faqKicker": "𠳨答"
+  },
+  "projectsPage": {
+    "kicker": "預案",
+    "kinds": {
+      "personal": "預案 個人",
+      "live": "𠊛󱨳 實"
+    },
+    "items": {
+      "chanh-toa": {
+        "role": "設計 & 立程 全分"
+      },
+      "hwj": {
+        "role": "設計 & 立程 全分"
+      },
+      "minh-oi-media": {
+        "role": "設計 & 立程 全分",
+        "highlights": [
+          {
+            "title": "客 𠳨價 𠓀欺 𠳨 𠸜"
+          },
+          {
+            "title": "Ảnh nói trước, chữ nói sau",
+            "body": "Màn hình đầu tiên là một tấm ảnh cưới khổ lớn, không phải khẩu hiệu. Với một studio, tấm ảnh đầu tiên chính là toàn bộ phần chứng minh năng lực; mọi câu chữ đứng sau đó chỉ làm nhiệm vụ giải thích."
+          },
+          {
+            "title": "Màn hình dọc là mặc định",
+            "body": "Gần như ai cũng xem trang này trên điện thoại, trong lúc nhắn tin cho nhau chọn studio. Bảng giá vì thế xếp lại thành một cột, không có bảng ngang nào bắt kéo qua kéo lại."
+          },
+          {
+            "title": "Và không cần đến một khung nào",
+            "body": "HTML, CSS, JavaScript thuần. Một trang giới thiệu năm gói không cần React; bỏ khung đi thì trang nhẹ, mở nhanh trên 4G, và chính chủ studio sửa được chữ trong tệp mà không phải gọi cho ai."
+          }
+        ]
+      },
+      "l3go-coffee": {
+        "highlights": [
+          {
+            "title": "空間 買 羅 産品"
+          },
+          {
+            "title": "實 單 𨱽, 仍空 埃讀 歇"
+          },
+          {
+            "title": "分𠇮 爫, 分 伴 意爫"
+          }
+        ]
+      },
+      "m-hike": {
+        "role": "設計 & 立程 全分"
+      }
+    },
+    "openSite": "𨷑 {{label}}",
+    "periodLabel": "時間",
+    "partnerLabel": "共 爫 貝",
+    "techTitle": "曰朋 之.",
+    "featuresTitle": "句傳",
+    "nextProject": "預案 計 接"
+  },
+  "__locale": "nom",
+  "__note": "Sinh bằng scripts/build-nom-locale.mjs. Khoá thiếu là CÓ CHỦ Ý — rơi về quốc ngữ."
 }

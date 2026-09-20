@@ -62,6 +62,8 @@
     "check:han-viet": "node scripts/check-han-viet.mjs",
     "check:sino": "node server/scripts/check-sino-numerals.mjs",
     "build:nom-font": "node scripts/build-nom-font.mjs",
+    "build:nom": "node scripts/build-nom-locale.mjs",
+    "check:nom": "node scripts/check-nom.mjs",
     "check:joy-stability": "node server/scripts/check-joy-stability.mjs",
     "joy:recall": "node server/scripts/joy-recall.mjs",
     "joy:report": "node -e \"import('./server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\""
