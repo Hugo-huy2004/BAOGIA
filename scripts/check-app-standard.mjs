@@ -29,6 +29,7 @@ const CERTIFIED = {
   team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
+  arcade: "20/09/2026 — LazyBoundary cho chunk game (một game hỏng từng làm trắng CẢ portal), 🔥/⚡ trong Game2048 → Material Symbols, 29 chỗ chữ <13px ở bảng xếp hạng và pinball. Giữ hình thái game toàn màn + quân cờ Unicode (ngoại lệ có lý do)",
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
@@ -61,6 +62,17 @@ const EXCEPTIONS = {
   // phải đạt 9 tiêu chí còn lại, và nó có trong FULLSCREEN_APP_IDS.
   "frame@friends": "app bản đồ toàn màn (Find My / Maps pattern) — nav nổi trên bản đồ, không dùng nav kính của khung",
   "responsive@friends": "bản đồ tự lấp mọi bề ngang; bottom sheet và dock đã là bố cục nổi, không cần cột giữa",
+
+  // GAME: mỗi game chiếm trọn màn (`fixed inset-0`) và cần tỷ lệ khung cố định —
+  // canvas game không co giãn theo cột đọc. Chrome kính iOS đè lên game là sai
+  // hình thái, giống hệt lý do bản đồ của `friends` không dùng khung. Ngoại lệ về
+  // HÌNH THÁI: arcade vẫn phải đạt 8 tiêu chí còn lại.
+  "frame@arcade": "sảnh + game toàn màn, tỷ lệ khung cố định; chrome kính đè lên game là sai hình thái",
+  "responsive@arcade": "canvas game giữ tỷ lệ cố định, không có cột đọc để bó",
+
+  // Quân cờ ♔♕♖ và glyph vật phẩm ✦◆◇» là KÝ TỰ, không phải emoji trang trí:
+  // Material Symbols không có quân cờ, và thay chúng là phá chính bàn cờ.
+  "noEmoji@arcade": "quân cờ Unicode (GameChess3D) + glyph vật phẩm hình học (survivorBalance) là typography của game, không phải emoji",
 
   "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
   "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
@@ -219,7 +231,8 @@ const CRITERIA = [
   {
     id: "noEmoji",
     label: "không emoji (chỉ Material Symbols đơn sắc)",
-    test: ({ all }) => !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(all),
+    test: ({ all, appName }) => Boolean(EXCEPTIONS[`noEmoji@${appName}`])
+      || !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(all),
   },
 ];
 

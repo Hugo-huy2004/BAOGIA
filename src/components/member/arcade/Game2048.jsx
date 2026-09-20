@@ -509,12 +509,14 @@ export default function Game2048({ paused = false, onGameOver }) {
 
         {fever > 0 && (
           <div className="game2048-fever-badge">
-            🔥 FEVER ×2 · {fever} lượt
+            <span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">local_fire_department</span>
+            {" FEVER ×2 · "}{fever} lượt
           </div>
         )}
         {tripleScore > 0 && (
           <div className="game2048-triple-badge">
-            ⚡ ×3 ĐIỂM · {(tripleScore / 10).toFixed(1)}s
+            <span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">bolt</span>
+            {" ×3 ĐIỂM · "}{(tripleScore / 10).toFixed(1)}s
           </div>
         )}
       </div>

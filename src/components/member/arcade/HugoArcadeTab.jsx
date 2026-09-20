@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
+import LazyBoundary from "../os/LazyBoundary";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
@@ -385,15 +386,21 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
       </div>
 
       {/* ── Active Game (standalone shell) ── */}
-      <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
-      {activeGame && (
-        <StandaloneGameShell
-          gameId={activeGame}
-          bio={bio}
-          onClose={closeGame}
-        />
-      )}
-      </Suspense>
+      {/* Mỗi game là một chunk riêng. Chunk tải hỏng (mất mạng, hoặc bản deploy
+          mới xoá chunk cũ khi tab đang mở) mà không có ranh giới lỗi thì lỗi vọt
+          lên làm TRẮNG CẢ PORTAL, không riêng game đó. `resetKey` theo gameId để
+          một game lỗi không khoá luôn game tiếp theo người chơi mở. */}
+      <LazyBoundary resetKey={activeGame} onBack={closeGame} backLabel={t("arcadeGame.backToArcade", "Về sảnh game")}>
+        <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
+          {activeGame && (
+            <StandaloneGameShell
+              gameId={activeGame}
+              bio={bio}
+              onClose={closeGame}
+            />
+          )}
+        </Suspense>
+      </LazyBoundary>
 
       <JoyExchangeModal
         open={showInvoice} bio={bio} item="hugoArcade"

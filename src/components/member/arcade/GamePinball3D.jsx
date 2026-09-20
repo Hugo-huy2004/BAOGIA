@@ -493,13 +493,13 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
       {/* Sleek Minimalist HUD Header */}
       <div className="flex items-center justify-between px-1">
         <div>
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+          <div className="text-[13px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm text-cyan-400">sports_esports</span>
             <span>Hugo CyberPinball 3D</span>
           </div>
           <div className="text-xl font-black text-amber-400 font-mono flex items-center gap-2">
             <span>{score.toLocaleString()} PTS</span>
-            <span className="text-[11px] font-extrabold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+            <span className="text-[13px] font-extrabold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
               +{earnedJoy} JOY 🎉
             </span>
           </div>
@@ -531,7 +531,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
 
       {/* Clean Plunger Meter */}
       <div className="space-y-1">
-        <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
+        <div className="flex items-center justify-between text-[13px] font-bold text-slate-400">
           <span>{t('arcadeGame.plungerPower', 'BẮN BI (Giữ BẮN / Spacebar)')}</span>
           <span className="font-mono text-amber-400 font-black">{chargingPower}%</span>
         </div>
@@ -553,19 +553,19 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
             <span className="material-symbols-outlined text-4xl text-amber-400">workspace_premium</span>
             <div>
               <h3 className="text-xl font-black text-white">{t('arcadeGame.gameOver', 'KẾT THÚC BÀN ĐẤU!')}</h3>
-              <p className="text-xs text-slate-400 mt-1">{t('arcadeGame.totalScoreAchieved', 'Tổng điểm và JOY đạt được trong trận Pinball')}</p>
+              <p className="text-[13px] text-slate-400 mt-1">{t('arcadeGame.totalScoreAchieved', 'Tổng điểm và JOY đạt được trong trận Pinball')}</p>
             </div>
 
             <div className="space-y-0.5">
               <div className="text-2xl font-black text-amber-400 font-mono">{score.toLocaleString()} PTS</div>
-              <div className="text-xs font-bold text-emerald-400">Nhận ngay +{earnedJoy} JOY vào ví!</div>
+              <div className="text-[13px] font-bold text-emerald-400">Nhận ngay +{earnedJoy} JOY vào ví!</div>
             </div>
 
             <div className="flex flex-col gap-2 w-full max-w-xs pt-2">
               <button
                 onClick={handleScoreSubmit}
                 disabled={submitting}
-                className="w-full py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-[13px] transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting && <span className="material-symbols-outlined animate-spin text-sm">sync</span>}
                 <span>{submitting ? t('arcadeGame.submittingScore', 'Đang gửi điểm...') : t('arcadeGame.submitScoreForJoy', 'Nộp điểm nhận JOY thưởng')}</span>
@@ -573,7 +573,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
 
               <button
                 onClick={handleRestart}
-                className="w-full py-3 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-bold text-xs transition-all active:scale-95"
+                className="w-full py-3 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-bold text-[13px] transition-all active:scale-95"
               >
                 {t('arcadeGame.playAgain', 'Chơi bàn mới')}
               </button>
@@ -590,7 +590,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
           onMouseUp={() => setLeftFlipper(false)}
           onTouchStart={() => setLeftFlipper(true)}
           onTouchEnd={() => setLeftFlipper(false)}
-          className="py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 active:bg-cyan-600 text-cyan-400 font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1"
+          className="py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 active:bg-cyan-600 text-cyan-400 font-black text-[13px] transition-all active:scale-95 flex items-center justify-center gap-1"
         >
           <span className="material-symbols-outlined text-sm">west</span> {t('arcadeGame.leftFlipper', 'Cần trái (A)')}
         </button>
@@ -602,7 +602,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
           onTouchStart={startCharging}
           onTouchEnd={releaseAndLaunch}
           disabled={stateRef.current.ball.active}
-          className={`py-3 rounded-2xl font-black text-xs transition-all shadow-md flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 ${
+          className={`py-3 rounded-2xl font-black text-[13px] transition-all shadow-md flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50 ${
             isCharging ? 'bg-rose-500 text-white scale-105 shadow-rose-500/50' : 'bg-amber-500 hover:bg-amber-400 text-black'
           }`}
         >
@@ -616,7 +616,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
           onMouseUp={() => setRightFlipper(false)}
           onTouchStart={() => setRightFlipper(true)}
           onTouchEnd={() => setRightFlipper(false)}
-          className="py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 active:bg-cyan-600 text-cyan-400 font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1"
+          className="py-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 active:bg-cyan-600 text-cyan-400 font-black text-[13px] transition-all active:scale-95 flex items-center justify-center gap-1"
         >
           {t('arcadeGame.rightFlipper', 'Cần phải (D)')} <span className="material-symbols-outlined text-sm">east</span>
         </button>

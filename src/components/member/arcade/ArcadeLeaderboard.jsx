@@ -82,7 +82,7 @@ function AvatarInitials({ name, url, fallback, size = "w-10 h-10", border = "bor
   }
   const initials = cleanName.split(" ").slice(-2).map(w => w[0]).join("").toUpperCase().slice(0, 2) || "HG";
   return (
-    <div className={`${size} rounded-full bg-gradient-to-tr from-[#FF2D55] via-purple-600 to-indigo-600 ${border} font-black text-xs text-white flex items-center justify-center shrink-0 shadow-2xl transition-transform duration-300 hover:scale-105`}>
+    <div className={`${size} rounded-full bg-gradient-to-tr from-[#FF2D55] via-purple-600 to-indigo-600 ${border} font-black text-[13px] text-white flex items-center justify-center shrink-0 shadow-2xl transition-transform duration-300 hover:scale-105`}>
       {initials}
     </div>
   );
@@ -165,7 +165,7 @@ export default function ArcadeLeaderboard({ active = true }) {
             {/* Top 2 Player (Left Podium) */}
             {top2 ? (
               <div className="flex flex-col items-center">
-                <span className="text-xs font-black text-slate-300 font-mono mb-1">
+                <span className="text-[13px] font-black text-slate-300 font-mono mb-1">
                   2<sup>ND</sup>
                 </span>
                 <AvatarInitials fallback={memberFallback}
@@ -174,10 +174,10 @@ export default function ArcadeLeaderboard({ active = true }) {
                   size="w-16 h-16 sm:w-20 sm:h-20"
                   border="border-3 border-slate-300 shadow-[0_0_20px_rgba(203,213,225,0.4)]"
                 />
-                <span className="text-xs font-bold text-slate-200 truncate max-w-[90px] mt-2">
+                <span className="text-[13px] font-bold text-slate-200 truncate max-w-[90px] mt-2">
                   {fixUtf8(top2.displayName, memberFallback)}
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 font-extrabold">
+                <span className="text-[13px] font-mono text-slate-400 font-extrabold">
                   {(top2.bestScore || 0).toLocaleString("vi-VN")}
                 </span>
               </div>
@@ -203,7 +203,7 @@ export default function ArcadeLeaderboard({ active = true }) {
               <span className="text-sm font-black text-white truncate max-w-[120px] mt-2 drop-shadow-md">
                 {fixUtf8(top1.displayName, memberFallback)}
               </span>
-              <span className="text-xs font-mono font-black text-amber-300">
+              <span className="text-[13px] font-mono font-black text-amber-300">
                 {(top1.bestScore || 0).toLocaleString("vi-VN")}
               </span>
             </div>
@@ -211,7 +211,7 @@ export default function ArcadeLeaderboard({ active = true }) {
             {/* Top 3 Player (Right Podium) */}
             {top3 ? (
               <div className="flex flex-col items-center">
-                <span className="text-xs font-black text-amber-500 font-mono mb-1">
+                <span className="text-[13px] font-black text-amber-500 font-mono mb-1">
                   3<sup>RD</sup>
                 </span>
                 <AvatarInitials fallback={memberFallback}
@@ -220,10 +220,10 @@ export default function ArcadeLeaderboard({ active = true }) {
                   size="w-16 h-16 sm:w-20 sm:h-20"
                   border="border-3 border-amber-600 shadow-[0_0_20px_rgba(217,119,6,0.4)]"
                 />
-                <span className="text-xs font-bold text-slate-200 truncate max-w-[90px] mt-2">
+                <span className="text-[13px] font-bold text-slate-200 truncate max-w-[90px] mt-2">
                   {fixUtf8(top3.displayName, memberFallback)}
                 </span>
-                <span className="text-[10px] font-mono text-amber-400 font-extrabold">
+                <span className="text-[13px] font-mono text-amber-400 font-extrabold">
                   {(top3.bestScore || 0).toLocaleString("vi-VN")}
                 </span>
               </div>
@@ -231,8 +231,8 @@ export default function ArcadeLeaderboard({ active = true }) {
           </div>
 
           {/* Metallic Rank Badge Tag */}
-          <div className={`inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mt-2 backdrop-blur-md ${getRankBadgeTitle(1, top1.bestScore, t).bg}`}>
-            <span className="material-symbols-outlined text-xs">military_tech</span>
+          <div className={`inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-[13px] font-black uppercase tracking-widest mt-2 backdrop-blur-md ${getRankBadgeTitle(1, top1.bestScore, t).bg}`}>
+            <span className="material-symbols-outlined text-[13px]">military_tech</span>
             <span>{getRankBadgeTitle(1, top1.bestScore, t).title}</span>
           </div>
 
@@ -240,7 +240,7 @@ export default function ArcadeLeaderboard({ active = true }) {
             {t("arcadeGame.lbWinner", { name: fixUtf8(top1.displayName, memberFallback) })}
           </h2>
 
-          <p className="text-xs text-indigo-200/90 font-medium">
+          <p className="text-[13px] text-indigo-200/90 font-medium">
             {t("arcadeGame.lbRealtime", { date: currentDateStr })}
           </p>
         </div>
@@ -250,23 +250,23 @@ export default function ArcadeLeaderboard({ active = true }) {
       <div className="flex items-center justify-between px-3 -mt-2">
         <div className="flex items-center gap-2 min-w-0">
           <span className="w-2.5 h-2.5 rounded-full bg-[#FF2D55] animate-pulse shadow-[0_0_12px_#FF2D55] shrink-0" />
-          <span className="text-[10px] font-black tracking-widest uppercase text-zinc-400 truncate">
+          <span className="text-[13px] font-black tracking-widest uppercase text-zinc-400 truncate">
             {t("arcadeGame.lbBoard")}
           </span>
         </div>
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0 pl-2">
+        <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider shrink-0 pl-2">
           LIVE
         </span>
       </div>
 
       {/* Roster Table — Apple Glass Flat List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-zinc-400 text-xs">
+        <div className="flex items-center justify-center py-16 text-zinc-400 text-[13px]">
           <span className="material-symbols-outlined animate-spin text-2xl mr-2 text-white">refresh</span>
           {t("arcadeGame.lbLoading")}
         </div>
       ) : uniqueRoster.length === 0 ? (
-        <div className="text-center py-12 rounded-3xl bg-white/5 border border-white/10 text-zinc-400 text-xs">
+        <div className="text-center py-12 rounded-3xl bg-white/5 border border-white/10 text-zinc-400 text-[13px]">
           Chưa có điểm số nào. Hãy mở ván game đầu tiên!
         </div>
       ) : (
@@ -300,9 +300,9 @@ export default function ArcadeLeaderboard({ active = true }) {
                       <span className="text-sm font-black tracking-tight truncate text-white">
                         {cleanName}
                       </span>
-                      {isRank1 && <span className="text-xs">👑</span>}
+                      {isRank1 && <span className="text-[13px]">👑</span>}
                     </div>
-                    <span className="text-[10px] text-indigo-300/70 font-medium">
+                    <span className="text-[13px] text-indigo-300/70 font-medium">
                       {badge.title} • {t("arcadeGame.lbMatches", { count: p.gamesPlayed || 1 })}
                     </span>
                   </div>
@@ -310,7 +310,7 @@ export default function ArcadeLeaderboard({ active = true }) {
 
                 {/* Achievement Dots & Total Score */}
                 <div className="flex items-center gap-3 shrink-0 pl-2 font-mono">
-                  <div className="flex items-center gap-1 text-[10px]">
+                  <div className="flex items-center gap-1 text-[13px]">
                     <span className={isRank1 ? "text-amber-400" : "text-emerald-400"}>✓</span>
                     <span className={isRank1 ? "text-amber-400" : "text-emerald-400"}>✓</span>
                     <span className="text-indigo-400">●</span>
@@ -320,7 +320,7 @@ export default function ArcadeLeaderboard({ active = true }) {
                     <span className={`text-base font-black ${isRank1 ? "text-amber-300" : "text-white"}`}>
                       {(p.bestScore || 0).toLocaleString("vi-VN")}
                     </span>
-                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">
+                    <span className="text-[13px] text-zinc-500 uppercase font-bold tracking-wider">
                       {t("arcadeGame.lbTotalScore")}
                     </span>
                   </div>
