@@ -98,7 +98,8 @@
       "processing": "Processing transaction…",
       "cancel": "Cancel",
       "pay": "Pay"
-    }
+    },
+    "buffering": "正在加载音乐…"
   },
   "memberPortal": {
     "titleStudent": "STUDENT DASHBOARD",

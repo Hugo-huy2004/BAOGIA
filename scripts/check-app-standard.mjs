@@ -27,6 +27,7 @@ const CERTIFIED = {
   friends: "20/09/2026 — 4 màn có địa chỉ thật (bản cũ chỉ đọc ?view= một lần lúc khởi tạo nên back của máy nhảy ra khỏi app), chữ lên sàn 13px ở cả JSX lẫn CSS, mr-10 đoán tay → CLOSE_BUTTON_RESERVE. Giữ hình thái bản đồ toàn màn (ngoại lệ có lý do)",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
+  aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
@@ -58,6 +59,9 @@ const EXCEPTIONS = {
   // phải đạt 9 tiêu chí còn lại, và nó có trong FULLSCREEN_APP_IDS.
   "frame@friends": "app bản đồ toàn màn (Find My / Maps pattern) — nav nổi trên bản đồ, không dùng nav kính của khung",
   "responsive@friends": "bản đồ tự lấp mọi bề ngang; bottom sheet và dock đã là bố cục nổi, không cần cột giữa",
+
+  "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
+  "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
 
   "address@radio": "một trang cuộn (trình phát + đài + hẹn giờ + thông tin); bộ điều hướng 5 trang cũ là code chết và đã gỡ 20/09",
 };
@@ -162,12 +166,21 @@ const CRITERIA = [
   {
     id: "loadingState",
     label: "có trạng thái đang tải (skeleton/spinner), không nhảy nội dung",
-    test: ({ all }) => /Skeleton|animate-pulse|isLoading|loading\b/i.test(all),
+    /*
+     * Nhận cả `animate-spin`, `buffering`, `progress_activity`, `Spinner`.
+     *
+     * Bản đầu chỉ tìm `Skeleton|animate-pulse|isLoading|loading` nên chấm TRƯỢT
+     * cho HugoAura ngay sau khi app đó vừa được thêm vòng quay báo nhạc đang nạp
+     * — tức nó đo CÁCH VIẾT chứ không đo có phản hồi hay không. Cùng loại lỗi với
+     * tiêu chí cỡ chữ từng bỏ sót `text-xs`.
+     */
+    test: ({ all }) => /Skeleton|Spinner|animate-pulse|animate-spin|progress_activity|buffering|isLoading|loading\b/i.test(all),
   },
   {
     id: "emptyState",
     label: "có trạng thái rỗng (noResults/empty), không để màn trống hoác",
-    test: ({ all }) => /noResults|empty|Empty|chưa có|không có/i.test(all),
+    test: ({ all, appName }) => Boolean(EXCEPTIONS[`emptyState@${appName}`])
+      || /noResults|empty|Empty|chưa có|không có/i.test(all),
   },
   {
     id: "touchTarget",

@@ -95,6 +95,12 @@ export default function MemberAuraTab({
   // --- Lofi Audio Player State ---
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
+  /*
+   * Nhạc ĐANG NẠP. `audio.play()` trả về promise chỉ resolve khi tiếng đã thật sự
+   * kêu — trên mạng di động chậm quãng đó dài vài giây, mà trước đây giao diện
+   * không đổi gì cả: người dùng bấm phát rồi tưởng nút hỏng nên bấm tiếp.
+   */
+  const [buffering, setBuffering] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(50);
@@ -173,12 +179,14 @@ export default function MemberAuraTab({
       audioRef.current.pause();
       setPlaying(false);
     } else {
+      setBuffering(true);
       audioRef.current.play()
         .then(() => setPlaying(true))
         .catch((e) => {
           console.warn("Audio play failed:", e);
           showToast?.(t("aura.playWarning"), "info");
-        });
+        })
+        .finally(() => setBuffering(false));
     }
   };
 
@@ -387,6 +395,10 @@ export default function MemberAuraTab({
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}
         onError={handleAudioError}
+        // Hụt dữ liệu GIỮA CHỪNG cũng phải hiện, không chỉ lúc mới bấm phát.
+        onWaiting={() => setBuffering(true)}
+        onPlaying={() => setBuffering(false)}
+        onCanPlay={() => setBuffering(false)}
         loop={false}
       />
 
@@ -628,9 +640,18 @@ export default function MemberAuraTab({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={handlePlayPause}
+                    aria-label={buffering
+                      ? t("aura.buffering", "Đang tải nhạc…")
+                      : playing ? t("aura.pauseBtn") : t("aura.startBtn")}
+                    aria-busy={buffering}
                     className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-md transition-colors ${accent.accentBg}`}
                   >
-                    <span className="material-symbols-outlined text-xl">{playing ? "pause" : "play_arrow"}</span>
+                    <span
+                      className={`material-symbols-outlined text-xl${buffering ? " animate-spin" : ""}`}
+                      aria-hidden="true"
+                    >
+                      {buffering ? "progress_activity" : playing ? "pause" : "play_arrow"}
+                    </span>
                   </motion.button>
 
                   <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-card/20 text-foreground/80 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">

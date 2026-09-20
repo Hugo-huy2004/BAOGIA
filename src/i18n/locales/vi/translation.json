@@ -98,7 +98,8 @@
       "processing": "Đang xử lý giao dịch…",
       "cancel": "Hủy",
       "pay": "Thanh toán"
-    }
+    },
+    "buffering": "Đang tải nhạc…"
   },
   "navbar": {
     "home": "Trang chủ",

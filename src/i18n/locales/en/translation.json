@@ -98,7 +98,8 @@
       "processing": "Processing transaction…",
       "cancel": "Cancel",
       "pay": "Pay"
-    }
+    },
+    "buffering": "Loading audio…"
   },
   "navbar": {
     "home": "Home",
