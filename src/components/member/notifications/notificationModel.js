@@ -118,6 +118,9 @@ export function fromNotification(n) {
     counterparty: n.counterparty || "",
     direction,
     category: n.category || "system",
+    // App phát sinh (id trong shared/appRegistry.js). Tên hiển thị KHÔNG dựng ở
+    // đây: nó phụ thuộc ngôn ngữ đang chọn, nên phải tra bằng `t()` lúc vẽ.
+    appId: n.appId || "",
     group: groupOf(n.category),
     icon: direction === "none" ? (CATEGORY_ICON[n.category] || "notifications") : null,
     actionUrl: notificationDestination(n.actionUrl),

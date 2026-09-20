@@ -65,6 +65,76 @@ export const JOY_SOURCES = {
   vocab_mission: 'Thưởng nhiệm vụ học từ vựng',
 };
 
+/**
+ * Nguồn JOY → APP phát sinh ra nó (id trong shared/appRegistry.js).
+ *
+ * Vì sao cần: hộp thư hiện "+120 JOY" mà không nói được thưởng ở đâu thì người
+ * đọc không kiểm chứng được gì — đó là yêu cầu "mọi thông báo phải cho biết từ
+ * app nào". Mọi biến động JOY đều đã có `source`, nên suy ra app từ đó là đủ;
+ * không phải đi sửa 14 chỗ gọi notifyMember để ai cũng nhớ truyền thêm một tham số.
+ *
+ * Nguồn KHÔNG có trong bảng này là nguồn cấp hệ thống (điểm danh, giới thiệu,
+ * admin điều chỉnh, chuyển giữa người dùng) — chúng không thuộc app nào và nhãn
+ * sẽ để trống, đúng bản chất.
+ */
+export const JOY_SOURCE_APP = {
+  // Học từ vựng
+  vocab_daily_goal: 'vocab',
+  vocab_mission: 'vocab',
+  vocab_essay_retake: 'vocab',
+
+  // HugoArcade (gồm cả cờ vua — cùng một app)
+  arcade_score: 'arcade',
+  chess_win: 'arcade',
+  chess_match: 'arcade',
+
+  // HugoPSY
+  companion: 'psychology',
+  companion_unlock: 'psychology',
+  chat_tokens_exchange: 'psychology',
+
+  // Tập trung / Aura
+  focus_session: 'aura',
+  aura_theme_rent: 'aura',
+
+  // Học lập trình (Study with Hugo)
+  ide_learning: 'study',
+  ide_course_completion: 'study',
+  coder_exam_retake: 'study',
+  lifetime_unlock: 'study',
+  lifetime_unlock_all: 'study',
+  ide_phase_1_completion: 'study',
+  ide_phase_2_completion: 'study',
+  ide_phase_3_completion: 'study',
+  ide_phase_4_completion: 'study',
+  ide_phase_5_completion: 'study',
+  ide_phase_6_completion: 'study',
+  ide_phase_7_completion: 'study',
+  hugoso_course: 'study',
+
+  // Chợ tiện ích
+  store_purchase: 'store',
+  app_plan: 'store',
+  app_plan_gift: 'store',
+  feature_subscription: 'store',
+
+  // Trang Bio
+  bio_theme_rental: 'bio',
+
+  // Ví JOY
+  joylater_open: 'joy_wallet',
+  joylater_repay: 'joy_wallet',
+  daily_tree_bonus: 'joy_wallet',
+  daily_challenge: 'joy_wallet',
+  birthday_spin: 'joy_wallet',
+
+  // HugoKit
+  file_compression: 'handle',
+};
+
+/** App phát sinh một biến động JOY. Rỗng = cấp hệ thống, không thuộc app nào. */
+export const appOfJoySource = (source) => JOY_SOURCE_APP[source] || '';
+
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);
 
 /**

@@ -65,7 +65,7 @@ export async function fetchWithCache(key, staleTimeMs, fetcher) {
     if (useRedis) {
       try {
         raw = await shared.get(PREFIX + key);
-        entry = raw ? JSON.parse(raw) : null;
+        try { entry = raw ? JSON.parse(raw) : null; } catch { entry = null; }
       } catch {
         useRedis = false;
       }

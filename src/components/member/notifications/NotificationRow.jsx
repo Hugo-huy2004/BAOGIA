@@ -51,7 +51,7 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
           <span className="hgn-row-title">{item.title}</span>
           <span className="hgn-row-meta">
             {isMoney && <span className="hgn-amount" data-dir={item.direction}>{signedJoy(item.amount, language)}</span>}
-            <span className="hgn-dim text-[11.5px]">{timeAgo(item.at, new Date(), language)}</span>
+            <span className="hgn-dim text-[13px]">{timeAgo(item.at, new Date(), language)}</span>
             {!item.read && <span className="hgn-unread-dot" />}
           </span>
         </span>
@@ -60,9 +60,18 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
           <span className="hgn-dim mt-0.5 line-clamp-2 block text-[13px] leading-snug">{item.message}</span>
         )}
 
-        {/* Số liệu là field riêng, không phải chữ bóc từ câu ra. */}
-        {(Number.isFinite(Number(item.balanceAfter)) || item.refCode) && (
-          <span className="hgn-dim mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11.5px]">
+        {/* Số liệu là field riêng, không phải chữ bóc từ câu ra.
+            Kèm TÊN APP phát sinh: "+120 JOY" mà không biết mình được thưởng ở
+            đâu thì người đọc không kiểm chứng được gì. Tên tra từ catalog —
+            cùng nguồn mà AppFrame và Home dùng, nên luôn khớp và luôn đúng
+            ngôn ngữ đang chọn. */}
+        {(Number.isFinite(Number(item.balanceAfter)) || item.refCode || item.appId) && (
+          <span className="hgn-dim mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px]">
+            {item.appId && (
+              <span className="hgn-app-tag">
+                {t(`utilities.catalog.${item.appId}.title`, item.appId)}
+              </span>
+            )}
             {Number.isFinite(Number(item.balanceAfter)) && (
               <span>
                 {t("memberPortal.notificationCenter.balance", {

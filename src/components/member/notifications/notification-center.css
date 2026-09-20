@@ -248,3 +248,17 @@
   .hgn-card,
   .hgn-chip { background: hsl(var(--card)); backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* Nhãn "từ app nào" trong một dòng thông báo.
+   Đứng cùng hàng với số dư và mã giao dịch, nhưng có nền nhạt để tách khỏi hai
+   con số đó — người đọc quét mắt tìm "ở đâu" trước, "bao nhiêu" sau. */
+.hgn-app-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-weight: 700;
+  white-space: nowrap;
+}

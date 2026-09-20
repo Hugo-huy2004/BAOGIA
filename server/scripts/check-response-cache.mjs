@@ -16,7 +16,7 @@ if (process.argv.includes('--redis')) {
       server.once('error', reject);
       server.once('exit', code => { clearTimeout(timer); reject(new Error(`Redis exited ${code}`)); });
       server.stdout.on('data', chunk => {
-        if (String(chunk).includes('ready to accept connections')) { clearTimeout(timer); resolve(); }
+        if (String(chunk).toLowerCase().includes('ready to accept connections')) { clearTimeout(timer); resolve(); }
       });
     });
     const child = spawn(process.execPath, [process.argv[1], '--worker'], {

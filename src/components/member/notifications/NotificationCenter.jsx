@@ -1,9 +1,10 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 import { hapticSelect } from "../../../utils/haptics";
 import NotificationRow from "./NotificationRow";
+const TransactionReceiptModal = lazy(() => import("../wallet/TransactionReceiptModal"));
 import { buildFeed, groupByDay } from "./notificationModel";
 import "./notification-center.css";
 
@@ -38,17 +39,43 @@ export default function NotificationCenter({
   const unread = feed.filter(i => !i.read).length;
   const [markingAll, setMarkingAll] = useState(false);
 
+  /*
+   * Bấm vào một dòng TIỀN thì mở hoá đơn, không chỉ đánh dấu đã đọc.
+   *
+   * Yêu cầu: mọi biến động +/- JOY phải xem được hoá đơn kèm LÝ DO. Trước đây
+   * dòng thông báo chỉ hiện số và số dư, còn "vì sao" thì nằm trong câu chữ bị
+   * cắt hai dòng — muốn đối chiếu một khoản trừ thì không có chỗ nào mở ra.
+   *
+   * Dùng lại đúng `TransactionReceiptModal` của ví chứ không vẽ hoá đơn thứ hai:
+   * một khoản tiền phải trông y như nhau dù nhìn từ ví hay từ hộp thư.
+   */
+  const [receipt, setReceipt] = useState(null);
+
   const handleOpen = useCallback((item) => {
     hapticSelect();
     if (!item.read && item.id) onMarkRead?.(item.id);
+    if (item.direction !== "none") {
+      setReceipt({
+        id: item.refCode || item.id,
+        amount: item.amount,
+        title: item.title,
+        description: item.message,
+        balanceAfter: item.balanceAfter,
+        createdAt: item.at,
+        counterparty: item.counterparty,
+        appId: item.appId,
+      });
+    }
   }, [onMarkRead]);
 
   const handleAction = useCallback(async (item) => {
-    if (!item.actionUrl) return;
     hapticSelect();
     if (!item.read && item.id) await onMarkRead?.(item.id);
-    navigate(item.actionUrl);
-  }, [navigate, onMarkRead]);
+    // Dòng TIỀN luôn mở hoá đơn trước — kể cả khi có `actionUrl`. Người đọc bấm
+    // vào một khoản trừ là muốn biết vì sao bị trừ, không phải bị ném sang màn khác.
+    if (item.direction !== "none") return handleOpen(item);
+    if (item.actionUrl) navigate(item.actionUrl);
+  }, [navigate, onMarkRead, handleOpen]);
 
   const handleMarkAll = useCallback(async () => {
     if (markingAll || unread === 0) return;
@@ -127,6 +154,18 @@ export default function NotificationCenter({
             </div>
           )}
         </div>
+      )}
+
+      {/* Hoá đơn của một biến động JOY. Lazy vì phần lớn lượt mở hộp thư không
+          bấm vào dòng tiền nào — không đáng tải sẵn. */}
+      {receipt && (
+        <Suspense fallback={null}>
+          <TransactionReceiptModal
+            tx={receipt}
+            onClose={() => setReceipt(null)}
+            showToast={showToast}
+          />
+        </Suspense>
       )}
     </div>
   );

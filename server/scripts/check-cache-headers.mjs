@@ -14,6 +14,10 @@ app.get('/cookie', (_req, res) => {
   res.cookie('member_jwt', 'example');
   res.set('Cache-Control', 'public, s-maxage=60').json({ ok: true });
 });
+app.get('/direct', (_req, res) => {
+  res.writeHead(503, 'Unavailable', { 'Cache-Control': 'public, s-maxage=60' });
+  res.end('unavailable');
+});
 app.get('/boom', (_req, res) => {
   res.set('Cache-Control', 'public, s-maxage=60');
   throw new Error('route failure');
@@ -24,7 +28,7 @@ await new Promise(resolve => server.once('listening', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
 try {
   for (const [path, options] of [
-    ['/private'], ['/api/private.js'], ['/missing.png'], ['/cookie'], ['/boom'],
+    ['/private'], ['/api/private.js'], ['/missing.png'], ['/cookie'], ['/boom'], ['/direct'],
     ['/public', { method: 'POST' }],
     ['/public', { headers: { Authorization: 'Bearer example' } }],
     ['/public', { headers: { Cookie: 'member_jwt=example' } }],

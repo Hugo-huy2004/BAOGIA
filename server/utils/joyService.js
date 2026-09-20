@@ -5,7 +5,7 @@ import ChessRating from '../models/ChessRating.js';
 import { notifyMember } from './notifyMember.js';
 import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
 
-import { JOY_SOURCES, JOY_SOURCE_GROUPS } from './joySources.js';
+import { JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
 
 // Giữ tên cũ cho các nơi đã import; nguồn thật nằm ở joySources.js.
 export const JOY_TITLES = JOY_SOURCES;
@@ -123,7 +123,11 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
       amount: numAmount,
       balanceAfter: newBalance,
       refCode: opts.refId || '',
-      counterparty: opts.counterparty || ''
+      counterparty: opts.counterparty || '',
+      // App phát sinh, suy từ chính `source` của biến động — nên mọi nơi gọi
+      // awardJoy đều có nhãn mà không phải nhớ truyền thêm tham số. Nơi gọi vẫn
+      // ghi đè được bằng `opts.appId` nếu biết rõ hơn bảng ánh xạ.
+      appId: opts.appId || appOfJoySource(source),
     });
   }
 

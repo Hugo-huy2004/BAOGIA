@@ -31,6 +31,8 @@ export async function notifyMember({
   balanceAfter = null,
   refCode = '',
   counterparty = '',
+  /** App phát sinh thông báo (id trong shared/appRegistry.js). Rỗng = hệ thống. */
+  appId = '',
 }) {
   if (!email) return null;
 
@@ -54,6 +56,7 @@ export async function notifyMember({
     balanceAfter,
     refCode,
     counterparty,
+    appId,
   });
 
   if (push) await sendLocalizedPush(email, key, params, actionUrl);

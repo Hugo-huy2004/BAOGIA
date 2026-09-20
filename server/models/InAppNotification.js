@@ -33,6 +33,17 @@ const schema = new mongoose.Schema({
   refCode:      { type: String, default: '' },
   // Tên người ở đầu bên kia giao dịch (người gửi/người nhận), nếu có.
   counterparty: { type: String, default: '' },
+
+  // ── THÔNG BÁO NÀY TỪ APP NÀO ────────────────────────────────────────────
+  // `category` chỉ nói LOẠI việc (joy / security / wellness…), không nói NƠI
+  // phát sinh. Người dùng mở hộp thư thấy "+120 JOY" mà không biết mình vừa
+  // được thưởng ở Học Từ Vựng hay HugoArcade thì không kiểm chứng được gì.
+  //
+  // Giá trị là `id` trong shared/appRegistry.js (vocab, arcade, joy_wallet…),
+  // nên phía hiển thị tra thẳng ra TÊN CHUẨN đã dịch của app — cùng nguồn tên
+  // mà AppFrame và Home đang dùng, không sinh thêm bảng tên thứ hai.
+  // Rỗng = thông báo cấp hệ thống, không thuộc app nào.
+  appId: { type: String, default: '' },
 });
 
 // Auto-delete after 90 days
