@@ -110,6 +110,11 @@ function parseReviewResult(text) {
 
 const router = express.Router();
 
+const clearPublicBioCache = (bio) => Promise.all([
+  bio.slug && clearCache(`bio_slug_${bio.slug}`),
+  bio.customDomain && clearCache(`bio_domain_${bio.customDomain}`),
+]);
+
 const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
 
 async function rejectBlacklistedPhone(res, phone) {
@@ -256,7 +261,7 @@ router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
 
       await bio.save();
       await removeDuplicateIdentityAccounts(bio);
-      clearCache(`bio_slug_${bio.slug}`);
+      await clearPublicBioCache(bio);
       broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
       count++;
     }
@@ -376,7 +381,7 @@ router.patch('/:id/vip', requireAdmin, async (req, res) => {
     const starVip = Boolean(req.body?.starVip);
     const bio = await Bio.findByIdAndUpdate(req.params.id, { $set: { starVip } }, { new: true });
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    clearCache(`bio_slug_${bio.slug}`);
+    await clearPublicBioCache(bio);
     res.json({ success: true, starVip: bio.starVip });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -433,8 +438,8 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     await bio.save();
     if (isApprovingVerification) await removeDuplicateIdentityAccounts(bio);
 
-    // Clear public cache so guest devices reflect status changes instantly
-    clearCache(`bio_slug_${bio.slug}`);
+    // Invalidate origin cache; CDN copies expire according to their HTTP TTL
+    await clearPublicBioCache(bio);
     if (isApprovingVerification || status === 'rejected') {
       broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: bio.isEduVerified, expiresAt: bio.expiresAt });
     }
@@ -471,7 +476,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     }
 
     // 3. Clear public cache
-    if (bio.slug) clearCache(`bio_slug_${bio.slug}`);
+    await clearPublicBioCache(bio);
 
     res.json({ success: true, message: `Đã xóa vĩnh viễn tài khoản của ${userDisplayName || userEmail}` });
   } catch (error) {
@@ -759,7 +764,7 @@ router.post('/me/verification', requireMember, async (req, res) => {
 
     await bio.save();
     if (isEdu) await removeDuplicateIdentityAccounts(bio);
-    clearCache(`bio_slug_${bio.slug}`);
+    await clearPublicBioCache(bio);
     if (isEdu) {
       broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
     }
@@ -1155,11 +1160,10 @@ router.post('/me/custom-domain', requireMember, async (req, res) => {
     // Cập nhật O(1) in-memory Set và xóa cache tức thời
     if (oldDomain) {
       redisSlugService.deleteCustomDomain(oldDomain);
-      clearCache(`bio_domain_${oldDomain}`);
+      await clearCache(`bio_domain_${oldDomain}`);
     }
     redisSlugService.addCustomDomain(cleanDomain);
-    clearCache(`bio_slug_${bio.slug}`);
-    clearCache(`bio_domain_${cleanDomain}`);
+    await clearPublicBioCache(bio);
 
     res.json({
       success: true,
@@ -1186,9 +1190,9 @@ router.delete('/me/custom-domain', requireMember, async (req, res) => {
 
     if (oldDomain) {
       redisSlugService.deleteCustomDomain(oldDomain);
-      clearCache(`bio_domain_${oldDomain}`);
+      await clearCache(`bio_domain_${oldDomain}`);
     }
-    clearCache(`bio_slug_${bio.slug}`);
+    await clearPublicBioCache(bio);
 
     res.json({ success: true, message: 'Đã hủy liên kết tên miền riêng.' });
   } catch (error) {
@@ -1298,7 +1302,7 @@ router.get('/slug/:slug', async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     return res.json({ bio });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -1339,7 +1343,7 @@ router.get('/by-domain/:domain', async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ liên kết với tên miền này.' });
     }
 
-    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     return res.json({ bio });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -1505,8 +1509,6 @@ router.put('/:id', requireMember, async (req, res) => {
       }
     }
 
-    // Xóa Cache nếu bio bị chỉnh sửa
-    clearCache(`bio_slug_${existing.slug}`);
     
     const { 
       displayName, 
@@ -1734,6 +1736,9 @@ router.put('/:id', requireMember, async (req, res) => {
 
     await existing.save();
 
+    await clearPublicBioCache(existing);
+    if (previousSlug !== existing.slug) await clearCache(`bio_slug_${previousSlug}`);
+
     // Keep the in-memory valid-slug set consistent on rename — otherwise the
     // new slug 404s (not in set) while the old one stays "valid" forever.
     if (previousSlug !== existing.slug) {
@@ -1763,7 +1768,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     await Bio.findByIdAndDelete(req.params.id);
     
     // Xóa khỏi Cache và Bloom Filter
-    clearCache(`bio_slug_${existing.slug}`);
+    await clearPublicBioCache(existing);
     redisSlugService.deleteSlug(existing.slug);
 
     res.json({ message: 'Bio deleted successfully' });
@@ -1807,7 +1812,7 @@ router.post('/contacts/sync/:id', requireMember, async (req, res) => {
 
     if (addedCount > 0) {
       await bio.save();
-      clearCache(`bio_slug_${bio.slug}`);
+      await clearPublicBioCache(bio);
     }
 
     res.json({ success: true, count: addedCount, contacts: bio.backedUpContacts });
@@ -1829,7 +1834,7 @@ router.delete('/contacts/:id/:contactId', requireMember, async (req, res) => {
 
     bio.backedUpContacts = bio.backedUpContacts.filter(c => c._id.toString() !== req.params.contactId);
     await bio.save();
-    clearCache(`bio_slug_${bio.slug}`);
+    await clearPublicBioCache(bio);
 
     res.json({ success: true, contacts: bio.backedUpContacts });
   } catch (error) {

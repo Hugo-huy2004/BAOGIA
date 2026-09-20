@@ -9,7 +9,7 @@ import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJ
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
-import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP } from "../../../../shared/joyPrices";
+import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP, TRANSFER_MONTHLY_CAP } from "../../../../shared/joyPrices";
 import { useJoy } from "../../../lib/joyDisplay";
 import { denomKey, transferBreakdown, CROSS_DENOM_FEE } from "../../../../shared/joyCurrency";
 
@@ -1312,7 +1312,18 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
                   {/* Amount input */}
                   <div style={{ marginBottom: 12 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: "hsl(var(--muted-foreground))", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</p>
+                    <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "hsl(var(--muted-foreground))", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</p>
+                    {/* Nói trước cả HAI trần. Ô nhập chỉ chặn theo trần ngày, nên
+                        nếu không ghi ra thì người dùng gõ số hợp lệ, bấm gửi, rồi
+                        mới bị server từ chối vì trần tháng — bị chặn bất ngờ ở
+                        bước cuối là trải nghiệm tệ nhất của một màn chuyển tiền. */}
+                    <p style={{ margin: "0 0 6px", fontSize: 13, color: "hsl(var(--muted-foreground))" }}>
+                      {t("memberPortal.joy.particle.caps", {
+                        daily: TRANSFER_DAILY_CAP.toLocaleString(joy.locale),
+                        monthly: TRANSFER_MONTHLY_CAP.toLocaleString(joy.locale),
+                        defaultValue: "Tối đa {{daily}} JOY/ngày · {{monthly}} JOY/tháng",
+                      })}
+                    </p>
                     <div style={{ position: "relative" }}>
                       <input
                         type="number"

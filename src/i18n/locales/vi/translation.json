@@ -3656,7 +3656,8 @@
         "cameraHintWide": "Đưa mã vào bất kỳ đâu trong khung — không cần canh giữa.",
         "conversionFee": "Phí đổi {{from}} → {{to}} ({{percent}}%)",
         "close": "Đóng",
-        "pinHint": "Nhập mã PIN 6 chữ số để chuyển {{amount, joy}} cho {{name}}"
+        "pinHint": "Nhập mã PIN 6 chữ số để chuyển {{amount, joy}} cho {{name}}",
+        "caps": "Tối đa {{daily}} JOY/ngày · {{monthly}} JOY/tháng"
       },
       "exchange": {
         "exchanged": "Đã đổi",

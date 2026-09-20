@@ -19,6 +19,7 @@ import {
   BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
   STUDY_LIFETIME,
   TRANSFER_DAILY_CAP as SHARED_TRANSFER_DAILY_CAP,
+  TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
   TRANSFER_FEE_RATE as SHARED_TRANSFER_FEE_RATE,
 } from '../../shared/joyPrices.js';
 import {
@@ -223,6 +224,7 @@ router.post('/wallet/claim-daily', requireMember, claimDailyCheckin);
 const TRANSFER_MIN = 10;
 const TRANSFER_MAX = 1000;
 const TRANSFER_DAILY_CAP = SHARED_TRANSFER_DAILY_CAP;
+const TRANSFER_MONTHLY_CAP = SHARED_TRANSFER_MONTHLY_CAP;
 const TRANSFER_FEE_RATE = SHARED_TRANSFER_FEE_RATE;
 const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
 const FOCUS_DAILY_JOY_CAP = 150;
@@ -1810,6 +1812,16 @@ router.post('/transfer', requireMember, async (req, res) => {
       return rejectRequest(400, `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.`);
     }
 
+    // Trần THÁNG. Trần ngày một mình cho phép 1.000 × 30 = 30.000 JOY/tháng từ
+    // một tài khoản — với vài tài khoản nuôi thì đó là đường gom JOY về một ví
+    // mà không vi phạm luật nào. Khoá kỳ "YYYY-MM", sang tháng là bộ đếm tự về 0.
+    const thisMonth = today.slice(0, 7);
+    const sentThisMonthSoFar = sender.joySentMonth === thisMonth ? (sender.joySentMonthTotal || 0) : 0;
+    if (sentThisMonthSoFar + numAmount > TRANSFER_MONTHLY_CAP) {
+      return rejectRequest(400,
+        `Vượt giới hạn gửi ${TRANSFER_MONTHLY_CAP} JOY/tháng. Cậu đã gửi ${sentThisMonthSoFar} JOY trong tháng này.`);
+    }
+
     // JOY chỉ còn MỘT đơn vị nên không có phí đổi đơn vị: `conversionFee` luôn 0.
     // Bỏ luôn lần nạp tỷ giá trước đây đứng ở đây — nó thêm một lượt đọc DB vào
     // đường tiền chỉ để tính một khoản bằng 0.
@@ -1826,6 +1838,8 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     sender.joySentDate = today;
     sender.joySentToday = sentTodaySoFar + numAmount;
+    sender.joySentMonth = thisMonth;
+    sender.joySentMonthTotal = sentThisMonthSoFar + numAmount;
 
     const customMsg = message ? ` Lời nhắn: "${message}"` : '';
     const recipientName = recipient.displayName || 'bạn bè';

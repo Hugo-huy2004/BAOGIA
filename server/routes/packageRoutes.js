@@ -5,7 +5,7 @@ import Bio from '../models/Bio.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
 import { parseBirthday } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
-import { fetchWithCache } from '../utils/cacheHelper.js';
+import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
@@ -51,15 +51,24 @@ const getRandomLogoColor = () => {
 // ----------------------------------------------------
 
 // GET all packages — public catalog, rarely changes. Cache 60s (SWR + single-
-// flight) so a burst of visitors collapses to one DB read; admin edits appear
-// within ~60s via background revalidation. Also set a CDN edge-cache header.
+// flight) so a burst of visitors collapses to one DB read. Writes invalidate
+// the origin cache; existing CDN copies expire according to their HTTP TTL.
 router.get('/', async (req, res) => {
   try {
     const packages = await fetchWithCache('all_packages', 60000, () =>
-      Package.find().sort({ createdAt: -1 }).lean()
+      Package.find().select('name duration durationUnit benefits color createdAt updatedAt').sort({ createdAt: -1 }).lean()
     );
-    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     res.json(packages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Gift codes only belong in the authenticated admin catalog, never Redis/CDN.
+router.get('/admin', requireAdmin, async (_req, res) => {
+  try {
+    res.json(await Package.find().sort({ createdAt: -1 }).lean());
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -82,6 +91,7 @@ router.post('/', requireAdmin, async (req, res) => {
       color
     });
 
+    await clearCache('all_packages');
     res.status(201).json(created);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -491,6 +501,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
     if (benefits) existing.benefits = benefits;
 
     await existing.save();
+    await clearCache('all_packages');
     res.json(existing);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -522,6 +533,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ error: 'Package template not found' });
     }
+    await clearCache('all_packages');
     res.json({ message: 'Package template deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

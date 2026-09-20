@@ -169,7 +169,7 @@ router.get('/', async (req, res) => {
       return sanitized;
     });
 
-    res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     res.json(sanitizedData);
   } catch (error) {
     console.error('[public data]', error.message);
@@ -200,7 +200,7 @@ router.put('/', requireAdmin, async (req, res) => {
     );
     
     // Xóa Cache ngay lập tức khi Admin cập nhật dữ liệu
-    clearCache("public_data");
+    await clearCache("public_data");
     
     res.json(data);
   } catch (error) {
@@ -221,7 +221,7 @@ router.patch('/', requireAdmin, async (req, res) => {
     );
     
     // Xóa Cache ngay lập tức khi Admin cập nhật dữ liệu
-    clearCache("public_data");
+    await clearCache("public_data");
 
     res.json(data);
   } catch (error) {
@@ -262,6 +262,7 @@ router.post('/reset', requireAdmin, async (req, res) => {
   try {
     await Data.deleteOne({ userId: 'default' });
     const data = await Data.create(initialData);
+    await clearCache('public_data');
     res.json({ message: 'Data reset to defaults', data });
   } catch (error) {
     res.status(500).json({ error: error.message });

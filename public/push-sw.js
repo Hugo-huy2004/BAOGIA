@@ -5,6 +5,13 @@
  */
 
 
+// Remove API responses persisted by older workers, including account data.
+self.addEventListener('activate', (event) => {
+  event.waitUntil(Promise.all(
+    ['api-cache', 'user-bootstrap-cache', 'arcade-leaderboard'].map(name => caches.delete(name))
+  ));
+});
+
 // ── Message handler — SKIP_WAITING + unknown types ────────────────────────
 // Workbox's autoUpdate registerType sends a SKIP_WAITING message to activate
 // a newly installed SW. Without an explicit handler the channel closes before

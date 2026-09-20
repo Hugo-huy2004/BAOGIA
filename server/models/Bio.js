@@ -150,6 +150,17 @@ const BioSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    // Trần THÁNG — cùng khuôn khoá-theo-kỳ như trần ngày ở trên. Khoá là
+    // "YYYY-MM"; sang tháng mới thì kỳ không khớp và bộ đếm tự coi như 0, không
+    // cần cron nào đi reset.
+    joySentMonth: {
+      type: String,
+      default: ''
+    },
+    joySentMonthTotal: {
+      type: Number,
+      default: 0
+    },
     // Server-authoritative daily reward reservations. These counters are kept
     // on the wallet owner (not in client game state) so concurrent requests
     // cannot race past the JOY caps.

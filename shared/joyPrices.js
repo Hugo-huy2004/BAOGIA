@@ -133,6 +133,20 @@ export const exchangeFeeBreakdown = (priceJoy) => {
 export const TRANSFER_DAILY_CAP = 1000;
 
 /**
+ * Trần chuyển JOY mỗi THÁNG.
+ *
+ * Vì sao cần thêm dù đã có trần ngày: trần ngày một mình cho phép 1.000 × 30 =
+ * 30.000 JOY/tháng từ MỘT tài khoản. Với vài tài khoản nuôi, đó là đường bơm JOY
+ * dồn về một ví mà không vi phạm luật nào.
+ *
+ * Đặt 8.000 — khoảng 8 ngày chạm trần ngày, đủ rộng cho người tặng bạn bè thật
+ * (số liệu 8 tuần đầu: tổng CHUYỂN TAY của toàn hệ thống chỉ 1.800 JOY), nhưng
+ * chặn được kiểu gom tháng. Sửa con số này thì cả server lẫn màn xác nhận đổi
+ * theo vì cùng đọc một chỗ.
+ */
+export const TRANSFER_MONTHLY_CAP = 8000;
+
+/**
  * Phí sáng tạo khi gửi JOY cho người khác — CỘNG THÊM vào phần người gửi trả,
  * người nhận nhận đủ. Trước đây con số này viết tay ở cả joyRoutes.js và
  * ParticleConnectModal.jsx; lệch một chỗ là màn xác nhận nói một giá, ví trừ giá

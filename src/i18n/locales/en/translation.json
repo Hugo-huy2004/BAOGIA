@@ -3655,7 +3655,8 @@
         "cameraHintWide": "Put the code anywhere in view — no need to centre it.",
         "conversionFee": "{{from}} → {{to}} conversion ({{percent}}%)",
         "close": "Close",
-        "pinHint": "Enter your 6-digit PIN to send {{amount, joy}} to {{name}}"
+        "pinHint": "Enter your 6-digit PIN to send {{amount, joy}} to {{name}}",
+        "caps": "Up to {{daily}} JOY/day · {{monthly}} JOY/month"
       },
       "exchange": {
         "exchanged": "Exchanged",

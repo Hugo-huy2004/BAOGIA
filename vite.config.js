@@ -146,48 +146,11 @@ export default defineConfig(({ mode }) => {
         ],
         globIgnores: ['**/favicon/**', '**/image/**', '**/splash/**'],
         runtimeCaching: [
-          // Authorization codes, tokens, consent context and userinfo are
-          // security credentials/personal data. They must never enter the
-          // service-worker cache, even briefly.
+          // HTTP Cache-Control handles public API caching. CacheStorage ignores
+          // no-store and keys by URL, so never persist account APIs in Workbox.
           {
-            urlPattern: /\/api\/oauth\//,
+            urlPattern: /\/api(?:\/|$)/,
             handler: 'NetworkOnly',
-          },
-          // Arcade leaderboard — StaleWhileRevalidate for instant UI render
-          {
-            urlPattern: /\/api\/arcade\/leaderboard/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'arcade-leaderboard',
-              expiration: { maxEntries: 20, maxAgeSeconds: 30 },
-            },
-          },
-          // Eager Bootstrap & User APIs — NetworkFirst with 1.5s FAST TIMEOUT (Instant fallback to local cache if network hangs)
-          {
-            urlPattern: /\/api\/bios\/me/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'user-bootstrap-cache',
-              networkTimeoutSeconds: 1.5,
-              expiration: { maxEntries: 20, maxAgeSeconds: 600 },
-            },
-          },
-          // TODAY đã có cache theo ấn bản/ngôn ngữ ở Node và cache riêng của
-          // Eco Mode. Không để service worker trả một ấn bản cũ sau khi người
-          // dùng đổi ngôn ngữ (ví dụ UI tiếng Thái nhưng cache tin Việt Nam).
-          {
-            urlPattern: /\/api\/today\//,
-            handler: 'NetworkOnly',
-          },
-          // Generic API Cache — NetworkFirst with 2.0s FAST TIMEOUT
-          {
-            urlPattern: /\/api\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              networkTimeoutSeconds: 2.0,
-              expiration: { maxEntries: 100, maxAgeSeconds: 300 },
-            },
           },
           // Cache Google Fonts stylesheets
           {

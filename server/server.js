@@ -14,6 +14,7 @@ import { JWT_SECRET } from './utils/secrets.js';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
+import { cachePolicy } from './middleware/cachePolicy.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
 import { mountServices } from './services.manifest.js';
@@ -30,6 +31,7 @@ import { reportSpecialistIncident } from './services/aiIncidentResponseService.j
 dotenv.config();
 
 const app = express();
+app.use(cachePolicy);
 
 // Trust the first proxy in front of the app (Railway/Render/Vercel/Nginx all
 // put exactly one). Without this, req.ip is the PROXY's IP, so express-rate-
@@ -176,26 +178,6 @@ app.use(mongoSanitize());
 
 // Response Compression (Significantly reduces payload size)
 app.use(compression());
-
-// Mặc định KHÔNG cho cache. Cloudflare đứng trước api.* và có Cache Rule cho
-// /api/*; route nào quên đặt Cache-Control mà lại trả dữ liệu của một member cụ
-// thể thì CDN có thể cache rồi trả nhầm cho người khác. Chốt chặn ở đây để chỉ
-// những route CỐ Ý đặt `public, s-maxage=...` mới được cache.
-// Phải hook writeHead: header của route được đặt sau middleware này.
-app.use((req, res, next) => {
-  const writeHead = res.writeHead;
-  res.writeHead = function (...args) {
-    if (!res.getHeader('Cache-Control')) {
-      if (req.path.match(/\.(png|jpg|jpeg|svg|webp|avif|ico|woff2|css|js)$/i) || req.path.startsWith('/image/') || req.path.startsWith('/favicon/') || req.path.startsWith('/splash/')) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      } else {
-        res.setHeader('Cache-Control', 'private, no-store');
-      }
-    }
-    return writeHead.apply(this, args);
-  };
-  next();
-});
 
 // Rate Limiting — skipped for localhost (Vite proxy collapses all dev requests
 // to 127.0.0.1/::1, making the shared IP window hit 429 almost immediately in

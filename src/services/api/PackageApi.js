@@ -2,7 +2,7 @@ import { BaseApi } from "./BaseApi";
 
 class PackageApi extends BaseApi {
   async getPackages() {
-    return this.get("/packages");
+    return this.get("/packages/admin");
   }
 
   async createPackage(data) {

@@ -1,37 +1,45 @@
-// Kiểm tra chốt chặn Cache-Control trong server.js: Cloudflare có Cache Rule cho
-// /api/*, nên một route trả dữ liệu member mà quên đặt header là lỗi rò rỉ dữ
-// liệu giữa các user. Chạy: node server/scripts/check-cache-headers.mjs
+// Run: node server/scripts/check-cache-headers.mjs
 import assert from 'node:assert/strict';
 import express from 'express';
+import { cachePolicy } from '../middleware/cachePolicy.js';
 
 const app = express();
-
-// Cùng middleware với server/server.js — sửa một bên thì sửa cả hai.
-app.use((req, res, next) => {
-  const writeHead = res.writeHead;
-  res.writeHead = function (...args) {
-    if (!res.getHeader('Cache-Control')) res.setHeader('Cache-Control', 'private, no-store');
-    return writeHead.apply(this, args);
-  };
-  next();
+app.use(cachePolicy);
+app.get('/private', (_req, res) => res.json({ email: 'member@example.com' }));
+app.get('/api/private.js', (_req, res) => res.json({ email: 'member@example.com' }));
+app.all('/public', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=0, s-maxage=60').json({ ok: true });
 });
-
-app.get('/private', (_req, res) => res.json({ email: 'ai-do@example.com' }));
-app.get('/public', (_req, res) => {
+app.get('/cookie', (_req, res) => {
+  res.cookie('member_jwt', 'example');
   res.set('Cache-Control', 'public, s-maxage=60').json({ ok: true });
 });
-app.get('/boom', () => { throw new Error('lỗi route'); });
-// Giống global error handler trong server.js
-app.use((_err, _req, res, _next) => res.status(500).json({ error: 'lỗi máy chủ' }));
-
-const server = app.listen(0);
+app.get('/boom', (_req, res) => {
+  res.set('Cache-Control', 'public, s-maxage=60');
+  throw new Error('route failure');
+});
+app.use((_err, _req, res, _next) => res.status(500).json({ error: 'server error' }));
+const server = app.listen(0, '127.0.0.1');
+await new Promise(resolve => server.once('listening', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
-
-const get = async (p) => (await fetch(`${base}${p}`)).headers.get('cache-control');
-
-assert.equal(await get('/private'), 'private, no-store', 'route quên đặt header phải bị chặn cache');
-assert.equal(await get('/public'), 'public, s-maxage=60', 'route cố ý cho cache phải giữ nguyên');
-assert.equal(await get('/boom'), 'private, no-store', 'response lỗi cũng không được cache');
-
-server.close();
-console.log('OK — chốt chặn Cache-Control hoạt động đúng.');
+try {
+  for (const [path, options] of [
+    ['/private'], ['/api/private.js'], ['/missing.png'], ['/cookie'], ['/boom'],
+    ['/public', { method: 'POST' }],
+    ['/public', { headers: { Authorization: 'Bearer example' } }],
+    ['/public', { headers: { Cookie: 'member_jwt=example' } }],
+  ]) {
+    const res = await fetch(base + path, options);
+    assert.equal(res.headers.get('cache-control'), 'private, no-store', path);
+    for (const header of ['CDN-Cache-Control', 'Vercel-CDN-Cache-Control', 'Cloudflare-CDN-Cache-Control']) {
+      assert.equal(res.headers.get(header), 'no-store', `${path}: ${header}`);
+    }
+  }
+  for (const method of ['GET', 'HEAD']) {
+    const res = await fetch(base + '/public', { method });
+    assert.equal(res.headers.get('cache-control'), 'public, max-age=0, s-maxage=60');
+  }
+  console.log('OK — public CDN cache; private, cookies, writes, errors and suffixes stay no-store.');
+} finally {
+  await new Promise(resolve => server.close(resolve));
+}
