@@ -1463,6 +1463,75 @@ router.get('/qr-payload', requireMember, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/joy/resolve-member?code= — tra người nhận từ MÃ VẠCH trên thẻ.
+ *
+ * Thẻ thành viên (MetalCard3D) in `referralCode` thành mã vạch để bạn bè quét mà
+ * tặng JOY. Mã QR có đường riêng (/resolve-qr, token ký HMAC), còn mã vạch mang
+ * mã thô nên cần đường này.
+ *
+ * ── VÌ SAO KHÔNG GIỐNG BẢN CŨ ────────────────────────────────────────────────
+ * Bản trước KHÔNG có cổng và trả về cả `joyBalance` + `createdAt`: ai cũng đọc
+ * được số dư của bất kỳ ai chỉ bằng một mã giới thiệu. Nó đã bị gỡ ngày 20/09 vì
+ * lý do đó. Bản này dựng lại đúng tính năng, bỏ đi phần rò:
+ *
+ *   1. `requireMember` — chỉ thành viên đã đăng nhập mới tra được.
+ *   2. Trả ĐÚNG những gì cần để xác nhận "đúng người này chứ?" trước khi gửi:
+ *      tên, ảnh, mã, slug. KHÔNG số dư, KHÔNG email, KHÔNG số điện thoại,
+ *      KHÔNG ngày tham gia.
+ *   3. Giới hạn tần suất theo người tra. `referralCode` có thể sinh từ SÁU SỐ
+ *      CUỐI điện thoại (referralService.normalizePhoneToCode), nên không giới
+ *      hạn thì đây thành máy dò "số điện thoại → tên + ảnh".
+ */
+const RESOLVE_LOOKUP_WINDOW_MS = 5 * 60 * 1000;
+const RESOLVE_LOOKUP_MAX = 30;
+const resolveLookupHits = new Map();
+
+function tooManyLookups(email) {
+  const now = Date.now();
+  const key = String(email || '').toLowerCase();
+  const hits = (resolveLookupHits.get(key) || []).filter((at) => now - at < RESOLVE_LOOKUP_WINDOW_MS);
+  hits.push(now);
+  resolveLookupHits.set(key, hits);
+  // Dọn định kỳ để Map không phình theo số người dùng đã từng tra.
+  if (resolveLookupHits.size > 5000) {
+    for (const [k, v] of resolveLookupHits) {
+      if (!v.some((at) => now - at < RESOLVE_LOOKUP_WINDOW_MS)) resolveLookupHits.delete(k);
+    }
+  }
+  return hits.length > RESOLVE_LOOKUP_MAX;
+}
+
+router.get('/resolve-member', requireMember, async (req, res) => {
+  try {
+    const code = String(req.query.code || '').trim().toUpperCase();
+    if (!code || code.length > 32) {
+      return res.status(400).json({ success: false, error: 'Mã thành viên không hợp lệ.' });
+    }
+    if (tooManyLookups(req.memberEmail)) {
+      return res.status(429).json({ success: false, error: 'Bạn đang tra quá nhanh. Thử lại sau vài phút.' });
+    }
+
+    const bio = await Bio.findOne({ referralCode: code })
+      .select('displayName avatarUrl referralCode slug')
+      .lean();
+    if (!bio) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy thành viên với mã này.' });
+    }
+
+    return res.json({
+      success: true,
+      displayName: bio.displayName || 'Thành viên Hugo Studio',
+      avatarUrl: bio.avatarUrl || '',
+      referralCode: bio.referralCode,
+      slug: bio.slug || '',
+    });
+  } catch (err) {
+    console.error('[joy/resolve-member]', err);
+    return res.status(500).json({ success: false, error: 'Không tra được mã. Thử lại sau.' });
+  }
+});
+
 const isBase64UrlJoyPayload = (payload) => typeof payload === 'string' && /^[A-Za-z0-9_-]{14}$/.test(payload);
 
 // GET /api/joy/resolve-qr?payload= — decode scanned QR to public info.

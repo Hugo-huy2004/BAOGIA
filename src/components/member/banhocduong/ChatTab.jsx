@@ -42,6 +42,7 @@ import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { useJoyStore } from "../../../stores/joyStore";
+import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
 
 // Raw chat text is only kept for 7 days — older messages are permanently
 // dropped to keep the stored history light. Long-term "memory" instead comes
@@ -1227,7 +1228,10 @@ export default function ChatTab({
   if (showTherapyOverlay) {
     return (
       <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
-        <div className="psy-chat-safe-header psy-liquid-glass shrink-0 flex items-center gap-2 px-4 py-2.5 border-x-0 border-t-0 rounded-none">
+        <div
+          className="psy-chat-safe-header psy-liquid-glass shrink-0 flex items-center gap-2 px-4 py-2.5 border-x-0 border-t-0 rounded-none"
+          style={{ paddingRight: CLOSE_BUTTON_RESERVE }}
+        >
           <button
             type="button"
             onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
@@ -1294,6 +1298,11 @@ export default function ChatTab({
       {/* ── Header — redesigned ────────────────────────────────────────────────── */}
       <div
         className="psy-chat-safe-header psy-liquid-glass shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 border-x-0 border-t-0 rounded-none"
+        /* Chừa chỗ cho nút X đỏ mà portal đặt `fixed` đè lên góc trên-phải.
+           ChatTab tự dựng header nên KHÔNG đi qua AppFrame — nó là header duy
+           nhất trong portal chưa từng chừa chỗ, nên nút cuối hàng (coach) nằm
+           ngay dưới nút X. Dùng chung hằng số với mọi chỗ khác. */
+        style={{ paddingRight: CLOSE_BUTTON_RESERVE }}
       >
         {/* Back button (mobile fullscreen only) */}
         {onExitFullscreen && (
