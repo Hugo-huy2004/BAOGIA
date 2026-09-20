@@ -25,6 +25,7 @@ const MEMBER = path.join(ROOT, "src/components/member");
  */
 const CERTIFIED = {
   friends: "20/09/2026 — 4 màn có địa chỉ thật (bản cũ chỉ đọc ?view= một lần lúc khởi tạo nên back của máy nhảy ra khỏi app), chữ lên sàn 13px ở cả JSX lẫn CSS, mr-10 đoán tay → CLOSE_BUTTON_RESERVE. Giữ hình thái bản đồ toàn màn (ngoại lệ có lý do)",
+  study: "20/09/2026 — gỡ StudyTopBar tự dựng (nó nhận onBack mà KHÔNG khai trong signature nên nút quay lại chưa bao giờ vẽ — lần thứ ba cùng lỗi); tiêu đề+%tiến độ vào khung, giữ hệ màu cineKit qua paletteVars; 2 khối Suspense nay có LazyBoundary. Bọc khung CHỈ khi !embedded vì /study và trang tiện ích công khai đã tự có chrome",
   team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
@@ -119,7 +120,7 @@ const CRITERIA = [
      */
     test: ({ entry, appName }) => Boolean(EXCEPTIONS[`address@${appName}`])
       || /\bonRouteChange\b/.test(entry)
-      || /useSearchParams|useParams/.test(entry),
+      || /useSearchParams|useParams|useLocation/.test(entry),   // useLocation cũng là đọc địa chỉ
   },
   {
     id: "responsive",

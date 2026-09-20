@@ -1,4 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import AppFrame from "../os/AppFrame";
+import LazyBoundary from "../os/LazyBoundary";
 import RegionNote from "../../public/RegionNote";
 import { useTranslation } from "react-i18next";
 import { languageCode } from "../../../i18n/languages";
@@ -178,20 +180,6 @@ function ToneSymbol({ tone, icon }) {
     <span className={`study-part-symbol is-${tone}`}>
       <span className="material-symbols-outlined">{icon}</span>
     </span>
-  );
-}
-
-function StudyTopBar({ copy, percent }) {
-  return (
-    <header className="study-topbar">
-      <div className="study-nav-title">
-        <strong>{copy.largeTitle}</strong>
-      </div>
-      <div className="study-nav-progress mr-10" aria-label={`${copy.progress}: ${percent}%`}>
-        <b>{percent}%</b>
-        <small>{copy.progress}</small>
-      </div>
-    </header>
   );
 }
 
@@ -552,6 +540,7 @@ export default function StudyWithHugoApp({
   // cần biết địa chỉ có trỏ vào một khoá hay không.
   if (view) {
     return (
+      <LazyBoundary onBack={backToStudy} backLabel={copy.largeTitle}>
       <Suspense fallback={<AppLoading copy={copy} />}>
         <WebLearningApp
           bio={bio}
@@ -565,6 +554,7 @@ export default function StudyWithHugoApp({
           externalStages={officeAdaptedData?.stages}
         />
       </Suspense>
+      </LazyBoundary>
     );
   }
 
@@ -576,12 +566,21 @@ export default function StudyWithHugoApp({
     stages: coderStages,
   });
 
-  return (
+  /*
+   * Vỏ: `AppFrame` khi chạy trong portal, và KHÔNG có vỏ khi `embedded` — hai
+   * trang công khai (/study và trang tiện ích) đã tự dựng chrome của chúng, bọc
+   * thêm một lớp nữa là hai thanh tiêu đề chồng nhau.
+   *
+   * `StudyTopBar` cũ đã gỡ: tiêu đề vào `title`, % tiến độ vào `actions`. Nó còn
+   * nhận `onBack` mà KHÔNG khai trong signature `({ copy, percent })`, nên nút
+   * quay lại chưa bao giờ được vẽ — đây là lần thứ ba cùng một lỗi (AppFrame và
+   * SubUtilityHeader trước đó), nay khung lo giúp nên không tái diễn.
+   *
+   * `paletteVars`: `.study-app` viết bằng token portal (--foreground, --border…)
+   * đúng như Hugo Team, nên vỏ phải cùng hệ màu, không lấy tint riêng.
+   */
+  const body = (
     <div className="study-app" data-locale={locale}>
-      {!embedded && (
-        <StudyTopBar copy={copy} percent={percentage(totals.completed, totals.total)} onBack={onBack} />
-      )}
-
       <main className="study-main">
         <StudyHero copy={copy} />
         <ResumeCard copy={copy} part={continuePart} locale={locale} onOpen={() => openPart(continuePart, collections.find((c) => c.id === continuePart.collectionId))} />
@@ -610,9 +609,11 @@ export default function StudyWithHugoApp({
           {/* Các bảng này nói về CẢ chương trình, không riêng khoá nào — nên
               chúng thuộc về trang chủ, không phải thanh tab bên trong một khoá. */}
           {panel.Panel ? (
+            <LazyBoundary>
             <Suspense fallback={<AppLoading copy={copy} />}>
               <panel.Panel {...panelProps} />
             </Suspense>
+            </LazyBoundary>
           ) : visibleCollections.length ? (
             <div className="study-collection-grid">
               {visibleCollections.flatMap((collection) => (
@@ -661,5 +662,39 @@ export default function StudyWithHugoApp({
         />
       )}
     </div>
+  );
+
+  if (embedded) return body;
+
+  return (
+    <AppFrame
+      appId="study"
+      largeTitle
+      onBack={onBack}
+      paletteVars={{
+        "--ios-bg": "hsl(var(--background))",
+        "--ios-elevated": "hsl(var(--card))",
+        "--ios-surface": "hsl(var(--card))",
+        "--ios-surface-2": "hsl(var(--muted))",
+        "--ios-label": "hsl(var(--foreground))",
+        "--ios-label-2": "hsl(var(--muted-foreground))",
+        "--ios-sep": "hsl(var(--border))",
+        "--ios-fill": "hsl(var(--muted))",
+        "--ios-fill-2": "hsl(var(--muted))",
+        "--ios-chrome": "hsl(var(--background) / .82)",
+      }}
+      actions={(
+        <span
+          className="flex flex-col items-end leading-none"
+          aria-label={`${copy.progress}: ${percentage(totals.completed, totals.total)}%`}
+        >
+          <b className="text-[15px] font-black">{percentage(totals.completed, totals.total)}%</b>
+          <small className="text-[13px] opacity-70">{copy.progress}</small>
+        </span>
+      )}
+      wide
+    >
+      {body}
+    </AppFrame>
   );
 }
