@@ -1851,7 +1851,12 @@
         "conversionFee": "{{from}} → {{to}} 换算手续费（{{percent}}%）",
         "close": "关闭",
         "pinHint": "输入 6 位 PIN 码，向 {{name}} 转账 {{amount, joy}}",
-        "caps": "每天最多 {{daily}} JOY · 每月 {{monthly}} JOY"
+        "caps": "每天最多 {{daily}} JOY · 每月 {{monthly}} JOY",
+        "cardCodeLabel": "会员卡上的编码",
+        "cardCodeFind": "查找收款人",
+        "cardCodeScan": "扫描条形码",
+        "cardCodeNoScanner": "此浏览器无法扫描条形码，请手动输入编码",
+        "cardCodeNotFound": "未找到使用该编码的会员。"
       },
       "exchange": {
         "exchanged": "交换",

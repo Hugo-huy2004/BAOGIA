@@ -182,8 +182,18 @@ export async function verifyTransactionPin(pin) {
   return parseOrThrow(res);
 }
 
-export async function resolveNfcCode(code) {
-  const res = await fetch(`${getApiUrl()}/joy/resolve-nfc?code=${encodeURIComponent(code)}`);
+/**
+ * Tra người nhận từ MÃ TRÊN THẺ (mã vạch CODE128, hoặc gõ tay, hoặc thẻ NFC).
+ *
+ * Trước đây có hai đường làm đúng một việc: `/joy/resolve-nfc` (không cổng,
+ * không giới hạn tần suất) và `/joy/resolve-member`. Cái thứ nhất đã bị gỡ —
+ * để ngỏ thì bất kỳ ai cũng dò được "mã giới thiệu → tên + ảnh", mà mã giới
+ * thiệu lại có thể sinh từ sáu số cuối điện thoại.
+ */
+export async function resolveMemberCode(code) {
+  const res = await fetch(`${getApiUrl()}/joy/resolve-member?code=${encodeURIComponent(code)}`, {
+    credentials: "include",
+  });
   return parseOrThrow(res);
 }
 

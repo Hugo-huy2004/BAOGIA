@@ -3656,7 +3656,12 @@
         "conversionFee": "{{from}} → {{to}} conversion ({{percent}}%)",
         "close": "Close",
         "pinHint": "Enter your 6-digit PIN to send {{amount, joy}} to {{name}}",
-        "caps": "Up to {{daily}} JOY/day · {{monthly}} JOY/month"
+        "caps": "Up to {{daily}} JOY/day · {{monthly}} JOY/month",
+        "cardCodeLabel": "Code on the membership card",
+        "cardCodeFind": "Find recipient",
+        "cardCodeScan": "Scan barcode",
+        "cardCodeNoScanner": "This browser cannot scan barcodes — please type the code",
+        "cardCodeNotFound": "No member found with that code."
       },
       "exchange": {
         "exchanged": "Exchanged",

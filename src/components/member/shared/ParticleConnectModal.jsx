@@ -4,8 +4,9 @@ import { useTranslation } from "react-i18next";
 import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
+import CardCodeEntry from "./CardCodeEntry";
 import { base64UrlToBytes } from "../../../utils/particleCloudCode";
-import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
+import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
@@ -1219,6 +1220,30 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         </div>
                       )}
                       {error && <p className="text-center text-[10px] font-semibold text-red-500">{error}</p>}
+
+                      {/* MÃ TRÊN THẺ. Máy quét phía trên chỉ đọc mã chấm của
+                          Hugo; thẻ thành viên còn in một mã vạch CODE128 và dãy
+                          chữ bên dưới nó, và đó mới là thứ người ta chìa ra khi
+                          nói "quét thẻ tôi đi". Trước đây không có đường nào
+                          nhận mã đó nên tặng JOY bằng thẻ coi như không dùng được. */}
+                      <div className="joy-connect-card-code">
+                        <Divider />
+                        <CardCodeEntry
+                          busy={scanResolving}
+                          onResolve={(code) => {
+                            setError("");
+                            setScanResolving(true);
+                            resolveMemberCode(code)
+                              .then((data) => { playBeep(); selectRecipient(data); })
+                              .catch((err) => {
+                                playLose();
+                                setError(err.message || t("memberPortal.joy.particle.cardCodeNotFound", "Không tìm thấy thành viên với mã này."));
+                              })
+                              .finally(() => setScanResolving(false));
+                          }}
+                        />
+                      </div>
+
                       <div className="joy-connect-scan-tools">
                         <button type="button" onClick={() => { setMode("search"); setError(""); }}><span className="material-symbols-outlined">person_search</span>{t("memberPortal.joy.particle.findManually")}</button>
                         {nfcSupported ? (
@@ -1269,7 +1294,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                             const cleanup = startNfcScan((code) => {
                               setNfcScanning(false);
                               setScanResolving(true);
-                              resolveNfcCode(code)
+                              resolveMemberCode(code)
                                 .then(data => { playBeep(); selectRecipient(data); })
                                 .catch(e => { playLose(); setError(e.message || t("memberPortal.joy.particle.nfcReadError", "Không đọc được thẻ NFC")); })
                                 .finally(() => setScanResolving(false));

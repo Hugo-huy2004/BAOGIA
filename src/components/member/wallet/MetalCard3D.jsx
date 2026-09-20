@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
 import JsBarcode from "jsbarcode";
 import { useJoy } from "../../../lib/joyDisplay";
 import { hapticSelect } from "../../../utils/haptics";
@@ -125,6 +125,50 @@ const THEMES                    = [
   },
 ];
 
+/**
+ * KHỔ VẼ CỦA THẺ — cố định, không đổi theo màn hình.
+ *
+ * 460×290 là tỷ lệ thẻ ID-1 theo ISO/IEC 7810 (85,6 × 53,98 mm → 1,586), đúng
+ * tỷ lệ của thẻ ngân hàng cầm trên tay. Mọi con chữ, khoảng đệm và mã vạch bên
+ * trong được vẽ theo đúng khổ này.
+ */
+const CARD_W = 460;
+const CARD_H = 290;
+
+/**
+ * Tỷ lệ thu nhỏ để thẻ vừa khít bề ngang đang có.
+ *
+ * ── VÌ SAO KHÔNG DÙNG BREAKPOINT ────────────────────────────────────────────
+ * Trước đây cỡ chữ trong thẻ đổi theo `sm:` — tức theo bề ngang MÀN HÌNH, thứ
+ * chẳng liên quan gì tới bề ngang THẺ. Trên desktop thẻ nằm trong một cột hẹp
+ * (5/12) nhưng vẫn lấy cỡ chữ của tablet, nên chữ tràn và tỷ lệ sai; trên điện
+ * thoại thì ngược lại. Vẽ nguyên khổ rồi thu cả khối thì mọi tỷ lệ bên trong
+ * đúng tuyệt đối ở mọi bề ngang — đúng như thu nhỏ một tấm thẻ thật.
+ */
+function useCardScale() {
+  const boxRef = useRef(null);
+  const [scale, setScale] = useState(1);
+
+  // useLayoutEffect chứ không useEffect: đo sau khung đầu thì thẻ loé lên ở khổ
+  // 460px rồi mới thu lại — trên cột hẹp đó là một cú giật rất rõ.
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    if (!box) return undefined;
+    const measure = () => {
+      const width = box.clientWidth;
+      // Không bao giờ PHÓNG TO quá khổ gốc: mã vạch và viền kim loại vẽ cho
+      // 460px, kéo to hơn chỉ làm chúng mờ.
+      if (width > 0) setScale(Math.min(width / CARD_W, 1));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, []);
+
+  return [boxRef, scale];
+}
+
 export default function MetalCard3D({
   balance,
   cardholderName,
@@ -136,6 +180,7 @@ export default function MetalCard3D({
   onTierChange,
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [boxRef, scale] = useCardScale();
   const joy = useJoy();
   const barcodeRef = useRef(null);
 
@@ -277,12 +322,27 @@ export default function MetalCard3D({
 
   return (
     <div className="w-full flex flex-col items-center select-none py-1">
-      {/* 3D Perspective Card Container (Chạm bất kỳ đâu trên thẻ để tự xoay 3D) */}
+      {/* BA lớp, mỗi lớp đúng một việc. Gộp lại thì hỏng:
+          ĐO   — chiếm bề ngang có sẵn, cao theo tỷ lệ thẻ sau khi thu.
+          THU  — khối 460×290 thu nhỏ. Phải là một div RIÊNG, không mang
+                 `preserve-3d`: đặt `scale()` lên chính phần tử giữ ngữ cảnh 3D
+                 sẽ làm phẳng nó và cả hai mặt thẻ biến mất (đã gặp).
+          LẬT  — nơi duy nhất có preserve-3d + rotateY, y như trước. */}
       <div
-        className="w-full max-w-[460px] aspect-[1.586/1] relative cursor-pointer"
-        style={{ perspective: "1200px" }}
+        ref={boxRef}
+        className="w-full max-w-[460px] relative cursor-pointer"
+        style={{ height: CARD_H * scale }}
         onClick={handleCardClick}
       >
+        <div
+          style={{
+            width: CARD_W,
+            height: CARD_H,
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+            perspective: "1200px",
+          }}
+        >
         <div
           className="w-full h-full relative transition-transform duration-700 ease-out"
           style={{
@@ -297,7 +357,7 @@ export default function MetalCard3D({
               - Dưới trái: Tên chủ thẻ, ID và EXP date nhỏ
               ══════════════════════════════════════════════════════════════ */}
           <div
-            className="absolute inset-0 w-full h-full rounded-[28px] sm:rounded-[34px] p-6 sm:p-7 overflow-hidden shadow-2xl flex flex-col justify-between"
+            className="absolute inset-0 w-full h-full rounded-[34px] p-7 overflow-hidden shadow-2xl flex flex-col justify-between"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
@@ -323,11 +383,11 @@ export default function MetalCard3D({
 
             {/* Hàng 2: TÊN LOẠI HẠNG THÀNH VIÊN Ở GIỮA THẺ (CÓ Ổ KHÓA NẾU KHÔNG PHẢI HẠNG CỦA MÌNH) */}
             {!isTierUnlocked ? (
-              <div className="relative z-20 my-auto flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 text-white shadow-xl mx-auto max-w-[240px]">
+              <div className="relative z-20 my-auto flex flex-col items-center justify-center p-3.5 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 text-white shadow-xl mx-auto max-w-[240px]">
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-1 shadow-inner">
                   <span className="material-symbols-outlined text-2xl text-white">lock</span>
                 </div>
-                <h4 className="text-sm sm:text-base font-black font-mono tracking-wider uppercase m-0 text-center text-white">
+                <h4 className="text-base font-black font-mono tracking-wider uppercase m-0 text-center text-white">
                   {currentTheme.name}
                 </h4>
                 <span className="text-[12px] font-bold text-amber-300 mt-0.5 tracking-wider uppercase text-center">
@@ -340,13 +400,13 @@ export default function MetalCard3D({
             ) : (
               <div className="relative z-10 my-auto text-left">
                 <h3
-                  className="text-3xl sm:text-5xl font-black font-mono tracking-tight uppercase m-0 leading-none"
+                  className="text-5xl font-black font-mono tracking-tight uppercase m-0 leading-none"
                   style={{ color: currentTheme.textColor }}
                 >
                   {currentTheme.name}
                 </h3>
                 <p
-                  className="text-xs sm:text-sm font-bold opacity-80 uppercase tracking-wider mt-1.5 m-0"
+                  className="text-sm font-bold opacity-80 uppercase tracking-wider mt-1.5 m-0"
                   style={{ color: currentTheme.subtextColor }}
                 >
                   {currentTheme.subLabel}
@@ -358,20 +418,20 @@ export default function MetalCard3D({
             <div className="relative z-10 flex items-end justify-between pt-2">
               <div className="text-left">
                 <span
-                  className="text-[11px] sm:text-[12px] font-semibold block mb-0.5 tracking-wide uppercase"
+                  className="text-[12px] font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{ color: currentTheme.subtextColor }}
                 >
                   Chủ thẻ
                 </span>
                 <span
-                  className="text-xs sm:text-sm font-bold font-mono tracking-wider block uppercase"
+                  className="text-sm font-bold font-mono tracking-wider block uppercase"
                   style={{ color: currentTheme.textColor }}
                 >
                   {cardholderName || "HUGO MEMBER"}
                 </span>
-                <div className="flex items-center gap-2 sm:gap-2.5 mt-0.5">
+                <div className="flex items-center gap-2.5 mt-0.5">
                   <span
-                    className="text-[11px] sm:text-[12px] font-mono font-semibold tracking-wider block"
+                    className="text-[12px] font-mono font-semibold tracking-wider block"
                     style={{ color: currentTheme.subtextColor }}
                     title={tierExp.hint}
                   >
@@ -383,7 +443,7 @@ export default function MetalCard3D({
               {/* SỐ JOY HIỆN TẠI THAY THẾ CHO EXP DATE (MÀU CHỐNG CHÌM TRÊN MỌI MẢNG NỀN) */}
               <div className="text-right">
                 <span
-                  className="text-[11px] sm:text-xs font-semibold block mb-0.5 tracking-wide uppercase"
+                  className="text-xs font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{
                     color: currentTheme.balanceSubtextColor || currentTheme.subtextColor,
                     textShadow: currentTheme.id === "star18" ? "0 1px 2px rgba(0,0,0,0.8)" : "none",
@@ -393,7 +453,7 @@ export default function MetalCard3D({
                 </span>
                 <div className="flex items-baseline justify-end gap-1 font-mono">
                   <span
-                    className="text-xl sm:text-3xl font-black tracking-tight"
+                    className="text-3xl font-black tracking-tight"
                     style={{
                       color: currentTheme.balanceTextColor || currentTheme.textColor,
                       textShadow: currentTheme.id === "star18" ? "0 2px 4px rgba(0,0,0,0.9)" : "none",
@@ -402,7 +462,7 @@ export default function MetalCard3D({
                     {joy.number(balance)}
                   </span>
                   <span
-                    className="text-xs sm:text-sm font-black"
+                    className="text-sm font-black"
                     style={{
                       color: currentTheme.balanceJoyColor || currentTheme.textColor,
                       opacity: currentTheme.id === "star18" ? 1 : 0.85,
@@ -424,7 +484,7 @@ export default function MetalCard3D({
               - Dưới: ID thành viên dập nổi + Các dòng chính sách quy định dùng thẻ
               ══════════════════════════════════════════════════════════════ */}
           <div
-            className="absolute inset-0 w-full h-full rounded-[28px] sm:rounded-[34px] overflow-hidden shadow-2xl flex flex-col justify-between"
+            className="absolute inset-0 w-full h-full rounded-[34px] overflow-hidden shadow-2xl flex flex-col justify-between"
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
@@ -434,13 +494,13 @@ export default function MetalCard3D({
             }}
           >
             {/* Dải từ tính đen bóng ATM (Magnetic Stripe) với ánh phản quang chéo */}
-            <div className="w-full h-10 sm:h-12 mt-4 sm:mt-5 bg-[#09090b] shadow-inner relative overflow-hidden">
+            <div className="w-full h-12 mt-5 bg-[#09090b] shadow-inner relative overflow-hidden">
               <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent_40%,rgba(255,255,255,0.15)_50%,transparent_60%)]" />
             </div>
 
             {/* DẢI TRẮNG CHỨA MÃ VẠCH ĐA NĂNG (Gôm mã QR vào thẳng mã vạch) */}
-            <div className="px-5 sm:px-6 my-auto">
-              <div className="w-full p-2 sm:p-2.5 rounded-xl bg-white shadow-md flex flex-col items-center justify-center overflow-hidden">
+            <div className="px-6 my-auto">
+              <div className="w-full p-2.5 rounded-xl bg-white shadow-md flex flex-col items-center justify-center overflow-hidden">
                 <svg ref={barcodeRef} className="w-full max-h-12 overflow-visible" />
               </div>
             </div>
@@ -449,7 +509,7 @@ export default function MetalCard3D({
             <div className="px-6 pb-4 pt-1 space-y-2 text-left">
               {/* ID thành viên phong cách thẻ ngân hàng dập nổi (thay cho .... .... .... NHHK) */}
               <div
-                className="tracking-[0.25em] font-mono font-black text-sm sm:text-base select-none"
+                className="tracking-[0.25em] font-mono font-black text-base select-none"
                 style={{
                   color: currentTheme.backTextColor || currentTheme.textColor,
                   textShadow:
@@ -463,7 +523,7 @@ export default function MetalCard3D({
 
               {/* Các dòng chữ chính sách quy định về dùng thẻ */}
               <div
-                className="space-y-1 text-[11px] sm:text-[12px] leading-relaxed select-none"
+                className="space-y-1 text-[12px] leading-relaxed select-none"
                 style={{ color: currentTheme.backTextColor || currentTheme.textColor }}
               >
                 <p className="m-0 font-medium opacity-85">
@@ -475,6 +535,7 @@ export default function MetalCard3D({
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
 

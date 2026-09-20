@@ -97,8 +97,12 @@ const PUBLIC_ROUTES = {
   "opsRoutes.js POST /client-event": "telemetry từ trình duyệt, gồm cả khách vãng lai",
 
   // ── Mã QR/NFC ký bằng HMAC — bản thân mã là chứng cứ ─────────────────────
+  // Chỉ mã QR mới được miễn cổng, vì bản thân token đã là chứng cứ do máy chủ
+  // ký. `/resolve-nfc` từng đứng đây với lý do "như trên" — sai: nó nhận MÃ THÔ
+  // trên thẻ, không phải token ký, nên ai cũng dò được "mã → tên + ảnh". Route
+  // đó đã bị gỡ; mã thẻ nay đi qua /resolve-member (requireMember + giới hạn
+  // tần suất). Đừng thêm lại một dòng miễn cổng cho mã không ký.
   "joyRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
-  "joyRoutes.js GET /resolve-nfc": "như trên",
 
   // ── Công cụ tệp: cổng dùng thử 3 lượt/ngày theo IP (config/publicTools.js)
   "fileToolsRoutes.js POST /extract/upload": "HugoKit cho khách dùng thử; giới hạn theo IP",

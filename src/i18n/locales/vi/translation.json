@@ -3657,7 +3657,12 @@
         "conversionFee": "Phí đổi {{from}} → {{to}} ({{percent}}%)",
         "close": "Đóng",
         "pinHint": "Nhập mã PIN 6 chữ số để chuyển {{amount, joy}} cho {{name}}",
-        "caps": "Tối đa {{daily}} JOY/ngày · {{monthly}} JOY/tháng"
+        "caps": "Tối đa {{daily}} JOY/ngày · {{monthly}} JOY/tháng",
+        "cardCodeLabel": "Mã trên thẻ thành viên",
+        "cardCodeFind": "Tìm người nhận",
+        "cardCodeScan": "Quét mã vạch",
+        "cardCodeNoScanner": "Trình duyệt này chưa quét được mã vạch — vui lòng nhập mã",
+        "cardCodeNotFound": "Không tìm thấy thành viên với mã này."
       },
       "exchange": {
         "exchanged": "Đã đổi",
