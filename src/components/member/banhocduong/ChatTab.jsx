@@ -1359,10 +1359,13 @@ export default function ChatTab({
             const TokenIcon = tokenLockMinutes > 0 ? LockKeyhole : Zap;
 
             return (
-              <button 
+              <button
                 type="button"
                 onClick={() => setShowTokenExchangeModal(true)}
-                className="flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
+                /* `hidden sm:flex` — trên điện thoại pill này đã chuyển xuống menu
+                   coach. Thanh tiêu đề của một app CHAT chỉ nên có: đường ra, mình
+                   đang nói với ai, và một lối vào phần còn lại. */
+                className="hidden sm:flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
                 title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
               >
                 <div className="relative w-4 h-4 flex items-center justify-center">
@@ -1432,10 +1435,11 @@ export default function ChatTab({
             <BrainCircuit className="h-[17px] w-[17px]" />
           </button>
 
-          {/* Venting mode toggle */}
+          {/* Venting mode toggle — `hidden sm:flex` trên điện thoại, đã có một hàng
+              tương đương trong menu coach. */}
           <button type="button" onClick={toggleVentingMode}
             title={isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
-            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+            className={`hidden sm:flex w-11 h-11 rounded-full items-center justify-center transition-all active:scale-90 ${
               isVentingMode
                 ? "bg-foreground/10 text-foreground border border-foreground/15"
                 : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
@@ -1506,6 +1510,45 @@ export default function ChatTab({
                 </span>
               </button>
             </div>
+            {/* ── Hai mục CHỈ HIỆN TRÊN ĐIỆN THOẠI ──────────────────────────
+                Chúng vốn là hai nút riêng trên thanh tiêu đề. Thanh đó đã có sáu
+                phần tử không co cộng khoảng chừa nút X, nên trên màn 390px tổng
+                bề ngang vượt màn và thứ bị bóp lại chính là TÊN APP. Dời xuống
+                đây thì thanh chỉ còn: đường ra · đang nói với ai · lối vào phần
+                còn lại — đúng thứ một app chat cần. Không mất chức năng nào. */}
+            <div className="mt-2 grid gap-2 sm:hidden">
+              <button
+                type="button"
+                onClick={() => { toggleVentingMode(); setShowCoachMenu(false); }}
+                className="flex min-h-11 items-center gap-2.5 rounded-2xl border border-border/60 bg-card/80 px-3 py-2.5 text-left transition active:scale-[0.98]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
+                  {isVentingMode ? <Flame className="h-4 w-4" /> : <Smile className="h-4 w-4" />}
+                </span>
+                <strong className="text-[13px] text-foreground">
+                  {isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
+                </strong>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setShowTokenExchangeModal(true); setShowCoachMenu(false); }}
+                className="flex min-h-11 items-center gap-2.5 rounded-2xl border border-border/60 bg-card/80 px-3 py-2.5 text-left transition active:scale-[0.98]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
+                  {tokenLockMinutes > 0
+                    ? <LockKeyhole className="h-4 w-4" strokeWidth={2.25} />
+                    : <Zap className="h-4 w-4" strokeWidth={2.25} />}
+                </span>
+                <strong className="flex-1 text-[13px] text-foreground">{t("hugoPsy.chat.luotTroChuyen", "Lượt trò chuyện")}</strong>
+                <span className="text-[13px] font-black text-muted-foreground">
+                  {tokenLockMinutes > 0
+                    ? t("hugoPsy.chat.khoa")
+                    : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}
+                </span>
+              </button>
+            </div>
+
             <p className="mt-2 px-1 text-[13px] leading-4 text-muted-foreground">
               {t("hugoPsy.coach.disclaimer")}
             </p>
