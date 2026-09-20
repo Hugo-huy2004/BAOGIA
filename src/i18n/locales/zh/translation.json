@@ -2511,7 +2511,8 @@
         "defaulted": "已有逾期记录",
         "noNetIncome": "所得 JOY 尚未超过所耗 JOY",
         "lowEngagement": "请更规律地使用系统",
-        "lowScore": "评分未达核准门槛"
+        "lowScore": "评分未达核准门槛",
+        "tooNew": "账户于本系统仍属新近"
       },
       "howTitle": "JOYlater 如何运作",
       "how1": "选要先拿多少 JOY——上限按你自己赚到的算。",

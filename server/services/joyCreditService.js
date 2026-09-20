@@ -7,6 +7,7 @@ import { notifyMember } from '../utils/notifyMember.js';
 import { weekKey } from './joyStabilityService.js';
 import { assess, canApply, CREDIT } from '../../shared/joyCredit.js';
 import { bioAge, isAdultAge } from '../utils/memberAge.js';
+import { memberTier } from '../utils/memberTier.js';
 
 /**
  * Xét hạn mức JOYlater.
@@ -31,12 +32,16 @@ const WINDOW_DAYS = 28;
  */
 export async function gatherSignals(email) {
   const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] })
-    .select('email joyBalance createdAt birthYear birthMonth birthDay')
+    .select('email joyBalance createdAt birthYear birthMonth birthDay starVip')
     .lean();
   if (!bio) throw new Error('BIO_NOT_FOUND');
 
   const since = new Date(Date.now() - WINDOW_DAYS * DAY);
-  const [flows, profile, surveys, credit] = await Promise.all([
+  // Cửa sổ dài hơn cho "số ngày hoạt động": thu nhập nhìn 28 ngày gần nhất mới
+  // phản ánh hiện tại, nhưng mức độ gắn bó thì phải nhìn xa hơn thế.
+  const activeSince = new Date(Date.now() - 90 * DAY);
+
+  const [flows, ledgerDays, profile, surveys, credit] = await Promise.all([
     JoyLedger.aggregate([
       { $match: { email: bio.email, createdAt: { $gte: since } } },
       {
@@ -47,6 +52,8 @@ export async function gatherSignals(email) {
         },
       },
     ]),
+    JoyLedger.distinct('createdAt', { email: bio.email, createdAt: { $gte: activeSince } })
+      .then((dates) => [...new Set(dates.map((d) => new Date(d).toISOString().slice(0, 10)))]),
     UserProfile.findOne({ email: bio.email }, 'appUse appUseAt').lean(),
     SurveyResponse.countDocuments({ email: bio.email }),
     JoyCreditProfile.findOne({ email: bio.email }).lean(),
@@ -74,10 +81,22 @@ export async function gatherSignals(email) {
   const appUse = profile?.appUse instanceof Map
     ? Object.fromEntries(profile.appUse)
     : (profile?.appUse || {});
-  const activeDays = Object.values(appUse).reduce((sum, n) => sum + Number(n || 0), 0);
+
+  // `activeDays` đếm từ SỔ CÁI JOY, không từ nhật ký mở app.
+  //
+  // Nhật ký mở app (`UserProfile.appUse`) chỉ mới tồn tại từ 20/09/2026, nên
+  // nếu chấm theo nó thì MỌI thành viên cũ đều có 0 ngày hoạt động — một thành
+  // viên dùng hệ thống 220 ngày bị chấm y như người vừa đăng ký. Sổ cái thì có
+  // lịch sử từ đầu. Nhật ký mở app vẫn dùng cho `appsUsed` (số ứng dụng), và sẽ
+  // tự đúng dần khi nó tích đủ dữ liệu.
+  const activeDays = ledgerDays.length;
 
   return {
     email: bio.email,
+    // Hạng quyết định HỆ SỐ nhân hạn mức (shared/tierFinance.js). Gom ở đây
+    // cùng mọi tín hiệu khác để màn hình, kỳ xét thứ Bảy và lúc nộp hồ sơ đều
+    // nhìn thấy đúng một bộ số.
+    tier: memberTier(bio),
     isAdult: isAdultAge(bioAge(bio)),
     accountDays: bio.createdAt ? Math.floor((Date.now() - new Date(bio.createdAt)) / DAY) : 0,
     balance: Number(bio.joyBalance || 0),

@@ -4316,7 +4316,8 @@
         "defaulted": "A past-due balance is on record",
         "noNetIncome": "JOY earned does not yet exceed JOY spent",
         "lowEngagement": "Use the system more regularly",
-        "lowScore": "Score is below the approval threshold"
+        "lowScore": "Score is below the approval threshold",
+        "tooNew": "Account is still new to the system"
       },
       "howTitle": "How JOYlater works",
       "how1": "Pick how much JOY you want up front — your maximum comes from what you earn.",

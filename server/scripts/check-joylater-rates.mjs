@@ -164,6 +164,43 @@ check(canApply({ isAdult: true, accountDays: 1, lifetimeEarned: 99999 }).reasons
 check(scoreOf({}).total === 0, 'hồ sơ rỗng → 0 điểm, không lỗi');
 check(assess({}).limit === 0, 'hồ sơ rỗng → hạn mức 0');
 
+
+// ── 10. DÙNG LÂU THÌ DUYỆT DỄ, MỚI VÀO ĐÒI VAY NGAY THÌ KHÔNG ────────────────
+// Bản đầu của bộ chấm đặt THU NHẬP nặng nhất và chấm "gắn bó" bằng hai tín hiệu
+// vừa mới ra đời (nhật ký mở app, câu trả lời khảo sát). Hậu quả: một thành
+// viên 220 ngày với 190.000 JOY trong ví bị từ chối, vì ở hai tín hiệu đó mọi
+// thành viên CŨ đều bằng 0. Những bài kiểm dưới đây khoá lại hành vi đúng.
+const veteran = { accountDays: 220, lifetimeEarned: 600000, balance: 190895,
+  medianDailyIncome: 0, medianDailySpend: 0, tier: 'star18' };
+check(assess(veteran).approved,
+  'dùng 220 ngày, số dư lớn, tháng này không kiếm thêm → VẪN DUYỆT');
+check(assess({ ...veteran, activeDays: 0, appsUsed: 0, surveysAnswered: 0 }).approved,
+  'và vẫn duyệt kể cả khi ba tín hiệu mới đều bằng 0 (thành viên cũ không có lịch sử ở đó)');
+
+const rookie = { accountDays: 14, lifetimeEarned: 1000, balance: 300,
+  medianDailyIncome: 20, medianDailySpend: 15, tier: 'star18' };
+check(!assess(rookie).approved,
+  'vừa đủ cổng 14 ngày rồi đòi vay ngay → TỪ CHỐI (đây là trường hợp duy nhất cần chặn)');
+check(assess(rookie).reasons.includes('tooNew'), 'và nói rõ lý do là còn quá mới');
+
+// Thâm niên phải là cột NẶNG NHẤT — nếu ai đó hạ nó xuống, lỗi cũ quay lại.
+check(WEIGHTS.tenure === Math.max(...Object.values(WEIGHTS)),
+  `thâm niên là cột nặng nhất (${WEIGHTS.tenure}/${Object.values(WEIGHTS).reduce((a, b) => a + b, 0)})`);
+check(WEIGHTS.tenure > WEIGHTS.engagement * 2,
+  'thâm niên nặng hơn hẳn "gắn bó" — gắn bó đo bằng tín hiệu mới, thâm niên đo bằng lịch sử thật');
+
+// Đường cong thâm niên phải lên nhanh ở giai đoạn đầu.
+const tenureAt = (days) => scoreOf({ accountDays: days, lifetimeEarned: 10000 }).parts.tenure.points;
+check(tenureAt(90) > tenureAt(14) * 1.5, '90 ngày hơn hẳn 14 ngày (khoảng đầu phải phân biệt được)');
+check(tenureAt(365) - tenureAt(300) < tenureAt(90) - tenureAt(30),
+  'từ 300 lên 365 ngày gần như không thêm gì — chênh lệch nằm ở khoảng đầu');
+// Cột thâm niên gồm CẢ tổng JOY từng kiếm, nên phải để cả hai bằng 0 — một
+// tài khoản 0 ngày mà đã kiếm 10.000 JOY là hồ sơ không thể tồn tại.
+check(scoreOf({ accountDays: 0, lifetimeEarned: 0 }).parts.tenure.points === 0,
+  'tài khoản 0 ngày, chưa kiếm gì → 0 điểm thâm niên');
+check(tenureAt(0) > 0,
+  'nhưng 0 ngày mà đã kiếm nhiều thì vẫn có điểm — hai nửa của cột này độc lập');
+
 console.log(failed
   ? `\n❌ Lãi & hạn mức JOYlater: ${failed} mục chưa đạt`
   : '\n✅ Lãi & hạn mức JOYlater đạt — ba tầng tách rời, hai trần luật còn nguyên');

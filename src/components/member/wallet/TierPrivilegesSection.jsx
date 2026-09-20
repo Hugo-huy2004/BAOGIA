@@ -1,5 +1,29 @@
 import React from "react";
 import { TIER_META } from "../../../lib/memberTier";
+import { financeFacts } from "../../../../shared/tierFinance";
+
+/**
+ * Dòng "Tài chính & Giao dịch" được SINH RA từ shared/tierFinance.js, không
+ * viết tay.
+ *
+ * Bốn dòng này từng là chuỗi HTML gõ tay, và cả bốn đều sai: hứa Star-VIP miễn
+ * phí 0% trong khi mọi người đều bị thu 5%, hứa Star-14 trần 500/ngày trong khi
+ * thực tế 1.000, hứa hạn mức vay 1.000/5.000/500 trong khi mã nguồn chưa bao
+ * giờ đọc tới hạng. Sai vì có HAI nguồn mà không gì so chúng với nhau.
+ *
+ * Giờ con số chỉ còn một chỗ, và `check:tier-finance` chặn mọi con số viết tay
+ * quay lại dòng này.
+ */
+function financeBenefit(tier) {
+  const f = financeFacts(tier);
+  const credit = f.creditLocked
+    ? "Không phát sinh giao dịch nợ (khoá tính năng vay JOYlater)"
+    : `Hạn mức vay JOYlater nhân ×${f.creditMultiplier} trên hạn mức được xét theo hồ sơ`;
+  const fee = f.feeFree
+    ? "miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY"
+    : `phí chuyển JOY ${f.feePercent}%`;
+  return `<b>Tài chính & Giao dịch:</b> ${credit}, ${fee}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
+}
 
 export const TIER_PRIVILEGES_MAP = {
   star18: {
@@ -15,7 +39,7 @@ export const TIER_PRIVILEGES_MAP = {
       "<b>Lập trình & Kỹ năng số:</b> Mở khoá miễn phí HugoCoder Basic nền tảng; hỗ trợ giá sinh viên cho toàn bộ chặng chuyên sâu.",
       "<b>Tâm lý học (HugoPSY):</b> Trị liệu AI 60 phút mỗi ngày miễn phí, nhận thưởng lên đến 180 JOY/ngày.",
       "<b>Tiện ích & Giải trí:</b> Nghe Lofi không quảng cáo, mở khoá toàn bộ game Arcade, sử dụng miễn phí HugoSO Docs & Lịch.",
-      "<b>Tài chính & Giao dịch:</b> Hạn mức vay JOYlater 1.000 JOY, phí chuyển JOY cá nhân ưu đãi 5%.",
+      financeBenefit("star18"),
       "<b>Đặc quyền sinh nhật:</b> Cộng thêm 30 ngày duy trì tài khoản & Voucher giảm 15% khi thiết kế website."
     ],
   },
@@ -32,7 +56,7 @@ export const TIER_PRIVILEGES_MAP = {
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí hoàn toàn Chặng 1 Basic để định hướng sớm tư duy lập trình.",
       "<b>Tâm lý học (HugoPSY):</b> Kênh tâm sự học đường bảo mật và ẩn danh tuyệt đối.",
       "<b>Tiện ích học tập:</b> Không gian Lofi học bài, HugoSO Ghi chú & Thời khoá biểu miễn phí.",
-      "<b>Bảo vệ tài chính:</b> Không phát sinh giao dịch nợ (Khoá tính năng vay JOYlater), kiểm soát chuyển JOY tối đa 500 JOY/ngày.",
+      financeBenefit("star14"),
       "<b>Quà tặng sinh nhật:</b> Cộng thêm 15 ngày gia hạn tài khoản (Tự động nâng cấp Star-18 khi đủ 18 tuổi)."
     ],
   },
@@ -49,7 +73,7 @@ export const TIER_PRIVILEGES_MAP = {
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí truy cập trọn đời toàn bộ 6 chặng đào tạo (từ Basic đến DevOps).",
       "<b>Tâm lý học (HugoPSY):</b> Trị liệu chuyên sâu ưu tiên, không giới hạn thời gian và số lượt.",
       "<b>Tiện ích & Giải trí:</b> Mở khoá trọn bộ HugoSO Bundle, kho âm thanh Premium, toàn bộ Arcade game với x2 thưởng JOY.",
-      "<b>Tài chính & Giao dịch:</b> Hạn mức danh dự cao nhất 5.000 JOY, miễn phí hoàn toàn (0%) mọi loại phí giao dịch chuyển JOY.",
+      financeBenefit("starVip"),
       "<b>Đặc quyền VIP:</b> Cộng 90 ngày hạn tài khoản mỗi dịp sinh nhật, Voucher ưu đãi lớn cho dịch vụ Website."
     ],
   },
@@ -66,7 +90,7 @@ export const TIER_PRIVILEGES_MAP = {
       "<b>Lập trình & Kỹ năng số:</b> Thuê hoặc mua bài học linh hoạt bằng JOY (200 - 450 JOY tuỳ chặng).",
       "<b>Tâm lý học (HugoPSY):</b> Trải nghiệm phiên cơ bản miễn phí; 150 JOY cho mỗi phiên chuyên sâu.",
       "<b>Tiện ích học tập & Giải trí:</b> Trải nghiệm có giới hạn thời gian (ví dụ: nghe 30 phút lofi/ngày) hoặc mua thêm bằng JOY tích luỹ.",
-      "<b>Tài chính & Giao dịch:</b> Hạn mức vay 500 JOY (yêu cầu duy trì chuỗi điểm danh 30 ngày), phí chuyển JOY tiêu chuẩn 5% + Thuế.",
+      financeBenefit("eco"),
       "<b>Quà tặng sinh nhật:</b> Cộng 15 ngày duy trì tài khoản (áp dụng khi đã xác minh ngày sinh)."
     ],
   },

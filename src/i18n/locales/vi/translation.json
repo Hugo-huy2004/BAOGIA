@@ -4357,7 +4357,8 @@
         "defaulted": "Đã có khoản quá hạn bị ghi nhận",
         "noNetIncome": "JOY thu vào chưa nhiều hơn JOY tiêu ra",
         "lowEngagement": "Cần dùng hệ thống đều hơn",
-        "lowScore": "Điểm hồ sơ chưa đạt ngưỡng"
+        "lowScore": "Điểm hồ sơ chưa đạt ngưỡng",
+        "tooNew": "Tài khoản còn quá mới với hệ thống"
       },
       "howTitle": "JOYlater hoạt động thế nào",
       "how1": "Chọn số JOY muốn mở trước — mức tối đa tính theo JOY chính bạn kiếm được.",

@@ -39,6 +39,7 @@
 
 @layer base {
   :root {
+    --app-viewport-height: 100dvh;
     /* One interaction accent. App identity colors are scoped to app icons only. */
     --primary:             211 100% 50%;
     --primary-foreground:  0 0% 100%;
@@ -122,7 +123,17 @@
   html.standalone-pwa body {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    min-height: 100dvh;
+    min-height: var(--app-viewport-height);
+  }
+
+  /* Installed WebKit can exclude the status-bar inset from dvh/%/inset:0.
+     vh includes it. Scope this to installed iOS; browser/Android retain dvh.
+     https://bugs.webkit.org/show_bug.cgi?id=254868 */
+  @supports (-webkit-touch-callout: none) {
+    html.standalone-pwa {
+      --app-viewport-height: 100vh;
+      height: var(--app-viewport-height);
+    }
   }
 
   /* Framer Motion measures public-page scroll offsets from this container. */
@@ -170,6 +181,19 @@
 
     --shadow:              0 0% 0%;
   }
+}
+
+/* Portal screens own their inner scroller. The outer #root from index.html
+   must not scroll as well when iOS focuses an input or restores the PWA. */
+#root:has(.portal-mobile-layout),
+#root:has(.portal-fullscreen-shell) {
+  height: var(--app-viewport-height);
+  overflow: clip;
+}
+
+.portal-fullscreen-shell {
+  height: var(--app-viewport-height);
+  bottom: auto;
 }
 
 /* =========================================================
@@ -1142,8 +1166,6 @@ html[lang="zh-TW"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):
     'Source Han Sans SC', system-ui, sans-serif !important;
   letter-spacing: normal;
 }
-
-
 
 
 

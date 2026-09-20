@@ -935,11 +935,9 @@ function MemberPortalPage() {
   ) : null;
 
   if (isFullscreenUtility) {
-    // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the
-    // on-screen keyboard on iOS/Android instead of staying pinned to the
-    // full layout viewport while content underneath gets covered.
+    // Same viewport contract as the portal, including installed iOS safe-area.
     return (
-      <div className="fixed inset-0 z-[120] w-screen bg-background overflow-hidden flex flex-col font-body" style={{ height: '100dvh' }}>
+      <div className="portal-fullscreen-shell fixed inset-0 z-[120] w-screen bg-background overflow-hidden flex flex-col font-body">
 
         <HugoNoticeToast
           open={Boolean(toast.message)}

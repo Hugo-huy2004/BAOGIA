@@ -24,7 +24,7 @@ export default function ArcadePage() {
   }, [session?.email]);
 
   return (
-    <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-background">
+    <div className="portal-fullscreen-shell fixed inset-0 w-screen overflow-hidden bg-background">
       <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
         <HugoArcadeTab bio={bio} showToast={(message, type) => notify[type === "error" ? "error" : type === "warning" ? "warning" : "success"](message)} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} onBack={() => navigate("/member/utilities")} />
       </Suspense>

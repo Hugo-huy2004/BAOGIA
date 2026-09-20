@@ -24,7 +24,6 @@ html.standalone-pwa #root {
 
 /* Portal viewport contract shared by iOS/Android PWA and tablet split view. */
 html.standalone-pwa .member-portal-shell {
-  min-height: 100dvh;
   /* Individual mobile content owns the top inset. Fullscreen utilities manage
      their own safe-area headers and must not inherit another inset here. */
   padding-top: 0;
@@ -49,12 +48,10 @@ html.standalone-pwa .member-portal-shell {
   touch-action: pan-x pan-y;
 }
 
-/* Không trừ inset trên nữa: <body> trong app đã cài KHÔNG còn đệm safe-area,
-   nên phép trừ này chỉ làm layout ngắn hơn màn hình đúng bằng chiều cao notch
-   và để lại một dải trống ở đáy. DesktopAppleLayout tự có h-[100dvh]. */
+/* Installed iPads use the same full-screen canvas as the mobile shell. */
 html.standalone-pwa .desktop-apple-layout {
-  height: 100dvh;
-  min-height: 100dvh;
+  height: var(--app-viewport-height);
+  min-height: var(--app-viewport-height);
 }
 
 .mobile-portal-content {
@@ -176,7 +173,7 @@ html.standalone-pwa .desktop-apple-layout {
   /* `fixed` chứ KHÔNG `absolute`: absolute neo vào .portal-mobile-main, nên
      chỉ cần ô đó thấp hơn màn hình một chút (một anh em flex chiếm chỗ, một
      phép trừ safe-area ở tổ tiên) là thanh tab đứng lơ lửng và chừa một dải
-     nền trống bên dưới. .member-portal-shell là `fixed; inset: 0` và có
+     nền trống bên dưới. .member-portal-shell phủ đủ viewport và có
      transform-gpu, nên nó CHÍNH LÀ khối chứa của `fixed` ở đây — đáy thanh
      luôn là đáy màn, không phụ thuộc chiều cao của bất kỳ ô trung gian nào. */
   position: fixed;
@@ -429,26 +426,14 @@ html.standalone-pwa .desktop-apple-layout {
   }
 }
 
-/*
- * Portal mobile: navigation là hàng cuối tự nhiên của app shell; nội dung là
- * vùng cuộn độc lập phía trên. Navigation không fixed, không portal ra body và
- * không dùng visualViewport, nên iOS không có cơ chế nào tự nâng nó lên.
- */
+/* Mobile: one viewport shell, one content scroller, navigation over the content. */
 @media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
-  /*
-   * Vỏ app ghim thẳng vào vùng nhìn thấy: `fixed; inset: 0` thay vì
-   * `height: 100dvh`. Lý do: 100dvh có lúc báo NGẮN hơn màn thật (WebView
-   * nhúng, thanh URL vừa thu lại) — khi đó cột kết thúc sớm và thanh tab đứng
-   * lơ lửng giữa màn, chừa một mảng nền trống bên dưới. `inset: 0` thì đáy vỏ
-   * LUÔN là đáy vùng nhìn thấy, nên hàng cuối (thanh tab) luôn sát đáy.
-   *
-   * Không đặt `height` ở đây: top+bottom+height là ràng buộc thừa, trình duyệt
-   * sẽ bỏ `bottom` và ta quay lại đúng lỗi cũ.
-   */
+  /* Installed iOS uses the full vh canvas, not its sometimes-short fixed
+     containing block. Safe-area belongs inside controls, never outside shell. */
   .member-portal-shell.portal-mobile-layout {
     position: fixed;
-    inset: 0;
-    height: auto;
+    inset: 0 0 auto;
+    height: var(--app-viewport-height);
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -465,7 +450,7 @@ html.standalone-pwa .desktop-apple-layout {
   .mobile-portal-content {
     flex: 1 1 auto;
     min-height: 0;
-    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
     overflow-y: auto;
     /* `overflow-y: auto` một mình biến trục X từ `visible` thành `auto` theo
        spec, nên đây MỚI là ô cuộn thật của portal và nó cuộn được cả ngang —

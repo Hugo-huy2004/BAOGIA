@@ -10,6 +10,7 @@ import { checkMoneyStepUp, sendMoneyOtpEmail } from '../services/moneyStepUp.js'
 import { assessTransferHold } from '../services/transferHold.js';
 import { debtRestriction } from '../services/joyLaterEnforcement.js';
 import { RESTRICTIONS } from '../../shared/joyLaterPolicy.js';
+import { transferFeeRateOf, dailyTransferCapOf } from '../../shared/tierFinance.js';
 import PendingTransfer from '../models/PendingTransfer.js';
 import CoderResource from '../models/CoderResource.js';
 import ReadingSession from '../models/ReadingSession.js';
@@ -20,9 +21,7 @@ import {
   HUGOSO_BUNDLE_PRICE as SHARED_HUGOSO_BUNDLE_PRICE,
   BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
   STUDY_LIFETIME,
-  TRANSFER_DAILY_CAP as SHARED_TRANSFER_DAILY_CAP,
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
-  TRANSFER_FEE_RATE as SHARED_TRANSFER_FEE_RATE,
 } from '../../shared/joyPrices.js';
 import {
   joyLaterStatus, quoteLoan, openJoyLaterLoan, payOffJoyLater, payInstallment, joyLaterHistory,
@@ -225,9 +224,11 @@ router.post('/wallet/claim-daily', requireMember, claimDailyCheckin);
 // spammy transfers without acting as a platform revenue cut ("phi lợi nhuận").
 const TRANSFER_MIN = 10;
 const TRANSFER_MAX = 1000;
-const TRANSFER_DAILY_CAP = SHARED_TRANSFER_DAILY_CAP;
+// Trần NGÀY và PHÍ nay lấy theo HẠNG (shared/tierFinance.js) — hai hằng số
+// dùng chung trước đây đã bị gỡ khỏi đường chuyển tiền. `TRANSFER_MONTHLY_CAP`
+// vẫn dùng chung cho mọi hạng: nó là tấm chắn chống rửa JOY ở quy mô tháng,
+// không phải một đặc quyền để phân hạng.
 const TRANSFER_MONTHLY_CAP = SHARED_TRANSFER_MONTHLY_CAP;
-const TRANSFER_FEE_RATE = SHARED_TRANSFER_FEE_RATE;
 const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
 const FOCUS_DAILY_JOY_CAP = 150;
 
@@ -1829,8 +1830,13 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     const today = todayStr();
     const sentTodaySoFar = sender.joySentDate === today ? (sender.joySentToday || 0) : 0;
-    if (sentTodaySoFar + numAmount > TRANSFER_DAILY_CAP) {
-      return rejectRequest(400, `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.`);
+    // Trần chuyển THEO HẠNG (shared/tierFinance.js). Star-14 thấp hơn — đúng
+    // tinh thần "bảo vệ vị thành niên" mà bảng đặc quyền đã hứa từ lâu nhưng
+    // chưa bao giờ được cài.
+    const senderTier = memberTier(sender);
+    const dailyCap = dailyTransferCapOf(senderTier);
+    if (sentTodaySoFar + numAmount > dailyCap) {
+      return rejectRequest(400, `Vượt giới hạn gửi ${dailyCap} JOY/ngày. Quý thành viên đã gửi ${sentTodaySoFar} JOY hôm nay.`);
     }
 
     // Trần THÁNG. Trần ngày một mình cho phép 1.000 × 30 = 30.000 JOY/tháng từ
@@ -1846,7 +1852,9 @@ router.post('/transfer', requireMember, async (req, res) => {
     // JOY chỉ còn MỘT đơn vị nên không có phí đổi đơn vị: `conversionFee` luôn 0.
     // Bỏ luôn lần nạp tỷ giá trước đây đứng ở đây — nó thêm một lượt đọc DB vào
     // đường tiền chỉ để tính một khoản bằng 0.
-    const bill = transferBreakdown(numAmount, sender.joyDenom, recipient.joyDenom, TRANSFER_FEE_RATE);
+    // Phí THEO HẠNG: Star-VIP miễn phí hoàn toàn, các hạng khác 5%. Bảng đặc
+    // quyền đã hứa điều này; trước đây mọi người đều bị thu 5%.
+    const bill = transferBreakdown(numAmount, sender.joyDenom, recipient.joyDenom, transferFeeRateOf(senderTier));
     const feeAmount = bill.creativeFee;
     const conversionFee = bill.conversionFee;
     const totalDeducted = bill.totalDeducted;

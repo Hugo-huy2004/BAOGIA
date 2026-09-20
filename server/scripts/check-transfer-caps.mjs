@@ -6,7 +6,13 @@
 //
 // Chạy: npm run check:transfer-caps
 import assert from 'node:assert/strict';
-import { TRANSFER_DAILY_CAP, TRANSFER_MONTHLY_CAP } from '../../shared/joyPrices.js';
+import { TRANSFER_MONTHLY_CAP } from '../../shared/joyPrices.js';
+import { dailyTransferCapOf, transferFeeRateOf, TIER_FINANCE } from '../../shared/tierFinance.js';
+
+// Trần ngày nay THEO HẠNG. Bản sao luật bên dưới phải nhận hạng, nếu không nó
+// sẽ tiếp tục báo xanh cho một luật không còn tồn tại — đúng cái bẫy đã khiến
+// mười lời hứa đặc quyền sai suốt nhiều tháng mà không ai biết.
+const TRANSFER_DAILY_CAP = dailyTransferCapOf('eco');
 
 let failed = 0;
 const check = (ok, label) => { console.log(`${ok ? '✅' : '❌'} ${label}`); if (!ok) failed++; };
@@ -21,7 +27,9 @@ const check = (ok, label) => { console.log(`${ok ? '✅' : '❌'} ${label}`); if
  */
 function capCheck({ sender, amount, today }) {
   const sentToday = sender.joySentDate === today ? (sender.joySentToday || 0) : 0;
-  if (sentToday + amount > TRANSFER_DAILY_CAP) return { ok: false, code: 'DAILY', sentToday };
+  if (sentToday + amount > dailyTransferCapOf(sender.tier || 'eco')) {
+    return { ok: false, code: 'DAILY', sentToday };
+  }
 
   const month = today.slice(0, 7);
   const sentMonth = sender.joySentMonth === month ? (sender.joySentMonthTotal || 0) : 0;
@@ -102,7 +110,36 @@ const after3 = capCheck({ sender: after2, amount: 250, today: '2026-09-21' }).ne
 check(after3.joySentToday === 250 && after3.joySentMonthTotal === 750,
   'sang ngày mới cùng tháng → ngày về 250, THÁNG vẫn cộng dồn 750');
 
+
+// ── TRẦN VÀ PHÍ THEO HẠNG ────────────────────────────────────────────────────
+// Cho tới 20/09/2026 bảng đặc quyền hứa "Star-14 tối đa 500 JOY/ngày" và
+// "Star-VIP miễn phí 0%" mà mã nguồn không đọc hạng ở bất kỳ đâu trên đường
+// tiền. Những bài kiểm dưới đây là thứ duy nhất giữ cho lời hứa đó còn đúng.
+check(dailyTransferCapOf('star14') < dailyTransferCapOf('eco'),
+  `Star-14 trần thấp hơn (${dailyTransferCapOf('star14')} < ${dailyTransferCapOf('eco')}) — đúng chữ "bảo vệ vị thành niên"`);
+check(capCheck({ sender: { ...fresh(), tier: 'star14' }, amount: dailyTransferCapOf('star14') + 1, today: '2026-09-20' }).code === 'DAILY',
+  'Star-14 vượt trần riêng → chặn');
+check(capCheck({ sender: { ...fresh(), tier: 'eco' }, amount: dailyTransferCapOf('star14') + 1, today: '2026-09-20' }).ok,
+  'cùng con số đó hạng Eco vẫn qua — trần là RIÊNG theo hạng, không phải chung');
+check(transferFeeRateOf('starVip') === 0, 'Star-VIP miễn phí chuyển hoàn toàn (0%)');
+check(transferFeeRateOf('eco') > 0 && transferFeeRateOf('star18') > 0, 'các hạng khác vẫn chịu phí');
+
+// Hạng lạ phải rơi về hạng THẤP nhất về đặc quyền, không phải cao nhất. Một
+// lỗi chính tả trong tên hạng không được biến thành miễn phí trọn đời.
+check(transferFeeRateOf('hang_khong_co_that') === transferFeeRateOf('eco'),
+  'hạng lạ → về Eco, KHÔNG rơi vào hạng miễn phí');
+check(dailyTransferCapOf(undefined) === dailyTransferCapOf('eco'), 'thiếu hạng → về Eco');
+
+// Trần tháng dùng chung cho mọi hạng: nó chống rửa JOY ở quy mô tháng, không
+// phải một nấc đặc quyền. Bài kiểm này canh việc ai đó lỡ tay cho một hạng
+// trần ngày cao tới mức trần tháng thành vô nghĩa.
+for (const [tier, finance] of Object.entries(TIER_FINANCE)) {
+  check(finance.dailyTransferCap * 30 > TRANSFER_MONTHLY_CAP,
+    `${tier}: trần ngày × 30 (${finance.dailyTransferCap * 30}) vẫn lớn hơn trần tháng (${TRANSFER_MONTHLY_CAP})`);
+}
+
 console.log(failed
   ? `\n❌ Trần chuyển JOY: ${failed} mục chưa đạt`
   : `\n✅ Trần chuyển JOY đạt (ngày ${TRANSFER_DAILY_CAP} · tháng ${TRANSFER_MONTHLY_CAP})`);
 process.exit(failed ? 1 : 0);
+

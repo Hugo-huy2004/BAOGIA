@@ -29,12 +29,21 @@
  * người ta vay để lấy điểm.
  */
 
+import { creditMultiplierOf, isCreditLocked } from "./tierFinance.js";
+
 /** Trọng số các cột, cộng lại đúng 100. Có bài kiểm canh tổng này. */
-export const WEIGHTS = Object.freeze({ income: 40, balance: 20, engagement: 25, history: 15 });
+export const WEIGHTS = Object.freeze({ tenure: 35, income: 25, engagement: 15, balance: 15, history: 10 });
 
 export const CREDIT = Object.freeze({
-  /** Điểm tối thiểu để được duyệt. Dưới mức này là từ chối, kèm lý do. */
-  approveAt: 45,
+  /**
+   * Điểm tối thiểu để được duyệt.
+   *
+   * Cố ý ĐỂ THẤP. Cổng `canApply` bên dưới (đủ 18 tuổi, tài khoản ≥14 ngày, đã
+   * từng kiếm ≥1.000 JOY) mới là thứ chặn người mới vào đòi vay ngay. Đã qua
+   * được cổng đó rồi thì việc duyệt nên dễ — một thành viên gắn bó lâu không
+   * phải chứng minh gì thêm.
+   */
+  approveAt: 25,
   /** Số ngày tài khoản tối thiểu mới được nộp hồ sơ. */
   minAccountDays: 14,
   /** Phải từng kiếm đủ ngần này JOY — chứng tỏ đường kiếm JOY dùng được. */
@@ -58,6 +67,16 @@ const clamp01 = (value) => Math.min(1, Math.max(0, value));
 const points = (ratio, weight) => Math.round(clamp01(ratio) * weight);
 
 /**
+ * Điểm theo đường cong LÊN NHANH RỒI CHẬM DẦN, dùng cho thâm niên.
+ *
+ * Tuyến tính thì ngày thứ 30 chỉ đáng 8% của một năm — nghĩa là một người đã
+ * dùng hệ thống trọn một tháng vẫn bị chấm gần như người vừa đăng ký. Chênh
+ * lệch đáng kể nằm ở khoảng đầu (14 ngày với 90 ngày là hai loại người khác
+ * hẳn nhau), còn từ 300 lên 365 ngày thì gần như không nói thêm điều gì.
+ */
+const curve = (ratio, weight) => Math.round(Math.sqrt(clamp01(ratio)) * weight);
+
+/**
  * Chấm điểm một hồ sơ. Thuần, không chạm database.
  *
  * Trả về cả ĐIỂM TỪNG CỘT kèm lời giải thích, vì màn hình phải nói được "vì sao
@@ -69,6 +88,7 @@ export function scoreOf({
   medianDailySpend = 0,
   balance = 0,
   accountDays = 0,
+  lifetimeEarned = 0,
   activeDays = 0,
   appsUsed = 0,
   surveysAnswered = 0,
@@ -77,36 +97,54 @@ export function scoreOf({
 } = {}) {
   const netDaily = Math.max(0, medianDailyIncome - medianDailySpend);
 
-  // THU NHẬP RÒNG — 300 JOY/ngày ròng là kịch trần cột này.
-  const income = points(netDaily / 300, WEIGHTS.income);
-
-  // SỐ DƯ — 5.000 JOY là kịch trần.
-  const balancePts = points(balance / 5000, WEIGHTS.balance);
-
-  // GẮN BÓ — bốn tín hiệu nhỏ, mỗi cái một phần tư cột. Chia nhỏ như vậy để
-  // không ai kịch trần cột này chỉ bằng một hành vi duy nhất lặp lại.
-  const engagement = Math.round(
-    points(accountDays / 180, WEIGHTS.engagement / 4)
-    + points(activeDays / 60, WEIGHTS.engagement / 4)
-    + points(appsUsed / 6, WEIGHTS.engagement / 4)
-    + points(surveysAnswered / 6, WEIGHTS.engagement / 4),
+  // THÂM NIÊN — cột nặng nhất, và đó là chủ ý.
+  //
+  // Bản đầu đặt THU NHẬP nặng nhất (40 điểm) và gần như không chấm thâm niên.
+  // Kết quả: một thành viên dùng hệ thống 220 ngày với 190.000 JOY trong ví bị
+  // từ chối, vì hai tín hiệu "gắn bó" mà bản đó dựa vào (nhật ký mở app và câu
+  // trả lời khảo sát) chỉ vừa ra đời — nên MỌI thành viên cũ đều bằng 0 ở đó.
+  //
+  // Thứ thật sự phân biệt "người dùng lâu năm" với "người mới vào đòi vay
+  // ngay" là thời gian và tổng JOY đã từng kiếm được. Cả hai đều có sẵn trong
+  // lịch sử và không thể giả mạo trong một ngày.
+  const tenure = Math.round(
+    curve(accountDays / 365, WEIGHTS.tenure / 2)
+    + curve(lifetimeEarned / 50000, WEIGHTS.tenure / 2),
   );
 
-  // LỊCH SỬ TRẢ — trả xong 3 lượt là kịch trần. MỘT lần quỵt xoá sạch cột này
-  // và trừ thêm: đó là tín hiệu mạnh nhất trong cả hồ sơ, mạnh hơn mọi thứ khác
-  // cộng lại, nên nó phải kéo được điểm xuống dưới ngưỡng duyệt một mình.
+  // THU NHẬP RÒNG — JOY vào trừ JOY ra. Vẫn quan trọng vì đó là nguồn trả, chỉ
+  // không còn là thứ duy nhất: người đã tích được số dư lớn thì một tháng tiêu
+  // nhiều hơn kiếm không làm họ mất khả năng hoàn trả.
+  const income = points(netDaily / 300, WEIGHTS.income);
+
+  // GẮN BÓ — ba tín hiệu nhỏ. `activeDays` nay đếm từ SỔ CÁI JOY (số ngày có
+  // giao dịch), không từ nhật ký mở app: sổ cái có lịch sử từ đầu, nhật ký mở
+  // app thì chỉ có từ ngày nó được thêm vào.
+  const engagement = Math.round(
+    points(activeDays / 60, WEIGHTS.engagement / 3)
+    + points(appsUsed / 6, WEIGHTS.engagement / 3)
+    + points(surveysAnswered / 6, WEIGHTS.engagement / 3),
+  );
+
+  // SỐ DƯ — mốc kịch trần đặt ở 20.000 chứ không phải 5.000: trong nền kinh tế
+  // này số dư năm chữ số là bình thường, và một mốc quá thấp khiến cột này chỉ
+  // là điểm cộng cố định cho mọi người, tức là không phân biệt được ai với ai.
+  const balancePts = points(balance / 20000, WEIGHTS.balance);
+
+  // LỊCH SỬ TRẢ — MỘT lần quỵt xoá sạch cột này và trừ thêm.
   const repaid = points(loansRepaid / 3, WEIGHTS.history);
   const history = loansDefaulted > 0 ? -Math.min(40, 20 * loansDefaulted) : repaid;
 
-  const total = Math.max(0, Math.min(100, income + balancePts + engagement + history));
+  const total = Math.max(0, Math.min(100, tenure + income + engagement + balancePts + history));
 
   return {
     total,
     netDaily,
     parts: {
+      tenure: { points: tenure, of: WEIGHTS.tenure, accountDays, lifetimeEarned },
       income: { points: income, of: WEIGHTS.income, netDaily },
+      engagement: { points: engagement, of: WEIGHTS.engagement, activeDays, appsUsed, surveysAnswered },
       balance: { points: balancePts, of: WEIGHTS.balance, balance },
-      engagement: { points: engagement, of: WEIGHTS.engagement, accountDays, activeDays, appsUsed, surveysAnswered },
       history: { points: history, of: WEIGHTS.history, loansRepaid, loansDefaulted },
     },
   };
@@ -119,15 +157,22 @@ export function scoreOf({
  * thu nhập, còn con số tuyệt đối vẫn phải là thứ người đó trả nổi. Người điểm
  * cao mà không có thu nhập thì hạn mức vẫn thấp — và đó là đúng.
  */
-export function limitFor(score, netDailyIncome, balance = 0) {
+export function limitFor(score, netDailyIncome, balance = 0, tier = 'eco') {
   if (!(score >= CREDIT.approveAt)) return 0;
+  // Vị thành niên không vay — đây là luật, kiểm trước mọi phép tính.
+  if (isCreditLocked(tier)) return 0;
 
   const span = (score - CREDIT.approveAt) / (100 - CREDIT.approveAt);
   const days = CREDIT.limitDaysFloor + (CREDIT.limitDaysCeil - CREDIT.limitDaysFloor) * clamp01(span);
 
   const fromIncome = Math.max(0, netDailyIncome) * days;
   const fromBalance = Math.max(0, balance) * CREDIT.balanceBoost;
-  const raw = Math.min(CREDIT.hardCap, fromIncome + fromBalance);
+
+  // HẠNG LÀ HỆ SỐ NHÂN, không phải trần: điểm hồ sơ quyết định con số gốc (khả
+  // năng hoàn trả thật), hạng nhân lên (đặc quyền). Trần cứng áp SAU cùng, nếu
+  // không thì hệ số ×3 của Star-VIP sẽ vượt qua cả giới hạn của hệ thống.
+  const boosted = (fromIncome + fromBalance) * creditMultiplierOf(tier);
+  const raw = Math.min(CREDIT.hardCap, boosted);
   const rounded = Math.floor(raw / CREDIT.roundTo) * CREDIT.roundTo;
 
   return rounded >= CREDIT.minUsefulLimit ? rounded : 0;
@@ -158,13 +203,14 @@ export function assess(input) {
   // được quyền quỵt một lần. Một điểm trừ đủ lớn để luôn chặn thì cũng chính là
   // một cái chặn, chỉ khó đọc hơn; nên viết thẳng ra.
   const defaulted = Number(input?.loansDefaulted || 0) > 0;
-  const limit = defaulted ? 0 : limitFor(score.total, score.netDaily, input.balance || 0);
+  const limit = defaulted ? 0 : limitFor(score.total, score.netDaily, input.balance || 0, input.tier);
   const approved = limit > 0;
 
   const reasons = [];
+  if (isCreditLocked(input?.tier)) reasons.push('tierLocked');
   if (score.parts.history.loansDefaulted > 0) reasons.push('defaulted');
   if (score.netDaily <= 0) reasons.push('noNetIncome');
-  if (score.parts.engagement.points < WEIGHTS.engagement / 3) reasons.push('lowEngagement');
+  if (score.parts.tenure.points < WEIGHTS.tenure / 3) reasons.push('tooNew');
   if (!approved && score.total < CREDIT.approveAt) reasons.push('lowScore');
 
   return { ...score, limit, approved, reasons };
