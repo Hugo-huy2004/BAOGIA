@@ -1,6 +1,7 @@
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
 import JoyPolicy from '../models/JoyPolicy.js';
+import { report as surveyReport } from './surveyService.js';
 import { JOY_SOURCES } from '../utils/joySources.js';
 import { sendTelegramAlert, editTelegramMessage } from './telegramService.js';
 
@@ -158,7 +159,7 @@ export async function currentMultiplier() {
 }
 
 /** Báo cáo tuần dạng chữ, dùng cho Telegram (HTML). */
-export function formatReport(metrics, suggestion, policy) {
+export function formatReport(metrics, suggestion, policy, survey = null) {
   const n = (v) => Number(v || 0).toLocaleString('vi-VN');
   const rate = metrics.recoveryRate === null ? '—' : `${Math.round(metrics.recoveryRate * 100)}%`;
   const ACTION_LABEL = { increase: '📈 Nên TĂNG', decrease: '📉 Nên GIẢM', hold: '⏸ Nên GIỮ NGUYÊN' };
@@ -190,6 +191,33 @@ export function formatReport(metrics, suggestion, policy) {
     }
   }
 
+  // Tiếng nói của người dùng, ngay cạnh số liệu của hệ thống. Tách ra một báo
+  // cáo riêng thì hai thứ này không bao giờ được đọc cùng nhau — mà quyết định
+  // tăng hay giảm phát hành chỉ đúng khi biết người ta đang thấy JOY thế nào.
+  if (survey?.responses) {
+    lines.push('', `<b>Khảo sát người dùng</b> · ${n(survey.responses)} câu trả lời / ${survey.months} tháng`);
+
+    const pct = (row) => (row.score === null ? '—' : `${row.score}%`);
+    const rated = survey.byApp.filter((r) => r.enough);
+    if (rated.length) {
+      lines.push('Theo ứng dụng:');
+      for (const row of rated.slice(0, 5)) {
+        lines.push(`· ${row.key}: <b>${pct(row)}</b> (${row.counted} phiếu${row.unsure ? `, ${row.unsure} chưa rõ` : ''})`);
+      }
+    }
+    const facets = survey.byFacet.filter((r) => r.enough);
+    if (facets.length) {
+      lines.push('Theo khía cạnh: ' + facets.map((r) => `${r.key} ${pct(r)}`).join(' · '));
+    }
+    if (survey.pain.length) {
+      // Điểm THẤP ở đây là chỗ đau nhất — câu hỏi âm bị trả lời "Có" nhiều.
+      lines.push(`Đáng lo nhất: ${survey.pain.map((r) => `${r.key} ${pct(r)}`).join(' · ')}`);
+    }
+    if (!rated.length && !facets.length) {
+      lines.push(`Chưa đủ mẫu (cần ≥${survey.minSample} phiếu mỗi mục) để kết luận.`);
+    }
+  }
+
   return lines.join('\n');
 }
 
@@ -218,7 +246,13 @@ export async function sendWeeklyReport({ force = false } = {}) {
   }
 
   const suggestion = suggest(metrics, policy);
-  const text = formatReport(metrics, suggestion, policy);
+  // Khảo sát hỏng KHÔNG được chặn báo cáo bình ổn — đó mới là thứ admin phải
+  // bấm nút. Thiếu phần khảo sát thì báo cáo vẫn gửi, chỉ là ngắn hơn.
+  const survey = await surveyReport({ months: 3 }).catch((err) => {
+    console.error('[joy] báo cáo tuần thiếu phần khảo sát:', err.message);
+    return null;
+  });
+  const text = formatReport(metrics, suggestion, policy, survey);
 
   const mark = (action) => (suggestion.action === action ? '✅ ' : '');
   await sendTelegramAlert(text, 'HTML', {

@@ -4,6 +4,7 @@ import { IosApp, NavBar, Scroll, Segmented, TabBar } from "../../demos/iosKit";
 import useDarkScheme from "./useDarkScheme";
 import { appPalette } from "./appPalette";
 import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
+import { trackAppOpen } from "../../../services/surveyApi";
 
 /**
  * HugoOS — khung ứng dụng dùng chung.
@@ -114,6 +115,14 @@ export default function AppFrame({
   useEffect(() => {
     setScrolled(false);
   }, [tab, scrollKey]);
+
+  // Ghi nhận lượt mở ứng dụng. Đặt ở AppFrame chứ không ở từng app: mọi app đều
+  // đi qua khung này, nên một chỗ là đủ và không app mới nào có thể quên. Máy
+  // chủ dùng nhật ký này để KHÔNG BAO GIỜ hỏi ai về ứng dụng họ chưa từng mở
+  // (services/surveyService.js). Bắn đi rồi quên — hỏng thì thôi.
+  useEffect(() => {
+    if (appId) trackAppOpen(appId);
+  }, [appId]);
 
   return (
     <IosApp

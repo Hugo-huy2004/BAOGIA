@@ -13,6 +13,13 @@ const UserProfileSchema = new mongoose.Schema({
   interestEmbeddingAt: { type: Date },
   // Histogram of activity by hour-of-day (0..23) → best time to notify.
   activeHours: { type: [Number], default: () => new Array(24).fill(0) },
+  // Nhật ký dùng ứng dụng — đếm theo NGÀY, không theo lượt mở (xem
+  // services/surveyService.js). Sống ở đây chứ không thành collection riêng:
+  // nó là một tín hiệu hành vi nữa của chính chân dung này, và chỉ có một dòng
+  // cho mỗi người. Khảo sát định kỳ dựa vào nó để không bao giờ hỏi ai về ứng
+  // dụng họ chưa từng mở.
+  appUse: { type: Map, of: Number, default: {} },     // appId → số ngày đã dùng
+  appUseAt: { type: Map, of: Date, default: {} },     // appId → ngày dùng gần nhất
   engagementCount: { type: Number, default: 0 },
   lastSignalAt: { type: Date },
 }, { timestamps: true });

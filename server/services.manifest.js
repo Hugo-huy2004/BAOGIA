@@ -60,6 +60,7 @@ export const SERVICES = Object.freeze([
   { id: "partners", prefix: "/api/partners", module: "./routes/partnerRoutes.js" },
   { id: "packages", prefix: "/api/packages", module: "./routes/packageRoutes.js", cacheable: true },
   { id: "support", prefix: "/api/support", module: "./routes/supportRoutes.js" },
+  { id: "survey", prefix: "/api/survey", module: "./routes/surveyRoutes.js" },
 
   // ── Quản trị ──────────────────────────────────────────────────────────────
   // `/api/admin` đứng TRƯỚC ba prefix con của nó. Express khớp theo thứ tự và

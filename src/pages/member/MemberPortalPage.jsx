@@ -14,6 +14,7 @@ import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
 import IdentityCheckDialog from "../../components/member/IdentityCheckDialog";
+import SurveySheet from "../../components/member/SurveySheet";
 import { useIdentityCheck } from "../../hooks/useIdentityCheck";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
@@ -1291,6 +1292,12 @@ function MemberPortalPage() {
     )}
 
     {particleModal}
+
+    {/* Khảo sát định kỳ. Đứng sau hai hộp thoại bắt buộc ở trên và chỉ hiện khi
+        chúng đã xong: xác minh danh tính và cảnh báo vị trí là việc phải làm,
+        còn khảo sát thì không — xếp chồng lên nhau chỉ khiến người ta bấm bừa
+        cho khuất mắt. */}
+    {!identityChallenge && !locationAnomaly && <SurveySheet />}
     </>
   );
 }
