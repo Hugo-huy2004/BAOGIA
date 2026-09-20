@@ -136,7 +136,13 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
 });
 
 // ─── Main ──────────────────────────────────────────────────────────
-export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
+/*
+ * KHÔNG nhận `onBack`: app này nằm trong FULLSCREEN_APP_IDS nên portal đã vẽ nút
+ * X đỏ cố định ở góc trên-phải làm đúng việc đóng app (MemberUtilitiesTab). Nhận
+ * thêm một prop lùi rồi không vẽ nút nào là hứa một đường ra không tồn tại — lỗi
+ * đã gặp ở AppFrame, SubUtilityHeader và StudyTopBar.
+ */
+export default function HugoArcadeTab({ bio, onBioUpdate, showToast }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const navigate = useNavigate();

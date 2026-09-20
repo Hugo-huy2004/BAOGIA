@@ -149,17 +149,35 @@ function SoundscapePanel({ onBack, onComplete }) {
         ))}
       </div>
 
-      <button
-        onClick={() => {
-          Object.keys(audiosRef.current).forEach(key => {
-            audiosRef.current[key].pause();
-          });
-          onComplete();
-        }}
-        className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95"
-      >
-        Lưu hoạt động & dừng phát
-      </button>
+      {/* Hai đường ra, giống ExpressiveWritingPanel ngay bên dưới file này.
+          Trước đây panel chỉ có nút "Lưu hoạt động" — tức muốn dừng nghe giữa
+          chừng thì buộc phải GHI NHẬN một hoạt động mình chưa làm xong, hoặc
+          đóng hẳn app. `onBack` đã được truyền sẵn (`closePanel`) mà không có
+          chỗ bấm. Cả hai nhánh đều dừng nhạc trước khi rời. */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            Object.keys(audiosRef.current).forEach(key => audiosRef.current[key].pause());
+            onBack();
+          }}
+          className="min-h-11 px-4 rounded-xl border border-border text-[13px] font-bold text-muted-foreground hover:bg-muted transition-all"
+        >
+          Quay lại
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            Object.keys(audiosRef.current).forEach(key => {
+              audiosRef.current[key].pause();
+            });
+            onComplete();
+          }}
+          className="flex-1 min-h-11 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95"
+        >
+          Lưu hoạt động & dừng phát
+        </button>
+      </div>
     </div>
   );
 }
@@ -359,6 +377,17 @@ function LightExercisePanel({ onBack, onComplete }) {
         <p className="text-[13px] text-muted-foreground font-bold">{exercise.desc}</p>
       </div>
       <p className="text-[13px] text-zinc-400 font-bold">Bài {currentStep + 1} / {EXERCISES.length}</p>
+
+      {/* Đường THOÁT. `onComplete` ở panel này chỉ chạy khi đồng hồ đếm hết TOÀN BỘ
+          bài tập, nên trước đây người đang tập muốn dừng giữa chừng không có nút
+          nào — chỉ còn cách đóng cả app. `onBack` đã được truyền sẵn. */}
+      <button
+        type="button"
+        onClick={() => { clearInterval(timerRef.current); onBack(); }}
+        className="mt-4 min-h-11 w-full rounded-xl border border-border text-[13px] font-bold text-muted-foreground transition-all hover:bg-muted"
+      >
+        Dừng và quay lại
+      </button>
     </div>
   );
 }
@@ -410,11 +439,22 @@ function SocialConnectionPanel({ onBack, onComplete }) {
           );
         })}
       </div>
-      {completedTasks.size > 0 && (
-        <button onClick={() => onComplete?.("Kết Nối Xã Hội", `Hoàn thành ${completedTasks.size}/${TASKS.length} hoạt động kết nối`)} className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95">
-          Lưu hoạt động ({totalPoints} điểm)
+      {/* Nút lưu chỉ hiện khi đã làm ít nhất một việc — nên phải LUÔN có nút quay
+          lại, nếu không người mở panel rồi đổi ý sẽ không có nút nào để rời. */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="min-h-11 px-4 rounded-xl border border-border text-[13px] font-bold text-muted-foreground transition-all hover:bg-muted"
+        >
+          Quay lại
         </button>
-      )}
+        {completedTasks.size > 0 && (
+          <button onClick={() => onComplete?.("Kết Nối Xã Hội", `Hoàn thành ${completedTasks.size}/${TASKS.length} hoạt động kết nối`)} className="flex-1 min-h-11 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95">
+            Lưu hoạt động ({totalPoints} điểm)
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -432,21 +472,7 @@ const ALL_METHODS = [
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function TherapyTab({
-  onNavigateToTab,
-  bio,
-  historyLogs = [],
-  chatMessages = [],
-  claimedChallengesToday = [],
-  onClaimChallenge,
-  onUpdateCompanionState,
-  healingActive,
-  showToast,
-  onBioUpdate,
-  canUseAccountFeatures = true,
-  requireAccount,
-  initialMethod
-}) {
+export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], chatMessages = [], claimedChallengesToday = [], onClaimChallenge, onUpdateCompanionState, healingActive, showToast, onBioUpdate, canUseAccountFeatures = true, requireAccount, initialMethod }) {
   const [activePanel, setActivePanel] = useState(initialMethod || null);
   const [unlockedFeatures, setUnlockedFeatures] = useState(bio?.unlockedCompanionFeatures || []);
   const [unlockingId, setUnlockingId] = useState(null);

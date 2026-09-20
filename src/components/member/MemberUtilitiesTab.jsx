@@ -187,7 +187,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
 
       {selectedUtility === "friends" && friendsInstalled && (
-        <FriendsApp onBack={() => onSelectUtility(null)} route={appRoute} onRouteChange={onAppRouteChange} />
+        <FriendsApp route={appRoute} onRouteChange={onAppRouteChange} />
       )}
 
       {selectedUtility === "friends" && !friendsInstalled && (
@@ -214,7 +214,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoArcade */}
       {selectedUtility === "arcade" && (
-        <HugoArcadeTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+        <HugoArcadeTab bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
 
       {/* HugoAura Focus */}

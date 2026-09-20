@@ -62,7 +62,13 @@ function Empty({ icon, title, body }) {
   return <div className="rounded-[28px] border-2 border-dashed border-black/15 bg-white/60 px-5 py-10 text-center"><span className="material-symbols-outlined text-4xl text-[#777786]" aria-hidden="true">{icon}</span><p className="mt-3 text-sm font-black text-[#15151b]">{title}</p><p className="mx-auto mt-1 max-w-sm text-[13px] leading-relaxed text-[#666674]">{body}</p></div>;
 }
 
-export default function FriendsApp({ onBack, route, onRouteChange }) {
+/*
+ * KHÔNG nhận `onBack`: app này nằm trong FULLSCREEN_APP_IDS nên portal đã vẽ nút
+ * X đỏ cố định ở góc trên-phải làm đúng việc đóng app (MemberUtilitiesTab). Nhận
+ * thêm một prop lùi rồi không vẽ nút nào là hứa một đường ra không tồn tại — lỗi
+ * đã gặp ở AppFrame, SubUtilityHeader và StudyTopBar.
+ */
+export default function FriendsApp({ route, onRouteChange }) {
   const { t } = useTranslation();
   /*
    * Màn đang mở lấy từ ĐỊA CHỈ (/member/utilities/friends/<màn>).
