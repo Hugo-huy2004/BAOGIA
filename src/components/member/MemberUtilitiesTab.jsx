@@ -25,7 +25,7 @@ const FriendsApp = lazy(() => import("./FriendsApp"));
 const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, appRoute, onAppRouteChange, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -135,8 +135,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {psyGate === "open" && (
         <BanhocduongTab
           onBack={() => onSelectUtility(null)}
-          activeSubTab={psychologySubTab}
-          onSubTabChange={onSelectPsychologySubTab}
+          route={appRoute || "chat"}
+          onRouteChange={onAppRouteChange}
           defaultPresetTest={defaultPsychologyPresetTest}
           bio={bio}
           showToast={showToast}

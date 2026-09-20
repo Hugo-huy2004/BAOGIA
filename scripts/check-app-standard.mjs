@@ -75,6 +75,13 @@ const EXCEPTIONS = {
   // Material Symbols không có quân cờ, và thay chúng là phá chính bàn cờ.
   "noEmoji@arcade": "quân cờ Unicode (GameChess3D) + glyph vật phẩm hình học (survivorBalance) là typography của game, không phải emoji",
 
+  // HugoPSY: emoji nằm trong LỜI NHẮN CỦA BOT đồng hành (ChatTab + intentClassifier),
+  // gửi cho người đang buồn. "Tớ đang vui cùng cậu... 🎉", "🫂", "😅" là sự ẤM ÁP có
+  // chủ ý trong một app sức khoẻ tâm thần, không phải icon trang trí — bỏ đi là làm
+  // giọng bot lạnh lại. Toàn bộ emoji ở GIAO DIỆN (tiêu đề, huy hiệu, nút) đã thay
+  // bằng Material Symbols ngày 20/09.
+  "noEmoji@banhocduong": "emoji trong lời nhắn của bot đồng hành — ấm áp có chủ ý, không phải icon giao diện",
+
   "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
   "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
 
@@ -204,7 +211,10 @@ const CRITERIA = [
     label: "vùng bấm ≥44px (không có h-[<44px] trên nút)",
     test: ({ all }) => {
       // Nút khai chiều cao cứng dưới 44px là vùng bấm quá nhỏ trên điện thoại.
-      const bad = [...all.matchAll(/\bh-\[(\d+)px\]/g)]
+      // `(?<![a-z-])` loại `min-h-[…]` và `max-h-[…]`: đó là ràng buộc chiều cao
+      // của MỘT KHỐI (đoạn văn, ô nhập), không phải kích thước vùng bấm. Bản đầu
+      // bắt nhầm `min-h-[30px]` trên một thẻ <p> trong BreathingTherapy.
+      const bad = [...all.matchAll(/(?<![a-z-])h-\[(\d+)px\]/g)]
         .map((m) => Number(m[1]))
         .filter((px) => px < 44 && px >= 20);   // <20px gần như luôn là icon/vạch, không phải nút
       return bad.length === 0;

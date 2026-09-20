@@ -6946,7 +6946,8 @@
       "title": "Vietnamese content.",
       "course": "Study with Hugo lessons are written in Vietnamese by their author. The interface is translated; the course material is not."
     },
-    "back": "Back"
+    "back": "Back",
+    "close": "Close"
   },
   "paymentGateway": {
     "dangChuanBiThong": "Preparing your payment details…",

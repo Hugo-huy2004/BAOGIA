@@ -75,7 +75,7 @@ function SoundscapePanel({ onBack, onComplete }) {
 
   return (
     <div className="space-y-5">
-      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+      <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">
         Tạo không gian thư giãn của riêng bạn. Cậu có thể bật và trộn lẫn nhiều âm thanh thiên nhiên cùng một lúc, tùy chỉnh âm lượng của từng loại.
       </p>
 
@@ -96,7 +96,7 @@ function SoundscapePanel({ onBack, onComplete }) {
             ))}
           </div>
         ) : (
-          <span className="text-[10px] text-zinc-500 font-bold flex items-center gap-1">
+          <span className="text-[13px] text-zinc-500 font-bold flex items-center gap-1">
             <Headphones className="w-3.5 h-3.5" /> Bật âm thanh để bắt đầu thư giãn
           </span>
         )}
@@ -114,8 +114,8 @@ function SoundscapePanel({ onBack, onComplete }) {
               <div className="flex items-center gap-2 min-w-0">
                 <span className="material-symbols-outlined text-lg text-indigo-400 shrink-0">{item.icon}</span>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-black text-foreground">{item.label}</p>
-                  <p className="text-[9px] text-zinc-400 truncate">{item.desc}</p>
+                  <p className="text-[13px] font-black text-foreground">{item.label}</p>
+                  <p className="text-[13px] text-zinc-400 truncate">{item.desc}</p>
                 </div>
               </div>
               
@@ -143,7 +143,7 @@ function SoundscapePanel({ onBack, onComplete }) {
                 onChange={e => setVolumes(v => ({ ...v, [item.key]: parseFloat(e.target.value) }))}
                 className="flex-1 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
-              <span className="text-[8px] font-mono text-zinc-400 w-5 text-right">{Math.round(volumes[item.key] * 100)}%</span>
+              <span className="text-[13px] font-mono text-zinc-400 w-5 text-right">{Math.round(volumes[item.key] * 100)}%</span>
             </div>
           </div>
         ))}
@@ -156,7 +156,7 @@ function SoundscapePanel({ onBack, onComplete }) {
           });
           onComplete();
         }}
-        className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
+        className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95"
       >
         Lưu hoạt động & dừng phát
       </button>
@@ -212,9 +212,9 @@ function ExpressiveWritingPanel({ onBack, onComplete }) {
           <Pencil className="w-7 h-7" />
         </div>
         <h3 className="text-sm font-black text-foreground">Hoàn thành viết cảm xúc!</h3>
-        <p className="text-[10.5px] text-muted-foreground font-bold">{wordCount} từ · {minutes} phút {secs}s</p>
-        <p className="text-[10px] text-zinc-400 font-bold">Bài viết của cậu đã được ghi nhận. Viết cảm xúc thường xuyên giúp giảm stress và tăng cường nhận thức.</p>
-        <button onClick={onBack} className="px-6 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all w-full">
+        <p className="text-[13px] text-muted-foreground font-bold">{wordCount} từ · {minutes} phút {secs}s</p>
+        <p className="text-[13px] text-zinc-400 font-bold">Bài viết của cậu đã được ghi nhận. Viết cảm xúc thường xuyên giúp giảm stress và tăng cường nhận thức.</p>
+        <button onClick={onBack} className="px-6 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all w-full">
           Quay lại
         </button>
       </div>
@@ -223,14 +223,14 @@ function ExpressiveWritingPanel({ onBack, onComplete }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+      <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">
         Viết cảm xúc (expressive writing) là phương pháp đã được nghiên cứu khoa học, giúp giảm cortisol, cải thiện giấc ngủ và tăng cường miễn dịch. Chỉ cần viết tự do 10–15 phút.
       </p>
       <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-3">
-        <p className="text-[10px] font-black uppercase text-pink-500 mb-2">Gợi ý chủ đề (chọn hoặc tự viết)</p>
+        <p className="text-[13px] font-black uppercase text-pink-500 mb-2">Gợi ý chủ đề (chọn hoặc tự viết)</p>
         <div className="flex flex-wrap gap-1.5">
           {PROMPTS.slice(0, 4).map((p, i) => (
-            <button key={i} onClick={() => setPrompt(p)} className={`text-[9px] font-bold px-2.5 py-1.5 rounded-xl border transition-all ${prompt === p ? "bg-pink-500/20 border-pink-500 text-pink-500" : "border-border text-muted-foreground hover:bg-pink-500/5"}`}>
+            <button key={i} onClick={() => setPrompt(p)} className={`text-[13px] font-bold px-2.5 py-1.5 rounded-xl border transition-all ${prompt === p ? "bg-pink-500/20 border-pink-500 text-pink-500" : "border-border text-muted-foreground hover:bg-pink-500/5"}`}>
               {p.slice(0, 30)}...
             </button>
           ))}
@@ -240,21 +240,21 @@ function ExpressiveWritingPanel({ onBack, onComplete }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Bắt đầu viết ở đây... Viết tự do, không cần đúng chính tả hay ngữ pháp."
-        className="w-full h-32 p-3 border border-border bg-card rounded-xl text-xs font-medium text-foreground outline-none focus:ring-2 ring-pink-500/30 resize-none"
+        className="w-full h-32 p-3 border border-border bg-card rounded-xl text-[13px] font-medium text-foreground outline-none focus:ring-2 ring-pink-500/30 resize-none"
       />
-      <div className="flex items-center justify-between text-[9px] text-zinc-400 font-bold">
+      <div className="flex items-center justify-between text-[13px] text-zinc-400 font-bold">
         <span>{wordCount} từ · {minutes}:{String(secs).padStart(2, "0")}</span>
         <span>Tối thiểu 50 từ để hoàn thành</span>
       </div>
       <div className="flex gap-2">
-        <button onClick={onBack} className="px-4 py-2.5 rounded-xl border border-border text-[10px] font-bold text-muted-foreground hover:bg-muted transition-all">
+        <button onClick={onBack} className="px-4 py-2.5 rounded-xl border border-border text-[13px] font-bold text-muted-foreground hover:bg-muted transition-all">
           Quay lại
         </button>
-        <button onClick={startWriting} disabled={step === "writing"} className="flex-1 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all disabled:opacity-50">
+        <button onClick={startWriting} disabled={step === "writing"} className="flex-1 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all disabled:opacity-50">
           {step === "writing" ? "Đang viết..." : "Bắt đầu viết"}
         </button>
         {step === "writing" && text.split(/\s+/).filter(Boolean).length >= 50 && (
-          <button onClick={finishWriting} className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all">
+          <button onClick={finishWriting} className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all">
             Hoàn thành
           </button>
         )}
@@ -309,7 +309,7 @@ function LightExercisePanel({ onBack, onComplete }) {
   if (currentStep === -1) {
     return (
       <div className="space-y-4">
-        <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+        <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">
           Vận động nhẹ nhàng giúp giải phóng endorphin, giảm hormone stress cortisol. Chỉ cần 5 phút mỗi ngày để cải thiện tâm trạng đáng kể.
         </p>
         <div className="space-y-2">
@@ -319,16 +319,16 @@ function LightExercisePanel({ onBack, onComplete }) {
               <div key={i} className="flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2">
                 <Icon className="w-5 h-5 text-emerald-500 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-black text-foreground">{ex.name}</p>
-                  <p className="text-[9px] text-zinc-400 font-bold truncate">{ex.desc}</p>
+                  <p className="text-[13px] font-black text-foreground">{ex.name}</p>
+                  <p className="text-[13px] text-zinc-400 font-bold truncate">{ex.desc}</p>
                 </div>
-                <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{ex.duration}s</span>
+                <span className="text-[13px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{ex.duration}s</span>
               </div>
             );
           })}
         </div>
-        <p className="text-[9px] text-zinc-400 font-bold text-center">Tổng thời gian: ~{Math.floor(TOTAL_DURATION / 60)} phút {TOTAL_DURATION % 60}s</p>
-        <button onClick={() => setCurrentStep(0)} className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
+        <p className="text-[13px] text-zinc-400 font-bold text-center">Tổng thời gian: ~{Math.floor(TOTAL_DURATION / 60)} phút {TOTAL_DURATION % 60}s</p>
+        <button onClick={() => setCurrentStep(0)} className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95">
           Bắt đầu vận động
         </button>
       </div>
@@ -352,13 +352,13 @@ function LightExercisePanel({ onBack, onComplete }) {
       </div>
       <div className="w-24 h-24 rounded-full flex flex-col items-center justify-center border-4 border-emerald-400 bg-emerald-400/10">
         <span className="text-3xl font-black text-foreground">{tick}</span>
-        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">giây</span>
+        <span className="text-[13px] font-black uppercase tracking-widest text-zinc-500">giây</span>
       </div>
       <div className="text-center space-y-1">
         <p className="text-[13px] font-black text-foreground">{exercise.name}</p>
-        <p className="text-[10px] text-muted-foreground font-bold">{exercise.desc}</p>
+        <p className="text-[13px] text-muted-foreground font-bold">{exercise.desc}</p>
       </div>
-      <p className="text-[9px] text-zinc-400 font-bold">Bài {currentStep + 1} / {EXERCISES.length}</p>
+      <p className="text-[13px] text-zinc-400 font-bold">Bài {currentStep + 1} / {EXERCISES.length}</p>
     </div>
   );
 }
@@ -388,7 +388,7 @@ function SocialConnectionPanel({ onBack, onComplete }) {
 
   return (
     <div className="space-y-4">
-      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+      <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">
         Kết nối xã hội tích cực là yếu tố bảo vệ sức khỏe tinh thần quan trọng nhất. Research cho thấy 3 mối quan hệ thân thiết đủ để giảm 50% nguy cơ trầm cảm.
       </p>
       <div className="space-y-2">
@@ -399,11 +399,11 @@ function SocialConnectionPanel({ onBack, onComplete }) {
             <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-blue-500/10 border-blue-500/30" : "bg-card/50 border-border hover:bg-blue-500/5"}`}>
               <Icon className="w-5 h-5 text-blue-500 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className={`text-[11px] font-black ${done ? "text-blue-600 dark:text-blue-400 line-through" : "text-foreground"}`}>{task.title}</p>
-                <p className="text-[9px] text-zinc-500 font-bold">{task.desc}</p>
+                <p className={`text-[13px] font-black ${done ? "text-blue-600 dark:text-blue-400 line-through" : "text-foreground"}`}>{task.title}</p>
+                <p className="text-[13px] text-zinc-500 font-bold">{task.desc}</p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[9px] font-black text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">+{task.points}</span>
+                <span className="text-[13px] font-black text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">+{task.points}</span>
                 {done ? <CheckCircle2 className="w-4 h-4 text-blue-500" /> : <Circle className="w-4 h-4 text-muted-foreground/70" />}
               </div>
             </button>
@@ -411,7 +411,7 @@ function SocialConnectionPanel({ onBack, onComplete }) {
         })}
       </div>
       {completedTasks.size > 0 && (
-        <button onClick={() => onComplete?.("Kết Nối Xã Hội", `Hoàn thành ${completedTasks.size}/${TASKS.length} hoạt động kết nối`)} className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
+        <button onClick={() => onComplete?.("Kết Nối Xã Hội", `Hoàn thành ${completedTasks.size}/${TASKS.length} hoạt động kết nối`)} className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[13px] font-black uppercase tracking-wider transition-all active:scale-95">
           Lưu hoạt động ({totalPoints} điểm)
         </button>
       )}
@@ -674,16 +674,16 @@ export default function TherapyTab({
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-foreground leading-none">
+                <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground leading-none">
                   Thử thách Chăm sóc Tinh thần
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-bold leading-none mt-1">
+                <p className="text-[13px] text-zinc-400 font-bold leading-none mt-1">
                   Thực hành tự phục hồi và tích lũy JOY hằng ngày
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[10px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">
+              <span className="text-[13px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">
                 Hoàn thành: {totalCompleted}/3
               </span>
             </div>
@@ -713,10 +713,10 @@ export default function TherapyTab({
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-black text-foreground leading-tight">
+                      <p className="text-[13px] font-black text-foreground leading-tight">
                         {ch.title}
                       </p>
-                      <p className="text-[9px] text-zinc-400 font-medium leading-tight mt-0.5">
+                      <p className="text-[13px] text-zinc-400 font-medium leading-tight mt-0.5">
                         {ch.desc}
                       </p>
                     </div>
@@ -724,17 +724,17 @@ export default function TherapyTab({
 
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60">
                     <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase text-muted-foreground/70 leading-none">
+                      <span className="text-[13px] font-black uppercase text-muted-foreground/70 leading-none">
                         Tiến độ
                       </span>
-                      <span className="text-[10px] font-black text-foreground/80 mt-0.5">
+                      <span className="text-[13px] font-black text-foreground/80 mt-0.5">
                         {ch.progressText}
                       </span>
                     </div>
 
                     {ch.claimed ? (
-                      <span className="flex items-center gap-1 text-[9px] font-black uppercase text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-xl">
-                        ✓ Đã nhận
+                      <span className="flex items-center gap-1 text-[13px] font-black uppercase text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-xl">
+                        <span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">check</span> Đã nhận
                       </span>
                     ) : ch.completed ? (
                       <motion.button
@@ -742,12 +742,12 @@ export default function TherapyTab({
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleClaimReward(ch.id)}
                         disabled={claimingId !== null}
-                        className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xl shadow-md shadow-amber-555/20 active:scale-95 transition-all"
+                        className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[13px] font-black uppercase tracking-wider rounded-xl shadow-md shadow-amber-555/20 active:scale-95 transition-all"
                       >
                         {claimingId === ch.id ? "Đang nhận..." : `Nhận +${joyText(ch.reward)}`}
                       </motion.button>
                     ) : (
-                      <span className="text-[9px] font-black uppercase text-zinc-400 bg-muted px-2.5 py-1 rounded-xl">
+                      <span className="text-[13px] font-black uppercase text-zinc-400 bg-muted px-2.5 py-1 rounded-xl">
                         Chưa đạt
                       </span>
                     )}
@@ -763,22 +763,22 @@ export default function TherapyTab({
           <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
             <TrendingUp className="w-4 h-4 text-indigo-500 shrink-0" />
             <div>
-              <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Tuần này</p>
-              <p className="text-[13px] font-black text-foreground">{weekActivities} <span className="text-[10px] font-bold text-zinc-500">hoạt động</span></p>
+              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Tuần này</p>
+              <p className="text-[13px] font-black text-foreground">{weekActivities} <span className="text-[13px] font-bold text-zinc-500">hoạt động</span></p>
             </div>
           </div>
           <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
             <Flame className="w-4 h-4 text-orange-500 shrink-0" />
             <div>
-              <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Streak</p>
-              <p className="text-[13px] font-black text-foreground">{streak} <span className="text-[10px] font-bold text-zinc-500">ngày</span></p>
+              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Streak</p>
+              <p className="text-[13px] font-black text-foreground">{streak} <span className="text-[13px] font-bold text-zinc-500">ngày</span></p>
             </div>
           </div>
           <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
             <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
             <div>
-              <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Phương pháp</p>
-              <p className="text-[13px] font-black text-foreground">{ALL_METHODS.length} <span className="text-[10px] font-bold text-zinc-500">có sẵn</span></p>
+              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Phương pháp</p>
+              <p className="text-[13px] font-black text-foreground">{ALL_METHODS.length} <span className="text-[13px] font-bold text-zinc-500">có sẵn</span></p>
             </div>
           </div>
       </div>
@@ -812,42 +812,42 @@ export default function TherapyTab({
                     <method.Icon className="w-5 h-5" />
                   </div>
                   {ok ? (
-                    <span className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${method.badge}`}>
+                    <span className={`flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${method.badge}`}>
                       <Unlock className="w-2.5 h-2.5" /> Mở
                     </span>
                   ) : needsAccount ? (
-                    <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
+                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
                       <Lock className="w-2.5 h-2.5" /> Tài khoản
                     </span>
                   ) : showJoyUnlock ? (
-                    <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
                       <Lock className="w-2.5 h-2.5" /> JOY
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-muted/80 text-zinc-500">
+                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-muted/80 text-zinc-500">
                       <Lock className="w-2.5 h-2.5" /> Khóa
                     </span>
                   )}
                 </div>
 
                 {/* Category */}
-                <span className={`self-start text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${method.badge}`}>
+                <span className={`self-start text-[13px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${method.badge}`}>
                   {method.category}
                 </span>
 
                 {/* Name & desc */}
                 <div className="flex-1">
-                  <p className="text-[11px] font-black text-foreground leading-tight">{method.name}</p>
-                  <p className="text-[9.5px] text-muted-foreground font-bold leading-snug mt-0.5 line-clamp-2">{method.desc}</p>
+                  <p className="text-[13px] font-black text-foreground leading-tight">{method.name}</p>
+                  <p className="text-[13px] text-muted-foreground font-bold leading-snug mt-0.5 line-clamp-2">{method.desc}</p>
                 </div>
 
                 {/* Duration + button */}
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[9px] font-black text-zinc-400 bg-muted px-2 py-0.5 rounded-md">{method.duration}</span>
+                  <span className="text-[13px] font-black text-zinc-400 bg-muted px-2 py-0.5 rounded-md">{method.duration}</span>
                   {ok && (
                     <button
                       onClick={() => openPanel(method.id)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[9px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
                     >
                       Bắt đầu <ChevronRight className="w-3 h-3" />
                     </button>
@@ -862,7 +862,7 @@ export default function TherapyTab({
                       handleUnlockFeature(method);
                     }}
                     disabled={isUnlockingThis}
-                    className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[9.5px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                    className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
                   >
                     {needsAccount ? (
                       <>
@@ -908,29 +908,29 @@ export default function TherapyTab({
               <div className="p-6 space-y-4">
                 <div className="bg-muted/50 rounded-2xl p-4 text-left space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Liệu pháp</span>
+                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Liệu pháp</span>
                     <span className="text-sm font-bold text-foreground text-right">{unlockReceipt.name}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Thời gian</span>
+                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Thời gian</span>
                     <span className="text-sm font-medium text-foreground">{unlockReceipt.time.toLocaleString("vi-VN")}</span>
                   </div>
                   <div className="w-full border-t border-dashed border-border my-1" />
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Số JOY đã trừ</span>
+                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Số JOY đã trừ</span>
                     <span className="text-sm font-bold text-destructive">-{joyText(unlockReceipt.cost)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Số dư còn lại</span>
+                    <span className="text-[13px] font-black text-foreground/80 uppercase tracking-wider">Số dư còn lại</span>
                     <span className="text-lg font-black text-foreground">{joyText(unlockReceipt.balanceAfter)}</span>
                   </div>
                 </div>
-                <p className="text-[10px] text-zinc-400 text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
+                <p className="text-[13px] text-zinc-400 text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
               </div>
               <div className="p-4 bg-muted/50 border-t border-border">
                 <button
                   onClick={() => setUnlockReceipt(null)}
-                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold uppercase tracking-wider transition-colors"
                 >
                   Đã hiểu
                 </button>

@@ -64,11 +64,11 @@ export default function AuraMoodMap({ historyLogs = [] }) {
       <div className="relative z-10 flex items-center justify-between border-b pb-3 border-border/60">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
-          <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+          <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">
             Bản Đồ Hào Quang Cảm Xúc
           </h4>
         </div>
-        <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${moodBadgeColor}`}>
+        <span className={`text-[13px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${moodBadgeColor}`}>
           {recent.length}/7 ngày điểm danh
         </span>
       </div>
@@ -83,8 +83,8 @@ export default function AuraMoodMap({ historyLogs = [] }) {
         ].map((metric) => (
           <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/70 p-2.5 text-center">
             <span className={`material-symbols-outlined inline-flex h-7 w-7 items-center justify-center rounded-xl text-[15px] ${metric.cls}`}>{metric.icon}</span>
-            <p className="mt-1 text-[8px] font-black uppercase tracking-wider text-muted-foreground">{metric.label}</p>
-            <p className="text-sm font-black text-foreground">{metric.value === null ? "—" : metric.value.toFixed(1)}<span className="text-[8px] text-muted-foreground"> / 5</span></p>
+            <p className="mt-1 text-[13px] font-black uppercase tracking-wider text-muted-foreground">{metric.label}</p>
+            <p className="text-sm font-black text-foreground">{metric.value === null ? "—" : metric.value.toFixed(1)}<span className="text-[13px] text-muted-foreground"> / 5</span></p>
           </div>
         ))}
       </div>
@@ -96,18 +96,18 @@ export default function AuraMoodMap({ historyLogs = [] }) {
             className={`w-28 h-28 rounded-full bg-gradient-to-tr ${glowClasses} p-1 shadow-lg shadow-primary/20 animate-pulse`}
           >
             <div className="w-full h-full rounded-full bg-white dark:bg-zinc-950 backdrop-blur-md flex flex-col items-center justify-center text-center p-2">
-              <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider">Chỉ Số Mood</span>
+              <span className="text-[13px] font-black uppercase text-muted-foreground tracking-wider">Chỉ Số Mood</span>
               <span className="text-2xl font-black text-foreground mt-0.5">{avgMood === null ? "—" : avgMood.toFixed(1)}</span>
-              <span className="text-[8px] font-bold text-muted-foreground">/ 5.0</span>
+              <span className="text-[13px] font-bold text-muted-foreground">/ 5.0</span>
             </div>
           </div>
         </div>
 
         <div className="text-center space-y-1 max-w-md px-2">
-          <h5 className="text-xs font-black text-foreground uppercase tracking-wide">
+          <h5 className="text-[13px] font-black text-foreground uppercase tracking-wide">
             {auraTitle}
           </h5>
-          <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+          <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">
             {auraDesc}
           </p>
         </div>
@@ -116,14 +116,14 @@ export default function AuraMoodMap({ historyLogs = [] }) {
       {/* Weekly Mood Bar Chart */}
       <div className="relative z-10 bg-muted/40 border border-border/60 rounded-2xl p-3.5 space-y-2">
         <div className="flex items-center justify-between">
-          <h6 className="text-[9.5px] font-black uppercase tracking-wider text-foreground">
+          <h6 className="text-[13px] font-black uppercase tracking-wider text-foreground">
             Nhật Ký Cảm Xúc 7 Ngày Gần Nhất
           </h6>
           <Activity className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
 
         {recent.length === 0 ? (
-          <p className="text-[10px] text-muted-foreground font-bold italic text-center py-3">
+          <p className="text-[13px] text-muted-foreground font-bold italic text-center py-3">
             Chưa có ghi chép cảm xúc. Hãy thực hiện điểm danh hôm nay nhé!
           </p>
         ) : (
@@ -147,7 +147,7 @@ export default function AuraMoodMap({ historyLogs = [] }) {
                       title={`Tâm trạng: ${log.mood}/5 - ${log.note || ""}`}
                     />
                   </div>
-                  <span className="text-[8.5px] font-black text-muted-foreground mt-1">
+                  <span className="text-[13px] font-black text-muted-foreground mt-1">
                     {dayStr}
                   </span>
                 </div>
@@ -162,11 +162,11 @@ export default function AuraMoodMap({ historyLogs = [] }) {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2">
           <div className="flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-primary" />
-            <h6 className="text-[9.5px] font-black uppercase tracking-wider text-foreground">
+            <h6 className="text-[13px] font-black uppercase tracking-wider text-foreground">
               Ma Trận Cảm Xúc 365 Ngày (Heatmap)
             </h6>
           </div>
-          <div className="flex items-center gap-2 text-[8px] font-black text-muted-foreground">
+          <div className="flex items-center gap-2 text-[13px] font-black text-muted-foreground">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-muted-foreground/30" /> Trống</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-violet-500" /> Trầm</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-teal-500" /> Vừa</span>

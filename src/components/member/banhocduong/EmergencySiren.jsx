@@ -140,8 +140,8 @@ export default function EmergencySiren({ compact = false }) {
         type="button"
         onClick={start}
         className={compact
-          ? "shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-700 text-white text-[10px] font-black active:scale-95 transition-transform"
-          : "flex-1 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-[11px] font-black transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"}
+          ? "shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-700 text-white text-[13px] font-black active:scale-95 transition-transform"
+          : "flex-1 py-2.5 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-[13px] font-black transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"}
         title="Phát còi báo động để người xung quanh chú ý ngay"
       >
         <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>campaign</span>
@@ -181,13 +181,13 @@ export function CrisisSosCountdown({ open, onClose }) {
           </span>
           <div>
             <h2 id="hugopsy-safety-title" className="text-sm font-black text-foreground">Ưu tiên an toàn của cậu</h2>
-            <p className="mt-1 text-[11px] font-semibold leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-[13px] font-semibold leading-relaxed text-muted-foreground">
               HugoPSY nhận thấy nội dung vừa rồi có thể liên quan đến việc tự làm đau bản thân. Đây không phải kết luận chẩn đoán.
             </p>
           </div>
         </div>
 
-        <p className="mt-4 rounded-2xl bg-rose-500/[0.07] p-3 text-[11px] font-semibold leading-relaxed text-foreground/80">
+        <p className="mt-4 rounded-2xl bg-rose-500/[0.07] p-3 text-[13px] font-semibold leading-relaxed text-foreground/80">
           Nếu đang có nguy hiểm ngay lúc này, hãy đến gần một người cậu tin cậy hoặc nơi có người hỗ trợ. Cậu có thể chủ động bật còi để thu hút người ở gần.
         </p>
 
@@ -196,11 +196,11 @@ export function CrisisSosCountdown({ open, onClose }) {
             <a
               key={hotline.number}
               href={`tel:${hotline.number}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-rose-200/70 bg-rose-50/80 px-3 py-2.5 text-[10px] font-bold text-rose-700 active:scale-[0.98] dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300"
+              className="flex items-center justify-between gap-3 rounded-xl border border-rose-200/70 bg-rose-50/80 px-3 py-2.5 text-[13px] font-bold text-rose-700 active:scale-[0.98] dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300"
             >
               <span>
                 {hotline.label}
-                {hotline.note && <span className="mt-0.5 block text-[8px] font-semibold opacity-70">{hotline.note}</span>}
+                {hotline.note && <span className="mt-0.5 block text-[13px] font-semibold opacity-70">{hotline.note}</span>}
               </span>
               <span className="shrink-0 font-black">{hotline.display || hotline.number}</span>
             </a>
@@ -211,14 +211,14 @@ export function CrisisSosCountdown({ open, onClose }) {
           <button
             type="button"
             onClick={start}
-            className="w-full rounded-2xl bg-rose-600 px-4 py-3 text-[11px] font-black text-white active:scale-[0.98]"
+            className="w-full rounded-2xl bg-rose-600 px-4 py-3 text-[13px] font-black text-white active:scale-[0.98]"
           >
             Bật còi SOS
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-2xl border border-border px-4 py-3 text-[11px] font-bold text-foreground active:scale-[0.98]"
+            className="w-full rounded-2xl border border-border px-4 py-3 text-[13px] font-bold text-foreground active:scale-[0.98]"
           >
             Tôi đang an toàn, tiếp tục trò chuyện
           </button>

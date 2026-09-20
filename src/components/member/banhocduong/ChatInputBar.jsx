@@ -46,7 +46,7 @@ function ChatInputBar({
                 key={i}
                 type="button"
                 onClick={() => onQuickReply?.(qr)}
-                className="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-card/60 backdrop-blur-md border border-border/80/[0.08] text-foreground/80 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
+                className="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-card/60 backdrop-blur-md border border-border/80/[0.08] text-foreground/80 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
               >
                 {qr.label || qr}
               </button>
@@ -68,7 +68,7 @@ function ChatInputBar({
             disabled={disabled}
             aria-label="Đọc phiếu kết quả"
             title="Đọc phiếu kết quả"
-            className="mb-0.5 grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90 disabled:opacity-40"
+            className="mb-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90 disabled:opacity-40"
           >
             <span className="material-symbols-outlined text-[17px]">attach_file</span>
           </button>
@@ -98,7 +98,7 @@ function ChatInputBar({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-[30px] h-[30px] shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-90 text-white flex items-center justify-center shadow-md shadow-blue-500/30 transition-colors disabled:opacity-40"
+              className="w-11 h-11 shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-90 text-white flex items-center justify-center shadow-md shadow-blue-500/30 transition-colors disabled:opacity-40"
             >
               <span className="material-symbols-outlined text-[15px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
             </motion.button>
@@ -109,7 +109,7 @@ function ChatInputBar({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-[30px] h-[30px] shrink-0 rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-400/20"
+              className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-400/20"
             >
               <span className="material-symbols-outlined text-[15px] text-indigo-500 dark:text-indigo-400 animate-pulse">auto_awesome</span>
             </motion.div>

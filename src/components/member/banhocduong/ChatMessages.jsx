@@ -43,8 +43,8 @@ function InlineBreathingCircle() {
 
   return (
     <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent border border-sky-400/20 dark:border-sky-800/30 flex flex-col items-center gap-3.5 w-full max-w-[240px] shadow-sm backdrop-blur-md text-foreground">
-      <div className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
-        <span className="material-symbols-outlined text-[10px] animate-pulse">air</span>
+      <div className="text-[13px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
+        <span className="material-symbols-outlined text-[13px] animate-pulse">air</span>
         Bài tập Thở 4-7-8
       </div>
       <div className="w-20 h-20 rounded-full flex items-center justify-center relative bg-sky-500/5 dark:bg-sky-500/10">
@@ -73,11 +73,11 @@ function InlineBreathingCircle() {
           )}
         </div>
       </div>
-      <p className="text-[10.5px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
+      <p className="text-[13px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
         {phaseLabel}
       </p>
       <button type="button" onClick={isActive ? stopBreathing : startBreathing}
-        className={`w-full py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
+        className={`w-full py-2.5 rounded-2xl text-[13px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
           isActive 
             ? "bg-zinc-400 hover:bg-zinc-500 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
             : "bg-sky-500 hover:bg-sky-600 shadow-[0_2px_10px_rgba(14,165,233,0.3)]"
@@ -92,13 +92,13 @@ function InlineCbtCard() {
   const [challenged, setChallenged] = React.useState(false);
   return (
     <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-3 w-full max-w-[240px] shadow-sm backdrop-blur-md">
-      <div className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
-        <span className="material-symbols-outlined text-[10px]">psychology</span>
+      <div className="text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+        <span className="material-symbols-outlined text-[13px]">psychology</span>
         Thử thách Suy nghĩ (CBT)
       </div>
       <div className="bg-zinc-100/80 dark:bg-zinc-900/60 p-3 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]">
-        <p className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-        <p className="text-[11px] font-bold text-foreground/70 mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
+        <p className="text-[13px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
+        <p className="text-[13px] font-bold text-foreground/70 mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
       </div>
       <AnimatePresence mode="wait">
         {challenged ? (
@@ -110,10 +110,10 @@ function InlineCbtCard() {
             className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 dark:from-emerald-500/5 dark:to-teal-500/0 p-3 rounded-2xl border border-emerald-500/30 dark:border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
           >
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-emerald-500 text-[12px] animate-pulse">sparkles</span>
-              <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
+              <span className="material-symbols-outlined text-emerald-500 text-[13px] animate-pulse">sparkles</span>
+              <p className="text-[13px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
             </div>
-            <p className="text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
+            <p className="text-[13px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
               "Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."
             </p>
           </motion.div>
@@ -124,7 +124,7 @@ function InlineCbtCard() {
             onClick={() => setChallenged(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full py-2.5 rounded-2xl text-[10px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
+            className="w-full py-2.5 rounded-2xl text-[13px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
           >
             Thử thách suy nghĩ
           </motion.button>
@@ -162,8 +162,8 @@ function InlineSleepReportCard({ bio }) {
   if (avgDur === null) {
     return (
       <div className="mt-2.5 p-4 rounded-2xl bg-teal-500/8 border border-teal-500/20 text-left max-w-sm">
-        <p className="text-[10px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
-        <p className="mt-1.5 text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+        <p className="text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
+        <p className="mt-1.5 text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bản ghi giấc ngủ để tính trung bình. Hãy ghi ít nhất một đêm trước khi xem báo cáo.
         </p>
       </div>
@@ -173,28 +173,28 @@ function InlineSleepReportCard({ bio }) {
   return (
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-3 shadow-md max-w-sm">
       <div className="flex items-center justify-between border-b border-teal-500/20 pb-2">
-        <span className="text-[10px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
-          🌙 Báo Cáo Giấc Ngủ & Chu Kỳ
+        <span className="text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
+          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">bedtime</span> Báo Cáo Giấc Ngủ & Chu Kỳ
         </span>
-        <span className="text-[8.5px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
+        <span className="text-[13px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
           {recentLogs.length} đêm gần nhất
         </span>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-center">
         <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[8.5px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
+          <p className="text-[13px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
           <p className="text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
         </div>
         <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[8.5px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
+          <p className="text-[13px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
           <p className={`text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
             {debt > 0 ? `${debt} giờ` : "0 giờ (Tốt)"}
           </p>
         </div>
       </div>
 
-      <p className="text-[9px] font-semibold leading-relaxed text-muted-foreground">
+      <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
         Đây là thống kê từ dữ liệu cậu đã ghi, không phải kết quả chẩn đoán giấc ngủ.
       </p>
     </div>
@@ -217,8 +217,8 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
   if (!hasScores) {
     return (
       <div className="mt-2.5 p-4 rounded-2xl bg-violet-500/8 border border-violet-500/20 text-left max-w-sm">
-        <p className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
-        <p className="mt-1.5 text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+        <p className="text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
+        <p className="mt-1.5 text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bài tự đánh giá nào được hoàn thành. HugoPSY sẽ không tự điền kết quả thay cậu.
         </p>
       </div>
@@ -228,29 +228,29 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
   return (
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-3 shadow-md max-w-sm">
       <div className="flex items-center justify-between border-b border-violet-500/20 pb-2">
-        <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
-          📊 Báo Cáo Sức Khỏe Tinh Thần
+        <span className="text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">monitoring</span> Báo Cáo Sức Khỏe Tinh Thần
         </span>
-        <span className="text-[8.5px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
+        <span className="text-[13px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
           Tự Nhận Thức
         </span>
       </div>
 
       <div className="grid grid-cols-3 gap-1.5 text-center">
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[8px] font-black uppercase text-muted-foreground">PHQ-9</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
+          <p className="text-[13px] font-black uppercase text-muted-foreground">PHQ-9</p>
+          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
         </div>
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[8px] font-black uppercase text-muted-foreground">GAD-7</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
+          <p className="text-[13px] font-black uppercase text-muted-foreground">GAD-7</p>
+          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
         </div>
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[8px] font-black uppercase text-muted-foreground">WHO-5</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
+          <p className="text-[13px] font-black uppercase text-muted-foreground">WHO-5</p>
+          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
         </div>
       </div>
-      <p className="text-[9px] font-semibold leading-relaxed text-muted-foreground">
+      <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
         Điểm tự đánh giá chỉ hỗ trợ theo dõi xu hướng và không phải chẩn đoán.
       </p>
     </div>
@@ -262,14 +262,14 @@ function InlineTherapyReportCard() {
   return (
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-3 shadow-md max-w-sm">
       <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
-        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-          🌿 Gợi Ý Thư Giãn Phù Hợp
+        <span className="text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">spa</span> Gợi Ý Thư Giãn Phù Hợp
         </span>
-        <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+        <span className="px-2 py-0.5 rounded-full text-[13px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
           Khuyên Dùng
         </span>
       </div>
-      <p className="text-[10px] text-foreground/80 font-bold leading-relaxed">
+      <p className="text-[13px] text-foreground/80 font-bold leading-relaxed">
         Đề xuất thực hành **Điều hòa nhịp thở 4-7-8** (10 phút) hoặc **Nhật ký nhận thức CBT** để tái tạo năng lượng thần kinh.
       </p>
     </div>
@@ -297,8 +297,8 @@ function PulseScale({ label, value, onChange, lowLabel, highLabel, tone }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[9px] font-black uppercase tracking-wider text-foreground/70">{label}</span>
-        <span className="text-[9px] font-bold text-muted-foreground">{value}/5</span>
+        <span className="text-[13px] font-black uppercase tracking-wider text-foreground/70">{label}</span>
+        <span className="text-[13px] font-bold text-muted-foreground">{value}/5</span>
       </div>
       <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label={label}>
         {[1, 2, 3, 4, 5].map((score) => (
@@ -309,7 +309,7 @@ function PulseScale({ label, value, onChange, lowLabel, highLabel, tone }) {
             aria-checked={value === score}
             aria-label={`${label}: ${score}/5`}
             onClick={() => onChange(score)}
-            className={`h-8 rounded-xl text-[10px] font-black transition-all active:scale-90 ${
+            className={`h-8 rounded-xl text-[13px] font-black transition-all active:scale-90 ${
               value === score
                 ? `${tone} text-white shadow-sm scale-[1.03]`
                 : "bg-background/80 text-muted-foreground border border-border/60 hover:border-indigo-300"
@@ -319,7 +319,7 @@ function PulseScale({ label, value, onChange, lowLabel, highLabel, tone }) {
           </button>
         ))}
       </div>
-      <div className="flex justify-between text-[8px] font-semibold text-muted-foreground/75">
+      <div className="flex justify-between text-[13px] font-semibold text-muted-foreground/75">
         <span>{lowLabel}</span><span>{highLabel}</span>
       </div>
     </div>
@@ -355,14 +355,14 @@ function MoodCheckinCard({ onMoodSelect }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
-          <p className="text-[10px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
+          <p className="text-[13px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
+          <p className="text-[13px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
         </div>
         <span className="material-symbols-outlined text-[18px] text-indigo-500">vital_signs</span>
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[9px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
+        <p className="text-[13px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
       <div className="flex justify-between gap-1">
         {MOOD_OPTS.map(opt => {
           const Icon = opt.icon;
@@ -378,7 +378,7 @@ function MoodCheckinCard({ onMoodSelect }) {
               }`}
             >
               <Icon className={`w-5 h-5 ${selected === opt.value ? "text-white" : "text-foreground"}`} />
-              <span className={`text-[8px] font-bold leading-none ${
+              <span className={`text-[13px] font-bold leading-none ${
                 selected === opt.value ? "text-white" : "text-muted-foreground"
               }`}>{opt.label}</span>
             </button>
@@ -393,14 +393,14 @@ function MoodCheckinCard({ onMoodSelect }) {
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-[9px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
+        <p className="text-[13px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
         <div className="grid grid-cols-2 gap-1.5">
           {NEED_OPTS.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setNeed(option.value)}
-              className={`min-h-9 px-2.5 rounded-xl flex items-center gap-1.5 text-[9px] font-bold transition-all active:scale-[0.97] ${
+              className={`min-h-9 px-2.5 rounded-xl flex items-center gap-1.5 text-[13px] font-bold transition-all active:scale-[0.97] ${
                 need === option.value
                   ? "bg-indigo-500 text-white shadow-sm"
                   : "bg-background/75 border border-border/60 text-foreground/75"
@@ -413,13 +413,13 @@ function MoodCheckinCard({ onMoodSelect }) {
         </div>
       </div>
 
-      {error && <p role="alert" className="text-[9px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
+      {error && <p role="alert" className="text-[13px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
 
       <button
         type="button"
         disabled={!selected || !need || saving}
         onClick={handleSubmit}
-        className="w-full min-h-10 rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md shadow-indigo-500/20 disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
+        className="w-full min-h-10 rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[13px] font-black uppercase tracking-wider shadow-md shadow-indigo-500/20 disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
       >
         {saving ? "Đang lưu nhịp hôm nay..." : "Lưu và tạo kế hoạch hôm nay"}
       </button>
@@ -438,20 +438,20 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
     <div className="mt-2.5 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-200/50 dark:border-indigo-900/30 flex flex-col gap-3 w-full max-w-[260px] shadow-sm backdrop-blur-md">
       <div className="flex items-center gap-1.5">
         <div className="w-5 h-5 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-[12px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
+          <span className="material-symbols-outlined text-[13px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
         </div>
-        <span className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
+        <span className="text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
       </div>
       <div className="flex flex-col gap-1">
-        <p className="text-[12px] font-extrabold text-foreground leading-snug">{method.name}</p>
-        <p className="text-[10px] text-muted-foreground leading-normal">
+        <p className="text-[13px] font-extrabold text-foreground leading-snug">{method.name}</p>
+        <p className="text-[13px] text-muted-foreground leading-normal">
           Trải nghiệm trọn vẹn bài tập và lộ trình chuyên sâu giúp cậu cân bằng cảm xúc tốt hơn.
         </p>
       </div>
       <div className="flex items-center justify-between gap-2 mt-1">
         <div className="flex items-center gap-1">
-          <span className="text-[12px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
-          <span className="text-[9px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
+          <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
+          <span className="text-[13px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
         </div>
         <motion.button
           type="button"
@@ -468,7 +468,7 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
             }
           }}
           disabled={!canAfford || isUnlocking}
-          className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
+          className={`px-4 py-2 rounded-2xl text-[13px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
             isUnlocking
               ? "bg-zinc-400 dark:bg-zinc-700 cursor-wait"
               : !canAfford
@@ -487,7 +487,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
-      <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
+      <div className="px-5 py-3.5 text-[13px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
         {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
           <TypewriterText text={msg.text} id={msg.id}
             onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
@@ -496,7 +496,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         )}
         {msg.showTherapyButton && (
           <button type="button" onClick={() => onNavigateToTab?.("therapy")}
-            className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold rounded-xl transition-all active:scale-95">
+            className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[13px] font-bold rounded-xl transition-all active:scale-95">
             <Heart className="w-3.5 h-3.5" /> Mở bài thư giãn
           </button>
         )}
@@ -514,8 +514,8 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
       {/* Interactive buy card */}
       {msg.showInlineBuy && (
         unlockedFeatures.includes(msg.showInlineBuy) ? (
-          <div className="mt-2 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black flex items-center gap-1.5 w-max">
-            <span className="material-symbols-outlined text-[12px] animate-pulse">check_circle</span>
+          <div className="mt-2 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[13px] font-black flex items-center gap-1.5 w-max">
+            <span className="material-symbols-outlined text-[13px] animate-pulse">check_circle</span>
             Đã mở khóa liệu pháp này thành công!
           </div>
         ) : (
@@ -539,40 +539,40 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-50/80 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/15 border border-violet-100 dark:border-violet-800/25 space-y-2 w-full max-w-[260px]">
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[12px] text-violet-600 dark:text-violet-400">monitoring</span>
+              <span className="material-symbols-outlined text-[13px] text-violet-600 dark:text-violet-400">monitoring</span>
             </div>
-            <span className="text-[10px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
+            <span className="text-[13px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
           </div>
-          <p className="text-[10.5px] text-muted-foreground leading-snug">
+          <p className="text-[13px] text-muted-foreground leading-snug">
             Tớ muốn hiểu cậu sâu hơn — thử đo nhanh nhé? Chỉ 2 phút thôi.
           </p>
           <div className="flex flex-wrap gap-1.5">
             {msg.suggestPhq9 && (
               <button type="button" onClick={() => onStartTest("phq9")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
+                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
                 PHQ-9 · Triệu chứng khí sắc
               </button>
             )}
             {msg.suggestGad7 && (
               <button type="button" onClick={() => onStartTest("gad7")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
+                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
                 GAD-7 · Triệu chứng lo âu
               </button>
             )}
             {msg.suggestWho5 && (
               <button type="button" onClick={() => onStartTest("who5")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-emerald-500/12 hover:bg-emerald-500/20 border border-emerald-300/40 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 transition-all active:scale-95">
+                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-emerald-500/12 hover:bg-emerald-500/20 border border-emerald-300/40 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 transition-all active:scale-95">
                 WHO-5 · Hạnh phúc
               </button>
             )}
             {msg.suggestBigFive && (
               <button type="button" onClick={() => onStartTest("bigfive")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
+                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
                 Big Five · Nhân cách
               </button>
             )}
           </div>
-          <p className="text-[8.5px] text-muted-foreground/70">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
+          <p className="text-[13px] text-muted-foreground/70">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
         </div>
       )}
 
@@ -581,12 +581,12 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-700/50 space-y-2 w-full max-w-[270px]">
           <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
             <span className="material-symbols-outlined text-[15px]">emergency</span>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
+            <span className="text-[13px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
           </div>
           <div className="flex flex-col gap-1.5">
             {msg.quickActions.filter(a => a.tel).map((action, i) => (
               <a key={i} href={`tel:${action.tel}`}
-                className="w-full py-2 text-[11px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
+                className="w-full py-2 text-[13px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
                 {action.label}
               </a>
             ))}
@@ -600,7 +600,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
           {msg.quickActions.filter(a => a.type === "unlock").map((action, i) => (
             <button key={i} type="button" disabled={unlockingMethodId === action.methodId}
               onClick={() => onUnlockFeature?.(action)}
-              className="w-full py-2 text-[11px] font-extrabold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
+              className="w-full py-2 text-[13px] font-extrabold bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
               <span className="material-symbols-outlined text-[14px]">paid</span>
               {unlockingMethodId === action.methodId ? "Đang xử lý..." : action.label}
             </button>
@@ -613,7 +613,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         <div className="w-full max-w-[270px]">
           {msg.quickActions.filter(a => a.type === "verify_form").map((action, i) => (
             <button key={i} type="button" onClick={() => onOpenVerification?.()}
-              className="w-full py-2.5 text-[11px] font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5">
+              className="w-full py-2.5 text-[13px] font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all active:scale-95 flex items-center justify-center gap-1.5">
               <span className="material-symbols-outlined text-[14px]">verified_user</span>
               {action.label || "Mở form xác minh"}
             </button>
@@ -626,28 +626,28 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/25 border border-indigo-200/60 dark:border-indigo-700/30 space-y-2 w-full max-w-[250px]">
           <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
             <Heart className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-extrabold uppercase tracking-wider">Chọn lộ trình</span>
+            <span className="text-[13px] font-extrabold uppercase tracking-wider">Chọn lộ trình</span>
           </div>
           <button type="button" onClick={() => onSelectDuration(msg.id, msg.recommendedDays)}
-            className="w-full py-2 text-[11px] font-extrabold bg-primary hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
+            className="w-full py-2 text-[13px] font-extrabold bg-primary hover:bg-blue-600 text-white rounded-xl transition-all active:scale-95">
             Đồng ý ({msg.recommendedDays} ngày)
           </button>
           <div className="grid grid-cols-3 gap-1">
             {[7, 14, 30, 50, 90].map(d => (
               <button key={d} type="button" onClick={() => onSelectDuration(msg.id, d)}
-                className="py-1.5 text-[9px] font-bold bg-muted text-muted-foreground rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
+                className="py-1.5 text-[13px] font-bold bg-muted text-muted-foreground rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95">
                 {d}ngày
               </button>
             ))}
           </div>
           <button type="button" onClick={() => onSelectDuration(msg.id, "cancel")}
-            className="w-full py-1.5 text-[10px] font-medium text-zinc-400 border border-border rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
+            className="w-full py-1.5 text-[13px] font-medium text-zinc-400 border border-border rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
             Để sau
           </button>
         </div>
       )}
       {msg.isCompanionSetup && msg.selectedChoice && (
-        <span className="text-[9px] text-zinc-400 px-1">
+        <span className="text-[13px] text-zinc-400 px-1">
           Đã chọn: {msg.selectedChoice === "cancel" ? "Từ chối" : `${msg.selectedChoice} ngày`}
         </span>
       )}
@@ -658,7 +658,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
 
 function UserBubble({ msg }) {
   return (
-    <div className="px-5 py-3.5 text-[12.5px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-border/20/[0.15] max-w-full">
+    <div className="px-5 py-3.5 text-[13px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-border/20/[0.15] max-w-full">
       <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
     </div>
   );
@@ -739,7 +739,7 @@ function ChatMessages({
         {/* Date separator */}
         <div className="flex items-center gap-3 pb-3">
           <div className="flex-1 h-px bg-muted/50/[0.06]" />
-          <span className="text-[10px] font-semibold text-muted-foreground/70 px-3 py-1 rounded-full bg-muted/[0.05] select-none">
+          <span className="text-[13px] font-semibold text-muted-foreground/70 px-3 py-1 rounded-full bg-muted/[0.05] select-none">
             {new Date().toLocaleDateString("vi-VN", { weekday: "short", day: "numeric", month: "numeric" })}
           </span>
           <div className="flex-1 h-px bg-muted/50/[0.06]" />
@@ -785,12 +785,12 @@ function ChatMessages({
 
                 {/* Timestamp */}
                 <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-11" : "mr-1"}`}>
-                  <span className="text-[9.5px] text-muted-foreground/70 font-medium">
+                  <span className="text-[13px] text-muted-foreground/70 font-medium">
                     {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                   {msg.timeLeft !== undefined && (
-                    <span className="text-[9.5px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
-                      🔥 {msg.timeLeft}s
+                    <span className="text-[13px] text-orange-500 font-black animate-pulse flex items-center gap-0.5">
+                      <span className="material-symbols-outlined align-middle text-[15px]" aria-hidden="true">local_fire_department</span> {msg.timeLeft}s
                     </span>
                   )}
                 </div>

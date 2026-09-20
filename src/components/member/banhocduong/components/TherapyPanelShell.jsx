@@ -24,16 +24,16 @@ export default function TherapyPanelShell({ method, onBack, children }) {
           <BackButton onClick={onBack} iconOnly />
           <div className="min-w-0">
             <h3 className="text-sm font-black text-foreground truncate leading-tight">{title}</h3>
-            <p className="text-[10px] font-bold text-muted-foreground truncate mt-0.5">{desc}</p>
+            <p className="text-[13px] font-bold text-muted-foreground truncate mt-0.5">{desc}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="hidden sm:flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+          <span className="hidden sm:flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
             <Clock className="w-3 h-3" />
             {duration}
           </span>
-          <span className="text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">
+          <span className="text-[13px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-accent/10 text-accent border border-accent/20">
             {category}
           </span>
         </div>

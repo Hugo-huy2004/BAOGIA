@@ -386,7 +386,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
         <div className="flex-1 flex bg-muted rounded-xl p-1 shadow-inner border border-border">
           <button
             onClick={() => handleModeChange("breath")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[13px] font-black uppercase tracking-wider rounded-lg transition-all ${
               activeMode === "breath"
                 ? "bg-card text-foreground shadow-md border border-border"
                 : "text-muted-foreground hover:text-foreground"
@@ -397,7 +397,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
           </button>
           <button
             onClick={() => handleModeChange("pmr")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[13px] font-black uppercase tracking-wider rounded-lg transition-all ${
               activeMode === "pmr"
                 ? "bg-card text-foreground shadow-md border border-border"
                 : "text-muted-foreground hover:text-foreground"
@@ -439,7 +439,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                   key={item.time}
                   type="button"
                   onClick={() => selectBreathDuration(item.time)}
-                  className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-all ${
+                  className={`px-3 py-1.5 rounded-md border text-[13px] font-black uppercase tracking-wider transition-all ${
                     breathTargetDuration === item.time
                       ? "bg-warning border-transparent text-warning-foreground shadow-sm"
                       : "border-border text-muted-foreground hover:bg-muted/70 hover:text-foreground"
@@ -452,7 +452,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
 
             {/* Ambient Sound Selector */}
             <div className="bg-muted border border-border rounded-2xl p-2.5 space-y-1.5">
-              <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1 justify-center">
+              <span className="text-[13px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1 justify-center">
                 <Music className="w-3.5 h-3.5" /> Nhạc nền thiền tự nhiên
               </span>
               <div className="grid grid-cols-4 gap-1.5">
@@ -466,7 +466,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                     key={item.id}
                     type="button"
                     onClick={() => setAmbientSound(item.id)}
-                    className={`flex flex-col items-center gap-1 py-1.5 rounded-lg border text-[8px] font-bold uppercase transition-all ${
+                    className={`flex flex-col items-center gap-1 py-1.5 rounded-lg border text-[13px] font-bold uppercase transition-all ${
                       ambientSound === item.id
                         ? "bg-warning/25 border-warning text-warning shadow-inner"
                         : "border-border text-muted-foreground bg-muted/40 hover:bg-muted/70"
@@ -480,7 +480,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
             </div>
 
             {breathState !== "idle" && (
-              <div className="text-muted-foreground font-mono font-black text-xs tracking-wider">
+              <div className="text-muted-foreground font-mono font-black text-[13px] tracking-wider">
                 Thời gian: {formatTimerTime(breathSecondsLeft)}
               </div>
             )}
@@ -495,7 +495,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-foreground shadow-xl relative z-10 bg-card border border-border">
-                  <span className="text-[8px] uppercase tracking-widest font-black opacity-90">
+                  <span className="text-[13px] uppercase tracking-widest font-black opacity-90">
                     {breathState === "inhale" ? "Hít vào" :
                      breathState === "hold" ? "Giữ hơi" :
                      breathState === "exhale" ? "Thở ra" : "Sẵn sàng"}
@@ -515,7 +515,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                     setBreathSecondsLeft(breathTargetDuration);
                     setBreathState("inhale");
                   }}
-                  className="px-6 py-2.5 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-success/30"
+                  className="px-6 py-2.5 rounded-xl bg-success hover:bg-success/90 text-success-foreground text-[13px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-success/30"
                 >
                   Bắt đầu hít thở
                 </button>
@@ -523,13 +523,13 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                 <button
                   type="button"
                   onClick={() => setBreathState("idle")}
-                  className="px-6 py-2.5 rounded-xl border-2 border-destructive hover:bg-destructive/10 text-destructive text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                  className="px-6 py-2.5 rounded-xl border-2 border-destructive hover:bg-destructive/10 text-destructive text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all"
                 >
                   Dừng hít thở
                 </button>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground italic max-w-xs mx-auto leading-relaxed font-bold mt-3">
+            <p className="text-[13px] text-muted-foreground italic max-w-xs mx-auto leading-relaxed font-bold mt-3">
               "Phương pháp 4-7-8 kích hoạt trực tiếp dây thần kinh phế vị, giúp nhịp tim của cậu dịu lại ngay lập tức."
             </p>
           </motion.div>
@@ -544,15 +544,15 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
             {/* PMR View */}
             {pmrState === "idle" ? (
               <div className="space-y-4 text-left">
-                <p className="text-[10.5px] text-foreground/80 font-bold leading-relaxed">
+                <p className="text-[13px] text-foreground/80 font-bold leading-relaxed">
                   Kỹ thuật PMR (Thư Giãn Cơ Sâu) giúp gạt bỏ căng thẳng thể chất bằng cách căng cơ trong 5 giây, sau đó buông lỏng đột ngột để cơ bắp thư giãn trong 8 giây.
                 </p>
                 <div className="space-y-2 bg-muted border border-border p-4 rounded-3xl">
-                  <h6 className="text-[9.5px] font-black uppercase tracking-wider text-muted-foreground mb-1">Các nhóm cơ thực hiện:</h6>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-foreground/80">
+                  <h6 className="text-[13px] font-black uppercase tracking-wider text-muted-foreground mb-1">Các nhóm cơ thực hiện:</h6>
+                  <div className="grid grid-cols-2 gap-2 text-[13px] font-bold text-foreground/80">
                     {MUSCLE_STEPS.map((s, i) => (
                       <div key={i} className="flex items-center gap-1.5">
-                        <span className="w-4 h-4 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-[9px] shrink-0">{i+1}</span>
+                        <span className="w-4 h-4 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-[13px] shrink-0">{i+1}</span>
                         <span>{s.part}</span>
                       </div>
                     ))}
@@ -561,7 +561,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                 <button
                   type="button"
                   onClick={() => startPmrStep(0, "tense")}
-                  className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-indigo-400/30"
+                  className="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all border border-indigo-400/30"
                 >
                   Bắt đầu thư giãn cơ
                 </button>
@@ -573,13 +573,13 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                 </div>
                 <div className="space-y-1">
                   <p className="text-[13px] font-black text-foreground">Đã Hoàn Thành Bài Tập PMR!</p>
-                  <p className="text-[10px] text-muted-foreground font-bold max-w-xs mx-auto leading-relaxed">
+                  <p className="text-[13px] text-muted-foreground font-bold max-w-xs mx-auto leading-relaxed">
                     Cơ thể cậu đã được giải tỏa hoàn toàn các axit lactic tích tụ do căng thẳng kéo dài.
                   </p>
                 </div>
                 <button
                   onClick={stopPmr}
-                  className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xl transition-all"
+                  className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-[13px] font-black uppercase tracking-wider rounded-xl transition-all"
                 >
                   Luyện tập lại
                 </button>
@@ -607,16 +607,16 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                     : "border-indigo-500 bg-indigo-500/10 scale-100 shadow-[0_0_25px_rgba(99,102,241,0.3)]"
                 }`}>
                   <span className="text-3xl font-black text-foreground">{pmrTimer}s</span>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground mt-1">
+                  <span className="text-[13px] font-black uppercase tracking-widest text-muted-foreground mt-1">
                     {pmrState === "tense" ? "Căng Cơ" : "Thả Lỏng"}
                   </span>
                 </div>
 
                 <div className="text-center space-y-1 max-w-xs">
-                  <p className="text-[12px] font-black text-indigo-400 uppercase tracking-wide">
+                  <p className="text-[13px] font-black text-indigo-400 uppercase tracking-wide">
                     {MUSCLE_STEPS[pmrStep].part}
                   </p>
-                  <p className="text-[10px] text-foreground/80 font-bold leading-relaxed min-h-[30px]">
+                  <p className="text-[13px] text-foreground/80 font-bold leading-relaxed min-h-[30px]">
                     {pmrState === "tense" ? MUSCLE_STEPS[pmrStep].cue : "Từ từ thở ra qua miệng, cảm nhận sự nhẹ nhõm lan tỏa..."}
                   </p>
                 </div>
@@ -624,7 +624,7 @@ export default function BreathingTherapy({ onCompleteActivity, showToast }) {
                 <button
                   type="button"
                   onClick={stopPmr}
-                  className="flex items-center gap-1.5 px-4 py-2 border-2 border-destructive/20 hover:bg-destructive/10 text-destructive text-[9px] font-black uppercase tracking-wider rounded-xl transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2 border-2 border-destructive/20 hover:bg-destructive/10 text-destructive text-[13px] font-black uppercase tracking-wider rounded-xl transition-all"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Dừng thực hành
                 </button>

@@ -23,6 +23,9 @@ import EmergencySiren from "./EmergencySiren";
 import "../../../styles/hugoPsy.css";
 import { isStandalone } from "../../../config/platform";
 
+import LazyBoundary from "../os/LazyBoundary";
+import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
+
 const ChatTab = React.lazy(() => import("./ChatTab"));
 const TherapyTab = React.lazy(() => import("./TherapyTab"));
 const EvaluationTab = React.lazy(() => import("./EvaluationTab"));
@@ -91,7 +94,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
               <span className="material-symbols-outlined text-rose-500 text-[30px]" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
             </span>
             <p className="text-base font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
-            <p className="text-[12px] text-muted-foreground leading-relaxed">
+            <p className="text-[13px] text-muted-foreground leading-relaxed">
               {t("companion.crisis.descShort", "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.")}
             </p>
           </div>
@@ -100,8 +103,8 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
             {DEFAULT_HOTLINES.map((h) => (
               <a key={h.number} href={`tel:${h.number}`}
                 className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
-                <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300">{h.label}</span>
-                <span className="flex items-center gap-1 text-[12px] font-black text-rose-600 dark:text-rose-400">
+                <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{h.label}</span>
+                <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
                   <span className="material-symbols-outlined text-[14px]">call</span>{h.display || h.number}
                 </span>
               </a>
@@ -109,8 +112,8 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
             {adminHotline && (
               <a href={`tel:${adminHotline}`}
                 className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
-                <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300">{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}</span>
-                <span className="flex items-center gap-1 text-[12px] font-black text-rose-600 dark:text-rose-400">
+                <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}</span>
+                <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
                   <span className="material-symbols-outlined text-[14px]">call</span>{adminHotline}
                 </span>
               </a>
@@ -120,7 +123,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
           <div className="flex gap-2">
             <EmergencySiren />
             <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-              className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+              className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
               {t("companion.crisis.imSafeShort", "Tớ đã an toàn")}
             </button>
           </div>
@@ -137,21 +140,21 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
       <div className="flex items-start gap-2.5">
         <span className="material-symbols-outlined text-rose-500 text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
         <div className="min-w-0">
-          <p className="text-xs font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
-          <p className="text-[11px] text-rose-600/90 dark:text-rose-400/80 leading-relaxed mt-0.5">
+          <p className="text-[13px] font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
+          <p className="text-[13px] text-rose-600/90 dark:text-rose-400/80 leading-relaxed mt-0.5">
             {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc đến cơ sở y tế gần nhất. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
           </p>
           <div className="mt-2 space-y-1.5">
             {DEFAULT_HOTLINES.map((h) => (
               <a key={h.number} href={`tel:${h.number}`}
-                className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700 dark:text-rose-400">
+                className="flex items-center gap-1.5 text-[13px] font-bold text-rose-700 dark:text-rose-400">
                 <span className="material-symbols-outlined text-[14px]">call</span>
                 <span>{h.label}: <span className="underline">{h.display || h.number}</span></span>
-                {h.note && <span className="text-[10px] font-medium text-rose-500/70">({h.note})</span>}
+                {h.note && <span className="text-[13px] font-medium text-rose-500/70">({h.note})</span>}
               </a>
             ))}
             {adminHotline && (
-              <a href={`tel:${adminHotline}`} className="flex items-center gap-1.5 text-[11px] font-bold text-rose-700 dark:text-rose-400">
+              <a href={`tel:${adminHotline}`} className="flex items-center gap-1.5 text-[13px] font-bold text-rose-700 dark:text-rose-400">
                 <span className="material-symbols-outlined text-[14px]">call</span>
                 <span>{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: <span className="underline">{adminHotline}</span></span>
               </a>
@@ -162,11 +165,11 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
       <div className="flex gap-2">
         <EmergencySiren />
         <button type="button" onClick={onTalkNow}
-          className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition-all active:scale-[0.98]">
+          className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13px] font-bold transition-all active:scale-[0.98]">
           {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
         </button>
         <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-          className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[11px] font-bold transition-all active:scale-[0.98]">
+          className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
           {t("companion.crisis.imSafe", "Tớ đã an toàn / đã liên hệ trợ giúp")}
         </button>
       </div>
@@ -209,14 +212,14 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
         <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("hugoPsy.tab.loTrinh")}</p>
+              <p className="text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("hugoPsy.tab.loTrinh")}</p>
               {shortenedDays > 0 && (
-                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                <span className="text-[13px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
                   -{shortenedDays} {t("hugoPsy.tab.ngay")}
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-bold text-foreground/80 leading-tight">
+            <p className="text-[13px] font-bold text-foreground/80 leading-tight">
               {t("hugoPsy.tab.ngay2")} {currentDay}/{effectiveDur} {t("hugoPsy.tab.batDau")} {startStr}
             </p>
           </div>
@@ -229,7 +232,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
                 className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
               />
             </div>
-            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">{progressPercent}%</span>
+            <span className="text-[13px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">{progressPercent}%</span>
           </div>
         </div>
       </div>
@@ -362,27 +365,27 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-muted/50 rounded-xl p-3 text-center">
                 <p className="text-base font-black text-foreground">{totalDays}</p>
-                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
+                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
               </div>
               <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-base font-black text-orange-500">{streak}🔥</p>
-                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
+                <p className="text-base font-black text-orange-500">{streak}<span className="material-symbols-outlined align-middle text-[15px]" aria-hidden="true">local_fire_department</span></p>
+                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
               </div>
               <div className="bg-muted/50 rounded-xl p-3 text-center">
                 <p className="text-base font-black text-indigo-500 truncate">{lastTest ? lastTest.name : "—"}</p>
-                <p className="text-[8.5px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
+                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
               </div>
             </div>
           )}
 
           {/* Token usage */}
           <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
-            <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
+            <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
             {[
               { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-primary', low: chatLeft < 4 },
             ].map(item => (
               <div key={item.label} className="space-y-1.5">
-                <div className="flex justify-between text-[10px] font-bold">
+                <div className="flex justify-between text-[13px] font-bold">
                   <span className="text-muted-foreground">{item.label}</span>
                   <span className={item.low ? 'text-amber-500 font-black' : 'text-zinc-500'}>{item.left + (bio?.bonusChatTokens || 0)}/{item.max}</span>
                 </div>
@@ -393,13 +396,13 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
             ))}
             {bio?.bonusChatTokens > 0 && (
               <div className="flex items-center gap-3 pt-1 border-t border-border/60">
-                <span className="flex items-center gap-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400">
+                <span className="flex items-center gap-1 text-[13px] font-black text-indigo-600 dark:text-indigo-400">
                   <span className="material-symbols-outlined text-[13px]">add_circle</span>
                   {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
                 </span>
               </div>
             )}
-            <p className="text-[9px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
+            <p className="text-[13px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
           </div>
 
           {/* Notifications */}
@@ -409,12 +412,12 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
                 <span className="material-symbols-outlined text-amber-500 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>notifications_active</span>
               </div>
               <div>
-                <p className="text-xs font-bold text-foreground">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
-                <p className="text-[9px] text-zinc-400">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
+                <p className="text-[13px] font-bold text-foreground">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
+                <p className="text-[13px] text-zinc-400">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
               </div>
             </div>
             <button type="button" onClick={handlePush}
-              className={`px-3 py-1.5 rounded-full text-[10px] font-black transition-all ${
+              className={`px-3 py-1.5 rounded-full text-[13px] font-black transition-all ${
                 notifStatus === 'granted'   ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
                 notifStatus === 'denied'    ? 'bg-muted text-zinc-400' :
                 notifStatus === 'unsupported' ? 'bg-muted text-zinc-400' :
@@ -422,15 +425,15 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
               }`}
               disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
             >
-              {notifStatus === 'granted' ? t('companion.tab.activeStatus.granted', '✓ Đã bật') : notifStatus === 'denied' ? t('companion.tab.activeStatus.denied', 'Bị chặn') : notifStatus === 'unsupported' ? t('companion.tab.activeStatus.unsupported', 'Không hỗ trợ') : t('companion.tab.enableNow', 'Bật ngay')}
+              {notifStatus === 'granted' ? t('companion.tab.activeStatus.granted', 'Đã bật') : notifStatus === 'denied' ? t('companion.tab.activeStatus.denied', 'Bị chặn') : notifStatus === 'unsupported' ? t('companion.tab.activeStatus.unsupported', 'Không hỗ trợ') : t('companion.tab.enableNow', 'Bật ngay')}
             </button>
           </div>
 
           {/* Danger zone */}
           <div className="space-y-2 pt-2 border-t border-border/60">
-            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
+            <p className="text-[13px] font-black uppercase tracking-widest text-zinc-400">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
             <button type="button" onClick={handleClearChat}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-200/50 dark:border-red-900/20 hover:bg-red-500/10 transition-colors text-red-500 text-xs font-bold active:scale-[0.98]">
+              className="w-full flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-200/50 dark:border-red-900/20 hover:bg-red-500/10 transition-colors text-red-500 text-[13px] font-bold active:scale-[0.98]">
               <span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>delete_sweep</span>
               {t("companion.tab.deleteChatToday", "Xóa lịch sử trò chuyện hôm nay")}
             </button>
@@ -442,7 +445,7 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
 }
 
 // ── Main BanhocduongTab ────────────────────────────────────────────────────────
-export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp, onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect, isGuestMode = false, requireAccount }) {
+export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRouteChange: onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect, isGuestMode = false, requireAccount }) {
   const { t } = useTranslation();
   useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
 
@@ -664,7 +667,8 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         <button
           type="button"
           onClick={() => setShowSettings(true)}
-          className="psy-settings-button mr-11"
+          className="psy-settings-button"
+          style={{ marginRight: CLOSE_BUTTON_RESERVE }}
           title={t("companion.tab.settings", "Cài đặt")}
         >
           <Settings2 />
@@ -713,7 +717,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
               className={`psy-mobile-tab ${active ? "is-active" : ""}`}
             >
               <Icon />
-              <span className="text-[11px] font-extrabold whitespace-nowrap">{t(`companion.tab.${tab.id}`, tab.label)}</span>
+              <span className="text-[13px] font-extrabold whitespace-nowrap">{t(`companion.tab.${tab.id}`, tab.label)}</span>
             </button>
           );
         })}
@@ -771,6 +775,11 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           </div>
 
           <div className="relative z-10 flex-1 flex flex-col min-h-0">
+            {/* Bốn tab đều là chunk riêng. Chunk hỏng mà không có ranh giới lỗi thì
+                lỗi vọt lên làm trắng cả portal — ở một app sức khoẻ tâm thần, đó
+                là chặn luôn đường tới danh sách đường dây nóng. `resetKey` theo
+                tab để một tab lỗi không khoá ba tab kia. */}
+            <LazyBoundary resetKey={effectiveSubTab}>
             <React.Suspense
               fallback={
                 <div className="flex flex-1 items-center justify-center">
@@ -847,6 +856,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
               </motion.div>
             </AnimatePresence>
             </React.Suspense>
+            </LazyBoundary>
           </div>
         </div>
       </div>
@@ -881,23 +891,23 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
-                <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
+                <p className="text-[13px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
               </div>
               <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-4 text-left space-y-2">
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                <p className="text-[13px] text-muted-foreground leading-relaxed">
                   {t("companion.tab.adaptiveAlert.recorded", "Ghi nhận:")} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
                 </p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                <p className="text-[13px] text-muted-foreground leading-relaxed">
                   {t("companion.tab.adaptiveAlert.reduced", { count: adaptationAlert.reducedDays }, `Rút ngắn: -${adaptationAlert.reducedDays} ngày`)}
                 </p>
-                <div className="flex justify-between text-[10px] font-bold text-zinc-500 pt-2 border-t border-emerald-200 dark:border-emerald-800">
+                <div className="flex justify-between text-[13px] font-bold text-zinc-500 pt-2 border-t border-emerald-200 dark:border-emerald-800">
                   <span>{t("companion.tab.adaptiveAlert.before", { count: adaptationAlert.oldDuration }, `Trước: ${adaptationAlert.oldDuration} ngày`)}</span>
                   <span className="text-emerald-600 dark:text-emerald-400">{t("companion.tab.adaptiveAlert.newDuration", { count: adaptationAlert.newDuration }, `Mới: ${adaptationAlert.newDuration} ngày`)}</span>
                 </div>
               </div>
-              <p className="text-[10px] text-zinc-500 italic">{t("companion.tab.adaptiveAlert.encouragement", "\"Cậu đang làm rất tốt — tiếp tục nhé!\"")}</p>
+              <p className="text-[13px] text-zinc-500 italic">{t("companion.tab.adaptiveAlert.encouragement", "\"Cậu đang làm rất tốt — tiếp tục nhé!\"")}</p>
               <button type="button" onClick={() => setAdaptationAlert(null)}
-                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-extrabold uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all">
+                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[13px] font-extrabold uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all">
                 {t("companion.tab.adaptiveAlert.btn", "Tuyệt vời, tiếp tục thôi!")}
               </button>
             </motion.div>
@@ -922,18 +932,18 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
               </div>
               <div>
                 <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
-                <p className="text-[11px] text-zinc-500 mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
+                <p className="text-[13px] text-zinc-500 mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
+              <p className="text-[13px] text-muted-foreground leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
                 {t("companion.tab.stopRoadmap.desc", "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?")}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setShowCancelModal(false)}
-                  className="py-3 rounded-2xl border border-border text-xs font-bold text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+                  className="py-3 rounded-2xl border border-border text-[13px] font-bold text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                   {t("companion.tab.stopRoadmap.cancel", "Quay lại")}
                 </button>
                 <button type="button" onClick={confirmCancelHealing}
-                  className="py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-xs font-extrabold shadow-md shadow-red-500/20 active:scale-[0.98] transition-all">
+                  className="py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-extrabold shadow-md shadow-red-500/20 active:scale-[0.98] transition-all">
                   {t("companion.tab.stopRoadmap.confirm", "Xác nhận dừng")}
                 </button>
               </div>

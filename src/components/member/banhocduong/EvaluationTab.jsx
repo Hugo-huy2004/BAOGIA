@@ -107,7 +107,7 @@ function BigFiveRadarChart({ traits, maxScore = 5 }) {
             y={lbl.y}
             textAnchor="middle"
             dominantBaseline="central"
-            className="text-[9px] font-black fill-foreground/90 tracking-tight"
+            className="text-[13px] font-black fill-foreground/90 tracking-tight"
           >
             {lbl.text}
           </text>
@@ -217,7 +217,7 @@ export default function EvaluationTab({
       <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-muted/60 border border-border/60 shadow-inner overflow-x-auto">
         <button
           onClick={() => setActiveTabSection("overview")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-black transition-all shrink-0 ${
             activeTabSection === "overview"
               ? "bg-white dark:bg-card text-primary shadow-sm border border-border/50 scale-[1.02]"
               : "text-muted-foreground hover:text-foreground"
@@ -229,7 +229,7 @@ export default function EvaluationTab({
 
         <button
           onClick={() => setActiveTabSection("aura")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-black transition-all shrink-0 ${
             activeTabSection === "aura"
               ? "bg-white dark:bg-card text-teal-600 dark:text-teal-400 shadow-sm border border-border/50 scale-[1.02]"
               : "text-muted-foreground hover:text-foreground"
@@ -241,7 +241,7 @@ export default function EvaluationTab({
 
         <button
           onClick={() => setActiveTabSection("psych")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-black transition-all shrink-0 ${
             activeTabSection === "psych"
               ? "bg-white dark:bg-card text-violet-600 dark:text-violet-400 shadow-sm border border-border/50 scale-[1.02]"
               : "text-muted-foreground hover:text-foreground"
@@ -253,7 +253,7 @@ export default function EvaluationTab({
 
         <button
           onClick={() => setActiveTabSection("history")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-black transition-all shrink-0 ${
             activeTabSection === "history"
               ? "bg-white dark:bg-card text-accent shadow-sm border border-border/50 scale-[1.02]"
               : "text-muted-foreground hover:text-foreground"
@@ -272,11 +272,11 @@ export default function EvaluationTab({
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2 max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-primary/15 text-primary border border-primary/20">
+                  <span className="px-3 py-1 rounded-full text-[13px] font-black uppercase tracking-wider bg-primary/15 text-primary border border-primary/20">
                     Báo cáo hành động · 7 ngày
                   </span>
                   {periodicAssessment.isDue && (
-                    <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse">
+                    <span className="px-3 py-1 rounded-full text-[13px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse">
                       {periodicAssessment.daysElapsed == null ? t("hugoPsy.evaluation.batDauTuDanh") : t("hugoPsy.evaluation.denHanTuDanh")}
                     </span>
                   )}
@@ -284,7 +284,7 @@ export default function EvaluationTab({
                 <h2 className="text-xl sm:text-2xl font-black text-foreground leading-tight">
                   Điều đang diễn ra và bước tiếp theo
                 </h2>
-                <p className="text-xs sm:text-sm text-foreground/80 font-bold leading-relaxed">
+                <p className="text-[13px] sm:text-sm text-foreground/80 font-bold leading-relaxed">
                   {weeklyDigest.weeklyAiEncouragement}
                 </p>
               </div>
@@ -313,14 +313,14 @@ export default function EvaluationTab({
                   </span>
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Độ phủ dữ liệu</p>
-                  <p className="text-xs font-black text-foreground">Độ tin cậy: {weeklyDigest.dataConfidence}</p>
-                  <p className="mt-0.5 text-[8.5px] font-semibold text-muted-foreground">
+                  <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">Độ phủ dữ liệu</p>
+                  <p className="text-[13px] font-black text-foreground">Độ tin cậy: {weeklyDigest.dataConfidence}</p>
+                  <p className="mt-0.5 text-[13px] font-semibold text-muted-foreground">
                     {weeklyDigest.checkinDaysCount} check-in · {weeklyDigest.sleepNightsCount} đêm ngủ
                   </p>
                   <button
                     onClick={() => onNavigateToTab("chat")}
-                    className="mt-1.5 flex items-center gap-1 text-[9.5px] font-black text-primary hover:underline"
+                    className="mt-1.5 flex items-center gap-1 text-[13px] font-black text-primary hover:underline"
                   >
                     {t("hugoPsy.evaluation.troChuyenAiNgay")} <ArrowUpRight className="w-3 h-3" />
                   </button>
@@ -335,15 +335,15 @@ export default function EvaluationTab({
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
                   <Compass className="w-4 h-4 text-sky-500" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Tín hiệu đáng chú ý</h3>
+                  <h3 className="text-[13px] font-black uppercase tracking-wider text-foreground">Tín hiệu đáng chú ý</h3>
                 </div>
-                <span className="text-[8.5px] font-black uppercase text-muted-foreground">Không chẩn đoán</span>
+                <span className="text-[13px] font-black uppercase text-muted-foreground">Không chẩn đoán</span>
               </div>
               <div className="space-y-2.5">
                 {weeklyDigest.notableSignals.map((signal, index) => (
                   <div key={signal} className="flex gap-3 rounded-xl border border-border/50 bg-muted/25 p-3">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-500/10 text-[10px] font-black text-sky-500">{index + 1}</span>
-                    <p className="text-[10.5px] font-semibold leading-relaxed text-foreground/85">{signal}</p>
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-500/10 text-[13px] font-black text-sky-500">{index + 1}</span>
+                    <p className="text-[13px] font-semibold leading-relaxed text-foreground/85">{signal}</p>
                   </div>
                 ))}
               </div>
@@ -353,22 +353,22 @@ export default function EvaluationTab({
               <div className="flex items-center justify-between border-b border-primary/15 pb-3">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4 text-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Kế hoạch 24 giờ</h3>
+                  <h3 className="text-[13px] font-black uppercase tracking-wider text-foreground">Kế hoạch 24 giờ</h3>
                 </div>
-                <span className="text-[8.5px] font-black uppercase text-primary">3 bước nhỏ</span>
+                <span className="text-[13px] font-black uppercase text-primary">3 bước nhỏ</span>
               </div>
               <ol className="space-y-2.5">
                 {weeklyDigest.actionPlan.map((action, index) => (
                   <li key={action} className="flex items-start gap-3">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-primary text-[10px] font-black text-white shadow-sm">{index + 1}</span>
-                    <p className="pt-1 text-[10.5px] font-bold leading-relaxed text-foreground/90">{action}</p>
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-primary text-[13px] font-black text-white shadow-sm">{index + 1}</span>
+                    <p className="pt-1 text-[13px] font-bold leading-relaxed text-foreground/90">{action}</p>
                   </li>
                 ))}
               </ol>
               <button
                 type="button"
                 onClick={() => onNavigateToTab("chat")}
-                className="w-full min-h-11 rounded-xl bg-primary px-4 text-[10px] font-black uppercase tracking-wider text-white shadow-sm transition active:scale-[0.98]"
+                className="w-full min-h-11 rounded-xl bg-primary px-4 text-[13px] font-black uppercase tracking-wider text-white shadow-sm transition active:scale-[0.98]"
               >
                 Làm cùng HugoPSY
               </button>
@@ -382,26 +382,26 @@ export default function EvaluationTab({
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
-                  <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">
                     {t("hugoPsy.evaluation.tongKetTuCham")}
                   </h4>
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-primary/10 text-primary">
+                <span className="px-2.5 py-0.5 rounded-full text-[13px] font-black uppercase tracking-wider bg-primary/10 text-primary">
                   {t("hugoPsy.evaluation.7NgayGanNhat")}
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 text-center">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Streak Check-in</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">Streak Check-in</p>
                   <p className="text-base font-black text-primary mt-0.5">{weeklyDigest.checkinDaysCount}{t("hugoPsy.evaluation.7Ngay")}</p>
                 </div>
                 <div className="p-3 rounded-xl bg-accent/5 border border-accent/15 text-center">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.baiTapHoanThanh")}</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.baiTapHoanThanh")}</p>
                   <p className="text-base font-black text-accent mt-0.5">{weeklyDigest.activityCount} {t("hugoPsy.evaluation.luot")}</p>
                 </div>
                 <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/15 text-center">
-                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.bienThienPhq9")}</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.bienThienPhq9")}</p>
                   <p className={`text-base font-black mt-0.5 ${weeklyDigest.phq9Delta != null && weeklyDigest.phq9Delta < 0 ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                     {weeklyDigest.phq9Delta == null
                       ? "Cần ≥2 lần đo"
@@ -415,10 +415,10 @@ export default function EvaluationTab({
               </div>
 
               <div className="flex items-center justify-between border-t border-border/60 pt-3">
-                <p className="text-[9.5px] font-bold text-muted-foreground">{t("hugoPsy.evaluation.tongGhiNhan")} {weeklyDigest.totalLogsCount} {t("hugoPsy.evaluation.hoatDong")}</p>
+                <p className="text-[13px] font-bold text-muted-foreground">{t("hugoPsy.evaluation.tongGhiNhan")} {weeklyDigest.totalLogsCount} {t("hugoPsy.evaluation.hoatDong")}</p>
                 <button
                   onClick={() => setShowDigestModal(true)}
-                  className="flex items-center gap-1 text-[9.5px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all shadow-sm active:scale-95"
+                  className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all shadow-sm active:scale-95"
                 >
                   <Download className="w-3.5 h-3.5" />
                   {t("hugoPsy.evaluation.xemChiTietBao")}
@@ -431,36 +431,36 @@ export default function EvaluationTab({
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 text-accent" />
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-foreground">
+                  <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">
                     {t("hugoPsy.evaluation.taiDanhGiaDinh")}
                   </h4>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-[10px] font-bold">
+                <div className="flex items-center justify-between text-[13px] font-bold">
                   <span className="text-muted-foreground">{t("hugoPsy.evaluation.chuKy")}</span>
                   <span className="text-foreground font-black">{t("hugoPsy.evaluation.7NgayLuot")}</span>
                 </div>
-                <div className="flex items-center justify-between text-[10px] font-bold">
+                <div className="flex items-center justify-between text-[13px] font-bold">
                   <span className="text-muted-foreground">{t("hugoPsy.evaluation.lanTestGanNhat")}</span>
                   <span className="text-primary font-black">
                     {periodicAssessment.daysElapsed == null ? t("hugoPsy.evaluation.chuaThucHien") : `${periodicAssessment.daysElapsed} ngày trước`}
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/50 text-[9.5px] font-bold leading-relaxed text-foreground/80">
+                <div className="p-3 rounded-xl bg-muted/40 border border-border/50 text-[13px] font-bold leading-relaxed text-foreground/80">
                   {periodicAssessment.isDue
                     ? periodicAssessment.daysElapsed == null
                       ? t("hugoPsy.evaluation.chuaCoKetQua")
                       : t("hugoPsy.evaluation.daDu7Ngay")
-                    : `✅ Chỉ số đang duy trì theo dõi tốt (${periodicAssessment.daysElapsed} ngày kể từ bài test gần nhất).`}
+                    : `Chỉ số đang duy trì theo dõi tốt (${periodicAssessment.daysElapsed} ngày kể từ bài test gần nhất).`}
                 </div>
               </div>
 
               <button
                 onClick={() => onNavigateToTab("chat")}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-accent/15 to-primary/15 border border-accent/30 text-[9.5px] font-black uppercase tracking-wider text-accent active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-accent/15 to-primary/15 border border-accent/30 text-[13px] font-black uppercase tracking-wider text-accent active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
               >
                 <Zap className="w-3.5 h-3.5" />
                   {periodicAssessment.daysElapsed == null ? t("hugoPsy.evaluation.batDauTuDanh") : periodicAssessment.isDue ? t("hugoPsy.evaluation.tuDanhGiaLai") : t("hugoPsy.evaluation.xemCacBaiDanh")}
@@ -472,7 +472,7 @@ export default function EvaluationTab({
           <div className="p-5 rounded-2xl border bg-white/70 dark:bg-card/70 backdrop-blur-xl border-border/60 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-border/60 pb-3">
               <ShieldCheck className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">{t("hugoPsy.evaluation.ketQuaTuDanh")}</h4>
+              <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">{t("hugoPsy.evaluation.ketQuaTuDanh")}</h4>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -483,9 +483,9 @@ export default function EvaluationTab({
 
                 return (
                   <div key={idx} className="p-3.5 rounded-xl bg-muted/30 border border-border/50 space-y-2">
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider">
+                    <div className="flex justify-between items-center text-[13px] font-black uppercase tracking-wider">
                       <span className="text-foreground">{row.name}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-bold ${sevCls}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[13px] font-bold ${sevCls}`}>
                         {score != null ? `${score}/${row.max} (${sevLabel})` : t("hugoPsy.evaluation.chuaDo")}
                       </span>
                     </div>
@@ -525,7 +525,7 @@ export default function EvaluationTab({
                   {t("hugoPsy.evaluation.ghiNhanCaNhan")}
                 </h4>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400">
+              <span className="px-2.5 py-0.5 rounded-full text-[13px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400">
                 {t("hugoPsy.evaluation.ghiNhanHoiThoai")}
               </span>
             </div>
@@ -533,12 +533,12 @@ export default function EvaluationTab({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               {/* Radar Chart */}
                 <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-muted/20 border border-border/50">
-                  <h5 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">{t("hugoPsy.evaluation.bieuDoNetTinh")}</h5>
+                  <h5 className="text-[13px] font-black uppercase tracking-wider text-muted-foreground mb-2">{t("hugoPsy.evaluation.bieuDoNetTinh")}</h5>
                   {bigFiveTraits ? (
                     <BigFiveRadarChart traits={bigFiveTraits} />
                   ) : (
                     <div className="grid min-h-[170px] place-items-center px-6 text-center">
-                      <p className="text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+                      <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
                         {t("hugoPsy.evaluation.chuaCoDuLieu")}
                       </p>
                     </div>
@@ -550,37 +550,37 @@ export default function EvaluationTab({
                 <div className="p-4 rounded-xl border border-border/60 bg-muted/30 space-y-2">
                   <div className="flex items-center gap-1.5 text-primary">
                     <AlertTriangle className="w-4 h-4" />
-                    <h5 className="text-[10px] font-black uppercase tracking-wider">{t("hugoPsy.evaluation.chuDeApLuc")}</h5>
+                    <h5 className="text-[13px] font-black uppercase tracking-wider">{t("hugoPsy.evaluation.chuDeApLuc")}</h5>
                   </div>
                   {personalityInsights.triggers.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {personalityInsights.triggers.map((trig, i) => (
-                        <span key={i} className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-bold">
+                        <span key={i} className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[13px] font-bold">
                           {trig}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[10.5px] text-muted-foreground font-semibold pt-1">{t("hugoPsy.evaluation.chuaCoChuDe")}</p>
+                    <p className="text-[13px] text-muted-foreground font-semibold pt-1">{t("hugoPsy.evaluation.chuaCoChuDe")}</p>
                   )}
                 </div>
 
                 <div className="p-4 rounded-xl border border-border/60 bg-muted/30 space-y-2">
                   <div className="flex items-center gap-1.5 text-accent">
                     <Compass className="w-4 h-4" />
-                    <h5 className="text-[10px] font-black uppercase tracking-wider">{t("hugoPsy.evaluation.xuHuongNetTam")}</h5>
+                    <h5 className="text-[13px] font-black uppercase tracking-wider">{t("hugoPsy.evaluation.xuHuongNetTam")}</h5>
                   </div>
                   {personalityInsights.traits.length > 0 ? (
                     <div className="space-y-1.5 pt-1">
                       {personalityInsights.traits.map((tr, i) => (
-                        <p key={i} className="text-[10.5px] font-bold text-foreground/90 flex items-center gap-1.5">
+                        <p key={i} className="text-[13px] font-bold text-foreground/90 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
                           {tr}
                         </p>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[10.5px] text-muted-foreground font-semibold pt-1">{t("hugoPsy.evaluation.dangTuDongPhan")}</p>
+                    <p className="text-[13px] text-muted-foreground font-semibold pt-1">{t("hugoPsy.evaluation.dangTuDongPhan")}</p>
                   )}
                 </div>
               </div>
@@ -601,7 +601,7 @@ export default function EvaluationTab({
               {historyLogs.length > 4 && (
                 <button
                   onClick={() => setTimelineExpanded(v => !v)}
-                  className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-primary hover:underline"
+                  className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider text-primary hover:underline"
                 >
                   {timelineExpanded ? t("hugoPsy.evaluation.thuGon") : t("hugoPsy.evaluation.xemTatCa")}
                 </button>
@@ -609,7 +609,7 @@ export default function EvaluationTab({
             </div>
 
             {historyLogs.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-[11px] font-bold">
+              <div className="text-center py-8 text-muted-foreground text-[13px] font-bold">
                 {t("hugoPsy.evaluation.chuaGhiNhanHoat")}
               </div>
             ) : (
@@ -640,13 +640,13 @@ export default function EvaluationTab({
                       <div className={`absolute left-[-9px] top-1.5 w-4 h-4 rounded-full border-[3px] ${color} z-10 shadow-sm`} />
                       <div className="space-y-1.5 p-3 rounded-xl border border-border/60 bg-muted/40 hover:border-primary/30 transition-all shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                          <span className="text-[10px] font-black text-foreground/90 uppercase tracking-wider">{title}</span>
-                          <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-bold bg-white dark:bg-card px-2 py-1 rounded-md shadow-sm border border-border/50 w-fit">
+                          <span className="text-[13px] font-black text-foreground/90 uppercase tracking-wider">{title}</span>
+                          <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-bold bg-white dark:bg-card px-2 py-1 rounded-md shadow-sm border border-border/50 w-fit">
                             <Calendar className="w-3 h-3" />
                             <span>{formatDateTime(log.date)}</span>
                           </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground font-bold leading-relaxed">{desc}</p>
+                        <p className="text-[13px] text-muted-foreground font-bold leading-relaxed">{desc}</p>
                       </div>
                     </div>
                   );
@@ -673,47 +673,49 @@ export default function EvaluationTab({
                   <h3 className="text-base font-black text-foreground">Chi tiết báo cáo hành động</h3>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowDigestModal(false)}
+                  aria-label={t("common.close", "Đóng")}
                   className="grid h-11 w-11 place-items-center rounded-xl bg-muted text-muted-foreground hover:text-foreground"
                 >
-                  ✕
+                  <span className="material-symbols-outlined" aria-hidden="true">close</span>
                 </button>
               </div>
 
-              <div className="space-y-4 text-xs font-bold text-foreground/90">
+              <div className="space-y-4 text-[13px] font-bold text-foreground/90">
                 <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 space-y-1.5">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-primary">Độ phủ dữ liệu · tin cậy {weeklyDigest.dataConfidence}</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-primary">Độ phủ dữ liệu · tin cậy {weeklyDigest.dataConfidence}</p>
                   <p className="text-2xl font-black text-primary">
                     {weeklyDigest.dataCoverage}%
                   </p>
-                  <p className="text-[10.5px] text-foreground/80 leading-relaxed">{weeklyDigest.weeklyAiEncouragement}</p>
+                  <p className="text-[13px] text-foreground/80 leading-relaxed">{weeklyDigest.weeklyAiEncouragement}</p>
                 </div>
 
                 <div className="space-y-2 rounded-2xl border border-border/60 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-foreground">Bằng chứng đang dùng</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-foreground">Bằng chứng đang dùng</p>
                   {weeklyDigest.notableSignals.map((signal) => (
-                    <p key={signal} className="text-[10.5px] font-semibold leading-relaxed text-muted-foreground">• {signal}</p>
+                    <p key={signal} className="text-[13px] font-semibold leading-relaxed text-muted-foreground">• {signal}</p>
                   ))}
                 </div>
 
                 <div className="space-y-2 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-primary">Kế hoạch 24 giờ</p>
+                  <p className="text-[13px] font-black uppercase tracking-wider text-primary">Kế hoạch 24 giờ</p>
                   {weeklyDigest.actionPlan.map((action, index) => (
-                    <p key={action} className="text-[10.5px] font-semibold leading-relaxed text-foreground/85">{index + 1}. {action}</p>
+                    <p key={action} className="text-[13px] font-semibold leading-relaxed text-foreground/85">{index + 1}. {action}</p>
                   ))}
                 </div>
 
-                <p className="text-[9.5px] font-semibold leading-relaxed text-muted-foreground">
+                <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
                   Báo cáo phản ánh dữ liệu tự ghi nhận, không phải chẩn đoán. Khi dữ liệu ít, HugoPSY sẽ không suy diễn xu hướng.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                    <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.streakCheckInCam")}</p>
+                    <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.streakCheckInCam")}</p>
                     <p className="text-base font-black text-foreground mt-0.5">{weeklyDigest.checkinDaysCount} {t("hugoPsy.evaluation.7Ngay2")}</p>
                   </div>
                   <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                    <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.hoatDongThuGian2")}</p>
+                    <p className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">{t("hugoPsy.evaluation.hoatDongThuGian2")}</p>
                     <p className="text-base font-black text-foreground mt-0.5">{weeklyDigest.activityCount} {t("hugoPsy.evaluation.luotHoanThanh")}</p>
                   </div>
                 </div>
@@ -722,7 +724,7 @@ export default function EvaluationTab({
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowDigestModal(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-primary text-white font-black text-xs uppercase tracking-wider hover:bg-primary/90 transition-all shadow-md"
+                  className="flex-1 py-2.5 rounded-xl bg-primary text-white font-black text-[13px] uppercase tracking-wider hover:bg-primary/90 transition-all shadow-md"
                 >
                   {t("hugoPsy.evaluation.dongBaoCao")}
                 </button>

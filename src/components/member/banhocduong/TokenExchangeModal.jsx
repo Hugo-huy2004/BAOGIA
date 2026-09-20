@@ -75,7 +75,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
             </div>
             
             <h3 className="text-lg font-black text-center text-foreground mb-1">GIAO DỊCH THÀNH CÔNG</h3>
-            <p className="text-[11px] text-center text-muted-foreground mb-6">Mã hóa đơn xác nhận thanh toán JOY</p>
+            <p className="text-[13px] text-center text-muted-foreground mb-6">Mã hóa đơn xác nhận thanh toán JOY</p>
 
             {/* Ticket style invoice card */}
             <div className="relative bg-zinc-50 dark:bg-zinc-900/60 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-800/80 mb-6 overflow-hidden">
@@ -83,7 +83,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
               <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white dark:bg-[#1a1a24] border-r border-zinc-200 dark:border-zinc-800" />
               <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white dark:bg-[#1a1a24] border-l border-zinc-200 dark:border-zinc-800" />
               
-              <div className="space-y-2.5 text-xs">
+              <div className="space-y-2.5 text-[13px]">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mã hóa đơn:</span>
                   <span className="font-bold text-foreground font-mono">{invoice.txId}</span>
@@ -107,14 +107,14 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Trạng thái:</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[9px] border border-emerald-500/20">THÀNH CÔNG</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[13px] border border-emerald-500/20">THÀNH CÔNG</span>
                 </div>
               </div>
             </div>
 
             <button
               onClick={handleClose}
-              className="w-full py-3 rounded-2xl font-bold text-xs text-white bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
+              className="w-full py-3 rounded-2xl font-bold text-[13px] text-white bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-1.5"
             >
               <Ticket className="w-4 h-4" />
               Hoàn thành
@@ -131,30 +131,30 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
                 <Sparkles className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-foreground mb-2">Hết Token Trò Chuyện</h3>
-              <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-[13px] text-muted-foreground mb-6 leading-relaxed">
                 Bạn đã sử dụng hết Token miễn phí hôm nay. Dùng JOY để đổi thêm Token trò chuyện cùng AI (1 Token = {joyText(TOKEN_COST)}).
               </p>
 
               <div className="bg-zinc-50 dark:bg-zinc-900/60 rounded-2xl p-4 mb-6 text-left border border-zinc-100 dark:border-zinc-800/80">
-                <label className="block text-[11px] font-bold text-muted-foreground mb-2">Số lượng Token muốn đổi (5 - 50)</label>
+                <label className="block text-[13px] font-bold text-muted-foreground mb-2">Số lượng Token muốn đổi (5 - 50)</label>
                 <input 
                   type="number"
                   min={5}
                   max={50}
                   value={tokenAmount}
                   onChange={(e) => setTokenAmount(Number(e.target.value))}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30 font-bold"
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/30 font-bold"
                 />
                 <div className="flex justify-between items-center mt-3.5 pt-3.5 border-t border-zinc-200/60 dark:border-zinc-800/60">
-                  <span className="text-xs font-bold text-muted-foreground">Tổng chi phí:</span>
-                  <span className="text-xs font-black text-amber-500">{joyText(cost)}</span>
+                  <span className="text-[13px] font-bold text-muted-foreground">Tổng chi phí:</span>
+                  <span className="text-[13px] font-black text-amber-500">{joyText(cost)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleExchange}
                 disabled={exchanging || joyBalance < cost || tokenAmount < 5 || tokenAmount > 50}
-                className="w-full py-3 rounded-2xl font-bold text-xs text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center justify-center"
+                className="w-full py-3 rounded-2xl font-bold text-[13px] text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center justify-center"
               >
                 {exchanging ? <Loader2 className="w-4 h-4 animate-spin" /> : "Xác nhận đổi"}
               </button>

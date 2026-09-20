@@ -1316,7 +1316,7 @@ export default function ChatTab({
           <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
             HugoPSY
           </p>
-          <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
+          <p className="text-[13px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
             {loading ? typingLabel : isGuestMode ? "● Dùng thử cục bộ" : t("hugoPsy.chat.trucTuyen")}
           </p>
         </div>
@@ -1328,15 +1328,15 @@ export default function ChatTab({
             title={adaptivePersona.hint || t("hugoPsy.chat.cheDoTuDong")}
           >
             <span className="material-symbols-outlined text-[13px]">{adaptivePersona.icon}</span>
-            <span className="text-[10px] font-black whitespace-nowrap">{adaptivePersona.label}</span>
+            <span className="text-[13px] font-black whitespace-nowrap">{adaptivePersona.label}</span>
           </div>
         )}
 
         {/* Journey progress pill */}
         {journeyProgress && (
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-600 dark:text-emerald-400 shrink-0">
-            <span className="material-symbols-outlined text-[12px]">route</span>
-            <span className="text-[10px] font-black whitespace-nowrap">{t("hugoPsy.chat.ngay")} {journeyProgress.currentDay}/{journeyProgress.duration}</span>
+            <span className="material-symbols-outlined text-[13px]">route</span>
+            <span className="text-[13px] font-black whitespace-nowrap">{t("hugoPsy.chat.ngay")} {journeyProgress.currentDay}/{journeyProgress.duration}</span>
           </div>
         )}
 
@@ -1355,7 +1355,7 @@ export default function ChatTab({
               <button 
                 type="button"
                 onClick={() => setShowTokenExchangeModal(true)}
-                className="flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
+                className="flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
                 title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
               >
                 <div className="relative w-4 h-4 flex items-center justify-center">
@@ -1401,8 +1401,8 @@ export default function ChatTab({
                 }
                 setShowTestsMenu(true);
               }}
-              className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black active:scale-90 transition-all">
-              <span className="material-symbols-outlined text-[11px]">refresh</span>
+              className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[13px] font-black active:scale-90 transition-all">
+              <span className="material-symbols-outlined text-[13px]">refresh</span>
               {t("hugoPsy.chat.testLai")}
             </button>
           )}
@@ -1447,9 +1447,9 @@ export default function ChatTab({
             <div className="mb-2 flex items-center justify-between px-1">
               <div>
                 <p className="text-[13px] font-bold tracking-[-0.02em] text-foreground">{t("hugoPsy.coach.title")}</p>
-                <p className="text-[10px] text-muted-foreground">{t("hugoPsy.coach.subtitle")}</p>
+                <p className="text-[13px] text-muted-foreground">{t("hugoPsy.coach.subtitle")}</p>
               </div>
-              <span className="rounded-full bg-blue-500/10 px-2 py-1 text-[9px] font-bold text-blue-600 dark:text-blue-400">
+              <span className="rounded-full bg-blue-500/10 px-2 py-1 text-[13px] font-bold text-blue-600 dark:text-blue-400">
                 {t("hugoPsy.coach.private")}
               </span>
             </div>
@@ -1463,8 +1463,8 @@ export default function ChatTab({
                   <Sparkles className="h-4 w-4" />
                 </span>
                 <span>
-                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.insight")}</strong>
-                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.insightDescription")}</small>
+                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.insight")}</strong>
+                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.insightDescription")}</small>
                 </span>
               </button>
               <button
@@ -1476,8 +1476,8 @@ export default function ChatTab({
                   <ClipboardCheck className="h-4 w-4" />
                 </span>
                 <span>
-                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.plan")}</strong>
-                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.planDescription")}</small>
+                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.plan")}</strong>
+                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.planDescription")}</small>
                 </span>
               </button>
               <button
@@ -1489,12 +1489,12 @@ export default function ChatTab({
                   <HeartHandshake className="h-4 w-4" />
                 </span>
                 <span>
-                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.assessment")}</strong>
-                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.assessmentDescription")}</small>
+                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.assessment")}</strong>
+                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.assessmentDescription")}</small>
                 </span>
               </button>
             </div>
-            <p className="mt-2 px-1 text-[9px] leading-4 text-muted-foreground">
+            <p className="mt-2 px-1 text-[13px] leading-4 text-muted-foreground">
               {t("hugoPsy.coach.disclaimer")}
             </p>
           </motion.div>
@@ -1509,7 +1509,7 @@ export default function ChatTab({
             style={{ paddingBottom: "max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px))" }}
             onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{t("hugoPsy.assessment.title")}</p>
+              <p className="text-[13px] font-black uppercase tracking-widest text-zinc-500">{t("hugoPsy.assessment.title")}</p>
               <button type="button" onClick={() => setShowTestsMenu(false)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center active:scale-90">
                 <span className="material-symbols-outlined text-sm text-zinc-500">close</span>
               </button>
@@ -1525,7 +1525,7 @@ export default function ChatTab({
                 className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border ${t.cls} active:scale-[0.98] transition-all`}>
                 <div className="text-left">
                   <p className="text-[13px] font-extrabold">[{t.label}]</p>
-                  <p className="text-[10px] font-semibold opacity-70 mt-0.5">{t.desc}</p>
+                  <p className="text-[13px] font-semibold opacity-70 mt-0.5">{t.desc}</p>
                 </div>
                 <span className="material-symbols-outlined text-[16px] opacity-50">chevron_right</span>
               </button>
@@ -1539,7 +1539,7 @@ export default function ChatTab({
           <button
             type="button"
             onClick={() => setActiveModalDrawer("therapy")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <HeartPulse className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             <span className="truncate">{t("hugoPsy.chat.thuGian")}</span>
@@ -1547,7 +1547,7 @@ export default function ChatTab({
           <button
             type="button"
             onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("sleep")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <MoonStar className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             <span className="truncate">{t("hugoPsy.chat.giacNgu")}</span>
@@ -1555,7 +1555,7 @@ export default function ChatTab({
           <button
             type="button"
             onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("evaluation")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <ClipboardCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             <span className="truncate">{t("hugoPsy.chat.danhGia")}</span>
@@ -1632,12 +1632,12 @@ export default function ChatTab({
               <div className="mx-2 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-500 text-sm animate-pulse">bolt</span>
-                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">{t("hugoPsy.chat.hetTokenTroChuyen")}</span>
+                  <span className="text-[13px] font-bold text-amber-700 dark:text-amber-300">{t("hugoPsy.chat.hetTokenTroChuyen")}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowTokenExchangeModal(true)}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-[10px] font-black transition-all shadow-md shrink-0"
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-[13px] font-black transition-all shadow-md shrink-0"
                 >
                   {t("hugoPsy.chat.muaNhanhBangJoy")}
                 </button>
@@ -1696,7 +1696,7 @@ export default function ChatTab({
               style={{ maxHeight: "calc(100dvh - max(16px, env(safe-area-inset-top, 0px)) - max(16px, env(safe-area-inset-bottom, 0px)))" }}
             >
               <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
-                <span className="flex min-w-0 items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
+                <span className="flex min-w-0 items-center gap-2 text-[13px] font-black uppercase tracking-wider text-foreground">
                   {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baiTapTinhTam")}</span></>}
                   {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.nhatKyChuKy")}</span></>}
                   {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baoCaoDanhGia")}</span></>}

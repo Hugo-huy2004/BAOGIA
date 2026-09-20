@@ -46,7 +46,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
               <button
                 type="button"
                 onClick={handlePrevClick}
-                className="flex items-center gap-1 text-[9px] font-black uppercase text-muted-foreground hover:text-zinc-800 text-muted-foreground dark:hover:text-zinc-200 transition-colors"
+                className="flex items-center gap-1 text-[13px] font-black uppercase text-muted-foreground hover:text-zinc-800 text-muted-foreground dark:hover:text-zinc-200 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Câu trước
@@ -56,31 +56,31 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           <button
             type="button"
             onClick={onCancel}
-            className="text-[9px] font-black uppercase text-red-500 hover:underline"
+            className="text-[13px] font-black uppercase text-red-500 hover:underline"
           >
             Hủy test
           </button>
         </div>
         
         <div className="flex items-center justify-center gap-1.5">
-          <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+          <span className="px-2.5 py-0.5 rounded-full text-[13px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
             {activeTest.standardBadge || "Tham Khảo Tự Nhận Thức"}
           </span>
         </div>
         
-        <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
+        <h4 className="text-[13px] font-black text-foreground uppercase tracking-wider">
           {activeTest.name}
         </h4>
 
         {activeTest.timeframe && (
-          <p className="text-[10px] font-bold text-foreground/75">
+          <p className="text-[13px] font-bold text-foreground/75">
             Hãy trả lời dựa trên: <span className="text-primary">{activeTest.timeframe}</span>
           </p>
         )}
 
         {/* Every screening tool must state it is not a diagnosis — students
             should never read a result as a clinical verdict. */}
-        <p className="text-[9px] font-semibold text-amber-600 dark:text-amber-400/90 leading-snug px-2">
+        <p className="text-[13px] font-semibold text-amber-600 dark:text-amber-400/90 leading-snug px-2">
           {activeTest.disclaimer || "ⓘ Bài test chỉ mang tính chất tham khảo tự nhận thức, KHÔNG phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa."}
         </p>
 
@@ -89,7 +89,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             href={activeTest.sourceUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex text-[8.5px] font-bold text-muted-foreground underline decoration-dotted underline-offset-2"
+            className="inline-flex text-[13px] font-bold text-muted-foreground underline decoration-dotted underline-offset-2"
           >
             Nguồn thang đo: {activeTest.sourceLabel}
           </a>
@@ -102,7 +102,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           />
         </div>
         
-        <p className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-wider">
+        <p className="text-[13px] font-mono font-bold text-zinc-400 uppercase tracking-wider">
           Câu hỏi {currentQuestionIdx + 1} / {activeTest.questions.length}
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-card shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-foreground font-bold text-xs text-center leading-relaxed"
+            className="w-full relative p-4 rounded-lg border-2 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-card shadow-[3px_3px_0px_0px_rgba(9,9,11,1)] dark:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.05)] text-foreground font-bold text-[13px] text-center leading-relaxed"
           >
             "{activeTest.questions[currentQuestionIdx]}"
           </motion.div>
@@ -131,7 +131,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             type="button"
             disabled={submitting}
             onClick={() => handleAnswerClick(opt.value)}
-            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-card text-[10px] font-black text-zinc-800 dark:text-muted-foreground/60 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-muted active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-card text-[13px] font-black text-zinc-800 dark:text-muted-foreground/60 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-muted active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
           >
             <span>{opt.label}</span>
           </button>

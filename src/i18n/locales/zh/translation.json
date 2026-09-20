@@ -6326,7 +6326,8 @@
       "title": "课程内容为越南语。",
       "course": "Study with Hugo 的课程由作者以越南语编写。界面已翻译，课程内容尚未翻译。"
     },
-    "back": "返回"
+    "back": "返回",
+    "close": "关闭"
   },
   "paymentGateway": {
     "dangChuanBiThong": "准备您的支付详情…",

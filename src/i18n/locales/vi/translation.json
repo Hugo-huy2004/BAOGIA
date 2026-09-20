@@ -6988,7 +6988,8 @@
       "title": "Nội dung tiếng Việt.",
       "course": "Bài học của Study with Hugo do tác giả viết bằng tiếng Việt. Giao diện đã dịch, phần nội dung khoá học thì chưa."
     },
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "close": "Đóng"
   },
   "paymentGateway": {
     "dangChuanBiThong": "Đang chuẩn bị thông tin thanh toán…",
