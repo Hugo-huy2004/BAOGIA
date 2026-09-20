@@ -14,6 +14,7 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { FULLSCREEN_APP_IDS } from "../shared/appRegistry.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MEMBER = path.join(ROOT, "src/components/member");
@@ -120,6 +121,24 @@ const CRITERIA = [
     test: ({ entry }) => /from\s+["'][^"']*os\/AppFrame["']/.test(entry)
       || /\b(sm|md|lg|xl):(grid|flex|block|hidden|col|w-|max-w-)/.test(entry)
       || (entry.match(/\b(sm|md|lg|xl):/g) || []).length >= 6,
+  },
+  {
+    id: "fullscreen",
+    label: "app dùng AppFrame phải có trong FULLSCREEN_APP_IDS (PWA độc lập với portal)",
+    /*
+     * `AppFrame` tự dựng trọn vỏ app. Lồng nó vào vỏ portal là hai lớp chrome
+     * chồng nhau: app co lại thành khung hẹp giữa màn, thừa mép nền hai bên, có
+     * thanh cuộn thứ hai, nút X đóng app dạt ra rìa. Đây là lỗi đã xảy ra thật
+     * với `aura` và `profile` — chuyển sang AppFrame mà quên khai vào danh sách.
+     *
+     * `appId` đọc thẳng từ prop trong file vỏ, nên không cần bảng ánh xạ thứ hai
+     * giữa tên app trong bộ kiểm và id thật.
+     */
+    test: ({ entry }) => {
+      if (!/from\s+["'][^"']*os\/AppFrame["']/.test(entry)) return true;  // không dùng khung thì không áp
+      const id = entry.match(/appId=["']([^"']+)["']/)?.[1];
+      return Boolean(id) && FULLSCREEN_APP_IDS.includes(id);
+    },
   },
   {
     id: "errorBoundary",

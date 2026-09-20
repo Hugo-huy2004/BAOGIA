@@ -111,9 +111,21 @@ export const RETIRED_APP_IDS = Object.freeze([
  *
  * HugoPSY không có trong đây: nó chỉ toàn màn hình trên điện thoại, còn desktop
  * vẫn là bố cục sidebar — ngoại lệ đó nằm ở MemberPortalPage.
+ *
+ * ── LUẬT: app dùng khung chung `os/AppFrame` thì BẮT BUỘC có tên ở đây ───────
+ * `AppFrame` tự dựng trọn bộ vỏ của nó — thanh tiêu đề, điều hướng, safe-area,
+ * vùng cuộn riêng. Lồng một cái vỏ hoàn chỉnh vào trong vỏ của portal là có HAI
+ * lớp chrome chồng nhau: app thu lại thành một khung hẹp giữa màn, thừa mép nền
+ * hai bên, sinh thanh cuộn thứ hai, và nút X đóng app bị đẩy ra rìa. Trên điện
+ * thoại và trong PWA, app phải ĐỘC LẬP với bố cục portal.
+ *
+ * Thiếu sót đã gặp thật: `aura` và `profile` chuyển sang AppFrame mà quên thêm
+ * vào đây, nên chúng render lồng trong portal đúng như mô tả trên.
  */
 export const FULLSCREEN_APP_IDS = Object.freeze([
   "joy_wallet",
+  "aura",
+  "profile",
   "study",
   "arcade",
   "store",

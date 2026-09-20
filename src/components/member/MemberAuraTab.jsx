@@ -369,10 +369,12 @@ export default function MemberAuraTab({
      */
     <AppFrame
       appId="aura"
-      title={t("aura.title")}
+      /* Không truyền `title`: khung tự lấy tên chuẩn trong catalog ("Tập Trung").
+         `aura.title` là chuỗi marketing dài — "HugoAura Focus & Lofi Lounge" —
+         ở tiêu đề 34px nó xuống hai dòng và ăn gần nửa màn điện thoại. */
       largeTitle
       onBack={onBack}
-      actions={<StandaloneInstallButton appTitle={t("aura.title")} appId="aura" />}
+      actions={<StandaloneInstallButton appId="aura" />}
       wide
     >
       <div className="space-y-6">
@@ -394,7 +396,7 @@ export default function MemberAuraTab({
         <div className="lg:col-span-7 flex flex-col items-center justify-between bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
           <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-50`} />
           <div className="relative z-10 w-full flex flex-col items-center">
-            <h3 className="text-xs font-black text-foreground uppercase tracking-wider mb-5 flex items-center gap-1">
+            <h3 className="text-[13px] font-black text-foreground uppercase tracking-wider mb-5 flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">alarm</span>
               {t("aura.pomodoroDesk")}
             </h3>
@@ -420,10 +422,15 @@ export default function MemberAuraTab({
                     )}
                     <div className="relative z-10 flex flex-col items-center w-full">
                       <span className={`material-symbols-outlined text-2xl md:text-3xl mb-2 transition-transform duration-300 ${isActive ? "text-white scale-110" : "text-zinc-500"}`}>{preset.icon}</span>
-                      <span className="text-[8.5px] md:text-[10px] font-black uppercase tracking-widest text-center leading-tight w-full truncate">
+                      {/* Nhãn preset: BỎ `truncate`, BỎ viết hoa + `tracking-widest`.
+                          Nhãn tiếng Việt dài ("Bậc thầy tập trung") mà viết hoa,
+                          giãn chữ rộng rồi cắt một dòng thì ra "BẬC TH…" — người
+                          dùng không đọc được đang chọn mốc nào. Cho xuống hai dòng
+                          ở cỡ chữ đọc được là vừa đủ chỗ. */}
+                      <span className="w-full text-center text-[13px] font-bold leading-tight">
                         {t(`aura.preset${preset.id.charAt(0).toUpperCase() + preset.id.slice(1)}`)}
                       </span>
-                      <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-muted/50 text-muted-foreground"}`}>
+                      <span className={`text-[13px] font-bold mt-1.5 px-2 py-0.5 rounded-full whitespace-nowrap ${isActive ? "bg-white/20 text-white" : "bg-muted/50 text-muted-foreground"}`}>
                         +{joyText(preset.reward)}
                       </span>
                     </div>
@@ -472,7 +479,7 @@ export default function MemberAuraTab({
                 <span className="text-6xl md:text-7xl font-black tracking-tighter text-foreground leading-none mb-1">
                   {formatTime(timeLeft)}
                 </span>
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/70">
+                <span className="text-[13px] md:text-[13px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">
                   {timerMode === "focus" ? t("aura.focusBlock") : t("aura.breakInterval")}
                 </span>
               </div>
@@ -503,7 +510,7 @@ export default function MemberAuraTab({
           </div>
 
           {/* Mode indicators */}
-          <div className="relative z-10 w-full flex justify-center gap-4 mt-6 text-[9px] font-black uppercase tracking-wider text-muted-foreground/70">
+          <div className="relative z-10 w-full flex justify-center gap-4 mt-6 text-[13px] font-black uppercase tracking-wider text-muted-foreground/70">
             <button onClick={() => handleSwitchMode("focus")} className={`hover:text-zinc-800 dark:hover:text-muted-foreground/60 transition-colors ${timerMode === "focus" ? `underline underline-offset-4 ${accent.accentText}` : ""}`}>
               {t("aura.workSession")} ({selectedMinutes}m)
             </button>
@@ -538,7 +545,7 @@ export default function MemberAuraTab({
             
             <div className="relative z-10 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-[13px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-base">music_note</span>
                   {t("aura.lofiStation")}
                 </h4>
@@ -568,11 +575,11 @@ export default function MemberAuraTab({
                 </div>
 
                 <div className="min-w-0 flex-1 text-left leading-tight">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/70 block">{t("aura.lofiWaves")}</span>
-                  <span className="text-xs font-black text-foreground block truncate mt-1">
+                  <span className="text-[13px] font-black uppercase tracking-wider text-muted-foreground/70 block">{t("aura.lofiWaves")}</span>
+                  <span className="text-[13px] font-black text-foreground block truncate mt-1">
                     {currentPlaylist[currentTrackIndex].title}
                   </span>
-                  <span className="text-[10px] font-semibold text-muted-foreground block truncate mt-0.5">
+                  <span className="text-[13px] font-semibold text-muted-foreground block truncate mt-0.5">
                     {currentPlaylist[currentTrackIndex].artist}
                   </span>
                 </div>
@@ -589,7 +596,7 @@ export default function MemberAuraTab({
                   className={`w-full h-1.5 rounded-full appearance-none cursor-pointer bg-muted ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-zinc-700 dark:[&::-webkit-slider-thumb]:bg-white`}
                   aria-label={t("aura.timelineScrub")}
                 />
-                <div className="flex justify-between text-[9px] font-mono text-muted-foreground/70">
+                <div className="flex justify-between text-[13px] font-mono text-muted-foreground/70">
                   <span>{formatAudioTime(currentTime)}</span>
                   <span>{formatAudioTime(duration)}</span>
                 </div>

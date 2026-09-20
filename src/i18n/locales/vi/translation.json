@@ -8617,5 +8617,8 @@
     "more": "Còn nữa. Dây thời gian này vẫn đang dài ra.",
     "metaDescription": "Xếp theo dòng thời gian, từ dự án đầu tiên tới nay: bối cảnh, những quyết định đã ra và ảnh chụp từ bản đang chạy.",
     "openRepo": "Xem mã nguồn trên GitHub"
+  },
+  "pwa": {
+    "installApp": "Tải app"
   }
 }

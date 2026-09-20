@@ -76,6 +76,18 @@ export default function AppFrame({
 }) {
   const { t } = useTranslation();
   const dark = useDarkScheme();
+  /*
+   * Tiêu đề mặc định lấy TÊN CHUẨN của app trong catalog
+   * (`utilities.catalog.<appId>.title`, sinh từ i18n/locales/memberAppTranslations.js
+   * — nguồn DUY NHẤT cho tên app, xem quy ước đặt tên app).
+   *
+   * Vì sao: app tự truyền tiêu đề thì dễ lọt chuỗi marketing dài. HugoAura từng
+   * truyền "HugoAura Focus & Lofi Lounge" — ở tiêu đề lớn 34px nó xuống hai dòng
+   * và chiếm gần nửa màn điện thoại, trong khi tên chuẩn của app chỉ là
+   * "Tập Trung". Lấy từ catalog thì tên trong Home, Thư viện, Chợ và trong app
+   * luôn là một, và luôn ngắn.
+   */
+  const appTitle = title || (appId ? t(`utilities.catalog.${appId}.title`, appId) : "");
   // Vài app cố tình khoá MỘT hệ màu (vd: app học = nền giấy sáng luôn, chữ mực
   // đậm, không lật theo dark mode để chữ Hán không chìm trên thẻ trắng).
   const effectiveDark = forceScheme ? forceScheme === "dark" : dark;
@@ -125,7 +137,7 @@ export default function AppFrame({
           <NavBar
             scrolled={scrolled}
             large={largeTitle}
-            title={title}
+            title={appTitle}
             subtitle={subtitle}
             left={onBack ? (
               /* Nút LÙI MỘT CẤP — khác nút X đỏ "đóng app" mà portal đã gắn cố định
@@ -181,7 +193,7 @@ export default function AppFrame({
           <aside
             className="hidden shrink-0 flex-col gap-0.5 px-3 py-4 lg:flex"
             style={{ width: 232, borderRight: "0.5px solid var(--ios-sep)" }}
-            aria-label={title}
+            aria-label={appTitle}
           >
             {tabs.map((item) => {
               const active = tab === item.id;

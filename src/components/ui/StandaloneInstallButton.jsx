@@ -5,10 +5,12 @@
  */
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 import { isStandalone as isAppMode } from "../../config/platform";
 
 export default function StandaloneInstallButton({ appTitle, appId, className = "" }) {
+  const { t } = useTranslation();
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
@@ -27,11 +29,16 @@ export default function StandaloneInstallButton({ appTitle, appId, className = "
     <button
       type="button"
       onClick={handleInstallClick}
-      title={`Cài đặt ${appTitle || 'ứng dụng'} thành app độc lập trên màn hình chính`}
-      className={`flex h-11 shrink-0 items-center gap-1 rounded-xl pl-2 pr-3 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted ${className}`}
+      title={t("pwa.installApp", "Tải app")}
+      aria-label={t("pwa.installApp", "Tải app")}
+      /* `whitespace-nowrap` + ẩn chữ dưới `sm`: khe actions của thanh tiêu đề hẹp,
+         để chữ tự xuống dòng thì "Tải app" vỡ thành hai dòng lệch hẳn thanh nav
+         (thấy thật trên HugoAura). Màn hẹp chỉ còn icon — vẫn đủ nghĩa nhờ
+         aria-label và tooltip. */
+      className={`flex h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted sm:pl-2 sm:pr-3 ${className}`}
     >
-      <span className="material-symbols-outlined text-[20px]">install_mobile</span>
-      <span className="text-[14px] font-medium">Tải app</span>
+      <span className="material-symbols-outlined text-[20px]" aria-hidden="true">install_mobile</span>
+      <span className="hidden text-[14px] font-medium sm:inline">{t("pwa.installApp", "Tải app")}</span>
     </button>
   );
 }

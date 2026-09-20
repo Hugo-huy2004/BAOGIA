@@ -8547,5 +8547,8 @@
     "more": "More to come. This timeline is still growing.",
     "metaDescription": "Laid out along a timeline, from the first project to now: the context, the decisions made, and screenshots from the running build.",
     "openRepo": "View the source on GitHub"
+  },
+  "pwa": {
+    "installApp": "Install app"
   }
 }
