@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { IosApp, NavBar, Scroll, ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
+import { ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
+import AppFrame from "./os/AppFrame";
 import BackButton from "./shared/BackButton";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
@@ -54,63 +55,55 @@ function TeamRulesSheet({ open, onClose }) {
 
 /** Vỏ app: NavBar cố định + vùng cuộn riêng. Lối ra duy nhất là nút back trên
  *  NavBar — tab-bar của portal đã ẩn khi Hugo Team mở (MemberUtilitiesTab). */
+/**
+ * Vỏ của Hugo Team.
+ *
+ * Trước đây file này TỰ DỰNG lại đúng những gì `AppFrame` làm: một `IosApp`, bảng
+ * `--ios-*` trỏ về token portal, `NavBar` tiêu đề lớn, `Scroll`, cộng `mr-11`
+ * đoán tay để né nút X, và một MutationObserver riêng để dò dark mode. Nay chỉ
+ * còn khai báo phần KHÁC BIỆT của app này.
+ *
+ * `paletteVars` giữ nguyên chủ ý cũ: trang tuyển dụng bên trong viết bằng token
+ * portal (`bg-card`, `text-foreground`), nên vỏ phải cùng hệ màu đó chứ không
+ * lấy tint riêng như các app khác.
+ */
 function TeamShell({ onBack, children }) {
   const { t } = useTranslation();
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
-  const [scrolled, setScrolled] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-  useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => setDark(root.classList.contains("dark")));
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
 
   return (
-    <IosApp scheme={dark ? "dark" : "light"} accent="hsl(var(--primary))">
-      {/* Bộ iOS mang bảng màu riêng (--ios-*), còn trang tuyển dụng bên trong vẫn
-          dùng token của app (bg-card, text-foreground). Hai hệ cạnh nhau lệch
-          tông thấy rõ. Trỏ --ios-* về đúng token của app là cả hai cùng một màu,
-          khỏi phải sửa từng chỗ. */}
-      <div
-        className="flex min-h-0 flex-1 flex-col"
-        style={{
-          "--ios-bg": "hsl(var(--background))",
-          "--ios-surface": "hsl(var(--card))",
-          "--ios-label": "hsl(var(--foreground))",
-          "--ios-label-2": "hsl(var(--muted-foreground))",
-          "--ios-sep": "hsl(var(--border))",
-          "--ios-fill": "hsl(var(--muted))",
-          "--ios-fill-2": "hsl(var(--muted))",
-          "--ios-chrome": "hsl(var(--background) / .82)",
-          background: "hsl(var(--background))",
-        }}
-      >
-        <div style={{ paddingTop: "max(4px, env(safe-area-inset-top, 0px))" }} className="shrink-0">
-          <NavBar
-            scrolled={scrolled}
-            large
-            title="Hugo Team"
-            left={null}
-            right={(
-              <button
-                type="button"
-                onClick={() => setRulesOpen(true)}
-                aria-label={t("memberPortal.team.rules.title")}
-                className="grid h-[30px] w-[30px] place-items-center rounded-full text-[17px] font-bold mr-11"
-                style={{ background: "hsl(var(--muted))", color: "hsl(var(--foreground))" }}
-              >
-                !
-              </button>
-            )}
-          />
-        </div>
-        <Scroll onScrolledChange={setScrolled} className="px-4 pb-16">
-          {children}
-        </Scroll>
-        <TeamRulesSheet open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      </div>
-    </IosApp>
+    <AppFrame
+      appId="team"
+      largeTitle
+      onBack={onBack}
+      paletteVars={{
+        "--ios-bg": "hsl(var(--background))",
+        "--ios-elevated": "hsl(var(--card))",
+        "--ios-surface": "hsl(var(--card))",
+        "--ios-surface-2": "hsl(var(--muted))",
+        "--ios-label": "hsl(var(--foreground))",
+        "--ios-label-2": "hsl(var(--muted-foreground))",
+        "--ios-sep": "hsl(var(--border))",
+        "--ios-fill": "hsl(var(--muted))",
+        "--ios-fill-2": "hsl(var(--muted))",
+        "--ios-chrome": "hsl(var(--background) / .82)",
+      }}
+      actions={(
+        <button
+          type="button"
+          onClick={() => setRulesOpen(true)}
+          aria-label={t("memberPortal.team.rules.title")}
+          title={t("memberPortal.team.rules.title")}
+          className="grid h-11 w-11 place-items-center rounded-full text-[17px] font-bold"
+          style={{ background: "hsl(var(--muted))", color: "hsl(var(--foreground))" }}
+        >
+          !
+        </button>
+      )}
+    >
+      {children}
+      <TeamRulesSheet open={rulesOpen} onClose={() => setRulesOpen(false)} />
+    </AppFrame>
   );
 }
 
@@ -118,6 +111,15 @@ export default function HugoTeamTab({ onBack }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const [developers, setDevelopers] = useState([]);
+  /*
+   * ĐANG tải danh sách, khác với ĐÃ tải xong mà rỗng.
+   *
+   * Trước đây chỉ có `developers` khởi tạo `[]`, nên trong lúc chờ mạng app hiện
+   * nguyên khối "chưa có lập trình viên nào" rồi mới nháy sang danh sách thật —
+   * người dùng đọc được một thông báo SAI trong khoảnh khắc đầu. Phải phân biệt
+   * hai trạng thái đó thì mới nói đúng.
+   */
+  const [devsLoading, setDevsLoading] = useState(true);
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [me, setMe] = useState(null); // GET /me payload — status + dashboard data
@@ -137,6 +139,8 @@ export default function HugoTeamTab({ onBack }) {
       }
     } catch (error) {
       console.error("Failed to load developers:", error);
+    } finally {
+      setDevsLoading(false);
     }
   };
 
@@ -233,7 +237,7 @@ export default function HugoTeamTab({ onBack }) {
       <div className="lg:col-span-2 space-y-10">
       {/* Header */}
       <div className="space-y-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-[13px] font-medium">
           <span className="material-symbols-outlined text-sm">rocket_launch</span>
           {t("memberPortal.team.badge")}
         </div>
@@ -301,13 +305,13 @@ export default function HugoTeamTab({ onBack }) {
               <span className="material-symbols-outlined text-base text-primary">verified</span>
               <span className="font-semibold text-foreground">{t("memberPortal.team.membershipLine")}</span>
             </div>
-            <p className="text-xs text-muted-foreground">{t("memberPortal.team.membershipDesc")}</p>
+            <p className="text-[13px] text-muted-foreground">{t("memberPortal.team.membershipDesc")}</p>
           </div>
 
           <p className="text-sm leading-relaxed text-muted-foreground">{t("memberPortal.team.loyaltyText")}</p>
           <div className="bg-muted/50 rounded-xl p-3.5 space-y-2">
             <p className="text-sm font-semibold text-foreground">{t("memberPortal.team.milestone500Title")}</p>
-            <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+            <ul className="text-[13px] text-muted-foreground space-y-1 ml-4">
               <li>• {t("memberPortal.team.milestone500a")}</li>
               <li>• {t("memberPortal.team.milestone500b")}</li>
               <li>• {t("memberPortal.team.milestone500c")}</li>
@@ -394,9 +398,9 @@ export default function HugoTeamTab({ onBack }) {
                 accept=".pdf"
                 onChange={handleCvUpload}
                 disabled={isSubmitting || userStatus === "pending"}
-                className="block w-full px-4 py-3 border border-border bg-background rounded-2xl text-sm file:mr-4 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 transition-all cursor-pointer"
+                className="block w-full px-4 py-3 border border-border bg-background rounded-2xl text-sm file:mr-4 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-[13px] file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 transition-all cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+              <p className="text-[13px] text-muted-foreground mt-2 flex items-center gap-1">
                 {cvFile ? (
                   <>
                     <span className="material-symbols-outlined text-sm text-emerald-500" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -426,7 +430,14 @@ export default function HugoTeamTab({ onBack }) {
           <h2 className="text-lg font-semibold text-foreground">{t("memberPortal.team.devsTitle", { count: developers.length })}</h2>
           <p className="text-sm text-muted-foreground max-w-2xl">{t("memberPortal.team.devsDesc")}</p>
         </div>
-        {developers.length === 0 ? (
+        {devsLoading ? (
+          /* Khung xương đúng dáng thẻ thật để nội dung không nhảy khi dữ liệu về. */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true" aria-label={t("memberPortal.team.devsTitle", { count: 0 })}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-[168px] animate-pulse rounded-2xl border border-border/40 bg-muted/40" />
+            ))}
+          </div>
+        ) : developers.length === 0 ? (
           <div className="p-8 rounded-2xl border border-dashed border-border/50 text-center">
             <span className="material-symbols-outlined text-3xl text-muted-foreground block mb-2">groups</span>
             <p className="text-sm text-muted-foreground">{t("memberPortal.team.devsEmpty")}</p>
@@ -439,7 +450,7 @@ export default function HugoTeamTab({ onBack }) {
                 className="relative p-5 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3"
               >
                 {/* Developer Badge */}
-                <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-medium">
+                <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[13px] font-medium">
                   {t("memberPortal.team.devBadge")}
                 </div>
 
@@ -450,20 +461,20 @@ export default function HugoTeamTab({ onBack }) {
                   </div>
                   <div className="flex-1 min-w-0 pr-16">
                     <p className="font-semibold text-foreground text-sm leading-tight break-words">{dev.name}</p>
-                    {dev.school && <p className="text-xs text-muted-foreground mt-0.5 break-words">{dev.school}</p>}
+                    {dev.school && <p className="text-[13px] text-muted-foreground mt-0.5 break-words">{dev.school}</p>}
                   </div>
                 </div>
 
                 {/* Membership Status */}
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
                   <span className="material-symbols-outlined text-sm">verified</span>
                   <span>{t("memberPortal.team.membership3y")}</span>
                 </div>
 
                 {/* Verified Check */}
                 <div className="flex items-center pt-1">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">
-                    <span className="material-symbols-outlined text-xs">check_circle</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[13px] font-medium">
+                    <span className="material-symbols-outlined text-[13px]">check_circle</span>
                     {t("memberPortal.team.approved")}
                   </span>
                 </div>
@@ -511,7 +522,7 @@ const fmtDate = (d, locale) => (d ? new Date(d).toLocaleDateString(locale) : "�
 function StatusChip({ meta }) {
   const { t } = useTranslation();
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${meta.cls}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[13px] font-bold ${meta.cls}`}>
       {t(`memberPortal.team.${meta.key}`)}
     </span>
   );
@@ -769,7 +780,7 @@ function FeedRow({ item, locale, reload, last }) {
                 : t("memberPortal.team.translate")}
           </button>
         )}
-        <p className="mt-1 text-[11px]" style={{ color: "var(--ios-label-2)" }}>{fmtDate(item.at, locale)}</p>
+        <p className="mt-1 text-[13px]" style={{ color: "var(--ios-label-2)" }}>{fmtDate(item.at, locale)}</p>
       </div>
       {item.log?.status === "pending" && (
         <button
@@ -812,7 +823,7 @@ function TaskCard({ task, reload, locale, last }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{task.title}</h3>
-          <p className="mt-0.5 text-[12px]" style={{ color: "var(--ios-label-2)" }}>
+          <p className="mt-0.5 text-[13px]" style={{ color: "var(--ios-label-2)" }}>
             {t("memberPortal.team.assignedOn", { date: fmtDate(task.assignedAt, locale) })}
             {task.deadline && (
               <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(task.deadline, locale)}</span></>
@@ -824,12 +835,12 @@ function TaskCard({ task, reload, locale, last }) {
 
       {task.guide && (
         <details className="mt-3">
-          <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">{t("memberPortal.team.huongDanTuAdmin")}</summary>
-          <p className="mt-2 whitespace-pre-wrap rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">{task.guide}</p>
+          <summary className="cursor-pointer text-[13px] font-semibold text-muted-foreground">{t("memberPortal.team.huongDanTuAdmin")}</summary>
+          <p className="mt-2 whitespace-pre-wrap rounded-xl bg-muted/60 p-3 text-[13px] leading-relaxed text-muted-foreground">{task.guide}</p>
         </details>
       )}
       {task.adminNote && (
-        <p className="mt-3 whitespace-pre-wrap rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed text-muted-foreground">
+        <p className="mt-3 whitespace-pre-wrap rounded-xl border border-primary/20 bg-primary/5 p-3 text-[13px] leading-relaxed text-muted-foreground">
           <span className="font-bold text-foreground">{t("memberPortal.team.nhanXetNghiemThu")} </span>
           {task.adminNote}
         </p>
@@ -866,7 +877,7 @@ function TaskCard({ task, reload, locale, last }) {
       ))}
 
       {task.status === "submitted" && task.devNote && (
-        <p className="mt-3 text-xs italic text-muted-foreground">{t("memberPortal.team.ghiChuCuaBan")} {task.devNote}</p>
+        <p className="mt-3 text-[13px] italic text-muted-foreground">{t("memberPortal.team.ghiChuCuaBan")} {task.devNote}</p>
       )}
     </article>
   );

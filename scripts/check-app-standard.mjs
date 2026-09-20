@@ -25,6 +25,7 @@ const MEMBER = path.join(ROOT, "src/components/member");
  */
 const CERTIFIED = {
   friends: "20/09/2026 — 4 màn có địa chỉ thật (bản cũ chỉ đọc ?view= một lần lúc khởi tạo nên back của máy nhảy ra khỏi app), chữ lên sàn 13px ở cả JSX lẫn CSS, mr-10 đoán tay → CLOSE_BUTTON_RESERVE. Giữ hình thái bản đồ toàn màn (ngoại lệ có lý do)",
+  team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
@@ -62,6 +63,8 @@ const EXCEPTIONS = {
 
   "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
   "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
+
+  "address@team": "một màn duy nhất; nhánh hiển thị do TRẠNG THÁI TỪ SERVER (userStatus) quyết định, không phải màn người dùng tự chuyển",
 
   "address@radio": "một trang cuộn (trình phát + đài + hẹn giờ + thông tin); bộ điều hướng 5 trang cũ là code chết và đã gỡ 20/09",
 };

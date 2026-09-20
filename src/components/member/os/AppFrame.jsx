@@ -73,6 +73,14 @@ export default function AppFrame({
    * mục đích. Điện thoại thì cả hai kiểu đều về thanh tab dưới.
    */
   wideNav,
+  /**
+   * Ghi đè bảng màu `--ios-*` của khung. Mặc định mỗi app mang tint riêng theo
+   * `appPalette`, nhưng vài app CỐ Ý dùng token của portal cho cả vỏ lẫn ruột —
+   * Hugo Team là một: trang tuyển dụng bên trong viết bằng `bg-card`/`text-foreground`,
+   * nên nếu vỏ mang tint riêng thì hai hệ màu đứng cạnh nhau lệch tông thấy rõ.
+   * Đây là cửa opt-in cho trường hợp đó, không phải mặc định.
+   */
+  paletteVars,
   children,
 }) {
   const { t } = useTranslation();
@@ -111,7 +119,7 @@ export default function AppFrame({
     <IosApp
       scheme={effectiveDark ? "dark" : "light"}
       accent={palette.accent}
-      vars={palette.vars}
+      vars={paletteVars ? { ...palette.vars, ...paletteVars } : palette.vars}
       className={`relative ${bgLayer ? "isolate" : ""} ${className}`}
     >
       {/* Lớp NỀN trang trí của app (đứng sau nội dung, trên nền giấy) — chỉ khi
