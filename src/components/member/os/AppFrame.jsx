@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { IosApp, NavBar, Scroll, Segmented, TabBar } from "../../demos/iosKit";
 import useDarkScheme from "./useDarkScheme";
 import { appPalette } from "./appPalette";
+import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
 
 /**
  * HugoOS — khung ứng dụng dùng chung.
@@ -156,7 +157,12 @@ export default function AppFrame({
                 <span className="material-symbols-outlined text-[26px] leading-none">chevron_left</span>
               </button>
             ) : null}
-            right={actions ? <div className="mr-10">{actions}</div> : null}
+            right={actions ? (
+              /* Chừa chỗ cho nút X đỏ mà portal đặt `fixed` đè lên góc trên-phải.
+                 Số lấy từ chính nơi sở hữu nút (shared/BackButton.jsx) nên hai
+                 bên không thể lệch nhau. */
+              <div style={{ marginRight: CLOSE_BUTTON_RESERVE }}>{actions}</div>
+            ) : null}
           />
 
           {/* Dải phân đoạn — CHỈ trên màn rộng. Trên điện thoại điều hướng đã nằm

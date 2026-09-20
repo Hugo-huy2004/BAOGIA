@@ -23,7 +23,7 @@ const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
 const FriendsApp = lazy(() => import("./FriendsApp"));
 const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
-import BackButton from "./shared/BackButton";
+import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -77,7 +77,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           className="fixed z-[9999] pointer-events-auto"
           style={{
             top: "max(12px, env(safe-area-inset-top, 12px))",
-            right: "max(14px, env(safe-area-inset-right, 14px))",
+            // Cùng hằng số mà AppFrame dùng để chừa chỗ — xem shared/BackButton.jsx.
+            right: `max(${CLOSE_BUTTON_EDGE}px, env(safe-area-inset-right, ${CLOSE_BUTTON_EDGE}px))`,
           }}
         >
           <BackButton
