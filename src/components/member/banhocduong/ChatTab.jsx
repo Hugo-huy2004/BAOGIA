@@ -1311,12 +1311,19 @@ export default function ChatTab({
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white dark:border-[#0d0c16] shadow-sm" />
         </div>
 
-        {/* Bot identity */}
-        <div className="flex-1 min-w-0">
+        {/* Bot identity.
+
+            `min-w-0` một mình khiến khối này co tới 0 khi hàng chật — và vì nó là
+            phần tử `flex-1` DUY NHẤT giữa sáu phần tử `shrink-0`, nó là thứ chịu
+            toàn bộ phần thiếu chỗ. Trên điện thoại hẹp tên app co thành "H…" và
+            "Trực tuyến" vỡ hai dòng. Danh tính app phải là thứ co SAU CÙNG:
+            `min-w-[92px]` giữ đủ chỗ cho tên, `whitespace-nowrap` chặn dòng trạng
+            thái xuống hàng. */}
+        <div className="flex-1 min-w-[92px]">
           <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
             HugoPSY
           </p>
-          <p className="text-[13px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
+          <p className="text-[13px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5 truncate whitespace-nowrap">
             {loading ? typingLabel : isGuestMode ? "● Dùng thử cục bộ" : t("hugoPsy.chat.trucTuyen")}
           </p>
         </div>
@@ -1383,7 +1390,12 @@ export default function ChatTab({
                   </svg>
                   <TokenIcon className="absolute h-2.5 w-2.5 text-foreground/75" strokeWidth={2.25} />
                 </div>
-                <span className="font-extrabold text-foreground/80">
+                {/* Con số ẩn trên màn rất hẹp, chỉ còn vòng tiến độ. Cả hàng có
+                    sáu phần tử không co cộng khoảng chừa cho nút X — trên máy
+                    390px tổng bề ngang vượt màn, và thứ bị đẩy đi là TÊN APP.
+                    Vòng tròn vẫn cho biết còn nhiều hay ít; bấm vào là ra số đầy
+                    đủ trong bảng đổi token. */}
+                <span className="hidden font-extrabold text-foreground/80 min-[400px]:inline">
                   {tokenLockMinutes > 0 ? t("hugoPsy.chat.khoa") : `${totalTokens}/${maxChatTokens}`}
                 </span>
               </button>
