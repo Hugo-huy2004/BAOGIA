@@ -19,6 +19,28 @@ const fail = (lang, key, text, why) => {
 };
 
 // Từ suồng sã: chỉ bắt khi đứng một mình, tránh bắt nhầm "bạn bè", "lời mời".
+/**
+ * ── HÁN VIỆT CUNG ĐÌNH ─────────────────────────────────────────────────────
+ * Chữ của JOY và thông báo dùng từ Hán Việt chuẩn, giọng văn thư triều chính.
+ * Bảng dưới đây chỉ liệt kê những cặp có bản Hán Việt VỪA CHUẨN VỪA ĐỌC ĐƯỢC.
+ *
+ * Cố ý KHÔNG ép mọi từ thuần Việt: "ngày", "tuần", "nút", "tệp" đều không có
+ * bản Hán Việt nào dễ hiểu hơn, và một thông báo trang trọng tới mức không ai
+ * hiểu thì cũng vô dụng như một thông báo suồng sã. Trang trọng là để người
+ * đọc thấy được tôn trọng, không phải để người viết khoe chữ.
+ */
+const HAN_VIET = [
+  [/đóng băng/i, 'đóng băng → "đình chỉ"'],
+  [/khoá tài khoản/i, 'khoá tài khoản → "phong toả tài khoản"'],
+  [/xem xét/i, 'xem xét → "thẩm định"'],
+  [/xét lại/i, 'xét lại → "tái thẩm định"'],
+  [/nộp lại/i, 'nộp lại → "đệ trình lại"'],
+  [/lý do/i, 'lý do → "duyên do"'],
+  [/món quà/i, 'món quà → "tặng phẩm"'],
+  [/người dùng/i, 'người dùng → "Quý thành viên"'],
+  [/số tiền/i, 'số tiền → "ngạch số"'],
+];
+
 const CASUAL_VI = [
   [/\bnhé\b/i, 'từ đệm "nhé" — lời tuyên cáo không cần làm mềm'],
   [/\bnha\b/i, 'từ đệm "nha"'],
@@ -27,6 +49,7 @@ const CASUAL_VI = [
   // đại từ. Bản đầu của luật này báo nhầm chính câu đã viết đúng giọng.
   [/(^|[\s"“(])bạn(?! ?bè)([\s,.!?:;”)]|$)/i, 'xưng "bạn" — dùng "Quý thành viên"'],
   [/\bngay và luôn\b/i, 'khẩu ngữ "ngay và luôn"'],
+  ...HAN_VIET,
 ];
 const CASUAL_EN = [
   [/\bhey\b/i, '"hey"'],
