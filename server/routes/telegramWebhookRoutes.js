@@ -182,6 +182,11 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
     const { handleConsoleCallback } = await import('../services/telegramConsole.js');
     if (await handleConsoleCallback({ chatId, messageId: cb.message?.message_id, data: cbData })) return;
 
+    // Ba nút Tăng/Giữ/Giảm của báo cáo bình ổn JOY (js:*). Đặt sau bảng điều
+    // khiển nhưng trước các cb_* cũ — tiền tố riêng nên không đụng nhau.
+    const { handleStabilityCallback } = await import('../services/joyStabilityService.js');
+    if (await handleStabilityCallback({ chatId, messageId: cb.message?.message_id, data: cbData })) return;
+
     if (cbData.startsWith('cb_award_1000:')) {
       const targetEmail = cbData.replace('cb_award_1000:', '');
       const bio = await Bio.findOne({ email: targetEmail });

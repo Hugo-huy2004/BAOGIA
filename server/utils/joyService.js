@@ -6,6 +6,7 @@ import { notifyMember } from './notifyMember.js';
 import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
 
 import { JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
+import { currentMultiplier, NON_ISSUANCE_SOURCES } from '../services/joyStabilityService.js';
 
 // Giữ tên cũ cho các nơi đã import; nguồn thật nằm ở joySources.js.
 export const JOY_TITLES = JOY_SOURCES;
@@ -28,8 +29,32 @@ export function joyTitleFor(source, amount) {
  */
 export async function awardJoy(email, amount, source, description, opts = {}) {
   if (!email) throw new Error('MISSING_EMAIL');
-  const numAmount = Math.round(Number(amount));
+  let numAmount = Math.round(Number(amount));
   if (!numAmount) throw new Error('INVALID_AMOUNT');
+
+  /*
+   * ── HỆ SỐ PHÁT HÀNH ───────────────────────────────────────────────────────
+   * Núm vặn bình ổn JOY (models/JoyPolicy.js) chỉ nhân vào phần THƯỞNG.
+   *
+   * KHÔNG nhân khi:
+   *   · số âm — đó là người dùng TIÊU JOY. Siết phát hành mà cũng siết luôn giá
+   *     thì chẳng thay đổi gì, chỉ làm bảng giá nói dối.
+   *   · nguồn không phải phát hành (chuyển tay, admin điều chỉnh, thu hồi):
+   *     những khoản này phải vào ví đúng bằng con số đã hứa.
+   *   · `opts.rawAmount` — nơi gọi biết rõ số tiền phải khớp chính xác, ví dụ
+   *     hoàn tiền hay trả nợ JOYlater: trả 100 mà bị ghi 80 là sai sổ.
+   *
+   * Nhân TRƯỚC lệnh $inc nguyên tử bên dưới để số dư và dòng sổ cái luôn ghi
+   * cùng một con số — tách hai chỗ là mở đường cho sổ lệch ví.
+   */
+  if (numAmount > 0 && !opts.rawAmount && !NON_ISSUANCE_SOURCES.has(source)) {
+    const multiplier = await currentMultiplier();
+    if (multiplier !== 1) {
+      // Làm tròn LÊN: một phần thưởng 5 JOY nhân 0.8 ra 4, chứ không được ra 0.
+      // Thưởng thành 0 thì người dùng tưởng tính năng hỏng, không phải đang siết.
+      numAmount = Math.max(1, Math.ceil(numAmount * multiplier));
+    }
+  }
   const allowedSources = JoyLedger.schema.path('source')?.enumValues || [];
   if (!allowedSources.includes(source)) {
     // Validate ledger metadata before touching the wallet. Previously an

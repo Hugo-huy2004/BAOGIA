@@ -63,6 +63,10 @@ export const JOY_SOURCES = {
   vocab_essay_retake: 'Thi lại bài viết luận tiếng Trung',
   vocab_daily_goal: 'Hoàn thành mục tiêu học từ vựng trong ngày',
   vocab_mission: 'Thưởng nhiệm vụ học từ vựng',
+  // Thu hồi theo chính sách bình ổn. Nguồn RIÊNG chứ không dùng chung
+  // `admin_adjustment`: một đợt thu hồi phải tra ra được trong sổ bằng một câu
+  // truy vấn, tách hẳn khỏi các lần admin cộng/trừ lẻ.
+  joy_recall: 'Thu hồi theo chính sách bình ổn JOY',
 };
 
 /**

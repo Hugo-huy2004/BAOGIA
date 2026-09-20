@@ -40,7 +40,7 @@ const SYSTEM_SOURCES = [
   'checkin', 'referral_referrer', 'referral_referee',
   'admin_adjustment', 'admin_direct_add', 'admin_voucher', 'admin_telegram_button',
   'member_transfer_in', 'member_transfer_out', 'joy_gift_sent', 'joy_gift_received',
-  'gift_code',
+  'gift_code', 'joy_recall',
 ];
 for (const src of SYSTEM_SOURCES) {
   if (!JOY_SOURCE_KEYS.includes(src)) continue;   // nguồn có thể đã bị gỡ

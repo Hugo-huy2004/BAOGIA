@@ -4,6 +4,26 @@ import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
 
 export function initCronJobs() {
+  // Báo cáo bình ổn JOY — 09:00 thứ Hai giờ VN (02:00 UTC).
+  //
+  // Gửi vào đầu tuần và báo về TUẦN TRƯỚC (tuần đã khép), không phải tuần đang
+  // chạy: số liệu nửa tuần thì tỷ lệ thu/phát còn nhảy loạn, quyết định dựa trên
+  // đó là quyết định theo nhiễu.
+  //
+  // Bản thân hàm đã tự chống gửi trùng bằng khoá tuần, nên nhiều process cùng
+  // chạy cron cũng chỉ ra một báo cáo.
+  cron.schedule('0 2 * * 1', async () => {
+    try {
+      const { sendWeeklyReport } = await import('../services/joyStabilityService.js');
+      const result = await sendWeeklyReport();
+      if (result.sent) {
+        console.log(`[CRON] Báo cáo bình ổn JOY ${result.weekKey} — đề xuất: ${result.suggested}`);
+      }
+    } catch (error) {
+      console.error('[CRON] Báo cáo bình ổn JOY:', error.message);
+    }
+  });
+
   // Nhắc ôn từ vựng — 08:00 & 20:00 giờ VN (01:00 & 13:00 UTC). CHỈ nhắc người
   // ĐANG học (có thẻ tới hạn), nên tập gửi luôn nhỏ và tự thu hẹp khi ai ngừng
   // học. Kèm một từ mẫu để vừa nhắc vừa "lâu lâu hiện một từ dễ nhớ".
