@@ -124,8 +124,11 @@ for (const [file, phrases] of DOCS) {
 const viDocs = read('src/components/member/account/memberDocs.js');
 check(/150%/.test(viDocs) && /10%\/năm/.test(viDocs),
   'quy chế tiếng Việt nêu đúng hai trần lãi theo luật');
-check(/45 ngày khoá tài khoản|khoá tài khoản 30 ngày/.test(viDocs),
-  'quy chế tiếng Việt nói rõ có biện pháp khoá tài khoản');
+// Nhận CẢ hai lối nói: "khoá" (lối cũ) và "phong toả" (Hán Việt, lối hiện
+// hành). Bài kiểm này canh một SỰ THẬT — rằng quy chế có nói tới biện pháp
+// khoá tài khoản — chứ không canh một cách dùng từ.
+check(/(khoá|phong toả) tài khoản/.test(viDocs),
+  'quy chế tiếng Việt nói rõ có biện pháp phong toả tài khoản');
 const enDocs = read('src/components/member/account/memberDocs.en.js');
 check(/150%/.test(enDocs) && /10% per year/.test(enDocs), 'quy chế tiếng Anh nêu đúng hai trần lãi');
 

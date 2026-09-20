@@ -27,8 +27,15 @@ import { DEFAULT_DENOM, formatDenom } from "./joyCurrency.js";
  * chuẩn ở đây là Apple gặp Hoàng Gia: câu ngắn và rõ như Apple, phẩm cách và
  * kính ngữ như một văn thư chính thức.
  *
- * Bản TIẾNG VIỆT ưu tiên từ Hán Việt chuẩn, giọng văn thư triều chính — nghe
- * sang và mang âm sắc nước Việt:
+ * Bản TIẾNG VIỆT viết theo THỂ VĂN CHIẾU CHỈ: nêu cớ trước, tuyên sau.
+ *
+ *   "Nay xét…"      — mở đầu bằng sự việc làm căn cứ
+ *   "Chiếu theo…"   — dẫn điều đã định trước đó
+ *   "Kính trình…"   — khi bề dưới trình lên
+ *   "Kính ban…"     — khi bề trên ban xuống
+ *   "Kính mong…"    — lời kết, chỗ đặt nguyện vọng
+ *
+ * Từ ngữ dùng Hán Việt chuẩn:
  *
  *   thụ lĩnh (không "nhận")        · chi dụng (không "tiêu")
  *   thẩm định (không "xem xét")    · tái thẩm định (không "xét lại")
@@ -113,40 +120,40 @@ export const NOTIFICATION_TEXT = {
     "vocab.word.title": "{{hanzi}} · {{pinyin}}",
     "vocab.word.message": "{{meaning}} — chạm để học thêm từ mới hôm nay.",
 
-    "event.trialStarted.title": "Quyền dùng thử {{app}} đã được ban",
-    "event.trialStarted.message": "Quý thành viên được toàn quyền trải nghiệm trong {{days}} ngày, hiệu lực đến hết ngày {{date}}.",
+    "event.trialStarted.title": "Chiếu ban quyền dùng thử {{app}}",
+    "event.trialStarted.message": "Nay chuẩn cho Quý thành viên toàn quyền trải nghiệm trong {{days}} ngày, hiệu lực đến hết ngày {{date}}. Kính mong thụ hưởng trọn vẹn.",
     "event.appGift.title": "{{sender}} kính tặng {{item}}",
-    "event.appGift.message": "Tặng phẩm đã được lưu vào tài khoản. Kính mời Quý thành viên quá bộ Cửa Hàng để thụ lĩnh.",
-    "event.adminBonus.title": "Khoản ân thưởng đã được ban",
-    "event.adminBonus.message": "Hugo Studio kính ban Quý thành viên {{amount, joy}}.",
-    "event.adminBonusReason.title": "Khoản ân thưởng đã được ban",
-    "event.adminBonusReason.message": "Hugo Studio kính ban Quý thành viên {{amount, joy}}. Duyên do: {{reason}}",
+    "event.appGift.message": "Tặng phẩm đã nhập vào tài khoản. Kính mời Quý thành viên quá bộ Thương Điếm để thụ lĩnh.",
+    "event.adminBonus.title": "Chiếu ban ân thưởng",
+    "event.adminBonus.message": "Xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, joy}}.",
+    "event.adminBonusReason.title": "Chiếu ban ân thưởng",
+    "event.adminBonusReason.message": "Xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, joy}}. Duyên do: {{reason}}",
     "event.cartCheckout.title": "Giao dịch đã hoàn tất",
-    "event.cartCheckout.message": "{{count}} phẩm vật · {{total, joy}} · Chứng từ số {{code}}",
+    "event.cartCheckout.message": "{{count}} phẩm vật · {{total, joy}} · Chứng từ số {{code}}. Kính mong Quý thành viên lưu giữ chứng từ này.",
     "event.productPurchase.title": "Giao dịch đã hoàn tất",
-    "event.productPurchase.message": "Quý thành viên đã thụ nhận “{{product}}” với {{total, joy}}. Chứng từ số {{code}}.",
+    "event.productPurchase.message": "Quý thành viên đã thụ nhận “{{product}}” với {{total, joy}}. Chứng từ số {{code}}, kính mong lưu giữ.",
     "event.wellnessNudge.title": "Đôi lời vấn an",
-    "event.wellnessNudge.message": "Hugo Studio có đôi lời gửi riêng Quý thành viên trong ngày hôm nay.",
-    "event.paymentRequest.title": "Thông tri yêu cầu thanh toán",
-    "event.paymentRequest.message": "Hugo Studio kính đề nghị khoản thanh toán {{amount}} ₫. Duyên do: {{reason}}",
+    "event.wellnessNudge.message": "Hugo Studio kính gửi Quý thành viên đôi lời trong ngày hôm nay.",
+    "event.paymentRequest.title": "Thông tri thỉnh cầu thanh toán",
+    "event.paymentRequest.message": "Hugo Studio kính trình Quý thành viên khoản thanh toán {{amount}} ₫. Duyên do: {{reason}}",
     "event.friendRequest.title": "{{sender}} ngỏ lời kết giao",
     "event.friendRequest.message": "Kính mời Quý thành viên khai mở ứng dụng Bạn Bè để phúc đáp.",
     "event.friendAccepted.title": "{{friend}} đã nhận lời kết giao",
-    "event.friendAccepted.message": "Kể từ nay hai vị có thể tương giao và tường lãm hồ sơ của nhau.",
-    "event.joyLaterStage.grace.title": "Khoản JOYlater đã đáo hạn",
-    "event.joyLaterStage.grace.message": "Khoản dư nợ {{amount, joy}} đã quá hạn {{days}} ngày. Kính mong Quý thành viên hoàn tất trong tuần này để tài khoản bảo toàn mọi quyền lợi.",
-    "event.joyLaterStage.restricted.title": "Tài khoản bị hạn chế quyền",
-    "event.joyLaterStage.restricted.message": "Do khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, quyền chuyển JOY và khai mở khoản mới tạm đình chỉ cho tới khi dư nợ được hoàn tất.",
-    "event.joyLaterStage.frozen.title": "Quyền chi dụng đã bị đình chỉ",
-    "event.joyLaterStage.frozen.message": "Khoản JOYlater {{amount, joy}} đã quá hạn {{days}} ngày. Kể từ nay, JOY thụ lĩnh được dành trọn cho việc hoàn trả dư nợ.",
-    "event.joyLaterStage.locked.title": "Tài khoản bị phong toả có kỳ hạn",
-    "event.joyLaterStage.locked.message": "Khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày. Tài khoản bị phong toả ba mươi ngày theo chính sách. Quý thành viên có quyền đệ đơn kháng nghị để được tái thẩm định.",
-    "event.joyLaterStage.review.title": "Hồ sơ đã được trình lên thẩm định",
-    "event.joyLaterStage.review.message": "Khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày đã được lập hồ sơ trình Quản trị. Kính mong Quý thành viên hoàn tất dư nợ trước khi hồ sơ được phê chuẩn, để tránh chế tài vĩnh viễn.",
-    "event.joyCreditLimit.title": "Hạn mức JOYlater đã được thẩm định",
-    "event.joyCreditLimit.message": "Hạn mức của Quý thành viên hiện là {{limit, joy}}, ứng với {{score}} điểm hồ sơ. Hạn mức được tái thẩm định vào 17:00 thứ Bảy hằng tuần.",
+    "event.friendAccepted.message": "Kể từ nay hai vị được tương giao và tường lãm hồ sơ của nhau.",
+    "event.joyLaterStage.grace.title": "Thông tri khoản JOYlater đã đáo hạn",
+    "event.joyLaterStage.grace.message": "Nay xét khoản dư nợ {{amount, joy}} đã quá hạn {{days}} ngày. Kính mong Quý thành viên hoàn tất trong tuần này, hầu bảo toàn trọn vẹn quyền lợi của tài khoản.",
+    "event.joyLaterStage.restricted.title": "Chiếu hạn chế quyền tài khoản",
+    "event.joyLaterStage.restricted.message": "Chiếu theo khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, quyền chuyển JOY và khai mở khoản mới nay tạm đình chỉ, cho tới khi dư nợ được hoàn tất.",
+    "event.joyLaterStage.frozen.title": "Chiếu đình chỉ quyền chi dụng",
+    "event.joyLaterStage.frozen.message": "Nay xét khoản JOYlater {{amount, joy}} đã quá hạn {{days}} ngày. Kể từ nay, JOY thụ lĩnh được dành trọn cho việc hoàn trả dư nợ.",
+    "event.joyLaterStage.locked.title": "Chiếu phong toả tài khoản có kỳ hạn",
+    "event.joyLaterStage.locked.message": "Chiếu theo khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, tài khoản nay bị phong toả ba mươi ngày theo chính sách. Quý thành viên được quyền đệ đơn kháng nghị để xin tái thẩm định.",
+    "event.joyLaterStage.review.title": "Hồ sơ đã trình lên thẩm định",
+    "event.joyLaterStage.review.message": "Nay xét khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, hồ sơ đã được lập và trình lên Quản trị. Kính mong Quý thành viên hoàn tất dư nợ trước khi hồ sơ được phê chuẩn, hầu tránh chế tài vĩnh viễn.",
+    "event.joyCreditLimit.title": "Chiếu phê chuẩn hạn mức JOYlater",
+    "event.joyCreditLimit.message": "Nay xét hồ sơ đạt {{score}} điểm, hạn mức của Quý thành viên được định là {{limit, joy}}. Hạn mức sẽ được tái thẩm định vào 17:00 thứ Bảy hằng tuần.",
     "event.joyCreditDenied.title": "Hạn mức JOYlater chưa được phê chuẩn",
-    "event.joyCreditDenied.message": "Hồ sơ hiện đạt {{score}} điểm, chưa tới ngưỡng cấp hạn mức. Hệ thống sẽ tự tái thẩm định vào 17:00 thứ Bảy; Quý thành viên không cần đệ trình lại.",
+    "event.joyCreditDenied.message": "Nay xét hồ sơ đạt {{score}} điểm, chưa tới ngưỡng cấp hạn mức. Hệ thống sẽ tự tái thẩm định vào 17:00 thứ Bảy; Quý thành viên không phải đệ trình lại.",
   },
 
   en: {

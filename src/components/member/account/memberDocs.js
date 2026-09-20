@@ -28,14 +28,14 @@ export const MEMBER_DOCS = {
             type: "note",
             tone: "info",
             title: "Cam kết bảo tồn tài nguyên",
-            text: "Mọi sản phẩm, dịch vụ và tính năng trong hệ sinh thái đều được tối ưu hóa theo tiêu chuẩn Carbon-neutral, giảm thiểu tải điện toán máy chủ và bảo vệ tuổi thọ thiết bị người dùng.",
+            text: "Mọi sản phẩm, dịch vụ và tính năng trong hệ sinh thái đều được tối ưu hóa theo tiêu chuẩn Carbon-neutral, giảm thiểu tải điện toán máy chủ và bảo vệ tuổi thọ thiết bị Thành Viên.",
           },
           {
             type: "steps",
             items: [
               "Hệ sinh thái tự chủ, không lệ thuộc vào các nền tảng mạng xã hội độc quyền.",
-              "Dữ liệu của bạn thuộc về bạn. Bạn có quyền xuất bản, lưu trữ và xóa bỏ vĩnh viễn bất kỳ lúc nào.",
-              "Không bán dữ liệu hành vi người dùng cho bên thứ ba dưới bất kỳ hình thức quảng cáo nào.",
+              "Dữ liệu của Quý thành viên thuộc về Quý thành viên. Quý thành viên có quyền xuất bản, lưu trữ và xóa bỏ vĩnh viễn bất kỳ lúc nào.",
+              "Không bán dữ liệu hành vi Thành Viên cho bên thứ ba dưới bất kỳ hình thức quảng cáo nào.",
               "Môi trường giao lưu lành mạnh, văn minh, thúc đẩy sáng tạo nghệ thuật và tri thức số.",
             ],
           },
@@ -88,8 +88,8 @@ export const MEMBER_DOCS = {
 
   "database-policy": {
     id: "database-policy",
-    title: "Quy ước cơ sở dữ liệu người dùng & Chính sách thành viên",
-    subtitle: "Cơ chế bảo mật Zero-Trust, quy chế ví JOY/JOYlater và lộ trình phân hạng đặc quyền",
+    title: "Quy ước cơ sở dữ liệu Thành Viên & Chính sách thành viên",
+    subtitle: "Cơ chế bảo mật Zero-Trust, quy chế ngân khố JOY/JOYlater và lộ trình phân hạng đặc quyền",
     version: "2026.4",
     lastUpdated: "Tháng 09, 2026",
     badge: "Quy ước hệ thống",
@@ -100,7 +100,7 @@ export const MEMBER_DOCS = {
         blocks: [
           {
             type: "p",
-            text: "Cơ sở dữ liệu người dùng của Hugo Studio được thiết kế theo nguyên tắc Zero-Knowledge và Zero-Trust. Dữ liệu nhạy cảm được mã hóa cấp trường (Field-Level Encryption) với chuẩn AES-256-GCM trước khi ghi vào đĩa vật lý.",
+            text: "Cơ sở dữ liệu Thành Viên của Hugo Studio được thiết kế theo nguyên tắc Zero-Knowledge và Zero-Trust. Dữ liệu nhạy cảm được mã hóa cấp trường (Field-Level Encryption) với chuẩn AES-256-GCM trước khi ghi vào đĩa vật lý.",
           },
           {
             type: "table",
@@ -108,7 +108,7 @@ export const MEMBER_DOCS = {
             rows: [
               ["Mật khẩu / Khóa PIN", "Bcrypt salt 12 rounds / Argon2id, không lưu mật khẩu thô", "Vĩnh viễn cho tới khi thành viên đổi mã mới"],
               ["Khóa Passkey (FIDO2)", "Public Key lưu tại server, Private Key nằm trong thiết bị", "Vĩnh viễn hoặc khi hủy liên kết thiết bị"],
-              ["Lịch sử giao dịch ví JOY", "Sổ cái bất biến (Append-Only Ledger) có chữ ký số", "Lưu trữ vĩnh viễn phục vụ đối soát minh bạch"],
+              ["Lịch sử giao dịch ngân khố JOY", "Sổ cái bất biến (Append-Only Ledger) có chữ ký số", "Lưu trữ vĩnh viễn phục vụ đối soát minh bạch"],
               ["Nhật ký đăng nhập thiết bị", "IP ẩn danh (hash SHA-256), User-Agent rút gọn", "Tự động thanh lọc sau 90 ngày"],
             ],
           },
@@ -116,13 +116,13 @@ export const MEMBER_DOCS = {
             type: "note",
             tone: "warning",
             title: "Quyền xóa dữ liệu (Right to be Forgotten)",
-            text: "Khi bạn chọn 'Xóa tài khoản vĩnh viễn' trong Cài đặt bảo mật, toàn bộ hồ sơ cá nhân, bio, liên kết và avatar sẽ bị xóa sạch khỏi máy chủ ngay lập tức. Sổ cái giao dịch tài chính chỉ giữ lại hash ẩn danh để bảo toàn số dư đối ứng.",
+            text: "Khi Quý thành viên chọn 'Xóa tài khoản vĩnh viễn' trong Cài đặt bảo mật, toàn bộ hồ sơ cá nhân, bio, liên kết và avatar sẽ bị xóa sạch khỏi máy chủ ngay lập tức. Sổ cái giao dịch tài chính chỉ giữ lại hash ẩn danh để bảo toàn số dư đối ứng.",
           },
         ],
       },
       {
         id: "quy-che-joy",
-        title: "Quy chế ví điểm thưởng JOY & JOYlater",
+        title: "Quy chế ngân khố điểm thưởng JOY & JOYlater",
         blocks: [
           {
             type: "p",
@@ -134,7 +134,7 @@ export const MEMBER_DOCS = {
             rows: [
               ["Điểm danh hằng ngày", "+5 đến +20 JOY / ngày", "Cộng tự động vào 00:00 (GMT+7)"],
               ["Giới thiệu bạn bè mới", "+100 JOY / người", "Áp dụng khi người mới kích hoạt hồ sơ"],
-              ["Chuyển JOY cho bạn bè", "500 JOY/ngày (Star-14) · 1.000 JOY/ngày (các hạng khác) · 8.000 JOY/tháng", "Yêu cầu xác thực mã PIN bảo vệ ví"],
+              ["Chuyển JOY cho bạn bè", "500 JOY/ngày (Star-14) · 1.000 JOY/ngày (các hạng khác) · 8.000 JOY/tháng", "Yêu cầu xác thực mã PIN bảo vệ ngân khố"],
               ["Phí chuyển JOY", "0% (Star-VIP) · 5% (các hạng khác)", "Phí giữ hệ thống vận hành, không phải khoản thu lợi nhuận"],
               ["JOYlater (Vay JOY)", "Hạn mức xét theo hồ sơ, nhân hệ số của hạng thẻ", "Xét lại tự động 17:00 thứ Bảy hằng tuần"],
               ["Lãi JOYlater", "Lãi trong hạn thả theo tuần · quá hạn ×1,5 · chậm trả lãi 10%/năm", "Theo giới hạn Bộ luật Dân sự 2015 điều 466"],
@@ -147,7 +147,7 @@ export const MEMBER_DOCS = {
               "Hạn mức được xét theo hồ sơ thành viên (JOY thu vào trừ JOY tiêu ra, số dư, mức độ sử dụng hệ thống và lịch sử hoàn trả), sau đó nhân hệ số của hạng thẻ. Hạng Star-14 không được cấp hạn mức.",
               "Khoản vay chịu lãi tính theo ngày trên dư nợ gốc còn lại. Lãi trong hạn được chốt tại thời điểm ký và không thay đổi suốt kỳ vay. Trả trước hạn luôn giảm lãi và không mất phí.",
               "Chậm hoàn trả phát sinh lãi quá hạn (tối đa 150% lãi trong hạn) và lãi chậm trả lãi (tối đa 10%/năm), theo đúng giới hạn của Bộ luật Dân sự 2015 điều 466.",
-              "Quá hạn kéo dài dẫn tới các biện pháp tăng dần, mỗi mức đều được thông báo trước: quá 7 ngày tạm ngưng quyền chuyển JOY và mở khoản mới; quá 21 ngày đóng băng chi tiêu; quá 45 ngày khoá tài khoản 30 ngày; quá 90 ngày lập hồ sơ trình quản trị xem xét biện pháp vĩnh viễn.",
+              "Quá hạn kéo dài dẫn tới các biện pháp tăng dần, mỗi mức đều được thông báo trước: quá 7 ngày tạm ngưng quyền chuyển JOY và mở khoản mới; quá 21 ngày đình chỉ chi tiêu; quá 45 ngày phong toả tài khoản 30 ngày; quá 90 ngày lập hồ sơ trình quản trị thẩm định biện pháp vĩnh viễn.",
               "Hugo Studio không bao giờ đòi nợ bằng bất kỳ hình thức nào ngoài hệ thống, không chuyển giao dữ liệu thành viên cho bên thứ ba để thu hồi, và không quy đổi khoản vay thành nghĩa vụ tiền mặt.",
             ],
           },
@@ -165,7 +165,7 @@ export const MEMBER_DOCS = {
             type: "table",
             head: ["Hạng thành viên", "Điều kiện tích lũy", "Đặc quyền cốt lõi"],
             rows: [
-              ["Member", "Mặc định khi đăng ký", "Sở hữu trang Hugo Bio cơ bản, ví JOY cá nhân"],
+              ["Member", "Mặc định khi đăng ký", "Sở hữu trang Hugo Bio cơ bản, ngân khố JOY cá nhân"],
               ["Silver", "Giới thiệu từ 3 bạn bè", "Mở khóa thêm giao diện Dark Aura, tặng 500 JOY"],
               ["Gold", "Giới thiệu từ 10 bạn bè", "Tặng Voucher 1,300 JOY, ưu tiên xử lý ticket 24/7"],
               ["Diamond", "Giới thiệu từ 25 bạn bè", "Tặng Voucher 3,500 JOY, mở khóa toàn bộ kho hiệu ứng Bio"],

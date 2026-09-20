@@ -10,9 +10,9 @@ export const UPDATED_AT_VI = "17/09/2026";
 export const META_VI = {
   title: "Điều khoản và hướng dẫn sử dụng | Báo cáo Nghiên cứu Kiến trúc Hệ thống Hugo Studio",
   description:
-    "Báo cáo kiến trúc hệ thống chuẩn Harvard và Cẩm nang hướng dẫn sử dụng chuẩn Apple Whitepaper cho hệ sinh thái Hugo Studio. Tích hợp phân tích phản biện chịu tải 1.000.000 người dùng, khả năng phục hồi mạng và phụ lục tài liệu tham khảo.",
+    "Báo cáo kiến trúc hệ thống chuẩn Harvard và Cẩm nang hướng dẫn sử dụng chuẩn Apple Whitepaper cho hệ sinh thái Hugo Studio. Tích hợp phân tích phản biện chịu tải 1.000.000 Thành Viên, khả năng phục hồi mạng và phụ lục tài liệu tham khảo.",
   keywords:
-    "Hugo Studio, Điều khoản sử dụng, Hướng dẫn sử dụng, Báo cáo đồ án, Phản biện kiến trúc, 1.000.000 CCU, Database Diagram, ERD, PWA, Passkey, Ví JOY, WebAuthn, PayOS, Harvard Referencing",
+    "Hugo Studio, Điều khoản sử dụng, Hướng dẫn sử dụng, Báo cáo đồ án, Phản biện kiến trúc, 1.000.000 CCU, Database Diagram, ERD, PWA, Passkey, Ngân Khố JOY, WebAuthn, PayOS, Harvard Referencing",
   eyebrow: "Báo cáo Nghiên cứu Kiến trúc & Cẩm nang Kỹ thuật",
   version: "v2.5.0 (Harvard & Apple Standard)",
   pageTitle: "Điều khoản và hướng dẫn sử dụng",
@@ -25,7 +25,7 @@ export const META_VI = {
 export const PILLARS_VI = [
   { id: "all", label: "Tất cả chuyên mục", icon: "dashboard", count: 9 },
   { id: "overview", label: "1. Tổng quan & Tuyên ngôn", icon: "verified_user", count: 1 },
-  { id: "features", label: "2. Tính năng & Ví JOY", icon: "apps", count: 1 },
+  { id: "features", label: "2. Tính năng & Ngân Khố JOY", icon: "apps", count: 1 },
   { id: "database", label: "3. Sơ đồ Database (ERD)", icon: "database", count: 1 },
   { id: "client-tech", label: "4. Kỹ thuật Ứng dụng PWA", icon: "devices", count: 1 },
   { id: "security", label: "5. Bảo mật & Mật mã học", icon: "lock", count: 1 },
@@ -62,7 +62,7 @@ export const SECTIONS_VI = [
           head: ["Trục phân tích", "Đặc tính & Cam kết tại Hugo Studio", "Mục tiêu & Giá trị mang lại"],
           rows: [
             [
-              "Đối tượng người dùng cá nhân (HSSV)",
+              "Đối tượng Thành Viên cá nhân (HSSV)",
               "Cung cấp không gian làm việc số cá nhân hóa, trang Bio nghệ thuật, công cụ chăm sóc sức khỏe tinh thần và giải trí phản xạ nhẹ nhàng.",
               "Không bị quảng cáo theo dõi, bảo vệ quyền riêng tư, rèn luyện sự tập trung và duy trì nhịp sinh học lành mạnh.",
             ],
@@ -79,15 +79,15 @@ export const SECTIONS_VI = [
             [
               "Triết lý thiết kế (Design Philosophy)",
               "Sự kết hợp giữa tính nhân văn, tối giản của Apple Human Interface Guidelines và chiều sâu học thuật của Harvard Technical Paper.",
-              "Giao diện đơn sắc xanh kỹ thuật (Monochromatic Blue), tôn trọng thị giác người dùng, hỗ trợ chuyển đổi Light/Dark hoàn hảo.",
+              "Giao diện đơn sắc xanh kỹ thuật (Monochromatic Blue), tôn trọng thị giác Thành Viên, hỗ trợ chuyển đổi Light/Dark hoàn hảo.",
             ],
           ],
         },
         {
           type: "note",
           tone: "tip",
-          title: "Quyền sở hữu trí tuệ 100% thuộc về bạn",
-          text: "Toàn bộ bài viết, đoạn mã lập trình, ghi chú cá nhân, thiết kế giao diện Hugo Bio và tài sản số do bạn tạo ra trên nền tảng hoàn toàn thuộc về bạn. Hugo Studio không bao giờ đòi hỏi quyền sở hữu hay chuyển nhượng bản quyền đối với các tác phẩm của bạn.",
+          title: "Quyền sở hữu trí tuệ 100% thuộc về Quý thành viên",
+          text: "Toàn bộ bài viết, đoạn mã lập trình, ghi chú cá nhân, thiết kế giao diện Hugo Bio và tài sản số do Quý thành viên tạo ra trên nền tảng hoàn toàn thuộc về Quý thành viên. Hugo Studio không bao giờ đòi hỏi quyền sở hữu hay chuyển nhượng bản quyền đối với các tác phẩm của Quý thành viên.",
         },
       ],
     },
@@ -101,17 +101,17 @@ export const SECTIONS_VI = [
       pillar: "features",
       pillarTitle: "Chuyên mục II: Cẩm nang Tính năng Sản phẩm & Điểm thưởng JOY",
       pillarIcon: "apps",
-      pillarDesc: "Mô tả chi tiết các sản phẩm hoàn thiện trong hệ sinh thái (lược bỏ các mô-đun học thuật đang thử nghiệm) và giải mã ý nghĩa của Ví JOY.",
+      pillarDesc: "Mô tả chi tiết các sản phẩm hoàn thiện trong hệ sinh thái (lược bỏ các mô-đun học thuật đang thử nghiệm) và giải mã ý nghĩa của Ngân Khố JOY.",
       blocks: [
         {
           type: "p",
-          text: "Hệ sinh thái Hugo Studio tập trung vào các ứng dụng phục vụ trực tiếp đời sống số, năng suất làm việc và sức khỏe tinh thần của người dùng. Các phân hệ học thuật thử nghiệm chưa hoàn thiện được tạm thời loại khỏi bản báo cáo này để đảm bảo độ tin cậy tuyệt đối.",
+          text: "Hệ sinh thái Hugo Studio tập trung vào các ứng dụng phục vụ trực tiếp đời sống số, năng suất làm việc và sức khỏe tinh thần của Thành Viên. Các phân hệ học thuật thử nghiệm chưa hoàn thiện được tạm thời loại khỏi bản báo cáo này để đảm bảo độ tin cậy tuyệt đối.",
         },
         {
           type: "note",
           tone: "info",
           title: "Ý nghĩa cốt lõi: JOY là gì? Điểm thưởng JOY có ý nghĩa gì?",
-          text: "• JOY là từ viết tắt của 'Journey of Youth' (Hành trình Tuổi trẻ), đồng thời là biểu trưng của niềm vui cống hiến, học tập và rèn luyện bản thân.\n• Bản chất: JOY là hệ thống điểm thưởng nội bộ phi tiền tệ (Non-monetary Reputation Point). Điểm JOY được tạo ra nhằm tri ân nỗ lực cá nhân khi bạn hoàn thành chuỗi Pomodoro tập trung, bài tập thở thư giãn, ván cờ logic hoặc duy trì điểm danh chuỗi ngày (Streak).\n• Cam kết danh dự: Điểm JOY TUYỆT ĐỐI KHÔNG PHẢI TIỀN TỆ, không phải tiền mã hóa (crypto), không phải công cụ đầu cơ tài chính và không thể quy đổi hay rút về tiền mặt dưới mọi hình thức.",
+          text: "• JOY là từ viết tắt của 'Journey of Youth' (Hành trình Tuổi trẻ), đồng thời là biểu trưng của niềm vui cống hiến, học tập và rèn luyện bản thân.\n• Bản chất: JOY là hệ thống điểm thưởng nội bộ phi tiền tệ (Non-monetary Reputation Point). Điểm JOY được tạo ra nhằm tri ân nỗ lực cá nhân khi Quý thành viên hoàn thành chuỗi Pomodoro tập trung, bài tập thở thư giãn, ván cờ logic hoặc duy trì điểm danh chuỗi ngày (Streak).\n• Cam kết danh dự: Điểm JOY TUYỆT ĐỐI KHÔNG PHẢI TIỀN TỆ, không phải tiền mã hóa (crypto), không phải công cụ đầu cơ tài chính và không thể quy đổi hay rút về tiền mặt dưới mọi hình thức.",
         },
         {
           type: "table",
@@ -123,7 +123,7 @@ export const SECTIONS_VI = [
               "WebGL Canvas, hiệu ứng tương tác hào quang Aura theo trỏ chuột, lớp thời tiết động (Weather Engine) và SSR Meta Tag tối ưu SEO.",
             ],
             [
-              "Ví JOY & Mã Hạt Phân Tử",
+              "Ngân Khố JOY & Mã Hạt Phân Tử",
               "Sổ cái quản lý điểm thưởng tích lũy, cơ chế chuyển giao điểm P2P giữa hai thành viên thông qua mã QR hạt phân tử động và xác thực mã PIN 6 số.",
               "Dynamic Canvas Rendering, Nonce biến thiên 60 giây tự hủy (Anti-replay), SHA-256 Client Salted Hash và Append-Only Ledger Database (Kleppmann, 2017).",
             ],
@@ -170,7 +170,7 @@ export const SECTIONS_VI = [
               badge: "Khám phá",
             },
             {
-              title: "Ví JOY & Hạt QR",
+              title: "Ngân Khố JOY & Hạt QR",
               desc: "Quản lý điểm thưởng học tập, mã QR hạt phân tử chuyển đổi an toàn và bảo mật mã PIN 6 số.",
               icon: "wallet",
               href: "/member",
@@ -283,7 +283,7 @@ export const SECTIONS_VI = [
             [
               "UserProfile ↔ BioTheme",
               "1 : N (Tùy chọn)",
-              "Lưu trữ cấu hình giao diện, bảng màu và các thành phần hiển thị Bio cá nhân do người dùng thiết lập; tự do thay đổi bất cứ lúc nào.",
+              "Lưu trữ cấu hình giao diện, bảng màu và các thành phần hiển thị Bio cá nhân do Thành Viên thiết lập; tự do thay đổi bất cứ lúc nào.",
             ],
             [
               "Admin ↔ AdminAuditLog",
@@ -306,15 +306,15 @@ export const SECTIONS_VI = [
     // ==========================================
     {
       id: "ky-thuat-ung-dung-pwa",
-      title: "Phương pháp Giao tiếp Người dùng & Kỹ thuật Ứng dụng PWA",
+      title: "Phương pháp Giao tiếp Thành Viên & Kỹ thuật Ứng dụng PWA",
       pillar: "client-tech",
-      pillarTitle: "Chuyên mục IV: Kỹ thuật Ứng dụng & Trải nghiệm Người dùng",
+      pillarTitle: "Chuyên mục IV: Kỹ thuật Ứng dụng & Trải nghiệm Thành Viên",
       pillarIcon: "devices",
       pillarDesc: "Phân tích kỹ thuật Progressive Web App (PWA), Service Worker Cache-First, so sánh với Native/Hybrid và định hướng công nghệ tương lai.",
       blocks: [
         {
           type: "p",
-          text: "Phương thức giao tiếp giữa người dùng và hệ thống được xây dựng trên nền tảng Progressive Web App (PWA) kết hợp kiến trúc thích ứng (Adaptive Architecture). Thay vì buộc người dùng phải tải về các tệp tin cài đặt cồng kềnh từ các chợ ứng dụng đóng, Hugo Studio mang lại trải nghiệm toàn màn hình mượt mà như ứng dụng gốc trực tiếp qua trình duyệt web (Russell, 2015).",
+          text: "Phương thức giao tiếp giữa Thành Viên và hệ thống được xây dựng trên nền tảng Progressive Web App (PWA) kết hợp kiến trúc thích ứng (Adaptive Architecture). Thay vì buộc Thành Viên phải tải về các tệp tin cài đặt cồng kềnh từ các chợ ứng dụng đóng, Hugo Studio mang lại trải nghiệm toàn màn hình mượt mà như ứng dụng gốc trực tiếp qua trình duyệt web (Russell, 2015).",
         },
         {
           type: "table",
@@ -328,7 +328,7 @@ export const SECTIONS_VI = [
               "Siêu nhẹ (~2.8MB lưu vào Cache)",
             ],
             [
-              "Rào cản tiếp cận người dùng",
+              "Rào cản tiếp cận Thành Viên",
               "Cao (Phải tìm và tải trên Store)",
               "Cao (Cần duyệt tải từ Store)",
               "Thấp (Truy cập bằng URL)",
@@ -367,7 +367,7 @@ export const SECTIONS_VI = [
         {
           type: "note",
           tone: "tip",
-          title: "Lý do lựa chọn Progressive Web App (PWA) cho Hugo Studio",
+          title: "Duyên do lựa chọn Progressive Web App (PWA) cho Hugo Studio",
           text: "1. Tính dân chủ & Mở: Ai cũng có thể trải nghiệm ngay lập tức trên mọi thiết bị (iPhone, iPad, Android, Mac, Windows, Linux) chỉ với một đường dẫn.\n2. Tối ưu hiệu năng: Tải trang ban đầu < 0.5s nhờ kỹ thuật nén Brotli và chiến lược Stale-While-Revalidate.\n3. Bảo vệ tự do tác quyền: Tránh được sự kiểm duyệt khắt khe và các khoản phí hoa hồng vô lý của các tập đoàn công nghệ độc quyền.",
         },
         {
@@ -384,7 +384,7 @@ export const SECTIONS_VI = [
           type: "note",
           tone: "info",
           title: "Ưu / Nhược điểm, Thách thức Tương lai & Định hướng Phát triển",
-          text: "• Ưu điểm: Hiệu năng vượt trội, tiết kiệm bộ nhớ máy, cập nhật mã nguồn tức thời, tương thích 100% mọi kích cỡ màn hình.\n• Nhược điểm & Thách thức: Trình duyệt Safari trên iOS từng có độ trễ trong việc cấp quyền Web Push Notification (đã được Apple khắc phục từ iOS 16.4+). Một số cảm biến phần cứng chuyên biệt chưa có chuẩn Web API thống nhất.\n• Định hướng tương lai: Tích hợp WebAssembly (Wasm) để xử lý âm thanh thời gian thực và áp dụng WebGPU / Local WebLLM để chạy các mô hình AI phân tích sức khỏe tinh thần hoàn toàn ngoại tuyến trong thiết bị của bạn mà không gửi dữ liệu ra ngoài.",
+          text: "• Ưu điểm: Hiệu năng vượt trội, tiết kiệm bộ nhớ máy, cập nhật mã nguồn tức thời, tương thích 100% mọi kích cỡ màn hình.\n• Nhược điểm & Thách thức: Trình duyệt Safari trên iOS từng có độ trễ trong việc cấp quyền Web Push Notification (đã được Apple khắc phục từ iOS 16.4+). Một số cảm biến phần cứng chuyên biệt chưa có chuẩn Web API thống nhất.\n• Định hướng tương lai: Tích hợp WebAssembly (Wasm) để xử lý âm thanh thời gian thực và áp dụng WebGPU / Local WebLLM để chạy các mô hình AI phân tích sức khỏe tinh thần hoàn toàn ngoại tuyến trong thiết bị của Quý thành viên mà không gửi dữ liệu ra ngoài.",
         },
       ],
     },
@@ -430,8 +430,8 @@ export const SECTIONS_VI = [
             ],
             [
               "WHO (Tác nhân tham gia?)",
-              "Tam giác ủy quyền tin cậy (FIDO Trust Architecture): 1. Authenticator (Bộ xác thực phần cứng của người dùng). 2. User Agent (Trình duyệt hỗ trợ WebAuthn API). 3. Relying Party (Máy chủ dịch vụ Hugo Studio chịu trách nhiệm đối soát chữ ký số).",
-              "Người dùng chỉ tương tác với chip sinh trắc học thiết bị; máy chủ Hugo Studio đóng vai trò Relying Party xác minh chữ ký mà không bao giờ can thiệp vào cảm biến vân tay.",
+              "Tam giác ủy quyền tin cậy (FIDO Trust Architecture): 1. Authenticator (Bộ xác thực phần cứng của Thành Viên). 2. User Agent (Trình duyệt hỗ trợ WebAuthn API). 3. Relying Party (Máy chủ dịch vụ Hugo Studio chịu trách nhiệm đối soát chữ ký số).",
+              "Thành Viên chỉ tương tác với chip sinh trắc học thiết bị; máy chủ Hugo Studio đóng vai trò Relying Party xác minh chữ ký mà không bao giờ can thiệp vào cảm biến vân tay.",
             ],
             [
               "WHERE (Không gian thực thi?)",
@@ -440,8 +440,8 @@ export const SECTIONS_VI = [
             ],
             [
               "WHEN (Điều kiện kích hoạt?)",
-              "Vòng đời 3 giai đoạn: 1. Registration Ceremony (Đăng ký tạo khóa khi tạo tài khoản hoặc thêm thiết bị). 2. Authentication Ceremony (Xác thực đăng nhập hoặc ký duyệt chuyển điểm JOY). 3. Revocation (Hủy khóa khi người dùng thu hồi thiết bị hoặc phát hiện signCount bị đảo ngược).",
-              "Kích hoạt tức thì khi người dùng chạm vân tay Touch ID / Face ID; kiểm tra số đếm (signCount) tăng đơn điệu để phát hiện và ngăn chặn thiết bị bị sao chép (Cloned Authenticator).",
+              "Vòng đời 3 giai đoạn: 1. Registration Ceremony (Đăng ký tạo khóa khi tạo tài khoản hoặc thêm thiết bị). 2. Authentication Ceremony (Xác thực đăng nhập hoặc ký duyệt chuyển điểm JOY). 3. Revocation (Hủy khóa khi Thành Viên thu hồi thiết bị hoặc phát hiện signCount bị đảo ngược).",
+              "Kích hoạt tức thì khi Thành Viên chạm vân tay Touch ID / Face ID; kiểm tra số đếm (signCount) tăng đơn điệu để phát hiện và ngăn chặn thiết bị bị sao chép (Cloned Authenticator).",
             ],
             [
               "HOW (Cơ chế hoạt động?)",
@@ -491,7 +491,7 @@ export function verifyPasskeyAssertion({
         },
         {
           type: "table",
-          head: ["Cơ chế xác thực", "Chi phí tính toán CPU Server", "Thời gian phản hồi Người dùng", "Kháng tấn công vét cạn phần cứng GPU", "Mức độ an toàn học thuật"],
+          head: ["Cơ chế xác thực", "Chi phí tính toán CPU Server", "Thời gian phản hồi Thành Viên", "Kháng tấn công vét cạn phần cứng GPU", "Mức độ an toàn học thuật"],
           rows: [
             [
               "Mật khẩu + bcrypt (cost 12)",
@@ -505,7 +505,7 @@ export function verifyPasskeyAssertion({
               "80ms - 160ms CPU máy chủ",
               "~3.0s (Cần gõ mật khẩu)",
               "Khá cao, chống GPU tốt",
-              "Chỉ an toàn nếu mật khẩu người dùng đủ dài",
+              "Chỉ an toàn nếu mật khẩu Thành Viên đủ dài",
             ],
             [
               "Mã xác thực OTP qua SMS",
@@ -547,7 +547,7 @@ export function verifyPasskeyAssertion({
     // ==========================================
     {
       id: "phan-bien-va-chiu-tai",
-      title: "Phản biện Kiến trúc: Thử nghiệm Chịu tải 1.000.000 Người dùng & Khả năng Phục hồi",
+      title: "Phản biện Kiến trúc: Thử nghiệm Chịu tải 1.000.000 Thành Viên & Khả năng Phục hồi",
       pillar: "stress-defense",
       pillarTitle: "Chuyên mục VI: Phản biện Kiến trúc & Chịu tải Cực hạn",
       pillarIcon: "psychology_alt",
@@ -565,7 +565,7 @@ export function verifyPasskeyAssertion({
           type: "subheading",
           badge: "PHÂN TÍCH CHUYÊN SÂU",
           title: "Luận giải Kỹ thuật: Khả năng Chịu tải 1.000.000 CCU & Phục hồi Cực hạn",
-          desc: "Hệ thống hóa toàn diện bài toán mở rộng quy mô triệu người dùng theo chuẩn kỹ thuật phần mềm và hệ phân tán.",
+          desc: "Hệ thống hóa toàn diện bài toán mở rộng quy mô triệu Thành Viên theo chuẩn kỹ thuật phần mềm và hệ phân tán.",
         },
         {
           type: "table",
@@ -589,7 +589,7 @@ export function verifyPasskeyAssertion({
             [
               "WHERE (Không gian thực thi?)",
               "Phân tầng tài nguyên từ phần cứng tới mạng biên: 1. Hạt nhân Linux OS (/etc/sysctl.conf). 2. Trạm biên Edge tại 100+ quốc gia. 3. Cụm Kubernetes Cloud. 4. Bộ nhớ máy khách (Service Worker Cache & IndexedDB).",
-              "Cắt ngắt TLS 1.3 ngay tại trạm PoP gần người dùng nhất trong bán kính < 15km; lưu trữ offline trực tiếp trên chip nhớ điện thoại của sinh viên.",
+              "Cắt ngắt TLS 1.3 ngay tại trạm PoP gần Thành Viên nhất trong bán kính < 15km; lưu trữ offline trực tiếp trên chip nhớ điện thoại của sinh viên.",
             ],
             [
               "WHEN (Điều kiện kích hoạt?)",
@@ -767,7 +767,7 @@ spec:
         {
           type: "subheading",
           badge: "PHẢN BIỆN 6.2",
-          title: "Bài toán Người dùng Toàn cầu & Giới hạn Vật lý Tốc độ Ánh sáng",
+          title: "Bài toán Thành Viên Toàn cầu & Giới hạn Vật lý Tốc độ Ánh sáng",
           desc: "Giải quyết bài toán Round-Trip Time (RTT), công nghệ Anycast Edge TLS 1.3 và đồng bộ dữ liệu phi xung đột CRDTs.",
         },
         {
@@ -786,7 +786,7 @@ spec:
             {
               icon: "sync_alt",
               label: "3. Đồng bộ Dữ liệu Phân tán Phi Xung đột (CRDTs - Conflict-Free Replicated Data Types)",
-              text: "Với các tính năng như điểm JOY, bộ đếm Pomodoro, và nhật ký cá nhân, hệ thống áp dụng cấu trúc dữ liệu CRDTs (mô hình PN-Counter và LWW-Element-Set) (Shapiro et al., 2011). Người dùng tại bất kỳ quốc gia nào có thể ghi dữ liệu cục bộ ngay lập tức và tự động hợp nhất hội tụ toán học (Mathematical Convergence) khi có kết nối mà không cần khóa tập trung (No Distributed Lock bottleneck).",
+              text: "Với các tính năng như điểm JOY, bộ đếm Pomodoro, và nhật ký cá nhân, hệ thống áp dụng cấu trúc dữ liệu CRDTs (mô hình PN-Counter và LWW-Element-Set) (Shapiro et al., 2011). Thành Viên tại bất kỳ quốc gia nào có thể ghi dữ liệu cục bộ ngay lập tức và tự động hợp nhất hội tụ toán học (Mathematical Convergence) khi có kết nối mà không cần khóa tập trung (No Distributed Lock bottleneck).",
             },
           ],
         },
@@ -797,7 +797,7 @@ spec:
         },
         {
           type: "table",
-          head: ["Khu vực Địa lý của Người dùng", "RTT Cáp quang Gốc (Không Edge)", "Độ trễ TLS 1.3 Edge Anycast", "Thời gian phản hồi TTFB Tối ưu"],
+          head: ["Khu vực Địa lý của Thành Viên", "RTT Cáp quang Gốc (Không Edge)", "Độ trễ TLS 1.3 Edge Anycast", "Thời gian phản hồi TTFB Tối ưu"],
           rows: [
             [
               "Việt Nam & Đông Nam Á (Singapore, Thái Lan)",
@@ -841,7 +841,7 @@ spec:
             {
               icon: "wifi_off",
               label: "1. Vận hành Ngoại tuyến Hoàn toàn phía Trình duyệt (Client-Side Offline Engine)",
-              text: "Nhờ kiến trúc Service Worker Cache-First Storage, toàn bộ khung ứng dụng (Shell Architecture) được đóng gói và lưu sẵn trên thiết bị người dùng. Kể cả khi mất Internet 100% hoặc máy chủ ngừng hoạt động, ứng dụng PWA vẫn mở tức thì trong < 0.2 giây (Russell, 2015). Mọi tương tác vẫn diễn ra trơn tru từ bộ nhớ đệm.",
+              text: "Nhờ kiến trúc Service Worker Cache-First Storage, toàn bộ khung ứng dụng (Shell Architecture) được đóng gói và lưu sẵn trên thiết bị Thành Viên. Kể cả khi mất Internet 100% hoặc máy chủ ngừng hoạt động, ứng dụng PWA vẫn mở tức thì trong < 0.2 giây (Russell, 2015). Mọi tương tác vẫn diễn ra trơn tru từ bộ nhớ đệm.",
             },
             {
               icon: "hourglass_bottom",
@@ -867,7 +867,7 @@ spec:
         },
         {
           type: "table",
-          head: ["Tình huống Sự cố Cực hạn", "Cơ chế Xử lý của Hugo Studio", "Trạng thái Trải nghiệm Thực tế của Người dùng"],
+          head: ["Tình huống Sự cố Cực hạn", "Cơ chế Xử lý của Hugo Studio", "Trạng thái Trải nghiệm Thực tế của Thành Viên"],
           rows: [
             [
               "Mất kết nối Internet hoàn toàn (Offline)",
@@ -887,7 +887,7 @@ spec:
             [
               "Cơ sở dữ liệu MongoDB bảo trì hoặc lỗi kết nối",
               "Hệ thống chuyển sang chế độ Read-Only Mode từ bộ đệm Redis và bản sao lưu Replica Set.",
-              "Người dùng vẫn xem được trang cá nhân Bio, tra cứu thông tin tài khoản và tài liệu hướng dẫn bình thường.",
+              "Thành Viên vẫn xem được trang cá nhân Bio, tra cứu thông tin tài khoản và tài liệu hướng dẫn bình thường.",
             ],
           ],
         },
@@ -941,19 +941,19 @@ spec:
     // ==========================================
     {
       id: "phan-quyen-va-quyen-nguoi-dung",
-      title: "Phân quyền Quản trị (Admin), Quyền Người dùng & Chính sách Cam kết",
+      title: "Phân quyền Quản trị (Admin), Quyền Thành Viên & Chính sách Cam kết",
       pillar: "rbac-rights",
       pillarTitle: "Chuyên mục VII: Phân quyền Quản trị & Tuyên ngôn Quyền riêng tư",
       pillarIcon: "admin_panel_settings",
-      pillarDesc: "Quy định minh bạch quyền hạn theo mô hình RBAC, giới hạn quyền của Admin và cam kết quyền tự chủ dữ liệu tối thượng của người dùng.",
+      pillarDesc: "Quy định minh bạch quyền hạn theo mô hình RBAC, giới hạn quyền của Admin và cam kết quyền tự chủ dữ liệu tối thượng của Thành Viên.",
       blocks: [
         {
           type: "p",
-          text: "Hệ thống quản lý quyền truy cập được xây dựng dựa trên nguyên tắc Quyền hạn tối thiểu (Principle of Least Privilege). Mọi cấp bậc người dùng đều có ranh giới rõ ràng nhằm ngăn ngừa tối đa nguy cơ lạm quyền hay rò rỉ thông tin cá nhân.",
+          text: "Hệ thống quản lý quyền truy cập được xây dựng dựa trên nguyên tắc Quyền hạn tối thiểu (Principle of Least Privilege). Mọi cấp bậc Thành Viên đều có ranh giới rõ ràng nhằm ngăn ngừa tối đa nguy cơ lạm quyền hay rò rỉ thông tin cá nhân.",
         },
         {
           type: "table",
-          head: ["Vai trò người dùng (Role)", "Phạm vi Quyền hạn được cấp", "Giới hạn nghiêm ngặt & Cơ chế giám sát"],
+          head: ["Vai trò Thành Viên (Role)", "Phạm vi Quyền hạn được cấp", "Giới hạn nghiêm ngặt & Cơ chế giám sát"],
           rows: [
             [
               "Khách vãng lai (Guest)",
@@ -968,24 +968,24 @@ spec:
             [
               "Quản trị viên hệ thống (Admin)",
               "Giám sát tình trạng vận hành của máy chủ, kiểm tra độ sẵn sàng hạ tầng, hỗ trợ xử lý kỹ thuật cho các đơn hàng dịch vụ web.",
-              "TUYỆT ĐỐI KHÔNG THỂ đọc tin nhắn bí mật, không thể thấy mã PIN ví JOY và không thể lấy Private Key của thành viên. Mọi thao tác đều bị ghi vết bất biến vào AdminAuditLog.",
+              "TUYỆT ĐỐI KHÔNG THỂ đọc tin nhắn bí mật, không thể thấy mã PIN ngân khố JOY và không thể lấy Private Key của thành viên. Mọi thao tác đều bị ghi vết bất biến vào AdminAuditLog.",
             ],
           ],
         },
         {
           type: "note",
           tone: "info",
-          title: "Tuyên ngôn Triết lý: Tại sao Người dùng luôn được Hưởng Miễn phí 100% Toàn bộ Tính năng?",
-          text: "Đối với tác giả Lê Gia Huy, mỗi người dùng không phải là 'khách hàng để kinh doanh dữ liệu', mà chính là một Tester siêu thực tế và là một người đồng sáng tạo vô giá.\n\nTrong phòng thí nghiệm hay các bài kiểm thử tự động (Unit Test / Synthetic Benchmark), mã nguồn có thể đạt 100% chỉ số xanh. Nhưng chỉ khi bước ra đời thực — khi một bạn sinh viên mở ứng dụng trên chiếc điện thoại cũ trong giảng đường chập chờn sóng mạng, khi một người đi làm bật bài tập thở HugoPSY lúc nửa đêm để xoa dịu âu lo, hay khi một bạn trẻ tự hào chia sẻ trang Hugo Bio đầu tiên của mình — đó mới là phép thử chân thực và khắc nghiệt nhất cho một kiến trúc phần mềm.\n\nTác giả cần biết người dùng thực sự cần gì, trải nghiệm thực tế ra sao, giao diện còn cấn ở đâu và hệ thống cần cải tiến điều gì. Những phản hồi trung thực, những lần phát hiện lỗi phần cứng hay những đóng góp ý tưởng từ bạn chính là nguồn tài nguyên quý báu nhất giúp Hugo Studio liên tục tôi luyện và hoàn thiện mỗi ngày.",
+          title: "Tuyên ngôn Triết lý: Tại sao Thành Viên luôn được Hưởng Miễn phí 100% Toàn bộ Tính năng?",
+          text: "Đối với tác giả Lê Gia Huy, mỗi Thành Viên không phải là 'khách hàng để kinh doanh dữ liệu', mà chính là một Tester siêu thực tế và là một người đồng sáng tạo vô giá.\n\nTrong phòng thí nghiệm hay các bài kiểm thử tự động (Unit Test / Synthetic Benchmark), mã nguồn có thể đạt 100% chỉ số xanh. Nhưng chỉ khi bước ra đời thực — khi một Quý thành viên sinh viên mở ứng dụng trên chiếc điện thoại cũ trong giảng đường chập chờn sóng mạng, khi một người đi làm bật bài tập thở HugoPSY lúc nửa đêm để xoa dịu âu lo, hay khi một Quý thành viên trẻ tự hào chia sẻ trang Hugo Bio đầu tiên của mình — đó mới là phép thử chân thực và khắc nghiệt nhất cho một kiến trúc phần mềm.\n\nTác giả cần biết Thành Viên thực sự cần gì, trải nghiệm thực tế ra sao, giao diện còn cấn ở đâu và hệ thống cần cải tiến điều gì. Những phản hồi trung thực, những lần phát hiện lỗi phần cứng hay những đóng góp ý tưởng từ Quý thành viên chính là nguồn tài nguyên quý báu nhất giúp Hugo Studio liên tục tôi luyện và hoàn thiện mỗi ngày.",
         },
         {
           type: "table",
           head: ["Khía cạnh triết lý", "Mô hình Nền tảng Thương mại Hóa (Big Tech)", "Mô hình Đồng sáng tạo tại Hugo Studio (Co-Creation)"],
           rows: [
             [
-              "Vị thế của người dùng",
-              "Người dùng là 'sản phẩm' bị khai thác dữ liệu hành vi để bán cho các mạng lưới quảng cáo.",
-              "Người dùng là 'Tester Siêu Thực Tế' và là Đồng Tác Giả giúp hoàn thiện hệ thống.",
+              "Vị thế của Thành Viên",
+              "Thành Viên là 'sản phẩm' bị khai thác dữ liệu hành vi để bán cho các mạng lưới quảng cáo.",
+              "Thành Viên là 'Tester Siêu Thực Tế' và là Đồng Tác Giả giúp hoàn thiện hệ thống.",
             ],
             [
               "Chính sách tính năng cốt lõi",
@@ -999,7 +999,7 @@ spec:
             ],
             [
               "Vòng lặp phản hồi (Feedback Loop)",
-              "Hộp thư tự động vô cảm, người dùng khó tiếp cận đội ngũ kỹ sư thực sự.",
+              "Hộp thư tự động vô cảm, Thành Viên khó tiếp cận đội ngũ kỹ sư thực sự.",
               "Kênh trao đổi trực tiếp với tác giả Lê Gia Huy; mọi góp ý đều được phân tích và vá lỗi tức thì.",
             ],
           ],
@@ -1008,7 +1008,7 @@ spec:
           type: "note",
           tone: "tip",
           title: "Mô hình Tài chính Tự chủ: Làm sao để Duy trì Hệ sinh thái Miễn phí?",
-          text: "Nhiều người dùng thường băn khoăn: 'Nếu miễn phí hoàn toàn thì lấy kinh phí đâu để duy trì máy chủ, cơ sở dữ liệu và hạ tầng CDN toàn cầu?'.\n\nCâu trả lời rất rõ ràng và minh bạch: Hugo Studio vận hành theo mô hình tài chính cộng sinh (Cross-subsidization Model). Toàn bộ chi phí máy chủ, băng thông và nghiên cứu công nghệ được tài trợ và bù đắp từ các Hợp đồng dịch vụ thiết kế web doanh nghiệp (B2B Web Development & Architecture Consulting) cho các khách hàng trả phí, kết hợp với các khoản ủng hộ tự nguyện (Donation) từ cộng đồng yêu mến dự án. Nhờ đó, sinh viên và người dùng cá nhân được đảm bảo quyền lợi sử dụng MIỄN PHÍ VĨNH VIỄN mà không bao giờ phải lo lắng về việc bị thu phí trong tương lai.",
+          text: "Nhiều Thành Viên thường băn khoăn: 'Nếu miễn phí hoàn toàn thì lấy kinh phí đâu để duy trì máy chủ, cơ sở dữ liệu và hạ tầng CDN toàn cầu?'.\n\nCâu trả lời rất rõ ràng và minh bạch: Hugo Studio vận hành theo mô hình tài chính cộng sinh (Cross-subsidization Model). Toàn bộ chi phí máy chủ, băng thông và nghiên cứu công nghệ được tài trợ và bù đắp từ các Hợp đồng dịch vụ thiết kế web doanh nghiệp (B2B Web Development & Architecture Consulting) cho các khách hàng trả phí, kết hợp với các khoản ủng hộ tự nguyện (Donation) từ cộng đồng yêu mến dự án. Nhờ đó, sinh viên và Thành Viên cá nhân được đảm bảo quyền lợi sử dụng MIỄN PHÍ VĨNH VIỄN mà không bao giờ phải lo lắng về việc bị thu phí trong tương lai.",
         },
         {
           type: "note",
@@ -1022,17 +1022,17 @@ spec:
           rows: [
             [
               "Quyền Sở Hữu Trí Tuệ (Intellectual Property)",
-              "Toàn bộ bài viết, đoạn mã, thiết kế hồ sơ cá nhân và tài sản sáng tạo thuộc về bạn 100%.",
-              "Hugo Studio không bao giờ đòi hỏi quyền sở hữu hay chuyển nhượng bản quyền tác phẩm của bạn.",
+              "Toàn bộ bài viết, đoạn mã, thiết kế hồ sơ cá nhân và tài sản sáng tạo thuộc về Quý thành viên 100%.",
+              "Hugo Studio không bao giờ đòi hỏi quyền sở hữu hay chuyển nhượng bản quyền tác phẩm của Quý thành viên.",
             ],
             [
               "Quyền Di Chuyển Dữ Liệu (Data Portability)",
-              "Bạn có quyền tải về toàn bộ dữ liệu cá nhân (hồ sơ, lịch sử điểm JOY, cấu hình Bio) dưới định dạng JSON mở.",
+              "Quý thành viên có quyền tải về toàn bộ dữ liệu cá nhân (hồ sơ, lịch sử điểm JOY, cấu hình Bio) dưới định dạng JSON mở.",
               "Cung cấp công cụ xuất dữ liệu một chạm trong mục Cài đặt tài khoản.",
             ],
             [
               "Quyền Được Lãng Quên (Right to be Forgotten)",
-              "Khi bạn chọn xóa tài khoản, hệ thống sẽ xóa sạch toàn bộ hồ sơ, khóa Passkey và nhật ký cá nhân.",
+              "Khi Quý thành viên chọn xóa tài khoản, hệ thống sẽ xóa sạch toàn bộ hồ sơ, khóa Passkey và nhật ký cá nhân.",
               "Dữ liệu được xóa vật lý vĩnh viễn khỏi Database chính và bản ghi đệm trong vòng 24 giờ.",
             ],
           ],
@@ -1041,7 +1041,7 @@ spec:
           type: "note",
           tone: "danger",
           title: "Điều khoản Từ chối Nghĩa vụ & Giới hạn Trách nhiệm (Disclaimer of Liability)",
-          text: "Hệ thống Hugo Studio cam kết nỗ lực tối đa để duy trì hoạt động ổn định và an toàn 24/7. Tuy nhiên, chúng tôi từ chối chịu trách nhiệm đối với các trường hợp: (1) Sự cố bất khả kháng từ hạ tầng viễn thông quốc tế (đứt cáp quang biển, thiên tai); (2) Người dùng tự làm lộ thiết bị cá nhân hoặc chia sẻ mã PIN cho người khác; (3) Các hành vi vi phạm pháp luật bên ngoài nền tảng của người dùng.",
+          text: "Hệ thống Hugo Studio cam kết nỗ lực tối đa để duy trì hoạt động ổn định và an toàn 24/7. Tuy nhiên, chúng tôi từ chối chịu trách nhiệm đối với các trường hợp: (1) Sự cố bất khả kháng từ hạ tầng viễn thông quốc tế (đứt cáp quang biển, thiên tai); (2) Thành Viên tự làm lộ thiết bị cá nhân hoặc chia sẻ mã PIN cho người khác; (3) Các hành vi vi phạm pháp luật bên ngoài nền tảng của Thành Viên.",
         },
       ],
     },
@@ -1074,19 +1074,19 @@ spec:
               "Google Identity Services (OAuth 2.0)",
               "Xác thực tài khoản bước đầu an toàn cho thành viên.",
               "Chỉ nhận Email, Tên hiển thị và Ảnh đại diện công khai.",
-              "Hugo Studio KHÔNG BAO GIỜ biết mật khẩu Google của bạn. Google không được cấp quyền truy cập dữ liệu nội bộ của Hugo Studio.",
+              "Hugo Studio KHÔNG BAO GIỜ biết mật khẩu Google của Quý thành viên. Google không được cấp quyền truy cập dữ liệu nội bộ của Hugo Studio.",
             ],
             [
               "Hạ tầng Cảnh báo & Webhook (Telegram Bot)",
               "Gửi thông báo khẩn cấp và cảnh báo giám sát hệ thống thời gian thực.",
               "Chỉ gửi nội dung cảnh báo ẩn danh, mã lỗi hệ thống và nhật ký tổng kết.",
-              "Không chia sẻ dữ liệu người dùng ra bên ngoài; kết nối an toàn qua Bot API chính thức.",
+              "Không chia sẻ dữ liệu Thành Viên ra bên ngoài; kết nối an toàn qua Bot API chính thức.",
             ],
             [
               "Cloudflare & Vercel Edge Network",
               "Phân phối tài nguyên tĩnh (CDN toàn cầu), phòng chống tấn công DDoS và mã hóa SSL/TLS 1.3.",
               "Gói tin mạng mã hóa, địa chỉ IP ẩn danh phục vụ tường lửa WAF.",
-              "Tuân thủ tiêu chuẩn an toàn an ninh mạng toàn cầu, giảm độ trễ tải trang xuống dưới 50ms cho người dùng tại Việt Nam.",
+              "Tuân thủ tiêu chuẩn an toàn an ninh mạng toàn cầu, giảm độ trễ tải trang xuống dưới 50ms cho Thành Viên tại Việt Nam.",
             ],
           ],
         },

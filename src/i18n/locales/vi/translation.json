@@ -121,7 +121,7 @@
     "closeMenu": "Đóng menu"
   },
   "footer": {
-    "tagline": "Một góc số dành cho người học, cá nhân và những cửa hàng nhỏ cần hiện diện chỉn chu trên internet.",
+    "tagline": "Một góc số dành cho người học, cá nhân và những thương điếm nhỏ cần hiện diện chỉn chu trên internet.",
     "services": "Dịch vụ",
     "landingPage": "Trang Đích",
     "portfolio": "Hồ Sơ Cá Nhân",
@@ -1622,7 +1622,7 @@
     "meta": {
       "title": "Trao Đổi Dự Án Website | Hugo Studio",
       "description": "Chia sẻ nhu cầu bằng biểu mẫu gợi ý ngắn gọn. Hugo sẽ phản hồi để cùng xác định phạm vi, thời gian và chi phí phù hợp trước khi bắt đầu.",
-      "keywords": "trao đổi dự án website, tư vấn website, portfolio cá nhân, website cửa hàng, Hugo Studio"
+      "keywords": "trao đổi dự án website, tư vấn website, portfolio cá nhân, website thương điếm, Hugo Studio"
     },
     "toast": {
       "success": "Đã gửi yêu cầu. Mình sẽ phản hồi trong vòng 24 giờ làm việc.",
@@ -1692,7 +1692,7 @@
     "projectTypes": {
       "newWebsite": {
         "title": "Làm website mới",
-        "desc": "Cho cá nhân, thương hiệu, quán hoặc cửa hàng."
+        "desc": "Cho cá nhân, thương hiệu, quán hoặc thương điếm."
       },
       "portfolio": {
         "title": "Portfolio / Bio",
@@ -2077,7 +2077,7 @@
       "systemUtilities": "Tiện ích hệ thống",
       "utilitiesDesc": "Phím tắt truy cập nhanh và các thiết lập quản trị viên",
       "joyGiftCards": "Thẻ Quà JOY",
-      "utilityStore": "Cửa Hàng Tiện Ích"
+      "utilityStore": "Thương Điếm Tiện Ích"
     },
     "bottomNav": {
       "users": "Quản Lý",
@@ -2345,7 +2345,7 @@
       "redeemedBy": "đã đổi bởi"
     },
     "utilityStore": {
-      "headerDesc": "Quản lý sản phẩm và đơn hàng của Cửa Hàng Tiện Ích.",
+      "headerDesc": "Quản lý sản phẩm và đơn hàng của Thương Điếm Tiện Ích.",
       "createTitle": "Tạo sản phẩm mới",
       "editTitle": "Chỉnh sửa sản phẩm",
       "nameLabel": "Tên sản phẩm",
@@ -2643,11 +2643,11 @@
       "statBonusChat": "Chat thưởng",
       "statReferralCode": "Mã giới thiệu",
       "sectionWallet": "Quản Lý Ngân Khố",
-      "sectionStore": "Cửa hàng",
+      "sectionStore": "thương điếm",
       "actionSend": "Gửi JOY",
       "actionCoupon": "Coupon",
       "actionMissions": "Nhiệm vụ",
-      "actionStore": "Cửa hàng"
+      "actionStore": "thương điếm"
     },
     "logout": "ĐĂNG XUẤT",
     "sidebar": {
@@ -2904,7 +2904,7 @@
       "walletHistory": "Lịch sử ngân khố",
       "walletHistoryDetail": "Mọi khoản nhận, đã dùng và tổng kết 30 ngày",
       "walletHistoryShort": "Mọi khoản nhận và đã sử dụng",
-      "perksStore": "Cửa hàng ưu đãi",
+      "perksStore": "thương điếm ưu đãi",
       "perksStoreDetail": "Đổi JOY lấy vật phẩm và gói dịch vụ",
       "perksStoreShort": "Đổi JOY lấy vật phẩm và dịch vụ",
       "redeemReferral": "Đổi mã và giới thiệu",
@@ -3029,7 +3029,7 @@
         "noActiveVouchers": "Quý thành viên chưa có voucher. Quà theo hạng và vòng quay sẽ xuất hiện tại đây.",
         "pastVouchers": "Đã dùng và hết hạn ({{count}})",
         "purchasedWithJoy": "Đã mua bằng JOY ({{count}})",
-        "noPurchases": "Quý thành viên chưa mua món nào trong Cửa hàng ưu đãi.",
+        "noPurchases": "Quý thành viên chưa mua món nào trong thương điếm ưu đãi.",
         "fulfilled": "· đã giao",
         "cancelled": "· đã hủy"
       },
@@ -3689,7 +3689,7 @@
       },
       "sections": {
         "wallet": "Ngân Khố",
-        "store": "Cửa Hàng",
+        "store": "Thương Điếm",
         "history": "Lịch Sử",
         "send": "Gửi JOY",
         "missions": "Nhiệm vụ"
@@ -3718,7 +3718,7 @@
       },
       "store": {
         "loading": "Đang tải sản phẩm...",
-        "empty": "Cửa hàng hiện chưa có sản phẩm.",
+        "empty": "thương điếm hiện chưa có sản phẩm.",
         "purchaseSuccess": "Mua hàng thành công. Mã đơn hàng: {{code}}",
         "purchaseError": "Không thể mua sản phẩm này.",
         "outOfStock": "Hết hàng",
@@ -3911,7 +3911,7 @@
         },
         "store": {
           "desc": "Cài đặt và gỡ bỏ từng tiện ích như một ứng dụng điện thoại. Màn hình chính chỉ hiển thị những gì Quý thành viên đã chọn, với kích thước tuỳ ý.",
-          "title": "Một cửa hàng ứng dụng thực sự"
+          "title": "Một thương điếm ứng dụng thực sự"
         },
         "ai": {
           "title": "Một cổng AI",
@@ -4502,7 +4502,7 @@
       "tabHistory": "Lịch sử",
       "tabLater": "JOYlater",
       "sub_perks": "Đặc quyền của tôi",
-      "sub_store": "Cửa hàng đặc quyền",
+      "sub_store": "thương điếm đặc quyền",
       "sub_redeem": "Nhập mã giới thiệu",
       "balanceLabel": "Số dư",
       "sendOrReceive": "Gửi hoặc nhận",
@@ -5308,7 +5308,7 @@
       "searchResults": "Kết quả tìm kiếm",
       "quickSuggestions": "Gợi ý nhanh",
       "installed": "Đã tải",
-      "store": "Cửa hàng",
+      "store": "thương điếm",
       "memberFallback": "Thành viên",
       "weatherMildSun": "Nắng nhẹ",
       "goToSlide": "Đến trang trình bày {{slide}}",
@@ -5454,7 +5454,7 @@
       },
       "store": {
         "title": "Hugo Store",
-        "description": "Cửa hàng ứng dụng, token và dịch vụ"
+        "description": "thương điếm ứng dụng, token và dịch vụ"
       },
       "arcade_chess": {
         "title": "Cờ vua AI",
@@ -5706,7 +5706,7 @@
           "subtitle": "Những thứ hay ho còn lại"
         },
         "soldOut": "Hết",
-        "fallback": "Vật phẩm cửa hàng",
+        "fallback": "Vật phẩm thương điếm",
         "perkListenDays": "+{{count}} ngày nghe",
         "perkListenHours": "+{{count}} giờ nghe",
         "perkValidity": "+{{count}} ngày sử dụng",
@@ -6173,7 +6173,7 @@
       "publishTitle": "Công bố lên trang Bio",
       "publishDesc": "Bật để bảng hồ sơ này hiện dưới trang Bio công khai của Quý thành viên. Người xem không cần đăng nhập vẫn kiểm chứng được.",
       "showOnBio": "Hiện trên trang Bio",
-      "needPlan": "Cần thuê hoặc sở hữu Hugo Profile trong Cửa hàng để công bố. Xem hồ sơ của chính Quý thành viên thì luôn miễn phí.",
+      "needPlan": "Cần thuê hoặc sở hữu Hugo Profile trong thương điếm để công bố. Xem hồ sơ của chính Quý thành viên thì luôn miễn phí.",
       "published": "Đã công bố hồ sơ.",
       "unpublished": "Đã gỡ hồ sơ khỏi trang Bio.",
       "saveError": "Không lưu được thiết lập."
@@ -7251,7 +7251,7 @@
       "anhDaiDienAnh": "Ảnh đại diện, ảnh bìa và giao diện trang cá nhân chỉnh ở chế độ thường — chúng là phần tải ảnh nặng nhất nên không đưa vào đây.",
       "caiDat": "Cài đặt",
       "dangXuat": "Đăng xuất",
-      "batTatVaMuc": "Bật/tắt và mức “tự động” nằm ở tab Xanh. Đang tắt trong chế độ này: trợ lý AI, bản đồ, cửa hàng, kho ứng dụng, hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ."
+      "batTatVaMuc": "Bật/tắt và mức “tự động” nằm ở tab Xanh. Đang tắt trong chế độ này: trợ lý AI, bản đồ, thương điếm, kho ứng dụng, hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ."
     }
   },
   "cinema": {
@@ -7389,7 +7389,7 @@
     "g3q": "Đăng nhập và bảo mật tài khoản",
     "g3a": "Đăng nhập bằng Google, và có thể bật vân tay hoặc khuôn mặt trong trang Tài khoản. Hệ thống hỏi lại thông tin định kỳ; trả lời sai nhiều lần sẽ tạm phong toả tài khoản.",
     "g4q": "Cài và gỡ ứng dụng",
-    "g4a": "Mở Cửa Hàng hoặc Thư Viện, chọn ứng dụng rồi chọn cài lên Màn hình chính hay chỉ để trong Thư viện. Gỡ bằng cách giữ icon trên màn hình chính.",
+    "g4a": "Mở Thương Điếm hoặc Thư Viện, chọn ứng dụng rồi chọn cài lên Màn hình chính hay chỉ để trong Thư viện. Gỡ bằng cách giữ icon trên màn hình chính.",
     "g5q": "Token nghe nhạc và xem phim",
     "g5a": "Âm Thanh và Chill Premium dùng chung một loại token, mỗi token đổi được mười phút. Mua thêm ngay trong hai ứng dụng đó.",
     "g6q": "Không có câu trả lời tôi cần?",

@@ -19,19 +19,19 @@ export const LEGAL_DOCUMENTS = {
           blocks: [
             {
               type: "p",
-              text: "Hugo Studio là không gian số tích hợp các tiện ích làm việc, sáng tạo cá nhân (Bio @slug), học tập và kết nối bạn bè được xây dựng dựa trên nguyên tắc minh bạch tuyệt đối và tôn trọng người dùng.",
+              text: "Hugo Studio là không gian số tích hợp các tiện ích làm việc, sáng tạo cá nhân (Bio @slug), học tập và kết nối bạn bè được xây dựng dựa trên nguyên tắc minh bạch tuyệt đối và tôn trọng Thành Viên.",
             },
             {
               type: "note",
               tone: "verified",
               title: "Cam kết 3 Không tại Hugo Studio",
-              text: "1. Không thu phí ẩn hoặc tự động trừ tiền âm thầm. 2. Không bán dữ liệu định danh người dùng cho bên quảng cáo thứ ba. 3. Không lưu mật khẩu, mã PIN ngân hàng hay mã OTP cá nhân.",
+              text: "1. Không thu phí ẩn hoặc tự động trừ tiền âm thầm. 2. Không bán dữ liệu định danh Thành Viên cho bên quảng cáo thứ ba. 3. Không lưu mật khẩu, mã PIN ngân hàng hay mã OTP cá nhân.",
             },
             {
               type: "steps",
               items: [
                 "Mọi tiện ích cốt lõi đều có thể trải nghiệm hoàn toàn miễn phí hoặc tích lũy điểm thưởng JOY qua nỗ lực học tập và check-in hàng ngày.",
-                "Nền tảng vận hành theo tôn chỉ phi lợi nhuận, cung cấp không gian cá nhân Bio miễn phí trọn đời cho người dùng sáng tạo và học tập.",
+                "Nền tảng vận hành theo tôn chỉ phi lợi nhuận, cung cấp không gian cá nhân Bio miễn phí trọn đời cho Thành Viên sáng tạo và học tập.",
                 "Khi hệ thống điều chỉnh chính sách, toàn bộ thông tin được niêm yết công khai trước ít nhất 14 ngày trên trang Điều khoản & Hướng dẫn sử dụng.",
               ],
             },
@@ -74,7 +74,7 @@ export const LEGAL_DOCUMENTS = {
           blocks: [
             {
               type: "p",
-              text: "Hệ sinh thái Hugo Studio kiên quyết duy trì một không gian học tập và làm việc an toàn, văn minh cho mọi thế hệ người dùng.",
+              text: "Hệ sinh thái Hugo Studio kiên quyết duy trì một không gian học tập và làm việc an toàn, văn minh cho mọi thế hệ Thành Viên.",
             },
             {
               type: "note",
@@ -85,7 +85,7 @@ export const LEGAL_DOCUMENTS = {
             {
               type: "steps",
               items: [
-                "Độ tuổi tham gia: Người dùng dưới 14 tuổi cần có sự đồng thuận của phụ huynh hoặc người giám hộ khi sử dụng các tính năng mạng xã hội.",
+                "Độ tuổi tham gia: Thành Viên dưới 14 tuổi cần có sự đồng thuận của phụ huynh hoặc người giám hộ khi sử dụng các tính năng mạng xã hội.",
                 "Chính sách bảo vệ học đường: Cam kết không quảng cáo cờ bạc, nội dung độc hại hay các chương trình tài chính không lành mạnh trong không gian sinh viên/học sinh.",
               ],
             },
@@ -114,10 +114,10 @@ export const LEGAL_DOCUMENTS = {
 
     "database-policy": {
       id: "database-policy",
-      title: "Quy ước cơ sở dữ liệu người dùng & Chính sách thành viên",
+      title: "Quy ước cơ sở dữ liệu Thành Viên & Chính sách thành viên",
       subtitle: "Bản hợp nhất số 02: Kiến trúc bảo mật dữ liệu, sổ cái JOY bất biến và chính sách thành viên",
       updatedAt: "17/09/2026",
-      intro: "Văn bản quy định chi tiết các nguyên tắc kiến trúc kỹ thuật về lưu trữ, bảo vệ cơ sở dữ liệu người dùng, cơ chế sổ cái điểm thưởng bất biến và chính sách quyền lợi phân hạng thành viên.",
+      intro: "Văn bản quy định chi tiết các nguyên tắc kiến trúc kỹ thuật về lưu trữ, bảo vệ cơ sở dữ liệu Thành Viên, cơ chế sổ cái điểm thưởng bất biến và chính sách quyền lợi phân hạng thành viên.",
       sections: [
         {
           id: "kien-truc-csdl-va-bao-mat",
@@ -125,7 +125,7 @@ export const LEGAL_DOCUMENTS = {
           blocks: [
             {
               type: "p",
-              text: "Cơ sở dữ liệu người dùng tại Hugo Studio được xây dựng dựa trên nguyên tắc Zero-Trust, phân tầng bảo vệ nghiêm ngặt theo tiêu chuẩn GDPR và Nghị định 13/2023/NĐ-CP của Chính phủ Việt Nam về bảo vệ dữ liệu cá nhân.",
+              text: "Cơ sở dữ liệu Thành Viên tại Hugo Studio được xây dựng dựa trên nguyên tắc Zero-Trust, phân tầng bảo vệ nghiêm ngặt theo tiêu chuẩn GDPR và Nghị định 13/2023/NĐ-CP của Chính phủ Việt Nam về bảo vệ dữ liệu cá nhân.",
             },
             {
               type: "table",
@@ -138,13 +138,13 @@ export const LEGAL_DOCUMENTS = {
                 ],
                 [
                   "Khóa mật mã sinh trắc học (WebAuthnCredential)",
-                  "Chỉ lưu trữ Public Key (chuẩn COSE) và bộ đếm chữ ký. Private Key nằm vĩnh viễn trong chip Secure Enclave / TPM của máy bạn.",
-                  "Nếu máy chủ bị xâm nhập, kẻ tấn công cũng không thể trích xuất vân tay hay khóa riêng tư của người dùng.",
+                  "Chỉ lưu trữ Public Key (chuẩn COSE) và bộ đếm chữ ký. Private Key nằm vĩnh viễn trong chip Secure Enclave / TPM của máy Quý thành viên.",
+                  "Nếu máy chủ bị xâm nhập, kẻ tấn công cũng không thể trích xuất vân tay hay khóa riêng tư của Thành Viên.",
                 ],
                 [
                   "Cấu hình Bio & Không gian cá nhân (BioTheme)",
-                  "Lưu trữ giao diện, liên kết cá nhân và chủ đề màu sắc tùy biến do người dùng lựa chọn.",
-                  "Người dùng toàn quyền chỉnh sửa, ẩn hoặc xóa hoàn toàn trang Bio cá nhân bất cứ lúc nào.",
+                  "Lưu trữ giao diện, liên kết cá nhân và chủ đề màu sắc tùy biến do Thành Viên lựa chọn.",
+                  "Thành Viên toàn quyền chỉnh sửa, ẩn hoặc xóa hoàn toàn trang Bio cá nhân bất cứ lúc nào.",
                 ],
                 [
                   "Nhật ký kiểm toán (AdminAuditLog)",
@@ -195,7 +195,7 @@ export const LEGAL_DOCUMENTS = {
                 [
                   "Standard Member",
                   "Mặc định khi đăng ký và xác thực tài khoản",
-                  "Trang Bio @slug tiêu chuẩn, trải nghiệm toàn bộ tiện ích cơ bản, ví điểm thưởng JOY.",
+                  "Trang Bio @slug tiêu chuẩn, trải nghiệm toàn bộ tiện ích cơ bản, ngân khố điểm thưởng JOY.",
                 ],
                 [
                   "Student Star",
