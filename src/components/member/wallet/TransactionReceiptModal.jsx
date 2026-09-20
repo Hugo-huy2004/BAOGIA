@@ -106,13 +106,26 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
               </span>
             </div>
 
+            {/* Mô tả NGẮN đi vào hàng nhãn–giá trị như mọi dòng khác; mô tả DÀI
+                (bản chiếu ba đoạn) thì xuống khối riêng, căn trái, chừa dòng
+                trống giữa các đoạn. Nhét một bản văn vào ô rộng 200px căn phải
+                thì nó thành một cột chữ vụn không ai đọc nổi. */}
             {tx.description && (
-              <div className="flex items-start justify-between">
-                <span className="text-slate-500 dark:text-slate-400 font-medium">Mô tả</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-300 text-right max-w-[200px]">
-                  {tx.description}
-                </span>
-              </div>
+              tx.description.includes("\n") || tx.description.length > 90 ? (
+                <div className="border-t border-slate-200 pt-3 dark:border-slate-700">
+                  <span className="mb-1.5 block font-medium text-slate-500 dark:text-slate-400">Mô tả</span>
+                  <p className="whitespace-pre-line text-left font-medium leading-relaxed text-slate-700 dark:text-slate-300">
+                    {tx.description}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Mô tả</span>
+                  <span className="max-w-[200px] text-right font-semibold text-slate-700 dark:text-slate-300">
+                    {tx.description}
+                  </span>
+                </div>
+              )
             )}
 
             <div className="flex items-center justify-between">

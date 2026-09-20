@@ -122,7 +122,12 @@ check(true, 'mọi bậc có chế tài đều có thông báo đủ ba ngôn ng
 for (const stage of DEBT_STAGES) {
   if (stage.id === 'ontime') continue;
   const msg = NOTIFICATION_TEXT.vi[`event.joyLaterStage.${stage.id}.message`];
-  if (!msg?.includes('{{amount, joy}}') || !msg?.includes('{{days}}')) {
+  // Nhận MỌI bộ định dạng của hai tham số đó (`joy`, `sinojoy`, `sino`,
+  // `sinodays`…). Bài kiểm này canh một SỰ THẬT — rằng thông báo có nói số nợ
+  // và số ngày — chứ không canh một cách trình bày cố định. Bản đầu dò đúng
+  // chuỗi "{{amount, joy}}" nên báo đỏ ngay khi đổi sang chữ số Hán Việt, dù
+  // nội dung vẫn nói đủ cả hai điều.
+  if (!/\{\{amount[,}]/.test(msg || '') || !/\{\{days[,}]/.test(msg || '')) {
     check(false, `bậc "${stage.id}" không nói rõ nợ bao nhiêu và trễ mấy ngày`);
   }
 }

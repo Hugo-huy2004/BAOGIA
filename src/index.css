@@ -1145,6 +1145,39 @@ html.standalone-pwa .animate-bounce-gentle {
    đó là CSS chết nằm trong tệp toàn cục mà MỌI trang phải tải. */
 
 
+/* ---------------------------------------------------------
+   CHỮ NÔM (𡨸喃)
+   ---------------------------------------------------------
+   Phông Nom Na Tong của Vietnamese Nôm Preservation Foundation (giấy phép MIT,
+   github.com/nomfoundation/font). Bản gốc 15,2 MB với 32.963 glyph — trong đó
+   6.277 glyph nằm ở CJK Ext B, nơi phần lớn chữ Nôm riêng của tiếng Việt cư
+   ngụ, và KHÔNG phông hệ thống nào phủ tới. Vì vậy ngôn ngữ này bắt buộc phải
+   mang phông theo; không như tiếng Trung, máy người dùng không sẵn có gì.
+
+   Bản nhúng đã cắt còn 54 KB, chỉ giữ đúng những chữ hiện dùng. Thêm chữ mới
+   vào bản dịch thì phải dựng lại:  npm run build:nom-font
+
+   Trình duyệt chỉ tải phông khi có quy tắc dùng tới, nên khách không chọn chữ
+   Nôm sẽ không tải một byte nào của tệp này. */
+@font-face {
+  font-family: 'Nom Na Tong';
+  src: url('/fonts/NomNaTong-subset.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html[lang="nom"] {
+  font-size: 18px;   /* chữ Nôm nhiều nét hơn chữ Hán, cùng cỡ px vẫn rối hơn */
+}
+html[lang="nom"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  /* Rơi về phông chữ Việt phía sau: rất nhiều chuỗi vẫn là quốc ngữ cho tới
+     khi bản dịch Nôm đầy đủ, và một phông chỉ có chữ Hán sẽ vẽ chúng bằng
+     phông dự phòng của trình duyệt — lệch hẳn với phần còn lại của trang. */
+  font-family: 'Nom Na Tong', 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  letter-spacing: normal;
+}
+
 /* Chinese: phông hệ thống, đọc được ở mọi cỡ chữ.
    Trước đây ép 'Zhi Mang Xing' — một phông thư pháp viết tay. Nó đẹp trên
    tiêu đề lớn nhưng làm cả trang bán hàng khó đọc, nhất là chữ nhỏ; cộng thêm

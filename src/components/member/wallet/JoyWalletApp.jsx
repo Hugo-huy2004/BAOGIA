@@ -149,7 +149,7 @@ export default function JoyWalletApp({
   const perks = overview?.perks;
   const transactions = overview?.recentTransactions || [];
   const referralCode = card?.referralCode || bio?.referralCode || "JOY-MEMBER";
-  const cardholderName = card?.cardholderName || bio?.displayName || "Thành viên Hugo Studio";
+  const cardholderName = card?.cardholderName || bio?.displayName || "Quý thành viên Hugo Studio";
 
   // State hỗ trợ tính năng cũ tích hợp 100%
   const [challenges, setChallenges] = useState([]);

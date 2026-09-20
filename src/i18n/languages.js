@@ -6,6 +6,11 @@
    + nhánh trong FULL_LOCALES của config.js. */
 export const SUPPORTED_LANGUAGES = [
   { code: "vi", label: "Tiếng Việt", locale: "vi-VN" },
+  // Chữ Nôm KHÔNG phải một ngôn ngữ khác — nó là lối VIẾT khác của chính tiếng
+  // Việt. Vì vậy `locale` vẫn là vi-VN (ngày tháng, số, thứ tự sắp xếp đều theo
+  // tiếng Việt), và khoá nào chưa dịch sẽ rơi về quốc ngữ chứ không rơi về
+  // tiếng Anh. Nhãn ghi cả hai lối viết để người chưa đọc được Nôm vẫn tìm thấy.
+  { code: "nom", label: "𡨸喃 · Chữ Nôm", locale: "vi-VN" },
   { code: "en", label: "English", locale: "en-US" },
   { code: "zh", label: "简体中文", locale: "zh-CN" },
 ];

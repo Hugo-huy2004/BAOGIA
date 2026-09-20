@@ -151,7 +151,8 @@ const currentLang = () => String(i18nRef?.resolvedLanguage || i18nRef?.language 
 /** SỐ đã định dạng: vi/zh đếm theo vạn, en theo nghìn. */
 export const joyNumber = (joy) => {
   const lang = currentLang();
-  if (lang.startsWith("vi")) return toVan(joyValue(joy), currentLocale());
+  // Chữ Nôm là lối viết của tiếng Việt nên đếm y hệt: "19 vạn 895".
+  if (lang.startsWith("vi") || lang.startsWith("nom")) return toVan(joyValue(joy), currentLocale());
   if (lang.startsWith("zh")) return toVan(joyValue(joy), currentLocale(), "zh");
   return joyValue(joy).toLocaleString(currentLocale());
 };

@@ -28,6 +28,7 @@ import { ensureLanguageFont } from './languageFont';
 
 const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
+  nom: () => import('./locales/nom/translation.json'),
   en: () => import('./locales/en/translation.json'),
   zh: () => import('./locales/zh/translation.json'),
 };
@@ -50,7 +51,10 @@ i18n
   .init({
     resources,
     ...(storedLanguage ? { lng: storedLanguage } : {}),
-    fallbackLng: ['en', 'vi'],
+    // Chữ Nôm rơi về QUỐC NGỮ, không rơi về tiếng Anh: bản Nôm còn đang dựng
+    // dần, và người chọn nó là người Việt — thấy tiếng Việt thì vẫn đọc được,
+    // thấy tiếng Anh thì không liên quan gì.
+    fallbackLng: { nom: ['vi', 'en'], default: ['en', 'vi'] },
     supportedLngs: SUPPORTED_LANGUAGES.map(({ code }) => code),
     nonExplicitSupportedLngs: true,
     load: 'languageOnly',

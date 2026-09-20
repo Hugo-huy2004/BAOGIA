@@ -1,0 +1,32 @@
+{
+  "__locale": "nom",
+  "__note": "Bản 𡨸喃 đang dựng dần. Khoá nào chưa có sẽ tự rơi về tiếng Việt quốc ngữ — đó là hành vi CÓ CHỦ Ý, không phải thiếu sót. Chỉ điền chữ nào đã tra được chắc chắn; chữ Nôm đoán bừa còn tệ hơn không có chữ, vì mục đích của ngôn ngữ này là để học.",
+  "common": {
+    "yes": "固",
+    "no": "空",
+    "search": "尋"
+  },
+  "memberPortal": {
+    "joy": {
+      "balance": "存款",
+      "wallet": "銀庫"
+    },
+    "card": {
+      "holder": "卡牌之主"
+    }
+  },
+  "nomLab": {
+    "scriptName": "𡨸喃",
+    "language": "㗂越",
+    "script": "文字",
+    "honorific": "貴成員",
+    "cardHolder": "卡牌之主",
+    "treasury": "銀庫",
+    "digits": {
+      "0": "零", "1": "一", "2": "二", "3": "三", "4": "四",
+      "5": "五", "6": "六", "7": "七", "8": "八", "9": "九"
+    },
+    "places": { "10": "十", "100": "百", "1000": "千", "10000": "萬", "100000000": "億" },
+    "time": { "day": "日", "month": "月", "year": "年" }
+  }
+}

@@ -57,7 +57,7 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
         </span>
 
         {item.message && (
-          <span className="hgn-dim mt-0.5 line-clamp-2 block text-[13px] leading-snug">{item.message}</span>
+          <span className="hgn-dim mt-0.5 line-clamp-2 block whitespace-pre-line text-[13px] leading-snug">{item.message}</span>
         )}
 
         {/* Số liệu là field riêng, không phải chữ bóc từ câu ra.

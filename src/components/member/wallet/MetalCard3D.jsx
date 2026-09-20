@@ -415,20 +415,21 @@ export default function MetalCard3D({
               </div>
             )}
 
-            {/* Hàng 3: Bên trái là Chủ thẻ, ID & EXP Date, Bên phải là SỐ JOY HIỆN TẠI (Thay EXP date to) */}
+            {/* Hàng 3: trái là TẠP BÀI CHI CHỦ (卡牌之主 — chủ thẻ), ID và hạn
+                thẻ; phải là số dư JOY hiện tại. */}
             <div className="relative z-10 flex items-end justify-between pt-2">
               <div className="text-left">
                 <span
                   className="text-[12px] font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{ color: currentTheme.subtextColor }}
                 >
-                  Chủ thẻ
+                  Tạp bài chi chủ
                 </span>
                 <span
                   className="text-sm font-bold font-mono tracking-wider block uppercase"
                   style={{ color: currentTheme.textColor }}
                 >
-                  {cardholderName || "HUGO MEMBER"}
+                  {cardholderName || "QUÝ THÀNH VIÊN"}
                 </span>
                 <div className="flex items-center gap-2.5 mt-0.5">
                   <span

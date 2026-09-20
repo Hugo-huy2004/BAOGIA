@@ -1,4 +1,5 @@
 import { DEFAULT_DENOM, formatDenom } from "./joyCurrency.js";
+import { sino } from "./sinoNumerals.js";
 
 /**
  * Chữ của thông báo — MỘT nguồn duy nhất cho cả trình duyệt lẫn máy chủ.
@@ -121,13 +122,13 @@ export const NOTIFICATION_TEXT = {
     "vocab.word.message": "{{meaning}} — chạm để học thêm từ mới hôm nay.",
 
     "event.trialStarted.title": "Chiếu ban quyền dùng thử {{app}}",
-    "event.trialStarted.message": "Nay chuẩn cho Quý thành viên toàn quyền trải nghiệm trong {{days}} ngày, hiệu lực đến hết ngày {{date}}. Kính mong thụ hưởng trọn vẹn.",
+    "event.trialStarted.message": "Nay đặc chuẩn cho Quý thành viên toàn quyền trải nghiệm {{app}} trong {{days, sinodays}}, hiệu lực đến hết ngày {{date}}.",
     "event.appGift.title": "{{sender}} kính tặng {{item}}",
     "event.appGift.message": "Tặng phẩm đã nhập vào tài khoản. Kính mời Quý thành viên quá bộ Thương Điếm để thụ lĩnh.",
     "event.adminBonus.title": "Chiếu ban ân thưởng",
-    "event.adminBonus.message": "Xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, joy}}.",
+    "event.adminBonus.message": "Nay xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, sinojoy}}.",
     "event.adminBonusReason.title": "Chiếu ban ân thưởng",
-    "event.adminBonusReason.message": "Xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, joy}}. Duyên do: {{reason}}",
+    "event.adminBonusReason.message": "Nay xét công lao của Quý thành viên, Hugo Studio kính ban {{amount, sinojoy}}.\n\nDuyên do: {{reason}}",
     "event.cartCheckout.title": "Giao dịch đã hoàn tất",
     "event.cartCheckout.message": "{{count}} phẩm vật · {{total, joy}} · Chứng từ số {{code}}. Kính mong Quý thành viên lưu giữ chứng từ này.",
     "event.productPurchase.title": "Giao dịch đã hoàn tất",
@@ -141,19 +142,19 @@ export const NOTIFICATION_TEXT = {
     "event.friendAccepted.title": "{{friend}} đã nhận lời kết giao",
     "event.friendAccepted.message": "Kể từ nay hai vị được tương giao và tường lãm hồ sơ của nhau.",
     "event.joyLaterStage.grace.title": "Thông tri khoản JOYlater đã đáo hạn",
-    "event.joyLaterStage.grace.message": "Nay xét khoản dư nợ {{amount, joy}} đã quá hạn {{days}} ngày. Kính mong Quý thành viên hoàn tất trong tuần này, hầu bảo toàn trọn vẹn quyền lợi của tài khoản.",
+    "event.joyLaterStage.grace.message": "Chiếu theo điều lệ JOYlater, khoản vay {{amount, sinojoy}} nay đã quá hạn {{days, sinodays}}.\n\nCăn cứ quy chế, khoản này cần được hoàn tất trong tuần, hầu bảo toàn trọn vẹn quyền lợi của tài khoản.\n\nNay ban thông cáo, kính mong Quý thành viên liệu định.",
     "event.joyLaterStage.restricted.title": "Chiếu hạn chế quyền tài khoản",
-    "event.joyLaterStage.restricted.message": "Chiếu theo khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, quyền chuyển JOY và khai mở khoản mới nay tạm đình chỉ, cho tới khi dư nợ được hoàn tất.",
+    "event.joyLaterStage.restricted.message": "Chiếu theo điều lệ JOYlater, khoản vay {{amount, sinojoy}} nay đã quá hạn {{days, sinodays}}.\n\nCăn cứ quy chế, đặc chuẩn tạm đình chỉ quyền chuyển JOY và quyền khai mở khoản mới của tài khoản Quý thành viên.\n\nNay ban thông cáo, các quyền trên sẽ được phục hồi ngay khi dư nợ hoàn tất.",
     "event.joyLaterStage.frozen.title": "Chiếu đình chỉ quyền chi dụng",
-    "event.joyLaterStage.frozen.message": "Nay xét khoản JOYlater {{amount, joy}} đã quá hạn {{days}} ngày. Kể từ nay, JOY thụ lĩnh được dành trọn cho việc hoàn trả dư nợ.",
+    "event.joyLaterStage.frozen.message": "Chiếu theo điều lệ JOYlater, khoản vay {{amount, sinojoy}} nay đã quá hạn {{days, sinodays}}.\n\nCăn cứ quy chế, đặc chuẩn đình chỉ quyền chi dụng; JOY thụ lĩnh kể từ nay dành trọn cho việc hoàn trả dư nợ.\n\nNay ban thông cáo, quyền chi dụng sẽ được phục hồi ngay khi dư nợ hoàn tất.",
     "event.joyLaterStage.locked.title": "Chiếu phong toả tài khoản có kỳ hạn",
-    "event.joyLaterStage.locked.message": "Chiếu theo khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, tài khoản nay bị phong toả ba mươi ngày theo chính sách. Quý thành viên được quyền đệ đơn kháng nghị để xin tái thẩm định.",
+    "event.joyLaterStage.locked.message": "Chiếu theo điều lệ JOYlater, khoản vay {{amount, sinojoy}} nay đã quá hạn {{days, sinodays}}.\n\nCăn cứ quy chế, đặc chuẩn phong toả tài khoản Quý thành viên trong thời hạn tam thập nhật (30 ngày).\n\nNay ban thông cáo, Quý thành viên được quyền dâng lệnh kháng nghị, thỉnh cầu tái thẩm định án khoản.",
     "event.joyLaterStage.review.title": "Hồ sơ đã trình lên thẩm định",
-    "event.joyLaterStage.review.message": "Nay xét khoản JOYlater {{amount, joy}} quá hạn {{days}} ngày, hồ sơ đã được lập và trình lên Quản trị. Kính mong Quý thành viên hoàn tất dư nợ trước khi hồ sơ được phê chuẩn, hầu tránh chế tài vĩnh viễn.",
+    "event.joyLaterStage.review.message": "Chiếu theo điều lệ JOYlater, khoản vay {{amount, sinojoy}} nay đã quá hạn {{days, sinodays}}.\n\nCăn cứ quy chế, án khoản đã được lập thành hồ sơ và trình lên Quản trị thẩm định biện pháp vĩnh viễn.\n\nNay ban thông cáo, Quý thành viên còn được hoàn tất dư nợ trước khi hồ sơ phê chuẩn, hầu tránh chế tài vĩnh viễn.",
     "event.joyCreditLimit.title": "Chiếu phê chuẩn hạn mức JOYlater",
-    "event.joyCreditLimit.message": "Nay xét hồ sơ đạt {{score}} điểm, hạn mức của Quý thành viên được định là {{limit, joy}}. Hạn mức sẽ được tái thẩm định vào 17:00 thứ Bảy hằng tuần.",
+    "event.joyCreditLimit.message": "Nay xét hồ sơ tín dụng của Quý thành viên đạt {{score, sino}} điểm.\n\nCăn cứ quy chế, đặc chuẩn hạn mức JOYlater là {{limit, sinojoy}}.\n\nNay ban thông cáo, hạn mức sẽ được tái thẩm định vào giờ Dậu (17:00) mỗi thứ Bảy.",
     "event.joyCreditDenied.title": "Hạn mức JOYlater chưa được phê chuẩn",
-    "event.joyCreditDenied.message": "Nay xét hồ sơ đạt {{score}} điểm, chưa tới ngưỡng cấp hạn mức. Hệ thống sẽ tự tái thẩm định vào 17:00 thứ Bảy; Quý thành viên không phải đệ trình lại.",
+    "event.joyCreditDenied.message": "Nay xét hồ sơ tín dụng của Quý thành viên đạt {{score, sino}} điểm, chưa tới ngưỡng cấp hạn mức.\n\nCăn cứ quy chế, hạn mức chưa được phê chuẩn trong kỳ này.\n\nNay ban thông cáo, hệ thống sẽ tự tái thẩm định vào giờ Dậu (17:00) thứ Bảy; Quý thành viên không phải đệ trình lại.",
   },
 
   en: {
@@ -341,6 +342,31 @@ function interpolate(template, params, language, denom) {
     const value = params?.[name];
     if (value === undefined || value === null) return whole;
     if (format === "joy") return formatDenom(value, denom, language);
+    // `{{days, sino}}` → "tứ thập ngũ nhật (45 ngày)" trong bản chiếu tiếng
+    // Việt. Các ngôn ngữ khác đọc số thường: chữ số Hán Việt chỉ có nghĩa với
+    // người đọc tiếng Việt, với người khác nó là một chuỗi ký tự vô nghĩa.
+    // `{{amount, sinojoy}}` → "ngũ vạn nhị thiên (52.000 JOY)".
+    if (format === "sinojoy") {
+      const n = Number(value);
+      const money = formatDenom(value, denom, language);
+      if (!Number.isFinite(n) || language !== "vi") return money;
+      return `${sino(n)} (${money})`;
+    }
+    // `{{days, sinodays}}` → "tứ thập ngũ nhật (45 ngày)". Đơn vị đếm nằm TRONG
+    // ngoặc cùng chữ số, vì "nhật" và "ngày" là một; tách ra thành "tứ thập ngũ
+    // (45) ngày" là đọc lửng giữa hai lối.
+    if (format === "sinodays") {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return String(value);
+      const digits = n.toLocaleString(language);
+      return language === "vi" ? `${sino(n)} nhật (${digits} ngày)` : `${digits} days`;
+    }
+    if (format === "sino") {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return String(value);
+      const digits = n.toLocaleString(language);
+      return language === "vi" ? `${sino(n)} (${digits})` : digits;
+    }
     if (typeof value === "string" && ISO_DATE.test(value)) {
       const date = new Date(value);
       if (!Number.isNaN(date.getTime())) return date.toLocaleDateString(language);
