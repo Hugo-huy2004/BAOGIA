@@ -126,6 +126,7 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "joy_wallet",
   "aura",
   "profile",
+  "bio",
   "study",
   "arcade",
   "store",

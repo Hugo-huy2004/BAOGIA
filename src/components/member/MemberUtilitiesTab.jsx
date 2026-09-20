@@ -187,7 +187,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
 
       {selectedUtility === "friends" && friendsInstalled && (
-        <FriendsApp onBack={() => onSelectUtility(null)} />
+        <FriendsApp onBack={() => onSelectUtility(null)} route={appRoute} onRouteChange={onAppRouteChange} />
       )}
 
       {selectedUtility === "friends" && !friendsInstalled && (
@@ -224,7 +224,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
-        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} />
+        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} route={appRoute} onRouteChange={onAppRouteChange} />
       )}
 
       {/* Hugo Store */}

@@ -3,6 +3,7 @@ import { useGesture } from "@use-gesture/react";
 import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../lib/notify";
+import { CLOSE_BUTTON_RESERVE } from "./shared/BackButton";
 import { getCachedGeolocation } from "../../utils/geoCache";
 import { resolveCoords } from "../../utils/weather";
 import "./friends-app.css";
@@ -45,7 +46,7 @@ function PersonCard({ person, children, onOpen, tone = "lime" }) {
         <Avatar person={person} className="ring-4 ring-white shadow-md" />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-black text-[#15151b]">{person.displayName}</span>
-          <span className="block truncate text-xs font-semibold text-[#595966]">{person.headline || `@${person.slug}`}</span>
+          <span className="block truncate text-[13px] font-semibold text-[#595966]">{person.headline || `@${person.slug}`}</span>
           <span className="mt-1 flex flex-wrap gap-1.5">
             {person.distanceKm != null && <span className="friends-chip"><span className="material-symbols-outlined" aria-hidden="true">near_me</span>{t("friends.distance", { count: person.distanceKm })}</span>}
             {person.mutualFriendsCount > 0 && <span className="friends-chip friends-chip--violet">{t("friends.mutualFriends", { count: person.mutualFriendsCount })}</span>}
@@ -58,13 +59,28 @@ function PersonCard({ person, children, onOpen, tone = "lime" }) {
 }
 
 function Empty({ icon, title, body }) {
-  return <div className="rounded-[28px] border-2 border-dashed border-black/15 bg-white/60 px-5 py-10 text-center"><span className="material-symbols-outlined text-4xl text-[#777786]" aria-hidden="true">{icon}</span><p className="mt-3 text-sm font-black text-[#15151b]">{title}</p><p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-[#666674]">{body}</p></div>;
+  return <div className="rounded-[28px] border-2 border-dashed border-black/15 bg-white/60 px-5 py-10 text-center"><span className="material-symbols-outlined text-4xl text-[#777786]" aria-hidden="true">{icon}</span><p className="mt-3 text-sm font-black text-[#15151b]">{title}</p><p className="mx-auto mt-1 max-w-sm text-[13px] leading-relaxed text-[#666674]">{body}</p></div>;
 }
 
-export default function FriendsApp({ onBack }) {
+export default function FriendsApp({ onBack, route, onRouteChange }) {
   const { t } = useTranslation();
-  const requestedView = new URLSearchParams(window.location.search).get("view");
-  const [view, setView] = useState(["discover", "friends", "requests", "map"].includes(requestedView) ? requestedView : "map");
+  /*
+   * Màn đang mở lấy từ ĐỊA CHỈ (/member/utilities/friends/<màn>).
+   *
+   * Bản cũ đọc `?view=` bằng `new URLSearchParams(window.location.search)` đúng
+   * MỘT LẦN lúc khởi tạo state: link dán vào thì mở đúng màn, nhưng sau đó đổi
+   * màn không đổi URL, tải lại rơi về bản đồ, và nút back của máy nhảy thẳng ra
+   * khỏi app thay vì lùi một màn.
+   */
+  const VIEWS = ["discover", "friends", "requests", "map"];
+  const routed = typeof onRouteChange === "function";
+  const legacyView = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("view")
+    : null;
+  const [localView, setLocalView] = useState(VIEWS.includes(legacyView) ? legacyView : "map");
+  const rawView = routed ? route : localView;
+  const view = VIEWS.includes(rawView) ? rawView : "map";
+  const setView = (id) => (routed ? onRouteChange(id) : setLocalView(id));
   const [snapshot, setSnapshot] = useState({ friends: [], incoming: [], outgoing: [], settings: { discoverable: false, hasLocation: false, shareLocation: false } });
   const [people, setPeople] = useState([]);
   const [query, setQuery] = useState("");
@@ -192,9 +208,9 @@ export default function FriendsApp({ onBack }) {
   const discoveryAction = (person) => {
     const relation = person.relationship;
     if (!relation) return <ActionButton onClick={() => sendRequest(person)} disabled={working === `send:${person.slug}`}>{t("friends.add")}</ActionButton>;
-    if (relation.status === "accepted") return <span className="px-3 py-2 text-xs font-black text-[#686876]">{t("friends.alreadyFriends")}</span>;
+    if (relation.status === "accepted") return <span className="px-3 py-2 text-[13px] font-black text-[#686876]">{t("friends.alreadyFriends")}</span>;
     if (relation.status === "pending" && relation.direction === "incoming") return <ActionButton onClick={() => accept(relation.id)} disabled={working === `accept:${relation.id}`}>{t("friends.accept")}</ActionButton>;
-    return <span className="px-3 py-2 text-xs font-black text-[#686876]">{t(relation.status === "pending" ? "friends.pending" : "friends.declined")}</span>;
+    return <span className="px-3 py-2 text-[13px] font-black text-[#686876]">{t(relation.status === "pending" ? "friends.pending" : "friends.declined")}</span>;
   };
 
   const visibleFriends = snapshot.friends.filter((friend) => friend.sharedLocation);
@@ -216,7 +232,7 @@ export default function FriendsApp({ onBack }) {
       <FriendsMap center={mapCenter} friends={visibleFriends} hasLocation={snapshot.settings.hasLocation && !focused} source={locationMode} focusedSlug={focusedFriend} onOpen={openProfile} />
       <header className="friends-topbar">
         <div className="min-w-0 flex-1"><p className="friends-wordmark">HUGO NEAR</p><span className="friends-location-pill"><span className={`friends-live-dot ${locationMode === "ip" ? "friends-live-dot--ip" : ""}`} />{locationLabel}</span></div>
-        <button type="button" onClick={() => setView("discover")} className="friends-round-button mr-10" aria-label={t("friends.search")}><span className="material-symbols-outlined" aria-hidden="true">search</span></button>
+        <button type="button" onClick={() => setView("discover")} className="friends-round-button" style={{ marginRight: CLOSE_BUTTON_RESERVE }} aria-label={t("friends.search")}><span className="material-symbols-outlined" aria-hidden="true">search</span></button>
       </header>
 
       {loading && <div className="friends-loader" aria-label={t("friends.loading")}><span /></div>}
@@ -231,7 +247,7 @@ export default function FriendsApp({ onBack }) {
           {view === "discover" ? (
             <div className="space-y-4">
               <form onSubmit={search} className="friends-search"><span className="material-symbols-outlined" aria-hidden="true">search</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("friends.searchPlaceholder")} aria-label={t("friends.search")} /><button type="submit" disabled={working === "search"} aria-label={t("friends.search")}><span className="material-symbols-outlined">arrow_forward</span></button></form>
-              <div className="friends-nearby-card"><div className="friends-nearby-icon"><span className="material-symbols-outlined">radar</span></div><div className="min-w-0 flex-1"><p className="text-sm font-black text-[#15151b]">{t("friends.nearbyTitle")}</p><p className="mt-0.5 text-[11px] font-semibold leading-relaxed text-[#5f5f6d]">{t(locationBlocked ? "friends.locationUnavailable" : locationMode === "ip" ? "friends.networkPrivacy" : "friends.nearbyPrivacy")}</p></div><button type="button" onClick={() => syncNearby({ fresh: true, notifySuccess: true })} disabled={working === "nearby"} className="friends-icon-action" aria-label={t("friends.refreshNearby")}><span className={`material-symbols-outlined ${working === "nearby" ? "animate-spin" : ""}`}>refresh</span></button></div>
+              <div className="friends-nearby-card"><div className="friends-nearby-icon"><span className="material-symbols-outlined">radar</span></div><div className="min-w-0 flex-1"><p className="text-sm font-black text-[#15151b]">{t("friends.nearbyTitle")}</p><p className="mt-0.5 text-[13px] font-semibold leading-relaxed text-[#5f5f6d]">{t(locationBlocked ? "friends.locationUnavailable" : locationMode === "ip" ? "friends.networkPrivacy" : "friends.nearbyPrivacy")}</p></div><button type="button" onClick={() => syncNearby({ fresh: true, notifySuccess: true })} disabled={working === "nearby"} className="friends-icon-action" aria-label={t("friends.refreshNearby")}><span className={`material-symbols-outlined ${working === "nearby" ? "animate-spin" : ""}`}>refresh</span></button></div>
               {people.length ? <div className="grid gap-3 sm:grid-cols-2">{people.map((person, index) => <PersonCard key={person.slug} person={person} tone={["lime", "cyan", "coral", "violet"][index % 4]} onOpen={() => openProfile(person)}>{discoveryAction(person)}</PersonCard>)}</div> : <Empty icon="person_search" title={t("friends.emptyDiscoverTitle")} body={t("friends.emptyDiscoverBody")} />}
             </div>
           ) : view === "requests" ? (
@@ -250,7 +266,7 @@ export default function FriendsApp({ onBack }) {
 function MapSummary({ visibleFriends, settings, nearestFriend }) {
   const { t } = useTranslation();
   const directions = nearestFriend ? `https://www.google.com/maps/dir/?api=1&destination=${nearestFriend.sharedLocation.lat},${nearestFriend.sharedLocation.lng}&travelmode=walking` : "";
-  return <div className="friends-map-card"><div className="flex min-w-0 items-center gap-3"><div className="flex -space-x-2">{visibleFriends.slice(0, 3).map((friend) => <Avatar key={friend.slug} person={friend} size="h-9 w-9" className="ring-2 ring-white" />)}</div><div className="min-w-0"><p className="truncate text-sm font-black text-[#15151b]">{visibleFriends.length ? t("friends.peopleOnMap", { count: visibleFriends.length }) : t("friends.emptyMapTitle")}</p><p className="truncate text-[11px] font-semibold text-[#686876]">{nearestFriend ? nearestFriend.displayName : t(settings.hasLocation ? "friends.mapPrivacyShort" : "friends.locating")}</p></div></div>{directions ? <a href={directions} target="_blank" rel="noreferrer" className="friends-share-button is-on" aria-label={t("friends.directions")}><span className="material-symbols-outlined">directions</span></a> : <span className="friends-share-button is-on" aria-hidden="true"><span className="material-symbols-outlined">location_on</span></span>}</div>;
+  return <div className="friends-map-card"><div className="flex min-w-0 items-center gap-3"><div className="flex -space-x-2">{visibleFriends.slice(0, 3).map((friend) => <Avatar key={friend.slug} person={friend} size="h-9 w-9" className="ring-2 ring-white" />)}</div><div className="min-w-0"><p className="truncate text-sm font-black text-[#15151b]">{visibleFriends.length ? t("friends.peopleOnMap", { count: visibleFriends.length }) : t("friends.emptyMapTitle")}</p><p className="truncate text-[13px] font-semibold text-[#686876]">{nearestFriend ? nearestFriend.displayName : t(settings.hasLocation ? "friends.mapPrivacyShort" : "friends.locating")}</p></div></div>{directions ? <a href={directions} target="_blank" rel="noreferrer" className="friends-share-button is-on" aria-label={t("friends.directions")}><span className="material-symbols-outlined">directions</span></a> : <span className="friends-share-button is-on" aria-hidden="true"><span className="material-symbols-outlined">location_on</span></span>}</div>;
 }
 
 function FriendsCarousel({ friends, focusedSlug, working, onFocus, onOpen, onRemove }) {
@@ -380,20 +396,20 @@ function FriendRequestPopup({ person, working, onClose, onOpen, onAccept, onReje
 }
 
 function FriendSection({ title, people, empty, onOpen, children }) {
-  return <div><h2 className="mb-3 text-sm font-black text-[#15151b]">{title}</h2>{people.length ? <div className="grid gap-3 sm:grid-cols-2">{people.map((person, index) => <PersonCard key={person.slug} person={person} tone={["coral", "lime", "cyan"][index % 3]} onOpen={() => onOpen(person)}>{children(person)}</PersonCard>)}</div> : <p className="rounded-2xl border-2 border-dashed border-black/10 p-5 text-center text-xs font-semibold text-[#6b6b79]">{empty}</p>}</div>;
+  return <div><h2 className="mb-3 text-sm font-black text-[#15151b]">{title}</h2>{people.length ? <div className="grid gap-3 sm:grid-cols-2">{people.map((person, index) => <PersonCard key={person.slug} person={person} tone={["coral", "lime", "cyan"][index % 3]} onOpen={() => onOpen(person)}>{children(person)}</PersonCard>)}</div> : <p className="rounded-2xl border-2 border-dashed border-black/10 p-5 text-center text-[13px] font-semibold text-[#6b6b79]">{empty}</p>}</div>;
 }
 
 function ActionButton({ children, className = "", ...props }) {
-  return <button type="button" {...props} className={`min-h-10 rounded-full bg-[#15151b] px-4 text-xs font-black text-white shadow-md transition-transform active:scale-95 disabled:opacity-50 ${className}`}>{children}</button>;
+  return <button type="button" {...props} className={`min-h-10 rounded-full bg-[#15151b] px-4 text-[13px] font-black text-white shadow-md transition-transform active:scale-95 disabled:opacity-50 ${className}`}>{children}</button>;
 }
 
 function SecondaryButton({ children, ...props }) {
-  return <button type="button" {...props} className="min-h-10 rounded-full border-2 border-black/10 bg-white/70 px-4 text-xs font-black text-[#15151b] transition-transform active:scale-95 disabled:opacity-50">{children}</button>;
+  return <button type="button" {...props} className="min-h-10 rounded-full border-2 border-black/10 bg-white/70 px-4 text-[13px] font-black text-[#15151b] transition-transform active:scale-95 disabled:opacity-50">{children}</button>;
 }
 
 function ProfileDialog({ data, onClose, onAccept, onSend, working }) {
   const { t } = useTranslation();
   const { profile, relationship } = data;
   const details = [["work", profile.jobTitle], ["school", profile.education], ["interests", profile.hobbies], ["terminal", profile.skills], ["location_on", profile.address]].filter(([, value]) => value);
-  return <div className="fixed inset-0 z-[300] grid place-items-end bg-black/60 p-0 backdrop-blur-sm sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="friend-profile-title" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="friends-profile"><button type="button" onClick={onClose} className="friends-profile__close" aria-label={t("friends.close")}><span className="material-symbols-outlined">close</span></button><div className="text-center"><div className="friends-profile__avatar"><Avatar person={profile} size="h-24 w-24" /></div><h2 id="friend-profile-title" className="mt-3 text-2xl font-black text-[#15151b]">{profile.displayName}</h2><p className="text-sm font-bold text-[#666674]">@{profile.slug}</p>{profile.headline && <p className="mt-1 text-sm text-[#666674]">{profile.headline}</p>}{profile.friendsCount != null && <p className="mt-2 text-xs font-black text-[#15151b]">{t("friends.friendCount", { count: profile.friendsCount })}</p>}{profile.mutualFriendsCount > 0 && <span className="friends-chip friends-chip--violet mt-2">{t("friends.mutualFriends", { count: profile.mutualFriendsCount })}</span>}</div>{profile.bio && <p className="mt-5 whitespace-pre-line rounded-3xl bg-[#f1f1f6] p-4 text-sm leading-relaxed text-[#30303a]">{profile.bio}</p>}{details.length > 0 && <div className="mt-4 space-y-2">{details.map(([icon, value]) => <p key={icon} className="flex gap-3 text-sm text-[#30303a]"><span className="material-symbols-outlined text-xl text-[#777786]">{icon}</span><span>{value}</span></p>)}</div>}{profile.sharedLocation && <p className="mt-4 flex items-center gap-2 rounded-2xl bg-[#c7f7ff] p-3 text-xs font-black text-[#15151b]"><span className="material-symbols-outlined">location_on</span>{t(profile.sharedLocation.source === "ip" ? "friends.ipLocation" : "friends.approximatePin")}</p>}{profile.links?.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{profile.links.map((link) => <a key={`${link.label}:${link.url}`} href={link.url} target="_blank" rel="noreferrer" className="rounded-full border-2 border-black/10 px-3 py-2 text-xs font-black text-[#15151b]">{link.label || t("friends.link")}</a>)}</div>}<div className="mt-6 flex flex-wrap justify-center gap-2"><a href={`/bio/${encodeURIComponent(profile.slug)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center rounded-full border-2 border-black/10 px-4 text-xs font-black text-[#15151b]">{t("friends.fullProfile")}</a>{!relationship && <ActionButton onClick={() => onSend(profile)} disabled={working === `send:${profile.slug}`}>{t("friends.add")}</ActionButton>}{relationship?.status === "pending" && relationship.direction === "incoming" && <ActionButton onClick={() => onAccept(relationship.id)} disabled={working === `accept:${relationship.id}`}>{t("friends.accept")}</ActionButton>}{relationship?.status === "accepted" && <a href="/member/utilities/arcade?game=chess&from=friends" className="inline-flex min-h-10 items-center rounded-full bg-[#15151b] px-4 text-xs font-black text-white">{t("friends.playChess")}</a>}</div></div></div>;
+  return <div className="fixed inset-0 z-[300] grid place-items-end bg-black/60 p-0 backdrop-blur-sm sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="friend-profile-title" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="friends-profile"><button type="button" onClick={onClose} className="friends-profile__close" aria-label={t("friends.close")}><span className="material-symbols-outlined">close</span></button><div className="text-center"><div className="friends-profile__avatar"><Avatar person={profile} size="h-24 w-24" /></div><h2 id="friend-profile-title" className="mt-3 text-2xl font-black text-[#15151b]">{profile.displayName}</h2><p className="text-sm font-bold text-[#666674]">@{profile.slug}</p>{profile.headline && <p className="mt-1 text-sm text-[#666674]">{profile.headline}</p>}{profile.friendsCount != null && <p className="mt-2 text-[13px] font-black text-[#15151b]">{t("friends.friendCount", { count: profile.friendsCount })}</p>}{profile.mutualFriendsCount > 0 && <span className="friends-chip friends-chip--violet mt-2">{t("friends.mutualFriends", { count: profile.mutualFriendsCount })}</span>}</div>{profile.bio && <p className="mt-5 whitespace-pre-line rounded-3xl bg-[#f1f1f6] p-4 text-sm leading-relaxed text-[#30303a]">{profile.bio}</p>}{details.length > 0 && <div className="mt-4 space-y-2">{details.map(([icon, value]) => <p key={icon} className="flex gap-3 text-sm text-[#30303a]"><span className="material-symbols-outlined text-xl text-[#777786]">{icon}</span><span>{value}</span></p>)}</div>}{profile.sharedLocation && <p className="mt-4 flex items-center gap-2 rounded-2xl bg-[#c7f7ff] p-3 text-[13px] font-black text-[#15151b]"><span className="material-symbols-outlined">location_on</span>{t(profile.sharedLocation.source === "ip" ? "friends.ipLocation" : "friends.approximatePin")}</p>}{profile.links?.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{profile.links.map((link) => <a key={`${link.label}:${link.url}`} href={link.url} target="_blank" rel="noreferrer" className="rounded-full border-2 border-black/10 px-3 py-2 text-[13px] font-black text-[#15151b]">{link.label || t("friends.link")}</a>)}</div>}<div className="mt-6 flex flex-wrap justify-center gap-2"><a href={`/bio/${encodeURIComponent(profile.slug)}`} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center rounded-full border-2 border-black/10 px-4 text-[13px] font-black text-[#15151b]">{t("friends.fullProfile")}</a>{!relationship && <ActionButton onClick={() => onSend(profile)} disabled={working === `send:${profile.slug}`}>{t("friends.add")}</ActionButton>}{relationship?.status === "pending" && relationship.direction === "incoming" && <ActionButton onClick={() => onAccept(relationship.id)} disabled={working === `accept:${relationship.id}`}>{t("friends.accept")}</ActionButton>}{relationship?.status === "accepted" && <a href="/member/utilities/arcade?game=chess&from=friends" className="inline-flex min-h-10 items-center rounded-full bg-[#15151b] px-4 text-[13px] font-black text-white">{t("friends.playChess")}</a>}</div></div></div>;
 }

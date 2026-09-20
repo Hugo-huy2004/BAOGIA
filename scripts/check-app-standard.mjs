@@ -24,8 +24,10 @@ const MEMBER = path.join(ROOT, "src/components/member");
  * sau ai làm hỏng một tiêu chí là bộ này đỏ.
  */
 const CERTIFIED = {
+  friends: "20/09/2026 — 4 màn có địa chỉ thật (bản cũ chỉ đọc ?view= một lần lúc khởi tạo nên back của máy nhảy ra khỏi app), chữ lên sàn 13px ở cả JSX lẫn CSS, mr-10 đoán tay → CLOSE_BUTTON_RESERVE. Giữ hình thái bản đồ toàn màn (ngoại lệ có lý do)",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
+  bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
   vocab: "20/09/2026 — 8 emoji → Material Symbols, 89 chỗ chữ <13px lên 13px (chữ Hán cần cỡ lớn hơn chữ Latin mới đọc được); sidebar desktop có sẵn nhờ AppFrame. CÒN NỢ: 2.386 dòng trong MỘT file, cần tách — bộ kiểm không đo cấu trúc mã",
@@ -49,6 +51,14 @@ const EXCEPTIONS = {
   // /member/utilities/<id>. Bắt chúng dựng router chỉ để bộ kiểm xanh là thêm
   // code không ai dùng.
   "address@profile": "hồ sơ là một màn đọc, không có màn con",
+  // App BẢN ĐỒ toàn màn: bản đồ phải tràn viền và nằm DƯỚI mọi thứ, điều hướng là
+  // topbar nổi + bottom sheet + dock nổi — đúng khuôn Apple dùng cho Find My và
+  // Maps. Nhét vào AppFrame (nav kính + cột giữa + tab bar) là phá chính thiết kế
+  // đó. Đây là ngoại lệ về HÌNH THÁI, không phải chỗ chưa muốn sửa: friends vẫn
+  // phải đạt 9 tiêu chí còn lại, và nó có trong FULLSCREEN_APP_IDS.
+  "frame@friends": "app bản đồ toàn màn (Find My / Maps pattern) — nav nổi trên bản đồ, không dùng nav kính của khung",
+  "responsive@friends": "bản đồ tự lấp mọi bề ngang; bottom sheet và dock đã là bố cục nổi, không cần cột giữa",
+
   "address@radio": "một trang cuộn (trình phát + đài + hẹn giờ + thông tin); bộ điều hướng 5 trang cũ là code chết và đã gỡ 20/09",
 };
 
@@ -88,7 +98,8 @@ const CRITERIA = [
   {
     id: "frame",
     label: "dùng khung chung AppFrame (một bộ chrome cho mọi app)",
-    test: ({ entry }) => /from\s+["'][^"']*os\/AppFrame["']/.test(entry),
+    test: ({ entry, appName }) => Boolean(EXCEPTIONS[`frame@${appName}`])
+      || /from\s+["'][^"']*os\/AppFrame["']/.test(entry),
   },
   {
     id: "address",
@@ -118,7 +129,8 @@ const CRITERIA = [
      * Đạt khi vỏ có một trong hai: layout chia khung theo breakpoint
      * (lg:grid, md:flex…), hoặc đủ dày breakpoint để coi là đã chăm màn rộng.
      */
-    test: ({ entry }) => /from\s+["'][^"']*os\/AppFrame["']/.test(entry)
+    test: ({ entry, appName }) => Boolean(EXCEPTIONS[`responsive@${appName}`])
+      || /from\s+["'][^"']*os\/AppFrame["']/.test(entry)
       || /\b(sm|md|lg|xl):(grid|flex|block|hidden|col|w-|max-w-)/.test(entry)
       || (entry.match(/\b(sm|md|lg|xl):/g) || []).length >= 6,
   },

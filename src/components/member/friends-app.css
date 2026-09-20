@@ -135,7 +135,7 @@
   border-radius: 999px;
   background: rgb(255 255 255/0.83);
   color: #34343e;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 900;
   box-shadow: 0 6px 18px rgb(46 46 63/0.12);
   backdrop-filter: blur(10px);
@@ -226,7 +226,7 @@
   border-radius: 999px;
   background: rgb(21 21 27/0.88);
   color: #fff;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -261,7 +261,7 @@
   padding: 0 10px;
   border-radius: 11px;
   color: #d2d2db;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 950;
 }
 .friends-map__modes button.is-active {
@@ -308,7 +308,7 @@
   backdrop-filter: blur(8px);
 }
 .friends-map__gesture-hint span {
-  font-size: 12px;
+  font-size: 13px;
 }
 .friends-map__credit {
   position: absolute;
@@ -430,7 +430,7 @@
 .friends-carousel__profile small {
   margin-top: 2px;
   color: #6d6d79;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 750;
 }
 .friends-carousel__hint {
@@ -443,7 +443,7 @@
   border-radius: 999px;
   background: rgb(21 21 27/0.84);
   color: #fff;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 800;
 }
 .friends-carousel__hint span {
@@ -543,7 +543,7 @@
 .friends-kicker {
   margin-bottom: 3px;
   color: #7b7b89;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 1000;
   letter-spacing: 0.18em;
 }
@@ -641,11 +641,11 @@
   border-radius: 999px;
   background: rgb(255 255 255/0.75);
   color: #4c4c58;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 900;
 }
 .friends-chip .material-symbols-outlined {
-  font-size: 12px;
+  font-size: 13px;
 }
 .friends-chip--violet {
   background: #ded4ff;
@@ -749,7 +749,7 @@
 }
 .friends-request-popup__person small {
   color: #686876;
-  font-size: 9px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -763,7 +763,7 @@
 .friends-request-popup__person b {
   margin-top: 2px;
   color: #656572;
-  font-size: 11px;
+  font-size: 13px;
 }
 .friends-request-popup__actions {
   display: grid;

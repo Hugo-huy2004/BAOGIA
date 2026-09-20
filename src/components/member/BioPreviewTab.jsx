@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import AppFrame from "./os/AppFrame";
 import { localeForLanguage } from "../../i18n/languages";
 import { getMemberSession } from "../../services/authSession";
 import "../../styles/bioStudio.css";
@@ -17,11 +18,19 @@ export default function BioPreviewTab({
   onBack,
   renderAccountForm,
   handleSave,
+  route,
+  onRouteChange,
 }) {
   const { t, i18n } = useTranslation();
   const ready = Boolean(publicLink);
   const session = getMemberSession();
-  const [activeSection, setActiveSection] = useState("design");
+  // Mục đang mở đọc từ URL (/member/utilities/bio/<mục>) chứ không giữ trong
+  // state: tải lại trang hay dán link đều về đúng mục. Mục lạ rơi về "design".
+  const routed = typeof onRouteChange === "function";
+  const [localSection, setLocalSection] = useState("design");
+  const rawSection = routed ? route : localSection;
+  const activeSection = EDITOR_SECTIONS.some((x) => x.id === rawSection) ? rawSection : "design";
+  const setActiveSection = (id) => (routed ? onRouteChange(id) : setLocalSection(id));
 
   const membership = useMemo(() => {
     const now = new Date();
@@ -66,60 +75,50 @@ export default function BioPreviewTab({
     }
   };
 
+  const linkLabel = ready ? publicLink.replace(/^https?:\/\//, "") : t("memberPortal.bioPreview.notReadyTitle");
+
   return (
-    <div className="bio-studio md:animate-fadeIn h-full flex flex-col md:block md:h-auto overflow-hidden md:overflow-visible">
-      {/* ── 1. HEADER CHỈ CHO DESKTOP (md:flex, giữ nguyên 100% desktop) ── */}
-      <header className="bio-studio-navbar hidden md:flex">
-        {/* Tên trang + đường dẫn + trạng thái gộp vào một dòng. Trước đây phần
-            này là một thẻ riêng ngay dưới thanh điều hướng, lặp lại y hệt. */}
-        <div className="bio-studio-navbar-copy">
-          <span>
-            <strong>{bio?.displayName || session?.displayName || t("memberPortal.bioPreview.studioTitle")}</strong>
-            <small>
-              <span className={`bio-studio-dot ${ready ? "is-live" : ""}`} aria-hidden="true" />
-              {ready ? publicLink.replace(/^https?:\/\//, "") : t("memberPortal.bioPreview.notReadyTitle")}
-            </small>
-          </span>
-        </div>
-
-        <div className="bio-studio-navbar-actions mr-10">
-          {ready ? (
-            <>
-              <button type="button" onClick={copyLink} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
-                <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
-              </button>
-              <a href={publicLink} target="_blank" rel="noreferrer" className="bio-studio-open-button" aria-label={t("memberPortal.bioPreview.openAria")}>
-                <span>{t("memberPortal.bioPreview.open")}</span>
-                <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-              </a>
-            </>
-          ) : null}
-        </div>
-      </header>
-
-
-
-      <div className="bio-studio-workspace flex-1 min-h-0 overflow-y-auto md:overflow-visible md:h-auto pb-28 md:pb-0 px-3 md:px-0">
+    /*
+     * Chuyển sang khung chung `AppFrame` (20/09/2026).
+     *
+     * Trước đây app này có HAI chrome hiện cùng một thông tin: header
+     * `hidden md:flex` cho desktop và thanh cố định dưới đáy cho điện thoại —
+     * cả hai đều là tên trang + đường dẫn + nút chép/mở. Cộng thêm một dải
+     * segmented tự dựng cho 3 mục. Nay: tên và đường dẫn vào tiêu đề/phụ đề,
+     * nút chép/mở vào khe `actions`, 3 mục thành `tabs` của khung (desktop ra
+     * dải phân đoạn, điện thoại ra thanh tab dưới).
+     *
+     * Header cũ còn dùng `mr-10` đoán tay để né nút X — nay khung tự chừa theo
+     * CLOSE_BUTTON_RESERVE nên không còn con số rời rạc nào.
+     */
+    <AppFrame
+      appId="bio"
+      subtitle={linkLabel}
+      largeTitle
+      onBack={onBack}
+      tabs={EDITOR_SECTIONS.map((section) => ({
+        id: section.id,
+        icon: section.icon,
+        label: t(`memberPortal.bioPreview.${section.labelKey}`),
+      }))}
+      tab={activeSection}
+      onTabChange={setActiveSection}
+      actions={ready ? (
+        <span className="flex items-center gap-1">
+          <button type="button" onClick={copyLink} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
+            <span className="material-symbols-outlined" aria-hidden="true">{copied ? "check" : "content_copy"}</span>
+          </button>
+          <a href={publicLink} target="_blank" rel="noreferrer" className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.openAria")}>
+            <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+          </a>
+        </span>
+      ) : null}
+      scrollKey={activeSection}
+      wide
+    >
+    <div className="bio-studio">
+      <div className="bio-studio-workspace">
         <main className="bio-studio-editor">
-          <div className="bio-studio-segmented" role="tablist" aria-label={t("memberPortal.bioPreview.customizeTitle")}>
-            {EDITOR_SECTIONS.map((section) => {
-              const active = activeSection === section.id;
-              return (
-                <button
-                  key={section.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  className={active ? "is-active" : ""}
-                  onClick={() => setActiveSection(section.id)}
-                >
-                  <span className="material-symbols-outlined" aria-hidden="true">{section.icon}</span>
-                  <span>{t(`memberPortal.bioPreview.${section.labelKey}`)}</span>
-                </button>
-              );
-            })}
-          </div>
-
           <section className="bio-studio-editor-content" role="tabpanel">
             {renderAccountForm?.(activeSection)}
           </section>
@@ -184,54 +183,7 @@ export default function BioPreviewTab({
         </details>
       </div>
 
-      {/* ── 3. MOBILE INTEGRATED BOTTOM BAR (CHỈ HIỂN THỊ TRÊN MOBILE) ── */}
-      <div
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-2xl border-t border-border/60 shadow-2xl transition-all"
-        style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 12px))" }}
-      >
-        <div className="px-4 pt-2.5 flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full shrink-0 ${ready ? "bg-emerald-500 shadow-xs shadow-emerald-500/50" : "bg-zinc-400"}`} />
-              <strong className="text-[13px] font-bold text-foreground truncate block leading-tight">
-                {bio?.displayName || session?.displayName || t("memberPortal.bioPreview.studioTitle")}
-              </strong>
-            </div>
-            <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5 leading-none">
-              {ready ? publicLink.replace(/^https?:\/\//, "") : t("memberPortal.bioPreview.notReadyTitle")}
-            </p>
-          </div>
-
-          {ready && (
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={copyLink}
-                className="h-9 w-9 rounded-xl border border-border/80 bg-background/80 hover:bg-muted active:scale-90 flex items-center justify-center text-foreground transition-all shadow-xs"
-                aria-label={t("memberPortal.bioPreview.copyLinkAria")}
-                title={t("memberPortal.bioPreview.copyLinkAria")}
-              >
-                {copied ? (
-                  <span className="material-symbols-outlined text-[18px] text-emerald-500 font-bold">check</span>
-                ) : (
-                  <span className="material-symbols-outlined text-[18px]">content_copy</span>
-                )}
-              </button>
-
-              <a
-                href={publicLink}
-                target="_blank"
-                rel="noreferrer"
-                className="h-9 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-primary/25 hover:opacity-95 active:scale-95 transition-all"
-                aria-label={t("memberPortal.bioPreview.openAria")}
-              >
-                <span>{t("memberPortal.bioPreview.open", "Mở trang")}</span>
-                <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
+    </AppFrame>
   );
 }
