@@ -50,7 +50,8 @@
     "cv:pdf:ats-en": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy-ats-en.pdf \"file://$PWD/public/cv/index.html?lang=en&layout=ats\"",
     "check:cv": "python3 scripts/check-cv-ats.py",
     "check:wallet-auth": "node server/scripts/check-wallet-auth.mjs",
-    "check:app-standard": "node scripts/check-app-standard.mjs"
+    "check:app-standard": "node scripts/check-app-standard.mjs",
+    "joy:audit": "node server/scripts/joy-audit.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",
