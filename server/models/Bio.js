@@ -420,6 +420,12 @@ const BioSchema = new mongoose.Schema(
       penalized: { type: [Number], default: [] },
       openedAt:    { type: Date, default: null },
       repaidAt:    { type: Date, default: null },
+      // Bậc chế tài ĐÃ THI HÀNH và đã báo cho người vay (shared/joyLaterPolicy.js).
+      // Lưu lại chứ không tính tại chỗ mỗi lần đọc vì hai lý do: người dùng chỉ
+      // được chặn bởi thứ đã được báo trước, và một khoản nợ nằm đúng ranh giới
+      // ngày sẽ nhảy qua lại giữa hai bậc nếu tính lại liên tục.
+      enforcedStage: { type: String, default: 'ontime' },
+      enforcedAt:    { type: Date, default: null },
       // Món đã mở bằng khoản vay — để đối soát và hiện lại trong ví.
       itemLabel:   { type: String, default: '' },
       itemKey:     { type: String, default: '' },

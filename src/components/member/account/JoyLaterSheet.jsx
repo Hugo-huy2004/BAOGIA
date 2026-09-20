@@ -153,6 +153,35 @@ export default function JoyLaterSheet({ onBalanceChange }) {
           <p className="mt-2 text-xs text-muted-foreground">
             {t("memberPortal.joyLater.progress", { paid: paid, total: loan.principal + loan.fee, percent: progress })}
           </p>
+
+          {/* BẢNG BÁO TRƯỚC. Chế tài mà người vay chỉ biết lúc đã mất quyền thì
+              không phải chế tài, mà là một cái bẫy. Ở đây nói đúng ba điều:
+              đang ở bậc nào, quyền nào đã mất, còn mấy ngày tới bậc kế tiếp. */}
+          {loan.enforcement && loan.enforcement.stage !== "ontime" && (
+            <div className="mt-3 rounded-xl bg-muted p-3">
+              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-foreground">
+                <span className="material-symbols-outlined text-[17px]">schedule</span>
+                {t(`memberPortal.joyLater.stage.${loan.enforcement.stage}`, {
+                  days: loan.enforcement.daysOverdue,
+                })}
+              </p>
+              {loan.enforcement.restrict.length > 0 && (
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  {loan.enforcement.restrict
+                    .map((item) => t(`memberPortal.joyLater.restrict.${item}`))
+                    .join(" · ")}
+                </p>
+              )}
+              {loan.enforcement.next && (
+                <p className="mt-1.5 text-[12px] font-medium text-foreground">
+                  {t("memberPortal.joyLater.stageNext", {
+                    days: loan.enforcement.next.inDays,
+                    stage: t(`memberPortal.joyLater.stageName.${loan.enforcement.next.stage}`),
+                  })}
+                </p>
+              )}
+            </div>
+          )}
           <dl className="mt-3 space-y-1 text-sm">
             <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.itemRow")}</dt><dd className="font-semibold">{loan.itemLabel || "—"}</dd></div>
             <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.garnishRow")}</dt><dd className="font-semibold">{Math.round(status.garnishRate * 100)}%</dd></div>

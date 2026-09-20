@@ -4349,7 +4349,26 @@
       "lockedUntil": "Opens {{date}}",
       "lockedNote": "Split returns only open on the due date.",
       "lateNote": "A late part adds {{percent}}% of that part, once.",
-      "lateWarn": "Miss a due date: {{percent}}% of that part is added, once."
+      "lateWarn": "Miss a due date: {{percent}}% of that part is added, once.",
+      "stage": {
+        "grace": "{{days}} days past due",
+        "restricted": "Restricted since day {{days}} past due",
+        "frozen": "Spending frozen — {{days}} days past due",
+        "locked": "Locked for a fixed term — {{days}} days past due",
+        "review": "Case awaiting administrative review — {{days}} days past due"
+      },
+      "stageName": {
+        "restricted": "restricted",
+        "frozen": "spending frozen",
+        "locked": "30-day account lock",
+        "review": "referral for review"
+      },
+      "restrict": {
+        "new_loan": "No new plans",
+        "transfer": "No JOY transfers",
+        "spend": "No JOY spending"
+      },
+      "stageNext": "{{days}} days until the next level: {{stage}}"
     },
     "walletApp": {
       "eyebrow": "E-WALLET",

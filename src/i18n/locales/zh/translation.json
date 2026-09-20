@@ -2544,7 +2544,26 @@
       "lockedUntil": "{{date}} 开放",
       "lockedNote": "分批归还只在到期当天开放。",
       "lateNote": "逾期一批将附加该批的 {{percent}}%，只加一次。",
-      "lateWarn": "逾期未还：附加该批的 {{percent}}%，只加一次。"
+      "lateWarn": "逾期未还：附加该批的 {{percent}}%，只加一次。",
+      "stage": {
+        "grace": "已逾期 {{days}} 天",
+        "restricted": "自逾期第 {{days}} 天起受限",
+        "frozen": "消费冻结 — 逾期 {{days}} 天",
+        "locked": "定期封禁 — 逾期 {{days}} 天",
+        "review": "案卷待管理层复核 — 逾期 {{days}} 天"
+      },
+      "stageName": {
+        "restricted": "受限",
+        "frozen": "消费冻结",
+        "locked": "封禁三十日",
+        "review": "呈报复核"
+      },
+      "restrict": {
+        "new_loan": "不可新开分期",
+        "transfer": "不可转赠 JOY",
+        "spend": "不可消费 JOY"
+      },
+      "stageNext": "距下一级尚有 {{days}} 天：{{stage}}"
     },
     "walletApp": {
       "eyebrow": "电子钱包",

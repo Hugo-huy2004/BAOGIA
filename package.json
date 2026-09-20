@@ -19,7 +19,7 @@
     "setup": "npm install && npm run server:install",
     "check:api-auth": "node scripts/check-api-auth.mjs",
     "check:coder-content": "node scripts/check-coder-content.mjs",
-    "check:all": "npm run lint && npm run check:imports && npm run check:app-standard && npm run check:gateway && npm run check:guards && npm run check:admin-auth && npm run check:api-auth && npm run check:telegram && npm run check:money && npm run check:wallet-auth && npm run check:transfer-caps && npm run check:notification-source && npm run check:notification-tone && npm run check:joy-stability && npm run check:survey && npm run check:vocab && npm run check:coder-content && npm run check:reading && npm run check:exam && npm run check:grading && npm run check:catalog && npm run check:today && npm run build && npm run check:seo && npm run check:csp && npm run check:performance",
+    "check:all": "npm run lint && npm run check:imports && npm run check:app-standard && npm run check:gateway && npm run check:guards && npm run check:admin-auth && npm run check:api-auth && npm run check:telegram && npm run check:money && npm run check:wallet-auth && npm run check:transfer-caps && npm run check:notification-source && npm run check:notification-tone && npm run check:joy-stability && npm run check:survey && npm run check:joylater-policy && npm run check:vocab && npm run check:coder-content && npm run check:reading && npm run check:exam && npm run check:grading && npm run check:catalog && npm run check:today && npm run build && npm run check:seo && npm run check:csp && npm run check:performance",
     "build:native": "VITE_BUILD_TARGET=native vite build --outDir dist-native",
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
@@ -56,6 +56,7 @@
     "check:notification-source": "node server/scripts/check-notification-source.mjs",
     "check:notification-tone": "node server/scripts/check-notification-tone.mjs",
     "check:survey": "node server/scripts/check-survey.mjs",
+    "check:joylater-policy": "node server/scripts/check-joylater-policy.mjs",
     "check:joy-stability": "node server/scripts/check-joy-stability.mjs",
     "joy:recall": "node server/scripts/joy-recall.mjs",
     "joy:report": "node -e \"import('./server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\""

@@ -115,6 +115,11 @@ export async function joyLaterStatus(email) {
   const loan = bio.joyLoan || {};
   const outstanding = Number(loan.outstanding) || 0;
 
+  // Bậc chế tài đọc sổ đen nên phải await ở đây — describeLoan bên dưới giữ
+  // nguyên tính thuần và chỉ nhận kết quả.
+  const { assessDebt } = await import('../services/joyLaterEnforcement.js');
+  const enforcement = outstanding > 0 ? await assessDebt(bio) : null;
+
   const check = eligibility({
     isAdult: isAdultAge(bioAge(bio)),
     accountDays,
@@ -132,12 +137,18 @@ export async function joyLaterStatus(email) {
     feeRate: JOYLATER.feeRate,
     maxInstallments: JOYLATER.maxInstallments,
     latePenaltyRate: JOYLATER.latePenaltyRate,
-    loan: outstanding > 0 ? describeLoan(bio.joyLoan, medianDaily) : null,
+    loan: outstanding > 0 ? describeLoan(bio.joyLoan, medianDaily, enforcement) : null,
   };
 }
 
-/** Một lượt đang chạy, nhìn từ phía giao diện. */
-function describeLoan(loan, medianDaily) {
+/**
+ * Một lượt đang chạy, nhìn từ phía giao diện.
+ *
+ * `enforcement` truyền VÀO chứ không tự tra: hàm này thuần và đồng bộ, còn bậc
+ * chế tài phải đọc sổ đen trong database. Kéo một lệnh await vào đây là biến
+ * một hàm kiểm được bằng dữ liệu giả thành một hàm cần cả database.
+ */
+function describeLoan(loan, medianDaily, enforcement = null) {
   const state = readLoan(loan);
   const step = nextInstallment(state.schedule, state.paid);
   const dueAt = state.dueAt[step.index - 1] || null;
@@ -174,6 +185,17 @@ function describeLoan(loan, medianDaily) {
     dueAt: state.dueAt,
     steps,
     lateCount: state.penalized.length,
+    // Bậc chế tài đang ở và bậc kế tiếp. Trả kèm ở đây chứ không để client gọi
+    // thêm một lần nữa: màn ví phải NÓI TRƯỚC "còn N ngày nữa mất quyền gì",
+    // và một cảnh báo đến sau khi đã mất quyền thì không còn là cảnh báo.
+    enforcement: enforcement && {
+      stage: loan.enforcedStage || 'ontime',
+      daysOverdue: enforcement.daysOverdue,
+      restrict: enforcement.stage.restrict,
+      next: enforcement.next
+        ? { stage: enforcement.next.stage.id, inDays: enforcement.next.inDays }
+        : null,
+    },
     next: {
       ...step,
       // Đợt cuối gánh cả khoản trễ đang treo, nếu không thì hoàn hết các đợt
@@ -225,6 +247,18 @@ export async function quoteLoan(email, principal, installments = 1) {
  * hiện có (thuê tháng, mua vĩnh viễn, HugoSO…) dùng lại được không cần sửa.
  */
 export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemKey = '', installments = 1 } = {}) {
+  // Sổ đen tra TRƯỚC mọi thứ khác. Tra theo băm số điện thoại nên một tài khoản
+  // mới lập bằng email khác vẫn bị bắt — đó là điểm của việc giữ hồ sơ ngoài Bio.
+  const { blacklistCheck } = await import('../services/joyLaterEnforcement.js');
+  const owner = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] }, 'email phone').lean();
+  const banned = await blacklistCheck({ email, phone: owner?.phone || '' });
+  if (banned) {
+    const error = new Error('JOYLATER_BLACKLISTED');
+    error.reason = banned.reason;
+    error.cases = banned.cases;
+    throw error;
+  }
+
   const quote = await quoteLoan(email, principal, installments);
   if (!quote.eligible) {
     const error = new Error('JOYLATER_NOT_ELIGIBLE');
@@ -307,6 +341,10 @@ export async function openJoyLaterLoan(email, principal, { itemLabel = '', itemK
  * Trừ nợ từ một lần NHẬN JOY. Gọi từ `awardJoy` — cửa duy nhất mọi biến động
  * JOY đi qua, nên không có đường nào nhận JOY mà lách được việc trả nợ.
  */
+// Ba chỗ dưới đây đều đưa `outstanding` về 0, và cả ba đều phải gỡ
+// `enforcedStage` trong CÙNG lệnh ghi đó. Tách ra một hàm gọi sau thì chỉ cần
+// quên một nhánh là người đã trả xong vẫn bị chặn chuyển JOY cho tới lần quét
+// cron hôm sau — một lỗi không ai báo, chỉ âm thầm làm mất lòng tin.
 export async function repayFromIncome(bio, incomeAmount) {
   const outstanding = Number(bio?.joyLoan?.outstanding) || 0;
   const cut = repaymentFor(incomeAmount, outstanding);
@@ -320,7 +358,7 @@ export async function repayFromIncome(bio, incomeAmount) {
       // `paid` cộng song song với outstanding: lịch đợt soi `paid`, nên phần tự
       // giữ lại này chính là thứ làm người chơi đều tay không bao giờ bị trễ.
       $inc: { 'joyLoan.outstanding': -cut, 'joyLoan.paid': cut },
-      ...(outstanding - cut === 0 ? { $set: { 'joyLoan.repaidAt': new Date() } } : {}),
+      ...(outstanding - cut === 0 ? { $set: { 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' } } : {}),
     },
     { new: true },
   );
@@ -463,7 +501,7 @@ export async function payInstallment(email) {
     { _id: bio._id, 'joyLoan.outstanding': outstanding },
     {
       $inc: { 'joyLoan.outstanding': -due, 'joyLoan.paid': due },
-      ...(outstanding - due === 0 ? { $set: { 'joyLoan.repaidAt': new Date() } } : {}),
+      ...(outstanding - due === 0 ? { $set: { 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' } } : {}),
     },
     { new: true },
   );
@@ -502,7 +540,7 @@ export async function payOffJoyLater(email) {
   const cleared = await Bio.findOneAndUpdate(
     { _id: bio._id, 'joyLoan.outstanding': outstanding },
     {
-      $set: { 'joyLoan.outstanding': 0, 'joyLoan.repaidAt': new Date() },
+      $set: { 'joyLoan.outstanding': 0, 'joyLoan.repaidAt': new Date(), 'joyLoan.enforcedStage': 'ontime' },
       $inc: { 'joyLoan.paid': outstanding },
     },
     { new: true },

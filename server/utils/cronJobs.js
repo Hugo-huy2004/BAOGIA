@@ -24,6 +24,24 @@ export function initCronJobs() {
     }
   });
 
+  // Chế tài nợ JOYlater — 10:00 giờ VN (03:00 UTC), mỗi ngày một lần.
+  //
+  // MỖI NGÀY MỘT LẦN là cố ý. Bậc thang tính theo NGÀY quá hạn, nên quét dày
+  // hơn cũng không đổi kết quả mà chỉ làm người dùng có thể nhận hai thông báo
+  // cùng bậc. Giờ 10:00 để hồ sơ chờ duyệt rơi vào giờ hành chính, chứ không
+  // nằm chờ suốt đêm.
+  cron.schedule('0 3 * * *', async () => {
+    try {
+      const { enforceAll } = await import('../services/joyLaterEnforcement.js');
+      const result = await enforceAll();
+      if (result.changed.length) {
+        console.log(`[CRON] JOYlater: quét ${result.scanned} khoản, ${result.changed.length} khoản leo bậc`);
+      }
+    } catch (error) {
+      console.error('[CRON] Chế tài JOYlater:', error.message);
+    }
+  });
+
   // Nhắc ôn từ vựng — 08:00 & 20:00 giờ VN (01:00 & 13:00 UTC). CHỈ nhắc người
   // ĐANG học (có thẻ tới hạn), nên tập gửi luôn nhỏ và tự thu hẹp khi ai ngừng
   // học. Kèm một từ mẫu để vừa nhắc vừa "lâu lâu hiện một từ dễ nhớ".

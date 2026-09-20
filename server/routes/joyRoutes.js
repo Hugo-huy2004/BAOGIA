@@ -8,6 +8,8 @@ import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { checkMoneyStepUp, sendMoneyOtpEmail } from '../services/moneyStepUp.js';
 import { assessTransferHold } from '../services/transferHold.js';
+import { debtRestriction } from '../services/joyLaterEnforcement.js';
+import { RESTRICTIONS } from '../../shared/joyLaterPolicy.js';
 import PendingTransfer from '../models/PendingTransfer.js';
 import CoderResource from '../models/CoderResource.js';
 import ReadingSession from '../models/ReadingSession.js';
@@ -1758,6 +1760,12 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     const sender = await Bio.findOne({ email: fromEmail });
     if (!sender) return rejectRequest(404, 'Không tìm thấy hồ sơ người gửi.');
+
+    // Chế tài nợ JOYlater. Chặn ở ĐÂY, ngay sau khi có hồ sơ người gửi và trước
+    // mọi phép tính tiền: chuyển JOY là đường duy nhất để đẩy số dư sang tài
+    // khoản khác rồi bỏ lại tài khoản đang nợ.
+    const debtBlock = debtRestriction(sender, RESTRICTIONS.TRANSFER);
+    if (debtBlock) return rejectRequest(403, debtBlock, 'JOYLATER_OVERDUE');
 
     // 2. Xác thực 2 lớp — dưới ngưỡng giữ luật cũ (PIN nếu đã cài), từ ngưỡng
     // lên bắt buộc PIN + OTP email. `numAmount` là JOY gốc nên so ngưỡng trực

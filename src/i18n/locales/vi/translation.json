@@ -4390,7 +4390,26 @@
       "lockedUntil": "Mở lúc {{date}}",
       "lockedNote": "Chia đợt thì đúng ngày mới hoàn được.",
       "lateNote": "Trễ một đợt sẽ cộng {{percent}}% của đợt đó, một lần.",
-      "lateWarn": "Trễ ngày hoàn: cộng {{percent}}% của đợt đó, tính một lần."
+      "lateWarn": "Trễ ngày hoàn: cộng {{percent}}% của đợt đó, tính một lần.",
+      "stage": {
+        "grace": "Đã quá hạn {{days}} ngày",
+        "restricted": "Hạn chế từ ngày quá hạn thứ {{days}}",
+        "frozen": "Đóng băng chi tiêu — quá hạn {{days}} ngày",
+        "locked": "Khoá có thời hạn — quá hạn {{days}} ngày",
+        "review": "Hồ sơ đang chờ quản trị xem xét — quá hạn {{days}} ngày"
+      },
+      "stageName": {
+        "restricted": "hạn chế",
+        "frozen": "đóng băng chi tiêu",
+        "locked": "khoá tài khoản 30 ngày",
+        "review": "hồ sơ trình quản trị"
+      },
+      "restrict": {
+        "new_loan": "Không mở khoản mới",
+        "transfer": "Không chuyển JOY",
+        "spend": "Không tiêu JOY"
+      },
+      "stageNext": "Còn {{days}} ngày nữa chuyển sang mức: {{stage}}"
     },
     "walletApp": {
       "eyebrow": "VÍ ĐIỆN TỬ",

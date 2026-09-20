@@ -187,6 +187,15 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
     const { handleStabilityCallback } = await import('../services/joyStabilityService.js');
     if (await handleStabilityCallback({ chatId, messageId: cb.message?.message_id, data: cbData })) return;
 
+    // JOYlater: duyệt/bỏ qua hồ sơ cấm vĩnh viễn. Cấm vĩnh viễn KHÔNG tự động —
+    // xem chú thích đầu shared/joyLaterPolicy.js.
+    const { handleJoyLaterCallback } = await import('../services/joyLaterEnforcement.js');
+    const jl = await handleJoyLaterCallback({ data: cbData, by: String(chatId) });
+    if (jl) {
+      if (jl.text) await sendTelegramAlert(jl.text);
+      return;
+    }
+
     if (cbData.startsWith('cb_award_1000:')) {
       const targetEmail = cbData.replace('cb_award_1000:', '');
       const bio = await Bio.findOne({ email: targetEmail });
