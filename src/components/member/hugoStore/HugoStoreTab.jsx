@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../shared/BackButton";
+import AppFrame from "../os/AppFrame";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import { useJoyStore } from "../../../stores/joyStore";
@@ -51,11 +52,19 @@ const StoreSkeleton = () => (
   </div>
 );
 
-export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOpenUtility }) {
+export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOpenUtility, route, onRouteChange }) {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [search, setSearch] = useState("");
-  const [detailId, setDetailId] = useState(null);
+  /*
+   * Màn chi tiết app đọc từ ĐỊA CHỈ (/member/utilities/store/<appId>) chứ không
+   * giữ trong state: dán link cho người khác là họ mở đúng app đó, tải lại trang
+   * không rơi về danh sách, và nút back của máy lùi đúng một cấp.
+   */
+  const routed = typeof onRouteChange === "function";
+  const [localDetailId, setLocalDetailId] = useState(null);
+  const detailId = routed ? (route || null) : localDetailId;
+  const setDetailId = (id) => (routed ? onRouteChange(id || "home") : setLocalDetailId(id));
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [exchange, setExchange] = useState(null);
@@ -198,40 +207,29 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   }, []);
 
   return (
-    <div className="flex flex-col h-[100dvh] lg:h-full w-full bg-background relative overflow-hidden">
-      {/* FIXED HEADER WITH BLUR */}
-      <header
-        className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 transition-all duration-300 ${
-          scrolled || detail ? "bg-background/80 backdrop-blur-lg border-b border-border/40 shadow-sm" : "bg-transparent"
-        }`}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          {detail && (
-            <button
-              type="button"
-              onClick={leaveDetail}
-              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground py-1 px-2.5 rounded-full bg-muted/60 active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-sm">arrow_back</span>
-              <span>Cửa hàng</span>
-            </button>
-          )}
-          <span className={`font-semibold text-[16px] text-foreground transition-opacity duration-300 ${scrolled || detail ? "opacity-100" : "opacity-0"}`}>
-            {detail ? detail.app.label : storeName()}
-          </span>
-        </div>
-        <div className="flex items-center bg-muted/60 px-3 py-1.5 rounded-full border border-border/50 shadow-sm backdrop-blur-md mr-12">
-          <JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />
-        </div>
-      </header>
-
+    /*
+     * Chuyển sang khung chung `AppFrame` (20/09/2026).
+     *
+     * Header cũ tự dựng: thanh `absolute` có blur, nút quay lại với chữ "Cửa
+     * hàng" VIẾT CỨNG tiếng Việt (không qua i18n dù app có 3 ngôn ngữ), tiêu đề
+     * ẩn/hiện theo `scrolled` — đúng thứ khung đã làm sẵn — và `mr-12` đoán tay
+     * để né nút X. Nay chỉ còn khai báo phần riêng: số dư JOY ở khe `actions`.
+     *
+     * Ở màn chi tiết, `onBack` lùi về danh sách; ở danh sách nó đóng app.
+     */
+    <AppFrame
+      appId="store"
+      title={detail ? detail.app.label : storeName()}
+      largeTitle={!detail}
+      onBack={detail ? leaveDetail : onBack}
+      backLabel={detail ? storeName() : undefined}
+      actions={<JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />}
+      scrollKey={detailId || ""}
+      contentClassName=""
+      wide
+    >
       {/* SCROLLABLE CONTENT */}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto pb-20 pt-14 hide-scrollbar"
-        {...tapGuard}
-      >
+      <div className="pb-20" {...tapGuard}>
         {loading && plans.length === 0 ? (
           <StoreSkeleton />
         ) : detail ? (
@@ -280,6 +278,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
         onConfirm={exchange?.confirm}
         onSuccess={afterExchange}
       />
-    </div>
+    </AppFrame>
   );
 }

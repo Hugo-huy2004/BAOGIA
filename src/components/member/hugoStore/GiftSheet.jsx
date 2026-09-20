@@ -161,7 +161,7 @@ export default function GiftSheet({ plan, appLabel, onClose, onContinue }) {
                   <p className={`mt-0.5 text-[15px] font-bold tabular-nums ${tier === opt.id ? "" : "hgs-ink"}`}>
                     {joyText(opt.price)}
                   </p>
-                  <p className={`text-[12.5px] ${tier === opt.id ? "text-white/75" : "hgs-dim"}`}>{opt.note}</p>
+                  <p className={`text-[13px] ${tier === opt.id ? "text-white/75" : "hgs-dim"}`}>{opt.note}</p>
                 </button>
               ))}
             </div>

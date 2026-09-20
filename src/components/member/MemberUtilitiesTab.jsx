@@ -234,6 +234,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           showToast={showToast}
           onBioUpdate={onBioUpdate}
           onBack={() => onSelectUtility(null)}
+          route={appRoute}
+          onRouteChange={onAppRouteChange}
           onOpenUtility={onSelectUtility}
         />
       )}

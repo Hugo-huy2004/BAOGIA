@@ -55,7 +55,7 @@ export default function StoreAppDetail({ entry, balance, onOpen, onInstall, onTr
                   type="button"
                   onClick={() => onGift?.(ladder.appId)}
                   aria-label={t("utilities.store.app.giftAria", { app: app.label })}
-                  className="w-[34px] h-[34px] rounded-full bg-muted flex items-center justify-center text-primary transition-colors hover:bg-muted/80"
+                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-primary transition-colors hover:bg-muted/80"
                 >
                   <span className="material-symbols-outlined text-[19px]">redeem</span>
                 </button>
@@ -171,7 +171,7 @@ function Tier({ title, note, usedNote, price, badge, cta, highlight, state, shor
           <div className="flex items-center flex-wrap gap-2">
             <p className="text-[17px] font-bold text-foreground">{title}</p>
             {badge && !disabled && (
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[13px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 {badge}
               </span>
             )}
@@ -193,7 +193,7 @@ function Tier({ title, note, usedNote, price, badge, cta, highlight, state, shor
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className={`mt-4 w-full h-[42px] rounded-xl text-[15px] font-bold transition-colors ${
+        className={`mt-4 w-full h-11 rounded-xl text-[15px] font-bold transition-colors ${
           highlight && !disabled
             ? "bg-primary text-primary-foreground hover:bg-primary/90"
             : "bg-muted text-foreground hover:bg-muted-foreground/20"

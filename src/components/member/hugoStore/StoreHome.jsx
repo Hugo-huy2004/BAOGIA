@@ -151,7 +151,7 @@ export default function StoreHome({
                       <div className="absolute inset-0 z-20 rounded-[24px] pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-white/20" />
                     </div>
                     <h3 className="text-[15px] font-bold text-foreground line-clamp-1">{entry.app.label}</h3>
-                    <p className="text-[12px] text-muted-foreground line-clamp-1 mt-0.5">{entry.app.tagline}</p>
+                    <p className="text-[13px] text-muted-foreground line-clamp-1 mt-0.5">{entry.app.tagline}</p>
                   </div>
                 ))}
               </div>
@@ -206,7 +206,7 @@ export default function StoreHome({
                     <div key={pack._id} className={`flex items-center gap-4 p-4 ${i !== list.length - 1 ? 'border-b border-border/40' : ''}`}>
                       <div className="w-[50px] h-[50px] shrink-0 rounded-[14px] bg-muted flex items-center justify-center text-2xl relative shadow-sm border border-border/20" style={{ backgroundColor: `${group.color}15`, color: group.color }}>
                         <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent mix-blend-overlay rounded-[14px]" />
-                        <span className="drop-shadow-sm">💎</span>
+                        <span className="material-symbols-outlined drop-shadow-sm" aria-hidden="true">diamond</span>
                       </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-bold text-foreground text-[16px]">{pack.name}</h3>
@@ -240,11 +240,11 @@ export default function StoreHome({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-foreground text-[15px] line-clamp-1">{order.productName}</p>
-                      <p className="text-[12px] text-muted-foreground">{formatDate(order.createdAt)}</p>
+                      <p className="text-[13px] text-muted-foreground">{formatDate(order.createdAt)}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-bold text-foreground text-[15px] tabular-nums">{moneyUnit(order.priceJoy)}</p>
-                      <p className="text-[11px] font-mono text-muted-foreground">{order.purchaseCode}</p>
+                      <p className="text-[13px] font-mono text-muted-foreground">{order.purchaseCode}</p>
                     </div>
                   </div>
                 ))}
@@ -266,7 +266,7 @@ export default function StoreHome({
                     <JoyCoinBadge amount={balance} size="md" />
                   </div>
                 </div>
-                <p className="relative z-10 max-w-[140px] text-right text-[12px] text-white/90 leading-snug drop-shadow-sm font-medium">
+                <p className="relative z-10 max-w-[140px] text-right text-[13px] text-white/90 leading-snug drop-shadow-sm font-medium">
                   {t("utilities.store.home.balanceHint")}
                 </p>
               </div>
