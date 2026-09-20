@@ -11,14 +11,12 @@ const MODEL = process.env.HUGO_TRANSLATION_MODEL || "qwen2.5:3b";
 const OLLAMA_URL = process.env.HUGO_OLLAMA_URL || "http://127.0.0.1:11434";
 const START_FRESH = process.env.HUGO_TRANSLATION_FRESH === "1";
 const FINALIZE_PARTIAL = process.env.HUGO_TRANSLATION_FINALIZE_PARTIAL === "1";
+// Chỉ còn BA ngôn ngữ chính: vi (nguồn), en (viết tay), zh (dịch ở đây).
+// Sáu đích cũ (th, ja, ko, id, es, fr) đã gỡ khỏi SUPPORTED_LANGUAGES
+// (src/i18n/languages.js) — để lại ở đây thì lần chạy sau lại sinh ra 6 bộ
+// locale mà app không bao giờ nạp.
 const TARGETS = {
   zh: "Simplified Chinese for Mainland China",
-  th: "Thai",
-  ja: "Japanese",
-  ko: "Korean",
-  id: "Indonesian",
-  es: "Spanish for Spain",
-  fr: "French for France",
 };
 const CRITICAL_ACCOUNT_COPY = {
   zh: {
@@ -30,66 +28,6 @@ const CRITICAL_ACCOUNT_COPY = {
     "memberPortal.accountHub.documents.rightsTitle": "权利与访问",
     "memberPortal.accountHub.documents.privilegesTitle": "会员特权",
     "memberPortal.accountHub.documents.conditionsTitle": "会员权利与义务",
-  },
-  th: {
-    "memberPortal.settings.account.bioTitle": "โปรไฟล์ Hugo Bio",
-    "memberPortal.settings.account.bioDescription": "ปรับแต่งรูปลักษณ์ บัตรสมาชิก และลิงก์โซเชียลของคุณ",
-    "memberPortal.settings.account.publicBio": "หน้า Bio สาธารณะ",
-    "memberPortal.settings.account.publicBioDescription": "เปิดหน้า Bio สาธารณะของคุณ",
-    "memberPortal.accountHub.done": "เสร็จสิ้น",
-    "memberPortal.accountHub.documents.rightsTitle": "สิทธิและการเข้าถึง",
-    "memberPortal.accountHub.documents.privilegesTitle": "สิทธิพิเศษสำหรับสมาชิก",
-    "memberPortal.accountHub.documents.conditionsTitle": "สิทธิและหน้าที่ของสมาชิก",
-  },
-  ja: {
-    "memberPortal.settings.account.bioTitle": "Hugo Bioプロフィール",
-    "memberPortal.settings.account.bioDescription": "外観、会員カード、ソーシャルリンクをカスタマイズ",
-    "memberPortal.settings.account.publicBio": "公開Bioページ",
-    "memberPortal.settings.account.publicBioDescription": "公開Bioページを開く",
-    "memberPortal.accountHub.done": "完了",
-    "memberPortal.accountHub.documents.rightsTitle": "権利とアクセス",
-    "memberPortal.accountHub.documents.privilegesTitle": "会員特典",
-    "memberPortal.accountHub.documents.conditionsTitle": "会員の権利と義務",
-  },
-  ko: {
-    "memberPortal.settings.account.bioTitle": "Hugo Bio 프로필",
-    "memberPortal.settings.account.bioDescription": "외관, 회원 카드 및 소셜 링크 맞춤 설정",
-    "memberPortal.settings.account.publicBio": "공개 Bio 페이지",
-    "memberPortal.settings.account.publicBioDescription": "공개 Bio 페이지 열기",
-    "memberPortal.accountHub.done": "완료",
-    "memberPortal.accountHub.documents.rightsTitle": "권리 및 접근",
-    "memberPortal.accountHub.documents.privilegesTitle": "회원 특전",
-    "memberPortal.accountHub.documents.conditionsTitle": "회원의 권리와 의무",
-  },
-  id: {
-    "memberPortal.settings.account.bioTitle": "Profil Hugo Bio",
-    "memberPortal.settings.account.bioDescription": "Sesuaikan tampilan, kartu anggota, dan tautan sosial Anda",
-    "memberPortal.settings.account.publicBio": "Halaman Bio publik",
-    "memberPortal.settings.account.publicBioDescription": "Buka halaman Bio publik Anda",
-    "memberPortal.accountHub.done": "Selesai",
-    "memberPortal.accountHub.documents.rightsTitle": "Hak dan akses",
-    "memberPortal.accountHub.documents.privilegesTitle": "Keistimewaan anggota",
-    "memberPortal.accountHub.documents.conditionsTitle": "Hak dan kewajiban anggota",
-  },
-  es: {
-    "memberPortal.settings.account.bioTitle": "Perfil de Hugo Bio",
-    "memberPortal.settings.account.bioDescription": "Personaliza tu apariencia, tarjeta de miembro y enlaces sociales",
-    "memberPortal.settings.account.publicBio": "Página Bio pública",
-    "memberPortal.settings.account.publicBioDescription": "Abre tu página Bio pública",
-    "memberPortal.accountHub.done": "Listo",
-    "memberPortal.accountHub.documents.rightsTitle": "Derechos y acceso",
-    "memberPortal.accountHub.documents.privilegesTitle": "Privilegios de miembro",
-    "memberPortal.accountHub.documents.conditionsTitle": "Derechos y obligaciones de los miembros",
-  },
-  fr: {
-    "memberPortal.settings.account.bioTitle": "Profil Hugo Bio",
-    "memberPortal.settings.account.bioDescription": "Personnalisez votre apparence, votre carte de membre et vos liens sociaux",
-    "memberPortal.settings.account.publicBio": "Page Bio publique",
-    "memberPortal.settings.account.publicBioDescription": "Ouvrir votre page Bio publique",
-    "memberPortal.accountHub.done": "Terminé",
-    "memberPortal.accountHub.documents.rightsTitle": "Droits et accès",
-    "memberPortal.accountHub.documents.privilegesTitle": "Privilèges des membres",
-    "memberPortal.accountHub.documents.conditionsTitle": "Droits et obligations des membres",
   },
 };
 // Hand-written copy the compact local model cannot be trusted with (marketing

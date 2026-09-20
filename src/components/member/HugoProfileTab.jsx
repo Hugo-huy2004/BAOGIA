@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import SubUtilityHeader from "./SubUtilityHeader";
+import AppFrame from "./os/AppFrame";
+import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage } from "../../i18n/languages";
@@ -58,7 +59,15 @@ export default function HugoProfileTab({ onBack, publicLink }) {
   }, [data?.capabilities?.learningEvidence, loadEvidence]);
 
   const removeEvidence = async (item) => {
-    if (!window.confirm(t("utilities.profile.evidenceDeleteConfirm", { title: item.title }))) return;
+    // notify.confirm, KHÔNG window.confirm: hộp thoại của trình duyệt chặn cả
+    // luồng, không theo theme, và trong PWA độc lập trên iOS nó hiện kèm tên
+    // miền trông như cảnh báo lạ. Quy ước dự án là một hệ thông báo duy nhất.
+    const ok = await notify.confirm({
+      title: t("utilities.profile.evidenceDeleteTitle", "Xoá minh chứng?"),
+      message: t("utilities.profile.evidenceDeleteConfirm", { title: item.title }),
+      danger: true,
+    });
+    if (!ok) return;
     setDeletingEvidenceId(item.id);
     try {
       await profileEvidenceApi.remove(item.id);
@@ -94,20 +103,41 @@ export default function HugoProfileTab({ onBack, publicLink }) {
   const publishing = data?.publishing;
 
   return (
-    <div className="animate-fadeIn mx-auto max-w-2xl">
-      <SubUtilityHeader title={t("utilities.catalog.profile.title")} icon="badge" colorClass="text-primary" onBack={onBack} appId="profile" />
-
+    /*
+     * Chuyển từ `SubUtilityHeader` sang khung chung `AppFrame` (20/09/2026).
+     *
+     * Vì sao: portal đang có BA bộ chrome song song — `AppFrame`, header này, và
+     * các app tự dựng. Cùng một portal mà mỗi app một kiểu nút quay lại, một cỡ
+     * chữ tiêu đề, một cách chừa safe-area; đó mới là gốc của cảm giác "UI không
+     * đồng bộ". Gộp về một khung thì sửa một chỗ là cả hệ đổi theo.
+     *
+     * Chỉ gộp CẤU TRÚC, không gộp MÀU: nền/nhấn của app vẫn do `appPalette` cấp
+     * theo tint riêng trong appRegistry, đúng chủ ý "mỗi app tự cầm màu của mình".
+     * Nội dung bên dưới giữ nguyên token portal (`bg-card`, `text-foreground`) —
+     * chúng đọc từ biến trên `:root` nên không bị `AppFrame` đè.
+     *
+     * `SubUtilityHeader` có nút cài PWA mà `AppFrame` không có, nên chuyển nó vào
+     * khe `actions` — nếu không, đổi khung là mất mất một tính năng.
+     */
+    <AppFrame
+      appId="profile"
+      title={t("utilities.catalog.profile.title")}
+      largeTitle
+      onBack={onBack}
+      actions={<StandaloneInstallButton appTitle={t("utilities.catalog.profile.title")} appId="profile" />}
+      contentMaxWidth="720px"
+    >
       {!profile ? (
-        <p className="px-1 py-10 text-center text-sm text-muted-foreground">{t("utilities.profile.loading")}</p>
+        <p className="px-1 py-10 text-center text-[15px] text-muted-foreground">{t("utilities.profile.loading")}</p>
       ) : (
         <div className="space-y-5">
           <section className="rounded-2xl border border-border/60 bg-card p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
               {t("utilities.profile.eyebrow")}
             </p>
             <h2 className="mt-1 text-xl font-bold tracking-[-0.02em] text-foreground">{profile.displayName}</h2>
             {profile.headline && <p className="mt-1 text-sm text-muted-foreground">{profile.headline}</p>}
-            <p className="mt-3 text-[11px] text-muted-foreground">
+            <p className="mt-3 text-[13px] text-muted-foreground">
               {t("utilities.profile.generatedAt", { date: new Date(profile.generatedAt).toLocaleString(locale) })}
             </p>
           </section>
@@ -140,18 +170,18 @@ export default function HugoProfileTab({ onBack, publicLink }) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-bold text-foreground">{t("utilities.profile.evidenceTitle")}</h3>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
                     {t("utilities.profile.evidenceDescription")}
                   </p>
                 </div>
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[13px] font-bold text-emerald-600 dark:text-emerald-400">
                   <span className="material-symbols-outlined text-[15px]" aria-hidden="true">verified</span>
                   {t("utilities.profile.evidencePrivate")}
                 </span>
               </div>
 
               {evidenceError ? (
-                <div className="mt-4 rounded-xl bg-destructive/10 p-3 text-xs text-destructive">
+                <div className="mt-4 rounded-xl bg-destructive/10 p-3 text-[13px] text-destructive">
                   <p>{evidenceError}</p>
                   <button type="button" onClick={() => loadEvidence()} className="mt-2 font-bold underline">
                     {t("utilities.profile.evidenceRetry")}
@@ -161,7 +191,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
                 <div className="mt-4 rounded-xl border border-dashed border-border px-4 py-6 text-center">
                   <span className="material-symbols-outlined text-2xl text-muted-foreground" aria-hidden="true">workspace_premium</span>
                   <p className="mt-2 text-sm font-semibold text-foreground">{t("utilities.profile.evidenceEmpty")}</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("utilities.profile.evidenceEmptyHint")}</p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t("utilities.profile.evidenceEmptyHint")}</p>
                 </div>
               ) : (
                 <div className="mt-4 space-y-2.5">
@@ -173,7 +203,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="text-sm font-semibold leading-snug text-foreground">{item.title}</h4>
-                          <p className="mt-1 text-[11px] text-muted-foreground">
+                          <p className="mt-1 text-[13px] text-muted-foreground">
                             {t("utilities.profile.evidenceCompletedAt", {
                               date: new Date(item.occurredAt).toLocaleString(locale),
                             })}
@@ -181,7 +211,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
                           {item.skillTags.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
                               {item.skillTags.map((tag) => (
-                                <span key={tag} className="rounded-md bg-background px-2 py-1 text-[10px] font-medium text-muted-foreground">
+                                <span key={tag} className="rounded-md bg-background px-2 py-1 text-[13px] font-medium text-muted-foreground">
                                   {tag}
                                 </span>
                               ))}
@@ -207,7 +237,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
               )}
 
               {evidenceLoading && (
-                <p className="mt-4 text-center text-xs text-muted-foreground">{t("utilities.profile.evidenceLoading")}</p>
+                <p className="mt-4 text-center text-[13px] text-muted-foreground">{t("utilities.profile.evidenceLoading")}</p>
               )}
               {nextEvidenceCursor && !evidenceLoading && (
                 <button
@@ -231,7 +261,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
           {/* Công bố: đây là phần tính JOY. Chưa thuê thì nút mở Hugo Store. */}
           <section className="rounded-2xl border border-border/60 bg-card p-5">
             <h3 className="text-sm font-bold text-foreground">{t("utilities.profile.publishTitle")}</h3>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("utilities.profile.publishDesc")}</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t("utilities.profile.publishDesc")}</p>
 
             {publishing?.entitled ? (
               <>
@@ -246,25 +276,25 @@ export default function HugoProfileTab({ onBack, publicLink }) {
                   />
                 </label>
                 {publishing.enabled && publicLink && (
-                  <p className="mt-2 break-all text-xs text-muted-foreground">{publicLink}</p>
+                  <p className="mt-2 break-all text-[13px] text-muted-foreground">{publicLink}</p>
                 )}
               </>
             ) : (
-              <p className="mt-4 rounded-xl bg-muted/60 px-3.5 py-3 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-4 rounded-xl bg-muted/60 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
                 {t("utilities.profile.needPlan")}
               </p>
             )}
           </section>
         </div>
       )}
-    </div>
+    </AppFrame>
   );
 }
 
 function ProofSection({ title, children }) {
   return (
     <section className="rounded-2xl border border-border/60 bg-card p-5">
-      <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{title}</h3>
+      <h3 className="mb-3 text-[13px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{title}</h3>
       <dl className="space-y-2.5">{children}</dl>
     </section>
   );

@@ -4,52 +4,6 @@ import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
 
 export function initCronJobs() {
-  // Nhắc "vượt mốc hoà vốn" của sàn ảo — giá bước 30s nhưng nhắc thì 5 phút là
-  // đủ: đây là bài học chốt lời, không phải tín hiệu giao dịch tần suất cao.
-  // Mỗi vị thế nhắc đúng MỘT lần mỗi phiên (notifiedSession), update có điều
-  // kiện nên hai tiến trình chạy song song cũng không gửi trùng.
-  cron.schedule('*/5 * * * *', async () => {
-    try {
-      const [{ default: StockPosition }, { default: StockCompany }, market, pricing, { notifyMember }] = await Promise.all([
-        import('../models/StockPosition.js'),
-        import('../models/StockCompany.js'),
-        import('../services/stockMarket.js'),
-        import('../../shared/stockPricing.js'),
-        import('./notifyMember.js'),
-      ]);
-      await market.runSession();
-      const session = market.sessionKey();
-      const positions = await StockPosition.find({ quantity: { $gt: 0 }, avgCost: { $gt: 0 }, notifiedSession: { $ne: session } }).lean();
-      if (!positions.length) return;
-
-      const symbols = [...new Set(positions.map((p) => p.symbol))];
-      const companies = await StockCompany.find({ symbol: { $in: symbols } }).lean();
-      const priceOf = Object.fromEntries(companies.map((c) => [c.symbol, market.livePrice(c, { key: session })]));
-      const threshold = 1 + pricing.breakEvenPct(false);
-
-      for (const pos of positions) {
-        const price = priceOf[pos.symbol];
-        if (!price || price < pos.avgCost * threshold) continue;
-        const claimed = await StockPosition.updateOne(
-          { _id: pos._id, notifiedSession: { $ne: session } },
-          { $set: { notifiedSession: session } },
-        );
-        if (!claimed.modifiedCount) continue;
-        const pct = Math.round((price / pos.avgCost - 1) * 1000) / 10;
-        await notifyMember({
-          email: pos.email,
-          key: 'event.stockBreakEven',
-          params: { symbol: pos.symbol, pct: String(pct) },
-          category: 'joy',
-          actionUrl: '/member/utilities/invest',
-          push: true,
-        }).catch((err) => console.error('[CRON] Nhắc hoà vốn:', err.message));
-      }
-    } catch (error) {
-      console.error('[CRON] Nhắc hoà vốn sàn ảo:', error.message);
-    }
-  });
-
   // Nhắc ôn từ vựng — 08:00 & 20:00 giờ VN (01:00 & 13:00 UTC). CHỈ nhắc người
   // ĐANG học (có thẻ tới hạn), nên tập gửi luôn nhỏ và tự thu hẹp khi ai ngừng
   // học. Kèm một từ mẫu để vừa nhắc vừa "lâu lâu hiện một từ dễ nhớ".

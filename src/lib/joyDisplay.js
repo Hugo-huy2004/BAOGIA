@@ -132,7 +132,10 @@ export function useJoy() {
   return {
     denom: "JOY",
     chosen: true,
-    rates: null,
+    // `locale` để mọi chỗ định dạng ngày/số theo ĐÚNG ngôn ngữ app đang dùng.
+    // Thiếu nó thì nơi gọi phải truyền `undefined` cho toLocaleDateString và rơi
+    // về locale của trình duyệt — lệch âm thầm với phần còn lại của app.
+    locale: currentLocale(),
     code: "JOY",
     name: "JOY",
     value: joyValue,

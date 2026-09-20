@@ -4,35 +4,6 @@ import { useJoy } from "../../../lib/joyDisplay";
 import { hapticSelect } from "../../../utils/haptics";
 import { memberTier } from "../../../lib/memberTier";
 
-                            
-                  
-                         
-                       
-            
-                          
-                   
-                      
-                                          
- 
-
-                           
-             
-               
-                   
-                   
-             
-                    
-                       
-                     
-                 
-                         
-                            
-                               
-                           
-                   
-                                 
- 
-
 // 4 bảng màu chuẩn theo chính sách các hạng thành viên:
 // 1. Star-18: Vàng nghệ rực rỡ + đốm xanh cobalt & đen organic
 // 2. Star-14: Hồng pastel mềm mại + nét xanh cobalt & đen
@@ -163,10 +134,10 @@ export default function MetalCard3D({
   copied,
   activeTier,
   onTierChange,
-}                  ) {
+}) {
   const [isFlipped, setIsFlipped] = useState(false);
   const joy = useJoy();
-  const barcodeRef = useRef                      (null);
+  const barcodeRef = useRef(null);
 
   // Suy ra hạng từ chính sách hệ thống (Star-18, Star-14, Star-VIP hoặc Eco)
   const policyTier = useMemo(() => {
@@ -177,9 +148,9 @@ export default function MetalCard3D({
     return "eco";
   }, [bio]);
 
-  const [internalThemeId, setInternalThemeId] = useState        (policyTier);
+  const [internalThemeId, setInternalThemeId] = useState(policyTier);
   const selectedThemeId = activeTier || internalThemeId;
-  const setSelectedThemeId = (id        ) => {
+  const setSelectedThemeId = (id) => {
     setInternalThemeId(id);
     onTierChange?.(id);
   };
@@ -359,10 +330,10 @@ export default function MetalCard3D({
                 <h4 className="text-sm sm:text-base font-black font-mono tracking-wider uppercase m-0 text-center text-white">
                   {currentTheme.name}
                 </h4>
-                <span className="text-[10px] font-bold text-amber-300 mt-0.5 tracking-wider uppercase text-center">
+                <span className="text-[12px] font-bold text-amber-300 mt-0.5 tracking-wider uppercase text-center">
                   Hạng chưa mở khóa
                 </span>
-                <span className="text-[9px] text-white/75 mt-0.5 text-center leading-tight">
+                <span className="text-[13px] text-white/75 mt-0.5 text-center leading-snug">
                   {currentTheme.lockHint}
                 </span>
               </div>
@@ -387,7 +358,7 @@ export default function MetalCard3D({
             <div className="relative z-10 flex items-end justify-between pt-2">
               <div className="text-left">
                 <span
-                  className="text-[9.5px] sm:text-[10.5px] font-semibold block mb-0.5 tracking-wide uppercase"
+                  className="text-[11px] sm:text-[12px] font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{ color: currentTheme.subtextColor }}
                 >
                   Chủ thẻ
@@ -400,7 +371,7 @@ export default function MetalCard3D({
                 </span>
                 <div className="flex items-center gap-2 sm:gap-2.5 mt-0.5">
                   <span
-                    className="text-[10px] sm:text-[11px] font-mono font-semibold tracking-wider block"
+                    className="text-[11px] sm:text-[12px] font-mono font-semibold tracking-wider block"
                     style={{ color: currentTheme.subtextColor }}
                     title={tierExp.hint}
                   >
@@ -412,7 +383,7 @@ export default function MetalCard3D({
               {/* SỐ JOY HIỆN TẠI THAY THẾ CHO EXP DATE (MÀU CHỐNG CHÌM TRÊN MỌI MẢNG NỀN) */}
               <div className="text-right">
                 <span
-                  className="text-[10px] sm:text-xs font-semibold block mb-0.5 tracking-wide uppercase"
+                  className="text-[11px] sm:text-xs font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{
                     color: currentTheme.balanceSubtextColor || currentTheme.subtextColor,
                     textShadow: currentTheme.id === "star18" ? "0 1px 2px rgba(0,0,0,0.8)" : "none",
@@ -492,7 +463,7 @@ export default function MetalCard3D({
 
               {/* Các dòng chữ chính sách quy định về dùng thẻ */}
               <div
-                className="space-y-1 text-[7.5px] sm:text-[8.5px] leading-relaxed select-none"
+                className="space-y-1 text-[11px] sm:text-[12px] leading-relaxed select-none"
                 style={{ color: currentTheme.backTextColor || currentTheme.textColor }}
               >
                 <p className="m-0 font-medium opacity-85">
@@ -520,7 +491,7 @@ export default function MetalCard3D({
                 hapticSelect();
                 setSelectedThemeId(t.id);
               }}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+              className={`px-3 py-1 rounded-full text-[13px] font-bold transition-all flex items-center gap-1.5 border ${
                 isActive
                   ? "bg-foreground text-background border-foreground shadow-sm scale-105"
                   : "bg-muted/50 text-muted-foreground border-transparent hover:text-foreground hover:bg-muted"
@@ -536,7 +507,7 @@ export default function MetalCard3D({
                 <span className="material-symbols-outlined text-[13px] opacity-70">lock</span>
               )}
               {isOwned && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-extrabold">
+                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-extrabold">
                   Hiện tại
                 </span>
               )}

@@ -90,7 +90,7 @@ const mn = (c, lang) => (lang === "en_zh" && c?.meaningEn ? c.meaningEn : c?.mea
 
 function HanVietChip({ text }) {
   if (!text) return null;
-  return <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-bold" style={{ background: CHIP, color: LABEL }}><Icon name="compare_arrows" size={13} /> 汉越：{text}</span>;
+  return <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[13px] font-bold" style={{ background: CHIP, color: LABEL }}><Icon name="compare_arrows" size={13} /> 汉越：{text}</span>;
 }
 
 const DECK_LABELS = {
@@ -274,7 +274,7 @@ function IconChip({ name, size = 22 }) {
 }
 // Tiêu đề khu + ô thao tác nhanh — giúp bố cục gọn, rõ từng nhóm.
 function SectionTitle({ children }) {
-  return <p className="mb-2 mt-1 px-1 text-[12px] font-black uppercase tracking-wider" style={{ color: LABEL2 }}>{children}</p>;
+  return <p className="mb-2 mt-1 px-1 text-[13px] font-black uppercase tracking-wider" style={{ color: LABEL2 }}>{children}</p>;
 }
 const CARD_COLORS = ["#8b5cf6", "#f97316", "#22c55e", "#ec4899", "#3b82f6", "#14b8a6"];
 // Vòng tiến độ tròn (SVG) — hiện % tổng ở giữa.
@@ -315,11 +315,11 @@ function LessonCard({ color, title, sub, done, total, pct, onClick, disabled }) 
       <div className="flex h-[76px] items-center justify-center" style={{ background: color }}><Face /></div>
       <div className="p-3.5">
         <div className="text-[15px] font-black" style={{ color: LABEL }}>{title}</div>
-        <div className="mt-0.5 truncate text-[11.5px]" style={{ color: LABEL2 }}>{sub}</div>
+        <div className="mt-0.5 truncate text-[13px]" style={{ color: LABEL2 }}>{sub}</div>
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
           <div className="h-full rounded-full transition-all" style={{ width: `${p}%`, background: color }} />
         </div>
-        <div className="mt-1.5 flex items-center justify-between text-[11px] font-bold" style={{ color: LABEL2 }}>
+        <div className="mt-1.5 flex items-center justify-between text-[13px] font-bold" style={{ color: LABEL2 }}>
           <span>{hasNum ? `${done}/${total} 词` : sub && ""}</span>
           <span style={{ color: LABEL }}>{p}%</span>
         </div>
@@ -562,10 +562,10 @@ function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
       <div className="flex items-center gap-3">
         <div className="grid h-11 w-11 place-items-center rounded-full" style={{ background: GRAD_SOFT }}><Icon name="sentiment_satisfied" size={24} color={ACCENT} fill /></div>
         <div className="flex-1">
-          <div className="text-[19px] font-black" style={{ color: LABEL }} lang="zh">你好 👋</div>
-          <div className="text-[12.5px]" style={{ color: LABEL2 }}>一起学中文吧！</div>
+          <div className="text-[19px] font-black" style={{ color: LABEL }} lang="zh">你好</div>
+          <div className="text-[13px]" style={{ color: LABEL2 }}>一起学中文吧！</div>
         </div>
-        <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-black" style={{ background: CHIP, color: LABEL }}>
+        <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-black" style={{ background: CHIP, color: LABEL }}>
           <Icon name="local_fire_department" size={15} color={ACCENT} fill /> {progress?.streak ?? 0}
         </span>
       </div>
@@ -576,7 +576,7 @@ function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
           <div className="flex items-center gap-1.5 text-[16px] font-black" style={{ color: LABEL }}>
             <Icon name="auto_awesome" size={18} color={ACCENT} fill /> <span lang="zh">学习顾问</span>
           </div>
-          <div className="mt-0.5 text-[12.5px]" style={{ color: LABEL2 }}>
+          <div className="mt-0.5 text-[13px]" style={{ color: LABEL2 }}>
             今天已复习 <b style={{ color: LABEL }}>{progress?.reviewsToday ?? 0}</b> 次 · 进度、方向与学友
           </div>
         </div>
@@ -596,7 +596,7 @@ function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
           <IconChip name="bolt" />
           <div className="flex-1">
             <div className="text-[14px] font-black" style={{ color: LABEL }}>你学得很快！</div>
-            <div className="text-[12px]" style={{ color: LABEL2 }}>参加 {DECK_LABELS[status?.activeDeck]} 跳级测试，立即升级</div>
+            <div className="text-[13px]" style={{ color: LABEL2 }}>参加 {DECK_LABELS[status?.activeDeck]} 跳级测试，立即升级</div>
           </div>
           <Icon name="chevron_right" color={ACCENT} />
         </button>
@@ -606,7 +606,7 @@ function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
         <div className="rounded-[24px] border p-5 text-center" style={{ ...CARD, borderColor: SEP }}>
           <div className="mx-auto mb-2 grid h-14 w-14 place-items-center rounded-full" style={{ background: GRAD_SOFT }}><Icon name="rocket_launch" size={30} color={ACCENT} fill /></div>
           <div className="text-[15px] font-black" style={{ color: LABEL }}>你已通过 {DECK_LABELS[status?.testedOutThrough] || "现有级别"}！</div>
-          <p className="mt-1 text-[12.5px]" style={{ color: LABEL2 }}>{DECK_LABELS[status?.nextLevel] || "下一级"} 内容即将推出。</p>
+          <p className="mt-1 text-[13px]" style={{ color: LABEL2 }}>{DECK_LABELS[status?.nextLevel] || "下一级"} 内容即将推出。</p>
         </div>
       )}
 
@@ -675,9 +675,9 @@ function Reading() {
   return (
     <div className="space-y-4 pt-1">
       <div className="rounded-[24px] p-5" style={{ background: GRAD }}>
-        <div className="text-[11px] font-bold text-white/75" lang="zh">{lesson.subtitle}</div>
+        <div className="text-[13px] font-bold text-white/75" lang="zh">{lesson.subtitle}</div>
         <div className="mt-1 text-[24px] font-black text-white" lang="zh">{lesson.title}</div>
-        <div className="mt-2 text-[12px] font-semibold text-white/85" lang="zh">点击文章中的词，查看拼音和意思</div>
+        <div className="mt-2 text-[13px] font-semibold text-white/85" lang="zh">点击文章中的词，查看拼音和意思</div>
       </div>
 
       <article className="rounded-[24px] border p-5 shadow-sm" style={{ ...CARD, borderColor: SEP }}>
@@ -701,7 +701,7 @@ function Reading() {
               <PinyinText text={selectedWord.pinyin} className="mt-1 block text-[15px] font-black" />
               <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>{selectedWord.meaning}</div>
             </div>
-            <button type="button" onClick={queueWord} disabled={selectedWord.queued} className="rounded-xl px-3 py-2 text-[12px] font-black text-white disabled:opacity-60" style={{ background: ACCENT }} lang="zh">{selectedWord.queued ? "已加入" : "加入学习"}</button>
+            <button type="button" onClick={queueWord} disabled={selectedWord.queued} className="rounded-xl px-3 py-2 text-[13px] font-black text-white disabled:opacity-60" style={{ background: ACCENT }} lang="zh">{selectedWord.queued ? "已加入" : "加入学习"}</button>
           </div>
         </div>
       )}
@@ -723,7 +723,7 @@ function Reading() {
         <div className="rounded-[24px] border p-6 text-center" style={{ ...CARD, borderColor: SEP }}>
           <div className="text-[44px] font-black" style={{ color: ACCENT }}>{result.score}%</div>
           <div className="mt-1 text-[14px] font-black" style={{ color: LABEL }} lang="zh">{result.score >= 80 ? "理解得很好！" : "再读一次会更好"}</div>
-          <div className="mt-1 text-[12px]" style={{ color: LABEL2 }}>{result.correct}/{result.total} · 阅读完成</div>
+          <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>{result.correct}/{result.total} · 阅读完成</div>
         </div>
       )}
     </div>
@@ -774,12 +774,12 @@ function Conversation() {
   return (
     <div className="flex min-h-[520px] flex-col gap-3 pt-1">
       <div className="rounded-[24px] p-5" style={{ background: GRAD }}>
-        <div className="text-[11px] font-bold text-white/75" lang="zh">AI 中文老师</div>
+        <div className="text-[13px] font-bold text-white/75" lang="zh">AI 中文老师</div>
         <div className="mt-1 text-[23px] font-black text-white" lang="zh">情境对话</div>
-        <div className="mt-1 text-[12px] text-white/85" lang="zh">选择场景，用中文说出来。</div>
+        <div className="mt-1 text-[13px] text-white/85" lang="zh">选择场景，用中文说出来。</div>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {scenarios.map((item) => <button key={item} type="button" onClick={() => setScenario(item)} className="shrink-0 rounded-full px-3 py-2 text-[12px] font-black" style={scenario === item ? { background: ACCENT, color: "#fff" } : { ...CARD, border: `1px solid ${SEP}`, color: LABEL }} lang="zh">{item}</button>)}
+        {scenarios.map((item) => <button key={item} type="button" onClick={() => setScenario(item)} className="shrink-0 rounded-full px-3 py-2 text-[13px] font-black" style={scenario === item ? { background: ACCENT, color: "#fff" } : { ...CARD, border: `1px solid ${SEP}`, color: LABEL }} lang="zh">{item}</button>)}
       </div>
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto rounded-[22px] border p-3" style={{ ...CARD, borderColor: SEP }}>
         {messages.length === 0 && <div className="py-14 text-center text-[13px]" style={{ color: LABEL2 }} lang="zh">老师在等你开口…</div>}
@@ -825,9 +825,9 @@ function HanziLab() {
   return (
     <div className="space-y-4 pt-1">
       <div className="rounded-[24px] p-5" style={{ background: GRAD }}>
-        <div className="text-[11px] font-bold text-white/75" lang="zh">汉字实验室</div>
+        <div className="text-[13px] font-bold text-white/75" lang="zh">汉字实验室</div>
         <div className="mt-1 text-[23px] font-black text-white" lang="zh">认识一个字</div>
-        <div className="mt-1 text-[12px] text-white/85" lang="zh">从部件、意义和读音开始理解汉字。</div>
+        <div className="mt-1 text-[13px] text-white/85" lang="zh">从部件、意义和读音开始理解汉字。</div>
       </div>
       <div className="flex gap-2">
         <input value={input} onChange={(event) => setInput(event.target.value)} maxLength={1} className="min-w-0 flex-1 rounded-2xl border p-3 text-center text-[26px] font-black outline-none" style={{ ...CARD, borderColor: SEP, color: LABEL }} lang="zh" aria-label="输入汉字" />
@@ -844,12 +844,12 @@ function HanziLab() {
               <div className="min-w-0">
                 <PinyinText text={character.pinyin} className="block text-[20px] font-black" />
                 <div className="mt-1 text-[14px]" style={{ color: LABEL2 }}>{character.meaning}</div>
-                {character.strokeCount && <div className="mt-2 text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">笔画：{character.strokeCount}</div>}
+                {character.strokeCount && <div className="mt-2 text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">笔画：{character.strokeCount}</div>}
               </div>
             </div>
             <div className="mt-4 rounded-2xl p-3" style={{ background: CHIP }}>
-              <div className="text-[12px] font-black" style={{ color: LABEL }} lang="zh">部首：{character.radical || "资料整理中"}</div>
-              <div className="mt-1 text-[12.5px]" style={{ color: LABEL2 }} lang="zh">组成：{character.components?.join(" · ")}</div>
+              <div className="text-[13px] font-black" style={{ color: LABEL }} lang="zh">部首：{character.radical || "资料整理中"}</div>
+              <div className="mt-1 text-[13px]" style={{ color: LABEL2 }} lang="zh">组成：{character.components?.join(" · ")}</div>
               <div className="mt-2 text-[13px] leading-5" style={{ color: LABEL }}>{character.explanation}</div>
             </div>
           </div>
@@ -873,7 +873,7 @@ function PracticeTile({ icon, color, title, onClick }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1.5 rounded-2xl border p-3 active:scale-95 transition-transform" style={{ ...CARD, borderColor: SEP }}>
       <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${color}18` }}><Icon name={icon} size={22} color={color} /></span>
-      <span className="text-[12.5px] font-black leading-tight" style={{ color: LABEL }} lang="zh">{title}</span>
+      <span className="text-[13px] font-black leading-tight" style={{ color: LABEL }} lang="zh">{title}</span>
     </button>
   );
 }
@@ -939,7 +939,7 @@ function StatChip({ icon, value, label, color = LABEL }) {
   return (
     <div className="flex-1 rounded-2xl border px-1.5 py-2.5 text-center" style={{ ...CARD, borderColor: SEP }}>
       <div className="flex items-center justify-center gap-1"><Icon name={icon} size={15} color={color} /><span className="text-[17px] font-black tabular-nums" style={{ color: LABEL }}>{value}</span></div>
-      <div className="mt-0.5 text-[10px] font-bold" style={{ color: LABEL2 }}>{label}</div>
+      <div className="mt-0.5 text-[13px] font-bold" style={{ color: LABEL2 }}>{label}</div>
     </div>
   );
 }
@@ -968,15 +968,15 @@ function Missions() {
               <div className="flex items-center gap-2">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl" style={{ background: mission.complete ? "rgba(22,163,74,.12)" : CHIP }}><Icon name={mission.complete ? "check_circle" : mission.icon} size={19} color={mission.complete ? "#16a34a" : ACCENT} fill={mission.complete} /></span>
                 <span className="min-w-0 flex-1 text-[13px] font-black" style={{ color: LABEL }} lang="zh">{mission.title}</span>
-                <span className="text-[11px] font-black" style={{ color: mission.complete ? "#16a34a" : LABEL2 }}>{mission.progress}/{mission.target}</span>
+                <span className="text-[13px] font-black" style={{ color: mission.complete ? "#16a34a" : LABEL2 }}>{mission.progress}/{mission.target}</span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5"><div className="h-full rounded-full transition-all" style={{ width: `${percent}%`, background: mission.complete ? "#16a34a" : ACCENT }} /></div>
               <div className="mt-1.5 flex items-center justify-between">
-                <span className="text-[10px] font-bold" style={{ color: LABEL2 }}>{mission.period === "weekly" ? "本周" : "今日"} · +{mission.reward} JOY{mission.auto ? " · 自动" : ""}</span>
+                <span className="text-[13px] font-bold" style={{ color: LABEL2 }}>{mission.period === "weekly" ? "本周" : "今日"} · +{mission.reward} JOY{mission.auto ? " · 自动" : ""}</span>
                 {canClaim ? (
-                  <button onClick={() => claim(mission)} disabled={busy === mission.id} className="rounded-full px-3 py-1 text-[11px] font-black text-white active:scale-95 transition-transform disabled:opacity-50" style={{ background: "#16a34a" }} lang="zh">{busy === mission.id ? "…" : "领取"}</button>
+                  <button onClick={() => claim(mission)} disabled={busy === mission.id} className="rounded-full px-3 py-1 text-[13px] font-black text-white active:scale-95 transition-transform disabled:opacity-50" style={{ background: "#16a34a" }} lang="zh">{busy === mission.id ? "…" : "领取"}</button>
                 ) : mission.claimed ? (
-                  <span className="text-[10px] font-black" style={{ color: "#16a34a" }} lang="zh">已领取 ✓</span>
+                  <span className="inline-flex items-center gap-0.5 text-[13px] font-black" style={{ color: "#16a34a" }} lang="zh">已领取<span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">check</span></span>
                 ) : null}
               </div>
             </div>
@@ -993,7 +993,7 @@ function AchievementBadge({ icon, title, color }) {
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl" style={{ background: `${color}18` }}>
         <Icon name={icon} size={19} color={color} fill />
       </span>
-      <span className="text-[12px] font-black leading-tight" style={{ color: LABEL }} lang="zh">{title}</span>
+      <span className="text-[13px] font-black leading-tight" style={{ color: LABEL }} lang="zh">{title}</span>
     </div>
   );
 }
@@ -1021,9 +1021,9 @@ function Coach({ lang, onStart }) {
       <div className="flex items-center gap-4 rounded-[26px] p-4" style={{ background: GRAD }}>
         <Ring pct={d.percent} size={78} stroke={9} color="#fff" />
         <div className="min-w-0 flex-1 text-white">
-          <div className="text-[12.5px] font-bold opacity-90">{d.trackLabel} → {String(d.goalDeck || "").toUpperCase()}</div>
+          <div className="text-[13px] font-bold opacity-90">{d.trackLabel} → {String(d.goalDeck || "").toUpperCase()}</div>
           <div className="text-[22px] font-black leading-tight">{d.mastered}/{d.goalTotal} 词</div>
-          <div className="text-[12px] font-semibold opacity-90">{d.etaDate ? `预计达标 ~ ${fmtDate(d.etaDate)}` : "坚持学习以获得预计日期"}</div>
+          <div className="text-[13px] font-semibold opacity-90">{d.etaDate ? `预计达标 ~ ${fmtDate(d.etaDate)}` : "坚持学习以获得预计日期"}</div>
         </div>
       </div>
 
@@ -1032,10 +1032,10 @@ function Coach({ lang, onStart }) {
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: tone }}><Icon name="lightbulb" size={20} color="#fff" /></span>
           <div className="min-w-0">
             <div className="text-[15px] font-black" style={{ color: LABEL }}>{tip.t}</div>
-            <div className="text-[12.5px] font-semibold" style={{ color: LABEL2 }}>{tip.s}</div>
+            <div className="text-[13px] font-semibold" style={{ color: LABEL2 }}>{tip.s}</div>
           </div>
         </div>
-        <div className="mt-2 text-[12px] font-bold" style={{ color: LABEL2 }}>今天：复习 {d.plan.review} · 新学 {d.plan.learn}</div>
+        <div className="mt-2 text-[13px] font-bold" style={{ color: LABEL2 }}>今天：复习 {d.plan.review} · 新学 {d.plan.learn}</div>
         <button onClick={onStart} className="mt-2 w-full rounded-2xl py-3.5 text-[15px] font-black text-white active:scale-[0.98] transition-transform" style={{ background: tone }}>今天学习</button>
       </div>
 
@@ -1071,7 +1071,7 @@ function Coach({ lang, onStart }) {
         <div className="flex h-3 w-full overflow-hidden rounded-full" style={{ background: "rgba(0,0,0,.06)" }}>
           {seg.map((s, i) => s.n > 0 && <div key={i} style={{ width: `${(s.n / scTotal) * 100}%`, background: s.c }} />)}
         </div>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] font-bold" style={{ color: LABEL2 }}>
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-bold" style={{ color: LABEL2 }}>
           {seg.map((s, i) => <span key={i} className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full" style={{ background: s.c }} />{s.label}: {s.n}</span>)}
         </div>
       </div>
@@ -1087,7 +1087,7 @@ function Coach({ lang, onStart }) {
                   <PinyinText text={w.pinyin} className="block text-[13px] font-black" />
                   {peek === w._id && <span className="block text-[13px] font-bold" style={{ color: LABEL }}>{mn(w, lang)}</span>}
                 </span>
-                <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: "rgba(239,68,68,.12)", color: "#ef4444" }}>忘 {w.lapses} 次</span>
+                <span className="shrink-0 rounded-full px-2 py-0.5 text-[13px] font-black" style={{ background: "rgba(239,68,68,.12)", color: "#ef4444" }}>忘 {w.lapses} 次</span>
               </button>
             ))}
           </div>
@@ -1106,9 +1106,9 @@ function Coach({ lang, onStart }) {
                   : <span className="grid h-9 w-9 place-items-center rounded-full text-[14px] font-black text-white" style={{ background: GRAD }}>{(r.name || "?")[0].toUpperCase()}</span>}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-black" style={{ color: LABEL }}>{r.name}{r.me ? "（你）" : ""}</span>
-                  <span className="block text-[11.5px] font-bold" style={{ color: LABEL2 }}>🔥{r.streak} · 本周 {r.weekly} 次</span>
+                  <span className="flex items-center gap-1 text-[13px] font-bold" style={{ color: LABEL2 }}><span className="material-symbols-outlined text-[15px]" aria-hidden="true">local_fire_department</span>{r.streak} · 本周 {r.weekly} 次</span>
                 </span>
-                <span className="text-right"><span className="block text-[16px] font-black tabular-nums" style={{ color: LABEL }}>{r.mastered}</span><span className="block text-[10px] font-bold" style={{ color: LABEL2 }}>已掌握</span></span>
+                <span className="text-right"><span className="block text-[16px] font-black tabular-nums" style={{ color: LABEL }}>{r.mastered}</span><span className="block text-[13px] font-bold" style={{ color: LABEL2 }}>已掌握</span></span>
               </div>
             ))}
           </div>
@@ -1184,7 +1184,7 @@ function TossLayer() {
       onClick={dismiss}>
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-sm overflow-hidden rounded-[28px] p-4 shadow-2xl"
         style={{ background: GRAD, transform: tf, opacity: phase === "show" ? 1 : 0.2, transition: "transform .55s cubic-bezier(.2,1.1,.3,1), opacity .4s" }}>
-        <div className="mb-2 flex items-center justify-center gap-1.5 text-[12px] font-black" style={{ color: "rgba(255,255,255,.92)" }}>
+        <div className="mb-2 flex items-center justify-center gap-1.5 text-[13px] font-black" style={{ color: "rgba(255,255,255,.92)" }}>
           <Icon name="send_to_mobile" size={16} color="#fff" /> {from ? `${from} 发来一个词` : "另一台设备发来的词"}
         </div>
         <div className="flex min-h-[240px] flex-col items-center justify-center rounded-[22px] p-6 text-center" style={{ background: "#fffdf8" }}>
@@ -1198,7 +1198,7 @@ function TossLayer() {
           {card.example && (
             <div className="mt-3 border-t pt-3 text-[13px]" style={{ borderColor: SEP, color: LABEL2 }}>
               <div className="text-[15px] font-bold" style={{ color: LABEL }} lang="zh">{card.example}</div>
-              {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[12px] font-semibold" />}
+              {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[13px] font-semibold" />}
               {card.exampleMeaning && <div>{card.exampleMeaning}</div>}
             </div>
           )}
@@ -1221,7 +1221,7 @@ function FriendSend({ card }) {
     setOpen(false);
     try {
       const r = await api("/vocab/toss-friend", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: f.email, card }) });
-      setSent(r?.delivered > 0 ? `已发给 ${f.name} ✓` : `${f.name} 不在线 — 稍后再试`);
+      setSent(r?.delivered > 0 ? `已发给 ${f.name}` : `${f.name} 不在线 — 稍后再试`);
     } catch { setSent("发送失败"); }
     window.setTimeout(() => setSent(""), 2500);
   };
@@ -1234,9 +1234,9 @@ function FriendSend({ card }) {
         <div className="mt-2 space-y-1.5">
           {friends.map((f) => (
             <button key={f.email} onClick={() => send(f)} className="flex w-full items-center gap-2.5 rounded-xl border p-2 text-left active:scale-[.99] transition-transform" style={{ ...CARD, borderColor: SEP }}>
-              {f.avatar ? <img src={f.avatar} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="grid h-7 w-7 place-items-center rounded-full text-[12px] font-black text-white" style={{ background: GRAD }}>{(f.name || "?")[0].toUpperCase()}</span>}
+              {f.avatar ? <img src={f.avatar} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="grid h-7 w-7 place-items-center rounded-full text-[13px] font-black text-white" style={{ background: GRAD }}>{(f.name || "?")[0].toUpperCase()}</span>}
               <span className="flex-1 truncate text-[13px] font-bold" style={{ color: LABEL }}>{f.name}</span>
-              <span className="text-[11px] font-bold" style={{ color: f.online ? "#16a34a" : LABEL2 }}>{f.online ? "● 在线" : "离线"}</span>
+              <span className="text-[13px] font-bold" style={{ color: f.online ? "#16a34a" : LABEL2 }}>{f.online ? "● 在线" : "离线"}</span>
             </button>
           ))}
         </div>
@@ -1407,16 +1407,16 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
 
   const hud = (
     <div className="mb-3 flex items-center gap-2">
-      <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-black" style={{ background: CHIP, color: LABEL }}>
+      <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-black" style={{ background: CHIP, color: LABEL }}>
         <Icon name="school" size={13} color={ACCENT} /> {stats.learned}
       </span>
       {stats.answered >= 3 && (
-        <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-black" style={{ background: CHIP, color: acc >= 0.8 ? "#16a34a" : LABEL }}>
+        <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[13px] font-black" style={{ background: CHIP, color: acc >= 0.8 ? "#16a34a" : LABEL }}>
           <Icon name="target" size={13} color={acc >= 0.8 ? "#16a34a" : LABEL2} /> {Math.round(acc * 100)}%
         </span>
       )}
       {combo >= 2 && (
-        <span key={combo} className="v-pop flex items-center gap-0.5 rounded-full px-2.5 py-1 text-[11.5px] font-black" style={{ background: "rgba(249,115,22,.14)", color: "#f97316" }}>
+        <span key={combo} className="v-pop flex items-center gap-0.5 rounded-full px-2.5 py-1 text-[13px] font-black" style={{ background: "rgba(249,115,22,.14)", color: "#f97316" }}>
           <Icon name="local_fire_department" size={13} color="#f97316" fill /> {combo}
         </span>
       )}
@@ -1428,16 +1428,16 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
       <Icon name="rocket_launch" size={22} color={ACCENT} fill />
       <div className="min-w-0 flex-1">
         <div className="text-[13px] font-black" style={{ color: LABEL }} lang="zh">你学得很棒！({Math.round(acc * 100)}%)</div>
-        <div className="text-[11.5px]" style={{ color: LABEL2 }}>Thi vượt cấp để lên ngay · 去做跳级测试</div>
+        <div className="text-[13px]" style={{ color: LABEL2 }}>Thi vượt cấp để lên ngay · 去做跳级测试</div>
       </div>
-      <button onClick={onSkip} className="shrink-0 rounded-full px-3 py-1.5 text-[12px] font-black text-white" style={{ background: ACCENT }} lang="zh">测试</button>
+      <button onClick={onSkip} className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-black text-white" style={{ background: ACCENT }} lang="zh">测试</button>
       <button onClick={() => setSkipOffered(false)} className="shrink-0" aria-label="关闭"><Icon name="close" size={18} color={LABEL2} /></button>
     </div>
   ) : null;
 
   const rewardBurst = reward > 0 ? (
     <div className="v-burst pointer-events-none fixed left-1/2 top-1/3 z-[500] text-center" aria-hidden="true">
-      <div className="text-[44px] leading-none">🎉</div>
+      <div className="material-symbols-outlined text-[44px] leading-none" aria-hidden="true">celebration</div>
       <div className="mt-1 rounded-full px-4 py-1.5 text-[15px] font-black text-white" style={{ background: "#16a34a" }} lang="zh">+{reward} JOY · 达成每日目标!</div>
     </div>
   ) : null;
@@ -1448,7 +1448,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
       <div className="flex flex-col items-center pt-2">
         {hud}{skipBanner}{rewardBurst}
         {nearby && (
-          <div className="mb-2 flex items-center gap-1.5 text-[12px] font-black" style={{ color: ACCENT }}>
+          <div className="mb-2 flex items-center gap-1.5 text-[13px] font-black" style={{ color: ACCENT }}>
             <Icon name="swipe_up" size={16} color={ACCENT} /> 另一台设备已打开 — 向上甩牌发送过去
           </div>
         )}
@@ -1462,7 +1462,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
                   <PinyinText text={card.pinyin} className="text-[24px] font-black" />
                   <span onClick={() => speak(card.hanzi)}><Icon name="volume_up" size={24} color={ACCENT} /></span>
                 </div>
-                <div className="mt-3 text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">点击下方翻牌</div>
+                <div className="mt-3 text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">点击下方翻牌</div>
               </>
             ) : (
               <div className="w-full">
@@ -1476,7 +1476,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
                 {card.example && (
                   <div className="mt-3 border-t pt-3 text-[13px]" style={{ borderColor: SEP, color: LABEL2 }}>
                     <div className="text-[16px] font-bold" style={{ color: LABEL }} lang="zh">{card.example}</div>
-                    {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[12.5px] font-semibold" />}
+                    {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[13px] font-semibold" />}
                     {card.exampleMeaning && <div>{card.exampleMeaning}</div>}
                   </div>
                 )}
@@ -1508,7 +1508,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
   return (
     <div className="relative flex flex-col items-center pt-2">
       {hud}{skipBanner}{rewardBurst}
-      <div className="mb-2 text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">{question}</div>
+      <div className="mb-2 text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">{question}</div>
       <div className="mb-4 flex min-h-[180px] w-full flex-col items-center justify-center rounded-[28px] border p-6 text-center shadow-sm" style={{ ...CARD, borderColor: SEP }}>
         {prompt}
       </div>
@@ -1530,7 +1530,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
       </div>
       {celebrate > 0 && (
         <div className="v-burst pointer-events-none fixed left-1/2 top-1/2 z-[400] text-center" aria-hidden="true">
-          <div className="text-[64px] leading-none">🔥</div>
+          <div className="material-symbols-outlined text-[64px] leading-none" aria-hidden="true">local_fire_department</div>
           <div className="text-[20px] font-black" style={{ color: "#f97316" }} lang="zh">连对 {celebrate}！</div>
         </div>
       )}
@@ -1613,8 +1613,8 @@ function Quiz({ type, onFinish }) {
   return (
     <div className="flex flex-col items-center pt-2">
       <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-black/10"><div className="h-full rounded-full transition-all" style={{ width: `${Math.round((i / questions.length) * 100)}%`, background: ACCENT }} /></div>
-      <div className="mb-1 text-[12px] font-bold" style={{ color: LABEL2 }}>第 {i + 1} / {questions.length} 题</div>
-      {type === "placement" && i === 0 && <p className="mb-3 text-center text-[12.5px]" style={{ color: LABEL2 }}>完成本测试，系统会把你分到合适的级别。</p>}
+      <div className="mb-1 text-[13px] font-bold" style={{ color: LABEL2 }}>第 {i + 1} / {questions.length} 题</div>
+      {type === "placement" && i === 0 && <p className="mb-3 text-center text-[13px]" style={{ color: LABEL2 }}>完成本测试，系统会把你分到合适的级别。</p>}
       <div className="mb-5 mt-2 flex w-full flex-col items-center rounded-[28px] border px-8 py-10 shadow-sm" style={{ ...CARD, borderColor: SEP }}>
         <div className="flex items-center gap-2">
           <div className="text-[72px] font-black leading-none" style={{ color: LABEL }} lang="zh">{q.hanzi}</div>
@@ -1665,7 +1665,7 @@ function Essay({ onDone }) {
               const v = Math.max(0, Math.min(100, Number(feedback.dimensions[k]) || 0));
               return (
                 <div key={k} className="mb-2 last:mb-0">
-                  <div className="mb-1 flex justify-between text-[12px] font-bold" style={{ color: LABEL2 }}><span>{label}</span><span style={{ color: LABEL }}>{v}</span></div>
+                  <div className="mb-1 flex justify-between text-[13px] font-bold" style={{ color: LABEL2 }}><span>{label}</span><span style={{ color: LABEL }}>{v}</span></div>
                   <div className="h-2 w-full overflow-hidden rounded-full" style={{ background: "rgba(0,0,0,.06)" }}><div className="h-full rounded-full" style={{ width: `${v}%`, background: v >= 70 ? "#16a34a" : v >= 40 ? "#f59e0b" : "#ef4444" }} /></div>
                 </div>
               );
@@ -1693,7 +1693,7 @@ function Essay({ onDone }) {
               {feedback.errors.map((e, k) => (
                 <div key={k} className="rounded-xl p-3" style={{ background: CHIP }}>
                   <div className="text-[14px]" lang="zh"><s style={{ color: "#ef4444" }}>{e.original}</s> → <b style={{ color: "#16a34a" }}>{e.correction}</b></div>
-                  {e.explanation && <div className="mt-1 text-[12px]" style={{ color: LABEL2 }}>{e.explanation}</div>}
+                  {e.explanation && <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>{e.explanation}</div>}
                 </div>
               ))}
             </div>
@@ -1741,7 +1741,7 @@ function Essay({ onDone }) {
       {prompt?.willCharge && (
         <div className="flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3">
           <Icon name="paid" size={18} color="#d97706" />
-          <span className="text-[12.5px] font-semibold" style={{ color: LABEL }}>本次重考需 <b>{prompt.cost} JOY</b>（按你的单位折算）。</span>
+          <span className="text-[13px] font-semibold" style={{ color: LABEL }}>本次重考需 <b>{prompt.cost} JOY</b>（按你的单位折算）。</span>
         </div>
       )}
 
@@ -1749,11 +1749,11 @@ function Essay({ onDone }) {
         placeholder="请用中文写…" lang="zh"
         className="w-full rounded-2xl border p-4 text-[16px] leading-7 outline-none"
         style={{ ...CARD, borderColor: SEP, color: LABEL }} />
-      <div className="-mt-2 flex justify-between text-[11.5px]" style={{ color: hanzi >= minChars ? "#16a34a" : LABEL2 }}>
-        <span>100% 用中文写</span><span>{hanzi} 个汉字 {hanzi < minChars ? `(需 ≥ ${minChars})` : "✓"}</span>
+      <div className="-mt-2 flex justify-between text-[13px]" style={{ color: hanzi >= minChars ? "#16a34a" : LABEL2 }}>
+        <span>100% 用中文写</span><span>{hanzi} 个汉字 {hanzi < minChars ? `(需 ≥ ${minChars})` : "已达标"}</span>
       </div>
 
-      {msg && <p className="text-[12.5px] font-semibold text-rose-500">{msg}</p>}
+      {msg && <p className="text-[13px] font-semibold text-rose-500">{msg}</p>}
       <button onClick={submit} disabled={hanzi < minChars || state === "grading"} className="w-full rounded-2xl py-3.5 text-[15px] font-black text-white disabled:opacity-50" style={{ background: ACCENT }}>
         {state === "grading" ? "AI 批改中…" : "提交 · AI 批改"}
       </button>
@@ -1781,14 +1781,14 @@ function SentencePatterns() {
   const [open, setOpen] = useState(null);
   return (
     <div className="space-y-2.5">
-      <p className="text-[12.5px]" style={{ color: LABEL2 }}>掌握 {SENTENCE_PATTERNS.length} 个核心句型，是造句的框架。</p>
+      <p className="text-[13px]" style={{ color: LABEL2 }}>掌握 {SENTENCE_PATTERNS.length} 个核心句型，是造句的框架。</p>
       {SENTENCE_PATTERNS.map((p) => (
         <div key={p.id} className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
           <button onClick={() => setOpen(open === p.id ? null : p.id)} className="flex w-full items-center gap-2 text-left">
             <span className="text-[15px] font-black" style={{ color: LABEL }} lang="zh">{p.name}</span>
             <Icon name={open === p.id ? "expand_less" : "expand_more"} size={20} color={LABEL2} />
           </button>
-          <div className="mt-1 text-[12.5px] font-bold" style={{ color: ACCENT }} lang="zh">{p.structure}</div>
+          <div className="mt-1 text-[13px] font-bold" style={{ color: ACCENT }} lang="zh">{p.structure}</div>
           {open === p.id && (
             <div className="mt-2">
               <div className="text-[13px]" style={{ color: LABEL2 }}>{p.vi}</div>
@@ -1798,7 +1798,7 @@ function SentencePatterns() {
                   <span onClick={() => speak(p.example.zh)}><Icon name="volume_up" size={18} color={ACCENT} /></span>
                 </div>
                 <PinyinText text={p.example.py} className="block text-[13px] font-bold" />
-                <div className="text-[12.5px]" style={{ color: LABEL2 }}>{p.example.vi}</div>
+                <div className="text-[13px]" style={{ color: LABEL2 }}>{p.example.vi}</div>
               </div>
             </div>
           )}
@@ -1829,7 +1829,7 @@ function SentencePractice() {
   return (
     <div className="space-y-3">
       <div className="rounded-2xl border p-4 text-center" style={{ ...CARD, borderColor: SEP }}>
-        <div className="text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">用这个词造句</div>
+        <div className="text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">用这个词造句</div>
         <div className="mt-1 flex items-center justify-center gap-2">
           <span className="text-[40px] font-black leading-none" style={{ color: LABEL }} lang="zh">{word.hanzi}</span>
           <span onClick={() => speak(word.hanzi)}><Icon name="volume_up" size={22} color={ACCENT} /></span>
@@ -1852,9 +1852,9 @@ function SentencePractice() {
           {result.comment && <div className="mt-1 text-[13px]" style={{ color: LABEL }}>{result.comment}</div>}
           {result.correction && (
             <div className="mt-2 rounded-xl p-3" style={{ background: CHIP }}>
-              <div className="text-[11px] font-bold" style={{ color: LABEL2 }} lang="zh">修改：</div>
+              <div className="text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">修改：</div>
               <div className="flex items-center gap-2"><span className="text-[16px] font-black" style={{ color: LABEL }} lang="zh">{result.correction}</span><span onClick={() => speak(result.correction)}><Icon name="volume_up" size={16} color={ACCENT} /></span></div>
-              {result.pinyin && <PinyinText text={result.pinyin} className="block text-[12.5px] font-bold" />}
+              {result.pinyin && <PinyinText text={result.pinyin} className="block text-[13px] font-bold" />}
             </div>
           )}
           {result.nativeExample && (
@@ -1865,7 +1865,7 @@ function SentencePractice() {
           )}
         </div>
       )}
-      {result?.error && <p className="text-[12.5px] font-semibold text-rose-500">{result.error}</p>}
+      {result?.error && <p className="text-[13px] font-semibold text-rose-500">{result.error}</p>}
     </div>
   );
 }
@@ -1890,7 +1890,7 @@ function ToneDrill() {
   const correctAll = checked && sylls.every((s, j) => picks[j] === toneOf(s));
   return (
     <div className="flex flex-col items-center pt-2">
-      <div className="mb-3 text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">听发音，选每个字的声调</div>
+      <div className="mb-3 text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">听发音，选每个字的声调</div>
       <div className="mb-4 flex min-h-[150px] w-full flex-col items-center justify-center rounded-[28px] border p-6" style={{ ...CARD, borderColor: SEP }}>
         <div className="flex items-center gap-2">
           <span className="text-[64px] font-black leading-none" style={{ color: LABEL }} lang="zh">{card.hanzi}</span>
@@ -1945,7 +1945,7 @@ function Cloze() {
   const blanked = card.example.split(card.hanzi).join("﹍");
   return (
     <div className="flex flex-col items-center pt-2">
-      <div className="mb-2 text-[12px] font-bold" style={{ color: LABEL2 }} lang="zh">选词填空</div>
+      <div className="mb-2 text-[13px] font-bold" style={{ color: LABEL2 }} lang="zh">选词填空</div>
       <div className="mb-3 flex min-h-[120px] w-full flex-col items-center justify-center rounded-[28px] border p-6 text-center" style={{ ...CARD, borderColor: SEP }}>
         <div className="text-[22px] font-black leading-relaxed" style={{ color: LABEL }} lang="zh">{picked ? card.example : blanked}</div>
         {card.exampleMeaning && <div className="mt-2 text-[13px]" style={{ color: LABEL2 }}>{card.exampleMeaning}</div>}
@@ -1988,9 +1988,9 @@ function Expand({ lang = "vi_zh" }) {
           <span className="text-[52px] font-black leading-none text-white" lang="zh">{data.char}</span>
         </button>
         <div className="min-w-0 flex-1 text-white">
-          <div className="text-[12.5px] font-bold opacity-90">字族</div>
+          <div className="text-[13px] font-bold opacity-90">字族</div>
           <div className="text-[18px] font-black leading-tight" lang="zh">{data.family.length} 个含「{data.char}」的词</div>
-          <div className="text-[12px] font-semibold opacity-90">点击听音 · 把新词加入学习</div>
+          <div className="text-[13px] font-semibold opacity-90">点击听音 · 把新词加入学习</div>
         </div>
       </div>
       <button onClick={() => load()} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border py-2.5 text-[13px] font-black active:scale-[.99] transition-transform" style={{ borderColor: SEP, color: LABEL, ...CARD }} lang="zh">
@@ -2005,11 +2005,11 @@ function Expand({ lang = "vi_zh" }) {
               <div className="truncate text-[13px]" style={{ color: LABEL2 }}>{mn(w, lang)}</div>
             </div>
             {w.known ? (
-              <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: "rgba(22,163,74,.12)", color: "#16a34a" }} lang="zh">已掌握</span>
+              <span className="shrink-0 rounded-full px-2 py-0.5 text-[13px] font-black" style={{ background: "rgba(22,163,74,.12)", color: "#16a34a" }} lang="zh">已掌握</span>
             ) : added[w.cardId] ? (
-              <span className="shrink-0 text-[11px] font-black" style={{ color: "#16a34a" }} lang="zh">已加入 ✓</span>
+              <span className="inline-flex shrink-0 items-center gap-0.5 text-[13px] font-black" style={{ color: "#16a34a" }} lang="zh">已加入<span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">check</span></span>
             ) : (
-              <button onClick={() => addWord(w)} className="shrink-0 rounded-full px-3 py-1 text-[12px] font-black text-white active:scale-95 transition-transform" style={{ background: ACCENT }} lang="zh">学</button>
+              <button onClick={() => addWord(w)} className="shrink-0 rounded-full px-3 py-1 text-[13px] font-black text-white active:scale-95 transition-transform" style={{ background: ACCENT }} lang="zh">学</button>
             )}
           </div>
         ))}
@@ -2064,9 +2064,9 @@ function MockExam({ onDone }) {
             <div className="mb-2 text-[13px] font-black" style={{ color: LABEL }}>按级别</div>
             {Object.entries(result.perDeck).map(([d, s]) => (
               <div key={d} className="mb-1.5 flex items-center gap-2">
-                <span className="w-16 shrink-0 text-[12px] font-bold" style={{ color: LABEL2 }}>{DECK_LABELS[d] || d}</span>
+                <span className="w-16 shrink-0 text-[13px] font-bold" style={{ color: LABEL2 }}>{DECK_LABELS[d] || d}</span>
                 <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: "rgba(0,0,0,.06)" }}><div className="h-full rounded-full" style={{ width: `${Math.round((s.correct / s.total) * 100)}%`, background: ACCENT }} /></div>
-                <span className="text-[12px] font-black" style={{ color: LABEL }}>{s.correct}/{s.total}</span>
+                <span className="text-[13px] font-black" style={{ color: LABEL }}>{s.correct}/{s.total}</span>
               </div>
             ))}
           </div>
@@ -2087,7 +2087,7 @@ function MockExam({ onDone }) {
   const ss = String(left % 60).padStart(2, "0");
   return (
     <div className="flex flex-col items-center pt-2">
-      <div className="mb-2 flex w-full items-center justify-between text-[12px] font-bold" style={{ color: LABEL2 }}>
+      <div className="mb-2 flex w-full items-center justify-between text-[13px] font-bold" style={{ color: LABEL2 }}>
         <span lang="zh">第 {i + 1}/{data.questions.length} 题 · {q.section === "listen" ? "听力" : "阅读"}</span>
         <span className="flex items-center gap-1" style={{ color: left < 30 ? "#ef4444" : LABEL2 }}><Icon name="timer" size={14} color={left < 30 ? "#ef4444" : LABEL2} /> {mm}:{ss}</span>
       </div>
@@ -2127,8 +2127,8 @@ function TrackPicker({ tracks, onDone }) {
             <div className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl text-[44px] font-black" style={{ background: CHIP, color: LABEL }} lang="zh">{m.zh}</div>
             <div className="min-w-0 flex-1">
               <div className="text-[18px] font-black" style={{ color: LABEL }}>{m.title}</div>
-              <div className="text-[12px] font-black" style={{ color: ACCENT }}>{m.sub}</div>
-              <div className="mt-1 text-[12.5px]" style={{ color: LABEL2 }}>{m.desc}</div>
+              <div className="text-[13px] font-black" style={{ color: ACCENT }}>{m.sub}</div>
+              <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>{m.desc}</div>
             </div>
             <Icon name={busy === id ? "hourglass_top" : "chevron_right"} color="#c4c4c6" />
           </button>
@@ -2166,11 +2166,11 @@ function Grammar() {
   }
   return (
     <div className="space-y-2.5 pt-2">
-      <p className="text-[12.5px]" style={{ color: LABEL2 }}>Đa số ngữ pháp tiếng Trung giống tiếng Việt. Đây là {GRAMMAR_LESSONS.length} điểm KHÁC — học đúng chỗ hay sai.</p>
+      <p className="text-[13px]" style={{ color: LABEL2 }}>Đa số ngữ pháp tiếng Trung giống tiếng Việt. Đây là {GRAMMAR_LESSONS.length} điểm KHÁC — học đúng chỗ hay sai.</p>
       {GRAMMAR_LESSONS.map((g) => (
         <button key={g.id} onClick={() => setOpen(g)} className="flex w-full items-center gap-3 rounded-2xl border p-4 text-left active:scale-[0.99] transition-transform" style={{ ...CARD, borderColor: SEP }}>
           <IconChip name={g.icon} />
-          <div className="min-w-0 flex-1"><div className="text-[14px] font-black" style={{ color: LABEL }}>{g.title}</div><div className="truncate text-[12px]" style={{ color: LABEL2 }}>{g.diff}</div></div>
+          <div className="min-w-0 flex-1"><div className="text-[14px] font-black" style={{ color: LABEL }}>{g.title}</div><div className="truncate text-[13px]" style={{ color: LABEL2 }}>{g.diff}</div></div>
           <Icon name="chevron_right" color="#c4c4c6" />
         </button>
       ))}
@@ -2186,7 +2186,7 @@ function History({ lang = "vi_zh" }) {
   if (!data.items.length) return <Finish icon="history" title="还没有词" body="评为「已掌握」的词会存在这里，无需重学。" onDone={() => {}} />;
   return (
     <div className="space-y-2 pt-2">
-      <p className="text-[12.5px]" style={{ color: LABEL2 }}>{data.total} 个已掌握 — 无需重学。</p>
+      <p className="text-[13px]" style={{ color: LABEL2 }}>{data.total} 个已掌握 — 无需重学。</p>
       {data.items.map((c, i) => (
         <div key={i} className="flex items-center gap-3 rounded-2xl border p-3" style={{ ...CARD, borderColor: SEP }}>
           <div className="text-[24px] font-black" style={{ color: LABEL }} lang="zh">{c.hanzi}</div>
@@ -2212,11 +2212,11 @@ function HanViet({ lang = "vi_zh" }) {
   return (
     <div className="space-y-2 pt-2">
       <div className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
-        <p className="text-[12.5px]" style={{ color: LABEL }}>
+        <p className="text-[13px]" style={{ color: LABEL }}>
           Rất nhiều từ tiếng Trung có <b>âm Hán-Việt</b> trùng tiếng Việt — học là nhớ ngay.
           Có <b>{data.cognateCount}</b> từ khớp sát nghĩa ở cấp này.
         </p>
-        <button onClick={() => setOnlyCognate((v) => !v)} className="mt-2 rounded-full px-3 py-1 text-[12px] font-black" style={{ background: onlyCognate ? ACCENT : CHIP, color: onlyCognate ? "#fff" : LABEL }}>
+        <button onClick={() => setOnlyCognate((v) => !v)} className="mt-2 rounded-full px-3 py-1 text-[13px] font-black" style={{ background: onlyCognate ? ACCENT : CHIP, color: onlyCognate ? "#fff" : LABEL }}>
           {onlyCognate ? "Đang xem: khớp sát nghĩa" : "Chỉ xem từ khớp sát nghĩa"}
         </button>
       </div>
@@ -2226,10 +2226,10 @@ function HanViet({ lang = "vi_zh" }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <PinyinText text={c.pinyin} className="text-[13px] font-bold" />
-              <span className="rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: CHIP, color: LABEL }}>{c.hanViet}</span>
+              <span className="rounded-full px-2 py-0.5 text-[13px] font-black" style={{ background: CHIP, color: LABEL }}>{c.hanViet}</span>
               {c.cognate && <Icon name="verified" size={15} color={ACCENT} fill />}
             </div>
-            <div className="truncate text-[12.5px]" style={{ color: LABEL2 }}>{mn(c, lang)}</div>
+            <div className="truncate text-[13px]" style={{ color: LABEL2 }}>{mn(c, lang)}</div>
           </div>
           <span onClick={() => speak(c.hanzi)}><Icon name="volume_up" size={20} /></span>
         </div>
@@ -2296,11 +2296,11 @@ function Settings({ status, fontStyle = "modern", onFont, onDone }) {
                 : { ...CARD, border: `1px solid ${SEP}`, color: LABEL, fontFamily: ZH_FONTS[id] }}>{label}</button>
           ))}
         </div>
-        <p className="mt-2 text-[11.5px]" style={{ color: LABEL2 }}>现代 = hiện đại · 报刊 = kiểu in báo 1900s · 行书 = thư pháp</p>
+        <p className="mt-2 text-[13px]" style={{ color: LABEL2 }}>现代 = hiện đại · 报刊 = kiểu in báo 1900s · 行书 = thư pháp</p>
       </Row>
 
       <Row icon="restart_alt" title="水平测试">
-        <p className="mb-2 text-[12px]" style={{ color: LABEL2 }}>重做入学测试，重新分到合适级别。</p>
+        <p className="mb-2 text-[13px]" style={{ color: LABEL2 }}>重做入学测试，重新分到合适级别。</p>
         <button onClick={retake} disabled={busy === "retake"} className="w-full rounded-xl py-2.5 text-[13px] font-black text-white" style={{ background: GRAD }}>重新测试</button>
       </Row>
 
@@ -2313,23 +2313,23 @@ function Settings({ status, fontStyle = "modern", onFont, onDone }) {
       </Row>
 
       <Row icon="event" title="加入日历">
-        <p className="mb-2 text-[12px]" style={{ color: LABEL2 }}>把每天 20:00 的复习加入设备日历。</p>
+        <p className="mb-2 text-[13px]" style={{ color: LABEL2 }}>把每天 20:00 的复习加入设备日历。</p>
         <div className="flex gap-2">
-          <a href={cal.icsUrl} download="hugo-vocab.ics" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>加入日历</a>
-          <a href={cal.gcal} target="_blank" rel="noreferrer" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>Google 日历</a>
+          <a href={cal.icsUrl} download="hugo-vocab.ics" className="flex-1 rounded-xl border py-2.5 text-center text-[13px] font-bold" style={{ borderColor: SEP, color: LABEL }}>加入日历</a>
+          <a href={cal.gcal} target="_blank" rel="noreferrer" className="flex-1 rounded-xl border py-2.5 text-center text-[13px] font-bold" style={{ borderColor: SEP, color: LABEL }}>Google 日历</a>
         </div>
       </Row>
 
       <Row icon="notifications" title="复习提醒">
         <button onClick={togglePush} className="flex w-full items-center justify-between">
-          <span className="text-[12.5px]" style={{ color: LABEL2 }}>按时接收复习提醒（推送）</span>
+          <span className="text-[13px]" style={{ color: LABEL2 }}>按时接收复习提醒（推送）</span>
           <span className="relative inline-block h-6 w-11 rounded-full transition-all" style={{ background: push ? "#16a34a" : "#cbd5e1" }}>
             <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all" style={{ left: push ? 22 : 2 }} />
           </span>
         </button>
       </Row>
 
-      {msg && <p className="px-1 text-[12px] font-semibold" style={{ color: ACCENT }}>{msg}</p>}
+      {msg && <p className="px-1 text-[13px] font-semibold" style={{ color: ACCENT }}>{msg}</p>}
       <button onClick={onDone} className="w-full rounded-2xl py-3.5 text-[15px] font-black text-white" style={{ background: GRAD }}>完成</button>
     </div>
   );
@@ -2350,11 +2350,11 @@ function GrammarPractice({ practice }) {
   return (
     <div className="rounded-[28px] border p-5 shadow-sm" style={{ ...CARD, borderColor: SEP }}>
       <div className="mb-1 flex items-center gap-2"><Icon name="extension" size={18} color={ACCENT} /><span className="text-[14px] font-black" style={{ color: LABEL }}>练习：组句</span></div>
-      <p className="mb-3 text-[12.5px]" style={{ color: LABEL2 }}>按正确顺序点词组句： <b style={{ color: LABEL }}>{practice.vi}</b></p>
+      <p className="mb-3 text-[13px]" style={{ color: LABEL2 }}>按正确顺序点词组句： <b style={{ color: LABEL }}>{practice.vi}</b></p>
 
       {/* Hàng đáp án */}
       <div className="min-h-[52px] rounded-2xl border p-2 flex flex-wrap gap-2" style={{ borderColor: done ? (correct ? "#16a34a" : "#ef4444") : SEP, background: "rgba(0,0,0,0.02)" }}>
-        {chosen.length === 0 && <span className="self-center px-2 text-[12px]" style={{ color: LABEL2 }}>点击下方的词…</span>}
+        {chosen.length === 0 && <span className="self-center px-2 text-[13px]" style={{ color: LABEL2 }}>点击下方的词…</span>}
         {chosen.map((item) => (
           <button key={item.i} onClick={() => undo(item)} className="rounded-xl px-3 py-2 text-[18px] font-black" style={{ background: CHIP, color: LABEL }} lang="zh">{item.t}</button>
         ))}
@@ -2378,7 +2378,7 @@ function GrammarPractice({ practice }) {
               {answerKey.join(" ")} <span onClick={() => speak(answerKey.join(""))}><Icon name="volume_up" size={16} color={ACCENT} /></span>
             </div>
           )}
-          <button onClick={reset} className="mt-2 rounded-xl px-4 py-2 text-[12.5px] font-black text-white" style={{ background: GRAD }}>再试一次</button>
+          <button onClick={reset} className="mt-2 rounded-xl px-4 py-2 text-[13px] font-black text-white" style={{ background: GRAD }}>再试一次</button>
         </div>
       )}
     </div>

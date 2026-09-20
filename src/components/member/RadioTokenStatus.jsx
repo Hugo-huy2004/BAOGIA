@@ -28,10 +28,10 @@ export async function sendRadioHeartbeat(minutes        , { keepalive = false } 
 
 // ── Hook: nguồn sự thật duy nhất về token ────────────────────────────────────
 
-export function useRadioHeartbeat(bio     , isPlaying         ) {
-  const [tokenStatus, setTokenStatus] = useState     (null);
+export function useRadioHeartbeat(bio     , isPlaying) {
+  const [tokenStatus, setTokenStatus] = useState(null);
   const [loading, setLoading] = useState(true);
-  const intervalRef = useRef     (null);
+  const intervalRef = useRef(null);
   const startedRef = useRef(0);
 
   const refetch = useCallback(async () => {
@@ -89,7 +89,7 @@ export function useRadioHeartbeat(bio     , isPlaying         ) {
 
 // ── Thanh hiển thị ───────────────────────────────────────────────────────────
 
-function useResetIn(nextResetAt               ) {
+function useResetIn(nextResetAt) {
   const { i18n } = useTranslation();
   if (!nextResetAt) return null;
   const days = Math.ceil((new Date(nextResetAt).getTime() - Date.now()) / 86400000);
@@ -102,13 +102,9 @@ function useResetIn(nextResetAt               ) {
   }
 }
 
-;                                
-              
-                    
-                         
- 
+;
 
-export default function RadioTokenStatus({ status, loading = false, onBuyMore }                       ) {
+export default function RadioTokenStatus({ status, loading = false, onBuyMore }) {
   const { t } = useTranslation();
   const resetIn = useResetIn(status?.nextResetAt);
 
@@ -127,7 +123,7 @@ export default function RadioTokenStatus({ status, loading = false, onBuyMore } 
   const freePercent = freeTokens > 0 ? Math.round((freeTokensLeft / freeTokens) * 100) : 0;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={`rounded-2xl border bg-card/80 backdrop-blur-md p-4 flex flex-col gap-3 shadow-lg ${empty ? "border-red-500/50 shadow-red-500/10" : "border-white/10"}`}
@@ -211,14 +207,7 @@ export default function RadioTokenStatus({ status, loading = false, onBuyMore } 
 
 const PRICE_FALLBACK = { minutesPerToken: 10, joyPerToken: 200, feeRate: 0.1, maxTokens: 1008 };
 
-                                
-           
-                                                  
-                      
-                           
- 
-
-export function RadioStoreModal({ bio, showToast, onClose, onPurchased }                      ) {
+export function RadioStoreModal({ bio, showToast, onClose, onPurchased }) {
   const { t, i18n } = useTranslation();
   const [price, setPrice] = useState(PRICE_FALLBACK);
   const [tokens, setTokens] = useState(6);
@@ -240,7 +229,7 @@ export function RadioStoreModal({ bio, showToast, onClose, onPurchased }        
   const balance = bio?.joyBalance ?? 0;
   const short = total - balance;
 
-  const clamp = (value        ) => Math.min(Math.max(Math.round(value) || 1, 1), price.maxTokens);
+  const clamp = (value) => Math.min(Math.max(Math.round(value) || 1, 1), price.maxTokens);
 
   async function handleBuy() {
     if (buying) return;
@@ -260,7 +249,7 @@ export function RadioStoreModal({ bio, showToast, onClose, onPurchased }        
       showToast?.(t("utilities.radio.store.success", { n: tokens }), "success");
       await onPurchased?.();
       onClose();
-    } catch (err     ) {
+    } catch (err) {
       setError(err.message);
     } finally {
       setBuying(false);

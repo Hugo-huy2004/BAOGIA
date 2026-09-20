@@ -279,12 +279,41 @@ function MemberPortalPage() {
   );
   const utilitySelection = activeTab === "utilities" && !retiredUtility ? (subTab || null) : null;
   const psychologySubTabFromUrl = activeTab === "utilities" && subTab === "psychology" ? (psychTab || "chat") : "chat";
-  const radioPageFromUrl = activeTab === "utilities" && subTab === "radio" ? (psychTab || "home") : "home";
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
   };
+
+  // ── ĐỊA CHỈ RIÊNG CHO TỪNG MÀN, DÙNG CHUNG CHO MỌI APP ────────────────────
+  // Trước đây mỗi app muốn có deep-link phải được đi dây một cặp prop riêng ở
+  // ĐÂY và lặp lại ở CẢ BA chỗ gọi <MemberUtilitiesTab> bên dưới (một cho
+  // app full màn, hai cho layout portal thường — bỏ sót một chỗ là tính năng
+  // chạy ở layout này mà chết ở layout kia):
+  // psychologySubTab/onSelectPsychologySubTab, radioPage/onSelectRadioPage,
+  // studyRoute/studySub, vocabRoute/onVocabRouteChange. Bốn cặp ấy gần như giống
+  // hệt nhau — chỉ khác tên app — nên app thứ năm lại thêm một cặp nữa.
+  //
+  // Một cặp app-agnostic thay cho tất cả: đoạn 3 và 4 của
+  // /member/utilities/<appId>/<route>/<sub> chính là "màn nào đang mở trong app
+  // đang mở". `subTab` ở đây LÀ appId, nên không cần biết app tên gì.
+  //
+  // Đoạn 4 (`deepTab`) chưa đưa vào cặp này: chỉ study dùng tới, thêm lúc chuyển
+  // study chứ không dựng sẵn một prop không ai gọi.
+  //
+  // ponytail: bốn cặp cũ vẫn chạy, chưa gỡ — chuyển dần từng app sang cặp này
+  // rồi mới xoá, vì đổi một lúc bốn app mà không mở được trình duyệt là cách
+  // chắc chắn làm hỏng cái đang chạy được.
+  const appRoute = activeTab === "utilities" && subTab ? (psychTab || null) : null;
+  const handleAppRouteChange = useCallback((route, options = {}) => {
+    if (!(activeTab === "utilities" && subTab)) return;
+    const base = `/member/utilities/${subTab}`;
+    // "home" và giá trị rỗng đều về địa chỉ gốc của app — để URL của màn chính
+    // không bao giờ có đuôi "/home" thừa.
+    const path = route && route !== "home" ? `${base}/${encodeURIComponent(route)}` : base;
+    const query = new URLSearchParams(options.params || {}).toString();
+    navigate(`${path}${query ? `?${query}` : ""}`, { replace: Boolean(options.replace) });
+  }, [activeTab, subTab, navigate]);
 
   const vocabRouteFromUrl = activeTab === "utilities" && subTab === "vocab"
     ? (psychTab || "home")
@@ -305,9 +334,6 @@ function MemberPortalPage() {
   }, [retiredUtility, tab, navigate]);
   const handleSelectPsychologySubTab = (subTabId) => {
     navigate(`/member/utilities/psychology/${subTabId}`);
-  };
-  const handleSelectRadioPage = (pageId) => {
-    navigate(pageId && pageId !== "home" ? `/member/utilities/radio/${pageId}` : "/member/utilities/radio");
   };
 
   const { notifications, unreadCount: loadedUnreadCount, toast, setToast,
@@ -940,14 +966,14 @@ function MemberPortalPage() {
                 onSelectUtility={handleSelectUtility}
                 psychologySubTab={psychologySubTabFromUrl}
                 onSelectPsychologySubTab={handleSelectPsychologySubTab}
-                radioPage={radioPageFromUrl}
-                onSelectRadioPage={handleSelectRadioPage}
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
                 studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null}
                 vocabRoute={vocabRouteFromUrl}
                 onVocabRouteChange={handleVocabRouteChange}
+                appRoute={appRoute}
+                onAppRouteChange={handleAppRouteChange}
                 renderAccountForm={renderAccountForm}
               />
             </React.Suspense>
@@ -1046,7 +1072,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1112,7 +1138,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} />
+                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (

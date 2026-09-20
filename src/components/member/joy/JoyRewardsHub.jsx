@@ -16,7 +16,7 @@ const dateLabel = (iso        , locale        , t     ) => (
   iso ? new Date(iso).toLocaleDateString(locale) : t("memberPortal.accountHub.perksCopy.noExpiry")
 );
 
-function normalizeReferralInput(value        ) {
+function normalizeReferralInput(value) {
   let next = String(value || "").trim();
   if (next.includes("?") || next.includes("://")) {
     try {
@@ -26,7 +26,7 @@ function normalizeReferralInput(value        ) {
   return next.toUpperCase().replace(/\s+/g, "").slice(0, 24);
 }
 
-function CodeRow({ code, t }                          ) {
+function CodeRow({ code, t }) {
   return (
     <button
       type="button"
@@ -42,7 +42,7 @@ function CodeRow({ code, t }                          ) {
   );
 }
 
-function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }                                                                                                    ) {
+function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }) {
   const getActionLabel = () => {
     switch(voucher.scope) {
       case "hugopsy": return t("memberPortal.walletApp.perks.useInPSY", "Dùng tại HugoPSY");
@@ -62,7 +62,7 @@ function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }            
       {/* Cắt góc tạo hình vé */}
       <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border-r border-border bg-background" />
       <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border-l border-border bg-background" />
-      
+
       <div className="flex items-start gap-4 px-2">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <span className="material-symbols-outlined text-[24px]">
@@ -82,7 +82,7 @@ function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }            
           </p>
         </div>
       </div>
-      
+
       <div className="mt-4 border-t border-dashed border-border/60 pt-4 px-2">
         <CodeRow code={voucher.code} t={t} />
         {voucher.scope !== "legacy_birthday" && !dimmed && (
@@ -99,21 +99,21 @@ function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }            
   );
 }
 
-export default function JoyRewardsHub({ perks, loading, error, onReload, email, bio, onBioUpdate, onSelectUtility }     ) {
+export default function JoyRewardsHub({ perks, loading, error, onReload, email, bio, onBioUpdate, onSelectUtility }) {
   const { t, i18n } = useTranslation();
   const [showWheel, setShowWheel] = useState(false);
   const [showPast, setShowPast] = useState(false);
-  
+
   // Redeem state
   const [codeInput, setCodeInput] = useState("");
   const [redeeming, setRedeeming] = useState(false);
 
-  const fetchBalance = useJoyStore((s     ) => s.fetchBalance);
-  const setBalance = useJoyStore((s     ) => s.setBalance);
-  
-  const referralCode = useJoyStore((s     ) => s.referralCode) || bio?.referralCode || "";
-  const referralCount = useJoyStore((s     ) => s.referralCount);
-  const setReferralCount = useJoyStore((s     ) => s.setReferralCount);
+  const fetchBalance = useJoyStore((s) => s.fetchBalance);
+  const setBalance = useJoyStore((s) => s.setBalance);
+
+  const referralCode = useJoyStore((s) => s.referralCode) || bio?.referralCode || "";
+  const referralCount = useJoyStore((s) => s.referralCount);
+  const setReferralCount = useJoyStore((s) => s.setReferralCount);
 
   useEffect(() => {
     if (!email) return;
@@ -134,8 +134,8 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
     const now = Date.now();
     const list = perks?.vouchers || [];
     return [
-      list.filter((v     ) => isVoucherActive(v, now)),
-      list.filter((v     ) => !isVoucherActive(v, now)),
+      list.filter((v) => isVoucherActive(v, now)),
+      list.filter((v) => !isVoucherActive(v, now)),
     ];
   }, [perks?.vouchers]);
 
@@ -143,7 +143,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
     if (!codeInput.trim() || !email || redeeming) return;
     setRedeeming(true);
     let code = normalizeReferralInput(codeInput);
-    
+
     try {
       // 1. Thử áp dụng như Gift Code trước
       const r = await fetch(`${apiBase}/joy-gift-cards/redeem`, {
@@ -153,7 +153,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
         body: JSON.stringify({ email, code }),
       });
       const data = await r.json();
-      
+
       if (r.ok) {
         setBalance(data.balance);
         notify.success(t("memberPortal.accountHub.redeemCopy.giftSuccess", { amount: data.amount, defaultValue: `Nhận thành công ${data.amount} JOY!` }));
@@ -181,8 +181,8 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
 
       // 3. Cả 2 đều thất bại -> Báo lỗi của Gift Code vì đó là mặc định
       throw new Error(data.error || t("memberPortal.accountHub.redeemCopy.giftError", "Mã không hợp lệ hoặc đã hết hạn."));
-      
-    } catch (err     ) {
+
+    } catch (err) {
       notify.error(err.message);
     } finally {
       setRedeeming(false);
@@ -222,7 +222,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
 
   return (
     <div className="space-y-6">
-      
+
       {/* 1. KHUNG NHẬP MÃ THÔNG MINH */}
       <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center gap-3 mb-4">
@@ -296,7 +296,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
         <h3 className="px-1 text-[18px] font-bold text-foreground">
           {t("memberPortal.walletApp.rewards.myVouchers", "Kho ưu đãi của tôi")}
         </h3>
-        
+
         {active.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border py-10 px-4 text-center">
             <span className="material-symbols-outlined text-[48px] text-muted-foreground/50 mb-3">auto_awesome</span>
@@ -309,7 +309,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {active.map((v     ) => <VoucherCard key={v.code} voucher={v} locale={locale} t={t} onSelectUtility={onSelectUtility} />)}
+            {active.map((v) => <VoucherCard key={v.code} voucher={v} locale={locale} t={t} onSelectUtility={onSelectUtility} />)}
           </div>
         )}
       </section>
@@ -329,7 +329,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
             </p>
           </div>
         </div>
-        
+
         <div className="mt-4 flex flex-col items-center rounded-2xl bg-muted/50 p-4 text-center">
           <p className="text-[13px] font-medium text-muted-foreground">
             {t("memberPortal.walletApp.rewards.yourCode", "Mã giới thiệu của bạn")}
@@ -340,7 +340,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
           <p className="mt-2 text-[12px] text-muted-foreground">
             {t("memberPortal.accountHub.redeemCopy.referralCount", { count: referralCount, defaultValue: `Đã mời thành công: ${referralCount} người` })}
           </p>
-          
+
           <button
             type="button"
             onClick={shareOwnCode}
@@ -366,10 +366,10 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
               expand_more
             </span>
           </button>
-          
+
           {showPast && (
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {past.map((v     ) => (
+              {past.map((v) => (
                 <VoucherCard key={v.code} voucher={v} dimmed locale={locale} t={t} onSelectUtility={onSelectUtility} />
               ))}
             </div>

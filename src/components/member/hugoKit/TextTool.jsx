@@ -96,7 +96,7 @@ export default function TextTool() {
           ].map((item) => (
             <div key={item.id} className="rounded-[12px] p-3 text-center" style={{ background: "var(--ios-surface)" }}>
               <p className="text-[22px] font-bold tabular-nums leading-tight">{item.value}</p>
-              <p className="mt-0.5 text-[12px]" style={{ color: "var(--ios-label-2)" }}>{t(`kit.text.${item.id}`)}</p>
+              <p className="mt-0.5 text-[13px]" style={{ color: "var(--ios-label-2)" }}>{t(`kit.text.${item.id}`)}</p>
             </div>
           ))}
         </div>

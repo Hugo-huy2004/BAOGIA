@@ -4,14 +4,14 @@ import UtilityAppIcon from "../utilities/UtilityAppIcon";
 import { GRADIENTS, money, remainingLabel, appById, tileAction } from "./storeData";
 import { joyText } from "../../../lib/joyDisplay";
 
-const daysLeft = (value        ) =>
+const daysLeft = (value) =>
   Math.max(0, Math.ceil((new Date(value).getTime() - Date.now()) / 86400000));
 
-export default function StoreAppDetail({ entry, balance, onOpen, onInstall, onTrial, onRent, onOwn, onGift }     ) {
+export default function StoreAppDetail({ entry, balance, onOpen, onInstall, onTrial, onRent, onOwn, onGift }) {
   const { t } = useTranslation();
   const { app, ladder, state } = entry;
   const action = tileAction(entry);
-  
+
   const primary      = {
     installing: { label: t("utilities.store.app.installing", { percent: entry.progress }), run: null },
     locked: { label: t("utilities.store.app.locked"), run: null },
@@ -143,7 +143,7 @@ export default function StoreAppDetail({ entry, balance, onOpen, onInstall, onTr
   );
 }
 
-function statusLine(t     , ladder     , state     ) {
+function statusLine(t     , ladder     , state) {
   if (!ladder) return t("utilities.store.app.free");
   if (state?.tier === "own") return t("utilities.store.app.owned");
   if ((state?.tier === "rent" || state?.tier === "trial") && state.expiresAt) {
@@ -152,17 +152,17 @@ function statusLine(t     , ladder     , state     ) {
   return t("utilities.store.app.lockedHint");
 }
 
-function Tier({ title, note, usedNote, price, badge, cta, highlight, state, short = 0, onClick }     ) {
+function Tier({ title, note, usedNote, price, badge, cta, highlight, state, short = 0, onClick }) {
   const { t } = useTranslation();
   if (state === "hidden") return null;
 
   const disabled = state === "current" || state === "used";
 
   return (
-    <div 
+    <div
       className={`rounded-[16px] p-4 transition-colors border ${
-        highlight && !disabled 
-          ? "border-primary/50 bg-primary/5 shadow-sm" 
+        highlight && !disabled
+          ? "border-primary/50 bg-primary/5 shadow-sm"
           : "border-border/40 bg-muted/30"
       } ${state === "current" ? "opacity-75" : ""}`}
     >
@@ -194,8 +194,8 @@ function Tier({ title, note, usedNote, price, badge, cta, highlight, state, shor
         onClick={onClick}
         disabled={disabled}
         className={`mt-4 w-full h-[42px] rounded-xl text-[15px] font-bold transition-colors ${
-          highlight && !disabled 
-            ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+          highlight && !disabled
+            ? "bg-primary text-primary-foreground hover:bg-primary/90"
             : "bg-muted text-foreground hover:bg-muted-foreground/20"
         } disabled:opacity-50`}
       >

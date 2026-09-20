@@ -9,7 +9,8 @@
     {
       "name": "global-css",
       "source": "html-style",
-      "maxBytes": 390000
+      "maxGzipBytes": 70000,
+      "note": "Canh byte ĐÃ NÉN (20/09/2026). Vercel nén ở biên nên trình duyệt không bao giờ tải tệp thô: 385 KB thô = ~56 KB qua dây. Ngưỡng cũ 390000 byte thô đã chặn ngay lúc chỉ xoá code chết, trong khi con số người dùng trải nghiệm còn rất thoáng. 70000 byte nén cho ~25% chỗ trống để đưa nốt các app về chuẩn Apple, vẫn đủ chặt để bắt việc kéo thêm cả một framework CSS vào."
     },
     {
       "name": "member-portal",

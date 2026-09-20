@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useCallback, useTransition, useEffect, useMemo, useRef } from "react";
+import { Suspense, lazy, useState, useCallback, useTransition, useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -13,11 +13,13 @@ import {
   getJoyLaterStatus,
   claimTreeBonus,
 } from "../../../services/joyApi";
+import AppFrame from "../os/AppFrame";
+import LazyBoundary from "../os/LazyBoundary";
 import MetalCard3D from "./MetalCard3D";
 import TierPrivilegesSection from "./TierPrivilegesSection";
 import { memberTier } from "../../../lib/memberTier";
 import TransactionReceiptModal from "./TransactionReceiptModal";
-                                                                                       
+
 import "./wallet-app.css";
 
 // Lazy-loaded Panels for Instant 0ms Paint & Smooth Apple-standard UX
@@ -27,16 +29,6 @@ const JoyRewardsHub = lazy(() => import("../joy/JoyRewardsHub"));
 const MemberUtilityStoreTab = lazy(() => import("../MemberUtilityStoreTab"));
 const JoyLaterSheet = lazy(() => import("../account/JoyLaterSheet"));
 const JoyTree = lazy(() => import("./JoyTree"));
-
-                             
-            
-                      
-                                                                                     
-                                     
-                                                    
-                      
-                                         
- 
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -48,14 +40,32 @@ const TABS = [
   { id: "history", icon: "receipt_long", labelKey: "memberPortal.walletApp.tabHistory", fallback: "Sổ ví" },
 ];
 
-const Panel = ({ children }                               ) => (
-  <Suspense fallback={<p className="wal-loading text-center py-8 text-muted-foreground font-medium animate-pulse">Đang tải nội dung...</p>}>
-    {children}
-  </Suspense>
-);
+/**
+ * Vỏ cho mọi phần nạp lazy của ví (nhiệm vụ, sổ ví, ưu đãi, chợ, vay, cây JOY).
+ *
+ * `LazyBoundary` bọc NGOÀI `Suspense`: Suspense lo lúc đang tải, boundary lo khi
+ * tải thất bại. Thiếu nó thì một chunk 404 sau deploy làm trắng cả portal chứ
+ * không chỉ riêng tấm panel đang mở.
+ */
+const Panel = ({ children }) => {
+  const { t } = useTranslation();
+  return (
+    <LazyBoundary>
+      <Suspense
+        fallback={(
+          <p className="wal-loading text-center py-8 text-muted-foreground font-medium animate-pulse">
+            {t("memberPortal.walletApp.loadingPanel", "Đang tải nội dung…")}
+          </p>
+        )}
+      >
+        {children}
+      </Suspense>
+    </LazyBoundary>
+  );
+};
 
 /** Ô vuông trong lưới lối tắt — icon trên nền thẻ, nhãn hai dòng, huy hiệu badge */
-function Tile({ icon, label, badge, onClick }                                                                      ) {
+function Tile({ icon, label, badge, onClick }) {
   return (
     <button type="button" className="wal-tile active:scale-95 transition-all" onClick={onClick}>
       <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
@@ -74,14 +84,8 @@ function Row({
   valueTone,
   badge,
   onClick,
-}   
-               
-                
-                  
-                 
-                           
-                 
-                       
+}
+
  ) {
   return (
     <button type="button" className="wal-row active:scale-[0.99] transition-all" onClick={onClick}>
@@ -104,20 +108,20 @@ export default function JoyWalletApp({
   onBioUpdate,
   onOpenParticleModal,
   onSelectUtility,
-}                   ) {
+}) {
   const { t } = useTranslation();
   const joy = useJoy();
   const [, startTransition] = useTransition();
 
-  const storeBalance = useJoyStore((s     ) => s.balance);
-  const setStoreBalance = useJoyStore((s     ) => s.setBalance);
+  const storeBalance = useJoyStore((s) => s.balance);
+  const setStoreBalance = useJoyStore((s) => s.setBalance);
 
   // URL search params sync (?tab=later, ?sub=perks, etc.)
   const [searchParams] = useSearchParams();
   const paramTab = searchParams.get("tab");
   const paramSub = searchParams.get("sub");
-  const [tab, setTab] = useState        (() => paramTab || "overview");
-  const [sub, setSub] = useState               (() => paramSub || null);
+  const [tab, setTab] = useState(() => paramTab || "overview");
+  const [sub, setSub] = useState(() => paramSub || null);
 
   useEffect(() => {
     if (paramTab) setTab(paramTab);
@@ -127,9 +131,9 @@ export default function JoyWalletApp({
   const email = bio?.email || bio?.contactEmail || "";
 
   // SWR: Nạp dữ liệu ví hợp nhất trong 1 lượt gọi duy nhất (0ms perceived latency)
-  const { data: overview, mutate, isValidating } = useSWR                           (
+  const { data: overview, mutate, isValidating } = useSWR(
     "/joy/wallet/overview",
-    (url        ) =>
+    (url) =>
       fetch(`${API_BASE}${url}`, { credentials: "include" }).then((r) => {
         if (!r.ok) throw new Error("Failed to fetch wallet overview");
         return r.json();
@@ -148,11 +152,11 @@ export default function JoyWalletApp({
   const cardholderName = card?.cardholderName || bio?.displayName || "Thành viên Hugo Studio";
 
   // State hỗ trợ tính năng cũ tích hợp 100%
-  const [challenges, setChallenges] = useState       ([]);
+  const [challenges, setChallenges] = useState([]);
   const [challengesLoading, setChallengesLoading] = useState(false);
-  const [loan, setLoan] = useState     (null);
-  const [hasPin, setHasPin] = useState                (null);
-  const [perksData, setPerksData] = useState     (null);
+  const [loan, setLoan] = useState(null);
+  const [hasPin, setHasPin] = useState(null);
+  const [perksData, setPerksData] = useState(null);
   const [perksLoading, setPerksLoading] = useState(false);
   const [perksError, setPerksError] = useState("");
   const [treeBonusTaken, setTreeBonusTaken] = useState(false);
@@ -164,18 +168,17 @@ export default function JoyWalletApp({
     if (t === "star18" || t === "star14" || t === "starVip") return t;
     return "eco";
   }, [bio]);
-  const [selectedCardTier, setSelectedCardTier] = useState        (userTier);
+  const [selectedCardTier, setSelectedCardTier] = useState(userTier);
 
   useEffect(() => {
     setSelectedCardTier(userTier);
   }, [userTier]);
 
   // Modals & UI Controls
-  const [selectedTx, setSelectedTx] = useState                       (null);
+  const [selectedTx, setSelectedTx] = useState(null);
   const [copiedId, setCopiedId] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
   const [claiming, setClaiming] = useState(false);
-  const [txFilter, setTxFilter] = useState                      ("all");
+  const [txFilter, setTxFilter] = useState("all");
 
   // Load challenges (Nhiệm vụ hàng ngày)
   const loadChallenges = useCallback(() => {
@@ -201,7 +204,7 @@ export default function JoyWalletApp({
     setPerksLoading(true);
     fetchJoyPerks(bio)
       .then(setPerksData)
-      .catch((error     ) => setPerksError(error.message || t("memberPortal.accountHub.perksLoadError", "Lỗi tải ưu đãi")))
+      .catch((error) => setPerksError(error.message || t("memberPortal.accountHub.perksLoadError", "Lỗi tải ưu đãi")))
       .finally(() => setPerksLoading(false));
   }, [bio, email, t]);
 
@@ -243,7 +246,7 @@ export default function JoyWalletApp({
   const claimedCount = challenges.filter((item) => item.claimed).length;
   const pendingJoy = pendingMissions.reduce((sum, item) => sum + (item.amount || 0), 0);
   const activeVoucherCount =
-    perksData?.vouchers?.filter((voucher     ) => !voucher.used)?.length ||
+    perksData?.vouchers?.filter((voucher) => !voucher.used)?.length ||
     perks?.activeVouchersCount ||
     0;
   const spinAvailable = Boolean(perksData?.spin?.available ?? perks?.spinAvailable);
@@ -258,20 +261,6 @@ export default function JoyWalletApp({
       setTimeout(() => setCopiedId(false), 2000);
     } catch {
       showToast?.("Không thể sao chép mã", "error");
-    }
-  }, [referralCode, showToast]);
-
-  // Sao chép Link Nhận JOY
-  const copyReceiveLink = useCallback(async () => {
-    hapticSelect();
-    const receiveUrl = `${window.location.origin}/member/account?ref=${encodeURIComponent(referralCode)}`;
-    try {
-      await navigator.clipboard.writeText(receiveUrl);
-      setCopiedLink(true);
-      showToast?.("Đã sao chép liên kết nhận JOY!", "success");
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch {
-      showToast?.("Không thể sao chép liên kết", "error");
     }
   }, [referralCode, showToast]);
 
@@ -309,7 +298,7 @@ export default function JoyWalletApp({
         mutate();
         loadChallenges();
       });
-    } catch (err     ) {
+    } catch (err) {
       showToast?.(err.message || "Lỗi điểm danh", "error");
     } finally {
       setClaiming(false);
@@ -327,7 +316,7 @@ export default function JoyWalletApp({
       }
       mutate();
       showToast?.(t("memberPortal.walletApp.tree.bonusTaken", { amount: result.awarded || 50 }), "success");
-    } catch (error     ) {
+    } catch (error) {
       if (/đã nhận/i.test(error.message)) setTreeBonusTaken(true);
       showToast?.(error.message || "Lỗi nhận thưởng cây", "error");
     } finally {
@@ -335,116 +324,60 @@ export default function JoyWalletApp({
     }
   };
 
-  const openSub = (subId        ) => {
+  const openSub = (subId) => {
     hapticSelect();
     if (subId === "perks" && !perksData) loadPerks();
     setSub(subId);
   };
 
   return (
-    <div className="w-full selection:bg-amber-500/20 pb-24 md:pb-6">
-      {/* ── 1. HEADER CHUẨN DESKTOP (CHỈ HIỂN THỊ TRÊN WEB DESKTOP MD+) ── */}
-      <div className="hidden md:flex items-center justify-between border-b border-border/40 pb-4 mb-6">
-        <div className="flex items-center gap-3">
-          {sub && (
-            <button
-              type="button"
-              onClick={() => setSub(null)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 active:scale-95 text-xs font-bold text-foreground transition-all"
-            >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
-              <span>Quay lại</span>
-            </button>
-          )}
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-foreground tracking-tight m-0">Ví JOY</h2>
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10.5px] font-bold">
-                1 JOY DUY NHẤT
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground m-0 mt-0.5">
-              Hệ sinh thái tài sản & quyền năng số Hugo Studio
-            </p>
-          </div>
-        </div>
-
-        {/* Thanh Tabs chuẩn Apple macOS / iPadOS Segmented Controls */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 p-1 rounded-2xl bg-muted/60 border border-border/40">
-            {TABS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  hapticSelect();
-                  setSub(null);
-                  setTab(item.id);
-                }}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  tab === item.id && !sub
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <span className="material-symbols-outlined text-base">{item.icon}</span>
-                <span>{item.fallback}</span>
-                {item.id === "missions" && pendingJoy > 0 && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                )}
-                {item.id === "later" && loan && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                )}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 text-xs font-bold text-muted-foreground border border-border/40">
-            <span className={`w-2 h-2 rounded-full ${isValidating ? "bg-amber-400 animate-spin" : "bg-emerald-400"}`} />
-            <span>{isValidating ? "Đồng bộ..." : "Trực tuyến"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 2. HEADER APP CHO WEB ĐIỆN THOẠI & PWA (CHỈ HIỂN THỊ TRÊN MOBILE) ── */}
-      <div className="md:hidden w-full mb-3">
-        <header className="px-4 py-3 rounded-2xl border border-border/40 bg-card/70 backdrop-blur-xl flex items-center justify-between z-20 shrink-0">
-          {sub ? (
-            <button
-              type="button"
-              onClick={() => setSub(null)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted/70 hover:bg-muted active:scale-95 transition-all text-xs font-bold text-foreground"
-              title="Quay lại"
-            >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
-              <span>Quay lại</span>
-            </button>
-          ) : (
-            <div className="w-4" />
-          )}
-
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <h1 className="text-xs font-black uppercase tracking-wider text-foreground m-0">
-                VÍ JOY
-              </h1>
-            </div>
-            <p className="text-[9.5px] font-semibold text-muted-foreground m-0">
-              Hugo Studio
-            </p>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 text-[10.5px] font-bold text-muted-foreground border border-border/40 mr-10">
-            <span className={`w-1.5 h-1.5 rounded-full ${isValidating ? "bg-amber-400 animate-spin" : "bg-emerald-400"}`} />
-            <span>{isValidating ? "Đồng bộ..." : "Trực tuyến"}</span>
-          </div>
-        </header>
-      </div>
-
-      {/* ── 3. VÙNG NỘI DUNG CHÍNH (TỰ ĐỘNG THÍCH ỨNG DESKTOP & MOBILE) ── */}
+    /*
+     * Chuyển sang khung chung `AppFrame` (20/09/2026).
+     *
+     * Trước đây ví tự dựng HAI header (một `hidden md:flex` cho desktop kèm dải
+     * phân đoạn, một `md:hidden` cho điện thoại) và MỘT thanh tab dưới cố định.
+     * Thiết kế đó vốn đúng chuẩn Apple — nên `AppFrame` đã được bổ sung
+     * `wideNav="segmented"` để GIỮ đúng dải phân đoạn ấy, thay vì ép ví sang
+     * sidebar chỉ cho khớp tiêu chí. Cái đổi là: nay chỉ còn MỘT nơi định nghĩa
+     * chrome cho mọi app, không phải ba khối trong file này.
+     *
+     * `tabs` truyền `undefined` khi đang ở màn con (`sub`) — giữ đúng hành vi cũ:
+     * vào màn con thì ẩn điều hướng cấp trên để không có hai cấp tranh nhau.
+     */
+    <AppFrame
+      appId="joy_wallet"
+      title={t("memberPortal.walletApp.title", "Ví JOY")}
+      subtitle="Hugo Studio"
+      /* KHÔNG dùng tiêu đề lớn ở ví: nhân vật chính của màn này là tấm thẻ JOY
+         ngay bên dưới, mà bản thân nó đã in "Hugo Studio" và số dư. Thêm một
+         tiêu đề 34px + phụ đề nữa là lặp thông tin và đẩy thẻ xuống ~200px
+         chrome. Thanh gọn + dải phân đoạn là đủ, và thẻ lên ngay đầu màn. */
+      largeTitle={false}
+      onBack={sub ? () => setSub(null) : onBack}
+      tabs={sub ? undefined : TABS.map((item) => ({
+        id: item.id,
+        icon: item.icon,
+        label: t(item.labelKey, item.fallback),
+        badge: item.id === "missions" && pendingJoy > 0 ? pendingMissions.length : 0,
+      }))}
+      tab={tab}
+      onTabChange={(next) => { hapticSelect(); setSub(null); setTab(next); }}
+      wideNav="segmented"
+      actions={(
+        <span className="flex items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1 text-[13px] font-bold text-muted-foreground">
+          <span className={`h-1.5 w-1.5 rounded-full ${isValidating ? "bg-amber-400" : "bg-emerald-400"}`} />
+          <span className="hidden sm:inline">
+            {isValidating
+              ? t("memberPortal.walletApp.syncing", "Đồng bộ…")
+              : t("memberPortal.walletApp.online", "Trực tuyến")}
+          </span>
+        </span>
+      )}
+      scrollKey={sub || ""}
+      wide
+    >
       <main className="space-y-5">
-          
+
           {(sub === "rewards" || sub === "redeem") && (
             <Panel>
               <JoyRewardsHub
@@ -465,7 +398,7 @@ export default function JoyWalletApp({
               <MemberUtilityStoreTab
                 bio={bio}
                 balance={activeBalance}
-                onPurchased={(next        ) => {
+                onPurchased={(next) => {
                   setStoreBalance(next);
                   loadPerks();
                   mutate();
@@ -513,7 +446,7 @@ export default function JoyWalletApp({
                         {perks?.canCheckin ? "sparkles" : "task_alt"}
                       </span>
                     </div>
-                    <span className="text-[11.5px] font-bold">
+                    <span className="text-[13px] font-bold">
                       {perks?.canCheckin ? "Điểm danh" : "Đã nhận"}
                     </span>
                   </button>
@@ -523,21 +456,21 @@ export default function JoyWalletApp({
                 {overview?.summary && (
                   <section className="p-3.5 sm:p-4 rounded-2xl bg-card/70 border border-border/40 backdrop-blur-xl flex items-center justify-around text-center">
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Nhận vào (30d)</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">Nhận vào (30d)</p>
                       <p className="text-sm sm:text-base font-extrabold text-emerald-500 font-mono mt-0.5">
                         +{joy.number(overview.summary.earned)} JOY
                       </p>
                     </div>
                     <div className="h-7 w-px bg-border/40" />
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Chi dùng (30d)</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">Chi dùng (30d)</p>
                       <p className="text-sm sm:text-base font-extrabold text-foreground/80 font-mono mt-0.5">
                         −{joy.number(overview.summary.spent)} JOY
                       </p>
                     </div>
                     <div className="h-7 w-px bg-border/40" />
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Chuỗi Streak</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">Chuỗi Streak</p>
                       <p className="text-sm sm:text-base font-extrabold text-amber-500 font-mono mt-0.5 flex items-center justify-center gap-1">
                         <span className="material-symbols-outlined text-sm">local_fire_department</span>
                         {perks?.streakDays || 0} ngày
@@ -610,7 +543,88 @@ export default function JoyWalletApp({
                   </section>
                 </div>
 
+                {/* ── GIAO DỊCH GẦN ĐÂY ──────────────────────────────────────
+                    Chức năng CHÍNH của một cái ví, và comment bố cục ở đầu cột
+                    này đã ghi "GIAO DỊCH" từ đầu — nhưng phần render chưa bao
+                    giờ được dựng. Hệ quả: `/joy/wallet/overview` vẫn truy vấn 10
+                    giao dịch mỗi lần mở ví, client vẫn tính `filteredTransactions`
+                    và `setTxFilter` vẫn tồn tại, rồi tất cả bị bỏ đi; còn
+                    `TransactionReceiptModal` thì không có đường nào mở ra được.
+                    Dựng ở đây là dùng lại đúng dữ liệu đã tải — KHÔNG thêm một
+                    lượt gọi mạng nào. */}
+                <div className="pt-0.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h2 className="wal-title">{t("memberPortal.walletApp.recent", "Giao dịch gần đây")}</h2>
+                    {transactions.length > 0 && (
+                      <button
+                        type="button"
+                        className="text-[13px] font-semibold text-primary min-h-[44px] px-1"
+                        onClick={() => { hapticSelect(); setTab("history"); }}
+                      >
+                        {t("memberPortal.walletApp.seeAll", "Xem tất cả")}
+                      </button>
+                    )}
+                  </div>
 
+                  {transactions.length > 0 && (
+                    <div className="flex items-center gap-1.5 pb-2" role="group" aria-label={t("memberPortal.walletApp.filter", "Lọc giao dịch")}>
+                      {[
+                        { id: "all", label: t("memberPortal.walletApp.filterAll", "Tất cả") },
+                        { id: "in", label: t("memberPortal.walletApp.filterIn", "Nhận vào") },
+                        { id: "out", label: t("memberPortal.walletApp.filterOut", "Chi dùng") },
+                      ].map((chip) => (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          aria-pressed={txFilter === chip.id}
+                          onClick={() => { hapticSelect(); setTxFilter(chip.id); }}
+                          className={`min-h-[44px] rounded-full px-3.5 text-[13px] font-bold transition-colors ${
+                            txFilter === chip.id
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted/60 text-muted-foreground border border-border/40"
+                          }`}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Trạng thái RỖNG — phân biệt "ví chưa có giao dịch nào" với
+                      "bộ lọc này không có gì": hai câu khác nhau, vì cách xử lý
+                      của người dùng cũng khác (một cái là đi dùng JOY, một cái
+                      là đổi bộ lọc). */}
+                  {transactions.length === 0 ? (
+                    <section className="wal-group flex flex-col items-center gap-2 px-6 py-10 text-center">
+                      <span className="material-symbols-outlined text-[32px] text-muted-foreground" aria-hidden="true">
+                        receipt_long
+                      </span>
+                      <p className="text-[15px] text-muted-foreground m-0">
+                        {t("memberPortal.walletApp.noTx", "Ví chưa có giao dịch nào. Nhận JOY từ nhiệm vụ hoặc điểm danh để bắt đầu.")}
+                      </p>
+                    </section>
+                  ) : filteredTransactions.length === 0 ? (
+                    <section className="wal-group px-6 py-8 text-center">
+                      <p className="text-[15px] text-muted-foreground m-0">
+                        {t("memberPortal.walletApp.noTxInFilter", "Không có giao dịch nào trong mục này.")}
+                      </p>
+                    </section>
+                  ) : (
+                    <section className="wal-group" aria-label={t("memberPortal.walletApp.recent", "Giao dịch gần đây")}>
+                      {filteredTransactions.slice(0, 5).map((tx) => (
+                        <Row
+                          key={tx.id}
+                          icon={tx.type === "in" ? "south_west" : "north_east"}
+                          title={tx.title}
+                          detail={new Date(tx.createdAt).toLocaleDateString(joy.locale)}
+                          value={`${tx.amount >= 0 ? "+" : "−"}${joy.number(Math.abs(tx.amount))}`}
+                          valueTone={tx.type}
+                          onClick={() => { hapticSelect(); setSelectedTx(tx); }}
+                        />
+                      ))}
+                    </section>
+                  )}
+                </div>
 
                 {/* BẢNG ĐẶC QUYỀN HỆ SINH THÁI THEO HẠNG THÀNH VIÊN */}
                 <div className="pt-2">
@@ -659,7 +673,7 @@ export default function JoyWalletApp({
                     mutate();
                   }}
                   onSelectUtility={onSelectUtility}
-                  onGoToWalletTab={(targetTab        ) => setTab(targetTab)}
+                  onGoToWalletTab={(targetTab) => setTab(targetTab)}
                 />
               </div>
             </Panel>
@@ -673,48 +687,6 @@ export default function JoyWalletApp({
           )}
         </main>
 
-        {/* ── 4. THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHỈ DÀNH CHO WEB ĐIỆN THOẠI & PWA (md:hidden) ─── */}
-        {!sub && (
-          <nav
-            className="md:hidden fixed bottom-0 left-0 right-0 px-3 py-2 border-t border-border/40 bg-card/95 backdrop-blur-2xl grid grid-cols-4 gap-1 z-40 shadow-lg"
-            aria-label="Điều hướng ví"
-          >
-            {TABS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`relative py-1.5 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all ${
-                  tab === item.id
-                    ? "text-amber-500 font-bold bg-amber-500/10"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-                aria-current={tab === item.id ? "page" : undefined}
-                onClick={() => {
-                  hapticSelect();
-                  setTab(item.id);
-                }}
-              >
-                <span
-                  className="material-symbols-outlined text-xl"
-                  style={{ fontVariationSettings: tab === item.id ? "'FILL' 1" : "" }}
-                  aria-hidden="true"
-                >
-                  {item.icon}
-                </span>
-                <small className="text-[10px] tracking-tight">{item.fallback}</small>
-                {item.id === "missions" && pendingJoy > 0 && (
-                  <b className="absolute top-1 right-5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-background animate-pulse" />
-                )}
-                {item.id === "later" && loan && (
-                  <b className="absolute top-1 right-5 w-2 h-2 rounded-full bg-purple-500 ring-2 ring-background" />
-                )}
-              </button>
-            ))}
-          </nav>
-        )}
-
-
-
       {/* ── MODAL 3: BIÊN LAI GIAO DỊCH (TRANSACTION RECEIPT MODAL) ────── */}
       {selectedTx && (
         <TransactionReceiptModal
@@ -723,6 +695,6 @@ export default function JoyWalletApp({
           showToast={showToast}
         />
       )}
-    </div>
+    </AppFrame>
   );
 }

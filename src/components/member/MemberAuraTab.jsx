@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
-import SubUtilityHeader from "./SubUtilityHeader";
+import AppFrame from "./os/AppFrame";
+import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import FeatureGate from "./shared/FeatureGate";
 import { motion } from "framer-motion";
 import { joyText } from "../../lib/joyDisplay";
@@ -358,8 +359,23 @@ export default function MemberAuraTab({
   const dashOffset = 691.15 * (1 - progressRatio);
 
   return (
-    <div className="space-y-6">
-      <SubUtilityHeader title={t("aura.title")} icon="blur_on" colorClass={accent.accentText} onBack={onBack} />
+    /*
+     * Chuyển `SubUtilityHeader` → `AppFrame` (20/09/2026). Aura là người dùng
+     * CUỐI CÙNG của header đó, nên sau bước này `SubUtilityHeader.jsx` xoá được
+     * hẳn: portal từ ba bộ chrome còn hai (khung chung + các app chưa chuyển).
+     *
+     * Aura tự dựng lưới 12 cột cho màn rộng nên `wide` — nó không cần cột giữa
+     * 900px của khung, mà cần cả bề ngang cho đồng hồ đếm + danh sách nhạc.
+     */
+    <AppFrame
+      appId="aura"
+      title={t("aura.title")}
+      largeTitle
+      onBack={onBack}
+      actions={<StandaloneInstallButton appTitle={t("aura.title")} appId="aura" />}
+      wide
+    >
+      <div className="space-y-6">
 
       {/* Hidden audio element */}
       <audio
@@ -622,6 +638,7 @@ export default function MemberAuraTab({
         </FeatureGate>
         </div>
       </div>
-    </div>
+      </div>
+    </AppFrame>
   );
 }

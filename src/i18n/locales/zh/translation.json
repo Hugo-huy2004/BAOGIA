@@ -2620,7 +2620,17 @@
       "chartBand": "{{low}} – {{high}}",
       "chartLoading": "正在加载图表…",
       "chartCollecting": "正在收集数据 —— 每小时一个点，几小时后曲线就会出现。",
-      "chartFailed": "暂时无法加载图表。"
+      "chartFailed": "暂时无法加载图表。",
+      "recent": "最近交易",
+      "filter": "筛选交易",
+      "filterAll": "全部",
+      "filterIn": "收入",
+      "filterOut": "支出",
+      "noTx": "还没有交易记录。完成任务或每日签到即可获得 JOY。",
+      "noTxInFilter": "此筛选条件下没有交易。",
+      "loadingPanel": "正在加载…",
+      "syncing": "同步中…",
+      "online": "在线"
     },
     "identityCheck": {
       "title": "定期身份核验",
@@ -2644,6 +2654,9 @@
       "otpSendFailed": "验证码发送失败，请稍后再试。",
       "warning": "填报虚假信息将导致账户被锁定。如需解锁，请发送邮件并说明原因；管理员有权要求提供证件以核实身份。",
       "codeExpired": "验证码已过期或尚未发送，请重新获取。"
+    },
+    "joyTree": {
+      "complete": "树已长成"
     }
   },
   "memberTabs": {
@@ -6310,7 +6323,8 @@
     "vietnameseContentOnly": {
       "title": "课程内容为越南语。",
       "course": "Study with Hugo 的课程由作者以越南语编写。界面已翻译，课程内容尚未翻译。"
-    }
+    },
+    "back": "返回"
   },
   "paymentGateway": {
     "dangChuanBiThong": "准备您的支付详情…",
@@ -7599,7 +7613,10 @@
     "noRecent": "暂无最近使用",
     "noRecentBody": "你打开过的内容会显示在这里，方便快速再次打开。",
     "activity": "动态",
-    "overview": "概览"
+    "overview": "概览",
+    "lazyFailed": "此部分无法加载。请检查网络后重新载入。",
+    "reload": "重新载入",
+    "goBack": "返回"
   },
   "support": {
     "tagline": "查看现成解答，或提交请求，管理员会与你联系。",
@@ -7705,7 +7722,10 @@
       "hint": "把二维码对准取景框。",
       "again": "重新扫描",
       "cameraError": "无法打开摄像头，请检查权限。"
-    }
+    },
+    "backToList": "返回工具列表",
+    "loadFailed": "无法加载此工具。请检查网络后重试。",
+    "pickATool": "从左侧列表中选择一个工具开始。"
   },
   "friends": {
     "tabs": {

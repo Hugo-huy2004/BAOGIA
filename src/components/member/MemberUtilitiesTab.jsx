@@ -25,7 +25,7 @@ const FriendsApp = lazy(() => import("./FriendsApp"));
 const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
 import BackButton from "./shared/BackButton";
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -111,6 +111,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           onBack={() => onSelectUtility(null)}
           setFormData={setFormData}
           handleSave={handleSave}
+          /* Màn đang mở đọc từ URL (/member/utilities/handle/<toolId>) chứ không
+             giữ trong state: tải lại trang, bấm back của máy, hay dán link đều
+             về đúng công cụ đó. */
+          route={appRoute}
+          onRouteChange={onAppRouteChange}
         />
       )}
 
@@ -203,8 +208,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           showToast={showToast}
           bio={bio}
           onBioUpdate={onBioUpdate}
-          activePage={radioPage || "home"}
-          onPageChange={onSelectRadioPage}
         />
       )}
 

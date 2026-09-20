@@ -98,18 +98,18 @@ export default function TierPrivilegesSection({
               Hạng {data.title}
             </span>
             {isUserCurrentTier ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
                 <span className="material-symbols-outlined text-[13px]">check_circle</span>
                 Hạng của bạn
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-zinc-500/15 text-zinc-500 dark:text-zinc-400 border border-zinc-500/30 whitespace-nowrap shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-zinc-500/15 text-zinc-500 dark:text-zinc-400 border border-zinc-500/30 whitespace-nowrap shrink-0">
                 <span className="material-symbols-outlined text-[13px]">lock</span>
                 Đang xem trước
               </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">{data.subtitle}</p>
+          <p className="text-[13px] text-muted-foreground mt-0.5">{data.subtitle}</p>
         </div>
 
         {/* NÚT ĐIỀU HƯỚNG NHANH CÁC HẠNG (TIER CHIPS) */}
@@ -124,7 +124,7 @@ export default function TierPrivilegesSection({
                   key={tId}
                   type="button"
                   onClick={() => onSelectTier(tId)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-xl text-[13px] font-bold transition-all shrink-0 flex items-center gap-1 ${
                     isCurrent
                       ? "bg-foreground text-background shadow-sm scale-100"
                       : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -142,7 +142,7 @@ export default function TierPrivilegesSection({
       </div>
 
       {/* POLICY SUMMARY BANNER */}
-      <div className={`p-3.5 rounded-2xl bg-gradient-to-r ${data.bgGradient} border border-border/30 text-xs text-foreground/90 leading-relaxed`}>
+      <div className={`p-3.5 rounded-2xl bg-gradient-to-r ${data.bgGradient} border border-border/30 text-[13px] text-foreground/90 leading-relaxed`}>
         <div className="flex items-start gap-2.5">
           <span className="material-symbols-outlined text-base mt-0.5 text-foreground/70 shrink-0">
             verified_user
@@ -161,7 +161,7 @@ export default function TierPrivilegesSection({
         </h4>
         <ul className="space-y-2.5">
           {data.benefits.map((benefit, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 text-[12.5px] sm:text-[13px] leading-relaxed text-foreground/85">
+            <li key={idx} className="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-foreground/85">
               <span className="material-symbols-outlined text-[16px] mt-0.5 text-muted-foreground shrink-0">
                 check
               </span>

@@ -200,7 +200,7 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   return (
     <div className="flex flex-col h-[100dvh] lg:h-full w-full bg-background relative overflow-hidden">
       {/* FIXED HEADER WITH BLUR */}
-      <header 
+      <header
         className={`absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 transition-all duration-300 ${
           scrolled || detail ? "bg-background/80 backdrop-blur-lg border-b border-border/40 shadow-sm" : "bg-transparent"
         }`}

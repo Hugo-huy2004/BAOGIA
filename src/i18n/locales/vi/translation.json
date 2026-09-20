@@ -4466,7 +4466,17 @@
       "chartBand": "{{low}} – {{high}}",
       "chartLoading": "Đang tải biểu đồ…",
       "chartCollecting": "Đang thu thập dữ liệu — mỗi giờ một điểm, đường sẽ hiện ra sau vài giờ.",
-      "chartFailed": "Chưa tải được biểu đồ."
+      "chartFailed": "Chưa tải được biểu đồ.",
+      "recent": "Giao dịch gần đây",
+      "filter": "Lọc giao dịch",
+      "filterAll": "Tất cả",
+      "filterIn": "Nhận vào",
+      "filterOut": "Chi dùng",
+      "noTx": "Ví chưa có giao dịch nào. Nhận JOY từ nhiệm vụ hoặc điểm danh để bắt đầu.",
+      "noTxInFilter": "Không có giao dịch nào trong mục này.",
+      "loadingPanel": "Đang tải nội dung…",
+      "syncing": "Đồng bộ…",
+      "online": "Trực tuyến"
     },
     "identityCheck": {
       "title": "Kiểm tra thông tin định kỳ",
@@ -4490,6 +4500,9 @@
       "otpSendFailed": "Không gửi được mã xác minh. Vui lòng thử lại sau.",
       "warning": "Khai báo thông tin không đúng sự thật sẽ bị khoá tài khoản. Muốn mở khoá, hãy gửi email nêu rõ lý do; quản trị viên có quyền yêu cầu giấy tờ để xác minh.",
       "codeExpired": "Mã đã hết hạn hoặc chưa được gửi. Hãy yêu cầu mã mới."
+    },
+    "joyTree": {
+      "complete": "Cây đã trưởng thành"
     }
   },
   "memberTabs": {
@@ -6972,7 +6985,8 @@
     "vietnameseContentOnly": {
       "title": "Nội dung tiếng Việt.",
       "course": "Bài học của Study with Hugo do tác giả viết bằng tiếng Việt. Giao diện đã dịch, phần nội dung khoá học thì chưa."
-    }
+    },
+    "back": "Quay lại"
   },
   "paymentGateway": {
     "dangChuanBiThong": "Đang chuẩn bị thông tin thanh toán…",
@@ -7560,7 +7574,10 @@
     "noRecent": "Chưa có gì gần đây",
     "noRecentBody": "Những gì bạn mở sẽ hiện ở đây để mở lại nhanh.",
     "activity": "Hoạt động",
-    "overview": "Tổng quan"
+    "overview": "Tổng quan",
+    "lazyFailed": "Không tải được phần này. Kiểm tra kết nối rồi tải lại trang.",
+    "reload": "Tải lại trang",
+    "goBack": "Quay ra"
   },
   "support": {
     "tagline": "Tìm câu trả lời có sẵn, hoặc gửi yêu cầu để quản trị viên liên hệ lại với bạn.",
@@ -7666,7 +7683,10 @@
       "hint": "Đưa mã QR vào khung hình.",
       "again": "Quét lại",
       "cameraError": "Không mở được camera. Hãy kiểm tra quyền truy cập."
-    }
+    },
+    "backToList": "Về danh sách công cụ",
+    "loadFailed": "Không tải được công cụ này. Kiểm tra kết nối rồi thử lại.",
+    "pickATool": "Chọn một công cụ ở danh sách bên cạnh để bắt đầu."
   },
   "servicePkg": {
     "connect": {

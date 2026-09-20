@@ -70,7 +70,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
             </span>
           </div>
 
-          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide ${
+          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[13px] font-black uppercase tracking-wide ${
             isCredit
               ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
               : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
@@ -87,7 +87,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
         </div>
 
         {/* Receipt Body Details */}
-        <div className="p-5 space-y-3.5 text-xs">
+        <div className="p-5 space-y-3.5 text-[13px]">
           {/* Status Bar */}
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
             <span className="text-slate-500 font-bold">Trạng thái giao dịch</span>
@@ -130,7 +130,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
                 className="font-mono font-extrabold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline"
               >
                 <span>{txCode}</span>
-                <span className="material-symbols-outlined text-xs">content_copy</span>
+                <span className="material-symbols-outlined text-[13px]">content_copy</span>
               </button>
             </div>
 

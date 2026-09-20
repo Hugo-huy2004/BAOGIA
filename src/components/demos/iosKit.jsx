@@ -104,7 +104,15 @@ export function NavBar({ title, subtitle, large = true, left, right, scrolled = 
     >
       <div className="flex min-h-[48px] items-center justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1">{left}</div>
-        <div className="pointer-events-none min-w-0 max-w-[58%] text-center">
+        {/* Tiêu đề NHỎ giữa thanh. Ở chế độ tiêu đề lớn, iOS chỉ cho nó hiện SAU
+            KHI đã cuộn qua `<h1>` lớn — hai cái cùng hiện là thấy tên app hai lần
+            chồng nhau. Trước đây khối này luôn vẽ, nên bật `large` là lập tức có
+            "VÍ JOY" ở giữa thanh và "VÍ JOY" to ngay bên dưới. */}
+        <div
+          className="pointer-events-none min-w-0 max-w-[58%] text-center transition-opacity duration-200"
+          style={large ? { opacity: scrolled ? 1 : 0 } : undefined}
+          aria-hidden={large && !scrolled ? "true" : undefined}
+        >
           <span className="block truncate text-[17px] font-semibold">{title}</span>
           {!large && subtitle && <span className="block truncate text-[11px] font-medium" style={{ color: "var(--ios-label-2)" }}>{subtitle}</span>}
         </div>

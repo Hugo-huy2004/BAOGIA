@@ -6,7 +6,7 @@ import { useId } from "react";
  * Trước đây icon chỉ là một nét lucide đơn sắc đặt giữa ô gradient: mười cái
  * đứng cạnh nhau trông như một cái nhân mười. Cảnh riêng cho từng app mới là
  * thứ người dùng nhận ra trước cả khi đọc tên — cùng lối vẽ đã dùng cho ảnh
- * bìa trong Chợ (hugoStore/ui/AppArt.jsx), nhưng gọn lại cho ô 48×48.
+ * bìa trong Chợ, nhưng gọn lại cho ô 48×48.
  *
  * Vì sao SVG chứ không phải PNG: mỗi icon một tấm ảnh là vài trăm KB nhân với
  * số lần mở portal — đúng khoản băng thông đã từng làm cháy hạn mức Render.

@@ -112,10 +112,19 @@ export default function JoyTree({ claimed = 0, total = 0, bonusClaimed = false, 
             )}
           </svg>
 
-          {/* Vương miện Thần Cây */}
+          {/* Vương miện Thần Cây — Material Symbols, không emoji: emoji do HỆ ĐIỀU
+              HÀNH vẽ nên mỗi máy một hình (Android, Windows, iOS khác nhau hẳn),
+              không theo được màu thương hiệu, và trình đọc màn hình đọc thành
+              "mặt vua". Xem quy ước icon đơn sắc của dự án. */}
           {complete && (
-            <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 flex items-center justify-center font-black shadow-lg text-xs animate-pulse">
-              👑
+            <span
+              className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 flex items-center justify-center shadow-lg"
+              role="img"
+              aria-label={t("memberPortal.joyTree.complete", "Cây đã trưởng thành")}
+            >
+              <span className="material-symbols-outlined text-[18px] leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>
+                workspace_premium
+              </span>
             </span>
           )}
         </div>
@@ -126,7 +135,7 @@ export default function JoyTree({ claimed = 0, total = 0, bonusClaimed = false, 
             <h4 className="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight">
               {t(`memberPortal.walletApp.tree.${stageName}`)}
             </h4>
-            <span className="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+            <span className="text-[13px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
               {claimed}/{total} {t("memberPortal.walletApp.tabMissions")}
             </span>
           </div>
@@ -148,7 +157,7 @@ export default function JoyTree({ claimed = 0, total = 0, bonusClaimed = false, 
           {/* Reward CTA / Hint Text */}
           {complete ? (
             bonusClaimed ? (
-              <div className="flex items-center gap-1 text-xs font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-xl">
+              <div className="flex items-center gap-1 text-[13px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-xl">
                 <span className="material-symbols-outlined text-sm">workspace_premium</span>
                 <span>{t("memberPortal.walletApp.tree.bonusTaken", { amount: TREE_BONUS_JOY })}</span>
               </div>
@@ -157,14 +166,14 @@ export default function JoyTree({ claimed = 0, total = 0, bonusClaimed = false, 
                 type="button"
                 disabled={busy}
                 onClick={onClaimBonus}
-                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-slate-950 text-xs font-black shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-1 animate-bounce"
+                className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-slate-950 text-[13px] font-black shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-1 animate-bounce"
               >
                 <span className="material-symbols-outlined text-sm">stars</span>
                 <span>{t("memberPortal.walletApp.tree.claimBonus", { amount: TREE_BONUS_JOY })}</span>
               </button>
             )
           ) : (
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <p className="text-[13px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
               <span className="material-symbols-outlined text-sm text-emerald-500">park</span>
               <span>{t("memberPortal.walletApp.tree.keepGoing", { count: total - claimed, amount: TREE_BONUS_JOY })}</span>
             </p>

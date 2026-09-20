@@ -4,41 +4,41 @@ import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { PRODUCT_GROUPS, perkLabel, moneyUnit, formatDate, tileAction, GRADIENTS } from "./storeData";
 import UtilityAppIcon from "../utilities/UtilityAppIcon";
 
-const norm = (value        ) => String(value || "").toLowerCase();
+const norm = (value) => String(value || "").toLowerCase();
 
 export default function StoreHome({
   entries = [], packs = [], orders = [], balance, title, search = "", onSearch,
   onOpenApp, onBuyPack, onInstall, onOpen
-}     ) {
+}) {
   const { t } = useTranslation();
   const query = search.trim().toLowerCase();
   const searching = query.length > 0;
 
   const shownApps = useMemo(
     () => (searching
-      ? entries.filter((e     ) => norm(e.app.label).includes(query) || norm(e.app.tagline).includes(query))
+      ? entries.filter((e) => norm(e.app.label).includes(query) || norm(e.app.tagline).includes(query))
       : entries),
     [entries, query, searching]
   );
 
   const shownPacks = useMemo(
     () => (searching
-      ? packs.filter((p     ) => [p.name, p.description, perkLabel(p)].some(f => norm(f).includes(query)))
+      ? packs.filter((p) => [p.name, p.description, perkLabel(p)].some(f => norm(f).includes(query)))
       : packs),
     [packs, query, searching]
   );
 
-  const apps = shownApps.filter((e     ) => !e.app.game);
-  const games = shownApps.filter((e     ) => e.app.game);
+  const apps = shownApps.filter((e) => !e.app.game);
+  const games = shownApps.filter((e) => e.app.game);
 
   const heroes = useMemo(() => {
-    const missing = entries.filter((e     ) => (e.ladder && !e.state?.unlocked) || (e.installable && !e.installed));
+    const missing = entries.filter((e) => (e.ladder && !e.state?.unlocked) || (e.installable && !e.installed));
     return (missing.length ? missing : entries).slice(0, 5);
   }, [entries]);
 
   const nothing = searching && apps.length === 0 && games.length === 0 && shownPacks.length === 0;
 
-  const renderActionButton = (entry     ) => {
+  const renderActionButton = (entry) => {
     const action = tileAction(entry);
     const config      = {
       installing: { label: t("utilities.store.app.installing", { percent: entry.progress }), run: null },
@@ -48,7 +48,7 @@ export default function StoreHome({
     }[action];
 
     return (
-      <button 
+      <button
         onClick={(e) => {
           e.stopPropagation();
           if (config.run) config.run();
@@ -67,7 +67,7 @@ export default function StoreHome({
       {/* HEADER */}
       <div className="px-5 pt-8 pb-4">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
-        
+
         {/* SEARCH BAR */}
         <div className="relative mt-4 group">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-[20px] transition-colors group-focus-within:text-primary">
@@ -109,7 +109,7 @@ export default function StoreHome({
                     {/* Liquid Glass Effect Background */}
                     <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[entry.app.color]} opacity-80 group-hover:scale-105 transition-transform duration-500`} />
                     <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px] mix-blend-overlay" />
-                    
+
                     <div className="relative aspect-[16/9] flex flex-col justify-between p-5">
                       <div>
                         <h3 className="text-[13px] font-bold text-white/90 uppercase tracking-widest mb-1 shadow-sm drop-shadow-md">Nổi Bật</h3>
@@ -136,16 +136,16 @@ export default function StoreHome({
                 {!searching && <span className="text-[13px] text-muted-foreground font-medium">{t("utilities.store.home.gamesHint")}</span>}
               </div>
               <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-2 -mx-5 px-5">
-                {games.map((entry     ) => (
+                {games.map((entry) => (
                   <div key={entry.app.id} onClick={() => onOpenApp(entry.app.id)} className="snap-start shrink-0 w-[140px] cursor-pointer group flex flex-col items-center text-center">
                     {/* Liquid Glass Icon Wrapper */}
                     <div className="relative mb-3 group-hover:-translate-y-1 transition-transform">
                       <div className={`absolute inset-1 bg-gradient-to-br ${GRADIENTS[entry.app.color]} opacity-20 blur-md rounded-[24px] translate-y-2`} />
-                      <UtilityAppIcon 
-                        app={entry.app} 
-                        gradient={GRADIENTS[entry.app.color]} 
-                        size="large" 
-                        className="!w-[100px] !h-[100px] !rounded-[24px] shadow-[0_8px_16px_rgba(0,0,0,0.08)] border border-white/20 relative z-10" 
+                      <UtilityAppIcon
+                        app={entry.app}
+                        gradient={GRADIENTS[entry.app.color]}
+                        size="large"
+                        className="!w-[100px] !h-[100px] !rounded-[24px] shadow-[0_8px_16px_rgba(0,0,0,0.08)] border border-white/20 relative z-10"
                       />
                       {/* Glass Specular Highlight */}
                       <div className="absolute inset-0 z-20 rounded-[24px] pointer-events-none bg-gradient-to-tr from-transparent via-white/5 to-white/20" />
@@ -166,24 +166,24 @@ export default function StoreHome({
                 {!searching && <span className="text-[13px] text-muted-foreground font-medium">{t("utilities.store.home.appsHint")}</span>}
               </div>
               <div className="flex flex-col gap-4">
-                {apps.map((entry     ) => (
+                {apps.map((entry) => (
                   <div key={entry.app.id} onClick={() => onOpenApp(entry.app.id)} className="flex items-center gap-4 p-4 rounded-[20px] bg-card/60 backdrop-blur-md border border-border/40 shadow-sm cursor-pointer hover:bg-card hover:shadow-md hover:border-primary/20 transition-all group">
                     <div className="relative shrink-0">
                       <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[entry.app.color]} opacity-15 blur-sm rounded-[16px] translate-y-1`} />
-                      <UtilityAppIcon 
-                        app={entry.app} 
+                      <UtilityAppIcon
+                        app={entry.app}
                         gradient={GRADIENTS[entry.app.color]}
-                        size="medium" 
-                        className="!w-[64px] !h-[64px] !rounded-[16px] shadow-sm relative z-10" 
+                        size="medium"
+                        className="!w-[64px] !h-[64px] !rounded-[16px] shadow-sm relative z-10"
                       />
                       <div className="absolute inset-0 z-20 rounded-[16px] pointer-events-none bg-gradient-to-br from-white/20 to-transparent mix-blend-overlay" />
                     </div>
-                    
+
                     <div className="min-w-0 flex-1">
                       <h3 className="text-[16px] font-bold text-foreground line-clamp-1">{entry.app.label}</h3>
                       <p className="text-[13px] text-muted-foreground line-clamp-2 mt-0.5 leading-snug">{entry.app.tagline}</p>
                     </div>
-                    
+
                     {renderActionButton(entry)}
                   </div>
                 ))}
@@ -192,8 +192,8 @@ export default function StoreHome({
           )}
 
           {/* ITEM PACKS */}
-          {PRODUCT_GROUPS.map((group     ) => {
-            const list = shownPacks.filter((p     ) => (p.productType || "general") === group.type);
+          {PRODUCT_GROUPS.map((group) => {
+            const list = shownPacks.filter((p) => (p.productType || "general") === group.type);
             if (list.length === 0) return null;
             return (
               <section key={group.type} className="px-5">
@@ -212,7 +212,7 @@ export default function StoreHome({
                         <h3 className="font-bold text-foreground text-[16px]">{pack.name}</h3>
                         <p className="text-[13px] text-muted-foreground line-clamp-1">{pack.description}</p>
                       </div>
-                      <button 
+                      <button
                         onClick={() => onBuyPack(pack)}
                         className="shrink-0 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-1.5 rounded-full font-bold text-[14px] transition-colors"
                       >
@@ -259,7 +259,7 @@ export default function StoreHome({
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-600" />
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                
+
                 <div className="relative z-10">
                   <p className="text-[13px] text-white/90 font-medium mb-1 drop-shadow-sm">{t("utilities.store.home.balance")}</p>
                   <div className="drop-shadow-md">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import SubUtilityHeader from "./SubUtilityHeader";
+import AppFrame from "./os/AppFrame";
+import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
 import {
   orderedUrls, recordOk, recordFail, stationStatus, pickRandom, learnedUrl,
@@ -92,14 +93,6 @@ const FALLBACK_STATIONS = {
 };
 
 const SLEEP_STEPS = [15, 30, 60];
-const RADIO_APP_PAGES = [
-  { id: "home", icon: "home", label: "Trang chủ" },
-  { id: "stations", icon: "radio", label: "Đài phát" },
-  { id: "discover", icon: "travel_explore", label: "Khám phá" },
-  { id: "sleep", icon: "bedtime", label: "Hẹn giờ" },
-  { id: "about", icon: "info", label: "Thông tin" },
-];
-
 const readGuestDemoSeconds = () => {
   try {
     const value = Number(localStorage.getItem(GUEST_DEMO_STORAGE_KEY) || 0);
@@ -123,14 +116,8 @@ export default function MemberRadioTab({
   bio,
   isGuestMode = false,
   requireAccount,
-  activePage = "stations",
-  onPageChange,
 }) {
   const { t } = useTranslation();
-  const isPWA = typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches;
-  const hasNavigation = typeof onPageChange === "function";
-  const standaloneApp = hasNavigation && isPWA;
-  const page = RADIO_APP_PAGES.some((item) => item.id === activePage) ? activePage : "home";
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
   const [loadingCategory, setLoadingCategory] = useState(null);
@@ -172,7 +159,7 @@ export default function MemberRadioTab({
   // Nút "chuyển kênh" trên màn hình khoá cần hàm bốc ngẫu nhiên, mà hàm đó khai
   // báo bên dưới — giữ qua ref để effect ở trên gọi được bản mới nhất.
   const playRandomRef = useRef(() => {});
-  const autoSkipRef = useRef                                      ({ count: 0, skipped: [] });
+  const autoSkipRef = useRef({ count: 0, skipped: [] });
 
   const healthLabel = useCallback((id) => t(`utilities.radio.health.${stationStatus(id)}`), [t]);
 
@@ -504,64 +491,39 @@ export default function MemberRadioTab({
         : t("utilities.radio.state.idle");
 
   return (
-    <div className={standaloneApp
-      ? "h-full min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.14),transparent_34rem),radial-gradient(circle_at_90%_70%,rgba(59,130,246,0.1),transparent_30rem)] text-foreground flex flex-col"
-      : "w-full selection:bg-teal-500/20 pb-24 md:pb-6 text-foreground flex flex-col"}
+    /*
+     * Chuyển sang khung chung `AppFrame` (20/09/2026).
+     *
+     * Trước đây file này tự dựng BA header khác nhau — một cho PWA độc lập, một
+     * cho desktop, một cho mobile trình duyệt — chọn theo `standaloneApp`. Ba
+     * header nghĩa là ba cỡ chữ tiêu đề, ba cách chừa safe-area, ba chỗ phải sửa
+     * mỗi lần đổi gì; và tên app "HugoRadio" cùng phụ đề bị viết cứng ba lần
+     * không qua i18n. `AppFrame` lo cả ba hình thái bằng một đường.
+     *
+     * Cũng gỡ theo: `RADIO_APP_PAGES` + `activePage` + `onPageChange` là một bộ
+     * điều hướng 5 trang CHẾT — thanh nav chưa bao giờ được render, `page` tính ra
+     * rồi không ai đọc, `onPageChange` không ai gọi. Portal vẫn nuôi cặp prop
+     * `radioPage`/`onSelectRadioPage` và một đoạn URL cho thứ không tồn tại.
+     *
+     * `wide`: radio có lưới đài và trình phát cần cả bề ngang, không phải cột đọc.
+     */
+    <AppFrame
+      appId="radio"
+      title="HugoRadio"
+      subtitle={t("utilities.radio.subtitle", "Đài phát thanh trực tuyến")}
+      largeTitle
+      onBack={onBack}
+      actions={<StandaloneInstallButton appTitle="HugoRadio" appId="radio" />}
+      wide
     >
-      {/* ── 1. HEADER & QUAY LẠI ── */}
-      {standaloneApp ? (
-        <header
-          className="sticky top-0 z-30 shrink-0 border-b border-white/50 bg-background/72 px-3 pb-3 shadow-[0_12px_38px_rgba(15,23,42,0.08)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#06090d]/72"
-          style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
-        >
-          <div className="mx-auto flex max-w-5xl items-center gap-3">
-            <div className="flex min-w-0 flex-1 items-center gap-3 text-left">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg shadow-teal-500/20">
-                <span className="material-symbols-outlined">radio</span>
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[16px] font-black tracking-tight">HugoRadio</span>
-                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Đài phát thanh trực tuyến</span>
-              </span>
-            </div>
-          </div>
-        </header>
-      ) : (
-        <div className="hidden md:flex items-center justify-between border-b border-border/40 pb-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black text-foreground tracking-tight m-0">HugoRadio</h2>
-                <span className="px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10.5px] font-bold">RADIO TRỰC TUYẾN</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="flex w-full flex-col gap-10 py-4">
 
-      {/* Header cho mobile trình duyệt thường (nếu có) */}
-      {!standaloneApp && (
-        <div className="md:hidden w-full mb-4">
-          <header className="px-4 py-3 rounded-2xl border border-border/40 bg-card/70 backdrop-blur-xl flex items-center justify-between z-20 shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
-              <h3 className="font-bold text-sm tracking-tight text-foreground m-0">HugoRadio</h3>
-            </div>
-            <div className="flex flex-col items-end mr-10">
-              <p className="text-[10px] uppercase font-bold text-teal-500/80 m-0">Đang trực tuyến</p>
-            </div>
-          </header>
-        </div>
-      )}
-
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-10">
-        
         {/* ── 2. TRÌNH PHÁT (NOW PLAYING) ── */}
         <section className="relative overflow-hidden rounded-[32px] border border-white/60 bg-gradient-to-br from-card/80 to-muted/30 p-6 sm:p-8 shadow-[0_22px_65px_rgba(15,23,42,0.1)] backdrop-blur-3xl dark:border-white/10 dark:from-card/60 dark:to-background/40 flex flex-col gap-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-teal-600 dark:text-teal-300">
-                <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-400 animate-pulse" : isBuffering ? "bg-amber-400 animate-pulse" : "bg-muted-foreground"}`} /> 
+              <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1.5 text-[13px] font-black uppercase tracking-[0.14em] text-teal-600 dark:text-teal-300">
+                <span className={`h-2 w-2 rounded-full ${isPlaying ? "bg-emerald-400 animate-pulse" : isBuffering ? "bg-amber-400 animate-pulse" : "bg-muted-foreground"}`} />
                 {stateLabel}
               </span>
               <h1 className="mt-4 max-w-xl text-3xl font-black tracking-[-0.03em] sm:text-4xl truncate">
@@ -600,7 +562,7 @@ export default function MemberRadioTab({
               className="w-14 h-14 shrink-0 rounded-full border-2 border-border/60 bg-background/50 hover:bg-muted text-foreground flex items-center justify-center active:scale-95 transition-all">
               <span className="material-symbols-outlined text-2xl">skip_next</span>
             </button>
-            
+
             <div className="w-px h-10 bg-border/60 mx-2 hidden sm:block"></div>
 
             <button onClick={playRandom}
@@ -698,14 +660,14 @@ export default function MemberRadioTab({
                 const status = healthTick >= 0 ? stationStatus(station.stationuuid) : "unknown";
                 // Lấy style riêng cho danh mục này, nếu không có thì fallback
                 const catObj = RADIO_CATEGORIES.find(c => c.id === activeCategory) || RADIO_CATEGORIES[0];
-                
+
                 return (
                   <div key={station.stationuuid} className="group relative">
                     <button onClick={() => playStation(station)}
                       className={`w-full text-left rounded-3xl border-2 flex flex-col transition-all overflow-hidden ${
                         active ? "border-teal-500 ring-4 ring-teal-500/20" : "border-border/60 bg-card hover:border-border hover:shadow-lg"
                       } ${status === "dead" ? "opacity-50 grayscale" : ""}`}>
-                      
+
                       {/* Ảnh bìa / Gradient Banner của đài */}
                       <div className={`w-full aspect-square relative flex items-center justify-center bg-gradient-to-br ${catObj.activeClass} p-4`}>
                         <div className="absolute inset-0 bg-black/20 mix-blend-overlay"></div>
@@ -727,7 +689,7 @@ export default function MemberRadioTab({
                       {/* Tên và Location */}
                       <div className="p-4 bg-card flex flex-col">
                         <span className="text-[14px] font-bold line-clamp-1 text-foreground">{station.name}</span>
-                        <span className="text-[12px] font-semibold text-muted-foreground mt-0.5 line-clamp-1">
+                        <span className="text-[13px] font-semibold text-muted-foreground mt-0.5 line-clamp-1">
                           {station.country || t(`utilities.radio.health.${status}`)}
                         </span>
                       </div>
@@ -757,7 +719,7 @@ export default function MemberRadioTab({
             </div>
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </AppFrame>
   );
 }
