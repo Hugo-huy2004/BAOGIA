@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useJoy } from "../../../lib/joyDisplay";
+import JoyAmount from "../shared/JoyAmount";
 
 /**
  * Thẻ HẠN MỨC — con số đầu tiên người có JOYlater muốn thấy.
@@ -41,7 +42,7 @@ export default function JoyLaterLimitCard({ status }) {
         {t("memberPortal.joyLater.availableCredit")}
       </p>
       <p className="mt-1 text-[32px] font-bold leading-none tabular-nums text-foreground">
-        {joy.text(available)}
+        <JoyAmount value={available} /> <span className="text-[0.62em] font-medium opacity-70">JOY</span>
       </p>
 
       <div className="mt-4 h-2 overflow-hidden rounded-full bg-card">

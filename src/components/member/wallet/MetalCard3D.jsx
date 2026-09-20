@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from "re
 import JsBarcode from "jsbarcode";
 import { useJoy } from "../../../lib/joyDisplay";
 import { hapticSelect } from "../../../utils/haptics";
+import JoyAmount from "../shared/JoyAmount";
 import { memberTier } from "../../../lib/memberTier";
 
 // 4 bảng màu chuẩn theo chính sách các hạng thành viên:
@@ -459,7 +460,7 @@ export default function MetalCard3D({
                       textShadow: currentTheme.id === "star18" ? "0 2px 4px rgba(0,0,0,0.9)" : "none",
                     }}
                   >
-                    {joy.number(balance)}
+                    <JoyAmount value={balance} />
                   </span>
                   <span
                     className="text-sm font-black"

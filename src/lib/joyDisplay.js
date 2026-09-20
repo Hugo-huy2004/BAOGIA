@@ -104,11 +104,77 @@ const currentLocale = () => localeForLanguage(
   i18nRef?.resolvedLanguage || i18nRef?.language || "vi",
 );
 
-/** SỐ đã định dạng theo ngôn ngữ: "1.000". */
-export const joyNumber = (joy) => joyValue(joy).toLocaleString(currentLocale());
+/**
+ * VẠN — đơn vị đếm của người Việt xưa, bằng 10.000.
+ *
+ * Người Văn Lang không đếm theo nghìn như cách viết số phương Tây mà theo VẠN
+ * (萬): mười nghìn là một vạn, mười vạn là một ức. Lối đếm ấy còn nguyên trong
+ * tiếng Việt tới tận bây giờ — "muôn vàn", "vạn sự", "vạn tuế" — nhưng đã biến
+ * mất khỏi mọi con số trên màn hình.
+ *
+ * Đưa nó trở lại ở đây là có chủ ý: mỗi lần Quý thành viên nhìn vào ngân khố
+ * của mình là một lần gặp lại cách tổ tiên đếm của cải.
+ *
+ * Áp cho TIẾNG VIỆT và TIẾNG TRUNG. Tiếng Trung đếm theo 万 là lối bản địa của
+ * chính nó, không phải mượn — viết 190.895 thành 19万895 mới là cách một người
+ * Hoa đọc số. Riêng bản tiếng Anh giữ nguyên lối đếm theo nghìn: người đọc
+ * tiếng Anh không có ký ức nào về "vạn", với họ nó chỉ là một con số khó đọc.
+ */
+export const VAN = 10000;
+
+/**
+ * 190.895 → "19 vạn 895" (vi) hoặc "19万895" (zh).
+ * Dưới một vạn thì giữ nguyên số.
+ */
+export function toVan(amount, locale, lang = "vi") {
+  const n = Math.abs(Math.round(Number(amount) || 0));
+  const sign = Number(amount) < 0 ? "−" : "";
+  if (n < VAN) return sign + n.toLocaleString(locale);
+
+  const van = Math.floor(n / VAN);
+  const rest = n % VAN;
+  // Phần lẻ KHÔNG đệm số 0: "19 vạn 895" chứ không phải "19 vạn 0895". Người
+  // đọc tiếng Việt đọc thành "mười chín vạn tám trăm chín mươi lăm", ở đó số 0
+  // dẫn đầu không tồn tại.
+  // Tiếng Trung viết liền không khoảng trắng và không dấu phân nhóm ở phần lẻ:
+  // 19万895, không phải "19 万 895".
+  if (lang === "zh") {
+    return rest ? `${sign}${van}万${rest}` : `${sign}${van}万`;
+  }
+  return rest
+    ? `${sign}${van.toLocaleString(locale)} vạn ${rest.toLocaleString(locale)}`
+    : `${sign}${van.toLocaleString(locale)} vạn`;
+}
+
+const currentLang = () => String(i18nRef?.resolvedLanguage || i18nRef?.language || "vi");
+
+/** SỐ đã định dạng: vi/zh đếm theo vạn, en theo nghìn. */
+export const joyNumber = (joy) => {
+  const lang = currentLang();
+  if (lang.startsWith("vi")) return toVan(joyValue(joy), currentLocale());
+  if (lang.startsWith("zh")) return toVan(joyValue(joy), currentLocale(), "zh");
+  return joyValue(joy).toLocaleString(currentLocale());
+};
 
 /** Chuỗi đầy đủ kèm mã đơn vị JOY duy nhất: "1.000 JOY". */
 export const joyText = (joy) => `${joyNumber(joy)} JOY`;
+
+/**
+ * Tách chuỗi đã định dạng thành các mảnh, đánh dấu đâu là CHỮ ĐƠN VỊ.
+ *
+ * `joyNumber` phải trả về chuỗi thuần vì nó còn chạy trong i18next
+ * (`{{x, joy}}`), trong nhãn cho trình đọc màn hình và trong tin nhắn Telegram —
+ * ba nơi không nhận JSX. Nên cỡ chữ không thể quyết định ở đó; hàm này để tầng
+ * giao diện dựng lại con số với chữ "vạn" nhỏ hơn.
+ */
+export function joyParts(joy) {
+  const text = joyNumber(joy);
+  // Tách quanh "vạn" (Việt) và "万" (Hoa), giữ lại chính dấu tách trong kết quả.
+  return text.split(/(\s?vạn\s?|万)/).filter(Boolean).map((chunk) => ({
+    text: chunk,
+    unit: /vạn|万/.test(chunk),
+  }));
+}
 
 /**
  * Đăng ký hai bộ định dạng cho i18next:

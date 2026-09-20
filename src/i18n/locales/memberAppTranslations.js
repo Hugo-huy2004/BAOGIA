@@ -28,7 +28,7 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["cinema", "Chill Premium", "Rạp phim công cộng: kinh điển, hoạt hình, khoa học viễn tưởng và tài liệu"],
       ["invest", "Đầu Tư", "Sàn chứng khoán ảo: học đầu tư bằng JOY, không mất tiền thật"],
       ["info", "Thông Tin", "Thông tin hệ thống và ghi chú phát hành"],
-      ["joy_wallet", "Ví JOY", "Số dư và chuyển JOY nhanh"],
+      ["joy_wallet", "Ngân Khố", "Tồn khoản và chuyển JOY cấp tốc"],
       ["store", "Cửa Hàng", "Cửa hàng ứng dụng, token và dịch vụ"],
       ["supporter", "Trung Tâm Hỗ Trợ", "Hướng dẫn có sẵn và gửi yêu cầu tới quản trị viên"],
       ["arcade_chess", "Cờ Vua", "Thách đấu AI trình độ cao"],
