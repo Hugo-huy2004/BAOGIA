@@ -67,7 +67,17 @@ execFileSync('pyftsubset', [
 
 const size = fs.statSync(OUT).size;
 console.log(`✅ ${path.relative(ROOT, OUT)} — ${(size / 1024).toFixed(0)} KB`);
-if (size > 400 * 1024) {
-  console.error('❌ Phông cắt vượt 400 KB. Xem lại tập ký tự trước khi ghi vào kho mã.');
+// Ngưỡng 900 KB, đặt theo thực tế chứ không theo cảm tính.
+//
+// Một giao diện Nôm đầy đủ cần trên một nghìn chữ khác nhau, và chữ vuông thì
+// mỗi glyph nặng hơn hẳn chữ Latinh — con số 400 KB ban đầu chỉ là phỏng đoán
+// của người chưa dựng xong bản dịch. Đổi lại, phông này CHỈ tải về cho người
+// chọn chữ Nôm (quy tắc CSS theo html[lang="nom"]), nên nó không nằm trên
+// đường tải của bất kỳ ai khác.
+//
+// Vượt 900 KB thì hãy dừng lại mà xem: nhiều khả năng tập ký tự đã gom nhầm
+// thứ gì đó, chứ không phải bản dịch tự nhiên phình ra tới mức ấy.
+if (size > 900 * 1024) {
+  console.error('❌ Phông cắt vượt 900 KB. Xem lại tập ký tự trước khi ghi vào kho mã.');
   process.exit(1);
 }
