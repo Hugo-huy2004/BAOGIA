@@ -77,7 +77,10 @@ export const REQUIRED_APP_IDS = Object.freeze([
   "store",
   "bio",
   "study",
-  "vocab",
+  // "vocab" (Hoa Ngữ) đã gỡ 21/09/2026 — nếu để lại đây thì `normalizeInstalled`
+  // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
+  // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
+  "nom",
   "friends",
   "team",
   "psychology",
@@ -135,7 +138,7 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "handle",
   "team",
   "radio",
-  "vocab",
+  "nom",
   // Id đã nghỉ hưu nhưng vẫn mở app kế nhiệm; bookmark cũ phải ra đúng vỏ.
   "ide",
   "hugoso",
