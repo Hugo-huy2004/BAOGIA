@@ -8399,19 +8399,27 @@
     "installApp": "Tải app"
   },
   "nom": {
-    "intro": "Chữ Nôm là lối viết tiếng Việt bằng chữ vuông, dùng suốt gần một nghìn năm trước khi quốc ngữ thay thế. Những chữ dưới đây lấy từ chính giao diện Quý thành viên đang dùng.",
+    "intro": "Chữ Nôm phần lớn là chữ HÌNH-THANH: một nửa báo nghĩa, một nửa báo âm. Học luật ghép rồi thì đọc được cả chữ chưa từng gặp. Mỗi bài một bộ thủ, lấy từ chính giao diện Quý thành viên đang dùng.",
     "loading": "Đang tải học liệu…",
     "loadFailed": "Chưa tải được học liệu chữ Nôm.",
     "lessonN": "Bài {{n}}",
-    "mastered": "Đã thuộc",
-    "startQuiz": "Kiểm tra bài này",
-    "pickReading": "Chữ này đọc là gì?",
+    "radicalIs": "Bộ {{name}} — {{meaning}}",
+    "lessonMeta": "{{teach}} chữ mẫu · {{quiz}} chữ thi",
+    "howItWorks": "Mỗi chữ dưới đây tách làm hai phần: BỘ THỦ báo nghĩa, phần còn lại báo âm. Hãy để ý âm của phần thứ hai gần với âm của cả chữ thế nào.",
+    "plus": "+",
+    "soundsLike": "(đọc gần “{{sound}}”)",
+    "startExam": "Thi qua môn · {{count}} chữ chưa học",
+    "examOf": "Thi bộ",
+    "unseenChar": "Chữ này CHƯA được dạy trong bài",
     "next": "Tiếp",
-    "quizDone": "Đã xong",
+    "passed": "Đã qua môn",
+    "failed": "Chưa đạt — cần đúng từ {{mark}}% trở lên",
+    "examNote": "Đề thi toàn chữ chưa từng dạy. Đọc được chúng nghĩa là Quý thành viên đã nắm quy luật ghép, không phải thuộc lòng mặt chữ.",
+    "retry": "Thi lại",
     "backToLessons": "Về danh sách bài",
-    "knownOf": "Đã thuộc {{known}} trên {{total}} chữ",
+    "passedOf": "Đã qua {{done}} trên {{total}} bộ thủ",
     "reset": "Xoá tiến độ học",
     "resetTitle": "Xoá toàn bộ tiến độ?",
-    "resetBody": "Mọi chữ đã thuộc sẽ được tính lại từ đầu."
+    "resetBody": "Mọi bài đã qua sẽ được tính lại từ đầu."
   }
 }

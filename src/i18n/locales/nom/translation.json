@@ -7082,16 +7082,15 @@
   "nom": {
     "loading": "當載學料…",
     "lessonN": "排 {{n}}",
-    "mastered": "㐌屬",
-    "startQuiz": "檢查排尼",
-    "pickReading": "𡨸尼讀 󰑼之?",
+    "radicalIs": "部 {{name}} — {{meaning}}",
+    "soundsLike": "(讀近 “{{sound}}”)",
+    "unseenChar": "𡨸尼渚特敎𥪝排",
     "next": "接",
-    "quizDone": "㐌衝",
+    "passed": "㐌過門",
     "backToLessons": "𧗱名冊排",
-    "knownOf": "㐌屬 {{known}} 𨕭 {{total}} 𡨸",
     "reset": "𪷮進渡學",
     "resetTitle": "𪷮全部進渡?",
-    "resetBody": "每𡨸㐌屬𠱊得性吏自頭."
+    "resetBody": "每排㐌過𠱊得性吏自頭."
   },
   "__locale": "nom",
   "__note": "Sinh bằng scripts/build-nom-locale.mjs. Khoá thiếu là CÓ CHỦ Ý — rơi về quốc ngữ."
