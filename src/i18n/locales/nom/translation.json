@@ -3,13 +3,15 @@
     "pomodoroDesk": "盤爫役 Pomodoro",
     "presetLite": "集中珥",
     "presetDeep": "集中溇",
-    "focusBlock": "番集中",
+    "presetMaster": "𨀈柴集中",
+    "focusBlock": "番習中",
     "breakInterval": "曠儗解勞",
     "resetBtn": "達吏",
     "pauseBtn": "暫停",
     "startBtn": "扒頭",
     "workSession": "番爫役",
     "breakSession": "解勞",
+    "lofiWaves": "㳥樂 Lofi",
     "timelineScrub": "進呈發樂",
     "volumeLabel": "音量",
     "themeShop": "書院 Theme 個人",
@@ -41,6 +43,8 @@
     "toastJoyReceived": "認成功 +{{amount, joy}} 𠓨財款.",
     "toastJoyFailed": "空体認賞 JOY.",
     "toastBreakCompleted": "㐌歇𣇞儗𢥷. 扒頭番爫役買芇.",
+    "toastLoginRequired": "𢝙𢚸登入底税交面.",
+    "toastRentSuccess": "税成功交面 {{name}}.",
     "toastRentFailed": "交易失敗.",
     "toastSelectFailed": "空体撰交面.",
     "toastSelectSuccess": "㐌押用交面 {{name}}.",
@@ -48,21 +52,34 @@
     "toastSavedLocally": "㐌押用交面𨕭設備. 系統𠱊同步欺結𦀼穩定.",
     "remainingHoursMinutes": "群 {{hours}}h {{minutes}}m",
     "remainingMinutes": "群 {{minutes}}m",
+    "themeDefaultName": "默定𤎜/𣋁",
+    "themeDefaultDesc": "交面𤎜或𣋁蹺系統, 空畫節吧空號應.",
+    "themeSunsetName": "𩄐朝",
     "themeSunsetDesc": "色柑𡳳𣈜和共映紅蔭押.",
     "themeCyberpunkName": "𣈘電光",
     "themeCyberpunkDesc": "𢃄𤎜青, 紅吧𧹿浮弼𨕭空間𣈘.",
-    "themeObsidianDesc": "保𡗶最溇貝籺𤎜泊和映𧹿珥.",
+    "themeEmeraldName": "青安然",
+    "themeEmeraldDesc": "色青𠖾𡅑點添仍𣈢𤎜黄裕.",
+    "themeObsidianName": "𣈘曠石",
+    "themeObsidianDesc": "保𡗶𣋁溇貝籺𤎜泊和映𧹿珥.",
     "themeIos27Name": "鏡𥪝",
+    "themeIos27Desc": "皮𩈘鏡撑中, 映𤏬𤑟吧朝溇最簡.",
     "themePrideName": "𢃄求虹",
+    "themePrideDesc": "𢃄牟求虹𤯨動, 𢶷𨷑吧𢀭能量.",
+    "themeOceanName": "㳥青",
     "themeOceanDesc": "仍笠㳥青轉動珥, 𠖾吧易集中.",
     "themeHugoStudioName": "𣈢𤎜創造",
     "themeHugoStudioDesc": "各𣈢𧹿, 紅吧青交饒𥪝空間創造.",
     "themeLotusName": "蓮𣋽",
+    "themeLotusDesc": "𦑃蓮𣟮𨕭𡋂紅共映黄蔭押.",
     "themeSolarName": "𣌝𤊧",
     "themeSolarDesc": "仍𣈢𣌝形學芒源能量積極.",
+    "themeSakuraName": "𩙋花",
+    "themeSakuraDesc": "𦑃花珥𣵶𨕭𡋂紅, 𧹿吧撑𡗶𥪝𤽀.",
     "receipt": {
       "paymentSuccessful": "清算成功",
       "rentalSuccessful": "Theme 㐌特添𠓨財款𧵑貴成員",
+      "title": "編認税 theme 個人",
       "date": "𣈜",
       "time": "𣇞",
       "transaction": "碼交易",
@@ -104,6 +121,7 @@
     "tagline": "沒角數𠲜朱𠊛學, 個人吧仍商店𡮈勤現面㐱周𨕭 internet.",
     "services": "役務",
     "landingPage": "張的",
+    "portfolio": "胡疏個人",
     "bioLink": "連結 Bio (教育)",
     "links": "塘引",
     "home": "主頁",
@@ -132,9 +150,11 @@
     "emailLabel": "Email 認書感恩",
     "identityError": "𢝙𢚸入𠸜吧 email 合例.",
     "recognitionNotice": "擁護成功 󰑼𠸜貴成員𠱊𨄾𠓨角感恩𡮈𠰮𧵑 Hugo Studio.",
+    "terms": "欺接俗, 貴成員確認低羅款擁護自願, 空𧷸咍𨷑鎖性能吧𥆾終空還吏, 除交易重, 𤻳技術或場合法律規定恪.",
     "termsError": "𢝙𢚸確認條款款擁護.",
     "packs": {
       "tea": "茶𥒥",
+      "breakfast": "𣇜𤎜",
       "coffee": "璃咖啡",
       "server": "維持 server",
       "supporter": "𠊚同行"
@@ -143,6 +163,8 @@
   "intro": {
     "nav": {
       "welcome": "嘲𢜏",
+      "webDev": "行立程",
+      "personalInfo": "胡疏個人",
       "teammateInfo": "通信同隊",
       "bioEdu": "役務 Hugo Edu+",
       "webService": "役務爫 Web",
@@ -159,6 +181,7 @@
       "hello": "吀嘲, 碎羅"
     },
     "slide1": {
+      "badge": "✦ 沒立程員𡮈蘇𤳰𨕭𦀴",
       "title1": "建造世界數",
       "title2": "朋仍盘𢬣𡮈, 焒𡘯.",
       "explore": "𠓨世界",
@@ -169,6 +192,8 @@
     "slide2": {
       "badge": "✦ 立程 󰑼芸術",
       "title1": "立程 Web —",
+      "title2": "坭意想𤯨, 呲, 吧𧻭𢷵.",
+      "desc": "立程 web 空沛只羅曰 code. 奴󰑼 會畫𨕭 canvas 𧵑𦀴䋥. 每𣳔羅沒炪山, 每含羅沒𣈖𣋁, 每相作羅沒吝感應自𠊛用. 碎結合審美精細吧飭孟技術底造仍空間數坭意想空只見有 — 麻群 *𤯨*.",
       "viewProfile": "𥆾𠓨仍之碎㐌造"
     },
     "slide3": {
@@ -178,10 +203,12 @@
       "eduTitle": "學問 / 朋級",
       "highSchool": "THPT 阮廷沼",
       "hsBadge": "學問 THPT",
+      "hsSub": "坭鍊銼吧㷈𦹰思維立程",
       "hsFull": "場 THPT 阮廷沼",
       "v1t": "德性 & 紀律",
       "v1d": "堅持越𠺟, 鍊練意志吧主動序學溇色.",
       "v2t": "技能骨𣑳",
+      "v2d": "思維反辯色變, 解決問題吧自研究獨立.",
       "v3t": "見識𡋂",
       "v3d": "思維 logic 算自然凭鐄吧術算基礎.",
       "uniTitle": "大學 Greenwich",
@@ -192,15 +219,18 @@
       "badge": "✦ 𠄩𢬣𠬠𣛤心",
       "title1": "同行共𤳰𢧚",
       "title2": "仍世界數固灵魂.",
+      "desc": "Jason 潘空沛只羅對作 — 英意羅盤𢬣次𠄩𧵑碎. 眾碎呐傳朋 code, 推擬朋色態技術, 吧每預案羅沒幅畫眾碎共饒創造. 欺碎曰 logic, Jason 𤳰建築. 欺 Jason 𡏦孕𡋂磉, 碎呲力𤯨 󱚢奴. 眾碎空造應用 — 眾碎造𦋦仍事相作固魂.",
       "highSchool": "THPT 𣘃楊",
       "highSchoolDesc": "塲中學普通能動在堅江.",
+      "highSchoolProvince": "安江 (堅江𡳵)",
+      "uniDesc": "媒場陶造國际連結共 Greenwich 王國英.",
       "uniTag": "大學連結"
     },
     "slide5": {
       "badge": "✦ 免費朱 HSSV",
       "title1": "Bio Link 免費",
       "title2": "停𥢅朱學生生員.",
-      "desc": "碎懞㦖互助最多朱學生生員𥪝役𡏦孕商號個人數. 每財款登記朋 email 教育固後泝 <1>.edu</1> 𠱊得自動激活沒張 Bio 隨整完全免費.",
+      "desc": "碎懞㦖互助最多朱學生生員𥪝役𡏦孕商號個人數. 每財款登記朋 email 教育固厚素 <1>.edu</1> 𠱊得自動激活沒張 Bio 隨整完全免費.",
       "check1": "確實 email 教育自動𥪝 3 𦀊.",
       "check3": "時限使用 Bio Link 𥪝𤥑 12 𣎃.",
       "createBtn": "扒頭造 Bio .edu",
@@ -226,17 +256,22 @@
       "badge": "✦ 創造朱仍𠊛𢞅建築",
       "title1": "Website 碎造𦋦",
       "title2": "𤯨, 適應, 吧扱𠓨心.",
+      "desc": "每 website 碎曰羅沒部腛𡮈. Code 瀝空固餘餘, 每含如沒涅𤳰勤切. 張 web 碎造𨘱如推擬, 𬗱如 󱦷咀𧵑昆𠊛, 吧得最優底 Google 尋𧡊伴易揚. 碎空只爫 websites, 碎造𦋦仍點接觸數坭客行感𧡊特質量𧵑伴.",
       "pricingBtn": "䀡價參考",
       "bookBtn": "㤥造丐夷妬𢢲",
       "serviceOption": "隨撰役務",
+      "item1Title": "胡疏芒𢰳印𥢅",
       "item1Desc": "設計蹺句傳個人",
       "item2Desc": "Admin Dashboard, 管理産品"
     },
     "slide7": {
       "badge": "✦ 所適個人",
-      "title1": "角抒𡅑:"
+      "title1": "角抒𡅑:",
+      "title2": "𣘃楊齒.",
+      "desc": "𡢐仍𣇞發𢫈 code 兢𣦛, 命適𥆾𥄯吧𥊀𥉮仍𤭷𣘃楊齒. 力𤯨吧𨤔𢢲原水𧵑眾芒吏沒曠平安."
     },
     "slide8": {
+      "badge": "✦ 哲理設計",
       "title1": "格碎建造",
       "title2": "𣦰驗𠊛󱨳",
       "quote": "\"命優先事𤑟𤉜吧穩定𠓀; 個性𦤾𡢐, 𥪝仍之節實事固理由底存在.\"",
@@ -252,6 +287,7 @@
     "slide9": {
       "badge": "✦ 聯係",
       "title": "連結結𦀼𢭲 Hugo",
+      "desc": "𢭂𢷮預案, 機會或單澗羅嘲饒.",
       "email": "寄 Email",
       "supporters": "仍𠊛伴同行共 Hugo Studio"
     },
@@ -291,8 +327,11 @@
       "title2": "仍勘破𢼂𧵑𥢆伴.",
       "desc": "仍便益碎自些𡏦孕 — 辭埃, 音樂𦤾互助精神 — 悉奇免費朱學生生員.",
       "auraTitle": "Aura 埃",
+      "auraDesc": "助理埃𨌀𡡂𠢞伴集中學習吧開𢭮感興創造.",
+      "psyDesc": "𠊛伴朗𦖑每心事, 同行共飭劸精神𧵑伴 — 特別𠓨仍𣎀晚.",
       "hocduongTitle": "伴學塘",
       "hocduongDesc": "空間學習終: 𢺺𢩿材料, 𠳨答吧結𦀼共同 HSSV.",
+      "radioDesc": "站樂 lofi 裕㛪, 同行共仍𣇞學𣅘𧵑伴.",
       "ideDesc": "曰吧𧼋試 code 𣦍𨑗程閲 — 𧦕奇𨕭電話.",
       "arcadeDesc": "𠻀𨔈古典吧棋𤤰對抗底書簡𢖕𣇞學兢𣦛.",
       "joyDesc": "圍點賞 JOY — 積累吧使用𥪝全部系生態.",
@@ -313,6 +352,7 @@
       "title2": "沒 Hugo",
       "desc": "每頃刻爫役羅沒心狀 — 仍連盡心吧𢝙𡲈.",
       "m1w": "吀嘲!",
+      "m1d": "親善𣦍自𠳒嘲",
       "m2w": "當 code",
       "m2d": "𥩯 web 𨘱 & 㐱周",
       "m3w": "𥊀𥉮",
@@ -335,6 +375,7 @@
       "navPortfolio": "𧗱碎",
       "navServices": "役務",
       "navBooking": "達曆",
+      "heroEyebrow": "Hugo 梨 · Portfolio",
       "heroTitle1": "𨉟羅 Hugo.",
       "heroTitle2": "命設計吧𡏦産品數.",
       "heroDesc": "生員𢆥𡳳技術分綿在 Greenwich 越南. 低羅 portfolio 各預案𨉟㐌𡏦孕.",
@@ -345,6 +386,7 @@
       "previewStatus": "當活動",
       "previewTagline": "沒名姓數, 饒便益.",
       "aboutLabel": "𧗱命",
+      "aboutH1": "Peter Hugo Wishpax 梨,",
       "aboutH2": "生員𢆥𡳳技術分𣟮.",
       "aboutH3": "命學卒一欺自些變見識成仍産品固体𧼋和得使用.",
       "education": {
@@ -394,11 +436,15 @@
         "desc": "現在, 系統𧵑𨉟㐌特𤇩𫥨成饒應用獨立. 每應用得䀡如沒預案𡮈解決沒排算𥢆和得 Hugo Studio 管理與料集中.",
         "items": [
           {
+            "badge": "胡疋數",
+            "desc": "系統胡疋數朱法𠊛󱨳 呈排通信個人, 預案, 成績吧各連結𥪝沒張𥢅固体隨整.",
+            "outcome": "命婦責𣦰驗 React, 交面 responsive, 確實成員吧𨻫管理內容 Bio.",
             "cta": "䀡預案"
           },
           {
             "badge": "保密",
             "kind": "下層産品",
+            "desc": "圍點內部結𦀼活動, 成績吧分賞𡧲饒應用𥪝 Hugo Studio.",
             "outcome": "命𡏦𨻫數餘, 歷史交易, 轉點吧碼 QR 得𣛠主記底踭與料假自𠌨程閲.",
             "cta": "䀡預案"
           },
@@ -412,7 +458,9 @@
         ]
       },
       "meta": {
-        "description": "Portfolio 個人𧵑 Peter Hugo Wishpax 黎生員𢆥𡳳技術分綿在 Greenwich 越南, 𠁝行程學習, 技能吧各産品㐌𡏦孕."
+        "title": "Peter Hugo Wishpax 梨 — Portfolio 立程吧設計産品",
+        "description": "Portfolio 個人𧵑 Peter Hugo Wishpax 黎生員𢆥𡳳技術分綿在 Greenwich 越南, 𠁝行程學習, 技能吧各産品㐌𡏦孕.",
+        "keywords": "Peter Hugo Wishpax 梨, Hugo 梨, portfolio 立程員生員技術分𣟮, Greenwich 越南, 預案 React"
       },
       "heroCvCta": "載 CV",
       "weak3": "章程學𧵑𨉟𠫾𢌌過𡗉言語欣 󰑼𠫾溇沒丐 — 命讀曉吧𢯢得, 仍𣗓專溇言語芇.",
@@ -420,9 +468,12 @@
     },
     "apple": {
       "meta": {
-        "title": "Peter Hugo Wishpax 黎生員技術分𣟮 & 𠊛𥩯産品"
+        "title": "Peter Hugo Wishpax 黎生員技術分𣟮 & 𠊛𥩯産品",
+        "description": "嘲, 𨉟羅 Hugo. 生員𢆥𡳳技術分綿在 Greenwich 越南, 自些𢸞和運行沒系統 22 應用當𧼋實.",
+        "keywords": "Peter Hugo Wishpax 梨, Hugo 梨, portfolio 立程員生員技術分𣟮, Greenwich 越南, React, Node.js"
       },
       "hero": {
+        "kicker": "Peter Hugo Wishpax 梨",
         "line1": "沒𡭱設計.",
         "line2": "慄𡗉𣎀晚.",
         "status1": "生員𢆥𡳳技術分綿在 Greenwich 越南.",
@@ -451,7 +502,8 @@
           },
           {
             "kicker": "條命學得",
-            "title": "産品只實欺𣎏𠊛󱨳 奴."
+            "title": "産品只實欺𣎏𠊛󱨳 奴.",
+            "body": "排習𨕭笠連𧼋中爲題排㐌𢵶産糖. 𠊛󱨳 實辰𠅍㳥𡧲澄, 𢶸𠄩吝𠓨沒鈕, 吧𨷑 app 朋隻電話𠁀 2019. 命學藝自𡊲妬."
           }
         ]
       },
@@ -490,7 +542,8 @@
       },
       "craft": {
         "kicker": "格𨉟爫役",
-        "title": "𧼋得𠓀. 𢢲𡢐."
+        "title": "𧼋得𠓀. 𢢲𡢐.",
+        "body": "命扒頭自𨻫𠊛󱨳 吧狀態𤻳, 耒買細牟吧轉動. 每幔形沛讀得於皮卬 400px, 𢵺特朋沒阮丐吧𨷑得欺㳥熠𤒲. 轉動閙空解釋得調之時被割. 吧每幔形調固沒本預房朱𣅶𣛠主空㖡𠳒."
       },
       "stats": {
         "items": [
@@ -510,22 +563,26 @@
         "kicker": "技能",
         "title": "𨇜溇底自𢯢欺𠸣.",
         "frontend": {
-          "title": "交面."
+          "title": "交面.",
+          "desc": "命𥩯交面 responsive, 𢺹碼蹺層幔吧守奴𬗱𨕭電話𪽳. 𢘾妬, 𠊛󱨳 空沛徐載沒塊𢀲底䀡沒張𡮈."
         },
         "backend": {
           "title": "𣛠主.",
           "desc": "命曰 API, 分權蹺番登入㐌記吧笠 realtime 朱圍點吝盤棋. 底與料𧵑沒𠊛空𦣰𥪝尋貝𧵑𠊛恪."
         },
         "data": {
-          "title": "與料."
+          "title": "與料.",
+          "desc": "命設計略圖, 打只目吧讀吏追問欺張扒頭踸. 𢘾妬, 沒𢶒免費吻挭得量追及實."
         },
         "ship": {
-          "title": "迻𨑗𦀴."
+          "title": "迻𨑗𦀴.",
+          "desc": "命𢗼展開, 𠸜沔, 部𢖵𧝓編吧㨂襘成 app iOS. 空群沛保持三本恪饒朱𠀧𡋂磉."
         }
       },
       "education": {
         "kicker": "學問",
         "title": "學於場. 爫於茹.",
+        "body": "Greenwich 越南朱命𡋂磉技術分𣟮. 分群吏𦤾自役自些𥩯沒系統實耒𦀪奴每吝固𠊛報𤂬. 命學𨘱一欺見識沛𧼋得𨕭𣛠𧵑𠊛恪.",
         "partnerLabel": "共發展貝",
         "partnerRole": "對作同發展",
         "highSchool": {
@@ -563,11 +620,14 @@
           "role": "命𥩯椌 app 用終, 調向吧笠與料𧼋得欺秩𦀴."
         },
         "bio": {
+          "kind": "胡疋數 · Web",
+          "desc": "沒張𥢅朱胡疏, 預案吧連結, 𨷑朋塘引蹺𠸜伴.",
           "role": "𨉟爫程撰草, 佈局 responsive 吧𨻫確實 email .edu."
         },
         "joy": {
           "kind": "下層 · 圍點",
-          "desc": "圍點內部𦀼活動, 成績吧分賞𡧲各應用."
+          "desc": "圍點內部𦀼活動, 成績吧分賞𡧲各應用.",
+          "role": "命𡏦數數餘, 歷史交易吧碼 QR 得𣛠主記底振與料假."
         },
         "arcade": {
           "kind": "𠻀𨔈 · Canvas",
@@ -575,6 +635,7 @@
           "role": "𨉟爫𥿺㕸 game 蹺時間實, 調遣感應吧𣛠打棋."
         },
         "psy": {
+          "kind": "飭劸精神",
           "desc": "日記感觸吧路傳互助, 兼塘𦀊燶現産扵每幔形.",
           "role": "命碼化內容路傳𠓀欺留吧守𠬠笠𪃲𠳒𧼋完全𨕭𣛠."
         }
@@ -582,6 +643,7 @@
       "values": {
         "kicker": "條命守",
         "title": "格接近𧵑𨉟.",
+        "body": "與料𧵑𠊛用羅次命得摱𠹲空沛次命所有. 妬󰑼 理由每幔形𥪝系統只𠳨中仍通信麻性能妬實事勤和爲牢句𠳨頭先欺添沒性能買連 󰑼奴勤別𠃣一包饒𧗱沒𠊛時買𧼋得.",
         "c1": "名姓得讀自番登入㐌特𣛠主確明 – 空包𣇞徐没參數由程閲寄𨑗.",
         "c2": "內容路傳𥢆西得碼化𠓀欺記𨑜基礎與料 – 𧦕奇命拱空讀得.",
         "c3": "與料診斷只𠁟塘引, 時間吧碼𤻳 – 空兼內容𠊛󱨳 入."
@@ -611,14 +673,17 @@
       "contact": {
         "kicker": "聯係",
         "title": "計𨉟𦖑.",
+        "body": "沒預案, 沒機會實習, 或單澗羅嘲沒句. 命讀信𠴍每𣈜吧常𪃲𠳒𥪝𤥑 24 𣇞.",
         "learnMore": "尋曉添𧗱役務𧵑 Hugo Studio"
       },
       "supporters": {
         "title": "仍𠊛伴同行共 Hugo Studio",
         "empty": "𡊲尼當徐𠸛伴."
       },
+      "footnote": "圖畫交面𨕭張羅形 vector 𢸞吏自産品寔空沛影𢴇幔形. 𠸜場, 𠸜對作吧各連結聯係羅通信實. 各應用𥪞區域成員要求登入, 吧沒數應用只𨷑中本 PWA 㐌掑𨕭電話.",
       "reel": {
         "spiralKicker": "扒頭",
+        "spiralTitle": "每次扒頭徐没𠸂.",
         "worksKicker": "㐌交",
         "worksTitle": "三次㐌𠚢塊𣛠命.",
         "logoTagline": "沒𠊛. 全部系統."
@@ -646,6 +711,18 @@
       "pagesNav": "主頁 · 介紹 · 役務 · 聯係",
       "landingCaption": "沒張𠬠役.",
       "landingCta": "聯係𣦍",
+      "chapters": [
+        {
+          "title": "Website 饒張.",
+          "desc": "欺伴固饒次底𠸥: 介紹, 役務, 預案, 聯係. 每張𠬠役, 𠫾終𠬠部交面, 吧𢯢內容得麻空勤噲命."
+        },
+        {
+          "desc": "欺伴只勤𠬠役仕𦋦: 客底吏數, 達曆, 或𢶸𧷸. 沒張𠬠𠳒𠶆, 空固𡊲芇底絡."
+        },
+        {
+          "desc": "張𨌀, 固構築與料, 標題吧模左曰朱𠊛讀𫏾底客𢫈中次户勤 󰑼体伴, 𠹲空沛𧡊對手."
+        }
+      ],
       "cta": "䀡榜價",
       "gaugeUnit": "點速度"
     },
@@ -670,6 +747,7 @@
         "heading": "三格底𠫾賖欣.",
         "chapter1": {
           "eyebrow": "01 · Website 饒張",
+          "title": "沒 website. 每調伴㦖𠸥.",
           "description": "介紹, 役務, 預案吧連係每張𠬠𦠘, 悉奇終沒𠿚."
         },
         "chapter2": {
@@ -687,6 +765,7 @@
         "cta": "尋曉添𧗱役務"
       },
       "profile": {
+        "kicker": "胡疏",
         "heading": "學於場.\n鍊於預案實.",
         "summary": "命適𪵯仍産品𠊛些𨷑𦋦用每𣈜. 交面, API, 基礎與料 – 三笠, 沒𠊛爫. 吧次之㐌𨑗𦀴時命認連分運行.",
         "educationHeading": "过程學",
@@ -713,7 +792,8 @@
           "desc": "𠸕𨉟𫏾底𣖠範為實𤍊伴𣗓失之, 㐌別命𢯛認之."
         },
         "promise2": {
-          "title": "䀡本試耒買決."
+          "title": "䀡本試耒買決.",
+          "desc": "伴閲交面母, 應耒買𠫾接 – 空沛𧷸猫沖被."
         },
         "promise3": {
           "title": "𢯢𤻳𠓹𠁀.",
@@ -755,6 +835,7 @@
   "servicesPage": {
     "meta": {
       "title": "咨問 Website 朱 HSSV, 個人吧館𡮈 | Hugo Studio",
+      "description": "𠸥 Hugo 𦖑需 󰂌畧欺撰解法. 咨問直接 1-1 朱 HSSV, 個人吧館𡮈; 範圍吧之費得椊𤍊𠓀欺爫.",
       "keywords": "website 朱生員, portfolio 生員, website 個人, website 館𡮈, 咨問設計 website, Hugo Studio"
     },
     "common": {
@@ -771,9 +852,11 @@
       "intro": "空固 website 完好. 只固 website 符合.",
       "between1": "每𤻳羅沒信號. 朗𦖑奴.",
       "between2": "速度空沛󰑼 目標. 速度羅条件先决.",
+      "between3": "沒 website 𬙾麻踸羅色牟𨕭𦀿𣇜皇婚 — 𬙾仍空埃𥆾𧡊.",
       "between4": "徐没張𦤾𠬠世界. 㤥扒頭朋條客行勤曉𧗱伴.",
       "between5": "欺世界固体尋𧡊伴, 伴買實事存在直線.",
-      "climax": "吧耒, website 空址呐傳 — 奴思維, 伮決定, 伮𫜵𭛣朱伴."
+      "climax": "吧耒, website 空址呐傳 — 奴思維, 伮決定, 伮𫜵𭛣朱伴.",
+      "closing": "每𡥵數羅沒𦑃𨷯. 伴撰丐芇?"
     },
     "hero": {
       "badge": "直接 1-1 · 優先學生, 生員",
@@ -806,6 +889,8 @@
           "cta": "䀡格改善"
         },
         {
+          "title": "碎悶𠸥句傳𧵑本身",
+          "desc": "胡疏能力, 張 Bio 吧各𢶒互助𠲜朱學生生員.",
           "cta": "䀡攄撰朱𠊛學"
         }
       ]
@@ -816,7 +901,7 @@
       "philosophy": "命認沒預案在沒時點底固覩事集中. 範圍, 時間, 之費吧仍分𣗓包𠁝調特吶𤍊𠓀欺扒頭. 爲丕, 伴別句傳𧵑預案當於兜吧𨀈接蹺羅之."
     },
     "pricing": {
-      "eyebrow": "墨投資𤑟𤉜",
+      "eyebrow": "𣞪投咨𤑟𤉜",
       "title": "三向爫普變",
       "highlight": "底扒頭𢭂𢷮",
       "desc": "低羅三範圍常﨤, 空沛仍隻盒故定. 𠇮仕𠳨需求𠓀題出分𣃣𨇛耒買𣖠時間吧之費."
@@ -827,15 +912,19 @@
         "desc": "欺伴扒頭認𫥨固丐夷勤整𢯢. 碎旦, 尋中𡊲, 吧抒𡅑奴. 妬󰑼 吝頭伴感𧡊 website 𧵑伴得𢵺𢬣𠬠𠊛𢞅釋奴."
       },
       "stone2": {
-        "badge": "✦ 員𥒥創𨖲"
+        "badge": "✦ 員𥒥創𨖲",
+        "desc": "Website 𢢲仍𣗓埃𧡊? 𠾦𣇞, 碎弼畑. 速度𨘱, Google 尋𧡊伴, 吧客行感𧡊質量𣦍吝頭先."
       },
       "stone3": {
-        "badge": "✦ 員𥒥形成"
+        "badge": "✦ 員𥒥形成",
+        "desc": "沒張集中. 沒句傳𠓑. 欺客行𥆾𠓨幔形, 𣱆曉伴 󰑼埃吧別𨀈接蹺勤爫."
       },
       "stone4": {
+        "badge": "✦ 𡉕𥒥皇壯",
         "desc": "部𩈘完整𧵑伴. 每張羅沒句傳, 每連結羅沒機會. Website 空址呐傳 — 奴 *𠶆噲𠊚些𠓨世界𧵑伴."
       },
       "stone5": {
+        "badge": "✦ 𡉕玉 — 事𤯨",
         "desc": "Website 空址呐傳 — 奴𤯩. 奴推擬, 伮決定, 伮𫜵𭛣朱伴 24/7. 妬󰑼 欺工藝𧿨成分𣟮𧵑伴, 空群羅公惧."
       }
     },
@@ -844,6 +933,13 @@
         "label": "𢯢𤻳𨘱",
         "name": "Quick Tune-Up — 𢯢𤻳在𡊲",
         "note": "報價曾役𠓀欺爫. 雙役買清算. 交吏𥪝𣈜或𣈜歆𡢐.",
+        "desc": "Website 當𧼋仍鈕𢶸𤻳, layout 破𨕭 mobile, 咍客樊難? 命 fix 中𡊲勤 fix. 空扒伴𧷸𢶒𡘯, 只解決問題.",
+        "includes": [
+          "報價之節曾役, 伴閲衝買扒頭",
+          "𢯢𤻳吧 test 技兩𨕭 desktop & mobile",
+          "保行免費 7 𣈜朱󱦛 分𢯢",
+          "交吏 file 吧向引 update 𡀮勤"
+        ],
         "excludes": [
           "設計吏全部張或交面 (䀡𢶒 Shop Starter)",
           "費 domain, hosting — 命咨問或互助 setup 免費"
@@ -860,6 +956,7 @@
         "label": "起頭鈍",
         "name": "Website 沒張",
         "note": "設計𥢅別, 空用 template. 完成𥪝 7-10 𣈜. 最優朱𨁮頭固 web.",
+        "desc": "沒主頁完整朱館, shop 或役務𧵑伴. 客追及衝別伴 󰑼埃, 伴𧸝之, 吧噲聯係得連. 鈍, 𢢲, 𨘱.",
         "tagline": "最優朱𨁮頭先",
         "excludes": [
           "費 domain & hosting (曠 300-500k/𢆥, 伴尋邊外或𨉓𢩾咨問)",
@@ -886,7 +983,16 @@
         "label": "運行功役",
         "name": "Website 達曆 & 管理",
         "note": "朱营業固需求複雜: 達曆 online, 認單, 管理 inventory... 常 8-20 兆隨性能.",
+        "desc": "Website 空址底介紹 — 伮𫜵役: 認單行 online, 朱客達曆限, 自動記吏與料底伴管理. 如税人員, 仍𧼋 24/7.",
         "tagline": "自動化营業",
+        "includes": [
+          "1 𨻫正: 達曆限或認單行 (準𡢐)",
+          "Dashboard 管理: 󰏙單/曆, 名冊客, 報吿基本",
+          "登入 2 急渡: 主舘 (full control) & 人員 (view/edit 界限)",
+          "結𦀼 1 源與料: Google Sheet 或 Zalo (sync 自動)",
+          "全部碼源 clean code — website 󰑼才産𧵑伴, 伴𣎏體𨷑𢌌𡢐",
+          "同行技術 1 𣎃 (fix bug, 向引用, support 過 Zalo)"
+        ],
         "excludes": [
           "𨶛清算 online (PayOS, Momo, Stripe) → Add-on 𥢅, 曠 1-3M",
           "管理成員 VIP, 積點, loyalty → Add-on 𥢅",
@@ -903,12 +1009,22 @@
         "title": "互助排 coursework 𡳳門",
         "desc": "排得點點, 𢧚每𢶒於低調搬交兼材料解釋 code, 吧兼沒条件: 伴沛自保衛得排."
       },
+      "groupProfile": {
+        "title": "胡疏個人 — 空聯關點數",
+        "desc": "空沛排習空納朱埃點. 低羅胡疏伴 󰝂𠫾吀役, 吀學俸."
+      },
       "bug": {
         "name": "診斷 & 𢯢𤻳",
         "unit": "/𤻳",
         "tagline": "搩察限納排",
         "note": "性蹺層纇㐌𣖠. 命只𪮻𠓨中段𠸣, 分群吏吻羅 code 𧵑伴.",
         "desc": "排差 logic, 空結𦀼得 database 或破 layout. 命尋元人, 𢯢中 󱰯𥯉吧解釋爲牢奴𠸣.",
+        "includes": [
+          "尋吧𢯢中纇㐌椊𠓀欺扒頭",
+          "記注解弑元仁低伴𪃲𠳒特欺講員𠳨",
+          "Link Git 底伴 clone code 㐌𢯢𧗱𣛠",
+          "保行 3 𣈜朱󱦛 纇㐌𢯢"
+        ],
         "cap": [
           "最多 2 𤻳每單",
           "只𢯢分當𠸣 — 空曰買職䏻"
@@ -943,6 +1059,13 @@
       "react": {
         "name": "Coursework Web 㨢高",
         "desc": "排𡳳門 Web 㨢高: SPA React 𦀼 REST API Node/Express, 與料𨕭 MongoDB 或 PostgreSQL.",
+        "includes": [
+          "Link Git 𥢅底伴 clone 全部 source 𧗱",
+          "建築 SPA React + REST API Node.js/Express",
+          "登入吧最多 3 抩職能 CRUD",
+          "與料母 (seed data) 𠻿底𧼋試𣦍",
+          "材料向引: 𢭮媒場, 變媒場, 疏圖𨻫與料層 API"
+        ],
         "cap": [
           "1 門, 最多 3 抩職能 CRUD + 登入",
           "1 REST API 吧 1 基礎與料",
@@ -953,14 +1076,29 @@
         "name": "Bio 設計𥢅",
         "tagline": "𢪲級自本免費",
         "note": "本免費伴自𢸞憑程撰草固𠻿. 本尼命𤳰𥢅蹺句傳𧵑伴.",
+        "desc": "沒張介紹本身貝佈局吧牟色爫𥢆空用 theme 𥩯産. 最優底拫𠓨 CV, 胡初𭓇俸咍𦀴社会.",
+        "includes": [
+          "佈局吧榜牟設計𥢆空重埃",
+          "最多 5 連結 (GitHub, LinkedIn, 胡疏能力, 𦀴社会...)",
+          "分介紹本身: 總𤎕, 所適, 技能撰淥",
+          "顯是𢢲𨕭奇𣛠性吧電話"
+        ],
         "cap": [
           "1 張, 最多 5 連結",
           "2 𠞺整𢯢𢖕欺盘交"
         ]
       },
       "bento": {
+        "name": "Bento CV / 胡疏能力",
         "tagline": "最優吀役 & 學俸",
+        "note": "胡疏個人, 空沛排習空影響之細點數𧵑伴.",
         "desc": "呈排成績學習, 預案個人浮弼吧各連結蹺布局 Bento Grid 衮強, 易讀𥪝 30 𦀊頭.",
+        "includes": [
+          "1 張胡疏能力蹺布局 Bento Grid",
+          "結𦀼 GitHub, 𦀴社会吧通信聯絡",
+          "Form 認聯係堵𣦎𧗱 Google Sheet 免費",
+          "迻𨑗 hosting 免費𠓹𠁀 (Vercel/Netlify)"
+        ],
         "cap": [
           "最多 7 塊內容",
           "2 𠞺整𢯢𢖕欺盘交"
@@ -971,8 +1109,9 @@
       "eyebrow": "䀡盡眜",
       "title": "𣦰驗試",
       "highlight": "母設計實",
+      "desc": "三母標表朱胡疏個人, 館𡮈吧役務創造. 只𨷑欺伴悶䀡技底張空被過載.",
       "openCta": "𨷑 3 母符合",
-      "hint": "適 󰜋畝芇妬? 𠸕𨉟兼𠸜母, 𠇮仕咨問格隨變蹺商號𧵑伴.",
+      "hint": "適 󰜋畝芇妬? 𠸕𨉟兼𠸜母, 𠇮仕咨問格隨變蹺商效𧵑伴.",
       "cta": "爫 web 種母尼",
       "loading": "當載交面...",
       "templates": {
@@ -991,10 +1130,13 @@
           "subtitle": "店鐄"
         },
         "portfolio": {
-          "title": "介紹個人"
+          "title": "介紹個人",
+          "short": "胡疏",
+          "subtitle": "胡疏能力"
         },
         "ecommerce": {
-          "title": "張𧸝行"
+          "title": "張𧸝行",
+          "subtitle": "多行"
         },
         "dashboard": {
           "title": "張管理"
@@ -1055,10 +1197,12 @@
           "desc": "沒張介紹本身, 連結𦀴社会, 行程學習吧各預案標表."
         },
         {
-          "title": "便益學習"
+          "title": "便益學習",
+          "desc": "公惧記注, 𠳨答, 財原吧便益服務序學."
         },
         {
-          "title": "Bot 互助個人"
+          "title": "Bot 互助個人",
+          "desc": "𠳨𨘱, 𢭮意格學, 𠲤役吧互助需求基本."
         },
         {
           "title": "共同𠳨答",
@@ -1124,6 +1268,7 @@
     "microJobs": {
       "bug-ui": {
         "name": "𢯢 bug 交面",
+        "desc": "鈕𢶸空活動, layout 破𨕭 mobile, 𡨸重𨑗饒, 形影僃差擊𡱩... 命 fix 𨘱.",
         "time": "𥪝𣈜"
       },
       "style-content": {
@@ -1132,14 +1277,17 @@
       },
       "mobile-beauty": {
         "name": "最優顯是 mobile",
+        "desc": "Web 醜𨕭電話? 更曠格, scale font, 𢯛疊吏鈕𢶸底 mobile 𢢲吧易用.",
         "time": "𥪝𣈜"
       },
       "web-widget": {
         "name": "添便益 web",
+        "desc": "拫 form 聯係, 鈕𠴍 Zalo/Messenger, Google Maps, 鈕噲電直接... 悉奇𥪝 1 𣈜.",
         "time": "𥪝𣈜"
       },
       "deploy-domain": {
         "name": "Deploy & 管理 domain",
+        "desc": "迻 web 𨑗𦀴 (Vercel, Netlify, VPS), 𢭰 domain, setup SSL... 𨉟爫歇, 畔止勤 domain 𠻿.",
         "time": "𥪝𣈜"
       },
       "seo-quick": {
@@ -1160,8 +1308,10 @@
     "disclaimer": "每攄撰𠁑低羅沒向參考. 範圍, 時間吧之費只得椊𢖕欺𠄩边𢭂𢷮𤍊需求.",
     "section": {
       "newBuildsTitle": "Website 朱個人, 館𠄧𨷯行𡮈",
+      "newBuildsDesc": "𣗓固 web 或 web 𡳵過耒? 命𠢞伴爫 website 買自頭 — 設計𥢅, 價合理, 完成𨘱.",
       "optimizeTitle": "整𢯢 & 最優 Web 現在",
-      "optimizeDesc": "Web 㐌固纇𡮈, 踸, 或𧁷𨑗 Google? 命 fix 中𡊲, 空勤爫吏自頭."
+      "optimizeDesc": "Web 㐌固纇𡮈, 踸, 或𧁷𨑗 Google? 命 fix 中𡊲, 空勤爫吏自頭.",
+      "upkeep": "𡀮勤保持𡢐時間互助, 𠇮仕題出𥢅蹺頻率及日食际 — 完全隨撰."
     },
     "devices": {
       "desktop": "𣛠性",
@@ -1171,7 +1321,9 @@
     "proof": {
       "eyebrow": "預案㐌搬交",
       "title": "沒 website 饒張𥄡如勢芾欺𧼋實",
+      "desc": "沒客實, 沒 website 當活動. 伴𨷑𨑗䀡得𣦍空沛信𠓨影𢴇.",
       "clientLabel": "客行",
+      "fieldLabel": "領域",
       "scopeLabel": "範圍",
       "buildLabel": "格爫",
       "planLabel": "𢶒役務",
@@ -1191,6 +1343,7 @@
       "close": "𢫝本䀡𠓀",
       "previewHint": "𢵺層母, 𡢐妬𢷮設備底形容 website 𠓀欺𢭂𢷮.",
       "included": "固体展開",
+      "liveNotice": "伴𣎏體卷吧相作直接𥪝椌尼.",
       "fits": "符合貝",
       "details": {
         "portfolio": {
@@ -1202,6 +1355,7 @@
           ]
         },
         "cafe": {
+          "fit": "館茄批, bistro, 店餅𡮈",
           "features": [
             "實單",
             "達盤",
@@ -1212,7 +1366,7 @@
           "fit": "攝影家, studio, 役務𡣨"
         },
         "ecommerce": {
-          "fit": "Shop 時莊, 美品, 徒守工",
+          "fit": "Shop 時莊, 美品, 圖手工",
           "features": [
             "産品",
             "部淥",
@@ -1247,7 +1401,8 @@
     },
     "faqs": [
       {
-        "question": "Hugo Studio 固𣇞爫役故定空?"
+        "question": "Hugo Studio 固𣇞爫役故定空?",
+        "answer": "𨉟爫役直接 1-1 𢧚空坵布時間. 貴客固体寄信𠴍不據𣅶芇, 𠇮仕返囬𣦍欺𣎏體."
       },
       {
         "question": "Team Hugo Studio 固包饒成員?",
@@ -1259,7 +1414,8 @@
         "actionText": "認優待生員"
       },
       {
-        "question": "之費設計在 Hugo Studio 如勢芾?"
+        "question": "之費設計在 Hugo Studio 如勢芾?",
+        "answer": "爲𨉓爫役直接 1-1 𢧚之費集中𠓨分切計吧發展. 命認沒預案在蔑時點吧疊歷各預案接蹺蹺行待."
       },
       {
         "question": "𣈜禮, Hugo Studio 固爫役空?"
@@ -1267,6 +1423,7 @@
     ],
     "contact": {
       "title": "吻群忑𢹇?",
+      "desc": "仃󱳮𢠯. 㤥𠸕信直接朱隊伍 Hugo Studio 底得解答𣷯𠴜 1:1.",
       "chatBtn": "𠸕信",
       "emailBtn": "寄 Email 朱 team"
     },
@@ -1327,7 +1484,8 @@
         "hint": "確定𣞪度互助𡢐欺預案完成."
       },
       "budget": {
-        "title": "貴客預性投資包饒?"
+        "title": "貴客預性投資包饒?",
+        "hint": "𡥵數尼空𦀾𦄾之. 奴只𠢞𨉟疊次序 – 爫次當爫𠓀, 分群吏底𡢐."
       },
       "timeline": {
         "title": "貴客勤衝欺󰅹?",
@@ -1387,13 +1545,14 @@
     },
     "sections": {
       "project": "貴客當勤互助役之?",
+      "projectHint": "撰方案近一. 貴客沕固體𠊝𢷮𢖖欺𢭂𢷮.",
       "warranty": "正冊互助 / 保行",
       "warrantyHint": "固体𠊝𢷮𢖖欺統一範圍.",
       "budget": "𣞪投胥豫建",
       "budgetHint": "撰曠近一. 貴客𢷮吏特不據𣅶芇.",
       "timeline": "時間貴客懞㦖",
       "notes": "模寫添 (空扒縛)",
-      "notesHint": "𪮻𠓨句𢭮意底添𨘱, 耒𢀦吏蹺情况𧵑貴客.",
+      "notesHint": "𪮻𠓨句𢭮意底添𨘱, 耒𢀦吏蹺情況𧵑貴客.",
       "timelineHint": "撰沐近一貝期望𧵑貴客."
     },
     "budgets": {
@@ -1404,6 +1563,7 @@
       "overEight": "𨕭 8 兆"
     },
     "timelines": {
+      "flexible": "灵活",
       "twoWeeks": "𥪝 1–2 旬",
       "oneMonth": "𥪝 1 𣎃",
       "twoMonths": "𥪝 1–2 𣎃"
@@ -1431,6 +1591,7 @@
       "voucherLabel": "碼優待",
       "voucherHint": "空扒纀𥙩𥪝財款 → 優待𧵑碎",
       "voucherPlaceholder": "圍諭: HUGO20-A1B2C3",
+      "voucherInvalid": "碼優待空用得 (差碼, 㐌用或歇限). 檢查吏或底𥧪烏尼.",
       "messagePlaceholder": "圍諭: 𠇮當半途手工吧勤𠬠 website 底客䀡産品...",
       "disclaimer": "通信尼只得用底返囬要求吧𢭂𢷮預案. 數電話𧵑貴客空特顯是公開."
     },
@@ -1442,9 +1603,10 @@
       "editAnswers": "𢀦吏自頭"
     },
     "summary": {
+      "title": "總𤎕要求",
       "project": "需求",
       "warranty": "保行",
-      "budget": "墨投資",
+      "budget": "𣞪投咨",
       "timeline": "時間",
       "notes": "記注",
       "age": "抩𣦮",
@@ -1471,14 +1633,16 @@
     "age": {
       "badge": "条件扒縛",
       "legend": "抩𣦮𧵑貴客",
+      "hint": "通信尼決定格 Hugo Studio 處理吧保衛與料𧵑貴客. 空勤紙祠, 只勤撰中.",
       "teenTitle": "成員自 14 典󰡎 18 歲",
       "teenRules": {
         "supervision": "𢧚𢭂𢬭貝事別吧監察𧵑吒媄或𠊛監護.",
         "noShare": "Hugo Studio 空供給通信個人𧵑貴客朱不期𠊛󱨳 芇恪 — 空固外例.",
         "minimal": "只填與料最少𥪝表母尼; 停寄添過 chat, Zalo 咍張 Bio 公開."
       },
+      "teenNotesReminder": "停曰地指茹, 場笠具體, 數紙祠𫨩𪱨信𧵑𠊛恪𠓨分模寫.",
       "teenContactNote": "為貴客𠁑 18 歲, Hugo Studio 只用仍通信尼底返囬吧空𢺺𢩿貝不期𠊛󱨳 芇恪. 𢧚用數聯係麻吒媄或𠊛監䕶别.",
-      "blockedTitle": "𣗓𨇜条件寄要求",
+      "blockedTitle": "𣗓𨇛條件寄要求",
       "blockedDesc": "Hugo Studio 空認要求自𠊛𠁑 14 歲. 㤥𢘾吒媄或𠊛監護𥪸𠸛𢭂𢷮𠢞貴客."
     },
     "ageBands": {
@@ -1492,12 +1656,13 @@
       },
       "under14": {
         "title": "𠁑 14 歲",
-        "desc": "𣗓𨇜条件使用役務𧵑 Hugo Studio."
+        "desc": "𣗓𨇛條件使用役務𧵑 Hugo Studio."
       }
     }
   },
   "templatesPage": {
     "hero": {
+      "badge": "天河芸朮",
       "title1": "宇宙",
       "title2": "芸朮數",
       "desc": "掠過仍𢃄銀河靜𣵰. 每張 web 芒沒句傳吧𢰳印𥢅."
@@ -1506,24 +1671,37 @@
       "badge": "骨𣑳",
       "title1": "籺人",
       "title2": "商號",
+      "desc": "心點𧵑宇宙 Hugo Studio 羅 logo 會聚 6 𢃄牟多色没宣言猛美𧗱事創造空界限吧渴望先鋒:",
       "redBold": "𧹥 (Red):",
+      "redText": "代面朱熱血𤊧𤈜, 󰱏迷猛列吧事盡心𥪝曾枝節碼源.",
       "orangeBold": "柑 (Orange):",
+      "orangeText": "象徵朱能量積極, 事能動吧滈渴空凝𢬭貝.",
+      "yellowBold": "黄 (Yellow):",
+      "yellowText": "鎖𤎜事絡觀, 芒𦤾念信吧事盛旺朱每客行.",
+      "greenBold": "青𦲿 (Green):",
+      "greenText": "表象𧵑事增長𥑃𠊡, 連生㵢吧發展猛美.",
       "blueBold": "青洋 (Blue):",
       "blueText": "骨𣑳𧵑工藝, 代面朱事威信, 明白吧專業絶對.",
-      "purpleBold": "𧹿 (Purple):"
+      "purpleBold": "𧹿 (Purple):",
+      "purpleText": "尋𥆾賒𥄡𢌌, 事玄祕吧可能造𦋦仍突破芒性芸朮."
     },
     "typography": {
       "badge": "言語",
-      "title": "攄撰 font 𡨸"
+      "title": "攄撰 font 𡨸",
+      "displayDesc": "芒樣𨤔現代, 𢩮闊如仍𡖞牢𠓑涅𨕭保𡗶𣈘. 用朱標題𡘯.",
+      "bodyDesc": "最簡, 精細吧𬗱麻. 引𢴑映𥆾過層段文本如跪道𧵑各行旌."
     },
     "souls": {
       "badge": "灵魂",
       "title": "灵魂宇宙",
+      "desc": "仍披行家當𢞅芒𥪝命 6 价値骨𣑳𧵑 Hugo Studio.",
       "values": [
         {
-          "title": "盡心"
+          "title": "盡心",
+          "desc": "比美層精紋碼源"
         },
         {
+          "title": "透曉",
           "desc": "朗𦖑層溇𧵑宇宙"
         },
         {
@@ -1539,7 +1717,8 @@
           "desc": "𨘱如速度映𤎜"
         },
         {
-          "title": "保衛"
+          "title": "保衛",
+          "desc": "𦲿鎮安全絶對"
         }
       ]
     },
@@ -1564,10 +1743,13 @@
           "subtitle": "店鐄"
         },
         {
-          "title": "介紹個人"
+          "title": "介紹個人",
+          "short": "胡疏",
+          "subtitle": "胡疏能力"
         },
         {
-          "title": "張𧸝行"
+          "title": "張𧸝行",
+          "subtitle": "多行"
         },
         {
           "title": "張管理"
@@ -1649,6 +1831,7 @@
       "logout": "登出"
     },
     "tabs": {
+      "profile": "胡疏",
       "service": "役務",
       "requests": "要求"
     },
@@ -1723,9 +1906,13 @@
       "copySuccess": "㐌牢劄碼𣴛 Iframe 對作"
     },
     "modals": {
+      "delAccountTitle": "確認𪷮財款",
+      "delAccountReq1": "貴管治當要求𪷮永遠財款𧵑成員",
       "delAccountReq2": "共張 Bio",
+      "delAccountWarn": "⚠️ 行動尼空體完作吧全部通信𠱊被𪷮𣽤塊系統.",
       "delPassLabel": "入密口管治:",
       "delPassPlaceholder": "入密口 admin...",
+      "delConfirmBtn": "確認𪷮",
       "exportLinkTitle": "出 Link 對作:",
       "exportLinkDesc": "Link 尼用底達鈕, menu 或塘引直接𨕭 website 𧵑對作. 客行𢶸𠓨 󰑼固體入 email 吧造 Bio Link 免費𣦍空勤登入𠓨系統 Hugo Studio.",
       "exportLinkReady": "Link 用𣦍朱客行:",
@@ -1739,6 +1926,7 @@
       "exportIframeAutoDesc": "固体添 &email=CUSTOMER_EMAIL 𡀮對作㦖自傳 email 𠊛󱨳.",
       "exportIframeCode": "碼𣴛 Iframe 題出:",
       "exportIframeGuide": "向引𣴛朱對作:",
+      "exportIframeRule1": "𬖭原碼 iframe 𠓨 website 𧵑對作底客行用𣦍.",
       "exportIframeRule2": "欺𣗓傳 email, 交面 iframe 𠱊要求客行入 email 𠓀欺造 Bio Link.",
       "exportIframeRule3": "𡀮對作㐌固 email 客行, 添 &email=CUSTOMER_EMAIL 𠓨 link iframe 底𠓨𣦛程造 Bio.",
       "copyIframeBtn": "牢劄 Iframe"
@@ -1758,10 +1946,14 @@
       "filterDate": "𣈜登記",
       "empty": "𣗓固預案芇",
       "newMsg": "信𠴍買",
+      "deleteTitle": "𪷮客行?",
       "deleteDesc": "貴管治當准僃挅全部與料𧵑",
       "deleteWarn": "行動尼空體完作.",
       "deletePassLabel": "入密口 Admin",
-      "deleteCancel": "毀𠬃"
+      "deletePassPlaceholder": "確實權𪷮...",
+      "deleteCancel": "毀𠬃",
+      "deleteConfirm": "𪷮永遠",
+      "deleting": "當𪷮..."
     }
   },
   "adminProjectDetail": {
@@ -1775,8 +1967,8 @@
     "msgError": "纇寄信𠴍",
     "copySuccess": "㐌 copy link Portal 𧵑客.",
     "detailTitle": "之節預案",
-    "accessCodeFull": "碼追及客行:",
-    "accessCodeShort": "碼追及:",
+    "accessCodeFull": "馬追及客行:",
+    "accessCodeShort": "馬追及:",
     "copyTooltip": "Copy link 寄客行",
     "updateProcessTitle": "及日進呈預案",
     "newStatusLabel": "狀態買",
@@ -1827,7 +2019,8 @@
       "passwordPlaceholder": "密口 Admin",
       "completeBtn": "完畢",
       "successTitle": "成功.",
-      "successDesc": "狀態預案㐌特及日."
+      "successDesc": "狀態預案㐌特及日.",
+      "autoClose": "自動𢫝𥪝𦀊𣋛..."
     }
   },
   "adminTabs": {
@@ -1841,14 +2034,21 @@
       "empty": "𣗓固成員芇",
       "role": "𦠘𠻀:",
       "lastLogin": "登入吝𡳳:",
+      "deleteWarn": "𪷮成員?",
       "deleteDesc": "貴管治當准僃挅全部與料𧵑",
       "deletePrompt": "行動尼空體完作.",
       "passLabel": "入密口 Admin",
-      "cancel": "毀𠬃"
+      "passPlaceholder": "確實權𪷮...",
+      "cancel": "毀𠬃",
+      "delete": "𪷮永遠",
+      "deleting": "當𪷮..."
     },
     "settings": {
       "onlineSys": "系統直線",
       "maintenance": "保持系統",
+      "maintenanceDesc": "振追及客外",
+      "vacation": "制度攸曆",
+      "vacationDesc": "通報主財款𠫾𫴇",
       "advanced": "性能㨢高",
       "aiBot": "助理 H-Bot 埃",
       "aiBotDesc": "弼 chat bot 全張",
@@ -1871,6 +2071,7 @@
       "autoLock": "自動封鎖財款空活動",
       "autoLockDesc": "鎖財款歇限或空登入𥪝時間𨱽",
       "crisisAlert": "警報恐慌心理",
+      "crisisAlertDesc": "認通報欺發願現斗效恐慌自成員",
       "primaryColor": "牟主題系統",
       "primaryColorDesc": "牟商號正用𨕭全部交面",
       "securityTitle": "財款 & 保密 Admin",
@@ -1879,21 +2080,26 @@
       "newPassword": "密口買",
       "confirmPassword": "確認密口買",
       "changePasswordBtn": "及日密口",
-      "changePasswordSuccess": "㐌𢷮密口 Admin 成功."
+      "changePasswordSuccess": "㐌𢷮密口 Admin 成功.",
+      "passwordMismatch": "密口確認空恰"
     },
     "bookings": {
       "title": "管理曆限",
       "empty": "𣗓固曆限芇",
       "markRead": "打唒㐌處理",
-      "budget": "銀冊:"
+      "deleteConfirm": "貴管治固質振㦖𪷮曆限尼?",
+      "budget": "銀冊:",
+      "autoDelete": "自動𪷮𡢐 {{days}} 𣈜"
     },
     "packages": {
       "templates": "母𢶒役務㐌造",
       "emptyTpl": "𣗓固母𢶒役務閙得造.",
+      "delTpl": "𪷮母𢶒",
       "duration": "時限:",
       "days": "𣈜",
       "months": "𣎃",
       "years": "𢆥",
+      "newCode": "生碼買 (碼𡳵𠱊被毀)",
       "newCodeBtn": "碼買",
       "benefits": "權利:",
       "andMore": "吧 {{count}} 權利恪...",
@@ -1903,12 +2109,15 @@
       "grantSelect": "撰襘役務:",
       "grantSelectOption": "-- 撰沒𢶒底級 --",
       "grantCustomDays": "隨整數𣈗空扒縛):",
+      "grantCustomDaysPlaceholder": "入數𣈜㦖級, 底𥧪仕用數𣈜㭲...",
       "grantBtn": "級𢶒 & 激活",
+      "manageTitle": "𪷮 / 管理𢶒𧵑成員",
       "manageDesc": "入 email 成員底檢查各𢶒㐌認吧毀/挅襘.",
       "managePlaceholder": "入 email 成員勤管理...",
       "manageSearch": "尋",
       "currentPackages": "各𢶒役務當𣎏:",
       "originalPackage": "(𢶒㭲)",
+      "packageDefaultNote": "激活欺造 Bio • 空体𪷮",
       "defaultBadge": "默定",
       "grantedOn": "級𣈜:",
       "cancelPackage": "毀𢶒",
@@ -2000,12 +2209,15 @@
   "memberPortal": {
     "titleStudent": "榜調遣生員",
     "titlePartner": "制度對作",
+    "greeting": "嘲",
+    "academicProfile": "胡初𭓇術",
     "navigation": {
       "today": "𣋚𠉞",
       "apps": "應用",
       "activity": "活動",
       "account": "財款",
       "primaryNavigation": "調向正",
+      "todayGreeting": "嘲 {{name}}",
       "memberFallback": "貴成員",
       "todayDescription": "每調關重𥪝𣈜, 鈍𥪝沒坭.",
       "joyBalance": "數餘 JOY",
@@ -2017,6 +2229,7 @@
       "noRecentActivity": "貴成員㐌䀡歇閣及日.",
       "signInToSync": "登入底同步",
       "viewProfile": "䀡胡疏",
+      "toggleSidebar": "收𦄣清邊 (⌘B)",
       "search": "尋劎 (⌘K)",
       "quick": {
         "apps": {
@@ -2028,11 +2241,14 @@
           "description": "數餘吧交易"
         },
         "profile": {
+          "title": "胡疏",
           "description": "通信吧交面"
         }
       }
     },
     "today": {
+      "description": "信息, 研究吧機會𠢞伴學卒欣吧結𦀼固責任.",
+      "snapshot": "總𤎕財款𣋚𠉞",
       "forStudents": "𠲜朱學生生員",
       "topStories": "條當讀𣋚𠉞",
       "localEdition": "印本 {{country}}",
@@ -2054,12 +2270,17 @@
       "featured": "浮弼",
       "preview": "本䀡𠓀",
       "safePreview": "䀡𠓀安全",
+      "hugoSummary": "本信總𤎕𤳄 Hugo Studio",
       "readFull": "讀全聞在 Hugo",
       "backToFeed": "本信",
       "articleUnavailable": "空𨷑得排曰尼.",
+      "summaryTitle": "總𤎕之節",
+      "summaryBySource": "總𤎕由政座撰 {{source}} 曰.",
       "summaryByAi": "Hugo 埃糝𤎕吏排曰朋𠳒恪. 全聞屬本權𧵑 {{source}}. 讀排㭲底䀡𣹓賭内容.",
       "contentTitle": "內容排報",
       "contentUnavailable": "源尼空朱𥙩全聞自動. 貴成員𨷑排㭲底讀𣹓𨇜.",
+      "contentBySource": "全聞排尼屬本權𧵑 {{source}}. Hugo Studio 只現總𤎕 — 𢶸邊𠁑底讀𠓹排𨕭張㭲.",
+      "copyrightNotice": "全聞排曰屬本權𧵑 {{source}}. Hugo Studio 只顯是分總𤎕. 扨 \"讀排㭲底䀡全部排曰𨕭張正式.",
       "attribution": "內容屬本權𧵑 {{source}}.",
       "licenseNotice": "全聞顯是蹺紙法 {{license}} 𧵑 {{source}}",
       "fullInApp": "讀𠓹排",
@@ -2067,6 +2288,7 @@
       "fontSize": "筥𡨸",
       "openSource": "𨷑源",
       "readOriginal": "讀排㭲",
+      "noSummary": "源𣗓供給分總𤎕朱排曰尼.",
       "sourceNotice": "內容𣹓𨇜屬𧗱源出本.",
       "previewTitle": "䀡𠓀: {{title}}",
       "searchPlaceholder": "尋排報, 主題, 源…",
@@ -2076,7 +2298,8 @@
       "clearFilters": "𪷮部淥",
       "done": "衝",
       "noResults": "空固排芇恰𢭲部淥尼.",
-      "fullAccess": "源尼朱法讀分內容現固𣦍𥪝應用"
+      "fullAccess": "源尼朱法讀分內容現固𣦍𥪝應用",
+      "summaryAccess": "當顯是分總𤎕由茹出本供給"
     },
     "notificationCenter": {
       "title": "活動",
@@ -2085,6 +2308,7 @@
       "markingAllRead": "當及日",
       "markAllReadError": "渚體打唒㐌讀. 𢝙𢚸試吏.",
       "openAction": "𨷑內容: {{title}}",
+      "profileUpdated": "及日胡疏",
       "balance": "數餘 {{value, joy}}",
       "dismiss": "𪷮通報: {{title}}",
       "emptyFilterTitle": "空固之於目尼",
@@ -2102,10 +2326,12 @@
       "days": {
         "today": "𣋚𠉞",
         "yesterday": "𣋚過",
-        "thisWeek": "𥪝旬"
+        "thisWeek": "𥪝旬",
+        "earlier": "𡳵欣"
       }
     },
     "tabs": {
+      "bio": "胡疏 Bio",
       "package": "𢶒役務",
       "partner": "對作",
       "utilities": "便益",
@@ -2126,6 +2352,7 @@
       "achievements": "成績"
     },
     "widget": {
+      "headerTitle": "總觀胡疏 BIO",
       "designLabel": "設計",
       "shareLabel": "𢺺𢩿",
       "publicTheme": "主題顯是公開",
@@ -2134,6 +2361,7 @@
       "links": "連結",
       "socialList": "名冊𦀴社会",
       "noLinks": "𣗓構形連結𦀴社会. 㤥轉過目 **𢭮達** 底設立.",
+      "achievements": "成就",
       "featuredProjects": "預案 & 作品浮弼",
       "noProjects": "𣗓構形預案浮弼. 㤥轉過目 **𢭮達** 底設立.",
       "projectCategory": "預案"
@@ -2183,6 +2411,7 @@
       "studentId": "碼學生 / 生員",
       "studentIdPlaceholder": "入碼數 HS/SV 𧵑貴成員...",
       "acceptTerms": "執認供給通信吧免除法理",
+      "acceptContact": "Email.edu 𠱊得閲𣦍立即; email 常𠱊得 Admin 審定𥪝 24 㗂細.",
       "logoutBtn": "登出",
       "submitBtn": "寄通信"
     },
@@ -2213,6 +2442,7 @@
     },
     "bio": {
       "avatarTitle": "影代面 BIO",
+      "avatarDesc": "得自動𢬧珥最優容量𠓀欺載𨑗 Cloudinary",
       "removeAvatar": "攑𠬃影",
       "basicInfo": "通信基本",
       "fullName": "户和𠸜",
@@ -2262,6 +2492,8 @@
       "notifications": "通報",
       "language": "言語",
       "search": "尋劎",
+      "profileAndWalletGroup": "胡疏 & 銀庫個人",
+      "manageProfile": "管理胡疏個人",
       "manageProfileDetail": "及日 avatar, 小史吧通信聯系",
       "personalBioPage": "張 Bio 個人",
       "personalBioPageDetail": "張個人公開讀本",
@@ -2276,6 +2508,7 @@
       "notificationSettings": "𢭮噠通報",
       "notificationSettingsDetail": "管理通報𢩽應用",
       "devicePermissions": "權設備 & 定位",
+      "devicePermissionsDetail": "弼/𤎕 camera, GPS 吧部𢖵",
       "biometrics": "保密生測學 & Passkey",
       "biometricsDetail": "確實 FaceID, TouchID 吧 WebAuthn",
       "documentsAndLegalGroup": "材料 & 法理",
@@ -2297,7 +2530,9 @@
       "desc": "管理通報, 登入𨘱𠄧各隨撰恪朱才款𧵑貴成員.",
       "account": {
         "summary": "通信財款, 清算吧𢭮達",
+        "bioTitle": "胡疏 Hugo Bio",
         "bioDescription": "隨整交面, 名帖吧連結社会",
+        "publicIdentityNote": "𠸜吧形影胡疏𧵑貴成員𠱊特顕市公開𨕭𡎴結𦀼 Hugo Studio.",
         "notifications": "通報",
         "notificationsDescription": "構形通報 Web Push",
         "privacy": "權𥢆西吧追及",
@@ -2336,7 +2571,7 @@
       "soundOn": "㐌弼",
       "soundOff": "當𤎕",
       "languageTitle": "言語默定",
-      "languageDesc": "撰言語顯是默定朱 Hugo Studio — 得𢖵朱吝追及𡢐.",
+      "languageDesc": "撰言語顯是默定朱 Hugo Studio — 得𢖵朱𨁮追及𡢐.",
       "groupWidgets": "鈕浮",
       "hbotTitle": "助理 Culi",
       "donationTitle": "鈕𠶆 cafe",
@@ -2345,6 +2580,7 @@
       "comingSoonDesc": "添各隨撰𢭮達恪 (交面, 權𥢆西...) 𠱊出見於低.",
       "logout": "登出",
       "page": {
+        "profileSettings": "𢭮達胡疏",
         "showBio": "顯是張 Bio",
         "openBioPublic": "𨷑張 Bio 公開",
         "systemSettings": "𢭮噠系統",
@@ -2362,6 +2598,8 @@
         "saving": "當留...",
         "weatherBgTitle": "𡋂動蹺時節",
         "weatherAlertTitle": "警報時節不常",
+        "weatherAlertDesc": "𠲤貴成員准僃欺𡗶𠭤醜 — 自弼欺㐌固權位置 & 通報.",
+        "soundDescShort": "自動㛪𣵰𣇞𣅘 (22:00–07:00), 自弼吏班𣈜.",
         "donationDescShort": "隱鈍底空爫煩; 弼欺貴成員㦖擁護 Hugo."
       },
       "biometric": {
@@ -2402,6 +2640,7 @@
       "perksLoadError": "空載得優待.",
       "eyebrow": "財款 HUGO",
       "title": "財款",
+      "subtitle": "胡疏, JOY 吧𢭮達𧵑貴成員.",
       "verified": "㐌確明",
       "edit": "𢯢",
       "overviewAria": "總觀財款",
@@ -2574,7 +2813,8 @@
         "fullTextSubtitle": "全聞朋𠃩言語, 𦀼接饒",
         "fullTextDetail": "條款, 保密吧歸則成員朋𠃩言語",
         "joyRulesTitle": "榜表 JOY 吧規制",
-        "joyRulesSubtitle": "格斂 JOY, 價層次, 費吧界限 — 呈排朋榜."
+        "joyRulesSubtitle": "格斂 JOY, 價層次, 費吧界限 — 呈排朋榜.",
+        "joyRulesDetail": "𠬧入每𣈜, 價税吧𧷸𢶒𠓻部, 費交易"
       }
     },
     "bento": {
@@ -2614,12 +2854,14 @@
       "classicTitle": "Classic (默定)",
       "flatTitle": "Flat (𢆕)",
       "flatDesc": "空堵𣈖, 空 3D/gradient, 用塊 2D 𢆕吧牟鮮𤎜.",
+      "rentalDescription": "JOY 羅點積累非利潤. Brutalism 吧 Flat 勤 {{price, joy}} 每𣎃; 欺歇限交面自𠭤𧗱 Classic.",
       "free": "免費",
       "daysRemaining": "群 {{count}} 𣈜",
       "exchangeSuccess": "㐌𢷮 JOY 朱交面 {{template}}."
     },
     "links": {
       "title": "連結𦀴社会",
+      "autoSave": "自動留欺添/𪷮",
       "empty": "𣗓固連結社会芇.",
       "label": "眼連結",
       "url": "地指 URL",
@@ -2643,7 +2885,8 @@
       "location": "區域",
       "placeholderHeight": "圍諭: 1m75...",
       "placeholderWeight": "圍諭: 65kg...",
-      "placeholderMeasure": "圍諭: 90-60-90..."
+      "placeholderMeasure": "圍諭: 90-60-90...",
+      "placeholderLocation": "圍諭: 郡 1, TP. HCM..."
     },
     "other": {
       "title": "通信恪",
@@ -2656,14 +2899,18 @@
     "loadingConfig": "當載構形 Portal...",
     "crop": {
       "title": "割影代面",
+      "desc": "𢫃且底移轉, 用清跌底放𡚢/收𡮈",
       "zoomOut": "收𡮈",
       "zoomIn": "放𡚢",
-      "cancel": "毀"
+      "cancel": "毀",
+      "save": "割 & 留"
     },
     "confirm": {
       "title": "確認操作",
       "cancel": "毀𠬃",
-      "confirm": "確認"
+      "confirm": "確認",
+      "deletePartner": "確認𪷮完全設計 Bio 對作現在?",
+      "deletePersonal": "確認𪷮完全 Bio 個人? 操作尼空體完作."
     },
     "guest": {
       "headline": "設計 BIO 風格 BENTO",
@@ -2685,6 +2932,7 @@
       "submitError": "空体寄要求.",
       "packageActivated": "𢶒役務㐌特激活.",
       "giftSuccess": "認𩚧贈成功.",
+      "healingSuccess": "祝貴成員連堅強吧平安. ❤️",
       "eduVerified": "確明成功. 貴成員㐌固體使用𣹓𨇜性能.",
       "sessionExpired": "番爫役㐌歇限保密. 系統自動登出底保衛財款.",
       "sleepDetected": "系統自動記認職𥄭𣈘過.",
@@ -2699,7 +2947,8 @@
       "partnerLinkDeleted": "㐌𪷮連結對作.",
       "descLimitExceeded": "分介紹越過界限 110 自.",
       "partnerSaveSuccess": "㐌留 Bio 對作.",
-      "saveSuccess": "㐌留乎疏𧵑貴成員.",
+      "saveSuccess": "㐌留胡疏𧵑貴成員.",
+      "activateSuccess": "胡疏 Hugo Bio 㐌特激活.",
       "saveError": "空体留𠊝𢷮.",
       "deleteLocalSuccess": "㐌𪷮 Bio 對作𨕭設備.",
       "deletePersonalSuccess": "㐌𪷮 Bio 個人.",
@@ -2755,8 +3004,10 @@
         "step1DescIOS": "𨷑 App Store → 尋 'NFC Tools' → 載免費.",
         "step2Title": "添本記 (Record)",
         "step2Desc": "𨷑應用, 撰 tab WRITE - 扨 ADD 阿 RECORD - 撰𣳔 URL / URI.",
+        "step3Title": "𬖭 link Bio 公開",
         "step3Desc": "牢劄塘引 Bio Link 於𨕭, 𬖭𠓨烏入料耒扨 OK.",
         "step4Title": "記與料 (Write Tag)",
+        "typeUrl": "Link 胡疏",
         "typeVcard": "名簿 (ICE)",
         "typeWifi": "𦀴 WiFi",
         "typeText": "𡖡學習",
@@ -2778,6 +3029,7 @@
         "mobileInstructionTitle": "載直接𨕭電話",
         "mobileInstructionDesc": "貴成員當追及朋電話移動. 扨鈕載吧留名簿𣦍於边𣛤. 程閲𠱊載𨑜 file `.vcf`. 𡢐欺載衝, 亥𡀀𨷑 file 妬, 系統 iOS/Android 𠱊自動認靣吧顯是交面留名簿聰明𣦍立即.",
         "desktopInstructionTitle": "𢭯碼底添𨘱",
+        "desktopInstructionDesc": "貴成員當用𣛠性. 底添聯係尼󱚢 電話𨘱一, 吀𨷑 CAMERA 𨕭電話吧𢭯碼 QR 邊竟. 𣛠𠱊自認靣吧𠲤留名簿𣦍.",
         "publicLinkTitle": "塘引載 vCard 公開",
         "publicLinkDesc": "用連結尼𣴛𠓨張 Bio 個人爫鈕 \"留名簿\".",
         "copyBtn": "牢劄",
@@ -2788,18 +3040,23 @@
         "syncingText": "系統當自動𥙩名簿...",
         "syncWarning": "* 互助自動𨕭 Android. 貝 iOS, 㤥𢮪 file.vcf 㐌出詞名簿𧵑貴成員.",
         "syncQrTitle": "𢭯碼底同步自電話",
+        "syncQrDesc": "㤥用電話𧵑貴成員𢭯碼尼底追及張便益, 𡢐妬扨同步𣦍底𢩽全部名簿自電話𡳵𨑗雲.",
         "restoreTitle": "恢復名簿抄留",
         "restoreDesc": "欺𢷮電話買或𠅎𣛠, 貴成員只勤登入在低自設備買/desktop 吧載𢶒尼𧗱底恢復全部名簿.",
         "restoreBtn": "恢復𣦍 (.VCF)",
         "backupDbTitle": "名簿留貯",
         "searchPlaceholder": "尋𠸜或數電話...",
+        "emptyBackup": "空固數電話抄留芇重恰.",
         "toastUnsupported": "𢝙𢚸使用程閲現代底同步名簿.",
+        "manualAddBtn": "添𥛭",
         "toastInsecureContext": "性能同步要求結𦀼保密 (HTTPS).",
         "toastFillRequired": "𢝙𢚸入𠸜吧數電話.",
         "toastAddSuccess": "㐌添聯係𠓨名冊抄留.",
         "toastAddError": "𤻳欺添聯係買.",
+        "toastSyncSuccess": "㐌同步 {{count}} 聯係買𠓨雲. 🎉",
         "toastSyncError": "𤻳同步. 㤥檢查吏 file 或權追及.",
         "toastDeleteSuccess": "㐌攑𠬃聯係塊名冊抄留.",
+        "toastDeleteError": "空体𪷮聯係.",
         "toastCopySuccess": "㐌牢劄聯結載名簿聰明.",
         "syncedStatus": "㐌留 {{count}} 聯係𨕭 Cloud",
         "syncedStatusDesc": "名簿㐌特抄留. 扨及日底同步吏.",
@@ -2818,21 +3075,25 @@
         "showAvatar": "顯是影代面",
         "includeQr": "積合碼 QR Bio Link",
         "disclaimerLabel": "𠅜忍真庄 (Disclaimer)",
+        "disclaimerNone": "空訂兼",
         "disclaimerGreen": "保衛媒場 (Green disclaimer)",
         "disclaimerConfidential": "保密通信 (Confidentiality notice)",
         "copyBtn": "牢箚𡨸記 Email",
         "quickSetup": "𢭮達𨘱𡨸記",
         "setupGmail": "𢭮達 Gmail",
         "setupOutlook": "𢭮達 Outlook",
+        "instructionDesc": "𡢐欺 copy 吧扨𨷑𢭮達於𨕭, 㤥卷𨑜分 SIGNATURE (𡨸記), 扨組合 CTRL+V (或 CMD+V) 底𬖭𡨸記尼󱚢.",
         "previewTitle": "䀡𠓀𡨸記",
-        "toastCopySuccess": "㐌牢箚𡨸記 email 於樣 Rich Text. 🎉"
+        "toastCopySuccess": "㐌牢箚𡨸記 email 於樣 Rich Text. 🎉",
+        "toastCopyFallback": "㐌牢箚𡨸記 email. (程閲𡳵)"
       },
       "techbadges": {
         "title": "程造眼工藝",
         "configTitle": "構形徽號",
         "selectCategory": "撰名目",
         "generatedCode": "碼𣴛立程員",
-        "copyBtn": "牢劄碼徽號",
+        "copyBtn": "牢劄馬揮效",
+        "toastCopySuccess": "㐌牢劄馬揮效𠓨部𢖵暫.",
         "previewTitle": "䀡𠓀徽號",
         "techList": {
           "frontend": "Frontend & 移動",
@@ -2841,11 +3102,15 @@
         }
       },
       "githubstats": {
+        "title": "体統計 GitHub",
+        "desc": "入財款 GitHub 底造体統計棟󰃉, 言語𢛨適貝交面單色最簡.",
         "configTitle": "構形体 GitHub",
         "usernameLabel": "財款 GitHub (Username)",
         "usernamePlaceholder": "圍諭: octocat",
         "cardTypeLabel": "類体顯是",
         "cardTypes": {
+          "stats": "統計終",
+          "languages": "言語𢛨適",
           "streak": "𦀵棟󰃉 (Streak)"
         },
         "themeLabel": "交面顯是",
@@ -2863,7 +3128,9 @@
     },
     "packages": {
       "signature": {
+        "name": "胡疏芒𢰳印𥢅",
         "benefit1": "時限 12 𣎃: 使用 bio link 完全免費𥪝𤥑 1 𢆥計自時點激活.",
+        "benefit2": "設計蹺句傳: 體現個性藝業過佈局胡疏特𩵜人化.",
         "benefit4": "速度超速: 張 bio 載即時𢘾見築最簡吧工藝最優化財原形影."
       },
       "ultimate": {
@@ -2874,7 +3141,8 @@
       "student": {
         "benefit1": "時限 12 𣎃: 使用 bio link 完全免費𥪝𤥑 1 𢆥計自時點激活.",
         "benefit2": "3 交面個人化: 攄撰 Classic 清歷, Brutalism 個姓或 Flat Design 多色牟.",
-        "benefit3": "速度超速: 張 bio 載即時𢘾見築最簡吧工藝最優化財原形影."
+        "benefit3": "速度超速: 張 bio 載即時𢘾見築最簡吧工藝最優化財原形影.",
+        "benefit4": "結𦀼順便: 𢺺𢩿最多 5 連結𦀴社会底客行易尋吧連系貝貴成員."
       },
       "free": {
         "benefit1": "時限 12 𣎃: 使用 bio link 完全免費𥪝𤥑 1 𢆥計自時點激活.",
@@ -2884,6 +3152,7 @@
     },
     "onboarding": {
       "title": "嘲𢜏貴成員. 🎉",
+      "subtitle": "完畢胡疏底認 JOY 吧各權利特別",
       "missingTitle": "補充通信群少",
       "missingDescription": "群 {{count}} 目勤填. 仍分㐌固𠱊空特𠳨吏.",
       "completeRequired": "𢝙𢚸填𨇜各目扒縛.",
@@ -2922,7 +3191,8 @@
           "hint": "交面𠱊自轉創言語尼."
         },
         "joyDenom": {
-          "label": "單位 JOY"
+          "label": "單位 JOY",
+          "hint": "撰沒吝耒故定. 𢷮言語交面𡢐尼空𣋇單位尼底費𢷮單位欺寄 JOY 空被攊."
         }
       },
       "next": "接俗",
@@ -2931,8 +3201,10 @@
     "birthdaySurprise": {
       "monthTitle": "𣎃生日.",
       "dayTitle": "祝𢜠生日.",
+      "monthGreeting": "嘲𣎃生日𧵑 {{name}}.",
       "dayGreeting": "祝𢜠生日, {{name}}.",
       "monthMessage": "Hugo Studio 敬祝貴成員沒𣎃實𤊧焒. 沒贈品當徐於𠞺𢮿接蹺.",
+      "dayMessage": "Hugo Studio 祝貴成員歳買饒念𢝙, 飭劸吧仍橛沐當𢖵.",
       "openGift": "𨷑𧵟𣎃生日",
       "acceptWish": "認𠳒祝"
     },
@@ -2955,8 +3227,15 @@
     "ageProtection": {
       "badge": "保衛蹺度歲",
       "title": "只𠲜朱𠊛自𨇛 14 歲",
-      "description": "𠊛𠁑 14 歲固体䀡內容公開仍空𨇜条件造或使用財款成員 Hugo Studio.",
-      "groupTitle": "保衛蹺層抩𣦮"
+      "description": "𠊛𠁑 14 歲固体䀡內容公開仍空𨇛條件造或使用財款成員 Hugo Studio.",
+      "groupTitle": "保衛蹺層抩𣦮",
+      "rules": [
+        "自𨇛 14 典󰡎 16 歲: 勤吒媄或𠊛監護讀正冊保密吧同意𠓀欺接俗用財款.",
+        "自𨇛 16 典󰡎 18 歲: 用得性能成員通嘗; 性能 18+ 吧交易勤䏻力行為𣹓𨇜吻被界限.",
+        "只供給與料最少𥪝表母正式; 空迻紙祠, 地指, OTP 或祕密𥢆西𨑗 Bio 咍內容路傳.",
+        "𠸜吧通信認樣𧵑𠊛𠁑 18 歳特隱塊尋劎公開吧榜疊項蹺設計安全𧵑層性能.",
+        "與料勤切沕固體得處理𤳄茹供給登入, 留貯, email 或清算蹺正冊保密."
+      ]
     },
     "locationAnomaly": {
       "title": "發現位置登入不常",
@@ -2966,6 +3245,7 @@
     },
     "permissions": {
       "eyebrow": "設立沒吝",
+      "title": "停𠬃𢙲條關重",
       "description": "弼𠄩權設𪽳底 Hugo 報信中𣅶, 個人化內容近貴成員吧保衛番登入.",
       "pushTitle": "通報關重",
       "pushDescription": "認及日確明, JOY, 保密吧活動財款𣦍奇欺㐌㨂應用.",
@@ -3070,6 +3350,7 @@
         "sharePanelOpened": "㐌𨷑榜𢺺𢩿",
         "codeCopied": "㐌牢劄碼",
         "shareFailed": "空体𢺺𢩿. 唉此牢劄吏.",
+        "pinMismatch": "碼 PIN 確認空重恰. 㤥設立吏.",
         "pinSetupFailed": "空体設立碼 PIN.",
         "pinTitle": "碼 PIN 交易",
         "pinSetupTitle": "設立碼 PIN",
@@ -3087,6 +3368,7 @@
         "autoVerifyTitle": "確明自動𠓀欺轉",
         "autoVerifyDesc": "Camera 只讀碼 JOY 動; 應用空留形影.",
         "verifyingRecipient": "當確明𠊛認…",
+        "holdStill": "守原幔形𥪝𦀊𣋛.",
         "cameraUnsupportedHint": "設備尼空互助 camera. 唉尋𠊛認手工.",
         "cameraErrorHint": "空𨷑得 camera. 㤥級權 camera 耒試吏.",
         "findManually": "尋手工",
@@ -3104,12 +3386,15 @@
         "receiptId": "碼 GD",
         "receiptFee": "費創造",
         "receiptNote": "內容",
+        "cameraHintWide": "迻碼𠓨不期兜𥪝椌 — 空勤耕𡧲.",
         "conversionFee": "費𢷮 {{from}} → {{to}} ({{percent}}%)",
         "close": "𢫝",
         "pinHint": "入碼 PIN 6 𡨸數底轉 {{amount, joy}} 朱 {{name}}",
         "caps": "最多 {{daily}} JOY/𣈜 · {{monthly}} JOY/𣎃",
         "cardCodeLabel": "碼𨕭𥮋成員",
         "cardCodeFind": "尋𠊛認",
+        "cardCodeScan": "𢭯碼劃",
+        "cardCodeNoScanner": "程閲尼諸抉得碼劃 — 𢝙𢚸入碼",
         "cardCodeNotFound": "空尋𧡊成員貝碼尼."
       },
       "exchange": {
@@ -3152,10 +3437,11 @@
       "applyReferral": {
         "title": "入碼介紹",
         "button": "押用",
+        "hint": "閙固𠊛介紹貴成員, 入碼𧵑𣱆於低底奇𠄩共認 JOY. 每財款只押用得 1 吝.",
         "success": "押用碼成功. +{{amount, joy}} 吧 +{{days}} 𣈜 Bio Link.",
         "error": "空体押用碼尼."
       },
-      "earnInfo": "斂 JOY 朋格: 介紹伴𤿤, 参加活動𥊀𥉮精神, 𨔈棋𤤰, 或入碼𩚧贈自 Admin.",
+      "earnInfo": "斂 JOY 朋格: 介紹伴𤿤, 参加活動𥊀𥉮精神, 制棊𤤰, 或入碼𩚧贈自 Admin.",
       "history": {
         "transactions": "歷史交易 JOY",
         "empty": "𣗓固交易芇.",
@@ -3224,6 +3510,7 @@
     },
     "checkin": {
       "title": "點名認 JOY",
+      "subtitle": "點名每𣈜, 認 JOY 每旬 — 停𠬃𢙲𣈜芇.",
       "loading": "當載點名...",
       "dayLabel": "𣈜 {{day}}",
       "milestone": "沐 {{days}} 𣈜",
@@ -3243,6 +3530,7 @@
     "versionAd": {
       "eyebrow": "番版 2.0 · 𣃣𠚢𥉴",
       "title": "Hugo Studio 𣃣𡘯𨖲没𨄑",
+      "body": "空址添性能 — 2.0 曰吏分𡒯: 格貴成員登入, 格與料得守, 吧格每應用呐傳貝饒.",
       "features": {
         "security": "保密曰吏",
         "store": "庫應用𥢅",
@@ -3257,7 +3545,7 @@
     "infoVersion": {
       "desc": "介紹𧗱 Hugo Studio, 番版現在吧沒分賞𡮈只𠲜朱貴成員.",
       "aboutTitle": "介紹 Hugo Studio",
-      "aboutBody": "Hugo Studio 羅𡋂磉 Bio-link 個人結合部公惧便益多能, 得𡏦孕底每𠊛調尋得沒角𥢅符合貝個性吧𠿚𤯨𧵑𨉟 — 空固𣟂母終朱畢奇.",
+      "aboutBody": "Hugo Studio 羅𡋂磉 Bio-link 個人結合部工具便益多能, 得𡏦孕底每𠊛調尋得沒角𥢅符合貝個性吧𠿚𤯨𧵑𨉟 — 空固𣟂母終朱畢奇.",
       "aboutBody2": "慈荘 Bio 個人, 系統 JOY 積累每𣈜, 𦤾各便益如 HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade 吧 HugoAura — 各公惧共𦣰𥪝沒系生態抵貴成員𡏦孕形影個人, 爫役, 學習吧解智麻空勤轉過𡗉應用恪饒.",
       "featuresTitle": "性能浮弼",
       "features": {
@@ -3282,18 +3570,23 @@
         },
         "aura": {
           "desc": "空間集中 Pomodoro 共音聲天然書簡."
+        },
+        "cinema": {
+          "desc": "𧅕 phim 公共: 經典, 活形, 科學遠想吧材料"
         }
       },
       "guideTitle": "向引使用",
       "guide": {
         "step1": {
-          "title": "完善乎疏 Bio"
+          "title": "完善乎疏 Bio",
+          "desc": "添影代面, 通信個人吧各連結關重𥪝 tab 胡疏."
         },
         "step2": {
           "title": "勘破便益",
           "desc": "𨷑 tab 便益底撰公惧符合貝貴成員 — 每便益服務沒需求恪饒."
         },
         "step3": {
+          "title": "積 JOY 每𣈜",
           "desc": "點名, 完成任務吧𨔈 mini game 在 HugoArcade 底積累 JOY."
         },
         "step4": {
@@ -3304,6 +3597,7 @@
       "versionLabel": "番版現在",
       "versionNote": "Hugo Studio 2.0.0 Master Engine — 及日連續貝各性能買.",
       "heroTagline": "章𢪲級 v2.0.0 Master Engine Ultra",
+      "heroBody": "Hugo Studio 2.0.0 Master Engine 羅𨀈進越𨀈: 歸𢷮 9 單位 JOY 個人化, 棧證券幻 1s Harmonic 貝埃咨問投資, 部調遣自賒 Telegram NLU 吧系統保密 Security Sentinel 𣋁新.",
       "highlightsTitle": "浮弼於 2.0.0 Master Engine",
       "highlights": {
         "denom": {
@@ -3342,7 +3636,9 @@
           "title": "銀庫時間實"
         }
       },
+      "compareTitle": "𢫘並 1.0 吧 2.0.0",
       "compareHint": "仍𠊝𢷮骨𣑳欺系統𨀈𨖅沐番版𡘯 2.0.0 Master Engine.",
+      "compareOld": "番版 1.0 (𡳵)",
       "compareNew": "番版 2.0.0 (買)",
       "compareAspect": "項目𢪲級",
       "compare": {
@@ -3356,7 +3652,8 @@
         },
         "invest": {
           "aspect": "棧證券幻",
-          "old": "價故定手工"
+          "old": "價故定手工",
+          "new": "㳥價 1s Harmonic, 埃 Advisor 𣖠𠳒 & pop-up '?' 詞典"
         },
         "telegram": {
           "aspect": "調遣 Admin",
@@ -3378,6 +3675,7 @@
         },
         "ai": {
           "aspect": "性能埃",
+          "new": "沒𨶛: 限額, 部𧝓, 下級, 停緊急",
           "old": "每𡊲噲直接茹供給"
         },
         "offline": {
@@ -3387,10 +3685,12 @@
         },
         "notify": {
           "aspect": "通報",
-          "new": "沒系統通報得𢺺𢩿於每尼"
+          "new": "沒系統通報得𢺺𢩿於每尼",
+          "old": "事結合𧵑各橋盒話恪饒"
         }
       },
       "semverTitle": "格讀數番版",
+      "semverIntro": "數番版𠁝三分, 垠隔朋斗點. 每分增𨑗為沒緣由恪饒 — 𥆾𠓨妬貴成員別𣦍本及日尼影響細命饒咍𠃣.",
       "semverMajorName": "𡘯",
       "semverMinorName": "𣃣",
       "semverPatchName": "𡮈",
@@ -3400,10 +3700,12 @@
           "desc": "增欺系統𠊝𢷮細墨貴成員勤爫慣吏: 佈局買, 格 󱠾󱤓, 或與料得組織吏."
         },
         "minor": {
-          "title": "數次𠄩 — 添性能"
+          "title": "數次𠄩 — 添性能",
+          "desc": "增欺𣎏性能買特添𠓨, 群每次貴成員當用吻守原如𡳵."
         },
         "patch": {
-          "title": "數次𠀧 — 𢯢𤻳"
+          "title": "數次𠀧 — 𢯢𤻳",
+          "desc": "增欺只𢯢纇或精整𡮈. 空固之𪦲底學, 只羅每次𧼋𬗱欣."
         }
       },
       "semverNote": "每應用𥪝呼羣固數番版𥢆𧵑奴 (圍諭 HugoPSY 4.1.0). 𡥵數𢀲於𨕭羅番版𧵑全系統, 空沛𧵑層應用.",
@@ -3414,10 +3716,12 @@
         "store": "庫應用",
         "ai": "𨶛埃",
         "arcade": "8 𠻀𨔈",
+        "offline": "行待同步",
         "wallet": "銀庫"
       },
       "cardsEyebrow": "部𥮋成員",
       "cardsTitle": "𢆥𤗲体, 沒行程",
+      "cardsLede": "每𠊛得進舉𧗱空只羅沒𡥵數 — 奴𢪲𤗲体𧵑貴成員𨑗没𨄑, 吧每𨀈𨷑添贈品. 体𠁑低羅体實, 當及日蹺時間植.",
       "cardYoursNow": "低羅体貴成員當守",
       "cardUnlocked": "貴成員㐌𨷑鎖項尼",
       "cardPreviewLocked": "勤添 {{count}} 𠊛介紹底扲𤗲尼",
@@ -3431,6 +3735,7 @@
       "cardNoticeBody": "低羅体數屬系統 Hugo Studio, 用底認靣項成員吧權利邊𥪝系統. 体空沛体物理, 空沛𥮋銀行咍公惧清算, 吧空固价値使用邊外 Hugo Studio.",
       "readBonusTitle": "讀歇本𢪲級",
       "readBonusDesc": "貴成員㐌䀡歇仍之𠊝𢷮於 2.0. 認 {{amount, joy}} 如沒𠳒感恩.",
+      "readBonusLocked": "卷歇張介紹 2.0 底𨷑鎖分賞 {{amount, joy}} 尼.",
       "readBonusButton": "認 {{amount, joy}}",
       "readBonusLockedButton": "群鎖 — 讀接",
       "readBonusClaiming": "當認...",
@@ -3466,10 +3771,14 @@
       "benefitsDesc": "預案共同非利潤活動𨕭精神自願. 空固錢糧, 仍固价値實質:",
       "benefit1Title": "共爫産品𧼋實",
       "benefit1Desc": "𠏭𨉟共發展系統服務貴爲 HSSV 每𣈜 (React, Node.js, MongoDB, 埃固機會試飭貝各性能實祭𠊝為只爫排習𪩥耒𠬃.",
+      "benefit2Title": "空𢗼孤单欺𢷣 bug",
       "benefit3Title": "積累經驗實祭",
       "benefit3Desc": "共𣦰過規程爫役實祭 (Git, code review, debug). 低羅仍句傳實質𠢞貴成員自信𢺺𢩿欺𠫾訪問實習.",
       "benefit4Title": "記認過 commit Github",
+      "benefit4Desc": "為羅預案非利潤𧵑生員𢧚役確認朋文本/𢫝斗可庫卋𠓨妬, 每棟󰃉 𧵑貴成員𠱊顯是公開過歷史 commit Github - 凭證能力實祭一.",
       "benefit5Title": "役學連特優先",
+      "benefit5Desc": "完全自撰時間爫役 (尋 5-10h/旬). 務試舉固体暫擬底集中學習, 空壓力進渡咍 KPI 坵布.",
+      "benefit6Title": "結𦀼伴𤿤󰠃 行",
       "careTitle": "格 Hugo Studio 同行共貴成員",
       "careWeek1Label": "旬頭先",
       "careWeek1": "— 貴成員得向引𥩯媒場, 讀曉建築系統吧認分役頭先𣃣飭 (常羅沒纇𡮈固向引). 目標惟一𧵑旬尼: 合一得𣳔碼頭先𠓨産品實.",
@@ -3478,14 +3787,20 @@
       "careHoursLabel": "數𣉹垌行𧵑貴成員得記認",
       "careHours": "— 層𣇞棟󰃉 調特及日明白𥪝 workspace 尼爫基礎朱役榮名棟󰃉 吧各沐知恩邊𠁑.",
       "membershipLine": "Membership: 3 𢆥 (1095 𣈜)",
+      "membershipDesc": "欺特執順参加, 貴成員認 membership 3 𫷜空沛 365 𣈜貝權利 VVIP Developer.",
+      "loyaltyText": "同行共饒婁𨱽羅條慄當貴. 行程非利潤尼活動豫𨕭事自願, 空𦀾𦄾仍𠏭𨉟連珍重事堅持𧵑貴成員.",
       "milestone500Title": "欺𢵺沐 500 𣉹垌行:",
       "milestone500a": "榮名𥪝目棟󰃉 𨕭系統",
       "milestone500b": "互助 review CV 專溇自經驗實祭",
+      "milestone500c": "𣇜 cafe 路傳定向藝業",
+      "milestone500d": "分𩚧紀念底感恩事堅持𧵑貴成員",
       "reqTitle": "要求 & 条件",
       "reqAudienceLabel": "對象:",
+      "reqAudience": "生員男女, 𢆥 2-3, 行工藝通信",
       "reqWorkLabel": "同行:",
       "reqWork": "學立程, fix bug, 發展 feature 𡮈, 曰 test",
       "reqTimeLabel": "時間:",
+      "reqTime": "5-10 𣇞/循序由, 灵活蹺曆學𧵑貴成員",
       "reqNatureLabel": "性質:",
       "reqNature": "預案非利潤, 自願互助學習吧積累經驗",
       "processTitle": "規程参加",
@@ -3518,6 +3833,7 @@
       "toastApplyRetry": "𤻳欺寄單, 𢝙𢚸試吏",
       "membershipEnds": "Membership 歇限: {{date}} ({{days}} 𣈜)",
       "welcomeBack": "嘲𢜏𧿨吏",
+      "greeting": "嘲 {{name}}.",
       "welcomeDesc": "貴成員羅成員 HugoTeam — 感恩㐌共𡏦孕預案共同尼.",
       "endsOn": "歇: {{date}}",
       "milestoneReached": "沐達得",
@@ -3552,6 +3868,8 @@
       "logHoursTitle": "記𣉹垌行",
       "fieldDate": "𣈜",
       "fieldHours": "數𣇞 (0.25–24)",
+      "fieldTask": "拫貝 task (隨撰)",
+      "noTask": "— 空拫 task —",
       "fieldWhat": "貴成員㐌同行役之?",
       "whatPlaceholder": "VD: Fix bug 清算, review 材料 onboarding...",
       "saving": "當留...",
@@ -3591,7 +3909,14 @@
             "title": "認役吧搬交"
           },
           {
-            "title": "記𣇞"
+            "title": "記𣇞",
+            "items": [
+              "記𣇞蹺𣈜實祭㐌爫, 每吝自 0,25 𦤾 24 𣇞. 記𥪝𣈜或踸一𡳳旬, 停屯𡳳𣎃.",
+              "拫𣇞𠓨中役欺𣇞妬屬𠬠𭛣具體 — 低羅格對刷𨘱一欺𣎏差𨇗.",
+              "分𥱬𤑟貴成員㐌爫之; 沒𣳔具體欣𨑮𡨸終終.",
+              "𣇞於狀態徐閲隕自𪷮得. 除㐌閲時空闷𢯢沛𠴍.",
+              "開𣇞空中實祭羅根據底収回資格成員."
+            ]
           },
           {
             "title": "𢭂𢷮",
@@ -3602,10 +3927,21 @@
             ]
           },
           {
-            "title": "質量吧記功"
+            "title": "質量吧記功",
+            "items": [
+              "Code 貴成員曰沛羅𧵑貴成員或固紙法朱法用. 劄原塊徐源恪麻空呐𤑟羅違犯.",
+              "空迻鎖祕密, 密口咍與料實𧵑𠊛用𠓨碼源咍影𢴇幔形.",
+              "棟󰃉 得記功𨕭 GitHub 蹺中分貴成員爫.",
+              "與料吧內容內部𧵑預案只用𥪝範為功役, 空芒𠚢外."
+            ]
           },
           {
-            "title": "權利"
+            "title": "權利",
+            "items": [
+              "資格成員 VVIP 固效力 3 𢆥𠸥自𣈜特閲.",
+              "沐 500 𣇞得閲𪜀酉記認同行𨱽限.",
+              "貴成員得守全部權作者貝分𠇮曰吧得用奴𥪝胡疏吀役."
+            ]
           }
         ]
       },
@@ -3628,6 +3964,7 @@
       "sua": "𢯢",
       "anhDaiDien": "影代面",
       "hinhAnhHienThi": "形影顯是中心𨕭設備𧵑對作.",
+      "goAnh": "𢷣影",
       "hoVaTen": "户和𠸜",
       "bietDanh": "别名",
       "gioiThieu": "介紹",
@@ -3649,8 +3986,10 @@
       "chuaThemLienKet": "𣗓添連結芇...",
       "duongDanCongKhai": "塘引公開:",
       "canChinhHinhAnh": "根整形影",
+      "nhanVaKeoDe": "扨吧𢫃底遺轉𡓄割適合.",
       "tyLePhongTo": "比例放𡚢",
-      "huy": "毀"
+      "huy": "毀",
+      "luuVungCat": "留𡓄割"
     },
     "joyLater": {
       "detail": "𨷑鎖𠓀, 還吏寅朋 JOY 劒特",
@@ -3663,6 +4002,7 @@
       "totalRow": "總勤完",
       "expectedRow": "預見完衝",
       "openNow": "𨷑𠓀𣦍",
+      "noInterest": "空賚重賚 · 共添𣖠𣅶𨷑",
       "overLimit": "越墨最多𧵑貴成員",
       "owing": "群勤完",
       "progress": "㐌完 {{paid, joynum}} / {{total, joy}} ({{percent}}%)",
@@ -3682,15 +4022,19 @@
         "earned": "勤層受領𨇜 1.000 JOY 𥪝系統",
         "openLoan": "當𣎏餘女渚完畢",
         "noIncome": "𣗓固𠬧入 JOY 調憚",
+        "notApplied": "𣗓遞呈胡疏",
+        "pending": "胡疏當徐審定",
         "barred": "㐌固餘𧴱過限被記認",
         "defaulted": "㐌固餘𧴱過限被記認",
         "noNetIncome": "JOY 受領𣗓越 JOY 之用",
         "lowEngagement": "勤用系統調憚欣",
+        "lowScore": "點胡初諸達仰",
         "tooNew": "財款群過買貝系統"
       },
       "howTitle": "JOYlater 活動世芇",
       "how1": "撰數 JOY 㦖𨷑𠓀 — 墨最多性蹺 JOY 正貴成員劒特.",
       "how2": "JOY 𠓨銀庫𣦍, 貴成員用底𨷑鎖如平常.",
+      "how3": "每吝貴成員認 JOY, 系統自𪧚吏 {{percent}}% 底完寅 — 空勤𢖵𣈜芇奇.",
       "installmentsNote": "𢺹彊𡗉𡐿時分共添彊𡗉. 𡥵數𣖠𣦍𣅶𨷑吧空𢷮𧗱𡢐.",
       "feeShort": "共 {{percent}}%",
       "perStepRow": "每𡐿",
@@ -3708,6 +4052,7 @@
       "paySplitHint": "𢺹最多 {{max}} 𡐿, 共添自 {{percent}}%",
       "extraVsOnce": "共添 {{amount, joy}}",
       "historyTitle": "歷史𨷑𠓀",
+      "historyHint": "𢵺没𦀎底䀡票之節",
       "historyDone": "㐌完衝",
       "historyOpen": "當完",
       "historyAdded": "共添",
@@ -3726,15 +4071,20 @@
       "stage": {
         "grace": "㐌過限 {{days}} 𣈜",
         "restricted": "限制詞𣈜過限次 {{days}}",
-        "locked": "鎖固時限 — 過限 {{days}} 𣈜"
+        "frozen": "𢫝崩之消 — 過限 {{days}} 𣈜",
+        "locked": "鎖固時限 — 過限 {{days}} 𣈜",
+        "review": "胡疏當徐管治審定 — 過限 {{days}} 𣈜"
       },
       "stageName": {
         "restricted": "限制",
-        "locked": "封鎖財款 30 𣈜"
+        "frozen": "停止支消",
+        "locked": "封鎖財款 30 𣈜",
+        "review": "胡疏程管治"
       },
       "restrict": {
         "new_loan": "空𨷑款買",
-        "transfer": "空轉 JOY"
+        "transfer": "空轉 JOY",
+        "spend": "空消 JOY"
       },
       "stageNext": "群 {{days}} 𣈜女轉創墨: {{stage}}",
       "introEyebrow": "停𥢅朱成員",
@@ -3744,14 +4094,20 @@
         "cycles": "撰完𪃲𥪝 {{weeks}} 旬 — 賚 {{rate}}%/旬𨕭分㭲餘𧴱",
         "noHidden": "空費隱, 空費開𨷑, 空費完𪃲𠓀限"
       },
+      "applyCta": "遞呈胡疏限墨",
       "applyCtaNote": "審定即時, 只遞呈沒吝惟一",
+      "applyBusy": "當審定胡疏…",
       "applyApproved": "㐌批準限墨 {{amount}}",
+      "applyPending": "胡疏㐌特接認. 限墨𠱊得再審定𠓨 {{at}}.",
       "gate": {
+        "notYet": "𣗓𨇛條件遞呈胡疏",
         "barred": "財款空群得級限墨"
       },
       "reviewAt": "限墨得再審定自動𠓨 {{at}}. 空勤遞呈吏糊初.",
+      "repayTitle": "方式完𪃲",
       "repay": {
         "garnish": {
+          "title": "自動摘 {{percent}}%",
           "body": "每吝受領 JOY, {{percent}}% 得留守底完𪃲餘𧴱. 分群吏吻入銀庫如常例."
         },
         "early": {
@@ -3764,32 +4120,38 @@
       "year": "𢆥",
       "rate": {
         "inTerm": {
-          "title": "賚𥪝限"
+          "title": "賚𥪝限",
+          "body": "性𨕭餘𧴱㭲群𥪝限. 印定𣅶立契約, 不變率期𢠿."
         },
         "overdue": {
           "title": "賚過限"
         },
         "onInterest": {
-          "title": "賚踸𪃲賚"
+          "title": "賚踸𪃲賚",
+          "body": "性𨕭分賚㐌到限麻𣗓完𪃲."
         }
       },
       "ratesLegal": "表賚遵守界限𧵑部律民事 2015 條 466: 賚過限空過 150% 賚𥪝限, 賚踸𪃲賚空過 10%/𢆥. 賚𥪝限變天蹺旬隨量 JOY 當留行吧得印定在時點立契約.",
       "faqTitle": "疑問常﨤",
       "faq": {
         "howLimit": {
-          "q": "限墨𧵑碎得審定世芇?"
+          "q": "限墨𧵑碎得審定世芇?",
+          "a": "蹺𦊚根㨿深年財款共總 JOY 㐌曾受領 (重要一), JOY 受領除 JOY 之用每𣈜, 𣞪度用系統, 吧歷史完𪃲各款𠓀. 限墨連𣘽𠓨可能完𪃲實祭."
         },
         "howRate": {
           "q": "爲牢賚率變天?"
         },
         "whenReview": {
-          "q": "包𥹰限墨得再審定?"
+          "q": "包𥹰限墨得再審定?",
+          "a": "每 17:00 次𦉱恒循序洞空勤操作之. 用系統調憚吧完𪃲中限辰汼墨增寅."
         },
         "ifLate": {
-          "q": "𡀮完𪃲踸時牢?"
+          "q": "𡀮完𪃲踸時牢?",
+          "a": "過 7 𣈜𠱊暫停止權轉 JOY 吧開𨷑款買; 過 21 𣈜停止之用; 過 45 𣈜封鎖財款 30 𣈜; 過 90 𣈜立胡疏程管治審定. 每墨調特通知𠓀兼數𣈜群吏."
         },
         "canCancel": {
-          "q": "碎固體完𪃲𣋽空?"
+          "q": "碎固體完𪃲𣋽空?",
+          "a": "特不據𣅶芇吧空𠹾例費. 賚性蹺𣈜𢧚完𪃲強𣋽強𠃣礼. 外𦋦 {{percent}}% JOY 貴成員受領拱自動摘底完𪃲寅."
         }
       },
       "availableCredit": "限墨可用",
@@ -3836,8 +4198,12 @@
       "tierLocked": "𣗓達",
       "tree": {
         "seed": "籺𦹰",
+        "sapling": "𣘃𡥵",
+        "mature": "𣘃𡘯",
         "ancient": "古樹",
-        "claimBonus": "認賞 {{amount, joy}}"
+        "keepGoing": "群 {{count}} 任務女羅𣘃城皷受賞添 {{amount, joy}}",
+        "claimBonus": "認賞 {{amount, joy}}",
+        "bonusTaken": "㐌認 {{amount, joy}} 賞𣘃𣋚𠉞"
       },
       "sendJoy": "寄 JOY",
       "convert": "比價",
@@ -3865,11 +4231,15 @@
       "range24h": "24 𣇞",
       "range7d": "7 𣈜",
       "range30d": "30 𣈜",
+      "chartAria": "表圖比價 {{code}}, 𠊝𢷮 {{percent}}% 𥪝椌時間當䀡",
+      "chartLoading": "當載表圖…",
       "chartCollecting": "當收拾與料 — 每𣇞蔑點, 塘𠱊現𠚢𡢐 󱙊除.",
+      "chartFailed": "𣗓載得表圖.",
       "recent": "交易𧵆低",
       "filter": "淥交易",
       "filterAll": "悉奇",
       "filterIn": "認𠓨",
+      "filterOut": "支用",
       "noTx": "銀庫𣗓固交易芇. 認 JOY 自任務或點名底扒頭.",
       "noTxInFilter": "空固交易芇冲目尼.",
       "loadingPanel": "當載內容…",
@@ -3890,12 +4260,17 @@
       },
       "submit": "確認",
       "passed": "㐌確明. 感恩貴成員.",
+      "wrongAnswer": "通信空恰𢭲胡疏.",
       "attemptsLeft_one": "貴成員群 {{count}} 吝試.",
       "attemptsLeft_other": "貴成員群 {{count}} 吝試.",
       "lastChance": "差添沒吝女, 財款𠱊被鎖.",
       "networkError": "空寄特句𪃲𠳒. 檢查結𦀼耒試吏.",
       "otpSendFailed": "空寄特碼確明. 𢝙𢚸試吏𡢐.",
+      "warning": "開報通信空中事實𠱊被封鎖財款. 㦖𨷑鎖, 駭㨳 email 標𠓑緣由; 管治員固權要求紙祠底確明.",
       "codeExpired": "碼㐌歇限或渚特寄. 㤥要求碼買."
+    },
+    "joyTree": {
+      "complete": "𣘃㐌長成"
     }
   },
   "memberTabs": {
@@ -3913,6 +4288,7 @@
       "toastEmpty": "𢝙𢚸入𨇛𠸛, 模寫吧駕役務.",
       "toastAddedTemp": "㐌添役務暫時 (扖流通信底及日).",
       "toastAddedTempInfo": "㐌添役務暫時. 㤥扖及日底留𠓨基礎與料.",
+      "toastDeleted": "㐌𪷮役務.",
       "title": "役務報價 (SERVICES)",
       "addNew": "添役務買",
       "nameLabel": "𠸜役務 *",
@@ -3923,13 +4299,16 @@
       "iconLabel": "表象 (ICON)",
       "addButton": "添役務",
       "listTitle": "名冊役務",
-      "emptyList": "𣗓固役務芇."
+      "emptyList": "𣗓固役務芇.",
+      "deleteBtn": "𪷮役務"
     },
     "projects": {
       "toastEmpty": "𢝙𢚸入𠸜吧模寫預案.",
       "toastAddedTemp": "㐌添預案暫時 (扖流通信底及日).",
       "toastAddedTempInfo": "㐌添預案暫時. 㤥扖及日底留𠓨基礎與料.",
+      "toastDeleted": "㐌𪷮預案.",
       "title": "管理預案 (PROJECTS)",
+      "desc": "添各預案浮弼𧵑貴成員. 與料𠱊得留直接𠓨胡疏 (記提) 𠢞最優系統, 空爫𨤼基礎與料.",
       "addNew": "添預案買",
       "nameLabel": "𠸜預案 *",
       "urlLabel": "塘引 (URL)",
@@ -3939,7 +4318,8 @@
       "addButton": "添預案",
       "listTitle": "名冊㐌添",
       "emptyList": "𣗓固預案芇.",
-      "viewBtn": "䀡預案"
+      "viewBtn": "䀡預案",
+      "deleteBtn": "𪷮預案"
     },
     "partner": {
       "title": "役務對作連結",
@@ -3957,6 +4337,7 @@
       "ownedPackagesDesc": "䀡時限激活吧扖𠓨層𥮋底檢查權利之節.",
       "removeBioTitle": "攑𠬃役務 BIO",
       "removeBioDesc": "操作尼𠱊攑𠬃完全與料 Bio 𧵑貴成員吧空體復回.",
+      "removeBtn": "𪷮與料",
       "benefitsTitle": "權利𢶒役務",
       "redeemBtn": "認𢶒",
       "publicLinkTitle": "塘引 BIO 發行",
@@ -3972,8 +4353,10 @@
         "bio_link": "連結 Bio",
         "system": "系統",
         "package_received": "認𢶒",
+        "package_removed": "𢷣𢶒",
         "profile_updated": "及日",
         "link_added": "添 link",
+        "link_removed": "𪷮 link",
         "birthday": "生日",
         "gift": "𩚧贈"
       },
@@ -4005,9 +4388,11 @@
       "mark_read": "打唒㐌讀",
       "collapse": "收𦄣",
       "expand": "䀡添",
+      "dismiss": "𪷮通報",
       "balance_short": "餘",
       "title": "通報自 Hugo Studio",
       "curated_description": "沒留貯𤯨𧗱仍𠊝𢷮, 頃刻吧信號關重𥪝行程𧵑貴成員.",
+      "archive": "現物",
       "events_recorded": "通報買認",
       "no_events": "𣗓固通報芇",
       "newest_first": "買一𠓀",
@@ -4017,7 +4402,8 @@
       "birthday_voucher_title": "碼𩚧贈生日",
       "claimed": "㐌認",
       "copy": "牢劄",
-      "copied": "㐌劄"
+      "copied": "㐌劄",
+      "copy_success_msg": "㐌牢劄碼𩚧贈. 㤥𬖭碼在 tab \"𢶒役務\" 底認𩚧."
     }
   },
   "admin": {
@@ -4030,14 +4416,19 @@
       "txt_7": "客行",
       "txt_8": "𠅜忍",
       "txt_9": "𣈜寄",
+      "txt_10": "𪷮",
       "txt_11": "𣗓固曆限閙於目尼",
       "txt_12": "𤻳結𦀼欺載曆限.",
       "txt_13": "㐌轉創: 㐌聯係",
       "txt_14": "㐌轉𧗱: 徐聯系",
       "txt_15": "纇及日狀態.",
+      "txt_16": "𪷮要求尼? 貴管治空体恢復.",
+      "txt_17": "㐌𪷮曆限.",
+      "txt_18": "𤻳欺𪷮曆限.",
       "txt_19": "打唒𣗓聯係",
       "txt_20": "打唒㐌聯係",
       "txt_21": "空固𠅜忍",
+      "txt_22": "𪷮要求",
       "txt_23": "㐌噲",
       "txt_24": "徐",
       "txt_25": "空固𠅜忍",
@@ -4052,6 +4443,9 @@
       "txt_34": "群限",
       "txt_35": "歇限",
       "txt_36": "無時限",
+      "txt_37": "𢯛疊: 𣈜造",
+      "txt_38": "𢯛疊: 𣈜歇限",
+      "txt_39": "𢯛疊: 𠸜顯是",
       "txt_40": "現: 10",
       "txt_41": "現: 20",
       "txt_42": "現: 50",
@@ -4093,10 +4487,13 @@
       "txt_79": "𤻳𣛠主",
       "txt_80": "𢝙𢚸入密口",
       "txt_81": "密口空正確",
+      "txt_82": "㐌𪷮預案吧每與料聯關成功.",
+      "txt_83": "𤻳欺𪷮預案",
       "txt_84": "𤻳結𦀼𣛠主",
       "txt_85": "㐌 copy link Portal 𧵑客.",
       "txt_86": "完畢",
       "txt_87": "Copy link 寄客行",
+      "txt_88": "𪷮客行",
       "txt_89": "𠸜對作:",
       "txt_90": "Website / 記注對作:",
       "txt_91": "造 & 出",
@@ -4109,15 +4506,19 @@
       "txt_98": "固磊欺添對作.",
       "txt_99": "𤻳結𦀼.",
       "txt_100": "貴管治固質振悶結束連結貝對作尼?",
+      "txt_101": "㐌𪷮對作連結. 🗑️",
+      "txt_102": "固磊欺𪷮對作.",
       "txt_103": "𤻳結𦀼.",
       "txt_105": "圍諭: https://doitac.vn 或記注坭對作𠱊𣴛 iframe",
       "txt_106": "尋對作...",
+      "txt_107": "𪷮對作",
       "txt_108": "造𢶒役務買",
       "txt_109": "𠸜𢶒役務:",
       "txt_110": "時限:",
       "txt_111": "單位:",
       "txt_112": "造母𢶒役務",
       "txt_113": "級𢶒朱成員",
+      "txt_114": "𪷮 / 管理𢶒𧵑成員",
       "txt_115": "圍諭: 𢶒贈 3 𣎃, 𢶒 Bio VIP...",
       "txt_116": "圍諭: 3",
       "txt_117": "𣈜",
@@ -4132,6 +4533,7 @@
       "txt_126": "客行",
       "txt_127": "𠅜忍",
       "txt_128": "𣈜寄",
+      "txt_129": "𪷮",
       "txt_130": "𢝙𢚸撰沒 file 形影.",
       "txt_131": "載影廣告𨑗成功.",
       "txt_132": "𤻳欺載影廣告.",
@@ -4142,15 +4544,19 @@
       "txt_138": "固磊仕𦋦欺載與料自𣛠主.",
       "txt_139": "𢝙𢚸入密口管治.",
       "txt_140": "密口管治空正確. 𢝙𢚸入吏.",
+      "txt_141": "固磊仕𦋦欺𪷮財款𨕭𣛠主.",
       "txt_142": "𤻳結𦀼𦤾𣛠主.",
       "txt_143": "㐌課連結𠊛󱨳. 🔒",
       "txt_144": "㐌𨷑課連結𠊛󱨳. 🔓",
       "txt_145": "固磊欺及日狀態.",
       "txt_146": "𤻳結𦀼.",
-      "txt_147": "㐌打唒聯係. 📞",
+      "txt_147": "㐌打斗聯係. 📞",
       "txt_148": "㐌𠬃打唒聯係.",
       "txt_149": "固磊欺及日狀態.",
       "txt_150": "𤻳結𦀼.",
+      "txt_151": "貴管治固質振㦖𪷮永遠要求達曆尼空?",
+      "txt_152": "㐌𪷮要求達曆. 🗑️",
+      "txt_153": "固磊欺𪷮.",
       "txt_154": "𤻳結𦀼.",
       "txt_155": "㐌𤋵決要求互助. ✅",
       "txt_156": "𤻳欺及日狀態.",
@@ -4160,16 +4566,22 @@
       "txt_160": "固磊欺添對作.",
       "txt_161": "𤻳結𦀼.",
       "txt_162": "貴管治固質振悶結束連結貝對作尼?",
+      "txt_163": "㐌𪷮對作連結. 🗑️",
+      "txt_164": "固磊欺𪷮對作.",
       "txt_165": "𤻳結𦀼.",
       "txt_166": "𢝙𢚸入𠸜𢶒吧時限.",
       "txt_167": "㐌造𢶒役務買成功.",
       "txt_168": "𤻳欺造𢶒役務.",
       "txt_169": "𤻳結𦀼𣛠主.",
+      "txt_170": "貴管治固質振㦖𪷮母𢶒役務尼空?",
+      "txt_171": "㐌𪷮母𢶒役務.",
+      "txt_172": "𤻳欺𪷮母𢶒役務.",
       "txt_173": "𤻳結𦀼.",
       "txt_174": "𢝙𢚸入 email 吧撰襘役務.",
       "txt_175": "㐌級襘成工朱全部成員.",
       "txt_176": "𤻳欺級𢶒朱成員.",
       "txt_177": "𤻳結𦀼.",
+      "txt_178": "貴管治固質振悶爫買碼𧵑𢶒尼空? 碼𡳵𠱊𠅎效力.",
       "txt_179": "㐌生碼買成功.",
       "txt_180": "固磊欺爫買碼.",
       "txt_181": "𤻳結𦀼.",
@@ -4199,13 +4611,16 @@
       "txt_205": "𢶒役務",
       "txt_206": "互助成員 1:1",
       "txt_207": "𢭮噠系統",
+      "txt_208": "管理權利, 課/𨷑鎖吧𪷮連結 Bio Link 𧵑成員",
       "txt_209": "監察, 分類各要求登記曆𢴇影𧵑客行",
       "txt_210": "構形𣴛 Bio Editor Iframe 或𥙩塘引追及朱對作",
       "txt_211": "定義各母𢶒役務吧級時間用試朱成員",
       "txt_212": "處理直接各要求互助技術吧結𦀼 Zalo 1:1 貝成員",
+      "txt_213": "隨整通報攸曆吧管理 Popup 廣告全系統",
       "txt_214": "打唒𣗓聯係",
       "txt_215": "打唒㐌聯係",
       "txt_216": "空固𠅜忍",
+      "txt_217": "𪷮要求",
       "txt_218": "㐌噲",
       "txt_219": "徐",
       "txt_220": "當聯係",
@@ -4218,6 +4633,8 @@
       "txt_227": "毀𠬃",
       "txt_228": "同意",
       "txt_229": "名冊成員",
+      "txt_230": "貴管治固質振㦖𪷮永遠財款𧵑 {{name}}?",
+      "txt_231": "𪷮",
       "txt_232": "顯是自",
       "txt_233": "成員",
       "txt_234": "張𡢐",
@@ -4262,6 +4679,7 @@
       "enablePush": "弼𠲤汝",
       "cancelRoadmap": "停路程",
       "progress": "進呈",
+      "dailyReminder": "掿汝恒𣈜",
       "checkinSchedule": "Check-印感觸 + 路程",
       "enableNow": "弼𣦍",
       "activeStatus": {
@@ -4270,14 +4688,18 @@
         "unsupported": "空互助"
       },
       "dangerZone": "𡓄危險",
+      "deleteChatToday": "𪷮歷史路傳𣋚𠉞",
       "settingsHeader": "𢭮達 HugoPSY",
       "aiLimitToday": "界限埃𣋚𠉞",
       "limitChat": "局路傳",
       "limitCall": "局噲咨問",
       "tokenRefreshNote": "Token 自動爫買𣅶 00:00 每𣈜",
       "bonusLabel": "賞",
+      "confirmDeleteTitle": "確認𪷮",
       "confirmDeleteDesc": "伴𣎏質振㦖挅全部歷史路傳空?",
       "skip": "補戈",
+      "confirmDeleteBtn": "確認𪷮",
+      "deleteChatSuccess": "㐌𪷮歷史路傳.",
       "adaptiveAlert": {
         "title": "進展出色! 🎉",
         "subtitle": "路程同行適應",
@@ -4285,11 +4707,13 @@
         "reduced": "𢯰短: -{{count}} 𣈜",
         "before": "𠓀: {{count}} 𣈜",
         "newDuration": "買: {{count}} 𣈜",
+        "encouragement": "\"舅當爫慄卒 — 接俗𠰚!\"",
         "btn": "絶潙, 接俗催!"
       },
       "stopRoadmap": {
         "title": "停路程?",
         "subtitle": "操作尼空體完作",
+        "desc": "與料 check-印, 歷史測驗吧日記感觸𠱊被𪷮永遠. 臼固質振空?",
         "confirm": "確認停",
         "cancel": "毀𠬃",
         "progressRequirement": "勤完悉最少 60% 拯塘底停 (現在: {{percent}}%). 㤥堅持添𠰚! 💪",
@@ -4312,8 +4736,10 @@
       "title": "通信個人",
       "fullName": "户和𠸜",
       "notSet": "𣗓及日",
+      "empty": "𥧪",
       "birthday": "生日",
       "missingInfo": "* 沒數通信群少. 㤥路傳貝埃底及日添.",
+      "statsTitle": "統計總觀",
       "statsTests": "排 test",
       "statsCheckins": "Check-印",
       "statsAnomalies": "不常",
@@ -4322,30 +4748,43 @@
       "deepAnalysis": "分析專溇",
       "wheelTitle": "指數𨋣車局𤯨",
       "emotionTitle": "變天感觸",
+      "noChartData": "𣗓𨇛與料表圖. 唉爫添排 test.",
+      "lowMoodTitle": "心狀衰減矯𨱽",
+      "lowMoodDesc": "記認 {{count}} 吝 check-印固狀態𤻻痗或竭飭連續.",
       "phq9AlertTitle": "指數沈感 PHQ-9 警報",
+      "phq9AlertDesc": "排 test PHQ-9 達 {{score}}/27 點 (𣞪度𨤼/慄𨤼).",
       "dassAlertTitle": "指數臨床 DASS 越仰",
       "dassAlertDesc": "排檢查 DASS-42 記認情狀 {{elevated}}.",
       "dassDepression": "沈感",
+      "dassAnxiety": "𢗼憂",
       "dassStress": "兢𣦛",
       "severe": "𨤼",
+      "extremelySevere": "極端",
       "mmpiAlertTitle": "趨向行為 MMPI 越仰",
+      "chatAlertTitle": "斗號不穩𥪝會話",
       "chatAlertDesc": "發現自課兢𣦛: \"{{text}}\".",
-      "recMedium": "留意: 系統發現沒數兢𣦛珥. 唉仃時間儗𢥷, 𥄬𨇛𥋏吧接俗路傳共專貟同行."
+      "recHigh": "警報: 指數飭劸精神𧵑舅當固鬪號不穩臨床嚴重. 㤥聯系專員心理或防醫濟𣦍立即.",
+      "recMedium": "留意: 系統發現沒數兢𣦛珥. 唉仃時間儗𢥷, 𥄬𨇛𥋏吧接俗路傳共專貟同行.",
+      "recNormal": "信𢝙: 感觸吧只𢼂生活𧵑舅極期穩定. 㤥維持能量積極尼𠰚!"
     },
     "evaluation": {
       "notSet": "空確定",
       "lateNightTitle": "活動𣅘常川",
+      "mmpiLowReliabilityTitle": "檢定 MMPI 信𢚁㙮",
       "mmpiLowReliabilityDesc": "固 {{count}} 結果測驗 MMPI 疑疑度信𢚁𧵑指數 L-F-K.",
+      "uploadErrorTitle": "𤻳載報吿飭劸",
       "uploadErrorDesc": "記認 {{count}} 吝載𨖲𣜿空中定樣歸準.",
       "chatAlertDesc": "發現各自課壓力/兢𣦛𥪝信𠴍: \"{{text}}\" (自課: {{triggers}}).",
       "severities": {
         "normal": "平常",
         "mild": "珥",
         "moderate": "𣃣",
-        "severe": "𨤼"
+        "severe": "𨤼",
+        "extremely_severe": "極端"
       },
       "orgFallback": "場 / 組織",
       "activeDays": "𣈜使用",
+      "tableTitle": "榜指數飭劸心神",
       "tableColRecent": "吝近一",
       "tableColScore": "點",
       "tableColNormal": "仰平常",
@@ -4368,10 +4807,12 @@
   },
   "friends": {
     "title": "伴𤿤",
+    "subtitle": "尋𠊛符合吧守聯絡𥪝 Hugo Studio.",
     "installRequiredTitle": "㤥載 app 伴𤿤𠓀",
     "installRequiredBody": "伴𤿤羅沒 app 貞唉載自 Hugo Store 底使用𨕭財款尼.",
     "openStore": "𨷑 Hugo Store",
     "back": "𢮿吏 Apps",
+    "close": "𢫝胡疏",
     "sections": "各目𥪝應用伴𤿤",
     "tabs": {
       "discover": "勘破",
@@ -4398,8 +4839,10 @@
     "discoverable": "朱法𠊛恪尋𧡊碎",
     "shareLocation": "𢺺𢩿位置近中貝伴𦨭",
     "shareLocationPrivacy": "只伴𤿤㐌執認吧拱當𢺺𢩿買𧡊點金近中𧵑貴成員.",
-    "locationSharingOn": "㐌𢺺𢩿位置近中貝伴𤿤󰠃 弼性能.",
+    "locationSharingOn": "㐌𢺹𢫟位置近中貝伴𤿤󰠃 弼性能.",
+    "locationSharingOff": "㐌隱位置塊伴𤿤.",
     "discoveryOn": "每𠊛𣇞固体尋𧡊貴成員.",
+    "discoveryOff": "㐌隱貴成員塊尋劎吧𪷮位置 social.",
     "distance": "曠 {{count}} km",
     "add": "結貴成員",
     "accept": "執認",
@@ -4420,9 +4863,12 @@
     "unfriend": "𠦄䯻貴成員",
     "emptyDiscoverTitle": "𣗓尋𧡊埃",
     "emptyDiscoverBody": "每𠊛勤弼朱法尋劎𠓀欺出見於低.",
+    "emptyFriendsTitle": "名冊伴𤿤當𥧪",
     "emptyFriendsBody": "𨷑勘破底尋劎或䀡𢭮意𠊛近貴成員.",
     "fullProfile": "䀡張個人",
     "mapTitle": "版圖伴𤿤",
+    "mapPrivacy": "點金特爫圇曠 100 m 吧只現欺奇𠄩𠊛共弼𢺹𢫟.",
+    "mapPrivacyShort": "只現𡧲伴𤿤󰠃 弼𢺹𢫟",
     "enableSharing": "設立",
     "emptyMapTitle": "𣗓固位置得𢺺𢩿",
     "emptyMapBody": "身有𧵑貴成員𣗓𢺺𢩿位置近中.",
@@ -4433,17 +4879,20 @@
     "zoomIn": "放𡚢版圖",
     "zoomOut": "收𡮈版圖",
     "directions": "尋塘𦤾𠊛貴成員近一",
+    "approximateLocation": "位置近中 · 𨷑胡疏",
     "link": "連結",
     "playChess": "𠶆制棊",
     "visible": "固体尋𧡊",
     "hidden": "當隱",
+    "editProfile": "整𢯢胡疏",
     "manage": "尋 & 結貴成員",
     "errors": {
       "load": "空体載名冊伴𤿤.",
       "search": "空体尋劎𣅶尼.",
       "action": "空体完畢操作.",
+      "profile": "空体𨷑胡疏尼.",
       "location": "空𥙩特位置. 㤥級權耒試吏.",
-      "locationRequired": "㤥定位𠓀欺弼𢺺𢩿.",
+      "locationRequired": "㤥定位𠓀欺弼𢺹𢫟.",
       "locationSettings": "㤥弼權位置朱 Hugo Studio 𥪝𢭮噠程閲或設備."
     }
   },
@@ -4452,10 +4901,12 @@
     "categories": {
       "all": "悉奇",
       "education": "學習",
+      "wellness": "飭劸",
       "tools": "公惧",
       "entertainment": "解智"
     },
     "library": {
+      "installedToast": "㐌載應用 (+{{size}} MB 部𢖵𣛠).",
       "removedToast": "㐌𫽻應用 (解放 {{size}} MB).",
       "positionUpdated": "㐌及日位置應用.",
       "radioPaused": "㐌暫停 Radio",
@@ -4467,12 +4918,17 @@
       "back": "𢮿吏",
       "next": "接蹺",
       "openLibrary": "勘破書院應用",
+      "emptyTitle": "幔形𥧪",
       "emptyDescription": "載各便益貴成員勤自 Hugo Library.",
+      "removeFromHome": "𢷣塊幔刑政",
+      "removeApp": "𢷣應用",
       "included": "固𠻿",
       "requiredAppNotice": "低羅應用系統吧連𣎏産冲財款.",
+      "requiredAppDescription": "應用尼屬系統學習骨𣑳, 得𢭮𠻿吧空體𢷣.",
       "displaySize": "擊筥顯是",
       "done": "衝",
       "searchPlaceholder": "尋應用或便益…",
+      "clearSearch": "𪷮內容尋劎",
       "filters": "部淥應用",
       "noSpotlightResults": "空尋𧡊應用符合",
       "searchResults": "結果尋劎",
@@ -4493,7 +4949,7 @@
       "installWhere": "載 “{{app}}” 𠓨兜?",
       "installWhereDescription": "奇𠄩攄撰調𢭮共沒應用; 點恪別 󰑼固造 icon 𥢅𨕭幔刑政咍空.",
       "homeAndLibrary": "幔刑政 & 書院",
-      "libraryOnly": "只書院",
+      "libraryOnly": "止書院",
       "cancel": "毀",
       "appDescription": "模寫應用",
       "collapse": "收𦄣",
@@ -4507,6 +4963,7 @@
       "featured": {
         "psychology": {
           "title": "HugoPSY 助理埃",
+          "description": "𠊛伴同行𥢆西𠢞解鎖壓力學習, 書簡固向引吧蹺唯職𥄭.",
           "button": "𨷑 HugoPSY"
         },
         "ide": {
@@ -4525,6 +4982,7 @@
         "runCode": "𧼋 code",
         "start": "𧼋",
         "stop": "停",
+        "joyGold": "黄 JOY",
         "highScore": "點高",
         "homeScreen": "幔刑政",
         "companionOnline": "同行直線",
@@ -4532,9 +4990,12 @@
         "stress": "兢𣦛",
         "sleep": "職𥄭",
         "study": "學習",
+        "forestRain": "𩅹𡼹",
         "cafe": "館茄批",
+        "summerTrack": "務下靜𣵰",
         "availableJoy": "數餘 JOY 可用",
         "fiveDayIncome": "𠬧入 5 𣈜",
+        "profile": "胡疏個人",
         "profileDescription": "Biolink 公開吧𨶛結𦀼公惧, 便益學習𧵑貴成員.",
         "holdToCustomize": "扨守底隨整"
       },
@@ -4547,7 +5008,8 @@
     },
     "catalog": {
       "bio": {
-        "title": "張 Bio"
+        "title": "張 Bio",
+        "description": "胡疏個人吧 Bio link"
       },
       "library": {
         "description": "書院應用𥪝系生態"
@@ -4562,6 +5024,9 @@
       "hugoso": {
         "description": "部䏻率數吧埃",
         "fullDescription": "Hugo Study Office Skills — 學 Calendar, Docs, Sheets 吧 Gemini 蹺曾𨀈, 固 video 明畫, 排實行吧打价技能𥪝每排."
+      },
+      "team": {
+        "description": "選用吧預案生員"
       },
       "supporter": {
         "title": "Supporter 埃",
@@ -4583,6 +5048,7 @@
         "description": "𠻀𨔈解智認 JOY"
       },
       "cinema": {
+        "description": "𧅕 phim 公共: 經典, 活形, 科學遠想吧材料",
         "fullDescription": "程詔各部 phim 短 3D, phim 科學遠想吧電影經典由 Admin 管理."
       },
       "aura": {
@@ -4609,6 +5075,17 @@
       "arcade_caro": {
         "description": "棋 Caro 對抗饒級"
       },
+      "arcade_snake": {
+        "title": "𧋻 3D Pro",
+        "description": "𠻀𨔈𧋻古典"
+      },
+      "arcade_survivor": {
+        "description": "生存𡧲空間"
+      },
+      "profile": {
+        "title": "胡疏",
+        "description": "胡疏能力固檢證, 拫𠓨張 Bio"
+      },
       "friends": {
         "title": "伴𤿤",
         "description": "尋劎, 結貴成員吧䀡胡疏𧵑饒"
@@ -4634,6 +5111,7 @@
         "btnText": "設立𣦍"
       },
       "fileTools": {
+        "desc": "程轉𢷮定樣吧𢬧容量形影直線.",
         "btnText": "𨷑公惧"
       },
       "psychology": {
@@ -4660,6 +5138,7 @@
     "radio": {
       "categories": {
         "vnNews": "臺越南",
+        "intlNews": "信息國际",
         "music": "音樂",
         "chill": "書簡",
         "found": "㐌尋 ({{n}})"
@@ -4699,10 +5178,12 @@
         "playError": "臺呢現空發得, 𢝙𢚸試臺恪.",
         "outOfTokens": "歇 token 𦖑 radio. 𧷸添 token 底接俗.",
         "notFound": "空尋𧡊臺芇𠸜 “{{name}}”.",
-        "searchError": "空𠳨特𣛠主尋臺. 檢查𦀴耒試吏."
+        "searchError": "空𠳨特𣛠主尋臺. 檢查𦀴耒試吏.",
+        "sleepDone": "限𣇞𤎕: 㐌停 HugoRadio. 祝貴成員𥄬𤯆."
       },
       "legal": {
         "title": "源發吧本權",
+        "body": "HugoRadio 只羅程發: 奴𨷑中𨻫直接麻每臺自公布公開. 空載𧗱空留𧝓, 空記音. 本權章程屬𧗱臺發㳥.",
         "source": "名目臺𥙩自基礎與料𨷑 Radio Browser."
       },
       "token": {
@@ -4749,7 +5230,9 @@
         "orders": "㐌𧷸",
         "ordersHint": "仍單𧵆低",
         "balance": "數餘𧵑貴成員",
-        "games": "𠻀𨔈"
+        "balanceHint": "JOY 積得自學習, game 吧點名 — 空納朋錢.",
+        "games": "𠻀𨔈",
+        "gamesHint": "載𧗱, 𨔈𥪝𡑝𨔈"
       },
       "expiring": {
         "hint": "歇限時鎖吏空自除 JOY",
@@ -4786,6 +5269,7 @@
         "start": "扒頭",
         "rent": "蹺𣎃",
         "rentNote": "加限欺勤, 停𣅶芇拱得",
+        "rentAgainNote": "𧷸添𠱊共𦀼𠓨限𡳵",
         "rentCta": "𥙩繪",
         "renewCta": "加限",
         "own": "𠓹𠁀",
@@ -4855,6 +5339,7 @@
       "formTitle": "設立通信名簿",
       "fields": {
         "firstName": "𠸜",
+        "lastName": "𣱆",
         "org": "公司 / 組織",
         "title": "織名 / 𦠘𠻀",
         "phone": "數電話",
@@ -4862,11 +5347,16 @@
         "url": "張 WEB / URL PORTAL",
         "address": "地指"
       },
+      "placeholders": {
+        "lastName": "Vd: 梨...",
+        "address": "Vd: 郡 1, TP. HCM..."
+      },
       "downloadBtn": "載 vCard (.vcf)",
       "copiedToast": "㐌牢劄內容 vCard. 📋",
       "qrCodeTitle": "碼 QR VCARD 𢭯 OFFLINE",
       "qrCodeDesc": "用 camera 電話𢭯碼尼底留𨘱名簿麻空勤 internet.",
       "autoMechanism": "機制自動",
+      "downloadVcfDesc": "載 file 𢬧準 VCF 𧗱設備現在.",
       "shareBtn": "𢺺𢩿過 App",
       "copyBtn": "Copy Link 直線",
       "shareDesc": "寄𣦍名簿過 AirDrop, Zalo, SMS...",
@@ -4876,9 +5366,12 @@
     },
     "signature": {
       "title": "𡨸記 Email 商號",
+      "desc": "自動設計𡨸記 email 個人化專業準 Hugo Studio. 牢劄吧𬖭直接𠓨分𢭮達𡨸記𧵑 Gmail, Outlook 或 Apple Mail.",
       "designLayout": "設計交面",
       "colors": {
-        "blue": "青皇家"
+        "gold": "黄𢀨重",
+        "blue": "青皇家",
+        "violet": "𧹿沈"
       },
       "fields": {
         "color": "牟主道 (BRAND COLOR)",
@@ -4895,6 +5388,7 @@
     },
     "secretLink": {
       "title": "課 Link 保密",
+      "desc": "造各連結得保衛朋密口. 只仍埃固密口正確買固體追及內容或財原祕密𧵑貴成員.",
       "infoDesc": "貴成員固体造沒塘引特別要求客行入中密口買特轉向細張的 (Google Drive, 部影𥢆西, 材料內部). 界限最多 5 link.",
       "fields": {
         "title": "𠸜眼 (顯是朱貴成員)",
@@ -4913,6 +5407,7 @@
       "emptyList": "貴成員𣗓造 Link 保密芇.",
       "destinationLabel": "的: {{url}}",
       "btnEdit": "𢯢",
+      "btnDelete": "𪷮",
       "copiedToast": "㐌牢劄 Link 𢺺𢩿. 📋",
       "toastLimit": "貴成員只得造最多 5 link 保密.",
       "toastValidation": "𢝙𢚸入 Link 的吧密口."
@@ -4920,6 +5415,7 @@
     "fileTools": {
       "title": "公惧處理 File",
       "desc": "解𢬧和最優容量超速, 安全絶對.",
+      "tabExtract": "解𢬧 ZIP",
       "tabCompress": "減容量",
       "extract": {
         "label": "撰 File ZIP (最多 50MB)",
@@ -4934,13 +5430,17 @@
       },
       "compress": {
         "label": "撰形影 / Video (最多 50MB)",
+        "levelSection": "𣞪度𢬧",
         "levels": {
           "light": "珥 (守涅)",
           "medium": "𣃣沛",
           "strong": "猛 (珥一)"
         },
+        "btnSubmit": "𢬧 & 載𧗱",
+        "privacyNote": "每 file 載𨖲調特處理吧自動𪷮塊系統, 空留貯底保衛權𥢆西𧵑貴成員.",
         "toastSelectFile": "𢝙𢚸撰 file 影/Video",
-        "toastSuccess": "𢬧和載𧗱成功."
+        "toastSuccess": "𢬧和載𧗱成功.",
+        "toastError": "𤻳欺𢬧 file. 㤥擔保定樣得互助 (jpg, png, webp, mp4)."
       }
     },
     "qrCode": {
@@ -4971,6 +5471,8 @@
       "tutorialsAndSamples": "課學 & Code 母",
       "projectDirectory": "書目預案",
       "folderPrefix": "📂 書目:",
+      "confirmDeleteTitle": "確認𪷮",
+      "confirmDeleteDesc": "貴成員固質振㦖𪷮 {{type}} \"{{name}}\" 空? 行動尼空體完作.",
       "folder": "書目",
       "file": "𣜿",
       "cancel": "補戈",
@@ -4984,6 +5486,8 @@
       "fileCreateError": "𤻳欺造 file: {{error}}",
       "folderCreated": "㐌造書目: {{path}}",
       "folderCreateError": "𤻳欺造書目: {{error}}",
+      "deleted": "㐌𪷮: {{path}}",
+      "deleteError": "𤻳欺𪷮: {{error}}",
       "renameFolderNotSupported": "程閲空互助𢷮𠸛書目.",
       "renameSuccess": "㐌𢷮𠸛成: {{path}}",
       "renameError": "𤻳欺𢷮𠸛: {{error}}",
@@ -4995,6 +5499,8 @@
       "fileSaveSuccess": "㐌留 \"{{name}}\" 成功𠓨𣛠性.",
       "fileSaveError": "𤻳留 file: {{error}}",
       "fileDownloaded": "㐌載𨑜 file \"{{name}}\".",
+      "virtualFileDeleted": "㐌𪷮 file 幻: {{path}}",
+      "virtualFolderDeleted": "㐌𪷮書目幻: {{path}}",
       "fileExists": "File 㐌存在.",
       "virtualFileCreated": "㐌造 file 幻: {{path}}",
       "folderExists": "書目㐌存在.",
@@ -5037,6 +5543,8 @@
       "10PhiSangTao3": "(+ 10% 費創造) 底𨷑鎖永遠全部 6 分𧵑部發展 Web 吧得免費保持𠓹𠁀空?",
       "quyenSoHuuTron": "權所有𠓹𢶒㐌特同步.",
       "moKhoaTronGoi": "𨷑鎖𠓹襘永遠成功. 貴成員㐌特激活全部各拯學吧得免費保持𠓹𠁀.",
+      "xacNhanXoa": "確認𪷮",
+      "banCoChacChan": "貴成員固質振㦖𪷮",
       "thuMuc": "書目",
       "khongHanhDongNay": "\" 空? 行動尼空體完作.",
       "dangTaiLoTrinh": "當載路程排學…",
@@ -5049,6 +5557,7 @@
       "moThuMucCuc": "𨷑書目局部",
       "quanLyFile": "管理 File",
       "khoaHocCodeMau": "課學 & Code 母",
+      "deChayPhpVa": "底𧼋 PHP 吧管理基礎與料過 phpMyAdmin 𨕭𣛠性個人 (localhost), 使用 Docker Compose 󰑼方案鈍珥吧易𠝖塊與料實.",
       "buoc1CaiDat": "𨀈 1: 𢭮達 Docker Desktop",
       "taiDockerDesktopTu": "載 Docker Desktop 自主頁 docker.com 吧𢭮𨑗𣛠性.",
       "buoc2TaoFile": "𨀈 2: 造 file docker-compose.yml",
@@ -5059,6 +5568,7 @@
       "moTrinhDuyetTruy": "𨷑程閲追及:",
       "taiKhoanRootMat": "財款: root / 密口: root. 低羅媒場學習局部; 空用密口母尼朱系統實.",
       "khongGianSoanThao": "空間撰草被鎖",
+      "vuiLongKichHoat": "𢝙𢚸激活税包或𧷸𢶒𨷑鎖永遠於橛边賴底扒頭立程排學尼.",
       "troLaiEditor": "𧿨吏 Editor",
       "khongCoFileNao": "空固 file 閙當𨷑. 㤥𨷑沒 file 自 File Explorer 或納排學.",
       "huongDanChay": "向引𧼋",
@@ -5097,18 +5607,21 @@
       "4LoTrinhThuc": "4 路程實戰",
       "kyNangDungDuoc": "技能用得𣦍,",
       "khongHocChiDe": "空學只底䀡.",
-      "moiKhoaGomVideo": "每課𠁝 video 蹺情况, 排爫𨕭公惧實吧檢查扒縛.",
+      "moiKhoaGomVideo": "每課𠁝 video 蹺情況, 排爫𨕭公惧實吧檢查扒縛.",
       "motLoTrinhCho": "沒路程朱全部工役",
       "calendarDocsSheetsGemini": "Calendar → Docs → Sheets → Gemini, 節儉",
+      "joySoVoiMua": "JOY 𢫘𢭲𧷸𥛭.",
       "moTronBo": "𨷑𠓻部",
       "tuBaiHocSang": "自排學創産品實.",
       "moUngDungGoogle": "𨷑應用 Google 𥪝 tab 買, 爫蹺 checklist 耒𢮿吏 Study with Hugo 底納結果.",
       "moKhongGianLam": "𨷑空間爫役買",
       "apDungChecklistTrong": "押用 checklist 𥪝排學",
       "quayLaiNopPhan": "𢮿吏納分模寫結果",
+      "hoSoKyNang": "胡疏技能",
       "hanhTrinhBatDau": "行程扒頭徐没排實行",
       "baiDaDatTien": "排㐌達 · 進渡得同步蹺財款.",
       "noiDungDaDoi": "內容㐌對詔材料正式 Google 𣈜",
+      "googleGoogleCalendarDocs": "Google, Google Calendar, Docs, Sheets 吧 Gemini 羅眼效𧵑 Google LLC. Study with Hugo 羅系統學讀立, 空連結貝吧空得 Google 保助咍證實.",
       "dieuHuongStudyWith": "調向 Study with Hugo",
       "homNay": "𣋚𠉞",
       "khoaHoc": "課學",
@@ -5123,6 +5636,7 @@
       "noiDung": "內容",
       "doiChieuHuongDan": "對詔向引正式 Google 𣈜",
       "kiemDinhDongBo": "檢定同步",
+      "baiKhopVideoNoi": "排恰 video, 內容, 實行吧打价",
       "giaoTrinhVaBai": "教程吧排實行",
       "nguonChinhThucGoogle": "源正式 Google",
       "buoc": "· 𨀈",
@@ -5161,6 +5675,7 @@
       "ghiKetQua": "記結果",
       "dienVaoOTra": "填𠓨烏𪃲𠳒蹺母, 耒確認.",
       "deThucHanh": "底實行",
+      "checklistThaoTacKhop": "Checklist 操作 — 恰層章 video 吧𨀈向引",
       "huongDan": "· 向引",
       "khungThamKhaoKhong": "椌參考 — 空沛答案底牢劄",
       "ghiKetQuaBan": "記結果貴成員𣃣實現在低…",
@@ -5184,6 +5699,7 @@
       "tamDungVideoMinh": "暫停 video 明畫",
       "phatVideoMinhHoa": "發 video 明畫",
       "chuong": "章",
+      "khopBuoc": "· 恰𨀈",
       "dong": "𢫝",
       "quyenSoHuuTron": "權所有𠓹𠁀",
       "moToanBo4": "𨷑全部 4 課, 每排實行現在吧各內容及日𡢐尼.",
@@ -5195,6 +5711,7 @@
       "khongTuGiaHan": "空自加限 · JOY 空歸𢷮城前𩈘"
     },
     "profile": {
+      "eyebrow": "胡疏能力固檢證",
       "loading": "當總合乎疏…",
       "generatedAt": "数料總合𣅶 {{date}}",
       "publicNote": "每𡥵數𠁑低由 Hugo Studio 記認吧閲空沛由主粧叙開.",
@@ -5210,11 +5727,13 @@
       "notYet": "𣗓達",
       "studyCourses": "鎖 Study 當所有",
       "evidenceTitle": "明證學習",
+      "evidenceDescription": "排學㐌得 Study 確明𠱊自動𧿨成斗沐𥢆西𥪝胡疏𧵑貴成員.",
       "evidencePrivate": "𥢆西",
       "evidenceLoading": "當載明證…",
       "evidenceLoadError": "𣗓載得明證學習.",
       "evidenceRetry": "試吏",
       "evidenceEmpty": "𣗓固明證芇",
+      "evidenceEmptyHint": "完成沒排得點𥪝 Study 底造斗沐頭先.",
       "evidenceCompletedAt": "Study 確明𣅶 {{date}}",
       "evidenceLoadMore": "䀡添明證",
       "evidenceDelete": "挅明證",
@@ -5225,7 +5744,11 @@
       "approvedHours": "除㐌得閲",
       "tasksDone": "𭛣㐌驗收",
       "publishTitle": "公佈𨑗張 Bio",
+      "publishDesc": "弼底榜胡疏呢現𠁑張 Bio 公開𧵑貴成員. 𠊛䀡空勤登入吻檢証特.",
       "showOnBio": "現𨕭張 Bio",
+      "needPlan": "勤税或所有 Hugo Profile 𥪝商店底公佈. 䀡胡疏𧵑正貴成員時連免費.",
+      "published": "㐌功布胡疏.",
+      "unpublished": "㐌𫽻胡疏塊張 Bio.",
       "saveError": "空留得設立."
     }
   },
@@ -5255,6 +5778,9 @@
       "lockedLabel": "被鎖",
       "rejectedLabel": "辭咥"
     },
+    "health": {
+      "title": "飭劸系統"
+    },
     "statusInfo": {
       "active": "當活動",
       "pending": "徐閲",
@@ -5264,6 +5790,7 @@
     "aiInsight": {
       "title": "埃 Admin Insight",
       "analyzing": "當分析系統...",
+      "placeholder": "扨 \"分析\" 底埃打价狀態系統吧迻𠚢𢭮意管理.",
       "defaultMessage": "系統當活動平常.",
       "connectionError": "空体結𦀼埃 Server:",
       "analyzeBtn": "分析"
@@ -5284,6 +5811,7 @@
       "subtitle": "中心智慧人造 — 分析, 自動化, 管理聰明"
     },
     "cards": {
+      "userHealth": "分析飭劸𠊛󱨳",
       "riskDetection": "發現𢙩𬰹系統",
       "growthTrend": "趨向增長",
       "recommendation": "𢭮意行動優先"
@@ -5291,16 +5819,18 @@
     "insightCard": {
       "loading": "埃當打价系統...",
       "scoreLabel": "指數打价",
+      "coreFindings": "打价 & 統計",
       "suggestedActions": "行動題出",
       "empty": "𣗓固與料. 扨分析底扒頭."
     },
     "buttons": {
+      "userHealth": "飭劸 Users",
       "risk": "發現𢙩𬰹",
       "growth": "分析增長",
       "recommendations": "𢭮意 Admin"
     },
     "userDeepDive": {
-      "title": "分惜乎疏𠊛󱨳",
+      "title": "分析胡疏𠊛󱨳",
       "placeholder": "入 email 𠊛󱨳...",
       "analyzeBtn": "埃分析",
       "noInfo": "空固通信分析.",
@@ -5319,6 +5849,7 @@
     "automation": {
       "actionsTitle": "行動自動化",
       "approvePending": "閲悉奇財款 Pending",
+      "sendWellnessNudge": "寄 nudge 飭劸心理",
       "generateReport": "造報吿系統埃",
       "settingsTitle": "𢭮達自動化",
       "alertCrisisLabel": "警報恐慌心理",
@@ -5332,6 +5863,7 @@
     "actionLog": {
       "title": "日記行動埃",
       "approvedCount": "㐌閲 {{count}} 財款 pending",
+      "wellnessNudgeSent": "㐌寄 nudge 飭劸心理朱畢奇成員 active",
       "reportGenerated": "報吿㐌造",
       "done": "完成.",
       "error": "𤻳:"
@@ -5349,7 +5881,8 @@
       "plan": "計畫 24 𣇞",
       "planDescription": "三𨀈𡮈𣃤飭",
       "assessment": "撰排𬕌濾",
-      "assessmentDescription": "PHQ-9, GAD-7 或 WHO-5"
+      "assessmentDescription": "PHQ-9, GAD-7 或 WHO-5",
+      "disclaimer": "HugoPSY 互助自觀察吧空𠊝替專家飭劸心神."
     },
     "assessment": {
       "title": "排打價𬕌濾"
@@ -5362,7 +5895,10 @@
       "ngay": "𣈜",
       "khoa": "課",
       "testLai": "Test 吏",
+      "thoatCheDoTrut": "脱制度淬𢠣",
+      "cheDoTrutGian": "制度淬𢠣安全",
       "sangLocTrieuChung": "𬕌濾兆證氣色",
+      "sangLocTrieuChung2": "𬕌濾兆證𢗼憂",
       "trangThaiTinhThan": "狀態精神",
       "tracNghiemNhanCach": "測驗因格",
       "thuGian": "書簡",
@@ -5375,18 +5911,22 @@
       "nhanTinVoiHugopsy": "𠸕信貝 HugoPSY...",
       "baiTapTinhTam": "排習靜心",
       "nhatKyChuKy": "日記 & 週期職𥄭生學",
+      "baoCaoDanhGia": "報吿打价飭劸精神",
       "luotTroChuyen": "𠞺𠻀傳"
     },
     "evaluation": {
       "tongQuan": "總觀",
       "haoQuangCamXuc": "毫光感觸",
+      "hoSoTamLy": "胡疏心理 & Big Five",
       "lichSuTienTrinh": "歷史 & 進呈",
       "nhatKyTuCham": "日記自𥊀𥉮 7 𣈜",
       "batDauTuDanh": "扒頭自打价",
       "denHanTuDanh": "𦤾旱自打价吏",
+      "danhGiaSucKhoe": "打价飭劸精神總觀",
       "mucDuyTri": "墨維持",
       "chuaDuDuLieu": "𣗓𨇛與料",
       "duyTriDeu": "維持調",
+      "dangHinhThanhThoi": "當形成態慣",
       "troChuyenAiNgay": "路傳埃𣦍",
       "tongKetTuCham": "總結自𥊀𥉮𥪝旬",
       "7NgayGanNhat": "7 𣈜近一",
@@ -5411,6 +5951,8 @@
       "chuaDo": "𣗓度",
       "ghiNhanCaNhan": "記認個人 & Big Five",
       "ghiNhanHoiThoai": "記認會話",
+      "bieuDoNetTinh": "表圖涅性格 Big Five",
+      "chuaCoDuLieu": "𣗓固與料 Big Five. 表圖𠱊旨出現𡢐欺舅完成排打價.",
       "chuDeApLuc": "主題壓力咍﨤",
       "chuaCoChuDe": "𣗓固主題特殊.",
       "xuHuongNetTam": "趨向涅心理",
@@ -5420,8 +5962,11 @@
       "xemTatCa": "䀡悉奇",
       "chuaGhiNhanHoat": "𣗓記認活動書簡或排自打价芇.",
       "hoatDongThuGian": "活動書簡",
+      "ratTot": "慄卒",
+      "tot": "卒",
       "binhThuong": "平常",
       "moiMet": "痗𤻻",
+      "kietSuc": "竭飭",
       "checkInCamXuc": "Check-印感觸",
       "mucDuyTriHoat": "墨維持活動𥪝旬",
       "streakCheckInCam": "Streak Check-印感觸",
@@ -5451,6 +5996,7 @@
       "tuDong": "自動",
       "daLienKet": "㐌連結",
       "lienKetThietBi": "連結設備",
+      "cuDong": "舉動",
       "trangThaiTab": "狀態 Tab",
       "hien": "現",
       "tuDong8Tin": "自動 · 8 信號設備實",
@@ -5479,6 +6025,7 @@
       "duGiacTrong": "𨇛𥋏𥪝",
       "ngayQua": "𣈜戈 ✓",
       "onDinhLich": "穩定曆",
+      "lichNguRatOn": "曆𥄬慄穩定",
       "khaOnDinhNen": "可穩定, 𢧚故定欣",
       "bienDongNenNgu": "變動可饒𢧚𥄬中𣇞",
       "lichNguThatThuong": "曆𥄬失常, 勤改善",
@@ -5501,6 +6048,7 @@
       "tinhGiac": "醒𥋏",
       "lyTuong01": "理想: 0–1 吝",
       "wasoPhut": "WASO (發)",
+      "thucSauKhiNgu": "式𡢐欺𥄬",
       "hoatDongTruocKhi": "活動𠓀欺𥄬",
       "thoiGianManHinh": "時間幔形 (發)",
       "0Phut": "0 發",
@@ -5508,6 +6056,7 @@
       "vanDong": "運動",
       "moiTruong": "媒場",
       "cangThangTruocKhi": "兢𣦛𠓀欺𥄬",
+      "ratIt": "慄𠃣",
       "it": "𠃣",
       "vua": "𣃣",
       "nhieu": "饒",
@@ -5530,7 +6079,9 @@
       "giaiDoanGiacNgu": "皆斷職𥄭 (模倣)",
       "sau": "溇",
       "nhe": "珥",
+      "thuc": "式",
       "nguSauPhucHoi": ": 𥄬溇復回",
+      "giacMoTriNho": ": 聀𢠩, 智𢖵",
       "thuGian": ": 書簡",
       "tinhGiac2": ": 醒𥋏",
       "phanTichAiGiac": "分析埃職𥄭",
@@ -5548,12 +6099,15 @@
       "manHinh": "幔形:",
       "cangThang": "兢𣦛:",
       "vanDong2": "運動:",
+      "ruou": "酒:",
       "moiTruong2": "媒場:",
       "giacMo2": "聀𢠩: \"",
+      "heThongDangTheo": "系統當蹺唯. 𥄬𤯆𠰚!",
       "nhatKySeTu": "日記𠱊自動出現𡢐欺伴𥅞𧽇."
     },
     "vietnameseOnly": {
       "title": "HugoPSY 只固㗂越",
+      "body": "應用 Hugo Psychology 只得供給朱𠊛用㗂越. 全部排測驗, 內容同行吧塘𦀊燶恐慌調撰𥢅朱越南 — 譯𣛠創言語恪羅空安全貝沒應用飭劸精神.",
       "switchToVi": "轉創㗂越",
       "back": "𢮿吏"
     }
@@ -5581,6 +6135,7 @@
       "firstLesson": "扒頭排頭先"
     },
     "stats": {
+      "label": "統計學習",
       "streak": "𣈜連接",
       "lessons": "排學"
     },
@@ -5640,7 +6195,8 @@
         }
       },
       "curriculumEyebrow": "路程獨權",
-      "curriculumTitle": "100 排由 Hugo Studio 編撰"
+      "curriculumTitle": "100 排由 Hugo Studio 編撰",
+      "note": "斗 Hugo Studio Original 確認內容骨𣑳得編撰獨權朱露程尼. 材料參考邊外, 閙固, 連特記源𥢅."
     },
     "resources": {
       "title": "學料",
@@ -5700,7 +6256,9 @@
       "nhanChungNhanHoan": "認證認完成",
       "chungNhanDangDuoc": "證認當得准僃𤳄 Admin...",
       "vuiLongHoanThanh": "𢝙𢚸完成排學𫏾底𨷑鎖排尼.",
+      "thucHanhLyThuyet": "實行理說",
       "noiDungBaiHoc": "內容排學尼當被鎖. 𢝙𢚸𨷑鎖永遠拯學習尼或所有𠓹𢶒 7 拯底扒頭學.",
+      "thueBaoBaoTri": "税包保持㐌歇限. 𢝙𢚸加限 {{amount, joy}} 保持行𣎃底接俗學習.",
       "moKhoaVinhVien": "𨷑鎖永遠拯",
       "moKhoaVinhVien2": "𨷑鎖永遠權學吧實行全部排斈屬",
       "trongGoiNayBan": "冲𫋻尼貴學員認得",
@@ -5726,6 +6284,7 @@
       "banDaVuotQua": "貴學員㐌越過各此適𧵑排學尼吧認分賞 JOY.",
       "taiLieuSachHoc": "材料 & 冊學術",
       "choBaiNay": "朱排尼",
+      "nguonChuanQuocTe": "源準國际𧵑拯",
       "chayThuDeXem": "𧼋試底䀡",
       "chay": "𧼋",
       "baiNayLaDang": "排尼羅樣追問或 backend 𢧚電話𠱊顯是 code 母吧向引𧼋. 欺𨷑𨕭 desktop, 系統學𠱊轉𧗱 IDE 𣹓𨇜.",
@@ -5737,6 +6296,7 @@
       "nopBaiKiemTra": "納排檢查",
       "baiHocDaHoan": "排學㐌完成.",
       "banDaVuotQua": "貴學員㐌越過各此適𧵑排學尼吧認分賞 JOY.",
+      "nhapVaoNutDi": "扖𠓨鈕移轉底𢯛疊各塊令𡢐蹺中次序 logic:",
       "kiemTraThuTu": "檢查次序",
       "yeuCauGiaoDien": "要求交面:",
       "cardSanPham": "Card 産品",
@@ -5749,8 +6309,11 @@
       "boDemSoLan": "部點數吝:",
       "nopBaiThucHanh": "納排實行",
       "hayNhanDu3": "㤥扨𨇜 3 吝",
+      "bamChon1Tu": "𢶸撰 1 自課於边𣛤, 𡢐妬𢶸撰中定義於边沛:",
       "tuKhoa": "自課",
       "dinhNghia": "定義",
+      "hoanThanhNoiCap": "完成𦀼及",
+      "dienDoanCodePhp": "填段 code PHP 適合𠓨各烏𥧪邊𠁑:",
       "xinChao": "\"吀嘲\"",
       "nopKetQuaDien": "納結果填 code",
       "vietCodeTrenIde": "曰 code 𨕭 IDE 𣛠性 (Desktop). 𡢐欺𧼋成功結果𦋦呈閲, 貴學員𢴇影幔形吧載𨖲低底系統自檢查定樣影納.",
@@ -5766,10 +6329,12 @@
       "ketQuaKiemTra": "結果檢查:",
       "tuyetVoiBanDa": "絶潙. 貴學員㐌越過排檢查成功.",
       "nhanThuongJoyHoan": "認賞 JOY & 完成",
+      "doiDeThiKhac": "𢷮題試恪 & 爫吏",
       "cauHoi": "句𠳨",
       "daChon": "㐌撰:",
       "cau": "句",
       "cauTruoc": "句𠓀",
+      "nopBaiThi": "納排試",
       "cauTiep": "句接",
       "khungMaNguon": "椌碼源:",
       "xacNhanDapAn": "確認答案",
@@ -5777,6 +6342,7 @@
       "nopSanPhamHoan": "納産品完善一𧵑貴學員底完畢拯 7 吧認證認完成 & {{amount, joy}}.",
       "chucMungBanDa": "祝𢜠. 貴學員㐌完成部發展 Web. 🎉",
       "xemChungNhanHoan": "䀡證認完成",
+      "dangChoAdminDinh": "當徐 admin 訂兼 link 紙證認...",
       "duAnDangCho": "預案當徐閲... ⏳",
       "hugoStudioDangXem": "Hugo Studio 當審定排納𧵑貴學員.",
       "duAnChuaDat": "預案𣗓達要求 ❌",
@@ -5790,6 +6356,8 @@
     "treasure": {
       "eyebrow": "版圖庫寶",
       "title": "行程𧵑貴學員",
+      "description": "每排羅沒𨀈蹎. 𠫾歇沒𡓄𡐙羅𨷑得沒箱庫寶.",
+      "land": "𡓄𡐙 {{number}}",
       "next": "庫寶接蹺",
       "stepsLeft": "群 {{count}} 𨀈",
       "atLast": "𨀈𡳳共",
@@ -5820,14 +6388,21 @@
       "waveLabel": "𡐿",
       "hpLeft": "群 {{hp}} 𧖰",
       "skills": "技能當𣎏",
+      "shield": "牽保衛",
+      "rapid": "聯清",
       "overdrive": "衝破",
       "bossMeta": "波 {{phase}} · 𡐿 {{wave}}",
+      "bossDefeated": "下 {{boss}} · 回𧖰吧抯楫濟",
       "overdriveActive": "衝破 · 不死 3 𦀊",
+      "overdriveReady": "衝破㐌苔 · 𢶸鈕𧹿",
       "overdriveCharged": "𣑳𧹿 · 納添 55% 衝破",
+      "shieldBlocked": "愆㐌鎮扽",
+      "shieldReady": "牽保衛㐌産床",
       "weaponLevel": "銃𨑗級 {{level}}",
       "weaponMax": "銃最多 · 轉成點",
       "repaired": "回復 · 現固 {{hp}} 𧖰",
       "repairConverted": "𧖰當𣹓 · 轉成點",
+      "rapidFire": "聯清激活𥪝 6 𦀊",
       "wave": "𡐿 {{wave}} · 楫濟當𦤾"
     },
     "result": {
@@ -5875,14 +6450,18 @@
     "snakeStage1Goal": "收拾 6 𣑳能量",
     "snakeStage1Hint": "守𠿚咹底激活 combo.",
     "snakeStage2Kicker": "此適生存",
+    "snakeStage2Goal": "攊過𡡆吧咹𨇜 6 媒",
     "snakeStage2Hint": "𡡆𧹥發𤎜仍空體破.",
     "snakeStage3Kicker": "此適譯轉",
+    "snakeStage3Goal": "爫主及𨶛空間",
     "snakeStage3Hint": "𠫾𠓨沒𨶛底出見於𡎴群吏.",
+    "snakeStage4": "獜黄",
     "snakeStage4Kicker": "此適速度",
     "snakeStage4Goal": "獜𣑳黄𠓀欺變𠅎",
     "snakeStage4Hint": "𣑳黄朱 10 點吧維持 combo 𡘯.",
     "snakeStage5Hint": "速度高, 饒𡡆吧𨶛易轉.",
     "snakeLevelUp": "級 {{level}} · 速度吧試𡂓增",
+    "snakeFood": "媒",
     "snakeStageLabel": "拯",
     "snakeStageOf": "拯 {{index}}: {{name}}",
     "ready": "産床",
@@ -5893,17 +6472,22 @@
     "snakePortal": "𨶛易轉",
     "chessBoard": "盤棋𤤰 3D",
     "chessWhite": "軍𤽸",
+    "chessBlack": "軍黰",
     "chessCheckmate": "照歇. {{side}} 大勝.",
     "chessOver": "板鬥結束",
     "chessLevelEasy": "集事",
     "chessEasy": "易",
     "chessLevelMid": "戰術",
     "chessMid": "𣃣",
+    "chessLevelHard": "高手",
     "chessHard": "𠺟",
     "chessThinking": "Hugo BOT 當性渃𠫾...",
+    "chessInCheck": "⚠️ 當照𤤰.",
     "chessTurn": "𠞺𠫾: {{side}}",
     "chessBotThinking": "Hugo BOT (當性...)",
     "chessBotLevel": "Hugo 埃 BOT · 級 {{level}}",
+    "chessBlackPlayer": "𠊚𨔈黰",
+    "chessView3d": "角𥆾 3D",
     "chessUndo": "完渃",
     "chessNewGame": "板買",
     "chessYouWhite": "貴成員 (軍𤽸)",
@@ -5916,7 +6500,9 @@
     "caroYou": "貴成員",
     "survivorWaveClear": "𡐿 {{wave}} 𣽤",
     "survivorSurge": "衝破",
+    "rankSs": "項 SS • 高手 NEON",
     "rankA": "項阿 • 戦兵給髙",
+    "rankB": "項 B • GAME 手展望",
     "shellRecord": "紀錄買. 欣吝𠓀 {{delta}} 點.",
     "shellNear": "少 {{gap}} 點女羅破紀錄 {{best}}.",
     "shellBest": "紀錄𧵑貴成員: {{best}}",
@@ -5931,7 +6517,7 @@
     "chessVsBot": "鬥貝 Hugo 埃 BOT",
     "chessVsBotDesc": "擒君𤽸 · 此適智慧術算",
     "chessPassPlay": "𠄩𠊛共𣛠 (Pass & Play)",
-    "chessPassPlayDesc": "達設備於 󱭻𠄩𠊛如盤棋實",
+    "chessPassPlayDesc": "達設備於𡧲𠄩𠊛如盤棋實",
     "chessBotLevelLabel": "急渡 BOT 埃:",
     "chessHistory": "歷史:",
     "exclusive": "獨權𤳄 Hugo Studio",
@@ -5941,6 +6527,7 @@
     "levelEasy": "易",
     "levelMid": "𣃣",
     "levelHard": "𠺟",
+    "caroOpponent": "對手",
     "eventSaturdayTitle": "次𦉱人堆",
     "backToArcade": "𧗱廳 game"
   },
@@ -5958,15 +6545,22 @@
       "chess": {
         "eyebrow": "盤棋 3D 外線",
         "title": "BOT 或𠄩𠊛. 𠓨盤𣦍.",
-        "description": "鬥 Hugo BOT 或達電話 󱭻𠄩𠊛抵制如沒盤棋寔空防除, 空勤結𦀼."
+        "description": "鬥 Hugo BOT 或達電話𡧲𠄩𠊛抵制如沒盤棋寔空防除, 空勤結𦀼.",
+        "hint": "制度𠄩𠊛守盤故定; 㝵扲軍黰相作自頭𨕭電話."
+      },
+      "survivor": {
+        "eyebrow": "編隊 Boss 3D"
       },
       "caro": {
         "eyebrow": "Caro 5 軍",
-        "title": "𢆥軍連羅勝."
+        "title": "𢆥軍連羅勝.",
+        "description": "盤 10 × 10 中律 caro 越南, 鬥 Hugo 埃三急渡: 奴別振三𨷑吧性𠓀渃答𧵑貴成員.",
+        "hint": "造𠄩扽共𣅶𠄩頭調𨷑) 時對手只振得沒."
       },
       "snake": {
         "eyebrow": "行程 Neon",
-        "title": "𢆥世界. 沒塘𧼋."
+        "title": "𢆥世界. 沒塘𧼋.",
+        "description": "Snake 3D Pro 𧿨吏貝𡑝𨔈全幔形, 轉動𬗱, 𨶛易轉吧試𡂓買𢖕每拯."
       }
     }
   },
@@ -5998,6 +6592,7 @@
         "desc": "碎贈 12 𣎃朱貴客 — 空費隱, 空廣告. 妬羅沒唎許, 空沛𠬠交譯."
       },
       "creative": {
+        "title": "𦑃𨷯創造",
         "desc": "每色態, 每刑影, 每連結 — 調屬𧗱貴客. 張 Bio 空址𢢲; 奴󰑼 幅幀𧵑𥢆命."
       },
       "fast": {
@@ -6059,6 +6654,7 @@
     "nganHangDoiTac": "銀行對作 PayOS",
     "khongDongTrangCho": "空𢫝張朱𦤾欺交易得確認. Hugo Studio 只顯是與料清算由 API PayOS 供給吧空流通信登入銀行.",
     "dangHuy": "當毀…",
+    "huyVaXoaGiao": "毀吧𪷮交易",
     "maVietqrThanhToan": "碼 VietQR 清算",
     "quetVietqr": "𢭯 VietQR",
     "moUngDungNgan2": "𨷑應用銀行或銀庫互助 VietQR, 𢭯碼吧檢查數錢𠓀欺轉.",
@@ -6075,6 +6671,7 @@
     "dacQuyenBangGia": "特權 & 榜價停𥢅 HSSV",
     "xacMinhEmailTruong": "確明 email 場沒吝羅𨷑鎖張 Bio 免費 12 𣎃吧價 HSSV 朱每𢶒邊𠁑.",
     "chiCourseworkCuoiMon": "只 coursework 𡳳門",
+    "khongDoAnChuyen": "空圖案專行, 空圖案卒業, 空曰报告護.",
     "banGiaoQuaGit": "搬交過 Git",
     "linkRepoDeBan": "Link repo 底伴 clone 𧗱, 兼材料向引𧼋和解釋 code.",
     "giaCoDinhCo": "價故定, 固陳",
@@ -6086,6 +6683,7 @@
     "kiemTraEmailGiao": "檢查 email 教育",
     "dangDoiChieuTen": "當對詔𠸜沔...",
     "tenMienEduAc": "𠸜沔 .edu / .ac 合例.",
+    "khongPhaiEmailTruong": "空沛 email 場 — 胡疏轉創徐閲𢬣.",
     "tuChayNgaySau": "自𧼋𣦍𡢐欺登入.",
     "moDacQuyenHssv": "𨷑特權 HSSV",
     "bioMienPhi12": "Bio 免費 12 𣎃 + 價 HSSV 㐌押用.",
@@ -6122,17 +6720,20 @@
       "dienThoaiNenSang": "電話𡋂朗𢷮創𡋂黰𡨸𤽸",
       "nenSang": "𡋂朗",
       "nenDen": "𡋂黰",
+      "cotSoSanh720": "橛𢫘並: 720 排每𣇞於制度常𢫘𢭲 24 排於制度節儉",
       "720Bai": "720 排",
       "cheDoThuong": "制度常",
       "6Luot120Bai": "6 𠞺 × 120 排",
       "24Bai": "24 排",
       "cheDoTietKiem": "制度節儉",
       "1Luot24Bai": "1 𠞺 × 24 排",
+      "luoiDiemAnhNen": "䋥點影: 𡋂朗時每點調弼, 𡋂黰時分𡘯𤎕",
       "2424DiemAnh": "24/24 點影𤎜",
       "324DiemAnh": "3/24 點影𤎜",
       "viSaoCheDo": "爲牢制度尼節儉實",
       "soLieuDoTu": "数料度自碼源, 分群吏引源研究邊𠁑.",
-      "nguonThamKhao": "源參考"
+      "nguonThamKhao": "源參考",
+      "cacConSoTren": "各𡥵數𨕭羅約性固曠摇動, 附属設備, 度𤎜幔形吧下層𦀴層坭. 眾碎標曠𠊝為沒𡥵數圇底空許過."
     },
     "account": {
       "theThanhVien": "𥮋成員",
@@ -6141,6 +6742,7 @@
       "viJoy": "銀庫",
       "maQrNhanJoy": "碼 QR 認 JOY",
       "layMaMoi": "𥙩碼買",
+      "duaMaNayCho": "迻碼尼朱𠊛轉 JOY 朱貴成員. 碼固限曠 2 發 — 過限時𢶸 “𥙩碼買”.",
       "diemDanhNhanJoy": "點名認 JOY",
       "homNayChuaDiem": "𣋚𠉞𣗓點名",
       "homNayDaDiem": "𣋚𠉞㐌點名",
@@ -6198,11 +6800,15 @@
       "ranOut": "歇 token — 𧷸添底䀡接."
     },
     "source": {
-      "title": "源 phim & 紙法"
+      "title": "源 phim & 紙法",
+      "body": "Phim 發直接自 Internet Archive. Hugo Cinema 只引細本 phim 公共, 空載𧗱共空割𢯖."
     },
     "empty": {
+      "title": "偈 phim 當𥧪",
+      "desc": "Admin 同步書院 phim 公共𥪝 Admin Panel 羅偈固 phim 𣦍.",
       "searchTitle": "空尋𧡊 phim 芇",
       "searchDesc": "試𠸜 phim 恪或撰沒體類.",
+      "listTitle": "名冊𧵑貴成員群𥧪",
       "listDesc": "𢵺鬪於𠬠部 phim 底留吏䀡𡢐."
     },
     "play": "發",
@@ -6218,7 +6824,8 @@
     "switchingSource": "當𢷮創源發恪…",
     "retry": "試吏",
     "videoFailed": {
-      "title": "空載得 phim"
+      "title": "空載得 phim",
+      "desc": "奇𠄩源發調空細尼. 常󰑼 𦀴振𣛠主留貯 — 試吏或𢷮𦀴."
     }
   },
   "joyRate": {
@@ -6226,6 +6833,7 @@
     "yourUnit": "𧵑貴成員",
     "boardTitle": "榜變動 · 𡚖𧗱 1 {{base}}",
     "updated": "及日 {{time}}",
+    "low": "㙮",
     "high": "高",
     "chartLabel": "變動 {{code}} 𢫘𢭲 {{base}}",
     "empty": {
@@ -6238,7 +6846,8 @@
       "ecosystem": "系生態 Hugo Invest",
       "title": "財産 & 證券",
       "enterBtn": "𠓨棧 Stock",
-      "netWorth": "總裁産 Net Worth:"
+      "netWorth": "總裁産 Net Worth:",
+      "pnl": "价値股票 (PnL):"
     }
   },
   "os": {
@@ -6289,6 +6898,8 @@
     "g2a": "每財款撰沒單位顯是欺𨷑財款耒鎖吏. 數 JOY 㭲空𣋇, 只格顯是恪饒.",
     "g3q": "登入吧保密財款",
     "g3a": "登入朋 Google, 吧固体弼紋𢬣或𣟂𩈘𥪝張財款. 系統𠳨吏通信定期; 𪃲𠳒差饒吝𠱊暫封鎖財款.",
+    "g4q": "𢭮吧𢷣應用",
+    "g4a": "𨷑商店或書院, 撰應用耒撰𢭮𨑗幔刑政咍只底𥪝書院. 𢷣朋格守 icon 𨕭幔刑政.",
     "g5q": "Token 𦖑樂吧䀡 phim",
     "g5a": "音聲吧 Chill Premium 用終沒類 token, 每 token 対特𨑮發. 𧷸添𣦍𥪝𠄩應用妬.",
     "g6q": "空固句𪃲𠳒碎勤?",
@@ -6299,6 +6910,8 @@
   },
   "kit": {
     "search": "尋公惧",
+    "noResults": "空固公惧芇恰",
+    "privacyNote": "造碼 QR, 𢭯碼, 𢷮影, 文本吧密口調處理𣦍𨑗𣛠貴成員. 只解𢬧和𢬧𣜿買𠳚𨑗𣛠主.",
     "copy": "牢劄",
     "copied": "㐌牢劄",
     "copyFailed": "𣗓牢劄得",
@@ -6355,12 +6968,13 @@
     },
     "backToList": "𧗱名冊公惧",
     "loadFailed": "空載特功具尼. 檢查結𦀼耒試吏.",
-    "pickATool": "撰沒公惧於名冊邊竟底扒頭."
+    "pickATool": "撰没公具於名冊邊竟底扒頭."
   },
   "servicePkg": {
     "connect": {
       "name": "𢶒結𦀼",
-      "price": "350.000 – 900.000₫ · 沒吝"
+      "price": "350.000 – 900.000₫ · 沒吝",
+      "body": "𢭰𠸜沔, 𢭮證只保密, 迻 website 𨕭尼留貯𧵑伴, 𦀼基礎與料吧盒書認 form. 扒縛𧷸兼𡀮伴㦖 Hugo Studio 實現分尼."
     },
     "handCoded": {
       "title": "碼源曰𢬣 100%.",
@@ -6384,7 +6998,8 @@
         "body": "Hugo Studio 只認預案曰碼𥢆空認展開咍保持𨕭各𡋂磉𥩯産. 𡀮需求𧵑伴屬𡖡妬, 𠇮仕呐𣦍自𣇜頭底伴空𠅎時間."
       },
       {
-        "title": "內容㭲."
+        "title": "內容㭲.",
+        "body": "𡨸, 影産品, logo 吧紙祠商號由伴供給. 勤曰內容或𢴇影時報𫏾底性添."
       },
       {
         "title": "之費𧵑邊次𠀧."
@@ -6396,13 +7011,16 @@
         "body": "㭲𠓀欺扒頭, 分群吏清算欺驗收, 𠓀𣅶盤交本𧼋實."
       },
       {
-        "title": "𠄩𥿺整𡘯."
+        "title": "𠄩𥿺整𡘯.",
+        "body": "㐌固𠄩𥿺整佈局吧內容𥪝價. 自𤥑次𠀧, 或欺𢷮向𡢐𣅶㐌𣖠, 性添蹺塊量."
       },
       {
-        "title": "本權屬𧗱伴."
+        "title": "本權屬𧗱伴.",
+        "body": "清算𨇜羅設計, 內容吧碼源𧵑正預案屬𧗱伴. 𥢅書院, 椌碼吧公惧內部麻 Hugo Studio 用吏𡧲各預案吻屬 Hugo Studio, 吧伴特權使用永遠𥪝範為預案尼. Hugo Studio 只𭁈添權迻預案𠓨胡疏能力, 除欺伴要求空."
       },
       {
-        "title": "停𡧲澄."
+        "title": "停𡧲澄.",
+        "body": "伴停預案時分㐌爫得搬交原狀吧㭲空還吏. 𡀮役停羅由𤻳𧵑 Hugo Studio, 或 Hugo Studio 主動停, 分𣗓實現得還吏𣹓𨇜."
       }
     ],
     "priceNotice": {
@@ -6415,7 +7033,9 @@
         "body": "押用欺數張越名冊㐌𣖠. 張強種沒張㐌固時強近墨棧."
       },
       {
-        "title": "𤥑整慈次三"
+        "title": "𤥑整慈次三",
+        "price": "250.000 – 600.000₫ / 𤥑",
+        "body": "𠄩𥿺頭㐌𦣰𥪝價. 𤥑𡢐性蹺塊量實, 報𠓀欺爫."
       },
       {
         "title": "爫急",
@@ -6436,12 +7056,23 @@
       "hugo-one": {
         "title": "沒張. 𠓹沒目標.",
         "lede": "沒張靜, 載𨘱, 讀沒脈吧結吏平中沒行動. 𠲜朱𣅶畔止勤吶沒條, 喡呐朱实𠓑.",
+        "intro": [
+          "Landing page 空沛 website 收𡮈. 奴󰑼 沒吝說服. 客包, 曉伴𧸝之, 信伴爫特耒𢶸. 次之空服務𦀵妬辰補𠫾.",
+          "只固沒張, 𢧚次序讀羅悉奇. 通牒正𦣰𣦍幔形頭朋證出見中𣅶客扒頭斤𠲤. 鈕行動連於尼𢬣𣃣細."
+        ],
+        "audience": [
+          "戰譯廣告勤𠬠坭底引客𧗱.",
+          "胡疏個人, portfolio 或 CV 直線㦖固塘引𥢅.",
+          "沒役務, 沒鎖𭓇或沒事件勤𠚢𥉴鈍.",
+          "試驗意想𠓀欺投資沒 website 𣹓𨇜."
+        ],
         "includes": [
           {
             "title": "設計𥢅 01 張."
           },
           {
-            "title": "內容吧鈕呌噲行動."
+            "title": "內容吧鈕呌噲行動.",
+            "body": "𢯛疊吧編輯吏𡨸伴迻城没塘讀. 沒行動正, 𠲤吏中𡊲."
           },
           {
             "title": "顯是卒𨑗每設被.",
@@ -6473,7 +7104,8 @@
             "body": "𢯢𡨸, 𢷮影, 𢷮數電話. 𢷮佈局時性羅𤥑整買."
           },
           {
-            "title": "返囬𥪝 24 𣇞爫役."
+            "title": "返囬𥪝 24 𣇞爫役.",
+            "body": "過𣻽㐌𢭂𢷮自頭預案. 𤻳遣張空追及得連特處理𠓀."
           }
         ],
         "policyExtra": [
@@ -6498,7 +7130,8 @@
             "answer": "固. 𢶒尼符合欺伴固沒産品, 役務或戰譯吧悶迻客𧗱沒張𣎏沒行動正𤑟𤉜."
           },
           {
-            "question": "碎㐌固內容, Hugo 固互助𢯛疊吏空?"
+            "question": "碎㐌固內容, Hugo 固互助𢯛疊吏空?",
+            "answer": "固. 內容伴供給𠱊得𢯛疊吧編輯珥底城没脈讀. 曰內容𧸝行完全買仕得報𥢅𡀮勤."
           },
           {
             "question": "Form 聯係固勤𧷸添空?",
@@ -6513,6 +7146,10 @@
       "hugo-story": {
         "title": "饒張. 沒句傳.",
         "lede": "Website 介紹饒張朱個人, 館𠄧营業𡮈. 每張守𠬠𦠘𠻀, 悉奇共引𧗱沒決定.",
+        "intro": [
+          "饒條底𠸥麻屯歇𠓨沒張時空條閙得讀. Hugo Story 𠝖眾𦋦埃讀之, 於兜, 𠫾接𦤾兜.",
+          "分𠺟空𦣰於數張. 奴𦣰於塘𠫾𡧲各張. Menu, 連結𥪝排吧鈕𡳳張得插底客連𣎏𨀈計接, 𠊝為𢮿𧗱主頁耒脱."
+        ],
         "includes": [
           {
             "title": "系統張蹺需求.",
@@ -6544,7 +7181,8 @@
             "body": "每纇屬分 Hugo Studio 𥩯, 性自𣈜搬交."
           },
           {
-            "title": "14 𣈜整內容𡮈."
+            "title": "14 𣈜整內容𡮈.",
+            "body": "𢯢𡨸, 𠊝影, 及日𣇞𨷑𨷯𨕭各張㐌搬交."
           },
           {
             "title": "沒𣇜向引自及日.",
@@ -6562,12 +7200,41 @@
           }
         ],
         "price": {
-          "note": "分𡘯預案𦣰於 5 – 6,5 兆朱 5 – 6 張. 添張時性蹺單價邊𠁑."
-        }
+          "note": "分𡘯預案𦣰於 5 – 6,5 兆朱 5 – 6 張. 添張時性蹺單價邊𠁑.",
+          "factors": [
+            "數張𠄧度複雜𧵑曾張.",
+            "固勤張信息 / blog 自登排咍空.",
+            "內容吧形影㐌産床𦤾兜.",
+            "多言語.",
+            "轉與料自 website 𡳵創."
+          ]
+        },
+        "faq": [
+          {
+            "question": "Hugo Story 常固包饒張?",
+            "answer": "範圍普變羅 4–8 張, 圍諭介紹, 役務, 預案, 排曰吧連系. 名冊正式得椊𠓀欺設計."
+          },
+          {
+            "question": "碎固自登排曰𡢐尼特空?",
+            "answer": "𢶒基本搬交 website code 吧空兼 CMS. 𡀮勤自登排, 沛考察添類𢶒結𦀼或系統與料符合; 之費妬空𦣰𥪝價設計."
+          },
+          {
+            "question": "固轉 website 𡳵𨖅空?",
+            "answer": "固体互助轉內容, 仍塊量附属數張, 影吧與料𡳵. 分轉與料得𤇩𫥨底報價𡢐欺䀡 website 現在."
+          },
+          {
+            "question": "𠸜沔𠄧坭留貯固特𧷸冲𫋻空?",
+            "answer": "空. 伴自𥪸𠸛𧷸𠸛沔𠄧坭留貯. Hugo Studio 只互助撰𧷸和𦀼𠓨 website 通過𢶒結𦀼性𥢅."
+          }
+        ]
       },
       "hugo-flow-plus": {
         "title": "𧸝行. 𣦍𨑗張𧵑伴.",
         "lede": "名目, 𥶇行, 清算吧管理單 — 共沒系統, 芒𠸜伴. 𠲜朱商號𧸝行實, 空址徵排.",
+        "intro": [
+          "Website 𧸝行恪 website 介紹於蔑𡊲: 奴沛中. 單空特𢴐. 存庫空特𨇗. 錢𠓨沛恰𢭲單.",
+          "𢧚墳𡘯工飭𦣰𢖕交面. 狀態單行, 通報朱奇𠄩𪰂, 吧沒張管治𨇜底沒𠊛運行奇𨷯行麻空勤𨷑碼源."
+        ],
         "audience": [
           "商號當𧸝𨕭棧或𦀴社会, 㦖固𣻽𥢆空𠅎費棧.",
           "𨷯行勤管理單, 存庫吧客行於没尼.",
@@ -6580,7 +7247,8 @@
             "body": "名目, 分類, 變體, 影, 價吧情狀群行."
           },
           {
-            "title": "𥶇行吧單行."
+            "title": "𥶇行吧單行.",
+            "body": "𥶇行, 碼減價, 費運轉, 狀態單吧通报朱奇𠄩𪰂."
           },
           {
             "title": "清算直線.",
@@ -6609,7 +7277,8 @@
             "body": "互助欺伴﨤𦁽工倘頭𧸝行實."
           },
           {
-            "title": "𠄩𣇜向引管治."
+            "title": "𠄩𣇜向引管治.",
+            "body": "沒𣇜畧欺𨷑𬥓𠬠𣇜𡢐𠄩旬運行."
           }
         ],
         "policyExtra": [
@@ -6641,7 +7310,8 @@
         },
         "faq": [
           {
-            "question": "Hugo Flow+ 固自𡏦基礎與料𥢆空?"
+            "question": "Hugo Flow+ 固自𡏦基礎與料𥢆空?",
+            "answer": "空. Hugo Studio 空供給或朱税基礎管理與料. 𢶒尼只結𦀼𢭲系統吧 API 麻伴㐌固或㐌𧷸."
           },
           {
             "question": "碎沛准僃之𠓀欺扒頭?",
@@ -6668,6 +7338,12 @@
       "hugo-edu-plus": {
         "title": "張 Bio. 停𥢅朱𠊛學.",
         "lede": "沒塘引鈍底介紹本身, 預案吧每連結關重. 免費 365 𣈜𡢐欺確明資格𠊛學.",
+        "audience": [
+          "學生, 生員勤𠬠張介紹本身吧預案.",
+          "𠊛學當𡏦胡疏吀實習.",
+          "句樂部, 𡖡圖案勤𠬠塘引終.",
+          "埃闷試沒張個人𠓀欺投資 website 𥢅."
+        ],
         "includes": [
           {
             "title": "免費 365 𣈜.",
@@ -6710,14 +7386,16 @@
             "body": "Email 場或紙祠𠊛學群效力𡀮 email 𧵑伴空屬𠸜沔場."
           },
           {
-            "title": "用朱個人𠊛學."
+            "title": "用朱個人𠊛學.",
+            "body": "空用爫張𧸝行咍張正式𧵑营業. 場合妬屬 Hugo One 𠭤𨑗."
           },
           {
             "title": "沒財款, 沒張 Bio.",
             "body": "勤添張朱句樂部咍𡖡時𢭂𢷮𥢅."
           },
           {
-            "title": "章程固体𠊝𢷮."
+            "title": "章程固体𠊝𢷮.",
+            "body": "Hugo Studio 固体條整或凝認登記買. 權利㐌級朱伴吻守原𦤾歇時限."
           }
         ],
         "price": {
@@ -6816,6 +7494,11 @@
       "eduAction": "䀡權利 Hugo Edu+",
       "landingTitle1": "空勤吶每次.",
       "landingTitle2": "只勤吶中條.",
+      "landingPoints": [
+        "通牒政出現𣦍𥪝幔形頭.",
+        "凭證得達中𣅶客扒頭斤𠲤.",
+        "每分調引𧗱沒行動𤑟𤉜."
+      ],
       "processKicker": "自頭𦥃𡳜",
       "processTitle": "𦊚𨀈. 空𨀈芇摸糊.",
       "process": [
@@ -6824,7 +7507,8 @@
           "body": "客𧵑伴 󰑼埃, 利世𦣰於兜, 伴㦖户爫之. 𠓑三條妬耒買𤳰."
         },
         {
-          "title": "𥩯句傳."
+          "title": "𥩯句傳.",
+          "body": "通牒, 凭證吧內容得疊城没塘讀. 空𡊲芇底𠊛些停吏為紛紜."
         },
         {
           "title": "設計吧發展."
@@ -6860,6 +7544,7 @@
     "daysUnit": "𣈜",
     "daysFree": "免費",
     "startTitle": "張 Bio 𧵑貴客. 句傳𧵑𥢆命. 自及日每𣈜.",
+    "startLede": "空𥮋銀行. 空撰襘. 只沒 email 場或紙祠𠊛學相當. 次貴客認𧗱空沛沒碼減價, 麻羅沒𡊲𥪸𨕭𦀴, 芒𠸜正命.",
     "verifyTitle": "確明𠊛學",
     "verifySub": "自動, 𡀮 email 𧵑貴客羅 email 場.",
     "step1": "登入朋 Google",
@@ -6878,7 +7563,7 @@
     "pendingCta": "寄通信底閲",
     "themeKicker": "交面",
     "themeTitle1": "沒張.",
-    "themeTitle2": "三格底𬙛樣貴客.",
+    "themeTitle2": "三格底𦋦樣貴客.",
     "themes": {
       "default": {
         "name": "默定",
@@ -6906,14 +7591,16 @@
         "desc": "Portfolio, GitHub, Behance, 張𦀴社会 — 搛𧗱蔑𡊲, 沒塘引寄𠫾."
       },
       {
-        "title": "學習"
+        "title": "學習",
+        "desc": "場, 行, 𢆥學吧仍之貴客當蹺𨆷冲𠄼𠉞."
       },
       {
         "title": "技能吧役務",
-        "desc": "役貴客爫得, 公惧當用, 吧分認爫添閙固."
+        "desc": "役貴客爫特功具當用, 吧分認爫添閙固."
       },
       {
-        "title": "𢺺𢩿"
+        "title": "𢺺𢩿",
+        "desc": "沒塘引蹺𠸜, 𨷑速𨑗電話, 寄兼胡初咍𬖭𠓨張個人."
       }
     ],
     "insideKicker": "邊𥪝 Hugo Studio",
@@ -6924,7 +7611,8 @@
         "desc": "本身貴客, 預案𧵑貴客, 每連結關重 — 𨕭󰜋 塘引. 𢯢𣅶芇拱得, 𣦍𥪝財款."
       },
       {
-        "title": "部工具學習."
+        "title": "部工具學習.",
+        "desc": "Web IDE, 記注, 材料, 自彙. 學, 試吧完善産品麻空𨖨程閲."
       },
       {
         "title": "助理學習."
@@ -6946,6 +7634,7 @@
     "backLink": "𧗱張介紹",
     "kicker": "預案",
     "title": "悉奇預案.",
+    "lede": "疊蹺𣳔時間, 詞預案頭先細𫢩. 每沐羅沒張𥢅: 貝景, 仍決定㐌𠚢𠄧影𢴇自本當𧼋.",
     "metaTitle": "預案 — Hugo Studio",
     "allProjects": "悉奇預案",
     "viewDetail": "䀡枝節",
@@ -6961,15 +7650,33 @@
         "role": "Product owner · 設計 & 立程全分 · 運行",
         "summary": "每傳扒頭自沒句𠳨煩複: 爲牢每公惧命勤吏扒立沒財款買? Hugo Studio 羅句𪃲𠳒󰜋 𨶛𠓨, 沒吝登入, 𢭮𣦎𧗱𣛠如沒應用.",
         "techNote": "程閲曰朋 React 貝 Vite 吧 Tailwind. 𣛠主羅 Node.js 貝 MongoDB, 添 WebSocket 朱銀庫吧通報即時. Capacitor 㨂襘欺勤沒本𧼋如應用㭲. 空𥩯𨕭𡋂磉固𠻿芇 — 撰如丕為每次用終沒𧙀定名, 麻笠妬沛由命檢刷.",
+        "highlights": [
+          {
+            "body": "仍公惧頭先曰𫥨󰑼 為自命勤畧蔑𡊲記役, 蔑𡊲學, 蔑𡊲儗𢬣. 強曰強体丐煩空𦣰於層公惧, 麻於曠𥧪𡧲眾 — 每丐沒財款, 𠬠󰘌 登入, 沒坭留與料."
+          },
+          {
+            "title": "𢧚沛固沒丐椌"
+          },
+          {
+            "body": "丐椌意𧼋𠁑樣 PWA: 𨷑全幔形, 固表象𨕭幔刑政, 認通報𢩽, 吧吻用得欺𦀴熠𤒲. 沒本𢯢𤻳典𢬣𠊛󱨳 𥪝𠄽發, 空沛徐埃閲."
+          },
+          {
+            "title": "吧自直𣈘"
+          }
+        ],
         "shots": {
           "2048": "2048 Mega — Minigame 貝交面最簡, 現代.",
-          "arcade": "Hugo Arcade — 中心𠻀𨔈積合."
-        }
+          "apps": "䋥應用 — 沒𨶛𠓨惟一朱全部系生態.",
+          "arcade": "Hugo Arcade — 中心𠻀𨔈積合.",
+          "assault": "編隊 Boss 3D — 𠻀𨔈行動空間直接𨕭 web."
+        },
+        "closing": "系統吻𡘯𨖲每旬. 分當𠸥一空沛次𥆾𧡊𨕭幔刑麻羅丐椌邊𠁑 — 次遣應用次𨑮損𠃣功欣應用次一."
       },
       "chanh-toa": {
         "tagline": "𨶛通信教處: 查𣇞禮 27 教分經聖𠓻部, 問嗒德信.",
         "role": "設計 & 立程全分",
         "summary": "𣇞礼󰑼 次𠊝𢷮連續麻空埃報. 𠫾賖沒𡭱, 㦖預禮, 㝵些沛𠳨𨒺. 張尼𠚢𠁀底句𠳨意固蔑𡊲𪃲𠳒.",
+        "techNote": "Next.js 貝 React 吧 TypeScript, 交面𢸞憑 Tailwind, 分𣛠主𧼋𨕭 Node.js, 與料𦣰於 Firebase 吧 Firestore, 影處理朋 Sharp. 排曰𥙩自 fanpage 教處過 Graph API 𧵑 Facebook. 撰結出𪰂𣛠主為分𡘯內容羅次 Google 勤讀得: 𣇞禮, 層章經聖, 曾句𠳨德信.",
         "highlights": [
           {
             "title": "句𠳨常﨤一"
@@ -6986,16 +7693,20 @@
         ],
         "shots": {
           "van-dap": "問嗒教理 — 32 句𢺹蹺 7 主題.",
-          "kinh-nguyen": "經願骨𣑳, 固點𠞺吧𦀵𣈜."
+          "kinh-nguyen": "經願骨𣑳, 固點𠞺吧𦀵𣈜.",
+          "gioi-thieu": "介紹 — 歷史教處𠸥成𦊚章."
         },
         "closing": "張當𧼋實, 教民𨷑每𣈜. 貝沒𨶛通信教處, 成功空沛𠞺追及, 麻羅空群埃沛噲電𠳨𠇍𣉹固禮."
       },
       "hwj": {
         "tagline": "𡋂磉裝飾高級, 定價𢵉價鐄鉑時間實.",
         "role": "設計 & 立程全分",
+        "techNote": "爫全分: React 吧 Tailwind 於𠌨程閲; 𪰂𣛠主用 Node.js 貝 MongoDB 朱財款, 曆限咨問吧𥶇行; 影産品底𨕭 Cloudinary; 登入過 Google OAuth; 價𧸝𥙩自 API 價金類𢧚𢵉蹺價鐄鉑時間實.",
         "shots": {
           "collections": "部搜集, 排蹺𠿚沒排雜至.",
           "valuation": "榜定價鐄鉑, 及日蹺市場.",
+          "product": "張𠬠們 — 通數, 質料吧價衰自價金類.",
+          "heritage": "𣳔時間茹廠, 𠸥蹺章.",
           "appointment": "達曆咨問所有, 台朱鈕𧷸𣦍."
         }
       },
@@ -7009,7 +7720,8 @@
             "title": "客𠳨價𠓀欺𠳨𠸜"
           },
           {
-            "title": "影吶𠓀, 𡨸吶𡢐"
+            "title": "影吶𠓀, 𡨸吶𡢐",
+            "body": "幔形頭先羅沒𤗲影𡣨苦𡘯, 空沛口號. 貝沒 studio, 𤗲影頭先正羅全部分証明能力; 每句𡨸𥪸𡢐妬只爫任務解釋."
           },
           {
             "body": "近如埃拱䀡張尼𨕭電話, 𥪝𣅶𠸕信朱饒撰 studio. 榜價為世疊吏城没橛, 空固榜卬芇扒𢫃過𢹣吏."
@@ -7021,12 +7733,14 @@
         ],
         "shots": {
           "home": "主頁 — 影苦𡘯引𠓀, 商號提𨑗.",
-          "bang-gia": "榜價𢆥𢶒, 列計𠓑次客認得.",
+          "bang-gia": "榜價𢆥𢶒列計𠓑次客認得.",
           "goi-dich-vu": "曾𢶒列計𨇜次客認得."
-        }
+        },
+        "closing": "預案爫直接貝客, 自𣇜𢭂𢷮要求細𣅶盤交. 次客𪧚吏得𡢐妬羅沒張𣱆自𥊀得."
       },
       "l3go-coffee": {
         "tagline": "Website 館茄批 — 實單 68 們, 撰蹺心狀.",
+        "techNote": "React 吧 Tailwind. 分𠇮擔認羅交面吧𣦰驗: 系統牟, 𠿚𡨸, 𨻫 󰏙實單吧格影空間得割. 分𥩯與料吧展開由 Jason 潘𢗼.",
         "highlights": [
           {
             "title": "空間買羅産品"
@@ -7044,25 +7758,33 @@
         }
       },
       "m-hike": {
+        "tagline": "應用𠫾部堂𨱽朱 iOS 吧 Android: 𠫾得奇欺𠅎㳥.",
         "role": "設計 & 立程全分",
+        "summary": "𡧲𡼹時電話𠅎㳥𦓡妬吏中𣅶勤細奴一. M-Hike 得𥩯𨒺沒条件惟一: 每次沛𧼋得欺空固𦀴𠄧自同步欺𦀴𢮿吏.",
         "techNote": "𠄩本, 共沒産品. 本多𡋂磉曰朋 React Native 𨕭 Expo 貝 TypeScript, 調向蹺𣜿朋 Expo Router, 版圖 Leaflet 吧時節自 Open-Meteo. 本 Android 純曰朋 Java 貝 SQLiteOpenHelper 吧交面 XML. 奇𠄩用 SQLite 爫庫正吧 Firebase Realtime Database 底同步欺𣎏𦀴.",
         "highlights": [
           {
+            "title": "外𡓄府㳥吻用得",
             "body": "SQLite 𨕭𣛠羅庫與料正, 空沛部𢖵𧝓: 造轉, 記箚, 䀡吏調空勤𦀴. Firebase Realtime Database 只羅笠同步𧼋𡋂, 底𨷑𣛠恪𨑗吻𧡊中轉意."
           },
           {
             "title": "記吏次𥆾𧡊, 𣦍在𡊲"
           },
           {
-            "title": "塘𠫾自𤳰吏"
+            "title": "塘𠫾自𤳰吏",
+            "body": "GPS 記吏壙塘, 𠿚𨀈吧度高, 耒發吏城没行程𢺹蹺波: 起動, 守𠿚, 姅塘渃𢯰, 結束. 計畫習練生𠚢自指數机体蹺勸議𧵑 WHO, 吧𥪝應用固𥱬𤑟低羅向引終空台𠳒勸醫濟."
           },
           {
             "title": "吧沒鈕朱𣅶醜一"
           }
         ],
         "shots": {
+          "home": "主頁 — 時節, 𣇜習𣋚𠉞吧轉計接.",
           "hikes": "名冊轉: 㐌𠫾, 㐌󰁯 曆, 打唒𢞅適.",
-          "hike-detail": "沒轉 — 度𠺟, 壙塘, 時節直接, 能量約性."
+          "hike-detail": "沒轉 — 度𠺟, 壙塘, 時節直接, 能量約性.",
+          "stats": "統計壙塘, 比例完成吧𦒹倘近一.",
+          "profile": "胡疏机体吧各磊𠫾𨘱: SOS, 版圖, 計畫習.",
+          "sos": "幔形急救 — 坐度 GPS, 噲 115, 𢺺𢩿位置."
         }
       }
     },
@@ -7074,20 +7796,30 @@
     "featuresTitle": "句傳",
     "shotsTitle": "影自本當𧼋.",
     "nextProject": "預案計接",
+    "metaDescription": "疊蹺𣳔時間, 詞預案頭先細𫢩: 貝景, 仍決定㐌𠚢𠄧影𢴇自本當𧼋.",
     "openRepo": "䀡碼源𨕭 GitHub"
   },
   "pwa": {
     "installApp": "載 app"
   },
   "nom": {
+    "intro": "𡨸喃分𡘯羅𡨸形-清: 沒姅報義, 沒姅報音. 學律𢯖耒時讀得奇𡨸𣗓層﨤. 每排𠬠部手, 𥙩自正交面貴成員當用.",
     "loading": "當載學料…",
+    "loadFailed": "𣗓載得學料𡨸喃.",
     "lessonN": "排 {{n}}",
     "radicalIs": "部 {{name}} — {{meaning}}",
+    "howItWorks": "每𡨸𠁑低𠝖爫𠄩分: 部手報義, 分群吏報音. 㤥底意音𧵑分次𠄩近貝音𧵑奇𡨸世芇.",
     "soundsLike": "(讀近 “{{sound}}”)",
+    "startExam": "試過門 · {{count}} 𡨸𣗓學",
+    "examOf": "試部",
     "unseenChar": "𡨸尼渚特敎𥪝排",
     "next": "接",
     "passed": "㐌過門",
+    "failed": "𣗓達 — 勤中自 {{mark}}% 𠭤𨑗",
+    "examNote": "題試全𡨸𣗓層敎. 讀得眾義羅貴成員㐌揇歸律𢯖, 空沛屬𢚸𩈘𡨸.",
+    "retry": "試吏",
     "backToLessons": "𧗱名冊排",
+    "passedOf": "㐌過 {{done}} 𨕭 {{total}} 部手",
     "reset": "𪷮進渡學",
     "resetTitle": "𪷮全部進渡?",
     "resetBody": "每排㐌過𠱊得性吏自頭."
