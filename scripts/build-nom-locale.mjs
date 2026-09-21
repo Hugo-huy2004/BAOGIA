@@ -28,10 +28,38 @@ const glossary = read('data/nom-glossary.json');
 const corpus = fs.existsSync(path.join(ROOT, 'data/nom-corpus-table.json'))
   ? read('data/nom-corpus-table.json') : {};
 
-// Bảng tra gộp: soạn tay đè lên kho ngữ liệu.
+/**
+ * Kho ÂM TIẾT tiếng Việt có chữ Nôm chứng thực (7.048 âm).
+ *
+ * Dùng để phân biệt hai thứ trông giống nhau mà bản chất khác hẳn:
+ *   · "khoảng", "nghỉ", "trung"  — âm TIẾNG VIỆT chưa tra được chữ. Để nguyên
+ *     quốc ngữ giữa câu Nôm là dịch nửa vời → bỏ cả chuỗi.
+ *   · "hugo", "joy", "email", "9" — tên riêng và chữ số. Văn bản Nôm cũng như
+ *     văn bản Hán đều giữ nguyên tên ngoại lai; ép chúng thành chữ vuông mới
+ *     là bịa. Giữ nguyên và VẪN dịch phần còn lại của câu.
+ *
+ * Bản đầu gộp cả hai vào một rọ và bỏ mọi chuỗi có chứa chúng — chính luật đó,
+ * chứ không phải thiếu dữ liệu, đã giữ độ phủ ở mức 31%.
+ */
+const VIET_SYLLABLES = new Set(read('data/nom-syllables.json'));
+const VIET_MARKS = /[àáâãèéêìíòóôõùúýăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
+const isVietnamese = (token) => VIET_SYLLABLES.has(token) || VIET_MARKS.test(token);
+
+// Bảng tra gộp, và GHI NHỚ nguồn của từng mục.
+//
+// Kho ngữ liệu là văn học cổ điển, nên cụm hai âm của nó không phải lúc nào
+// cũng đúng nghĩa hiện đại: "thành viên" ở đó là 城圓 (thành trì + tròn), một
+// collocation cổ, chứ không phải 成員 (member). Nếu chỉ xét độ dài thì cụm cổ
+// sai đó thắng cặp chữ đúng của bảng soạn tay, và câu hay gặp nhất trong cả hệ
+// thống — "Quý thành viên" — hiện thành 貴城圓.
 const TABLE = new Map();
+const FROM_GLOSSARY = new Set();
 for (const [k, v] of Object.entries(corpus)) if (k.includes(' ')) TABLE.set(k, v);
-for (const [k, v] of Object.entries(glossary)) if (v) TABLE.set(k, v);
+for (const [k, v] of Object.entries(glossary)) {
+  if (!v) continue;
+  TABLE.set(k, v);
+  FROM_GLOSSARY.add(k);
+}
 
 const MAXN = 6;
 const KEEP = /(\{\{[^}]*\}\}|<[^>]+>|\$\{[^}]*\}|https?:\/\/\S+)/g;
@@ -94,12 +122,16 @@ function segment(seg) {
   const take = new Array(n + 1).fill(0);
   best[n] = 0;
   for (let i = n - 1; i >= 0; i -= 1) {
-    best[i] = best[i + 1] - 1000;      // bỏ sót một âm: phạt rất nặng
+    // Bỏ qua một âm: phạt nặng nếu đó là âm TIẾNG VIỆT (dịch thiếu), không
+    // phạt nếu là tên riêng hay chữ số (giữ nguyên mới đúng).
+    best[i] = best[i + 1] - (isVietnamese(tokens[i].t) ? 1000 : 0);
     take[i] = 0;
     for (let size = Math.min(MAXN, n - i); size >= 1; size -= 1) {
       const key = tokens.slice(i, i + size).map((x) => x.t).join(' ');
       if (!TABLE.has(key)) continue;
-      const score = size * size + best[i + size];
+      // Mục ĐÃ THẨM TRA được nhân đôi điểm: một cặp chữ đúng do người soạn
+      // phải thắng một cụm dài hơn nhưng lấy từ văn cảnh cổ không liên quan.
+      const score = size * size * (FROM_GLOSSARY.has(key) ? 2 : 1) + best[i + size];
       if (score > best[i]) { best[i] = score; take[i] = size; }
     }
   }
@@ -108,7 +140,13 @@ function segment(seg) {
   let idx = 0;
   for (let i = 0; i < n;) {
     const size = take[i];
-    if (!size) return null;            // còn âm không tra được → bỏ cả chuỗi
+    if (!size) {
+      // Âm tiếng Việt chưa tra được → bỏ cả chuỗi. Tên riêng / chữ số → giữ
+      // nguyên tại chỗ và đi tiếp.
+      if (isVietnamese(tokens[i].t)) return null;
+      i += 1;
+      continue;
+    }
     const key = tokens.slice(i, i + size).map((x) => x.t).join(' ');
     parts.push(seg.slice(idx, tokens[i].i), TABLE.get(key));
     idx = tokens[i + size - 1].end;

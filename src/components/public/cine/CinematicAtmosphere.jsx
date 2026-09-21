@@ -19,6 +19,7 @@ export default function CinematicAtmosphere() {
     const handlePointerMove = (e) => {
       targetX = e.clientX;
       targetY = e.clientY;
+      if (rafId === null) rafId = requestAnimationFrame(loop);
     };
 
     const loop = () => {
@@ -29,15 +30,19 @@ export default function CinematicAtmosphere() {
       if (spotlightRef.current) {
         spotlightRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
       }
-      rafId = requestAnimationFrame(loop);
+      if (Math.abs(targetX - currentX) + Math.abs(targetY - currentY) > 0.5) {
+        rafId = requestAnimationFrame(loop);
+      } else {
+        rafId = null;
+      }
     };
 
+    spotlightRef.current.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    rafId = requestAnimationFrame(loop);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, []);
 

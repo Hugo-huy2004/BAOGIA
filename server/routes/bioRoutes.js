@@ -595,7 +595,7 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
     const [bioDoc, unreadCount, recentNotifications] = await Promise.all([
       Bio.findOne({ $or: [{ email }, { contactEmail: email }] }),
       InAppNotification.countDocuments({ email, read: false }).catch(() => 0),
-      InAppNotification.find({ email }).sort({ createdAt: -1 }).limit(5).catch(() => [])
+      InAppNotification.find({ email }).sort({ createdAt: -1 }).limit(5).lean().catch(() => [])
     ]);
 
     if (!bioDoc) {
@@ -651,6 +651,7 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
     const etagSeed = JSON.stringify({
       updatedAt: bioDoc.updatedAt || bioDoc.createdAt,
       unreadCount,
+      recentNotifications: recentNotifications.map(({ _id, read }) => [_id, read]),
       balance: payload.wallet.balance,
       installedApps: payload.workspace.installedApps,
       coderAccess: {

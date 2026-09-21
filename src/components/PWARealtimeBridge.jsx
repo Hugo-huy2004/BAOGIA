@@ -32,13 +32,19 @@ export default function PWARealtimeBridge() {
     let disposed = false;
 
     const abortRef = { current: null };
+    let syncPromise = null;
     const sync = () => {
       if (!getMemberToken()) return Promise.resolve();
-      abortRef.current?.abort();
-      abortRef.current = new AbortController();
-      return useJoyStore.getState().fetchBalance(email, abortRef.current.signal, { force: true }).catch(() => {});
+      if (syncPromise) return syncPromise;
+      const controller = new AbortController();
+      abortRef.current = controller;
+      syncPromise = useJoyStore.getState().fetchBalance(email, controller.signal, { force: true })
+        .catch(() => {})
+        .finally(() => { syncPromise = null; });
+      return syncPromise;
     };
     let stableTimer = null;
+    let firstConnection = true;
     const connect = () => {
       if (disposed) return;
       try {
@@ -51,7 +57,8 @@ export default function PWARealtimeBridge() {
 
       socket.addEventListener('open', () => {
         stableTimer = window.setTimeout(() => { retryCount.current = 0; }, 4000);
-        sync();
+        if (!firstConnection) sync();
+        firstConnection = false;
       });
       socket.addEventListener('message', (event) => {
         try {
@@ -158,31 +165,6 @@ export default function PWARealtimeBridge() {
       navigator.serviceWorker?.removeEventListener('message', handlePushMessage);
     };
   }, [email]);
-
-  useEffect(() => {
-    if (import.meta.env.DEV) return undefined;
-    if (!('serviceWorker' in navigator)) return undefined;
-    let interval;
-    let isRefreshing = false;
-    const checkForUpdate = async () => {
-      const registration = await navigator.serviceWorker.getRegistration();
-      await registration?.update().catch(() => {});
-    };
-    checkForUpdate();
-    interval = window.setInterval(checkForUpdate, 30 * 60_000);
-    const activateUpdate = () => {
-      if (isRefreshing || !navigator.serviceWorker.controller) return;
-      isRefreshing = true;
-      window.location.reload();
-    };
-    navigator.serviceWorker.addEventListener('controllerchange', activateUpdate);
-    document.addEventListener('visibilitychange', checkForUpdate);
-    return () => {
-      window.clearInterval(interval);
-      navigator.serviceWorker.removeEventListener('controllerchange', activateUpdate);
-      document.removeEventListener('visibilitychange', checkForUpdate);
-    };
-  }, []);
 
   return null;
 }

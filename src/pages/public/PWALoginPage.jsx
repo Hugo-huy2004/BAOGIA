@@ -181,14 +181,9 @@ export default function PWALoginPage() {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) return; // configError already set from the lazy initializer
     let cancelled = false;
-    let timer = null;
-    let timeout = null;
-    let kick = null;
-    let rendered = false;
 
-    const tryInit = (loadedGoogleId) => {
-      if (cancelled || rendered) return;
-      const googleId = loadedGoogleId || window.google?.accounts?.id;
+    const tryInit = (googleId) => {
+      if (cancelled) return;
       if (!googleId || !googleButtonRef.current) return;
 
       if (!initedRef.current) {
@@ -215,43 +210,27 @@ export default function PWALoginPage() {
         });
       } catch {
         setConfigError(`Google Sign-In chưa được cấp quyền cho origin ${window.location.origin}.`);
-        if (timer) window.clearInterval(timer);
         return;
       }
-      rendered = true;
       setGisReady(true);
-
-      if (introFinished) googleId.prompt();
-
-      if (timer) window.clearInterval(timer);
-      if (timeout) window.clearTimeout(timeout);
     };
 
-    // Kick asynchronously (not synchronously in the effect body) so state
-    // updates never trigger a cascading render.
-    kick = window.setTimeout(tryInit, 0);
-    timer = window.setInterval(tryInit, 250);
     loadGoogleIdentity().then(tryInit).catch(() => {
       if (!cancelled) {
         setConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
       }
     });
-    timeout = window.setTimeout(() => {
-      if (!cancelled && !initedRef.current) {
-        setConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
-        window.clearInterval(timer);
-      }
-    }, 5000);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(kick);
-      window.clearInterval(timer);
-      window.clearTimeout(timeout);
       window.google?.accounts?.id?.cancel?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [introFinished]); // Re-run when intro finishes to trigger prompt
+  }, []);
+
+  useEffect(() => {
+    if (!IS_NATIVE && gisReady && introFinished) window.google?.accounts?.id?.prompt?.();
+  }, [gisReady, introFinished]);
 
   return (
     <div

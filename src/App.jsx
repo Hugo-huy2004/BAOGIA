@@ -35,7 +35,6 @@ import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import ScreenProtection from "./components/security/ScreenProtection";
 import { StorageSafeguard } from "./utils/storageSafeguard";
-import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
@@ -448,7 +447,6 @@ export default function App() {
               <AppContent />
               <PWAInstallBanner />
               <PWAUpdatePrompt />
-              <PWAUpdateBanner />
               <PWAInstallModal />
               <DonationModal />
               <Toaster

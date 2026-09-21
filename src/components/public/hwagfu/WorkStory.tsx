@@ -2,7 +2,7 @@
 
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Image from "./Image";
-import { motion, easeIn, easeInOut, easeOut, useMotionValueEvent, useSpring, useTransform, type MotionStyle, type MotionValue } from "motion/react";
+import { motion, easeIn, easeInOut, easeOut, useInView, useMotionValueEvent, useSpring, useTransform, type MotionStyle, type MotionValue } from "motion/react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "./RouterLink";
 import { DropletBody, dropletPalettes } from "./FloatingOrbs";
@@ -92,6 +92,7 @@ function orbit(angle: number, radius: number, t: number, turns: number) {
  */
 export default function WorkStory({ label, heading, subtitle, viewAll, projects }: WorkStoryProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "0px 0px -16px 0px" });
   const [spellOn, setSpellOn] = useState(false);
   const { progress, frame } = useFilm(ref, HEIGHT, { leaves: true });
 
@@ -127,7 +128,7 @@ export default function WorkStory({ label, heading, subtitle, viewAll, projects 
           className="sticky top-0 h-svh min-h-[35rem] overflow-hidden [--vs:min(88vw,66svh)] motion-reduce:static motion-reduce:h-auto motion-reduce:overflow-visible motion-reduce:px-4 motion-reduce:py-20"
         >
           <div aria-hidden className="absolute inset-0 motion-reduce:hidden">
-            <LightKnot progress={progress} />
+            {inView && <LightKnot progress={progress} />}
           </div>
 
           <Header progress={progress} label={label} heading={heading} subtitle={subtitle} />
@@ -230,16 +231,16 @@ function LightKnot({ progress }: { progress: MotionValue<number> }) {
           </defs>
           <circle cx="100" cy="100" r="65" fill="url(#assistant-shell)" stroke="rgba(255,255,255,.72)" strokeWidth="1.4" />
           <ellipse cx="80" cy="69" rx="28" ry="15" fill="white" opacity=".2" transform="rotate(-24 80 69)" />
-          <motion.circle cx="100" cy="100" r="54" fill="none" stroke="url(#assistant-ring)" strokeWidth="1.2" animate={{ r: [52, 57, 52], opacity: [0.22, 0.48, 0.22] }} transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }} />
+          <circle cx="100" cy="100" r="54" fill="none" stroke="url(#assistant-ring)" strokeWidth="1.2" opacity=".36" />
 
           <motion.g style={{ rotate: orbit, transformOrigin: "100px 100px" }}>
-            <motion.path d={ORB_LOOP_A} animate={{ d: [ORB_LOOP_A, ORB_LOOP_B, ORB_LOOP_C, ORB_LOOP_A], rotate: [0, 18, -10, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} fill="none" stroke="#6078EA" strokeOpacity=".22" strokeWidth="20" strokeLinecap="round" style={{ pathLength: trail, transformOrigin: "100px 100px" }} className="blur-md" />
-            <motion.path d={ORB_LOOP_A} animate={{ d: [ORB_LOOP_A, ORB_LOOP_B, ORB_LOOP_C, ORB_LOOP_A], rotate: [0, 18, -10, 0] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} fill="none" stroke="url(#assistant-ring)" strokeWidth="7" strokeLinecap="round" style={{ pathLength: trail, transformOrigin: "100px 100px" }} />
-            <motion.path d={ORB_LOOP_B} animate={{ d: [ORB_LOOP_B, ORB_LOOP_C, ORB_LOOP_A, ORB_LOOP_B], rotate: [0, -24, 12, 0] }} transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }} fill="none" stroke="url(#assistant-ring)" strokeWidth="3.5" strokeLinecap="round" strokeOpacity=".75" style={{ pathLength: trail, transformOrigin: "100px 100px" }} />
-            <motion.path d={ORB_LOOP_C} animate={{ d: [ORB_LOOP_C, ORB_LOOP_A, ORB_LOOP_B, ORB_LOOP_C], rotate: [0, 12, -18, 0] }} transition={{ duration: 9.2, repeat: Infinity, ease: "easeInOut" }} fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="2 11" style={{ pathLength: trail, pathOffset: glint, transformOrigin: "100px 100px" }} />
+            <motion.path d={ORB_LOOP_A} fill="none" stroke="#6078EA" strokeOpacity=".22" strokeWidth="20" strokeLinecap="round" style={{ pathLength: trail }} className="blur-md" />
+            <motion.path d={ORB_LOOP_A} fill="none" stroke="url(#assistant-ring)" strokeWidth="7" strokeLinecap="round" style={{ pathLength: trail }} />
+            <motion.path d={ORB_LOOP_B} fill="none" stroke="url(#assistant-ring)" strokeWidth="3.5" strokeLinecap="round" strokeOpacity=".75" style={{ pathLength: trail }} />
+            <motion.path d={ORB_LOOP_C} fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="2 11" style={{ pathLength: trail, pathOffset: glint }} />
           </motion.g>
 
-          <motion.circle cx="100" cy="100" r="34" fill="url(#assistant-core)" stroke="rgba(255,255,255,.82)" strokeWidth="1.2" animate={{ r: [32, 35, 32], opacity: [0.9, 1, 0.9] }} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }} />
+          <circle cx="100" cy="100" r="34" fill="url(#assistant-core)" stroke="rgba(255,255,255,.82)" strokeWidth="1.2" />
           <circle cx="100" cy="100" r="28" fill="url(#assistant-glass)" />
           <ellipse cx="90" cy="87" rx="9" ry="5" fill="white" opacity=".62" transform="rotate(-24 90 87)" />
           <motion.g animate={{ rotate: 360 }} transition={{ duration: 7, repeat: Infinity, ease: "linear" }} style={{ transformOrigin: "100px 100px" }}>
