@@ -51,8 +51,35 @@ function translate(raw) {
   }
   const tail = segment(text.slice(pos));
   if (tail === null) covered = false; else out.push(tail);
-  return covered ? out.join('') : null;
+  return covered ? tidy(out.join('')) : null;
 }
+
+/**
+ * Bỏ khoảng trắng nằm GIỮA HAI CHỮ HÁN.
+ *
+ * Văn bản Hán-Nôm cổ viết liền mạch, không tách chữ bằng khoảng trắng — ranh
+ * giới từ nằm trong đầu người đọc, không nằm trên trang giấy. Giữ khoảng trắng
+ * theo vị trí của bản quốc ngữ còn tệ hơn bỏ hết: bộ cắt ghép theo CỤM chứ
+ * không theo TỪ, nên dấu cách rơi vào giữa từ — "清 算", "保 密", "處 理" đều
+ * bị xẻ đôi ngay giữa một từ ghép.
+ *
+ * Khoảng trắng cạnh chữ Latinh, chữ số hay chỗ giữ tham số thì GIỮ: ở đó nó
+ * đang làm đúng việc của nó.
+ */
+// `\p{Script=Han}` với cờ `u` nhận đúng cả chữ ở mặt phẳng bổ sung (Ext B,
+// nơi phần lớn chữ Nôm riêng cư ngụ). Dò theo dải mã UTF-16 bằng tay thì
+// trượt cặp thay thế — 27 chuỗi vẫn sót khoảng trắng vì lý do đó.
+const HAN = /\p{Script=Han}/u;
+function tidy(text) {
+  // Nhìn-sau và nhìn-trước, KHÔNG nuốt ký tự nào.
+  //
+  // Bản đầu viết /(\S)[ \t]+(\S)/ và nó nuốt luôn chữ thứ hai: trong
+  // "吀嘲, 碎 羅" phép khớp ăn ", 碎" trước (dấu phẩy không phải chữ Hán nên
+  // giữ nguyên), rồi quét tiếp TỪ SAU 碎 — bỏ sót đúng khoảng trắng cần bỏ.
+  // Vòng lặp tám lượt tôi thêm vào cũng vô ích vì kết quả không đổi lượt nào.
+  return text.replace(/(?<=\p{Script=Han})[^\S\r\n]+(?=\p{Script=Han})/gu, '');
+}
+
 
 function segment(seg) {
   if (!seg) return '';
@@ -97,8 +124,16 @@ let done = 0;
 
 const walk = (node) => {
   if (Array.isArray(node)) {
+    // MẢNG: chỉ giữ khi dịch được HẾT.
+    //
+    // Bản đầu viết `out.map((x, i) => x ?? node[i])` — chỉ cần một phần tử
+    // dịch được là giữ cả mảng và ĐIỀN TIẾNG VIỆT vào những phần tử còn lại.
+    // Một danh sách nửa Nôm nửa quốc ngữ đọc còn khó hơn một danh sách thuần
+    // quốc ngữ, và đó chính là 140 chuỗi nửa vời mà check:nom bắt được.
+    // Bỏ cả mảng thì i18next trả về mảng tiếng Việt trọn vẹn — thà nguyên vẹn
+    // một lối viết còn hơn lẫn lộn hai lối.
     const out = node.map(walk);
-    return out.some((x) => x !== undefined) ? out.map((x, i) => x ?? node[i]) : undefined;
+    return out.every((x) => x !== undefined) ? out : undefined;
   }
   if (node && typeof node === 'object') {
     const out = {};
