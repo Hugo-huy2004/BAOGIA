@@ -1662,6 +1662,27 @@ router.post('/joylater/apply', requireMember, async (req, res) => {
   }
 });
 
+/**
+ * POST /api/joy/joylater/review — ADMIN ép xét lại hạn mức ngay.
+ *
+ * Không có `email` thì xét lại TOÀN BỘ hồ sơ; có thì chỉ một người.
+ *
+ * Đây là quyền CHỌN THỜI ĐIỂM, không phải quyền chọn kết quả: phép chấm vẫn
+ * chạy y hệt kỳ thứ Bảy, nên hạn mức có thể lên, xuống hoặc giữ nguyên.
+ */
+router.post('/joylater/review', requireAdmin, async (req, res) => {
+  try {
+    const { forceReview } = await import('../services/joyCreditService.js');
+    const email = String(req.body?.email || '').trim().toLowerCase() || null;
+    const result = await forceReview({ email, by: req.adminEmail || 'admin' });
+    console.log(`[joylater] admin ép xét lại: ${result.scanned} hồ sơ, ${result.changed.length} đổi hạn mức`);
+    res.json(result);
+  } catch (error) {
+    console.error('[joylater/review]', error);
+    res.status(500).json({ error: 'Không xét lại được. Vui lòng thử lại.' });
+  }
+});
+
 // GET /api/joy/joylater/history — mọi lượt đã mở, kèm từng dòng đã hoàn
 router.get('/joylater/history', requireMember, async (req, res) => {
   try {

@@ -4044,6 +4044,7 @@
       "luuVungCat": "留𡓄割"
     },
     "joyLater": {
+      "title": "JOY 𩠴頭",
       "detail": "𨷑鎖𠓀, 還吏寅朋 JOY 劒特",
       "loading": "當載…",
       "limit": "墨𨷑𠓀最多",
@@ -4068,7 +4069,7 @@
       "opened": "㐌添 {{amount, joy}} 𠓨銀庫",
       "advanceLabel": "𨷑𠓀 JOY 𠓨銀庫",
       "noDeadline": "空固限𣖛. 數勤完空僧蹺時間.",
-      "notEligible": "𣗓用得 JOYlater",
+      "notEligible": "𣗓用得 JOY 𩠴頭",
       "reason": {
         "adult": "勤𨇜 18 歲",
         "accountAge": "財款勤活動𠃣一 14 𣈜",
@@ -4084,7 +4085,7 @@
         "lowScore": "點胡初諸達仰",
         "tooNew": "財款群過買貝系統"
       },
-      "howTitle": "JOYlater 活動世芇",
+      "howTitle": "JOY 𩠴頭活動世芇",
       "how1": "撰數 JOY 㦖𨷑𠓀 — 墨最多性蹺 JOY 正貴成員劒特.",
       "how2": "JOY 𠓨銀庫𣦍, 貴成員用底𨷑鎖如平常.",
       "how3": "每吝貴成員認 JOY, 系統自𪧚吏 {{percent}}% 底完寅 — 空勤𢖵𣈜芇奇.",
@@ -4221,6 +4222,7 @@
       "tabOverview": "總觀",
       "tabMissions": "任務",
       "tabHistory": "歷史",
+      "tabLater": "JOY 𩠴頭",
       "sub_perks": "特權𧵑碎",
       "sub_store": "商店特權",
       "sub_redeem": "入碼介紹",
@@ -4282,7 +4284,7 @@
       "denomSaving": "當留…",
       "denomSaved": "㐌撰單位 JOY 朱才款𧵑貴成員.",
       "marketTitle": "市場𣋚𠉞",
-      "marketWhy": "比價及日每𣇞自𠀧信號內部: JOY 劒特中平 ({{income}} 每𠊛/𣈜), 費吧款完 JOYlater, 共𣳔 JOY 𠚢/𠓨系統.",
+      "marketWhy": "比價及日每𣇞自𠀧信號內部: JOY 劒特中平 ({{income}} 每𠊛/𣈜), 費吧款完 JOY 𩠴頭, 共𣳔 JOY 𠚢/𠓨系統.",
       "marketPricesFixed": "價𧵑每次𥪝 app 空𢷮蹺比價 — 比價只𢷮格曰𡥵數.",
       "sub_convert": "比價",
       "range24h": "24 𣇞",

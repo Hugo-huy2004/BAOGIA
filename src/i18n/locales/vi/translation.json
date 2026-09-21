@@ -4318,7 +4318,7 @@
       "luuVungCat": "Lưu Vùng Cắt"
     },
     "joyLater": {
-      "title": "JOYlater",
+      "title": "JOY Gối Đầu",
       "detail": "Mở khoá trước, hoàn lại dần bằng JOY kiếm được",
       "loading": "Đang tải…",
       "limit": "Mức mở trước tối đa",
@@ -4344,7 +4344,7 @@
       "opened": "Đã thêm {{amount, joy}} vào ngân khố",
       "advanceLabel": "Mở trước JOY vào ngân khố",
       "noDeadline": "Không có hạn chót. Số cần hoàn không tăng theo thời gian.",
-      "notEligible": "Chưa dùng được JOYlater",
+      "notEligible": "Chưa dùng được JOY Gối Đầu",
       "reason": {
         "adult": "Cần đủ 18 tuổi",
         "accountAge": "Tài khoản cần hoạt động ít nhất 14 ngày",
@@ -4360,7 +4360,7 @@
         "lowScore": "Điểm hồ sơ chưa đạt ngưỡng",
         "tooNew": "Tài khoản còn quá mới với hệ thống"
       },
-      "howTitle": "JOYlater hoạt động thế nào",
+      "howTitle": "JOY Gối Đầu hoạt động thế nào",
       "how1": "Chọn số JOY muốn mở trước — mức tối đa tính theo JOY chính Quý thành viên kiếm được.",
       "how2": "JOY vào ngân khố ngay, Quý thành viên dùng để mở khoá như bình thường.",
       "how3": "Mỗi lần Quý thành viên nhận JOY, hệ thống tự giữ lại {{percent}}% để hoàn dần — không cần nhớ ngày nào cả.",
@@ -4500,7 +4500,7 @@
       "tabOverview": "Tổng quan",
       "tabMissions": "Nhiệm vụ",
       "tabHistory": "Lịch sử",
-      "tabLater": "JOYlater",
+      "tabLater": "JOY Gối Đầu",
       "sub_perks": "Đặc quyền của tôi",
       "sub_store": "thương điếm đặc quyền",
       "sub_redeem": "Nhập mã giới thiệu",
@@ -4564,7 +4564,7 @@
       "denomSaving": "Đang lưu…",
       "denomSaved": "Đã chọn đơn vị JOY cho tài khoản của Quý thành viên.",
       "marketTitle": "Thị trường hôm nay",
-      "marketWhy": "Tỷ giá cập nhật mỗi giờ từ ba tín hiệu nội bộ: JOY kiếm được trung bình ({{income}} mỗi người/ngày), phí và khoản hoàn JOYlater, cùng dòng JOY ra/vào hệ thống.",
+      "marketWhy": "Tỷ giá cập nhật mỗi giờ từ ba tín hiệu nội bộ: JOY kiếm được trung bình ({{income}} mỗi người/ngày), phí và khoản hoàn JOY Gối Đầu, cùng dòng JOY ra/vào hệ thống.",
       "marketPricesFixed": "Giá của mọi thứ trong app KHÔNG đổi theo tỷ giá — tỷ giá chỉ đổi cách viết con số.",
       "sub_convert": "Tỷ Giá",
       "range24h": "24 giờ",

@@ -502,7 +502,7 @@ export default function JoyWalletApp({
                     {loan && (
                       <Row
                         icon="schedule_send"
-                        title={nom("Khoản mở trước JOYlater cần hoàn")}
+                        title={nom("Khoản mở trước JOY Gối Đầu cần hoàn")}
                         detail={`Còn ${loan.remainingDays} ngày hạn định`}
                         value={`−${joy.number(loan.outstanding)} JOY`}
                         valueTone="out"

@@ -175,8 +175,8 @@ export const LEGAL_DOCUMENTS = {
             {
               type: "note",
               tone: "info",
-              title: "Quy chế Tiện ích Mở trước JOYlater",
-              text: "JOYlater cho phép thành viên mở trước tiện ích số khi chưa đủ điểm. Hạn mức mở trước căn cứ vào lịch sử nỗ lực học tập thực tế và được khấu trừ tự động dần khi nhận điểm mới, hoàn toàn không phát sinh lãi suất hay phí phạt tài chính thực tế.",
+              title: "Quy chế Tiện ích Mở trước JOY Gối Đầu",
+              text: "JOY Gối Đầu cho phép thành viên mở trước tiện ích số khi chưa đủ điểm. Hạn mức mở trước căn cứ vào lịch sử nỗ lực học tập thực tế và được khấu trừ tự động dần khi nhận điểm mới, hoàn toàn không phát sinh lãi suất hay phí phạt tài chính thực tế.",
             },
           ],
         },

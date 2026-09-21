@@ -69,7 +69,7 @@ const STANDARDIZED_DOCS = {
     id: "database-policy",
     titleKey: "memberPortal.accountHub.documents.databasePolicyTitle",
     defaultTitle: nom("Quy ước CSDL & Chính sách thành viên"),
-    subtitle: nom("Kiến trúc CSDL Zero-Trust, quy chế ví JOY/JOYlater và đặc quyền"),
+    subtitle: nom("Kiến trúc CSDL Zero-Trust, quy chế ví JOY/JOY Gối Đầu và đặc quyền"),
     badge: nom("Quy ước hệ thống"),
     icon: ShieldCheck,
     color: "bg-emerald-500/10 text-emerald-500",

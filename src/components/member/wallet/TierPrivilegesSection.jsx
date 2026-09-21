@@ -18,7 +18,7 @@ import { financeFacts } from "../../../../shared/tierFinance";
 function financeBenefit(tier) {
   const f = financeFacts(tier);
   const credit = f.creditLocked
-    ? nom("Không phát sinh giao dịch nợ (khoá tính năng vay JOYlater)")
+    ? nom("Không phát sinh giao dịch nợ (khoá tính năng vay JOY Gối Đầu)")
     : `Hạn mức vay JOYlater nhân ×${f.creditMultiplier} trên hạn mức được xét theo hồ sơ`;
   const fee = f.feeFree
     ? nom("miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY")

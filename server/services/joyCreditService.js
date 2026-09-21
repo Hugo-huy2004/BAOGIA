@@ -235,6 +235,41 @@ export async function evaluateAll() {
   return { scanned: profiles.length, changed };
 }
 
+/**
+ * ADMIN ÉP XÉT LẠI NGAY, không chờ 17:00 thứ Bảy.
+ *
+ * ── VÌ SAO CẦN NÚT NÀY ──────────────────────────────────────────────────────
+ * Kỳ xét hằng tuần là nhịp bình thường, nhưng có những lúc chờ tới thứ Bảy là
+ * vô lý: vừa sửa xong một lỗi làm chấm điểm sai, vừa đổi tham số bình ổn, hay
+ * một thành viên khiếu nại đúng. Không có nút này thì cách duy nhất để xét lại
+ * là sửa tay `lastEvaluatedKey` trong database — thao tác không ai dám làm lúc
+ * nửa đêm và cũng không để lại dấu vết gì.
+ *
+ * Ép xét KHÔNG phải cấp hạn mức: nó chỉ chạy lại đúng phép chấm với số liệu
+ * hiện tại. Hạn mức có thể lên, có thể xuống, có thể giữ nguyên — admin không
+ * chọn kết quả, chỉ chọn thời điểm.
+ */
+export async function forceReview({ email = null, by = 'admin' } = {}) {
+  const at = new Date();
+  if (email) {
+    const before = await JoyCreditProfile.findOne({ email }, 'limit').lean();
+    const after = await evaluate(email, { force: true, notify: true });
+    return {
+      at, by, scanned: 1,
+      changed: before?.limit === after.limit ? [] : [{ email, from: before?.limit || 0, to: after.limit }],
+    };
+  }
+
+  // Xét lại TOÀN BỘ: gỡ khoá kỳ của mọi hồ sơ rồi chạy đúng đường của cron,
+  // để hai đường không bao giờ lệch nhau về cách tính.
+  await JoyCreditProfile.updateMany(
+    { status: { $in: ['approved', 'rejected'] } },
+    { $set: { lastEvaluatedKey: '' } },
+  );
+  const result = await evaluateAll();
+  return { at, by, ...result };
+}
+
 /** Trả xong một lượt — cộng vào lịch sử trả. */
 export const recordRepaid = (email) =>
   JoyCreditProfile.updateOne({ email }, { $inc: { loansRepaid: 1 } }, { upsert: true });
@@ -248,4 +283,4 @@ export const recordDefault = (email) =>
   );
 
 export { CREDIT };
-export default { apply, evaluate, evaluateAll, profileOf, gatherSignals, recordRepaid, recordDefault };
+export default { apply, evaluate, evaluateAll, forceReview, profileOf, gatherSignals, recordRepaid, recordDefault };
