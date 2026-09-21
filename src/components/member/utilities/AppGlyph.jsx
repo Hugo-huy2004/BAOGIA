@@ -35,7 +35,39 @@ const Slab = ({ x, y, w, h, r = 4, fill, d = 1.6 }) => (
 // chừa ~7px lề để icon không chạm mép ô bo góc.
 
 const SCENES = {
-  // Hoa Ngữ — chữ Hán 華 to, tượng hình, trắng nổi trên ô nền của app.
+  // Chữ Nôm — trang giấy có chữ 喃 và con dấu son.
+  //
+  // Icon này KHÔNG vẽ bằng đường nét mà đặt thẳng chữ 喃 vào: đó là tên của
+  // chính nó, và một app dạy chữ thì thứ nhận ra đầu tiên phải là mặt chữ.
+  // Con dấu son ở góc là hình ảnh quen thuộc của mọi văn bản Hán-Nôm — nó cũng
+  // là vệt màu duy nhất, đủ để icon nổi lên giữa lưới mà không loè loẹt.
+  //
+  // Chồng phông có cả phông hệ thống: 喃 nằm trong khối CJK cơ bản nên máy nào
+  // cũng vẽ được, kể cả khi phông Nom Na Tong chưa tải (nó chỉ tải khi người
+  // dùng chọn ngôn ngữ chữ Nôm).
+  nom: (f) => (
+    <>
+      <Slab x={12} y={7} w={24} h={34} r={3} fill={f} />
+      <text
+        x="24"
+        y="27.5"
+        textAnchor="middle"
+        fontSize="19"
+        fill="#1e293b"
+        fontFamily="'Nom Na Tong', 'Songti SC', 'SimSun', 'Noto Serif CJK SC', serif"
+      >
+        喃
+      </text>
+      {/* Triện son — vuông, bo nhẹ, đặt lệch xuống như dấu đóng cuối trang. */}
+      <rect x="27.5" y="31.5" width="7" height="7" rx="1.2" fill="#000" opacity="0.16" transform="translate(0.5 0.7)" />
+      <rect x="27.5" y="31.5" width="7" height="7" rx="1.2" fill="#e11d48" />
+      <rect x="29.2" y="33.2" width="3.6" height="1.2" rx="0.6" fill="#fff" opacity="0.82" />
+      <rect x="29.2" y="35.4" width="3.6" height="1.2" rx="0.6" fill="#fff" opacity="0.82" />
+      {/* Hai nét mực mờ ở lề trái: gợi dòng chữ viết dọc của thư tịch cổ. */}
+      <rect x="15" y="11" width="1.6" height="9" rx="0.8" fill="#0f172a" opacity="0.2" />
+      <rect x="15" y="22" width="1.6" height="6" rx="0.8" fill="#0f172a" opacity="0.13" />
+    </>
+  ),
 
   // Trang Bio — thẻ hồ sơ
   bio: (f) => (
