@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
+import MemberNomTab from "./nom/MemberNomTab";
 import { useTranslation } from "react-i18next";
 import { changeAppLanguage } from "../../i18n/config";
 import { psychologyGate } from "../../lib/memberAge";
@@ -215,6 +216,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* HugoArcade */}
       {selectedUtility === "arcade" && (
         <HugoArcadeTab bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+      )}
+
+      {/* 𡨸喃 — dạy chữ Nôm. Học liệu lấy từ chính bản dịch Nôm của hệ thống. */}
+      {selectedUtility === "nom" && (
+        <MemberNomTab onBack={() => onSelectUtility(null)} route={appRoute} onRouteChange={onAppRouteChange} />
       )}
 
       {/* HugoAura Focus */}

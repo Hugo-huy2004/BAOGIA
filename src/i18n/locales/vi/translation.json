@@ -8397,5 +8397,21 @@
   },
   "pwa": {
     "installApp": "Tải app"
+  },
+  "nom": {
+    "intro": "Chữ Nôm là lối viết tiếng Việt bằng chữ vuông, dùng suốt gần một nghìn năm trước khi quốc ngữ thay thế. Những chữ dưới đây lấy từ chính giao diện Quý thành viên đang dùng.",
+    "loading": "Đang tải học liệu…",
+    "loadFailed": "Chưa tải được học liệu chữ Nôm.",
+    "lessonN": "Bài {{n}}",
+    "mastered": "Đã thuộc",
+    "startQuiz": "Kiểm tra bài này",
+    "pickReading": "Chữ này đọc là gì?",
+    "next": "Tiếp",
+    "quizDone": "Đã xong",
+    "backToLessons": "Về danh sách bài",
+    "knownOf": "Đã thuộc {{known}} trên {{total}} chữ",
+    "reset": "Xoá tiến độ học",
+    "resetTitle": "Xoá toàn bộ tiến độ?",
+    "resetBody": "Mọi chữ đã thuộc sẽ được tính lại từ đầu."
   }
 }

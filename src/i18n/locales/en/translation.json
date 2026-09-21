@@ -8355,5 +8355,21 @@
   },
   "pwa": {
     "installApp": "Install app"
+  },
+  "nom": {
+    "intro": "Chữ Nôm wrote Vietnamese in square characters for nearly a thousand years, until the Latin alphabet replaced it. The characters below are taken from the very interface you are using.",
+    "loading": "Loading lessons…",
+    "loadFailed": "Could not load the Nôm lessons.",
+    "lessonN": "Lesson {{n}}",
+    "mastered": "Mastered",
+    "startQuiz": "Test this lesson",
+    "pickReading": "How is this character read?",
+    "next": "Next",
+    "quizDone": "Finished",
+    "backToLessons": "Back to lessons",
+    "knownOf": "{{known}} of {{total}} characters mastered",
+    "reset": "Clear progress",
+    "resetTitle": "Clear all progress?",
+    "resetBody": "Every mastered character will be counted from zero again."
   }
 }

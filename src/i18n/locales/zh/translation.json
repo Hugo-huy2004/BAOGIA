@@ -8560,5 +8560,21 @@
   },
   "pwa": {
     "installApp": "安装应用"
+  },
+  "nom": {
+    "intro": "喃字以方塊字書寫越南語，行用近千年，至拉丁國語字方替之。下列諸字，皆取自閣下正在使用之介面。",
+    "loading": "載入教材中…",
+    "loadFailed": "未能載入喃字教材。",
+    "lessonN": "第 {{n}} 課",
+    "mastered": "已熟",
+    "startQuiz": "測驗本課",
+    "pickReading": "此字何讀？",
+    "next": "下一題",
+    "quizDone": "已畢",
+    "backToLessons": "返回課目",
+    "knownOf": "已熟 {{known}} / {{total}} 字",
+    "reset": "清除進度",
+    "resetTitle": "清除全部進度？",
+    "resetBody": "所有已熟之字將重新計算。"
   }
 }
