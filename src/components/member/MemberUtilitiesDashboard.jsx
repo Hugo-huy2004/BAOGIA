@@ -767,7 +767,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "profile": import("./HugoProfileTab"); break;
         case "friends": import("./FriendsApp"); break;
         case "radio": import("./MemberRadioTab"); break;
-        case "vocab": import("./vocab/HugoVocabApp"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;
         case "aura": import("./MemberAuraTab"); break;
         case "bio": import("./BioPreviewTab"); break;

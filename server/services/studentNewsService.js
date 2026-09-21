@@ -1336,47 +1336,6 @@ export class StudentNewsService {
   }
 
   // Tra cứu và làm giàu từ vựng HSK/TOCFL cho bài báo tiếng Trung trực tiếp trên Node
-  async enrichZhVocab(texts = []) {
-    try {
-      const combined = texts.filter(Boolean).join(' ');
-      if (!combined) return {};
-
-      let tokens = [];
-      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-        const seg = new Intl.Segmenter('zh', { granularity: 'word' });
-        tokens = [...seg.segment(combined)].map((x) => x.segment);
-      } else {
-        tokens = combined.split(/([一-鿿]+)/).flatMap((p) => (/[一-鿿]/.test(p) ? [...p] : [p]));
-      }
-
-      const words = [...new Set(tokens.filter((w) => /^[一-鿿]+$/.test(w) && w.length <= 4))].slice(0, 300);
-      if (!words.length) return {};
-
-      const VocabCard = (await import('../models/VocabCard.js')).default;
-      const cards = await VocabCard.find({ hanzi: { $in: words }, status: 'approved' })
-        .select('hanzi pinyin meaning meaningEn hanViet deck')
-        .lean();
-
-      const vocabMap = {};
-      for (const c of cards) {
-        if (!vocabMap[c.hanzi]) {
-          vocabMap[c.hanzi] = {
-            cardId: String(c._id),
-            hanzi: c.hanzi,
-            pinyin: c.pinyin,
-            meaning: c.meaning,
-            meaningEn: c.meaningEn,
-            hanViet: c.hanViet,
-            deck: c.deck,
-          };
-        }
-      }
-      return vocabMap;
-    } catch (err) {
-      console.warn('[Today zh vocab enrichment warning]:', err.message);
-      return {};
-    }
-  }
 
   // Tách biệt việc fetch & build cache để có thể gọi ngầm (SWR background revalidation)
   async fetchAndBuildFeed(cacheKey, { normalizedLanguage, normalizedCategory, normalizedCountry }) {

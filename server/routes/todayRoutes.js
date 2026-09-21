@@ -88,15 +88,8 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
       studentNewsService.summarizeArticle(article, { available: false, blocks: [] }, language),
     ]);
 
-    // Làm giàu trước từ vựng HSK/TOCFL trên Node nếu là bài tiếng Trung,
-    // loại bỏ hoàn toàn request phụ POST /api/vocab/lookup từ phía trình duyệt.
-    let vocabMap = null;
-    if (language === 'zh') {
-      const texts = [article.title, ...(summary?.points || [])];
-      vocabMap = await studentNewsService.enrichZhVocab(texts);
-    }
 
-    const payload = { article, summary, content, vocabMap };
+    const payload = { article, summary, content };
     const bodyString = JSON.stringify(payload);
     const etag = crypto.createHash('md5').update(bodyString).digest('hex');
 

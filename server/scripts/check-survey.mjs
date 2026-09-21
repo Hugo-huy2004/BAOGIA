@@ -57,14 +57,14 @@ const simulateYear = (usedApps, months = 12) => {
   return { asked, rounds };
 };
 
-const heavy = simulateYear(['vocab', 'arcade', 'study', 'psychology', 'bio']);
+const heavy = simulateYear(['handle', 'arcade', 'study', 'psychology', 'bio']);
 check(new Set(heavy.asked).size === heavy.asked.length,
   `người dùng 5 ứng dụng: ${heavy.asked.length} câu trong 12 tháng, KHÔNG câu nào lặp`);
 check(heavy.rounds.every((r) => r.length === QUESTIONS_PER_ROUND),
   `đủ ${QUESTIONS_PER_ROUND} câu mỗi tháng suốt 12 tháng (bộ câu hỏi không cạn)`);
 
 // Người chỉ dùng MỘT ứng dụng: bộ câu ít hơn hẳn, nhưng vẫn không được lặp.
-const light = simulateYear(['vocab']);
+const light = simulateYear(['bio']);
 check(new Set(light.asked).size === light.asked.length,
   `người dùng 1 ứng dụng: ${light.asked.length} câu, vẫn không lặp câu nào`);
 
@@ -76,11 +76,11 @@ check(fresh.asked.length <= SYSTEM_TEMPLATES.length,
   'không bịa thêm câu khi chỉ có câu hệ thống');
 
 // Cạn bộ câu thì HỎI ÍT ĐI, tuyệt đối không quay vòng lại từ đầu.
-const exhausted = buildSurvey({ usedApps: ['vocab'], askedIds: ids.flatMap((id) => [id, `${id}:vocab`]), seed: 'x' });
+const exhausted = buildSurvey({ usedApps: ['bio'], askedIds: ids.flatMap((id) => [id, `${id}:bio`]), seed: 'x' });
 check(exhausted.length === 0, 'hỏi hết bộ câu → trả về RỖNG, không quay vòng hỏi lại');
 
 // ── 3. KHÔNG HỎI THỨ CHƯA TỪNG DÙNG ──────────────────────────────────────────
-const used = ['vocab', 'arcade'];
+const used = ['handle', 'arcade'];
 const everyAppQuestion = simulateYear(used, 24).asked
   .map(parseQuestionId).filter((p) => p.appId);
 check(everyAppQuestion.every((p) => used.includes(p.appId)),
@@ -94,15 +94,15 @@ check(buildSurvey({ usedApps: [], askedIds: [], seed: 'x' }).every((q) => q.appI
 const NOW = new Date('2026-09-20T00:00:00Z');
 const daysAgo = (n) => new Date(NOW.getTime() - n * 86400000);
 
-check(eligibleApps({ vocab: MIN_OPENS }, { vocab: NOW }, NOW).includes('vocab'),
+check(eligibleApps({ bio: MIN_OPENS }, { bio: NOW }, NOW).includes('bio'),
   `dùng đủ ${MIN_OPENS} ngày và còn mới → được hỏi`);
-check(!eligibleApps({ vocab: MIN_OPENS - 1 }, { vocab: NOW }, NOW).includes('vocab'),
+check(!eligibleApps({ bio: MIN_OPENS - 1 }, { bio: NOW }, NOW).includes('bio'),
   `mới dùng ${MIN_OPENS - 1} ngày → CHƯA được hỏi (liếc qua không phải trải nghiệm)`);
-check(!eligibleApps({ vocab: 50 }, { vocab: daysAgo(RECENT_DAYS + 1) }, NOW).includes('vocab'),
+check(!eligibleApps({ bio: 50 }, { bio: daysAgo(RECENT_DAYS + 1) }, NOW).includes('bio'),
   `bỏ quên quá ${RECENT_DAYS} ngày → thôi hỏi, dù trước kia dùng rất nhiều`);
-check(eligibleApps({ vocab: 50 }, { vocab: daysAgo(RECENT_DAYS - 1) }, NOW).includes('vocab'),
+check(eligibleApps({ bio: 50 }, { bio: daysAgo(RECENT_DAYS - 1) }, NOW).includes('bio'),
   'vừa đúng trong hạn → vẫn hỏi');
-check(!eligibleApps({ vocab: 50 }, {}, NOW).includes('vocab'),
+check(!eligibleApps({ bio: 50 }, {}, NOW).includes('bio'),
   'có số lần dùng nhưng KHÔNG biết dùng khi nào → không hỏi (thà bỏ sót còn hơn hỏi bừa)');
 
 const retiredIds = [...RETIRED_APP_IDS];
@@ -118,23 +118,23 @@ check(eligibleApps({ khong_co_app_nay: 99 }, { khong_co_app_nay: NOW }, NOW).len
 check(eligibleApps().length === 0 && eligibleApps(null, null, NOW).length === 0,
   'người chưa có nhật ký dùng → mảng rỗng, không ném lỗi');
 
-const eligibleOrder = eligibleApps({ zulu: 9, bio: 9, vocab: 9 },
-  { zulu: NOW, bio: NOW, vocab: NOW }, NOW);
+const eligibleOrder = eligibleApps({ zulu: 9, bio: 9, bio: 9 },
+  { zulu: NOW, bio: NOW, bio: NOW }, NOW);
 check(JSON.stringify(eligibleOrder) === JSON.stringify([...eligibleOrder].sort()),
   'thứ tự ổn định (đã sắp xếp) — nếu không, cùng một người tải lại sẽ ra đề khác');
 
 // ── 4. CÙNG NGƯỜI + CÙNG THÁNG = CÙNG ĐỀ ─────────────────────────────────────
 // Tải lại trang không được đổi câu hỏi: người đang đọc dở một câu mà nó nhảy
 // sang câu khác thì họ mất niềm tin vào cả bảng khảo sát.
-const a = buildSurvey({ usedApps: ['vocab', 'bio'], askedIds: [], seed: 'ai@do.com2026-09' });
-const b = buildSurvey({ usedApps: ['vocab', 'bio'], askedIds: [], seed: 'ai@do.com2026-09' });
+const a = buildSurvey({ usedApps: ['bio', 'bio'], askedIds: [], seed: 'ai@do.com2026-09' });
+const b = buildSurvey({ usedApps: ['bio', 'bio'], askedIds: [], seed: 'ai@do.com2026-09' });
 check(JSON.stringify(a) === JSON.stringify(b), 'cùng người + cùng tháng → đúng cùng bộ câu');
-const c = buildSurvey({ usedApps: ['vocab', 'bio'], askedIds: [], seed: 'ai@do.com2026-10' });
+const c = buildSurvey({ usedApps: ['bio', 'bio'], askedIds: [], seed: 'ai@do.com2026-10' });
 check(JSON.stringify(a) !== JSON.stringify(c), 'sang tháng khác → bộ câu khác');
 
 // ── 5. KHÔNG DỒN MỘT KHÍA CẠNH ───────────────────────────────────────────────
 for (let m = 1; m <= 12; m += 1) {
-  const round = buildSurvey({ usedApps: ['vocab', 'arcade', 'study'], askedIds: [], seed: `s${m}` });
+  const round = buildSurvey({ usedApps: ['bio', 'arcade', 'study'], askedIds: [], seed: `s${m}` });
   const keys = round.map((q) => `${q.facet}:${q.appId}`);
   if (new Set(keys).size !== keys.length) {
     check(false, `đợt seed s${m} có hai câu cùng khía cạnh: ${keys.join(', ')}`);
@@ -143,12 +143,12 @@ for (let m = 1; m <= 12; m += 1) {
 check(true, 'không đợt nào hỏi hai câu cùng khía cạnh về cùng một ứng dụng');
 
 // ── 6. DỰNG CHỮ ──────────────────────────────────────────────────────────────
-const rendered = renderQuestion('fit.need:vocab', 'vi', 'Hoa Ngữ');
+const rendered = renderQuestion('fit.need:bio', 'vi', 'Hoa Ngữ');
 check(rendered?.text === 'Hoa Ngữ có làm được đúng việc Quý thành viên cần không?',
   `thay tên ứng dụng đúng chỗ ("${rendered?.text}")`);
-check(!renderQuestion('fit.need:vocab', 'en', 'Chinese').text.includes('{{'),
+check(!renderQuestion('fit.need:bio', 'en', 'Chinese').text.includes('{{'),
   'không còn chỗ trống {{app}} sau khi dựng');
-check(renderQuestion('khong.ton.tai:vocab') === null, 'khoá lạ → null, không ném lỗi');
+check(renderQuestion('khong.ton.tai:bio') === null, 'khoá lạ → null, không ném lỗi');
 check(renderQuestion('joy.fair', 'ko')?.text === renderQuestion('joy.fair', 'vi')?.text,
   'ngôn ngữ chưa hỗ trợ → rơi về tiếng Việt, không trả undefined');
 check(LANGS.every((l) => SURVEY_ANSWERS.every((k) => renderQuestion('joy.fair', l).labels[k])),

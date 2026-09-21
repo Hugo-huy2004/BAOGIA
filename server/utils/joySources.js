@@ -60,6 +60,9 @@ export const JOY_SOURCES = {
   stock_buy: 'Mua cổ phiếu sàn ảo',
   stock_sell: 'Bán cổ phiếu sàn ảo',
   stock_dividend: 'Cổ tức sàn ảo',
+  // Ba nguồn dưới đây thuộc app Hoa Ngữ đã gỡ 21/09/2026. GIỮ nhãn vì sổ cái
+  // JOY là vĩnh viễn: dòng tiền cũ vẫn phải đọc được tên nguồn của nó. Chỉ gỡ
+  // ánh xạ sang app, vì app ấy không còn để mà mở.
   vocab_essay_retake: 'Thi lại bài viết luận tiếng Trung',
   vocab_daily_goal: 'Hoàn thành mục tiêu học từ vựng trong ngày',
   vocab_mission: 'Thưởng nhiệm vụ học từ vựng',
@@ -83,9 +86,6 @@ export const JOY_SOURCES = {
  */
 export const JOY_SOURCE_APP = {
   // Học từ vựng
-  vocab_daily_goal: 'vocab',
-  vocab_mission: 'vocab',
-  vocab_essay_retake: 'vocab',
 
   // HugoArcade (gồm cả cờ vua — cùng một app)
   arcade_score: 'arcade',

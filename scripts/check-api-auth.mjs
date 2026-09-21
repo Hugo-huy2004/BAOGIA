@@ -70,3 +70,117 @@ d = authDecision({ url: "/api/bios/me", headers: new Headers({ Authorization: "B
 assert.equal(d.headers.Authorization, `Bearer ${TOKEN}`);
 
 console.log("check-api-auth: 8 nhóm assertion đều đạt.");
+
+// Execute the real browser modules with small in-memory browser/transport stubs.
+const { readFileSync } = await import('node:fs');
+const { runInNewContext } = await import('node:vm');
+function browserModule(file, names, globals = {}) {
+  const source = readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
+    .replace(/^import .*;?\n/gm, '')
+    .replace(/^export \{[^}]+\};?$/gm, '')
+    .replace(/\bexport /g, '')
+    .replace(/import\.meta\.env/g, '__env');
+  return runInNewContext(`${source}\n;({${names.join(',')}})`, {
+    __env: {}, URL, URLSearchParams, Headers, Response, Request, AbortSignal,
+    performance, console, ...globals,
+  });
+}
+const storage = () => {
+  const values = new Map();
+  return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
+};
+const local = storage(), session = storage();
+const auth = browserModule('src/services/authSession.js', ['loginMember', 'loginAdmin', 'getAdminSession'], {
+  localStorage: local, sessionStorage: session, isCrossOriginApi: false, API_BASE: '/api',
+  fetch: async () => Response.json({success: true}),
+});
+local.setItem('price-doc-admin-session', JSON.stringify({username: 'old'}));
+await auth.loginAdmin({username: 'new', password: 'example'}, {remember: false});
+assert.equal(auth.getAdminSession().username, 'new', 'sessionStorage login replaces stale persistent login');
+
+let currentToken = 'old', pending;
+const win = {
+  location: { origin: 'https://example.com' },
+  fetch: () => new Promise(resolve => { pending = resolve; }),
+};
+const interceptor = browserModule('src/services/apiAuthInterceptor.js', ['installApiAuthInterceptor'], {
+  window: win, getMemberToken: () => currentToken, getAdminToken: () => null,
+  clearMemberSession: () => { currentToken = null; }, authDecision,
+  recordApiOutcome: () => {}, reportClientEvent: () => {}, SLOW_API_MS: Infinity,
+});
+interceptor.installApiAuthInterceptor();
+const json401 = code => Response.json({code}, {status: 401});
+let request = win.fetch('/api/bios/me');
+currentToken = 'new';
+pending(json401('AUTH_SESSION_INVALID'));
+await request;
+assert.equal(currentToken, 'new', 'late 401 cannot erase a newer login');
+for (const response of [json401('WRONG_PIN'), Response.json({error: 'PROFILE_INCOMPLETE'}, {status: 403}), new Response('', {status: 503})]) {
+  request = win.fetch('/api/bios/me'); pending(response); await request;
+  assert.equal(currentToken, 'new', 'permission, PIN and server failures preserve session');
+}
+request = win.fetch(new URL('https://example.com/api/joy/balance'));
+pending(json401('AUTH_SESSION_INVALID')); await request;
+assert.equal(currentToken, null, 'URL inputs and wallet routes expire rejected sessions');
+
+for (const [file, names, expression] of [
+  ['src/services/api.js', ['apiFetch'], module => module.apiFetch('/bios/me')],
+  ['src/services/api/BaseApi.js', ['api'], module => module.api.get('/bios/me')],
+]) {
+  local.setItem('price-doc-member-session', JSON.stringify({token: 'valid'}));
+  const module = browserModule(file, names, {localStorage: local, window: {location: {}}, fetch: async () => Response.json({error: 'PROFILE_INCOMPLETE'}, {status: 403})});
+  await assert.rejects(expression(module));
+  assert.ok(local.getItem('price-doc-member-session'), `${file}: 403 retains login`);
+}
+
+let mode = 'browser';
+const media = new Map();
+const platformWindow = {
+  location: {search: '?source=pwa'}, navigator: {},
+  sessionStorage: {setItem() {throw new Error('storage blocked');}, getItem() {throw new Error('storage blocked');}},
+  addEventListener() {}, removeEventListener() {},
+  matchMedia(query) {
+    if (!media.has(query)) media.set(query, {
+      get matches() {return query === `(display-mode: ${mode})`;},
+      addEventListener(_event, fn) {this.listener = fn;},
+      removeEventListener() {this.listener = null;},
+    });
+    return media.get(query);
+  },
+};
+const platform = browserModule('src/config/platform.js', ['isStandalone', 'subscribeDisplayMode'], {
+  window: platformWindow, navigator: {userAgent: 'Android'},
+});
+assert.equal(platform.isStandalone(), false, 'source=pwa alone is not installed mode');
+mode = 'fullscreen';
+assert.equal(platform.isStandalone(), true, 'fullscreen launch survives blocked sessionStorage');
+mode = 'standalone';
+assert.equal(platform.isStandalone(), true);
+let updates = 0;
+const dispose = platform.subscribeDisplayMode(() => updates++);
+mode = 'minimal-ui';
+media.get('(display-mode: minimal-ui)').listener();
+assert.equal(updates, 1, 'all app display modes are subscribed separately');
+assert.equal(platform.isStandalone(), true);
+dispose();
+assert.ok([...media.values()].every(value => !value.listener), 'display listeners are disposed');
+platformWindow.location.search = '';
+const plainTab = browserModule('src/config/platform.js', ['isStandalone'], {window: platformWindow, navigator: {userAgent: 'Android'}});
+mode = 'fullscreen';
+assert.equal(plainTab.isStandalone(), false, 'fullscreen mobile browser is still web');
+
+const {requireMemberSession, requireMember, signMemberToken} = await import('../server/middleware/authMiddleware.js');
+const {default: SecurityBlock} = await import('../server/models/SecurityBlock.js');
+const findOne = SecurityBlock.findOne;
+try {
+  SecurityBlock.findOne = () => ({lean: async () => {throw new Error('simulated database outage');}});
+  for (const middleware of [requireMemberSession, requireMember]) {
+    for (const [token, expected] of [[signMemberToken('regression@example.com'), 503], ['broken-token', 401]]) {
+      const res = {status(code) {this.statusCode = code; return this;}, json(body) {this.body = body; return this;}};
+      await middleware({headers: {authorization: `Bearer ${token}`}}, res, () => assert.fail('unverified request passed'));
+      assert.equal(res.statusCode, expected, 'only invalid JWTs return 401; DB failures return 503');
+      assert.equal(res.body.code, expected === 401 ? 'AUTH_SESSION_INVALID' : 'AUTH_UNAVAILABLE');
+    }
+  }
+} finally {SecurityBlock.findOne = findOne;}
+console.log('check-api-auth: session races, permission failures, display modes and database outages passed.');

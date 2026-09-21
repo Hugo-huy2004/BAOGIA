@@ -6,7 +6,6 @@ import { useTodayArticle } from "../../hooks/useTodayArticle";
 
 import BackButton from "./shared/BackButton";
 import { languageCode } from "../../i18n/languages";
-import { useZhVocab, ZhText, ZhWordPopup, primeZhSpeech } from "./TodayZhAnnotate";
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
@@ -87,17 +86,6 @@ export default function TodayArticleReader({ articleId, onBack }) {
   // ── ĐẶC QUYỀN CHẾ ĐỘ TIẾNG TRUNG: học qua bài báo ──
   // Khi ngôn ngữ app là tiếng Trung, ấn bản Today là báo tiếng Trung — gạch chân
   // các từ trong giáo trình, chạm ra pinyin/nghĩa/phát âm/thêm vào ôn.
-  const isZh = language === "zh";
-  const zhTexts = useMemo(
-    () => (isZh ? [article?.title, ...((summary?.points) || [])].filter(Boolean) : []),
-    [isZh, article?.title, summary],
-  );
-  // Ưu tiên vocabMap có sẵn từ Node.js server (trả cùng một lượt với bài báo),
-  // chỉ kích hoạt hook tra cứu client nếu server chưa đính kèm.
-  const zhClientKnown = useZhVocab(data?.vocabMap ? [] : zhTexts);
-  const zhKnown = data?.vocabMap || zhClientKnown;
-  const [zhWord, setZhWord] = useState(null);
-  const openZhWord = (w) => { primeZhSpeech(); setZhWord(w); };
 
   const dateLabel = article?.publishedAt
     ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" })
@@ -140,7 +128,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
               {article.author ? <span>· {article.author}</span> : null}
               {dateLabel ? <span>· {dateLabel}</span> : null}
             </p>
-            <h1 className="today-article-title">{isZh ? <ZhText text={article.title} known={zhKnown} onTap={openZhWord} /> : article.title}</h1>
+            <h1 className="today-article-title">{article.title}</h1>
           </div>
 
           {/* ── BẢN TIN VIẾT LẠI ĐỘC LẬP & TỔNG HỢP (FAIR USE SYNTHESIS) ── */}
@@ -160,17 +148,11 @@ export default function TodayArticleReader({ articleId, onBack }) {
             {summary?.rewrittenText && (
               <div className="today-article-rewritten-body">
                 <p className="today-article-rewritten-text">
-                  {isZh ? <ZhText text={summary.rewrittenText} known={zhKnown} onTap={openZhWord} /> : summary.rewrittenText}
+                  {summary.rewrittenText}
                 </p>
               </div>
             )}
 
-            {isZh && Object.keys(zhKnown).length > 0 && (
-              <p className="today-article-zh-hint" style={{ display: "flex", alignItems: "center", gap: 6, margin: "10px 0", fontSize: 12.5, fontWeight: 600, color: "#e11d48" }}>
-                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>touch_app</span>
-                点击带下划线的词：看拼音、释义与发音
-              </p>
-            )}
 
             {/* 3 Điểm bước ngoặt & số liệu then chốt */}
             <div className="today-article-points-card">
@@ -180,7 +162,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
               </p>
               <ul>
                 {(summary?.points || []).map((point, index) => (
-                  <li key={index}>{isZh ? <ZhText text={point} known={zhKnown} onTap={openZhWord} /> : point}</li>
+                  <li key={index}>{point}</li>
                 ))}
               </ul>
             </div>
@@ -221,7 +203,6 @@ export default function TodayArticleReader({ articleId, onBack }) {
           </section>
         </>
       )}
-      {zhWord && <ZhWordPopup word={zhWord} lang={language === "en" ? "en" : "vi"} onClose={() => setZhWord(null)} />}
     </section>
   );
 }

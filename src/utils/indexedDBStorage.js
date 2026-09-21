@@ -113,7 +113,7 @@ export const IndexedDBStorage = {
       const tx = db.transaction(STORE_BOOTSTRAP_CACHE, "readwrite");
       tx.objectStore(STORE_BOOTSTRAP_CACHE).put({ key: `cache:${key}`, data, updatedAt: Date.now() });
     } catch (e) {
-      console.warn("Lỗi save vocab cache IndexedDB:", e);
+      console.warn("Lỗi lưu bộ nhớ đệm IndexedDB:", e);
     }
   },
 

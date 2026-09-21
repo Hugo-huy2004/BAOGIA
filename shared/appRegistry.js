@@ -57,7 +57,6 @@ export const APP_REGISTRY = Object.freeze([
   }),
   manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
-  manifest({ id: "vocab", icon: "translate", tint: "rose", category: "edu", badge: "new", storageMb: 2.4, version: "1.0.0" }),
   manifest({ id: "nom", icon: "history_edu", tint: "slate", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
@@ -88,6 +87,7 @@ export const REQUIRED_APP_IDS = Object.freeze([
 ]);
 
 export const RETIRED_APP_IDS = Object.freeze([
+  "vocab",
   "deco",
   "map",
   "hugoskin",

@@ -161,7 +161,7 @@ export default function AppFrame({
               /* Nút LÙI MỘT CẤP — khác nút X đỏ "đóng app" mà portal đã gắn cố định
                  ở góc trên-phải (MemberUtilitiesTab). Trước đây AppFrame nhận
                  `onBack` nhưng truyền `left={null}`, nên hàm lùi của app không bao
-                 giờ có chỗ bấm: trong HugoVocab có 18 màn con khai `onBack` mà
+                 giờ có chỗ bấm: từng có app khai `onBack` ở 18 màn con mà
                  người dùng chỉ còn cách đóng cả app để ra. */
               <button
                 type="button"

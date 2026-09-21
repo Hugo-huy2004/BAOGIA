@@ -73,68 +73,6 @@ export function initCronJobs() {
     }
   });
 
-  // Nhắc ôn từ vựng — 08:00 & 20:00 giờ VN (01:00 & 13:00 UTC). CHỈ nhắc người
-  // ĐANG học (có thẻ tới hạn), nên tập gửi luôn nhỏ và tự thu hẹp khi ai ngừng
-  // học. Kèm một từ mẫu để vừa nhắc vừa "lâu lâu hiện một từ dễ nhớ".
-  cron.schedule('0 1,13 * * *', async () => {
-    try {
-      const [{ default: VocabProgress }, { default: VocabCard }, { notifyMember }] = await Promise.all([
-        import('../models/VocabProgress.js'),
-        import('../models/VocabCard.js'),
-        import('./notifyMember.js'),
-      ]);
-      // Nhóm số thẻ tới hạn theo người dùng + LẤY 3 THẺ ĐẾN HẠN SỚM NHẤT để kèm
-      // vào nội dung nhắc ("hôm nay ôn: 学、书、我"). Giới hạn để cron không kéo dài.
-      const due = await VocabProgress.aggregate([
-        { $match: { dueAt: { $lte: new Date() } } },
-        { $sort: { dueAt: 1 } },
-        { $group: { _id: '$email', count: { $sum: 1 }, cards: { $firstN: { input: '$cardId', n: 3 } } } },
-        { $sort: { count: -1 } },
-        { $limit: 500 },
-      ]);
-      // Nạp chữ Hán cho toàn bộ cardId (một truy vấn) rồi map theo người.
-      const wantIds = [...new Set(due.flatMap((u) => u.cards || []))];
-      const wordCards = wantIds.length ? await VocabCard.find({ _id: { $in: wantIds } }, 'hanzi').lean() : [];
-      const hanziById = Object.fromEntries(wordCards.map((c) => [String(c._id), c.hanzi]));
-      // Bỏ ai đã TẮT push trong cài đặt app từ vựng.
-      const VP = (await import('../models/VocabProfile.js')).default;
-      const off = new Set(await VP.find({ pushEnabled: false }, 'email').distinct('email'));
-      // Người có thẻ tới hạn → nhắc ôn; kèm actionUrl mở thẳng app.
-      for (const u of due) {
-        if (off.has(u._id)) continue;
-        const words = (u.cards || []).map((id) => hanziById[String(id)]).filter(Boolean).join('、');
-        await notifyMember({
-          email: u._id, type: 'info', category: 'study',
-          key: 'vocab.reminder', params: { count: String(u.count), words },
-          actionUrl: '/member/utilities/vocab', push: true,
-        }).catch(() => {});
-      }
-
-      // "Lâu lâu hiện một từ dễ nhớ": buổi tối (13:00 UTC), gửi MỘT từ ngẫu nhiên
-      // cho người đã ôn xong (không còn thẻ tới hạn) — giữ tương tác, thấy là
-      // nhớ. Người đang có thẻ tới hạn đã nhận nhắc ôn ở trên rồi, không gửi kép.
-      if (new Date().getUTCHours() === 13) {
-        const sample = await VocabCard.aggregate([{ $match: { status: 'approved' } }, { $sample: { size: 1 } }]);
-        const word = sample[0];
-        if (word) {
-          const dueSet = new Set(due.map((u) => u._id));
-          const learners = await VocabProgress.distinct('email');
-          const caughtUp = learners.filter((e) => !dueSet.has(e)).slice(0, 500);
-          for (const email of caughtUp) {
-            await notifyMember({
-              email, type: 'info', category: 'study',
-              key: 'vocab.word', params: { hanzi: word.hanzi, pinyin: word.pinyin, meaning: word.meaning },
-              actionUrl: '/member/utilities/vocab', push: true,
-            }).catch(() => {});
-          }
-          console.log(`[CRON] Từ trong ngày "${word.hanzi}" gửi ${caughtUp.length} người đã ôn xong.`);
-        }
-      }
-      console.log(`[CRON] Nhắc ôn từ vựng: ${due.length} người.`);
-    } catch (error) {
-      console.error('[CRON] Nhắc ôn từ vựng:', error.message);
-    }
-  });
 
   // Bot tự gọi Boss khi có chuyện — MỖI GIỜ (anomalyWatch tự throttle 1h/lần nên
   // chạy dày hơn chỉ tốn DB vô ích; free tier cần nhẹ tải).

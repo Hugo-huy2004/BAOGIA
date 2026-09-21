@@ -23,10 +23,9 @@ const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
 const FriendsApp = lazy(() => import("./FriendsApp"));
-const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, vocabRoute, onVocabRouteChange, appRoute, onAppRouteChange, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -179,13 +178,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
 
       {/* Học Từ Vựng — tiếng Trung theo thẻ, có test xếp lớp + test đầu ra */}
-      {selectedUtility === "vocab" && (
-        <HugoVocabApp
-          onBack={() => onSelectUtility(null)}
-          routeView={vocabRoute}
-          onRouteChange={onVocabRouteChange}
-        />
-      )}
 
       {selectedUtility === "friends" && friendsInstalled && (
         <FriendsApp route={appRoute} onRouteChange={onAppRouteChange} />

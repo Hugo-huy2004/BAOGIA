@@ -35,7 +35,6 @@ const CERTIFIED = {
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
-  vocab: "20/09/2026 — 8 emoji → Material Symbols, 89 chỗ chữ <13px lên 13px (chữ Hán cần cỡ lớn hơn chữ Latin mới đọc được); sidebar desktop có sẵn nhờ AppFrame. CÒN NỢ: 2.386 dòng trong MỘT file, cần tách — bộ kiểm không đo cấu trúc mã",
 };
 
 /**
@@ -93,7 +92,6 @@ const EXCEPTIONS = {
 /** Mỗi app: file vỏ + thư mục (nếu có) để quét cả component con. */
 const APPS = {
   hugoKit: { entry: "hugoKit/HugoKitApp.jsx", dir: "hugoKit" },
-  vocab: { entry: "vocab/HugoVocabApp.jsx", dir: "vocab" },
   wallet: { entry: "wallet/JoyWalletApp.jsx", dir: "wallet" },
   study: { entry: "study/StudyWithHugoApp.jsx", dir: "study" },
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },

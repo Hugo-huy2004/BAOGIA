@@ -291,7 +291,7 @@ function MemberPortalPage() {
   // app full màn, hai cho layout portal thường — bỏ sót một chỗ là tính năng
   // chạy ở layout này mà chết ở layout kia):
   // psychologySubTab/onSelectPsychologySubTab, radioPage/onSelectRadioPage,
-  // studyRoute/studySub, vocabRoute/onVocabRouteChange. Bốn cặp ấy gần như giống
+  // studyRoute/studySub. Những cặp ấy gần như giống
   // hệt nhau — chỉ khác tên app — nên app thứ năm lại thêm một cặp nữa.
   //
   // Một cặp app-agnostic thay cho tất cả: đoạn 3 và 4 của
@@ -315,18 +315,6 @@ function MemberPortalPage() {
     navigate(`${path}${query ? `?${query}` : ""}`, { replace: Boolean(options.replace) });
   }, [activeTab, subTab, navigate]);
 
-  const vocabRouteFromUrl = activeTab === "utilities" && subTab === "vocab"
-    ? (psychTab || "home")
-    : null;
-  const handleVocabRouteChange = useCallback((route, options = {}) => {
-    const path = route && route !== "home" ? `/member/utilities/vocab/${route}` : "/member/utilities/vocab";
-    const params = new URLSearchParams();
-    if (route === "review") {
-      if (options.deck) params.set("deck", options.deck);
-      if (options.mode) params.set("mode", options.mode);
-    }
-    navigate(`${path}${params.toString() ? `?${params.toString()}` : ""}`);
-  }, [navigate]);
 
   useEffect(() => {
     if (retiredUtility) navigate("/member/apps", { replace: true });
@@ -963,8 +951,6 @@ function MemberPortalPage() {
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
                 studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null}
-                vocabRoute={vocabRouteFromUrl}
-                onVocabRouteChange={handleVocabRouteChange}
                 appRoute={appRoute}
                 onAppRouteChange={handleAppRouteChange}
                 renderAccountForm={renderAccountForm}
@@ -1065,7 +1051,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1131,7 +1117,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
+                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
