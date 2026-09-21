@@ -63,6 +63,7 @@
     "build:nom-font": "node scripts/build-nom-font.mjs",
     "build:nom": "node scripts/build-nom-locale.mjs",
     "build:nom-lessons": "node scripts/build-nom-lessons.mjs",
+    "build:nom-ui": "node scripts/build-nom-ui.mjs",
     "check:nom": "node scripts/check-nom.mjs",
     "check:joy-stability": "node server/scripts/check-joy-stability.mjs",
     "joy:recall": "node server/scripts/joy-recall.mjs",
