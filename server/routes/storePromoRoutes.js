@@ -49,7 +49,8 @@ router.post('/promos', requireAdmin, async (req, res) => {
       minOrderJoy: minOrderJoy ? Number(minOrderJoy) : 0,
       applicableCategory: applicableCategory || 'all',
       expiresAt: expiresAt || null,
-      createdBy: req.adminEmail || 'admin'
+      // `requireAdmin` đặt `req.admin`, không phải `req.adminEmail`.
+      createdBy: req.admin?.id || 'admin'
     });
     res.status(201).json(promo);
   } catch (e) { res.status(500).json({ error: e.message }); }

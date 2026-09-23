@@ -1131,7 +1131,10 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
 // POST /me/custom-domain - Cấu hình và liên kết tên miền riêng cho Bio
 router.post('/me/custom-domain', requireMember, async (req, res) => {
   try {
-    const email = req.user?.email || req.memberSession?.email;
+    // `requireMember` đặt `req.memberEmail`; `req.user` và `req.memberSession`
+    // KHÔNG tồn tại, nên dòng cũ luôn cho `undefined`. Quy ước dự án: danh tính
+    // member chỉ lấy từ `req.memberEmail`, không bao giờ từ dữ liệu client gửi.
+    const email = req.memberEmail;
     const { customDomain } = req.body;
     if (!customDomain || typeof customDomain !== 'string') {
       return res.status(400).json({ error: 'Tên miền không được để trống.' });
@@ -1180,7 +1183,10 @@ router.post('/me/custom-domain', requireMember, async (req, res) => {
 // DELETE /me/custom-domain - Hủy liên kết tên miền riêng
 router.delete('/me/custom-domain', requireMember, async (req, res) => {
   try {
-    const email = req.user?.email || req.memberSession?.email;
+    // `requireMember` đặt `req.memberEmail`; `req.user` và `req.memberSession`
+    // KHÔNG tồn tại, nên dòng cũ luôn cho `undefined`. Quy ước dự án: danh tính
+    // member chỉ lấy từ `req.memberEmail`, không bao giờ từ dữ liệu client gửi.
+    const email = req.memberEmail;
     const bio = await Bio.findOne({ email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
 

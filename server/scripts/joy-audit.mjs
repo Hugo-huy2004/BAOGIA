@@ -18,7 +18,11 @@ import mongoose from 'mongoose';
 import process from 'node:process';
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
-import { JOY_SOURCES } from '../utils/joySources.js';
+import {
+  JOY_INVESTMENT_SOURCES,
+  JOY_SOURCES,
+  JOY_TRANSFER_SOURCES,
+} from '../utils/joySources.js';
 
 const arg = (name, fallback) => {
   const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -75,13 +79,23 @@ const bySource = await JoyLedger.aggregate([
   { $project: { inflow: 1, outflow: 1, count: 1, people: { $size: '$people' } } },
   { $sort: { inflow: -1 } },
 ]);
-const totalIn = bySource.reduce((s, r) => s + r.inflow, 0);
-const totalOut = bySource.reduce((s, r) => s + Math.abs(r.outflow), 0);
+const NON_UTILITY_SOURCES = new Set([
+  ...JOY_TRANSFER_SOURCES,
+  ...JOY_INVESTMENT_SOURCES,
+  'admin_adjustment', 'admin_direct_add', 'admin_telegram_button',
+  'joy_recall', 'joylater_open',
+]);
+const utilityBySource = bySource.filter((r) => !NON_UTILITY_SOURCES.has(r._id));
+const investmentBySource = bySource.filter((r) => JOY_INVESTMENT_SOURCES.has(r._id));
+const totalIn = utilityBySource.reduce((s, r) => s + r.inflow, 0);
+const totalOut = utilityBySource.reduce((s, r) => s + Math.abs(r.outflow), 0);
+const investmentIn = investmentBySource.reduce((s, r) => s + r.inflow, 0);
+const investmentOut = investmentBySource.reduce((s, r) => s + Math.abs(r.outflow), 0);
 
 // ── 3. TỐC ĐỘ PHÁT HÀNH THEO TUẦN ────────────────────────────────────────────
 const since = new Date(Date.now() - WEEKS * 7 * 24 * 3600 * 1000);
 const weekly = await JoyLedger.aggregate([
-  { $match: { createdAt: { $gte: since } } },
+  { $match: { createdAt: { $gte: since }, source: { $nin: [...NON_UTILITY_SOURCES] } } },
   { $group: {
     _id: { $dateTrunc: { date: '$createdAt', unit: 'week', startOfWeek: 'monday' } },
     inflow:  { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
@@ -93,9 +107,8 @@ const weekly = await JoyLedger.aggregate([
 ]);
 
 // ── 4. CHUYỂN GIỮA NGƯỜI DÙNG (dấu hiệu lạm dụng) ────────────────────────────
-const TRANSFER_SOURCES = ['member_transfer_out', 'member_transfer_in', 'joy_gift_sent', 'joy_gift_received'];
 const transfers = await JoyLedger.aggregate([
-  { $match: { source: { $in: TRANSFER_SOURCES }, createdAt: { $gte: since } } },
+  { $match: { source: { $in: [...JOY_TRANSFER_SOURCES] }, createdAt: { $gte: since } } },
   { $group: {
     _id: '$email',
     sent:     { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
@@ -105,10 +118,28 @@ const transfers = await JoyLedger.aggregate([
   { $sort: { sent: -1 } },
   { $limit: TOP },
 ]);
-const transferTotal = await JoyLedger.aggregate([
-  { $match: { source: { $in: TRANSFER_SOURCES }, createdAt: { $gte: since }, amount: { $lt: 0 } } },
-  { $group: { _id: null, moved: { $sum: { $abs: '$amount' } }, count: { $sum: 1 } } },
+const transferPairs = await JoyLedger.aggregate([
+  { $match: { source: { $in: [...JOY_TRANSFER_SOURCES] }, createdAt: { $gte: since } } },
+  { $group: {
+    _id: { $cond: [{ $ne: ['$refId', ''] }, '$refId', { $concat: ['legacy:', { $toString: '$_id' }] }] },
+    sentGross: { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
+    received: { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
+    rows: { $sum: 1 },
+  } },
 ]);
+const transferCheck = transferPairs.reduce((sum, pair) => {
+  const matched = pair.sentGross > 0 && pair.received > 0;
+  sum.moved += matched ? Math.min(pair.sentGross, pair.received) : 0;
+  sum.fees += matched ? Math.max(0, pair.sentGross - pair.received) : 0;
+  if (!matched) {
+    sum.mismatch += Math.max(pair.sentGross, pair.received);
+    sum.unmatched.push(pair);
+  } else if (pair.received > pair.sentGross) {
+    sum.mismatch += pair.received - pair.sentGross;
+    sum.unmatched.push(pair);
+  }
+  return sum;
+}, { moved: 0, fees: 0, mismatch: 0, unmatched: [] });
 
 const report = {
   asOf: new Date().toISOString(),
@@ -121,11 +152,15 @@ const report = {
   top1Share: share(0.01),
   top10Share: share(0.10),
   totalIn, totalOut,
-  bySource,
+  bySource: utilityBySource,
+  investment: { inflow: investmentIn, outflow: investmentOut, bySource: investmentBySource },
   weekly,
   transfers,
-  transferMoved: transferTotal[0]?.moved || 0,
-  transferCount: transferTotal[0]?.count || 0,
+  transferMoved: transferCheck.moved,
+  transferFees: transferCheck.fees,
+  transferMismatch: transferCheck.mismatch,
+  transferCount: transferPairs.length,
+  unmatchedTransfers: transferCheck.unmatched,
   topHolders: sorted.slice(0, TOP).map((b) => ({
     displayName: b.displayName || b.email?.split('@')[0],
     joyBalance: b.joyBalance,
@@ -165,11 +200,11 @@ report.topHolders.forEach((h, i) => {
 });
 
 line('═');
-console.log('\n2. NGUỒN BƠM VÀO / THU VỀ  (toàn bộ lịch sử)');
+console.log('\n2. KINH TẾ TIỆN ÍCH  (đã loại đầu tư ảo, chuyển tay và điều chỉnh admin)');
 line();
 console.log(`  ${'nguồn'.padEnd(30)}${'bơm vào'.padStart(13)}${'thu về'.padStart(13)}${'lượt'.padStart(8)}${'người'.padStart(7)}`);
 line('·');
-for (const r of bySource.slice(0, 25)) {
+for (const r of utilityBySource.slice(0, 25)) {
   const label = (JOY_SOURCES[r._id] || r._id).slice(0, 28);
   console.log(`  ${label.padEnd(30)}${n(r.inflow).padStart(13)}${n(Math.abs(r.outflow)).padStart(13)}${n(r.count).padStart(8)}${n(r.people).padStart(7)}`);
 }
@@ -177,6 +212,10 @@ line('·');
 console.log(`  ${'TỔNG'.padEnd(30)}${n(totalIn).padStart(13)}${n(totalOut).padStart(13)}`);
 console.log(`\n  Tỷ lệ thu về / bơm vào: ${pct(totalOut, totalIn)}`);
 console.log('  → Dưới 100% nghĩa là hệ thống phát ra nhiều hơn thu lại, tức JOY nở ra theo thời gian.');
+
+console.log('\n  ĐẦU TƯ ẢO — chỉ theo dõi, không dùng để quyết định kích cầu tiện ích');
+console.log(`  Dòng vào ví từ đầu tư: ${n(investmentIn)} JOY`);
+console.log(`  Dòng ra ví vào đầu tư: ${n(investmentOut)} JOY`);
 
 line('═');
 console.log(`\n3. TỐC ĐỘ THEO TUẦN (${WEEKS} tuần gần nhất)`);
@@ -193,7 +232,16 @@ line('═');
 console.log(`\n4. CHUYỂN GIỮA NGƯỜI DÙNG (${WEEKS} tuần) — chỗ dễ bị lạm dụng nhất`);
 line();
 console.log(`  Tổng JOY đã chuyển tay: ${n(report.transferMoved)} qua ${n(report.transferCount)} lượt`);
+console.log(`  Phí chuyển đã thu: ${n(report.transferFees)} JOY`);
+console.log(`  Chênh sổ cần đối soát: ${n(report.transferMismatch)} JOY`);
 console.log(`  Chiếm ${pct(report.transferMoved, circulating)} lượng đang lưu hành\n`);
+if (report.unmatchedTransfers.length) {
+  console.log('  Giao dịch thiếu một vế:');
+  for (const pair of report.unmatchedTransfers) {
+    console.log(`    ${pair._id}: gửi ${n(pair.sentGross)} · nhận ${n(pair.received)}`);
+  }
+  console.log('');
+}
 console.log(`  ${'người gửi'.padEnd(26)}${'đã gửi'.padStart(12)}${'đã nhận'.padStart(12)}${'lượt'.padStart(7)}`);
 line('·');
 for (const t of transfers) {
@@ -204,10 +252,12 @@ line('═');
 console.log('\nĐỌC BẢNG NÀY THẾ NÀO');
 line();
 console.log('  · Trung vị cách xa trung bình  → JOY dồn vào ít người, không phải phân bố đều.');
-console.log('  · Thu về / bơm vào dưới 100%   → mỗi tuần JOY nở thêm; phí hiện tại chưa cân được thưởng.');
+console.log('  · Thu về / bơm vào dưới 100%   → kinh tế TIỆN ÍCH đang nở; đầu tư ảo không chen vào tỷ lệ này.');
 console.log('  · Cột "ròng" theo tuần dương đều → tốc độ phát hành đang vượt tốc độ tiêu.');
 console.log('  · Một người gửi lớn hơn hẳn phần còn lại → xem kỹ trước khi kết luận lạm dụng:');
 console.log('    có thể là admin, tài khoản thử, hoặc một sự kiện tặng quà.');
-console.log('\n  Chưa đổi một con số nào. Mọi mức phát hành / thu hồi phải bàn trên bảng này.\n');
+console.log(report.transferMismatch > 0
+  ? '\n  ĐANG KHÓA KÍCH CẦU: phải đối soát đủ hai vế chuyển thành viên trước.\n'
+  : '\n  Sổ chuyển thành viên cân. Có thể dùng báo cáo tiện ích để quyết định kích cầu.\n');
 
 await mongoose.disconnect();

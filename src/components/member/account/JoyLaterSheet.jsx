@@ -141,6 +141,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
   const once = quote?.options?.find((option) => option.cycles === 1);
   const splitOptions = quote?.options?.filter((option) => option.cycles > 1) || [];
   const mode = cycles === 1 ? "once" : "split";
+  const weeklyRatePercent = ((Number(quote?.weeklyRate) || 0) * 100).toFixed(2);
 
   // CHƯA CÓ HẠN MỨC → màn giới thiệu + quy chế đầy đủ, không phải một dòng
   // "chưa dùng được". Người chưa đủ điều kiện vẫn cần biết sản phẩm là gì, xét
@@ -302,11 +303,10 @@ export default function JoyLaterSheet({ onBalanceChange }) {
         </section>
 
         <section className="jl-panel">
-          <p className="jl-panel__label">
-            {t("memberPortal.joyLater.limit")}
-          </p>
-          <p className="jl-panel__amount">{money(status.limit)}</p>
-          <p className="jl-panel__sub">{t("memberPortal.joyLater.limitFrom", { income: money(status.medianDaily) })}</p>
+          <div className="jl-panel__head">
+            <span className="material-symbols-outlined" aria-hidden="true">payments</span>
+            <span><b>Mở hạn mức mới</b><small>{t("memberPortal.joyLater.limitFrom", { income: money(status.medianDaily) })}</small></span>
+          </div>
 
           <label className="mt-4 block text-sm font-semibold text-foreground flex items-center justify-between" htmlFor="joylater-amount">
             <span>Muốn mở trước bao nhiêu {joy.code}?</span>
@@ -321,8 +321,14 @@ export default function JoyLaterSheet({ onBalanceChange }) {
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
             placeholder={String(Math.round(joy.value(status.limit)))}
-            className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground font-mono font-bold"
+            className="jl-amount-input"
           />
+          <div className="jl-quick-amounts" aria-label="Chọn nhanh số JOY muốn mở trước">
+            {[0.25, 0.5, 1].map((ratio) => {
+              const value = Math.max(1, Math.round(joy.value(status.limit) * ratio));
+              return <button key={ratio} type="button" onClick={() => setAmount(String(value))}>{ratio === 1 ? "Tối đa" : `${Math.round(ratio * 100)}%`}<small>{joy.number(value)}</small></button>;
+            })}
+          </div>
 
           {/* Chọn cách trả — hai bước.
               Bước 1 hỏi "một lần hay theo đợt". Bày thẳng bốn mức như trước thì
@@ -339,14 +345,12 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                   onClick={() => setCycles(1)}
                   aria-pressed={mode === "once"}
                   className={`min-h-16 rounded-xl border p-2.5 text-left transition-colors ${
-                    mode === "once"
-                      ? "border-transparent bg-primary text-on-primary"
-                      : "border-border bg-background text-foreground"
+                    mode === "once" ? "jl-plan-option is-selected" : "jl-plan-option"
                   }`}
                 >
                   <span className="block text-sm font-bold">{t("memberPortal.joyLater.payOnce")}</span>
                   <span className="mt-0.5 block text-[11.5px] opacity-75">
-                    {t("memberPortal.joyLater.payOnceHint", { percent: Math.round(once.feeRate * 100) })}
+                    {t("memberPortal.joyLater.payOnceHint", { percent: weeklyRatePercent })}
                   </span>
                 </button>
                 <button
@@ -354,16 +358,14 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                   onClick={() => setCycles((current) => (current > 1 ? current : 2))}
                   aria-pressed={mode === "split"}
                   className={`min-h-16 rounded-xl border p-2.5 text-left transition-colors ${
-                    mode === "split"
-                      ? "border-transparent bg-primary text-on-primary"
-                      : "border-border bg-background text-foreground"
+                    mode === "split" ? "jl-plan-option is-selected" : "jl-plan-option"
                   }`}
                 >
                   <span className="block text-sm font-bold">{t("memberPortal.joyLater.paySplit")}</span>
                   <span className="mt-0.5 block text-[11.5px] opacity-75">
                     {t("memberPortal.joyLater.paySplitHint", {
                       max: status.maxInstallments,
-                      percent: Math.round((splitOptions[0]?.feeRate || 0) * 100),
+                      percent: weeklyRatePercent,
                     })}
                   </span>
                 </button>
@@ -381,9 +383,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                       onClick={() => setCycles(option.cycles)}
                       aria-pressed={cycles === option.cycles}
                       className={`flex min-h-14 w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-colors ${
-                        cycles === option.cycles
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-background"
+                        cycles === option.cycles ? "jl-plan-option is-selected" : "jl-plan-option"
                       }`}
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-black text-foreground">
@@ -391,10 +391,10 @@ export default function JoyLaterSheet({ onBalanceChange }) {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-sm font-bold text-foreground">
-                          {t("memberPortal.joyLater.perStepShort", { amount: option.perInstallment })}
+                          {t("memberPortal.joyLater.perStepShort", { amount: option.weeklyPayment })}
                         </span>
                         <span className="block text-[11.5px] text-muted-foreground">
-                          {t("memberPortal.joyLater.feeShort", { percent: Math.round(option.feeRate * 100) })}
+                          {t("memberPortal.joyLater.feeShort", { percent: weeklyRatePercent })}
                           {" · "}
                           {t("memberPortal.joyLater.extraVsOnce", { amount: option.total - once.total })}
                         </span>
@@ -421,14 +421,14 @@ export default function JoyLaterSheet({ onBalanceChange }) {
 
           {/* Bảng số TRƯỚC khi đồng ý — phí, tổng nợ, thời gian dự kiến */}
           {quote && (
-            <dl className="mt-3 space-y-1 rounded-xl bg-muted/60 p-3 text-sm">
+            <dl className="jl-quote">
               <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.principalRow")}</dt><dd className="font-semibold">{money(quote.principal)}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.feeRow", { percent: Math.round(quote.feeRate * 100) })}</dt><dd className="font-semibold">+{money(quote.fee)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.feeRow", { percent: weeklyRatePercent })}</dt><dd className="font-semibold">+{money(quote.interest)}</dd></div>
               <div className="flex justify-between border-t border-dashed border-border pt-1"><dt className="font-bold">{t("memberPortal.joyLater.totalRow")}</dt><dd className="font-black">{money(quote.total)}</dd></div>
-              {quote.cycles > 1 && (
+              {quote.cycles > 1 && Number.isFinite(Number(quote.weeklyPayment)) && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">{t("memberPortal.joyLater.perStepRow")}</dt>
-                  <dd className="font-semibold">{money(quote.schedule[0])}</dd>
+                  <dd className="font-semibold">{money(quote.weeklyPayment)}</dd>
                 </div>
               )}
               <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.expectedRow")}</dt><dd className="font-semibold">{t("memberPortal.joyLater.days", { count: quote.expectedDays })}</dd></div>

@@ -2,7 +2,11 @@ import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
 import JoyPolicy from '../models/JoyPolicy.js';
 import { report as surveyReport } from './surveyService.js';
-import { JOY_SOURCES } from '../utils/joySources.js';
+import {
+  JOY_INVESTMENT_SOURCES,
+  JOY_SOURCES,
+  JOY_TRANSFER_SOURCES,
+} from '../utils/joySources.js';
 import { sendTelegramAlert, editTelegramMessage } from './telegramService.js';
 
 /**
@@ -23,10 +27,10 @@ import { sendTelegramAlert, editTelegramMessage } from './telegramService.js';
 
 /** Nguồn KHÔNG tính là phát hành: chuyển tay và điều chỉnh của admin. */
 export const NON_ISSUANCE_SOURCES = new Set([
-  'member_transfer_in', 'member_transfer_out',
-  'joy_gift_sent', 'joy_gift_received',
+  ...JOY_TRANSFER_SOURCES,
+  ...JOY_INVESTMENT_SOURCES,
   'admin_adjustment', 'admin_direct_add', 'admin_telegram_button',
-  'joy_recall',
+  'joy_recall', 'joylater_open',
 ]);
 
 const WEEK_MS = 7 * 24 * 3600 * 1000;
@@ -48,33 +52,54 @@ export async function weeklyMetrics(weeksBack = 0) {
   const end = new Date(Date.now() - weeksBack * WEEK_MS);
   const start = new Date(end.getTime() - WEEK_MS);
 
-  const rows = await JoyLedger.aggregate([
-    { $match: { createdAt: { $gte: start, $lt: end } } },
-    { $group: {
-      _id: '$source',
-      inflow: { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
-      outflow: { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
-      count: { $sum: 1 },
-      people: { $addToSet: '$email' },
-    } },
-    { $project: { inflow: 1, outflow: 1, count: 1, people: { $size: '$people' } } },
+  const [rows, transferPairs] = await Promise.all([
+    JoyLedger.aggregate([
+      { $match: { createdAt: { $gte: start, $lt: end } } },
+      { $group: {
+        _id: '$source',
+        inflow: { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
+        outflow: { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
+        count: { $sum: 1 },
+        people: { $addToSet: '$email' },
+      } },
+      { $project: { inflow: 1, outflow: 1, count: 1, people: { $size: '$people' } } },
+    ]),
+    JoyLedger.aggregate([
+      { $match: { source: { $in: [...JOY_TRANSFER_SOURCES] }, createdAt: { $gte: start, $lt: end } } },
+      { $group: {
+        _id: { $cond: [{ $ne: ['$refId', ''] }, '$refId', { $concat: ['legacy:', { $toString: '$_id' }] }] },
+        sentGross: { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
+        received: { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
+      } },
+    ]),
   ]);
 
   let issued = 0;      // JOY hệ thống phát ra
   let spent = 0;       // JOY tiêu trở lại vào hệ thống
-  let moved = 0;       // JOY chuyển tay giữa người dùng
+  let investmentIn = 0;
+  let investmentOut = 0;
   const bySource = [];
 
   for (const r of rows) {
-    if (NON_ISSUANCE_SOURCES.has(r._id)) {
-      moved += r.outflow;
-    } else {
+    if (JOY_INVESTMENT_SOURCES.has(r._id)) {
+      investmentIn += r.inflow;
+      investmentOut += r.outflow;
+    } else if (!NON_ISSUANCE_SOURCES.has(r._id)) {
       issued += r.inflow;
       spent += r.outflow;
+      bySource.push({ source: r._id, label: JOY_SOURCES[r._id] || r._id, ...r });
     }
-    bySource.push({ source: r._id, label: JOY_SOURCES[r._id] || r._id, ...r });
   }
   bySource.sort((a, b) => b.inflow - a.inflow);
+
+  const transfer = transferPairs.reduce((sum, pair) => {
+    const matched = pair.sentGross > 0 && pair.received > 0;
+    sum.moved += matched ? Math.min(pair.sentGross, pair.received) : 0;
+    sum.fees += matched ? Math.max(0, pair.sentGross - pair.received) : 0;
+    if (!matched) sum.mismatch += Math.max(pair.sentGross, pair.received);
+    else if (pair.received > pair.sentGross) sum.mismatch += pair.received - pair.sentGross;
+    return sum;
+  }, { moved: 0, fees: 0, mismatch: 0 });
 
   const [activeUsers, totalMembers, circulatingRow] = await Promise.all([
     JoyLedger.distinct('email', { createdAt: { $gte: start, $lt: end } }).then((x) => x.length),
@@ -87,7 +112,11 @@ export async function weeklyMetrics(weeksBack = 0) {
   return {
     weekKey: weekKey(end),
     start, end,
-    issued, spent, moved,
+    issued, spent, moved: transfer.moved,
+    transferFees: transfer.fees,
+    transferMismatch: transfer.mismatch,
+    investmentIn,
+    investmentOut,
     net: issued - spent,
     // Tỷ lệ thu hồi: bao nhiêu phần trăm JOY phát ra đã quay lại hệ thống.
     recoveryRate: issued ? spent / issued : null,
@@ -108,6 +137,10 @@ export async function weeklyMetrics(weeksBack = 0) {
  */
 export function suggest(metrics, policy) {
   const { recoveryRate, issued, activeUsers } = metrics;
+
+  if (metrics.transferMismatch > 0) {
+    return { action: 'hold', why: `Đang lệch ${metrics.transferMismatch.toLocaleString('vi-VN')} JOY giữa hai vế chuyển thành viên — khóa kích cầu cho tới khi đối soát xong.` };
+  }
 
   if (!issued || activeUsers < 3) {
     return { action: 'hold', why: 'Chưa đủ hoạt động trong tuần để kết luận gì.' };
@@ -173,6 +206,8 @@ export function formatReport(metrics, suggestion, policy, survey = null) {
     `Thu hồi:     <b>${rate}</b>  (vùng cân bằng 60–110%)`,
     '',
     `Chuyển tay giữa người dùng: ${n(metrics.moved)} JOY`,
+    `Phí chuyển đã thu: ${n(metrics.transferFees)} JOY · chênh sổ: ${n(metrics.transferMismatch)} JOY`,
+    `Đầu tư ảo (tách riêng): vào ${n(metrics.investmentIn)} · ra ${n(metrics.investmentOut)} JOY`,
     `Người có hoạt động: ${n(metrics.activeUsers)}/${n(metrics.totalMembers)}`,
     `Phát ra mỗi người hoạt động: ${n(metrics.issuedPerActive)} JOY`,
     `Tổng đang lưu hành: ${n(metrics.circulating)} JOY`,
@@ -297,6 +332,13 @@ export async function handleStabilityCallback({ chatId, messageId, data }) {
   const metrics = await weeklyMetrics(1);
   const suggestion = suggest(metrics, policy);
 
+  if (action === 'increase' && metrics.transferMismatch > 0) {
+    await editTelegramMessage(chatId, messageId,
+      `<b>Chưa thể kích cầu</b>\n\nSổ chuyển thành viên đang lệch ${metrics.transferMismatch.toLocaleString('vi-VN')} JOY. Hãy đối soát đủ hai vế trước khi tăng hệ số phát hành.`,
+      'HTML');
+    return true;
+  }
+
   const result = await applyDecision({
     action,
     decidedBy: 'telegram_admin',
@@ -306,6 +348,7 @@ export async function handleStabilityCallback({ chatId, messageId, data }) {
       issued: metrics.issued,
       spent: metrics.spent,
       recoveryRate: metrics.recoveryRate,
+      transferMismatch: metrics.transferMismatch,
       activeUsers: metrics.activeUsers,
       circulating: metrics.circulating,
     },

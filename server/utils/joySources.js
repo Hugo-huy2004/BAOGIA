@@ -141,6 +141,32 @@ export const appOfJoySource = (source) => JOY_SOURCE_APP[source] || '';
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);
 
+/** Sàn ảo chỉ mô phỏng đầu tư; không được pha vào kinh tế tiện ích. */
+export const JOY_INVESTMENT_SOURCES = new Set([
+  'stock_buy', 'stock_sell', 'stock_dividend',
+]);
+
+/** Chuyển tay không phát hành JOY mới. */
+export const JOY_TRANSFER_SOURCES = new Set([
+  'member_transfer_in', 'member_transfer_out',
+  'joy_gift_sent', 'joy_gift_received',
+]);
+
+/**
+ * Danh sách đóng các nguồn thưởng đang được phép phát hành.
+ * Muốn thêm reward mới phải sửa chủ ý tại đây; `awardJoy` từ chối mọi nguồn
+ * phát thưởng không nằm trong danh sách để tránh reward mọc rải rác trở lại.
+ */
+export const JOY_REWARD_SOURCES = new Set([
+  'referral_referrer', 'referral_referee',
+  'chess_win', 'chess_match', 'companion', 'checkin', 'gift_code',
+  'daily_challenge', 'arcade_score', 'daily_tree_bonus', 'focus_session',
+  'ide_learning', 'info_bonus', 'info_read_bonus', 'ide_course_completion',
+  'ide_phase_1_completion', 'ide_phase_2_completion', 'ide_phase_3_completion',
+  'ide_phase_4_completion', 'ide_phase_5_completion', 'ide_phase_6_completion',
+  'ide_phase_7_completion', 'birthday_spin', 'admin_voucher',
+]);
+
 /**
  * Nguồn "nhiễu" — phần thưởng trò chơi hoá, khối lượng lớn, không phải dòng
  * tiền thật. Ngân hàng giữ sao kê tiền VĨNH VIỄN, nhưng điểm cờ vua hay điểm
@@ -163,31 +189,32 @@ export const JOY_NOISE_SOURCES = new Set([
  * đây rơi vào 'khac', không cần liệt kê đủ.
  */
 export const JOY_SOURCE_GROUPS = {
-  checkin: 'diemdanh',
-  daily_challenge: 'diemdanh',
+  checkin: 'hoatdong',
+  daily_challenge: 'hoatdong',
+  daily_tree_bonus: 'hoatdong',
   referral_referrer: 'banbe',
   referral_referee: 'banbe',
   joy_gift_received: 'banbe',
   joy_gift_sent: 'banbe',
   member_transfer_in: 'banbe',
   member_transfer_out: 'banbe',
-  arcade_score: 'choi',
-  stock_buy: 'choi',
-  stock_sell: 'choi',
-  stock_dividend: 'choi',
-  chess_win: 'choi',
-  chess_match: 'choi',
-  ide_learning: 'hoc',
-  ide_course_completion: 'hoc',
+  arcade_score: 'hoatdong',
+  stock_buy: 'dautu',
+  stock_sell: 'dautu',
+  stock_dividend: 'dautu',
+  chess_win: 'hoatdong',
+  chess_match: 'hoatdong',
+  ide_learning: 'hoatdong',
+  ide_course_completion: 'hoatdong',
   hugoso_course: 'hoc',
   coder_exam_retake: 'hoc',
   lifetime_unlock: 'hoc',
   lifetime_unlock_all: 'hoc',
   info_bonus: 'hoc',
   info_read_bonus: 'hoc',
-  companion: 'hoc',
+  companion: 'hoatdong',
   companion_unlock: 'hoc',
-  focus_session: 'hoc',
+  focus_session: 'hoatdong',
   store_purchase: 'muasam',
   app_plan: 'muasam',
   app_plan_gift: 'muasam',

@@ -263,7 +263,7 @@ router.get('/config', async (req, res) => {
 
     await AdminAuditLog.create({
       adminId: req.user?._id || 'ADMIN_USER',
-      adminUsername: req.user?.username || req.user?.email || 'SuperAdmin',
+      adminUsername: req.admin?.id || 'SuperAdmin',
       action: 'robot_camera_decrypted_access',
       details: { ip: req.ip, userAgent: req.headers['user-agent'] }
     });
@@ -450,7 +450,7 @@ router.post('/kill-switch', async (req, res) => {
 
     await AdminAuditLog.create({
       adminId: req.user?._id || 'ADMIN_USER',
-      adminUsername: req.user?.username || req.user?.email || 'SuperAdmin',
+      adminUsername: req.admin?.id || 'SuperAdmin',
       action: shouldActivate ? 'robot_kill_switch_activated' : 'robot_kill_switch_deactivated',
       details: { ip: req.ip }
     });
@@ -490,7 +490,7 @@ router.put('/config', async (req, res) => {
       { key: 'ROBOT_STREAM_CONFIG' },
       {
         ...tripleEncrypted,
-        updatedBy: req.user?.username || req.user?.email || 'SuperAdmin',
+        updatedBy: req.admin?.id || 'SuperAdmin',
         updatedAt: new Date()
       },
       { upsert: true, new: true }
@@ -498,7 +498,7 @@ router.put('/config', async (req, res) => {
 
     await AdminAuditLog.create({
       adminId: req.user?._id || 'ADMIN_USER',
-      adminUsername: req.user?.username || req.user?.email || 'SuperAdmin',
+      adminUsername: req.admin?.id || 'SuperAdmin',
       action: 'robot_camera_url_triple_encrypted_update',
       details: { ip: req.ip, newChecksum: updatedDoc.checksum }
     });

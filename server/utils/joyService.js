@@ -5,7 +5,7 @@ import ChessRating from '../models/ChessRating.js';
 import { notifyMember } from './notifyMember.js';
 import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
 
-import { JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
+import { JOY_REWARD_SOURCES, JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
 import { currentMultiplier, NON_ISSUANCE_SOURCES } from '../services/joyStabilityService.js';
 
 // Giữ tên cũ cho các nơi đã import; nguồn thật nằm ở joySources.js.
@@ -48,6 +48,9 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
    * cùng một con số — tách hai chỗ là mở đường cho sổ lệch ví.
    */
   if (numAmount > 0 && !opts.rawAmount && !NON_ISSUANCE_SOURCES.has(source)) {
+    if (!JOY_REWARD_SOURCES.has(source)) {
+      throw new Error('JOY_REWARD_SOURCE_NOT_APPROVED');
+    }
     const multiplier = await currentMultiplier();
     if (multiplier !== 1) {
       // Làm tròn LÊN: một phần thưởng 5 JOY nhân 0.8 ra 4, chứ không được ra 0.

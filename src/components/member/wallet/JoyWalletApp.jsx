@@ -428,7 +428,7 @@ export default function JoyWalletApp({
                 />
 
                 {/* THANH HÀNH ĐỘNG 1 CHẠM (QUICK ACTIONS) */}
-                <section className="grid grid-cols-1 gap-3">
+                <section className="grid grid-cols-2 gap-3">
                   {/* Điểm danh 1 chạm */}
                   <button
                     type="button"
@@ -450,6 +450,20 @@ export default function JoyWalletApp({
                     <span className="text-[13px] font-bold">
                       {perks?.canCheckin ? nom("Điểm danh") : nom("Đã nhận")}
                     </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      hapticSelect();
+                      onOpenParticleModal?.("scan");
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-2xl border border-border/50 bg-card transition-all active:scale-95 shadow-sm text-center hover:bg-muted"
+                  >
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1 bg-muted text-foreground">
+                      <span className="material-symbols-outlined text-xl">barcode_scanner</span>
+                    </div>
+                    <span className="text-[13px] font-bold">{nom("Chuyển JOY")}</span>
+                    <span className="text-[11px] text-muted-foreground">{nom("Quét thẻ")}</span>
                   </button>
                 </section>
 

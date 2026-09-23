@@ -15,18 +15,28 @@
 // phải vừa với ngưỡng thấp hơn đó.
 export const DAILY_CASUAL_JOY = 415;
 
-// ── BA LUẬT, ÁP CHO MỌI MÓN ────────────────────────────────────────
-// R1. Thuê 1 tháng = quy ra "mấy ngày chơi thường".
-// R2. Mua vĩnh viễn = thuê × 12 tháng × (1 − giảm giá). Đã có sẵn trong
-//     `appPlanService.ownPriceJoy`; giờ CHẶNG HỌC cũng dùng đúng công thức này
-//     thay vì bảng số viết tay.
-// R3. Gói trọn bộ = tổng các phần × (1 − giảm giá) — cùng một hệ số với R2, để
-//     "combo" và "mua vĩnh viễn" không phải hai mức ưu đãi khác nhau.
+// Gói sở hữu và combo vẫn suy từ giá tháng; ba bồn tiêu thường xuyên bên dưới
+// dùng đúng ba mốc 200 / 500 / 1.000 để người dùng không phải học bảng giá.
 export const OWN_EQUIV_MONTHS = 12;
 export const OWN_DISCOUNT = 0.3;
 export const BUNDLE_DISCOUNT = OWN_DISCOUNT;
 
 const roundTo = (value, step) => Math.round(value / step) * step;
+
+// Ba mốc giá duy nhất của vòng kinh tế tiện ích:
+// hoạt động có ích → nhận JOY → đổi lấy quyền lợi nhìn thấy được.
+export const JOY_SINK_PRICES = Object.freeze({
+  feature: 200,
+  utility: 500,
+  timedUpgrade: 1000,
+});
+
+/** Giá Utility Store do loại quyền lợi quyết định, không do client/admin tự đặt. */
+export const utilityProductPrice = (productType) => (
+  productType === "system_validity"
+    ? JOY_SINK_PRICES.timedUpgrade
+    : JOY_SINK_PRICES.utility
+);
 
 /** Giá mua vĩnh viễn suy ra từ giá thuê tháng (R2). */
 export const ownFromMonthly = (monthly) => Math.max(
@@ -42,31 +52,22 @@ export const bundleFromParts = (parts) => roundTo(
 /** Bao nhiêu ngày chơi thường mới đủ mua — dùng cho test và trang giá. */
 export const daysToAfford = (joy) => joy / DAILY_CASUAL_JOY;
 
-// ── THUÊ 1 THÁNG (R1) ──────────────────────────────────────────────
-// LỖI CŨ: thuê 1 tháng chặng 2/3 đúng bằng giá mua VĨNH VIỄN (2.600), còn chặng
-// 5/6 thuê một tháng (5.000) còn ĐẮT HƠN mua vĩnh viễn (3.500/1.500) — thuê là
-// lựa chọn không bao giờ hợp lý. Giờ thuê luôn = 1/8,4 giá mua (R2 đảo lại).
+// ── MỞ APP / TÍNH NĂNG: 200 JOY ────────────────────────────────────
+// Một mốc duy nhất cho quyền truy cập tháng, không còn 13 mức giá lẻ.
 export const FEATURE_PRICES = {
-  // Tiện ích, ~1 ngày chơi cho 1 tháng
-  hugoProfile: 400,   // trước 120
-  hugoAura:    400,   // trước 150
-  hugoRadio:   400,   // trước 150
-
-  // Giải trí
-  hugoChess:   450,   // trước 299
-  hugoArcade:  550,   // trước 199 — 5 game + xếp hạng. 600 thì giá mua vĩnh
-                      // viễn vượt trần 12 ngày chơi (test canh), nên xuống 550.
-
-  // Khoá Study — thang tăng dần, suy từ giá mua vĩnh viễn của từng chặng
-  hugoCoderBasic:        200,  // MỚI: client vẫn gọi khoá này nhưng server chưa
-                               // có nên chặng 1 luôn báo "Tính năng không hợp lệ"
-  hugoCoder:             200,  // id cũ của chặng nền — giữ để gói đã mua không hỏng
-  hugoCoderExam:         150,  // trước 100 — một bài kiểm tra, không phải cả chặng
-  hugoCoderIntermediate: 250,  // trước 2600
-  hugoCoderAdvanced:     300,  // trước 2600
-  hugoCoderSecurity:     350,  // trước 1000
-  hugoCoderOptimize:     400,  // trước 1500
-  hugoCoderUltimate:     450,  // trước 5000
+  hugoProfile: JOY_SINK_PRICES.feature,
+  hugoAura: JOY_SINK_PRICES.feature,
+  hugoRadio: JOY_SINK_PRICES.feature,
+  hugoChess: JOY_SINK_PRICES.feature,
+  hugoArcade: JOY_SINK_PRICES.feature,
+  hugoCoderBasic: JOY_SINK_PRICES.feature,
+  hugoCoder: JOY_SINK_PRICES.feature,
+  hugoCoderExam: JOY_SINK_PRICES.feature,
+  hugoCoderIntermediate: JOY_SINK_PRICES.feature,
+  hugoCoderAdvanced: JOY_SINK_PRICES.feature,
+  hugoCoderSecurity: JOY_SINK_PRICES.feature,
+  hugoCoderOptimize: JOY_SINK_PRICES.feature,
+  hugoCoderUltimate: JOY_SINK_PRICES.feature,
 };
 
 // ── MUA VĨNH VIỄN TỪNG CHẶNG HỌC (R2) ──────────────────────────────

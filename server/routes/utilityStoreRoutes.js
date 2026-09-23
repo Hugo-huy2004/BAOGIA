@@ -8,13 +8,14 @@ import cloudinaryUtil from '../utils/cloudinary.js';
 import { calcExchangeTotal, EXCHANGE_TAX_RATE } from '../utils/featureSubscriptionService.js';
 import { notifyMember } from '../utils/notifyMember.js';
 import { applyProductGrant } from '../utils/productGrant.js';
+import { JOY_SINK_PRICES, utilityProductPrice } from '../../shared/joyPrices.js';
 
 const router = express.Router();
 
 // ── Token HugoRadio ─────────────────────────────────────────────────────────
 // Phải khớp MINUTES_PER_TOKEN bên server/utils/radioTokens.js.
 const RADIO_MINUTES_PER_TOKEN = 10;
-const JOY_PER_RADIO_TOKEN = 200;              // chưa gồm phí sáng tạo 10%
+const JOY_PER_RADIO_TOKEN = JOY_SINK_PRICES.utility; // chưa gồm phí sáng tạo 10%
 const MAX_RADIO_TOKENS = 1008;                // 168 giờ — trần một lần mua
 
 function generatePurchaseCode() {
@@ -38,8 +39,11 @@ router.get('/radio-price', (_req, res) => {
 // GET /api/utility-store/products — active products only
 router.get('/products', async (req, res) => {
   try {
-    const products = await UtilityProduct.find({ active: true }).sort({ createdAt: -1 });
-    res.json(products);
+    const products = await UtilityProduct.find({ active: true }).sort({ createdAt: -1 }).lean();
+    res.json(products.map((product) => ({
+      ...product,
+      priceJoy: utilityProductPrice(product.productType),
+    })));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -175,7 +179,8 @@ router.post('/purchase', requireMember, async (req, res) => {
     // Dùng chung công thức phí với mọi giao dịch JOY khác (10% "phí sáng tạo").
     // Trước đây chỗ này tự tính 9%, nên phiếu trao đổi hiện một số mà tài khoản
     // bị trừ một số khác — người mua thấy 10% rồi bị trừ 9%.
-    const { tax: taxes, total: totalCost } = calcExchangeTotal(product.priceJoy);
+    const priceJoy = utilityProductPrice(product.productType);
+    const { tax: taxes, total: totalCost } = calcExchangeTotal(priceJoy);
 
     if (bio.joyBalance < totalCost) {
       return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalCost} JOY (gồm ${taxes} JOY phí sáng tạo).` });
@@ -193,7 +198,7 @@ router.post('/purchase', requireMember, async (req, res) => {
       email,
       -totalCost,
       'store_purchase',
-      `Mua "${product.name}" (giá ${product.priceJoy} JOY + ${taxes} JOY phí sáng tạo)`,
+      `Mua "${product.name}" (giá ${priceJoy} JOY + ${taxes} JOY phí sáng tạo)`,
       { notify: false, bioDoc: bio, skipSave: true }
     );
 
@@ -281,13 +286,13 @@ router.post('/admin/upload-image', requireAdmin, async (req, res) => {
 // POST /api/utility-store/admin/products
 router.post('/admin/products', requireAdmin, async (req, res) => {
   try {
-    const { name, description, priceJoy, icon, category, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
-    if (!name || !priceJoy) return res.status(400).json({ error: 'name and priceJoy are required' });
+    const { name, description, icon, category, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
+    if (!name) return res.status(400).json({ error: 'name is required' });
 
     const product = await UtilityProduct.create({
       name,
       description: description || '',
-      priceJoy: Number(priceJoy),
+      priceJoy: utilityProductPrice(productType),
       icon: icon || 'redeem',
       category: category || 'general',
       stock: stock !== undefined ? Number(stock) : -1,
@@ -308,14 +313,14 @@ router.post('/admin/products', requireAdmin, async (req, res) => {
 router.put('/admin/products/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, priceJoy, icon, category, active, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
+    const { name, description, icon, category, active, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
 
     const product = await UtilityProduct.findById(id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
     if (name !== undefined) product.name = name;
     if (description !== undefined) product.description = description;
-    if (priceJoy !== undefined) product.priceJoy = Number(priceJoy);
+    product.priceJoy = utilityProductPrice(productType ?? product.productType);
     if (productType !== undefined) product.productType = productType;
     if (extendDays !== undefined) product.extendDays = Number(extendDays);
     if (tokenType !== undefined) product.tokenType = tokenType;
