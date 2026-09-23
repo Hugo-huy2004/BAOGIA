@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { notify } from '../../lib/notify';
-import aiWorkforceApi from '../../services/api/AIWorkforceApi';
+import aiWorkforceApi from '../../services/api/modules/aiWorkforceApi';
 
 const STATUS_STYLES = {
   queued: 'bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/20',

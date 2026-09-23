@@ -5,7 +5,7 @@ import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage } from "../../i18n/languages";
-import profileEvidenceApi from "../../services/api/ProfileEvidenceApi";
+import profileEvidenceApi from "../../services/api/modules/profileEvidenceApi";
 
 /**
  * Hugo Profile — hồ sơ năng lực có kiểm chứng.

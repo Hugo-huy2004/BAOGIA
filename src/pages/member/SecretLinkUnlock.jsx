@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import dataApi from "../../services/dataApi";
+import dataApi from "../../services/api/modules/dataApi";
 import HugoLogo from "../../components/HugoLogo";
 
 export default function SecretLinkUnlock() {

@@ -13,7 +13,7 @@ import {
   checkHasPin,
   getJoyLaterStatus,
   claimTreeBonus,
-} from "../../../services/joyApi";
+} from "../../../services/api/modules/joyApi";
 import AppFrame from "../os/AppFrame";
 import LazyBoundary from "../os/LazyBoundary";
 import MetalCard3D from "./MetalCard3D";

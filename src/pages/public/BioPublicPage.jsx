@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState, Suspense } from "react";
 import VerifiedProfilePanel from "../../components/public/VerifiedProfilePanel";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
-import dataApi from "../../services/dataApi";
+import dataApi from "../../services/api/modules/dataApi";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";

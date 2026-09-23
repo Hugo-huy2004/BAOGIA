@@ -4,7 +4,7 @@ import { IosApp, NavBar, Scroll, Segmented, TabBar } from "../../demos/iosKit";
 import useDarkScheme from "./useDarkScheme";
 import { appPalette } from "./appPalette";
 import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
-import { trackAppOpen } from "../../../services/surveyApi";
+import { trackAppOpen } from "../../../services/api/modules/surveyApi";
 
 /**
  * HugoOS — khung ứng dụng dùng chung.

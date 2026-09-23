@@ -15,7 +15,8 @@
  *
  * Hugo Studio KHÔNG bán tên miền và KHÔNG bán hạ tầng lưu trữ / cơ sở dữ liệu.
  * Khách tự đứng tên mua; Hugo chỉ hỗ trợ chọn mua và nối vào website qua Gói
- * kết nối tính riêng. Điều này nằm trong `servicePkg.excludes` dùng chung.
+ * kết nối. Điều này nằm trong `servicePkg.connectExclude` dùng chung, và chỉ
+ * hiện với gói KHÔNG có `connectIncluded` — Hugo One đã gộp phần đó vào giá.
  *
  * TUYỆT ĐỐI không viết câu so sánh giá hay chất lượng với bên cung cấp khác
  * ("agency báo X", "rẻ hơn Y"): khoản 10 Điều 8 Luật Quảng cáo 2012 cấm so
@@ -32,6 +33,9 @@ export const servicePackages = [
     accent: "#0E9E96",
     accentDark: "#3FD9CE",
     gradient: ["#17EAD9", "#2F8FE0"],
+    // Gói kết nối đã nằm trong giá: một con số trọn, không phát sinh lúc bàn
+    // giao. Cờ này ẩn thẻ Gói kết nối và bỏ nó khỏi mục "chưa bao gồm".
+    connectIncluded: true,
   },
   {
     id: "hugo-story",

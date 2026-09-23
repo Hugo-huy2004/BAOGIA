@@ -1,7 +1,7 @@
 import { Suspense, lazy, useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getMemberSession } from "../../services/authSession";
-import { dataApi } from "../../services/dataApi";
+import { getMemberSession } from "../../services/api/core/authSession";
+import { dataApi } from "../../services/api/modules/dataApi";
 import { motion, AnimatePresence } from "framer-motion";
 import { UniversalSessionGuard } from "../../utils/universalSessionGuard";
 import { AISelfHealingEngine } from "../../utils/aiSelfHealingEngine";

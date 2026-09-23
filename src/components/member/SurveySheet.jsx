@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { renderQuestion, surveyUi, SURVEY_ANSWERS } from "../../../shared/surveyQuestions";
-import { fetchDueSurvey, submitSurvey } from "../../services/surveyApi";
+import { fetchDueSurvey, submitSurvey } from "../../services/api/modules/surveyApi";
 
 /**
  * Khảo sát định kỳ — một câu mỗi màn, ba nút Có / Không / Không chắc.

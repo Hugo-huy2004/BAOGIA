@@ -161,7 +161,7 @@ export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = 
     if (cc) msg.cc = cc;
     if (attachments?.length) msg.attachments = attachments;
 
-    if (!process.env.SENDGRID_API_KEY || process.env.SENDGRID_API_KEY.includes('YOUR_')) {
+    if (!isEmailDeliverable()) {
       console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
       return { success: true, simulated: true, message: `Email đã được mô phỏng gửi thành công tới ${to}` };
     }

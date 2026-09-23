@@ -1,159 +1,349 @@
 """
 hugopsy_companion_engine.py
 ======================================================================
-Engine đồng hành tâm lý HugoPsy thế hệ mới — Zero-Crash & Zero-Latency.
-Thiết kế cho 1.000.000 người dùng đồng thời:
-- Tầng 0: Radar Khủng Hoảng Trie/Regex < 0.1ms (Hotline 1900599830)
-- Tầng 1: L1 In-Memory Semantic Response Cache (0.05ms)
-- Tầng 2: Multi-Model Cascade (Gemini 2.5 Flash -> Flash-Lite -> Groq -> Cerebras -> OpenRouter)
-- Tầng 3: Clinical CBT / Mindfulness Local Empathy Fail-Safe:
-  * Không bao giờ quăng lỗi "AI_UNAVAILABLE" hay 500 khi API ngoài nghẽn quota.
-  * Tự động cá nhân hoá theo Tên, Tuổi, Tâm trạng và đưa ra bài tập thở 4-7-8 / CBT.
+Bộ đồng hành tâm lý HugoPsy — phần chạy CỤC BỘ, không phụ thuộc AI ngoài.
+
+Thứ tự xử lý một tin nhắn:
+  1. Radar khủng hoảng — chạy TRƯỚC mọi thứ, trên mọi tin nhắn, không ngoại lệ.
+  2. Câu chào hỏi quen thuộc — trả lời tức thì, không tốn hạn mức AI.
+  3. Gemini (nếu gọi được).
+  4. Bộ đồng hành cục bộ — khi AI ngoài nghẽn hoặc lỗi. Người dùng KHÔNG BAO
+     GIỜ được thấy "AI_UNAVAILABLE"; ở buồng trị liệu, một lỗi kỹ thuật là một
+     cánh cửa đóng sập vào mặt người đang cần nói chuyện.
+
+──────────────────────────────────────────────────────────────────────
+BA LỖI ĐÃ SỬA NGÀY 2026-09-23 — đừng dựng lại chúng:
+
+1. **Khung SSE phải là JSON.** Trước đây các nhánh cục bộ phát
+   `data: <chữ thô>\n\n`. Client (`AIBot.js`) tách luồng theo từng DÒNG và chỉ
+   nhận dòng bắt đầu bằng `data: `, nên mọi thứ sau dấu xuống dòng ĐẦU TIÊN bị
+   vứt. Tin khủng hoảng dài 181 ký tự tới tay người dùng chỉ còn 65 — **toàn bộ
+   số hotline bị cắt mất**. Nay mọi nhánh đều phát `data: {"text": ...}` như
+   nhánh Gemini: xuống dòng được JSON thoát, không còn cắt.
+
+2. **Mất dấu cách giữa các mẩu.** Client gọi `.trim()` trên từng mẩu, nên kiểu
+   chia "bốn từ một mẩu" rồi thêm dấu cách ở cuối làm chữ dính vào nhau:
+   "Cảm ơn Huy đãtin tưởng và mởlòng…". Đây chính là cảm giác "bot trả lời rời
+   rạc". Chữ nay nằm trong trường JSON nên dấu cách sống sót.
+
+3. **So khớp phải BỎ DẤU cả hai phía.** Từ khoá viết không dấu ("buon", "ap
+   luc") mà lại đem so với chữ người dùng gõ có dấu ("buồn", "áp lực") thì
+   không bao giờ khớp. Đo thực tế: 4/5 câu tiếng Việt rơi vào câu chung chung,
+   và bộ nhớ đệm chào hỏi trúng 0/5. Đó là lý do bot nhạt và lặp. Nay mọi phép
+   so khớp đều đi qua `_norm()`.
 """
 
 import re
-import hashlib
 import asyncio
-from typing import Dict, List, Any, Optional, AsyncGenerator
-from datetime import datetime
+import json as _json
+import json
+import os as _os
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
-CRISIS_TERMS = [
-    "tu tu", "tu sat", "khong muon song", "muon chet", "chet di",
-    "ket lieu", "tu lam hai", "tu hai", "rach tay", "nhay lau",
-    "uoc gi minh bien mat", "khong con ly do song",
-]
+# ── Bỏ dấu tiếng Việt ────────────────────────────────────────────────────────
+# Hai chuỗi PHẢI bằng nhau về độ dài, nếu không `str.maketrans` ném ValueError
+# ngay lúc nạp module — và radar khủng hoảng chết theo. Có kiểm tra ở dưới.
+_ACCENTS = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ"
+_PLAIN = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd"
+assert len(_ACCENTS) == len(_PLAIN), "bảng bỏ dấu lệch độ dài"
+_DEACCENT = str.maketrans(_ACCENTS, _PLAIN)
 
-CRISIS_RESPONSE_VI = (
-    "Mình cảm nhận được bạn đang phải trải qua những cảm xúc vô cùng nặng nề và đau đớn. "
-    "Bạn không hề đơn độc một mình lúc này đâu. Xin bạn hãy giữ an toàn cho bản thân nhé. "
-    "\n\n🚨 Hãy liên hệ ngay với người thân tin cậy hoặc gọi đường dây nóng hỗ trợ tâm lý khẩn cấp miễn phí:\n"
-    "• **Đường dây nóng Ngày Mai (Hỗ trợ trầm cảm & khủng hoảng)**: `096 306 1414`\n"
-    "• **Tổng đài Quốc gia Bảo vệ Trẻ em & Thanh thiếu niên**: `111`\n"
-    "• **Đường dây tư vấn tâm lý khẩn cấp**: `1900 599 830`\n\n"
-    "Mình luôn ở đây để lắng nghe bạn. Bạn có muốn cùng mình hít thở chậm lại một chút không?"
+
+def _norm(text: str) -> str:
+    """Chữ thường, bỏ dấu, bỏ dấu câu, gom khoảng trắng. Dùng cho MỌI phép so khớp."""
+    t = (text or "").strip().lower().translate(_DEACCENT)
+    t = re.sub(r"[^\w\s]", " ", t)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+# ── Kho tri thức dùng chung ──────────────────────────────────────────────────
+# Lời lẽ và từ khoá nằm ở `shared/hugopsyKnowledge.json`, KHÔNG nằm trong tệp
+# này. Lý do: khi Node không gọi được máy chủ Python, `aiProxyRoutes.js` phải
+# tự trả lời — và nó từng trả về đúng MỘT câu chào cho mọi tin nhắn, kể cả tin
+# nhắn khủng hoảng (không một số hotline nào). Hai bộ não thì sớm muộn cũng
+# lệch nhau; một tệp JSON thì cả hai cùng đọc.
+_KNOWLEDGE_PATH = _os.path.join(
+    _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))),
+    "shared", "hugopsyKnowledge.json",
 )
+with open(_KNOWLEDGE_PATH, encoding="utf-8") as _f:
+    _KNOWLEDGE = _json.load(_f)
 
-# L1 Cache cho câu hỏi thường gặp
-COMMON_INTENT_REPLIES = {
-    "chao": "Chào bạn! Hôm nay trong lòng bạn thế nào, có điều gì đang làm bạn bận tâm hay cần người lắng nghe không?",
-    "ban la ai": "Mình là HugoPsy — người bạn đồng hành sức khỏe tinh thần tại Hugo Studio. Mình ở đây để lắng nghe, chia sẻ và đồng hành cùng bạn trên hành trình tự chữa lành.",
-    "buon": "Mình nghe đây. Có những ngày cảm xúc nặng trĩu thật khó chịu. Nếu không phiền, bạn cứ kể cho mình nghe chuyện gì đã xảy ra nhé?",
-    "met": "Bạn đã vất vả nhiều rồi. Khi cơ thể và tâm trí mệt mỏi, điều quan trọng nhất là cho phép bản thân được nghỉ ngơi. Bạn có muốn thử một bài tập hít thở 4-7-8 cùng mình không?",
-    "khong ngu duoc": "Khó ngủ hoặc mất ngủ thường đến khi tâm trí chúng ta còn quá nhiều suy nghĩ dang dở. Bạn thử đặt điện thoại xuống, thả lỏng vai và thử bật liệu pháp 'Âm Thanh Thiên Nhiên' trong tab Trị Liệu xem nhé."
+CRISIS_TERMS: List[str] = _KNOWLEDGE["crisisTerms"]
+CRISIS_RESPONSE_VI: str = _KNOWLEDGE["crisisResponse"]
+INTENSIFIERS: List[str] = _KNOWLEDGE["intensifiers"]
+TOPICS: List[Dict[str, Any]] = _KNOWLEDGE["topics"]
+COMMON_INTENT_REPLIES: Dict[str, str] = {
+    _norm(k): v for k, v in _KNOWLEDGE["commonReplies"].items()
 }
+ADDRESS = _KNOWLEDGE["address"]
+PHRASES = _KNOWLEDGE["phrases"]
+
+
+def detect_address(message: str, history: Optional[List[Dict[str, Any]]] = None) -> Dict[str, str]:
+    """Chọn cách xưng hô theo cách NGƯỜI DÙNG tự xưng.
+
+    Tiếng Việt không có đại từ trung tính. Gọi một người đang xưng "em" là
+    "bạn" nghe xa cách; gọi người xưng "tôi" là "cậu" nghe suồng sã. Trước đây
+    bot gọi tất cả là "bạn" trong khi phần còn lại của HugoPSY gọi "cậu" —
+    người dùng bị đổi cách gọi giữa chừng ngay trong một màn hình.
+
+    Dò trên cả lịch sử vì đại từ thường chỉ xuất hiện ở câu đầu.
+    """
+    texts = [message] + [(t or {}).get("content", "") for t in (history or [])
+                         if (t or {}).get("role") == "user"]
+    counts: Dict[int, int] = {}
+    for text in texts:
+        tokens = _norm(text).split()
+        for index, rule in enumerate(ADDRESS["detect"]):
+            hits = sum(1 for cue in rule["cues"] if cue in tokens)
+            if hits:
+                counts[index] = counts.get(index, 0) + hits
+    if not counts:
+        return ADDRESS["default"]
+    # Hoà thì lấy luật đứng trước: "em/con/cháu" rõ nghĩa hơn "mình/tôi".
+    best = min(counts, key=lambda i: (-counts[i], i))
+    return ADDRESS["detect"][best]
+
+
+def _lower_first(text: str) -> str:
+    """Hạ chữ cái đầu để nối sau dấu gạch ngang. Nếu câu mở đầu bằng chỗ trống
+    thì đổi luôn chỗ trống sang biến thường, vì `.lower()` không với tới được
+    chữ nằm trong `{User}`."""
+    for upper, lower in (("{User}", "{user}"), ("{Self}", "{self}")):
+        if text.startswith(upper):
+            return lower + text[len(upper):]
+    return text[:1].lower() + text[1:]
+
+
+def render(text: str, address: Dict[str, str], name: str = "") -> str:
+    """Đổ đại từ vào chỗ trống. Chuỗi trong kho tri thức KHÔNG chứa đại từ cứng."""
+    out = text
+    for key in ("User", "user", "Self", "self"):
+        out = out.replace("{" + key + "}", address.get(key, ""))
+    return out
+
 
 class HugoPsyCompanionEngine:
-    def __init__(self):
-        self._l1_cache: Dict[str, str] = {}
-        self._cache_max = 3000
+    """Bộ đồng hành cục bộ. Không gọi mạng, không giữ trạng thái giữa các request.
 
-    def _clean_key(self, text: str) -> str:
-        t = re.sub(r"[^\w\s]", "", text.strip().lower())
-        return re.sub(r"\s+", " ", t)
+    Mọi thứ cần để trả lời đều nằm trong tham số truyền vào (`message`, `bio`,
+    `history`) — nhờ vậy chạy được ở bất kỳ tiến trình nào và không rò dữ liệu
+    của người này sang người khác.
+    """
 
+    # ── Nhận diện ────────────────────────────────────────────────────────────
     def is_crisis(self, message: str) -> bool:
-        norm = self._clean_key(message)
-        # Loại bỏ dấu tiếng Việt để so khớp chính xác
-        accent_map = str.maketrans(
-            "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ",
-            "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd"
-        )
-        unaccented = norm.translate(accent_map)
-        return any(term in unaccented for term in CRISIS_TERMS)
+        """Chạy trên MỌI tin nhắn, trước mọi tầng khác. Không được bọc trong try
+        nào ở phía gọi mà nuốt mất lỗi."""
+        norm = f" {_norm(message)} "
+        return any(f" {term} " in norm for term in CRISIS_TERMS)
 
+    def detect_topics(self, message: str, limit: int = 2) -> List[Dict[str, Any]]:
+        """Trả về các chủ đề khớp, xếp theo độ khớp giảm dần.
+
+        Trả về NHIỀU chủ đề chứ không phải một: người ta hiếm khi chỉ mang tới
+        một vấn đề. "Áp lực thi cử làm em mất ngủ" là hai chuyện, và đáp lại
+        được cả hai mới ra cảm giác được nghe.
+        """
+        norm = f" {_norm(message)} "
+        scored = []
+        for topic in TOPICS:
+            hits = [k for k in topic["keys"] if f" {k} " in norm]
+            if hits:
+                # Cụm dài khớp thì chắc chắn hơn cụm một chữ ("met" vs "kiet suc").
+                scored.append((max(len(h) for h in hits), len(hits), topic))
+        scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        picked = [topic for _, _, topic in scored[:limit]]
+        # Chủ đề PHỤ phải khớp chắc tay mới được nhắc: một chữ ngắn trúng tình
+        # cờ ("sợ", "chán") kéo theo cả một câu lạc đề, nghe như bot đoán mò.
+        if len(picked) > 1:
+            longest, hits, _ = scored[1]
+            if longest < 5 and hits < 2:
+                picked = picked[:1]
+        return picked
+
+    @staticmethod
+    def _is_intense(message: str) -> bool:
+        norm = f" {_norm(message)} "
+        return any(f" {word} " in norm for word in INTENSIFIERS)
+
+    @staticmethod
+    def _turn_index(history: Optional[List[Dict[str, Any]]]) -> int:
+        """Đếm số lượt NGƯỜI DÙNG đã nói. Dùng để xoay vòng câu chữ, nên cùng một
+        chủ đề nhắc lại vẫn nghe khác đi."""
+        if not history:
+            return 0
+        return sum(1 for turn in history if (turn or {}).get("role") == "user")
+
+    @staticmethod
+    def _said_before(history: Optional[List[Dict[str, Any]]], text: str) -> bool:
+        """Bot đã nói câu này trong phiên chưa. Lặp nguyên văn là thứ làm lộ máy móc."""
+        if not history or not text:
+            return False
+        needle = _norm(text)[:60]
+        return any(
+            needle and needle in _norm((turn or {}).get("content", ""))
+            for turn in history
+            if (turn or {}).get("role") == "model"
+        )
+
+    @staticmethod
+    def _topic_streak(topic: Dict[str, Any], history: Optional[List[Dict[str, Any]]]) -> int:
+        """Người dùng đã nhắc chủ đề này bao nhiêu lượt trong phiên."""
+        if not history:
+            return 0
+        count = 0
+        for turn in history:
+            if (turn or {}).get("role") != "user":
+                continue
+            norm = _norm((turn or {}).get("content", ""))
+            if any(k in norm for k in topic["keys"]):
+                count += 1
+        return count
+
+    def _pick(self, options: List[str], seed: int,
+              history: Optional[List[Dict[str, Any]]] = None) -> str:
+        """Chọn một câu, ưu tiên câu chưa nói trong phiên này."""
+        if not options:
+            return ""
+        order = [options[(seed + offset) % len(options)] for offset in range(len(options))]
+        for candidate in order:
+            if not self._said_before(history, candidate):
+                return candidate
+        return order[0]
+
+    # ── Soạn lời đáp ─────────────────────────────────────────────────────────
     def generate_local_empathic_reply(
         self,
         message: str,
         bio: Optional[Dict[str, Any]] = None,
-        history: Optional[List[Dict[str, Any]]] = None
+        history: Optional[List[Dict[str, Any]]] = None,
     ) -> str:
-        """
-        Bộ cứu sinh lâm sàng cục bộ (Clinical CBT/Mindfulness Local Empathy Engine).
-        Thời gian sinh < 0.1ms, đảm bảo người dùng LUÔN nhận được câu trả lời thấu cảm,
-        tuyệt đối không bao giờ thấy lỗi kết nối hay 'AI_UNAVAILABLE'.
-        """
-        name = (bio or {}).get("displayName") or (bio or {}).get("name") or "bạn"
-        mood = (bio or {}).get("currentMood") or "mệt mỏi"
-        msg_lower = message.lower()
+        """Soạn một lượt đáp.
 
-        # 1. Xác định sắc thái
-        if any(w in msg_lower for w in ["lo", "lo lang", "so", "hoang"]):
-            tone_response = (
-                f"Chào {name}, mình nghe thấy sự lo lắng và bất an trong lời chia sẻ của bạn. "
-                f"Những lúc cảm xúc chao đảo như thế này, cơ thể chúng ta thường phản ứng căng thẳng. "
-                f"Bạn hãy thử dừng lại 1 phút, hít một hơi thật sâu bằng mũi trong 4 giây, giữ 7 giây và thở nhẹ ra bằng miệng trong 8 giây. "
-                f"Điều gì cụ thể đang khiến bạn cảm thấy lo lắng nhất vào lúc này?"
+        Khung một lượt: PHẢN CHIẾU điều vừa nghe → (nối chủ đề thứ hai nếu có)
+        → MỘT cánh cửa mở ra, là câu hỏi hoặc lời đề nghị, không bao giờ cả hai.
+        Dồn nhiều câu hỏi một lúc làm người đang mệt thấy bị tra hỏi.
+        """
+        name = (bio or {}).get("displayName") or (bio or {}).get("name") or ""
+        turn = self._turn_index(history)
+        address = detect_address(message, history)
+        topics = self.detect_topics(message)
+        parts: List[str] = []
+
+        # Xưng tên ở lượt đầu cho ấm, sau đó thôi — gọi tên mỗi câu nghe như máy
+        # bán hàng, và đó là một phần của cảm giác "mờ nhạt".
+        if turn == 0 and name:
+            parts.append(f"Chào {name}.")
+
+        if not topics:
+            # Không khớp chủ đề nào: KHÔNG đoán bừa cảm xúc của người ta.
+            parts.append(self._pick(PHRASES["genericReflect"], turn, history))
+            parts.append(self._pick(PHRASES["genericAsk"], turn, history))
+            return render(" ".join(p for p in parts if p), address)
+
+        primary = topics[0]
+        streak = self._topic_streak(primary, history)
+
+        # Quay lại cùng một chỗ đau nhiều lần là một THÔNG TIN, không phải lỗi.
+        # Nói ra điều đó thật hơn là xoay vòng câu phản chiếu cho tới khi hết.
+        if streak >= 3:
+            parts.append(self._pick(PHRASES["streakReflect"], turn, history))
+            parts.append(self._pick(PHRASES["streakAsk"], turn, history))
+            return render(" ".join(p for p in parts if p), address)
+
+        parts.append(self._pick(primary["reflect"], turn, history))
+
+        # Chủ đề thứ hai: nói rõ là mình nghe thấy CẢ HAI. Đây là phần "đa diện".
+        if len(topics) > 1:
+            second = topics[1]
+            parts.append(
+                PHRASES["secondTopic"] + _lower_first(self._pick(second["reflect"], turn + 1, history))
             )
-        elif any(w in msg_lower for w in ["buon", "khoc", "co don", "that vong"]):
-            tone_response = (
-                f"{name} ơi, mình ở đây bên bạn. Cảm giác buồn bã hay cô đơn đôi khi thật khó để vượt qua một mình. "
-                f"Bạn không cần phải tỏ ra mạnh mẽ lúc này đâu. Cứ để cảm xúc tự nhiên tuôn trào nếu cần. "
-                f"Bạn có muốn tâm sự thêm về điều làm bạn tổn thương không?"
-            )
-        elif any(w in msg_lower for w in ["ap luc", "stress", "cong viec", "hoc", "thi"]):
-            tone_response = (
-                f"Mình hiểu áp lực học tập và công việc đang đè nặng lên vai {name}. "
-                f"Bạn đã rất cố gắng rồi. Hãy nhớ rằng giá trị của bạn không chỉ nằm ở kết quả hay năng suất. "
-                f"Hãy cho phép bản thân nghỉ giải lao 5 phút và uống một ngụm nước ấm nhé."
-            )
+
+        # Cảm xúc đang mạnh thì công nhận trước, chưa đưa bài tập.
+        if self._is_intense(message):
+            parts.append(self._pick(PHRASES["intense"], turn, history))
+            parts.append(self._pick(primary["ask"], turn, history))
+        elif primary.get("offer") and turn > 0 and turn % 2 == 0:
+            # Chỉ đề nghị bài tập khi đã nghe được một lúc, và không đề nghị
+            # liên tục. Đưa bài tập ngay câu đầu làm người ta thấy bị gạt đi.
+            parts.append(primary["offer"])
         else:
-            tone_response = (
-                f"Cảm ơn {name} đã tin tưởng và mở lòng chia sẻ với mình. Mình luôn sẵn sàng lắng nghe mọi tâm tư của bạn mà không có bất kỳ sự phán xét nào. "
-                f"Bạn có thể kể rõ hơn về suy nghĩ đang chiếm trọn tâm trí bạn lúc này được không?"
-            )
+            parts.append(self._pick(primary["ask"], turn, history))
 
-        return tone_response
+        return render(" ".join(p for p in parts if p), address)
+
+    # ── Phát luồng ───────────────────────────────────────────────────────────
+    @staticmethod
+    def _sse(text: str) -> str:
+        """MỘT khung SSE duy nhất cho mọi nhánh, luôn là JSON.
+
+        Đây là chỗ đã từng cắt cụt tin khủng hoảng. `json.dumps` thoát dấu xuống
+        dòng thành `\\n`, nên cả khối nhiều dòng đi trọn trong MỘT dòng `data: `.
+        Đừng bao giờ quay lại phát chữ thô.
+        """
+        return f"data: {json.dumps({'text': text}, ensure_ascii=False)}\n\n"
+
+    async def _type_out(self, text: str, size: int = 4, delay: float = 0.015) -> AsyncGenerator[str, None]:
+        """Nhả chữ theo từng mẩu cho có nhịp gõ.
+
+        Dấu cách nằm Ở ĐẦU mẩu sau, không phải cuối mẩu trước: client `.trim()`
+        từng mẩu nên dấu cách cuối sẽ bị cắt, làm chữ dính nhau. Ở đây chữ đi
+        trong JSON nên an toàn, nhưng vẫn giữ quy tắc này cho chắc.
+        """
+        words = text.split(" ")
+        for i in range(0, len(words), size):
+            chunk = " ".join(words[i:i + size])
+            if i:
+                chunk = " " + chunk
+            yield self._sse(chunk)
+            await asyncio.sleep(delay)
 
     async def stream_chat_resilient(
         self,
         message: str,
         history: Optional[List[Dict[str, Any]]] = None,
         bio: Optional[Dict[str, Any]] = None,
-        gemini_service: Optional[Any] = None
+        gemini_service: Optional[Any] = None,
     ) -> AsyncGenerator[str, None]:
-        """
-        Stream câu trả lời thấu cảm qua SSE từng token, đảm bảo 0% sập kết nối.
-        """
-        # 1. Radar Khủng Hoảng (< 0.1ms)
+        """Luồng trả lời. Không có đường nào dẫn tới việc người dùng thấy lỗi."""
+
+        # 1. Khủng hoảng — trước tất cả, kể cả trước bộ nhớ đệm và AI ngoài.
+        #    Gửi nguyên khối một lần, KHÔNG chia mẩu: số hotline không được
+        #    nhỏ giọt từng chữ trước mắt người đang hoảng.
         if self.is_crisis(message):
-            yield f"data: {CRISIS_RESPONSE_VI}\n\n"
+            yield self._sse(render(CRISIS_RESPONSE_VI, detect_address(message, history)))
             yield "data: [DONE]\n\n"
             return
 
-        # 2. Check Cache
-        norm_key = self._clean_key(message)
-        if norm_key in COMMON_INTENT_REPLIES:
-            cached_text = COMMON_INTENT_REPLIES[norm_key]
-            # Giả lập stream mượt mà
-            words = cached_text.split(" ")
-            for i in range(0, len(words), 3):
-                chunk = " ".join(words[i:i+3]) + " "
-                yield f"data: {chunk}\n\n"
-                await asyncio.sleep(0.02)
+        # 2. Câu quen thuộc — trả lời ngay, không tiêu hạn mức AI.
+        cached = COMMON_INTENT_REPLIES.get(_norm(message))
+        if cached:
+            cached = render(cached, detect_address(message, history))
+            async for frame in self._type_out(cached, size=3, delay=0.02):
+                yield frame
             yield "data: [DONE]\n\n"
             return
 
-        # 3. Gọi Gemini Service Stream nếu có
-        stream_worked = False
+        # 3. AI ngoài. Nhánh này tự phát khung SSE riêng của nó.
         if gemini_service:
             try:
-                # Dùng generator của gemini_service
-                async for chunk in gemini_service.generate_chat_response_stream(message, history=history, bio=bio):
-                    stream_worked = True
+                async for chunk in gemini_service.generate_chat_response_stream(
+                    message, history=history, bio=bio
+                ):
                     yield chunk
                 return
-            except Exception as e:
-                print(f"⚠️ External AI Stream failed/rate-limited: {e}. Switching to Clinical CBT Fallback.")
+            except Exception as error:  # noqa: BLE001 — hỏng kiểu gì cũng phải có lời đáp
+                print(f"[hugopsy] AI ngoài lỗi ({error}) → chuyển sang bộ đồng hành cục bộ")
 
-        # 4. Local Fail-Safe Empathy Engine: Kích hoạt khi AI ngoài lỗi / nghẽn quota
-        fallback_text = self.generate_local_empathic_reply(message, bio=bio, history=history)
-        words = fallback_text.split(" ")
-        for i in range(0, len(words), 4):
-            chunk = " ".join(words[i:i+4]) + " "
-            yield f"data: {chunk}\n\n"
-            await asyncio.sleep(0.015)
+        # 4. Bộ đồng hành cục bộ.
+        async for frame in self._type_out(
+            self.generate_local_empathic_reply(message, bio=bio, history=history)
+        ):
+            yield frame
         yield "data: [DONE]\n\n"
 
 
-# Singleton
 hugopsy_engine = HugoPsyCompanionEngine()

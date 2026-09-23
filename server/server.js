@@ -18,6 +18,7 @@ import { cachePolicy } from './middleware/cachePolicy.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
 import { mountServices } from './services.manifest.js';
+import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
   findActiveSecurityBlock,
   recordSecurityViolation,
@@ -332,7 +333,7 @@ app.use((err, req, res, next) => {
     }).catch((incidentError) => console.warn('[server-specialist]', incidentError.message));
   }
   console.error('[Route Error]', req?.originalUrl, err?.message);
-  res.status(status).json({ error: 'Đã xảy ra lỗi máy chủ.' });
+  res.status(status).json({ code: status >= 500 ? 'SERVER_ERROR' : 'REQUEST_FAILED', error: 'Đã xảy ra lỗi máy chủ.' });
 });
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
@@ -430,13 +431,8 @@ wss.on('connection', (ws, req) => {
   let email;
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.email) email = decoded.email;
-  } catch {
-    try {
-      const decoded = jwt.decode(token);
-      if (decoded?.email) email = decoded.email;
-    } catch {}
-  }
+    if (decoded.role === 'member' && decoded.email) email = decoded.email;
+  } catch {}
 
   if (!email) {
     ws.close(4001, 'Invalid or expired token');
@@ -528,6 +524,10 @@ server.listen(PORT, () => {
 
   // Initialize Duolingo-style smart push (sleep, wellness, streak)
   initSmartNotificationService();
+
+  // Marketing chỉ gửi cho thành viên đã tự opt-in; lịch chạy ở đây để tuân thủ
+  // cùng công tắc RUN_CRON với các tác vụ có tác dụng phụ khác.
+  initLifecycleEmailService();
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAdminSession } from '../../services/authSession';
+import { getAdminSession } from '../../services/api/core/authSession';
 import { notify } from '../../lib/notify';
-import { packageApi } from '../../services/api/PackageApi';
-import { userApi } from '../../services/api/UserApi';
+import { packageApi } from '../../services/api/modules/packageApi';
+import { userApi } from '../../services/api/modules/userApi';
 import SmartUserSearch from './SmartUserSearch';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';

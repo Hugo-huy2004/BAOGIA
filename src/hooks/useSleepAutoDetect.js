@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import dataApi from "../services/dataApi";
+import dataApi from "../services/api/modules/dataApi";
 import { isStandalone } from "../config/platform";
 
 // ── Constants ──────────────────────────────────────────────────────────────

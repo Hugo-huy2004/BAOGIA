@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { logoutAuth } from "../../services/authSession";
+import { logoutAuth } from "../../services/api/core/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 

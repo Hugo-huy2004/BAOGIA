@@ -2,7 +2,7 @@
  * Frontend Utility Helper - Web Push Notification System
  * Hỗ trợ đăng ký Service Worker và gửi đối tượng Subscription Object lên server.
  */
-import { getMemberToken } from "../services/authSession";
+import { getMemberToken } from "../services/api/core/authSession";
 import { IS_NATIVE, isStandalone } from "../config/platform";
 import { getStoredAppLanguage, localeForLanguage } from "../i18n/languages";
 

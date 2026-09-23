@@ -20,6 +20,9 @@ import { studentBioDemo } from "../../../data/studentBioDemo";
 type Chapter = {
   eyebrow: string;
   title: string;
+  /** Khoảng giá của gói. Khách nhỏ lọc theo giá trước khi đọc bất cứ thứ gì,
+   *  nên nó đứng ngay dưới khẩu hiệu chứ không nằm mãi ở trang chi tiết. */
+  price?: string;
   description: string;
   features?: string[];
   href?: string;
@@ -124,6 +127,7 @@ export default function ServicesStory({
                   {standalone && index === 2 ? <>03 · Hugo <span className="bg-linear-to-r from-[#17EAD9] via-[#4CB5E7] to-[#6078EA] bg-clip-text text-transparent">Flow+</span></> : chapter.eyebrow}
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.035em]">{chapter.title}</h3>
+                {chapter.price ? <p className="mt-2 text-base font-semibold tracking-[-0.02em]">{chapter.price}</p> : null}
                 <p className="mt-3 text-[0.95rem] leading-7 text-muted-foreground">{chapter.description}</p>
                 {standalone ? (
                   <div aria-hidden className="mt-8 flex justify-center py-2">
@@ -164,9 +168,9 @@ export default function ServicesStory({
             style={{ opacity: introOpacity }}
             className="absolute inset-x-5 top-[clamp(4.75rem,9svh,7rem)] z-30 text-center sm:inset-x-8"
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-2">
+            <div className="hg-glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.72rem] font-semibold tracking-[0.14em] text-foreground mb-2">
               <span className="size-1.5 rounded-full bg-[#00f0ff]" />
-              <span>{standalone ? "SCENE 02 · PRODUCT FILM" : "SCENE 03 · THE MACHINERY"}</span>
+              <span>{label}</span>
             </div>
             <h2 className="mx-auto mt-2 max-w-4xl text-[clamp(1.85rem,1.2rem+2.7vw,4rem)] leading-[1.04] font-bold tracking-[-0.04em] text-foreground">
               {heading}
@@ -268,6 +272,7 @@ export default function ServicesStory({
               {chapters.slice(0, storyChapterCount).map((chapter) => (
                 <li key={chapter.eyebrow}>
                   <h3>{chapter.title}</h3>
+                  {chapter.price ? <p>{chapter.price}</p> : null}
                   <p>{chapter.description}</p>
                   {chapter.features?.length ? <p>Bao gồm: {chapter.features.join(", ")}.</p> : null}
                 </li>
@@ -1050,13 +1055,16 @@ function ChapterCopy({
       <h3 className={`${early ? "mt-3 text-[clamp(1.75rem,2.65vw,3.15rem)] leading-[1.02] tracking-[-0.055em]" : "mt-1.5 text-[clamp(1.08rem,0.9rem+0.85vw,1.65rem)] leading-tight tracking-[-0.035em]"} font-semibold text-foreground`}>
         {chapter.title}
       </h3>
-      <p className={`${early ? "mt-5 max-w-md text-base leading-7" : "mx-auto mt-1.5 max-w-xl text-sm leading-relaxed"} hidden text-foreground/60 sm:block`}>
+      {chapter.price ? (
+        <p className={`${early ? "mt-3 text-lg" : "mt-1.5 text-sm"} font-semibold tracking-[-0.02em] text-foreground`}>{chapter.price}</p>
+      ) : null}
+      <p className={`${early ? "mt-4 max-w-md text-base leading-7" : "mx-auto mt-1.5 max-w-xl text-sm leading-relaxed"} hidden text-foreground/60 sm:block`}>
         {chapter.description}
       </p>
       {chapter.features?.length ? (
-        <ul className={`${early ? "mt-6 grid-cols-2 gap-x-4 gap-y-3 rounded-[1.5rem] px-5 py-4" : "mx-auto mt-3 max-w-4xl grid-cols-3 gap-x-5 gap-y-1.5 rounded-2xl px-5 py-2.5"} grid border border-foreground/10 bg-background/55 text-left backdrop-blur-md`}>
+        <ul className={`${early ? "mt-6 grid-cols-2 gap-x-4 gap-y-3 rounded-[1.5rem] px-5 py-4" : "mx-auto mt-3 max-w-4xl grid-cols-3 gap-x-5 gap-y-1.5 rounded-2xl px-5 py-2.5"} hg-glass grid text-left`}>
           {chapter.features.map((feature) => (
-            <li key={feature} className={`${early ? "text-[0.78rem] leading-5" : "text-[0.72rem]"} flex items-center gap-2 font-medium text-foreground/60`}>
+            <li key={feature} className={`${early ? "text-[0.78rem] leading-5" : "text-[0.72rem]"} flex items-center gap-2 font-medium text-foreground/80`}>
               <span className="size-1.5 rounded-full bg-[#35CFE1]" />
               {feature}
             </li>
@@ -1066,7 +1074,7 @@ function ChapterCopy({
       {chapter.href ? (
         <div className={`${early ? "mt-5 justify-start" : "mt-2 justify-center"} flex gap-2`}>
           <Link href={chapter.href} className="rounded-full bg-foreground px-3.5 py-2 text-[0.68rem] font-semibold text-background">{chapter.actionLabel || "Xem chi tiết"}</Link>
-          {chapter.demoHref ? <Link href={chapter.demoHref} className="rounded-full border border-foreground/15 bg-background/70 px-3.5 py-2 text-[0.68rem] font-semibold backdrop-blur-md">{chapter.demoLabel || "Mở Bio của bạn"}</Link> : null}
+          {chapter.demoHref ? <Link href={chapter.demoHref} className="hg-glass rounded-full px-3.5 py-2 text-[0.68rem] font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground">{chapter.demoLabel || "Mở Bio của bạn"}</Link> : null}
         </div>
       ) : null}
     </motion.div>
@@ -1078,7 +1086,7 @@ function ProgressRail({ labels, progress }: { labels: string[]; progress: Motion
   const visibleLabels = labels.slice(0, 4);
 
   return (
-    <div className="w-full max-w-[30rem] sm:w-[min(50vw,30rem)]">
+    <div className="hg-glass w-full max-w-[30rem] rounded-2xl px-4 py-3 sm:w-[min(50vw,30rem)]">
       <div className="relative h-px overflow-hidden bg-foreground/15">
         <motion.span
           style={{ width }}

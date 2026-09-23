@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
+import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
 import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts } from "../../../shared/projectPackages";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../config/apiBase';
 
-const STATUS_OPTIONS = ['Đang liên hệ', 'Đang lên thiết kế', 'Đang thực hiện', 'Đang Kiểm tra', 'Hoàn tất'];
+// Bộ lọc lấy thẳng từ máy trạng thái; danh sách chép tay trước đây là chữ tiếng
+// Việt cũ, không khớp mã máy nên lọc ra rỗng.
+const STATUS_OPTIONS = Object.entries(PROJECT_STATUSES).map(([id, s]) => ({ id, label: s.adminLabel }));
 
 const STATUS_COLORS = {
   'Đang liên hệ': 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
@@ -162,9 +165,9 @@ export default function AdminProjectsTab({ showNotification }) {
     const q = search.trim().toLowerCase();
     return projects.filter(p => {
       const matchesQuery = !q ||
-        p.fullName?.toLowerCase().includes(q) ||
+        (p.customer?.fullName || p.name)?.toLowerCase().includes(q) ||
         p.phone?.toLowerCase().includes(q) ||
-        p.loginCode?.toLowerCase().includes(q);
+        p.projectId?.toLowerCase().includes(q);
       const matchesStatus = !statusFilter || p.status === statusFilter;
       return matchesQuery && matchesStatus;
     });
@@ -299,7 +302,7 @@ export default function AdminProjectsTab({ showNotification }) {
               className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs py-3 px-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold shrink-0"
             >
               <option value="">{t("adminProjects.tab.statusAll")}</option>
-              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              {STATUS_OPTIONS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>
           </div>
 
@@ -309,7 +312,7 @@ export default function AdminProjectsTab({ showNotification }) {
                 <div className="flex justify-between items-start gap-3">
                   <div className="min-w-0">
                     <div className="font-bold text-sm text-foreground flex items-center gap-2 flex-wrap">
-                      <span className="truncate">{p.fullName}</span>
+                      <button type="button" onClick={() => navigate(`/admin/projects/${p.projectId}`)} className="truncate text-left hover:underline">{p.customer?.fullName || p.name}</button>
                       {p.unreadCount > 0 && (
                         <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse shrink-0">
                           {p.unreadCount} {t("adminProjects.tab.newMsg")}
@@ -318,18 +321,18 @@ export default function AdminProjectsTab({ showNotification }) {
                     </div>
                     <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold truncate">{p.servicePackage}</div>
                     <div className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800/50 inline-block mt-2">
-                      MÃ: {p.loginCode}
+                      MÃ: {p.projectId}
                     </div>
                   </div>
-                  <span className={`text-[10px] px-2 py-1 rounded-md font-bold shrink-0 text-center ${STATUS_COLORS[p.status] || STATUS_COLORS['Đang liên hệ']}`}>
-                    {p.status}
+                  <span className={`text-[10px] px-2 py-1 rounded-md font-bold shrink-0 text-center ${STATUS_COLORS[p.status] || "bg-slate-500/10 text-slate-500"}`}>
+                    {PROJECT_STATUSES[p.status]?.adminLabel || p.status}
                   </span>
                 </div>
 
                 {/* Always-visible action row — no hover-only controls so this works on touch devices */}
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
                   <button
-                    onClick={(e) => handleCopyLink(e, p.loginCode)}
+                    onClick={(e) => handleCopyLink(e, p.projectId)}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase transition-colors"
                   >
                     <span className="material-symbols-outlined text-[14px]">share</span>
@@ -397,7 +400,7 @@ export default function AdminProjectsTab({ showNotification }) {
               </div>
               <h3 className="text-lg font-black text-foreground">{t("adminProjects.tab.deleteTitle")}</h3>
               <p className="text-xs text-muted-foreground px-2 leading-relaxed">
-                {t("adminProjects.tab.deleteDesc")} <strong className="text-slate-700 dark:text-slate-300">{deleteTarget.fullName}</strong>. Bao gồm dự án, mã đăng nhập và toàn bộ tin nhắn. 
+                {t("adminProjects.tab.deleteDesc")} <strong className="text-slate-700 dark:text-slate-300">{deleteTarget.customer?.fullName || deleteTarget.name}</strong>. Bao gồm dự án, mã đăng nhập và toàn bộ tin nhắn. 
                 <span className="block mt-1 text-rose-500 font-semibold">{t("adminProjects.tab.deleteWarn")}</span>
               </p>
             </div>

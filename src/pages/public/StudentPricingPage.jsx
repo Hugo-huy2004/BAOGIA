@@ -6,7 +6,7 @@ import EduPattern from "../../components/public/EduPattern";
 import { useServiceCopy } from "../../hooks/useServiceCopy";
 import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { getMemberSession, loginMemberWithGoogle } from "../../services/authSession";
+import { getMemberSession, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
 import { notify } from "../../lib/notify";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { notify } from "../lib/notify";
-import dataApi from "../services/dataApi";
+import dataApi from "../services/api/modules/dataApi";
 
 const DataContext = createContext();
 

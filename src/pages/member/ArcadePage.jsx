@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMemberSession } from "../../services/authSession";
+import { getMemberSession } from "../../services/api/core/authSession";
 import memberService from "../../services/classes/MemberService";
 import { notify } from "../../lib/notify";
 

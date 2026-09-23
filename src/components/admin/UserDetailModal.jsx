@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import adminBrainApi from '../../services/api/AdminBrainApi';
+import AdminUserOverview from './AdminUserOverview';
+import adminBrainApi from '../../services/api/modules/adminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
 import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency';
@@ -9,7 +10,10 @@ import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile'); // profile | joy | orders | tickets | email | security
+  // "overview" mở mặc định: nó là chỗ DUY NHẤT hiện việc đang chờ admin duyệt
+  // (kháng nghị mở khoá, giao dịch JOY bị giữ). Các tab cũ chỉ đọc 5 nguồn nên
+  // những việc đó nằm chờ mà không ai thấy.
+  const [activeTab, setActiveTab] = useState('overview'); // overview | profile | joy | orders | tickets | email | security
 
   // Profile Edit & Expiration Extension State
   const [editingProfile, setEditingProfile] = useState(false);
@@ -217,7 +221,8 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
   };
 
   const handleRevokeSession = async () => {
-    if (!window.confirm(`Bạn có chắc chắn muốn thu hồi phiên làm việc của ${user.displayName}?`)) return;
+    const who = details?.bio?.displayName || user?.displayName || details?.bio?.email || user?.email || 'người dùng này';
+    if (!window.confirm(`Bạn có chắc chắn muốn thu hồi phiên làm việc của ${who}?`)) return;
     try {
       const res = await adminBrainApi.revokeUserSession(user._id);
       notify.success(res.message || 'Đã đăng xuất cưỡng chế người dùng');
@@ -350,6 +355,16 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
         <div className="px-6 py-3 border-b border-slate-200/80 dark:border-white/10 flex items-center gap-2 bg-slate-50/80 dark:bg-[#0d0e18] overflow-x-auto scrollbar-none">
           <button
             type="button"
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
+              activeTab === 'overview' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <span className="material-symbols-outlined text-base">radar</span> Toàn cảnh
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('profile')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === 'profile' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -419,6 +434,10 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
           ) : (
             <>
               {/* TAB 1: PROFILE & EXPIRATION & CONTROLS */}
+              {activeTab === 'overview' && (
+                <AdminUserOverview userId={user?._id} />
+              )}
+
               {activeTab === 'profile' && (
                 <div className="space-y-6">
                   {/* Top Key Metrics */}

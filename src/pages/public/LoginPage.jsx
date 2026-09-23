@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
+import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
-import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { isStandalone } from "../../config/platform";
@@ -95,11 +94,11 @@ export default function LoginPage() {
     // the client never decides identity from a decoded payload.
     const { session, error } = await loginMemberWithGoogle(response.credential);
     if (!session) {
-      showToast(error === "network" ? t("loginPage.toast.adminNetworkError") : t("loginPage.toast.noGoogle"), "error");
+      showToast(error === "network" ? t("loginPage.toast.adminNetworkError") : error || t("loginPage.toast.noGoogle"), "error");
       return;
     }
 
-    const isEdu = await isEduEmail(session.email);
+    const isEdu = session.isEduVerified;
     if (!isEdu) {
       showToast(
         t("loginPage.toast.eduRedirect"),
@@ -138,7 +137,11 @@ export default function LoginPage() {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     setGisReady(false);
     setGoogleConfigError("");
-    if (!clientId || !googleButtonRef.current) return;
+    if (!clientId) {
+      setGoogleConfigError("Đăng nhập Google chưa được cấu hình. Vui lòng liên hệ quản trị viên.");
+      return;
+    }
+    if (!googleButtonRef.current) return;
 
     let cancelled = false;
     let timer = null;
@@ -175,6 +178,7 @@ export default function LoginPage() {
         return;
       }
       rendered = true;
+      setGoogleConfigError("");
       setGisReady(true);
 
       if (timer) {

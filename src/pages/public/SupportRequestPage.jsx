@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getMemberSession } from '../../services/authSession';
-import { dataApi } from '../../services/dataApi';
+import { getMemberSession } from '../../services/api/core/authSession';
+import { dataApi } from '../../services/api/modules/dataApi';
 import { useHeadMeta } from '../../hooks/useHeadMeta';
 import { API_BASE } from '../../config/apiBase';
 

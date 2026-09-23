@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { fetchLesson, fetchLessonPage } from "../services/coderLessonsApi";
+import { fetchLesson, fetchLessonPage } from "../services/api/modules/coderLessonsApi";
 
 export function getStageBenefitsFromCatalog(stageId, stages = []) {
   return stages.find((stage) => stage.id === stageId)?.benefits || [];

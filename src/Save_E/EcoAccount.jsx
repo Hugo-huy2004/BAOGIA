@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
-import { getMemberSession, clearMemberSession } from "../services/authSession";
-import { apiFetch } from "../services/api";
-import { transferJoy, getJoyQrPayload } from "../services/joyApi";
+import { getMemberSession, clearMemberSession } from "../services/api/core/authSession";
+import { apiFetch } from "../services/api/core/apiClient";
+import { transferJoy, getJoyQrPayload } from "../services/api/modules/joyApi";
 import { notify } from "../lib/notify";
 import memberService from "../services/classes/MemberService";
 // Đuôi .jsx tường minh: macOS không phân biệt hoa/thường nên "./EcoRadio" bắt

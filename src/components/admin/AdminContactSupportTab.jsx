@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { bookingApi } from "../../services/api/BookingApi";
-import { supportTicketApi } from "../../services/api/SupportTicketApi";
+import { bookingApi } from "../../services/api/modules/bookingApi";
+import { supportTicketApi } from "../../services/api/modules/supportTicketApi";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminContactSupportTab({ showNotification, triggerConfirm }) {

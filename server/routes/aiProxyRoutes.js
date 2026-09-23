@@ -2,6 +2,7 @@ import express from 'express';
 import { Readable } from 'stream';
 import CompanionHistory from '../models/CompanionHistory.js';
 import { embedText, cosine } from '../services/embeddingService.js';
+import { composeReply, isCrisis, CRISIS_RESPONSE, detectAddress, render } from '../services/hugopsyFallback.js';
 import {
   assessHugoPsyContent,
   recordSecurityViolation,
@@ -29,22 +30,40 @@ const MAX_REPORT_REQUEST_BYTES = 11 * 1024 * 1024;
 // Streaming chat can recover fully on-device. Respond with a valid SSE event
 // and HTTP 200 when the private AI service is down, so browsers do not print a
 // noisy failed-fetch stack for an outage the client handles gracefully.
-// Streaming chat tự cứu sinh lâm sàng cục bộ (Clinical CBT Fail-safe).
-// Luôn trả lời ấm áp và giữ vững kết nối SSE ngay cả khi AI bên ngoài tạm thời gián đoạn.
+//
+// Nhánh này trước đây trả về ĐÚNG MỘT câu chào cố định cho mọi tin nhắn — trả
+// lời "Không" cũng nhận lại y nguyên câu đó — và KHÔNG kiểm tra khủng hoảng,
+// nên lúc máy chủ Python nghỉ thì người gõ "tôi muốn chết" nhận một lời chào
+// ấm áp mà không có số hotline nào. Nay nó dùng chung kho tri thức với engine
+// Python (`shared/hugopsyKnowledge.json`).
 function sendStreamFallback(res, req) {
   res.status(200);
   res.set('Content-Type', 'text/event-stream; charset=utf-8');
   res.set('Cache-Control', 'no-store');
   res.set('Connection', 'keep-alive');
 
-  const name = req?.body?.bio?.displayName || req?.body?.bio?.name || 'bạn';
-  const text = `Chào ${name}, mình luôn ở đây để lắng nghe và đồng hành cùng bạn. Mình hiểu cảm xúc và những áp lực bạn đang phải trải qua lúc này. Bạn hãy thả lỏng hai vai, hít thở thật chậm lại một chút nhé. Bạn có muốn tâm sự thêm với mình về điều đang làm bạn trăn trở không?`;
+  const message = String(req?.body?.message || '');
 
+  // Khủng hoảng: gửi NGUYÊN KHỐI, một khung, không nhỏ giọt từng chữ. Số cứu hộ
+  // không được hiện dần trước mắt người đang hoảng.
+  if (isCrisis(message)) {
+    // Kho tri thức để chỗ trống {user}/{self} — chưa đổ thì người dùng đọc thấy
+    // đúng chữ "{user}" giữa tin khủng hoảng.
+    const address = detectAddress(message, req?.body?.history);
+    res.write(`data: ${JSON.stringify({ text: render(CRISIS_RESPONSE, address) })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    res.end();
+    return;
+  }
+
+  const text = composeReply(message, { bio: req?.body?.bio, history: req?.body?.history });
   const words = text.split(' ');
   let i = 0;
   const timer = setInterval(() => {
     if (i < words.length) {
-      const chunk = words.slice(i, i + 3).join(' ') + ' ';
+      // Dấu cách đứng ĐẦU mẩu sau, không phải cuối mẩu trước: client `.trim()`
+      // từng mẩu nên dấu cách cuối bị cắt và chữ dính vào nhau.
+      const chunk = (i ? ' ' : '') + words.slice(i, i + 3).join(' ');
       res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
       i += 3;
     } else {

@@ -36,10 +36,18 @@ const AdminUsersTab = ({
   formatExpiration,
   loadMoreUsers,
   hasMoreUsers,
+  openUserId, onOpenedUser,
 }) => {
   const { t } = useTranslation();
   const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
   const [inspectingUser, setInspectingUser] = useState(null);
+
+  // Mở từ hàng đợi việc chờ duyệt: chỉ có _id, modal tự nạp phần còn lại.
+  useEffect(() => {
+    if (!openUserId) return;
+    setInspectingUser({ _id: openUserId });
+    onOpenedUser?.();
+  }, [openUserId, onOpenedUser]);
   const [onlineStatuses, setOnlineStatuses] = useState({});
   const sentinelRef = useRef(null);
 

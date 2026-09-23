@@ -1,6 +1,7 @@
 import redis from './redisClient.js';
 import Bio from '../models/Bio.js';
 import Counter from '../models/Counter.js';
+import UserProfile from '../models/UserProfile.js';
 
 const PRESENCE_TTL_SECONDS = 90;       // "online" window — refreshed by a ~45s client heartbeat
 const BITMAP_TTL_SECONDS = 35 * 86400; // keep ~5 weeks of daily active-user bitmaps, then auto-expire
@@ -30,6 +31,15 @@ async function ensurePresenceIndex(bio) {
  * something that should break the page.
  */
 export async function recordHeartbeat(email) {
+  // Chỉ cần biết ngày hoạt động gần nhất cho lifecycle mail; không ghi một
+  // lần mỗi heartbeat (~5 phút) để không biến heartbeat thành tải MongoDB.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  await UserProfile.updateOne(
+    { email, $or: [{ lastSignalAt: { $lt: today } }, { lastSignalAt: { $exists: false } }] },
+    { $set: { lastSignalAt: new Date() } },
+  ).catch((e) => console.error('[presence] activity tracking error:', e.message));
+
   if (!redis) return;
   try {
     let bio = await Bio.findOne({ email });

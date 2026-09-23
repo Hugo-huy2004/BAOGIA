@@ -803,7 +803,7 @@ export function safeServerErrors(req, res, next) {
   const originalJson = res.json.bind(res);
   res.json = (payload) => {
     if (res.statusCode >= 500 && payload && typeof payload === 'object') {
-      const safe = { ...payload, error: 'Đã xảy ra lỗi máy chủ.' };
+      const safe = { code: 'SERVER_ERROR', ...payload, error: 'Đã xảy ra lỗi máy chủ.' };
       delete safe.stack;
       delete safe.detail;
       return originalJson(safe);

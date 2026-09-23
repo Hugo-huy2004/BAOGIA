@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import AppFrame from "./os/AppFrame";
 import StandaloneInstallButton from "../ui/StandaloneInstallButton";
-import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
+import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/api/modules/radioBrowserApi";
 import {
   orderedUrls, recordOk, recordFail, stationStatus, pickRandom, learnedUrl,
   resolveByName, rememberFound, forgetFound, foundStations, lastStationId,

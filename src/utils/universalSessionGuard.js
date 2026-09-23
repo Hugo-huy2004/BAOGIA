@@ -4,7 +4,7 @@
  */
 
 import { IndexedDBStorage } from "./indexedDBStorage";
-import { getMemberSession } from "../services/authSession";
+import { getMemberSession } from "../services/api/core/authSession";
 
 export const UniversalSessionGuard = {
   /**

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { getMemberSession, logoutAuth } from "../../services/authSession";
-import { dataApi } from "../../services/dataApi";
+import { getMemberSession, logoutAuth } from "../../services/api/core/authSession";
+import { dataApi } from "../../services/api/modules/dataApi";
 import { notify } from "../../lib/notify";
 import { PUBLIC_TOOLS } from "../../config/publicTools";
 import StudyLandingPage from "./StudyLandingPage";

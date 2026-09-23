@@ -58,7 +58,7 @@ The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-
 
 ### Auth (do not bypass)
 
-- **Member**: Google ID token → `POST /api/auth/member/google` → server-verified → member JWT (HttpOnly cookie `member_jwt` + Bearer fallback, auto-attached by `src/services/apiAuthInterceptor.js`). Every member route uses `requireMember` (`server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param. WebAuthn issues the same token type.
+- **Member**: Google ID token → `POST /api/auth/member/google` → server-verified → member JWT (HttpOnly cookie `member_jwt` + Bearer fallback, auto-attached by `src/services/api/core/authInterceptor.js`). Every member route uses `requireMember` (`server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param. WebAuthn issues the same token type.
 - **Admin**: separate JWT in cookie `jwt`, `requireAdmin` middleware.
 - Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`server/utils/secrets.js`). Env: root `.env` (frontend `VITE_*`), `server/.env` (backend).
 

@@ -3,9 +3,18 @@
 Nguồn duy nhất của tờ CV là [`public/cv/index.html`](../public/cv/index.html). Tệp này chép lại **nội
 dung đang in ra**, để sửa chữ thì đọc ở đây, sửa dàn trang thì sửa HTML.
 
+**Năm bản PDF KHÔNG còn nằm trong repo** (dọn 2026-09-23: 2,27 MB tệp dựng
+lại được). Nguồn `public/cv/index.html` vẫn ở nguyên chỗ cũ — cần bản PDF thì
+dựng lại, mất vài giây:
+
 ```bash
-npm run cv:pdf        # xuất cả ba bản dưới
+npm run cv:pdf        # xuất cả năm bản dưới vào public/
+npm run check:cv      # soát hai bản ATS (cần chạy lệnh trên trước)
 ```
+
+Lưu ý: dựng ra `public/` nghĩa là chúng sẽ được deploy và mở được bằng đường
+dẫn công khai `hugowishpax.studio/cv-le-gia-huy.pdf`. Nếu bạn đã đưa đường dẫn
+đó vào hồ sơ xin việc thì phải dựng lại VÀ commit, không thì liên kết chết.
 
 | Tệp | Dùng khi nào | Số trang |
 |---|---|---|

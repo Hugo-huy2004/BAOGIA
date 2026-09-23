@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import useVisiblePoll from "../../hooks/useVisiblePoll";
-import { api } from "../../services/api/BaseApi";
+import { api } from "../../services/api/core/baseApi";
 
 // Admin "Giám sát hệ thống" — the supreme control panel: live vitals, AI quota,
 // và trình xem nhật ký lỗi lưu lâu dài.

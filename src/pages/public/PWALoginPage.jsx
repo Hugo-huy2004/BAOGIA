@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loginMember, loginMemberWithGoogle, isMemberAuthenticated } from "../../services/authSession";
+import { loginMember, loginMemberWithGoogle, isMemberAuthenticated } from "../../services/api/core/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { IS_NATIVE } from "../../config/platform";
@@ -100,7 +99,7 @@ export default function PWALoginPage() {
           : error || "Đăng nhập Google thất bại. Thử lại nhé.", "error");
         return;
       }
-      if (!(await isEduEmail(session.email))) {
+      if (!session.isEduVerified) {
         showToast("Tài khoản nên dùng email .edu để mở khóa đầy đủ quyền lợi sinh viên.", "warning");
       }
       localStorage.setItem(LAST_EMAIL_KEY, session.email);

@@ -116,6 +116,10 @@ export default defineConfig(({ mode }) => {
     // không đẻ ra tệp .br nào. Không ai phát hiện suốt thời gian dài, vì cả hai
     // nửa đều vô dụng như nhau. Cần nén thật ở tầng gốc thì bật gzip_static/
     // brotli_static trong nginx rồi hẵng thêm lại.
+    // ViteImageOptimizer nạp `svgo` lúc chạy để nén SVG, nhưng KHÔNG khai báo nó
+    // là dependency của chính nó. Vì vậy `svgo` phải nằm trong devDependencies của
+    // repo này — gỡ đi là build in ra "Cannot find package 'svgo'" và mọi SVG ra
+    // dist ở dạng chưa nén. Trông như gói thừa, không phải.
     ViteImageOptimizer({
       png: { quality: 80 },
       jpeg: { quality: 80 },

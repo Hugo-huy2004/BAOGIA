@@ -1,4 +1,4 @@
-import { BASE_URL } from './api';
+import { BASE_URL } from './api/core/apiClient';
 
 const BOOTSTRAP_CACHE_KEY = 'price-doc-eager-bootstrap';
 const BOOTSTRAP_ETAG_KEY = 'price-doc-eager-etag';

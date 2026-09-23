@@ -1,6 +1,7 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import HugoTeamDev from '../models/HugoTeamDev.js';
+import UserProfile from '../models/UserProfile.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import { isFeatureActive } from '../utils/featureSubscriptionService.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
@@ -144,6 +145,24 @@ router.patch('/me/publish', requireMember, async (req, res) => {
     console.error('PATCH /profile/me/publish error:', error);
     res.status(500).json({ error: 'Failed to update publishing' });
   }
+});
+
+/** Tùy chọn thư giới thiệu và quay lại — mặc định tắt, không dùng cho thư hệ thống. */
+router.get('/me/marketing', requireMember, async (req, res) => {
+  const profile = await UserProfile.findOne({ email: req.memberEmail }, 'marketing').lean();
+  res.json({ enabled: Boolean(profile?.marketing?.optedInAt) && !profile?.marketing?.optedOutAt });
+});
+
+router.patch('/me/marketing', requireMember, async (req, res) => {
+  if (typeof req.body?.enabled !== 'boolean') {
+    return res.status(400).json({ error: 'enabled must be a boolean' });
+  }
+  const now = new Date();
+  const marketing = req.body.enabled
+    ? { optedInAt: now, optedOutAt: null, lastCampaignAt: null, lastCampaignKey: '' }
+    : { optedOutAt: now };
+  await UserProfile.updateOne({ email: req.memberEmail }, { $set: { marketing } }, { upsert: true });
+  return res.json({ enabled: req.body.enabled });
 });
 
 /**

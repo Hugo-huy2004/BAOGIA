@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { LINES, winnerOf, pickMove } from "./ticTacToe";
-import { apiFetch } from "../services/api";
+import { apiFetch } from "../services/api/core/apiClient";
 
 // Chỉ một trò: cờ ca-rô. Nước đi tính hoàn toàn trong máy; máy chủ chỉ được gọi
 // ĐÚNG MỘT LẦN khi ván kết thúc để cộng/trừ JOY. Cố ý không dùng lại game trong

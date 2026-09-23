@@ -10,7 +10,13 @@
  *
  * All copy comes from src/i18n/locales/vi/translation.json — the author's own
  * strings. Nothing here writes marketing copy or prices; prices are read from
- * servicesPage.plans.*.price so meta can never drift from the pricing page.
+ * servicePkg.items.*.price — the SAME source the live /services page renders —
+ * so what a crawler is told can never drift from what a visitor is shown.
+ *
+ * (Trước 2026-09-23 phần này đọc `servicesPage.plans`, một bảng giá cũ không
+ * còn hiển thị ở đâu. Google, xem trước liên kết Zalo/Facebook và các bot AI
+ * vì thế quảng cáo "Website Một Trang 1.490.000đ" trong khi trang thật báo
+ * 1.900.000 – 3.900.000₫. Đừng nối lại nguồn cũ đó.)
  *
  * Outputs: dist/<route>/index.html, dist/sitemap.xml, dist/llms.txt
  */
@@ -18,11 +24,33 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
+import { servicePackages } from "../src/data/servicePackages.js";
 import { projects } from "../src/data/projects.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
 const ORIGIN = "https://www.hugowishpax.studio";
+
+/** Bốn gói kèm giá, đọc từ cùng nguồn với trang thật. Gói báo giá riêng không
+ *  có mức trần nên chỉ in một con số. */
+const digitsOf = (display) => {
+  const d = String(display || "").replace(/[^\d]/g, "");
+  return d ? Number(d) : undefined;
+};
+
+const planList = (tr) =>
+  servicePackages.map((pkg) => {
+    const price = tr.servicePkg.items[pkg.id].price;
+    return {
+      name: `${pkg.name} — ${tr.servicePkg.items[pkg.id].title}`,
+      price: price.to ? `${price.from} – ${price.to}` : price.from,
+      // Gói miễn phí có `to` là thời hạn ("365 ngày"), không phải tiền — đọc nó
+      // như một con số sẽ kéo sập khoảng giá của cả trang.
+      free: !!pkg.freeTier,
+      min: pkg.freeTier ? 0 : digitsOf(price.from),
+      max: pkg.freeTier ? 0 : digitsOf(price.to) || digitsOf(price.from),
+    };
+  });
 
 
 /**
@@ -47,24 +75,24 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
     );
 
   /** "Từ 1.490.000đ" → 1490000. Schema.org needs a number, not the display string. */
-  const vndAmount = (display) => {
-    const digits = String(display || "").replace(/[^\d]/g, "");
-    return digits ? Number(digits) : undefined;
-  };
+  /** Số tiền máy đọc cho một gói: 0 nếu miễn phí, mức sàn nếu là khoảng. */
+  const vndAmount = (plan) => (plan.free ? 0 : plan.min);
 
   const esc = (s) =>
     String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
 
-  /** Plan name + price pairs, straight from the author's pricing table. */
-  const plans = Object.values(t.servicesPage.plans)
-    .filter((p) => p && p.name && p.price)
-    .map((p) => ({ name: p.name, price: p.price }));
+  /** Tên gói + giá, lấy đúng nguồn mà trang /services đang hiển thị. */
+  const plans = planList(t);
 
   const faqs = (t.faqPage.faqs || []).map(({ question, answer }) => ({ question, answer }));
-  const studentPlans = Object.values(t.servicesPage.studentPlans || {})
-    .filter((p) => p && p.name && p.price)
-    .map((p) => ({ name: p.name, price: p.price }));
+  // Gói người học nay MIỄN PHÍ, cộng ưu đãi 15% cho ba gói trả phí — không còn
+  // bảng giá coursework riêng.
+  const edu = t.servicePkg.items["hugo-edu-plus"];
+  const studentPlans = [
+    { name: `Hugo Edu+ — ${edu.title}`, price: edu.price.from },
+    { name: t.servicePkg.studentDiscount.title, price: t.servicePkg.studentDiscount.body },
+  ];
 
   // ── Routes ────────────────────────────────────────────────────────────────────
   // `body` returns the static block injected into #root. Keep it to real copy the
@@ -97,7 +125,9 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         `<p>${esc(t.servicesPage.meta.description)}</p>` +
         `<ul>${plans.map((p) => `<li>${esc(p.name)} — ${esc(p.price)}</li>`).join("")}</ul>`,
       extraSchema: () => {
-        const amounts = plans.map((p) => vndAmount(p.price)).filter(Boolean);
+        // Khoảng giá của cả studio: sàn thấp nhất tới TRẦN cao nhất, bỏ gói miễn phí.
+        const paid = plans.filter((p) => !p.free && p.min);
+        const amounts = [...paid.map((p) => p.min), ...paid.map((p) => p.max)];
         return [
           {
             "@context": "https://schema.org",
@@ -138,7 +168,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
             priceSpecification: {
               "@type": "PriceSpecification",
               priceCurrency: "VND",
-              price: vndAmount(p.price),
+              price: vndAmount(p),
               valueAddedTaxIncluded: true,
             },
           })),
@@ -497,9 +527,7 @@ fs.writeFileSync(
 const tVI = JSON.parse(
   fs.readFileSync(path.join(ROOT, "src/i18n/locales/vi/translation.json"), "utf8"),
 );
-const plans = Object.values(tVI.servicesPage.plans)
-  .filter((p) => p && p.name && p.price)
-  .map((p) => ({ name: p.name, price: p.price }));
+const plans = planList(tVI);
 const faqs = (tVI.faqPage.faqs || []).map(({ question, answer }) => ({ question, answer }));
 fs.writeFileSync(
   path.join(DIST, "llms.txt"),
@@ -519,11 +547,19 @@ const generated = perLocale.flatMap(({ prefix, routes: list }) =>
   list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path}/index.html` })),
 );
 const generatedSources = new Set(generated.map((r) => r.source));
+// Bỏ các quy tắc trang tĩnh do CHÍNH script này sinh ra ở lần chạy trước — nhận
+// ra chúng bằng dấu hiệu `destination === source + "/index.html"`.
+//
+// LỖI ĐÃ SỬA 2026-09-23: bộ lọc cũ bỏ MỌI quy tắc có destination kết thúc bằng
+// "/index.html", nên nó nuốt luôn quy tắc DỰ PHÒNG SPA (`→ /index.html`). Mỗi
+// lần build là quy tắc đó biến mất, và mọi đường dẫn phía client — /admin/…,
+// /member/… — mở trực tiếp hoặc tải lại trang sẽ không khớp quy tắc nào.
+const isGeneratedPageRule = (r) => r.destination === `${r.source}/index.html`;
 const kept = vercel.rewrites.filter(
-  (r) => !generatedSources.has(r.source) && !/\/index\.html$/.test(r.destination),
+  (r) => !generatedSources.has(r.source) && !isGeneratedPageRule(r),
 );
 // Vercel lấy quy tắc KHỚP ĐẦU TIÊN, nên chèn trước quy tắc bắt-tất-cả.
-const catchAll = kept.findIndex((r) => r.source.includes("(?!assets/"));
+const catchAll = kept.findIndex((r) => r.destination === "/index.html" || r.source.includes("(?!assets/"));
 const at = catchAll === -1 ? kept.length : catchAll;
 const next = [...kept.slice(0, at), ...generated, ...kept.slice(at)];
 if (JSON.stringify(vercel.rewrites) !== JSON.stringify(next)) {
@@ -548,7 +584,7 @@ console.log(
 if (stale.length) {
   console.warn(
     `SEO WARNING: index.html meta quotes ${[...new Set(stale)].join(", ")} ` +
-      `but servicesPage.plans has ${plans.map((p) => p.price).join(", ")}. ` +
+      `but servicePkg.items.*.price has ${plans.map((p) => p.price).join(", ")}. ` +
       `Update the meta description in index.html.`,
   );
 }

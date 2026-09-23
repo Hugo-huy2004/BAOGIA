@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { applyJoyLater } from "../../../services/joyApi";
+import { applyJoyLater } from "../../../services/api/modules/joyApi";
 import { notify } from "../../../lib/notify";
 import { useJoy } from "../../../lib/joyDisplay";
 

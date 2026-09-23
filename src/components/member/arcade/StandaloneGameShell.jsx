@@ -3,7 +3,7 @@ import { localeForLanguage } from "../../../i18n/languages";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import GAME_THEMES from "./gameThemes";
-import { submitScore } from "../../../services/arcadeApi";
+import { submitScore } from "../../../services/api/modules/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { calcJoy, getEventMultiplier } from "../../../utils/joyCalculation";

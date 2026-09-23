@@ -1,0 +1,249 @@
+// Attaches the member session token to every fetch() aimed at our API.
+//
+// The codebase has dozens of call sites (services + components) that fetch
+// `/api/...` directly; patching fetch once here means none of them need to
+// know about auth transport, and no future call site can forget it. The
+// HttpOnly cookie still flows on same-origin deployments — the Bearer header
+// is the fallback that also works cross-origin (Vercel frontend + API host).
+import { getMemberToken, getAdminToken, getAdminSession, clearMemberSession, clearAdminSession } from "./authSession";
+import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../../../utils/clientMonitoring";
+import { authDecision } from "./authHeaders";
+import { SECURITY_BLOCK_STORAGE_KEY } from "../../../components/SecurityBlockScreen";
+
+// The target list depends only on the build-time API URL and the page origin,
+// neither of which changes while the tab is open. It used to be rebuilt — two
+// URL parses and a Map — on every isApiRequest() call, and isApiRequest() ran
+// twice per fetch, so a single request cost four parses for a constant answer.
+let cachedTargets = null;
+
+const apiTargets = () => {
+  if (cachedTargets) return cachedTargets;
+  const browserOrigin = window.location.origin;
+  const configured = import.meta.env?.VITE_API_URL || "/api";
+  const unique = new Map();
+
+  for (const candidate of ["/api", configured]) {
+    try {
+      const parsed = new URL(candidate, browserOrigin);
+      const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+      unique.set(`${parsed.origin}${pathname}`, { origin: parsed.origin, pathname });
+    } catch {
+      // Invalid build-time API URL must never break fetch globally.
+    }
+  }
+  cachedTargets = [...unique.values()];
+  return cachedTargets;
+};
+
+const parseRequestUrl = (url) => {
+  try {
+    return new URL(url, window.location.origin);
+  } catch {
+    return null;
+  }
+};
+
+const matchesApiTarget = (requestUrl, target) => (
+  requestUrl.origin === target.origin
+  && (
+    requestUrl.pathname === target.pathname
+    || requestUrl.pathname.startsWith(`${target.pathname}/`)
+  )
+);
+
+// Services use both `/api/...` and absolute URLs such as
+// `http://localhost:3000/api/...`. Compare parsed origin/pathname instead of
+// string prefixes so both forms are authenticated without leaking a token to
+// an unrelated origin that merely contains `/api/` in its URL.
+export const isApiRequest = (url) => {
+  const parsed = parseRequestUrl(url);
+  return Boolean(parsed && apiTargets().some(target => matchesApiTarget(parsed, target)));
+};
+
+const shouldBypassInterception = (url) => {
+  if (!url || typeof url !== "string") return false;
+  if (url.startsWith("/")) return false;
+  if (/^(chrome-extension|moz-extension|safari-extension|edge-extension|data|blob|file):/i.test(url)) {
+    return true;
+  }
+  if (/^[a-z][a-z\d+.-]*:/i.test(url) && !/^https?:/i.test(url)) {
+    return true;
+  }
+  return false;
+};
+
+/** Monitoring must never turn a healthy response into a rejected promise. */
+const safely = (fn) => {
+  try {
+    fn();
+  } catch {
+    /* reporting is best-effort */
+  }
+};
+
+/**
+ * Server trả 403 PROFILE_INCOMPLETE = tài khoản chưa chọn đơn vị JOY và đang bị
+ * chặn dùng hệ thống. Phát ra sự kiện để portal mở hộp thoại chọn, thay vì để
+ * mỗi màn tự hiện một lỗi đỏ mà không nói phải làm gì.
+ */
+const publishProfileIncomplete = (payload) => {
+  if (!payload || payload.error !== "PROFILE_INCOMPLETE") return;
+  safely(() => window.dispatchEvent(new CustomEvent("hugo:profile-incomplete", { detail: payload })));
+};
+
+const publishSecurityBlock = (payload) => {
+  if (!payload || payload.error !== "ACCESS_BLOCKED") return;
+  safely(() => sessionStorage.setItem(SECURITY_BLOCK_STORAGE_KEY, JSON.stringify(payload)));
+  safely(() => window.dispatchEvent(new CustomEvent("hugo:security-blocked", { detail: payload })));
+};
+
+export function installApiAuthInterceptor() {
+  // Guard against a second install stacking another wrapper on top of the
+  // first: every layer would re-decorate headers and double-report metrics.
+  // Vite's HMR re-runs the entry module, so this fired in every dev session.
+  if (window.__hugoApiAuthInterceptorInstalled) return;
+  window.__hugoApiAuthInterceptorInstalled = true;
+
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init = {}) => {
+    // Cosmetic requests such as theme selection may deliberately fall back
+    // to member-scoped local state. Keep this client-only option away from
+    // native fetch() and normalize transport failure into a regular response.
+    const networkFallback = init?.hugoNetworkFallback === true;
+    const requestInit = networkFallback
+      ? Object.fromEntries(Object.entries(init).filter(([key]) => key !== "hugoNetworkFallback"))
+      : init;
+    const startedAt = performance.now();
+    const url = input instanceof URL ? input.href : typeof input === "string" ? input : input?.url || "";
+    if (shouldBypassInterception(url)) {
+      return originalFetch(input, requestInit);
+    }
+
+    let isApi = false;
+    let decision = null;
+    let memberToken = null;
+    let adminToken = null;
+    let adminSessionMarker = null;
+    let isAdminRoute = false;
+    try {
+      isApi = isApiRequest(url);
+      if (isApi) {
+        memberToken = getMemberToken();
+        adminToken = getAdminToken();
+        adminSessionMarker = getAdminSession()?.loginAt || null;
+        const parsed = parseRequestUrl(url);
+        isAdminRoute = parsed?.pathname === "/api/admin"
+          || parsed?.pathname.startsWith("/api/admin/");
+
+        // Trong portal thành viên, token thành viên phải thắng token admin cũ
+        // còn lưu trong trình duyệt. Route admin vẫn ưu tiên đúng phiên admin;
+        // Authorization do chính call site gửi luôn được authDecision giữ lại.
+        const preferredToken = isAdminRoute
+          ? adminToken
+          : (memberToken || adminToken);
+        decision = authDecision(input, requestInit, preferredToken);
+      }
+    } catch {
+      // Never let auth decoration break the request itself.
+      return originalFetch(input, requestInit);
+    }
+
+    if (!isApi) return originalFetch(input, requestInit);
+
+    const method = (requestInit.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
+    const shouldTrack = !url.includes("/api/ops/client-event");
+    const { headers, sentAuth, authToken } = decision;
+
+    const response = headers
+      ? originalFetch(input, { credentials: "include", ...requestInit, headers })
+      : originalFetch(input, { credentials: "include", ...requestInit });
+
+    return response
+      .then(async (res) => {
+        const durationMs = performance.now() - startedAt;
+        if (shouldTrack) safely(() => recordApiOutcome(res.ok));
+
+        if (res.status === 401 && (sentAuth || adminSessionMarker)) {
+          // Only the auth middleware can declare a session invalid. A bad PIN,
+          // upstream 401, or a response from BEFORE re-login must not log out.
+          const payload = await res.clone().json().catch(() => null);
+          if (
+            payload?.code === "AUTH_SESSION_INVALID"
+            && payload.authRole === "member"
+            && authToken
+            && getMemberToken() === authToken
+          ) {
+            safely(clearMemberSession);
+          } else if (
+            payload?.code === "AUTH_SESSION_INVALID"
+            && payload.authRole === "admin"
+            && authToken
+            && getAdminToken() === authToken
+          ) {
+            safely(clearAdminSession);
+          } else if (
+            payload?.code === "AUTH_SESSION_INVALID"
+            && payload.authRole === "admin"
+            && adminSessionMarker
+            && getAdminSession()?.loginAt === adminSessionMarker
+          ) {
+            safely(clearAdminSession);
+          }
+        }
+
+        if (res.status === 403) {
+          // Read a clone so callers retain the original body. A blocked SSE
+          // response advertises itself by header because JSON parsing an event
+          // stream would be invalid.
+          if (res.headers.get("x-security-blocked") === "1") {
+            publishSecurityBlock({
+              error: "ACCESS_BLOCKED",
+              message: "Tài khoản và mạng truy cập đã bị khóa theo tiêu chuẩn an toàn.",
+              caseId: res.headers.get("x-security-case") || "",
+              permanent: res.headers.get("x-security-permanent") === "1",
+              blockedUntil: res.headers.get("x-security-until") || null,
+            });
+          } else {
+            res.clone().json().then((payload) => {
+              publishSecurityBlock(payload);
+              publishProfileIncomplete(payload);
+            }).catch(() => {});
+          }
+        }
+
+        // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),
+        // 429 (backpressure), and 502/503/504 (gateway — backend restarting).
+        const transient = [401, 429, 502, 503, 504].includes(res.status);
+        if (shouldTrack && !transient && (!res.ok || durationMs >= SLOW_API_MS)) {
+          safely(() => reportClientEvent({
+            method,
+            path: url,
+            durationMs,
+            type: res.ok ? "slow-api" : "api-error",
+            status: res.status,
+            message: res.ok ? `Slow API ${Math.round(durationMs)}ms` : `HTTP ${res.status}`,
+          }));
+        }
+        return res;
+      })
+      .catch((error) => {
+        // Network errors (backend down / restarting / offline) are transient
+        // connectivity, not actionable app bugs — reporting them just fires
+        // another doomed request. Optional cosmetic calls receive a regular
+        // 503 response; all other callers keep their existing rejection path.
+        if (shouldTrack) safely(() => recordApiOutcome(false));
+        if (networkFallback) {
+          return new Response(JSON.stringify({
+            success: false,
+            code: "NETWORK_UNAVAILABLE",
+            networkUnavailable: true,
+          }), {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        throw error;
+      });
+  };
+}

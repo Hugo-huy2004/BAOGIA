@@ -41,7 +41,18 @@ export const IS_WEB = !IS_NATIVE;
    bấm F11) rồi chạy lại isStandalone(). Nó cố tình rộng — quyết định thật nằm
    ở isStandalone() bên dưới. */
 export const APP_DISPLAY_QUERY =
-  "(display-mode: standalone), (display-mode: fullscreen)";
+  "(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui), (display-mode: window-controls-overlay)";
+
+export const subscribeDisplayMode = (onChange) => {
+  // Listen separately: standalone -> fullscreen leaves the combined OR true.
+  const queries = APP_DISPLAY_QUERY.split(", ").map(query => window.matchMedia(query));
+  queries.forEach(query => query.addEventListener("change", onChange));
+  window.addEventListener("pageshow", onChange);
+  return () => {
+    queries.forEach(query => query.removeEventListener("change", onChange));
+    window.removeEventListener("pageshow", onChange);
+  };
+};
 
 const displayMode = (mode) => window.matchMedia?.(`(display-mode: ${mode})`).matches === true;
 
@@ -72,11 +83,13 @@ const displayMode = (mode) => window.matchMedia?.(`(display-mode: ${mode})`).mat
  * nghĩa "phiên này được mở từ màn hình chính".
  */
 const PWA_LAUNCH_KEY = "hugo-pwa-launch";
+let pwaLaunch = false;
 
 /** Ghi cờ nếu phiên này khởi động từ start_url của manifest. */
 const rememberPwaLaunch = () => {
   try {
     if (new URLSearchParams(window.location.search).get("source") === "pwa") {
+      pwaLaunch = true;
       window.sessionStorage.setItem(PWA_LAUNCH_KEY, "1");
     }
   } catch {
@@ -87,6 +100,7 @@ const rememberPwaLaunch = () => {
 rememberPwaLaunch();
 
 const launchedAsApp = () => {
+  if (pwaLaunch) return true;
   try {
     return window.sessionStorage.getItem(PWA_LAUNCH_KEY) === "1";
   } catch {

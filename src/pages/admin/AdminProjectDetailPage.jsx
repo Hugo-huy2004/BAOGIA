@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { estimateDelivery, getPackageFacts, warrantyUntil } from "../../../shared/projectPackages";
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { logoutAuth } from '../../services/authSession';
 // react-quill (Quill 1) có lỗ XSS chưa vá và không còn được bảo trì.
 // react-quill-new là bản fork dùng Quill 2, API giữ nguyên — chỉ đổi đường dẫn.
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { HugoNoticeToast } from '../../components/shared/HugoNotice';
 import { API_BASE } from '../../config/apiBase';
+import AdminProjectBoard from '../../components/admin/AdminProjectBoard';
 
 export default function AdminProjectDetailPage() {
   const { t } = useTranslation();
-  const { id } = useParams();
+  const { projectId } = useParams();
   const navigate = useNavigate();
 
   const [project, setProject] = useState(null);
@@ -149,8 +149,9 @@ export default function AdminProjectDetailPage() {
   }, [statusUpdate, project, startDateStr, endDateStr, warrantyDays, developerName]);
 
   const markMessagesAsRead = React.useCallback(async () => {
+    if (!project?._id) return;
     try {
-      await fetch(`${API_BASE}/customer-projects/${id}/messages/read`, {
+      await fetch(`${API_BASE}/customer-projects/${project._id}/messages/read`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -159,50 +160,51 @@ export default function AdminProjectDetailPage() {
     } catch (err) {
       console.error(err);
     }
-  }, [id]);
+  }, [project?._id]);
 
   const fetchProjectDetail = React.useCallback(async () => {
     try {
-      // First verify admin
-      const adminRes = await fetch(`${API_BASE}/data/admin`, {
-        credentials: 'include'
-      });
-      if (adminRes.status === 401 || adminRes.status === 403) {
-        await logoutAuth();
-        navigate('/login');
-        return;
-      }
-
-      // Then fetch project
-      // Wait, there's no GET /api/customer-projects/:id in backend yet. Let's fetch all and filter, or just use the list.
-      // But we can just use GET /api/customer-projects and find by id for now, as it requires admin anyway.
-      const res = await fetch(`${API_BASE}/customer-projects`, {
+      // Địa chỉ mang mã người-đọc (HG-2609-007); endpoint nhận cả mã lẫn _id.
+      const res = await fetch(`${API_BASE}/customer-projects/${projectId}`, {
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
       });
-      const data = await res.json();
-      const p = data.find(item => item._id === id);
-      if (p) {
-        setProject(p);
-        setStatusUpdate(p.status);
-        setNoteUpdate(localStorage.getItem(`draft_note_${p._id}`) || '');
-        setFinalNoteUpdate(localStorage.getItem(`draft_final_note_${p._id}`) || p.finalNote || '');
-        setDeveloperName(p.handlerName || '');
-      } else {
+      if (!res.ok) {
         showNotification(t("adminProjectDetail.notFound"), 'error');
         setTimeout(() => navigate('/admin/projects'), 1500);
+        return;
       }
+      const p = await res.json();
+      setProject(p);
+      setStatusUpdate(p.status);
+      setNoteUpdate(localStorage.getItem(`draft_note_${p._id}`) || '');
+      setDeveloperName(p.handlerName || '');
     } catch (err) {
       console.error(err);
       showNotification(t("adminProjectDetail.fetchError"), 'error');
     } finally {
       setLoading(false);
     }
-  }, [id, navigate, t, showNotification]);
+  }, [projectId, navigate, t, showNotification]);
+
+  /** Đổi trạng thái qua máy trạng thái. Lỗi 409 là lỗi CÓ NGHĨA — hiện nguyên văn. */
+  const transitionProject = React.useCallback(async (_id, status, note) => {
+    const res = await fetch(`${API_BASE}/customer-projects/${project?._id || _id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ status, note }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Không đổi được trạng thái');
+    setProject(data);
+    return data;
+  }, [project?._id]);
 
   const fetchMessages = React.useCallback(async () => {
+    if (!project?._id) return;
     try {
-      const res = await fetch(`${API_BASE}/customer-projects/${id}/messages`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
@@ -211,7 +213,7 @@ export default function AdminProjectDetailPage() {
     } catch (err) {
       console.error(err);
     }
-  }, [id]);
+  }, [project?._id]);
 
    
   useEffect(() => {
@@ -434,27 +436,15 @@ export default function AdminProjectDetailPage() {
           })()}
 
           {/* Status Updater */}
-          <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm">
-            <form onSubmit={handleOpenStatusModal} className="bg-muted dark:bg-black/20 p-5 rounded-md border border-border/50 space-y-4">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("adminProjectDetail.updateProcessTitle")}</h4>
-              
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("adminProjectDetail.newStatusLabel")}</label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <select value={statusUpdate} onChange={e => setStatusUpdate(e.target.value)} className="w-full sm:flex-1 rounded-md border border-border dark:border-border bg-white dark:bg-card text-sm p-3 text-foreground font-semibold focus:outline-none focus:ring-1 focus:ring-primary">
-                    <option value="Đang liên hệ">{t("adminProjectDetail.statusOptions.contacting")}</option>
-                    <option value="Đang lên thiết kế">{t("adminProjectDetail.statusOptions.designing")}</option>
-                    <option value="Đang thực hiện">{t("adminProjectDetail.statusOptions.implementing")}</option>
-                    <option value="Đang Kiểm tra">{t("adminProjectDetail.statusOptions.testing")}</option>
-                    <option value="Hoàn tất">{t("adminProjectDetail.statusOptions.completed")}</option>
-                  </select>
-                  <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-md text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
-                    <span className="material-symbols-outlined text-[18px]">update</span> {t("adminProjectDetail.updateBtn")}
-                  </button>
-                </div>
-              </div>
-            </form>
-        </div>
+          {/* Ô chọn trạng thái cũ đã bỏ: nó liệt kê 5 trạng thái tiếng Việt
+              không còn tồn tại, và cho phép nhảy bất kỳ đâu — kể cả những bước
+              nhảy mà máy trạng thái cấm. AdminProjectBoard chỉ hiện đúng các
+              bước đi được từ trạng thái hiện tại. */}
+          <AdminProjectBoard
+            project={project}
+            onTransition={transitionProject}
+            onRefresh={fetchProjectDetail}
+          />
 
         {/* History Notes */}
         <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm space-y-4">

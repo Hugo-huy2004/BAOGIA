@@ -1,4 +1,4 @@
-import dataApi from '../dataApi';
+import dataApi from '../api/modules/dataApi';
 
 class MemberService {
   constructor() {

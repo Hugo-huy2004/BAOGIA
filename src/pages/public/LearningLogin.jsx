@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { loginMemberWithGoogle } from "../../services/authSession";
+import { loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
 
 /**

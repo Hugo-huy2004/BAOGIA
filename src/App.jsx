@@ -1,9 +1,10 @@
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect, useReducer, Suspense, lazy } from "react";
 import i18n from "./i18n/config";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicToolPath } from "./config/publicTools";
-import { APP_DISPLAY_QUERY, detectInstallTarget, isStandalone } from "./config/platform";
+import { detectInstallTarget, isStandalone, subscribeDisplayMode } from "./config/platform";
+import { useStandalone } from "./hooks/usePWA";
 import { ensureTranslations } from "./i18n/config";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
@@ -14,7 +15,7 @@ import GlobalAdBanner from "./components/GlobalAdBanner";
 import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
-import { isMemberAuthenticated } from "./services/authSession";
+import { isMemberAuthenticated } from "./services/api/core/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
@@ -70,7 +71,6 @@ const TermsAndGuidePage = lazyRoute(() => import("./pages/public/TermsAndGuidePa
 const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
 const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
-const AdminProjectsPage = lazyRoute(() => import("./pages/admin/AdminProjectsPage"));
 const AdminProjectDetailPage = lazyRoute(() => import("./pages/admin/AdminProjectDetailPage"));
 const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
@@ -84,13 +84,19 @@ const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
 );
 
-function VocabPathRedirect() {
-  const { view } = useParams();
-  return <Navigate to={`/member/utilities/vocab/${encodeURIComponent(view || "home")}`} replace />;
-}
 
 function AppContent() {
   const location = useLocation();
+  const isPWA = useStandalone();
+  const [, refreshSession] = useReducer(value => value + 1, 0);
+  useEffect(() => {
+    window.addEventListener("hugo:member-session-expired", refreshSession);
+    window.addEventListener("storage", refreshSession);
+    return () => {
+      window.removeEventListener("hugo:member-session-expired", refreshSession);
+      window.removeEventListener("storage", refreshSession);
+    };
+  }, []);
   const { data } = useData();
   const isIntroductionRoute = location.pathname === "/introduction" || location.pathname === "/";
 
@@ -174,7 +180,7 @@ function AppContent() {
   if (
     location.pathname.startsWith("/member") &&
     detectInstallTarget().isMobile &&
-    !isStandalone() &&
+    !isPWA &&
     new URLSearchParams(location.search).get("embed") !== "true"
   ) {
     return <MobileInstallGate />;
@@ -225,7 +231,6 @@ function AppContent() {
   // In standalone PWA mode without an active session, show only the login screen —
   // no marketing navbar, no HBot, no footer. The native build is always in this
   // mode: the store app is the member app, never the marketing site.
-  const isPWA = isStandalone();
   const showCustomCursor =
     !isPWA &&
     !location.pathname.startsWith("/member") &&
@@ -292,8 +297,6 @@ function AppContent() {
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
             <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
             <Route path="/member" element={<Navigate to="/member/today" replace />} />
-            <Route path="/vocab" element={<Navigate to="/member/utilities/vocab" replace />} />
-            <Route path="/vocab/:view" element={<VocabPathRedirect />} />
             <Route path="/member/eco" element={
               isMemberAuthenticated() ? <EcoPortal /> : <Navigate to="/login" replace />
             } />
@@ -328,19 +331,19 @@ function AppContent() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/user-guide" element={<UserGuidePage />} />
             <Route path="/terms-and-guide" element={<TermsAndGuidePage />} />
-            <Route path="/admin" element={
-              <AdminProtectedRoute>
-                <AdminPanel />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/admin/projects" element={
-              <AdminProtectedRoute>
-                <AdminProjectsPage />
-              </AdminProtectedRoute>
-            } />
-            <Route path="/admin/projects/:id" element={
+            {/* Địa chỉ bảng điều khiển đi theo ĐƯỜNG DẪN, không phải `?tab=`.
+                `/admin/queue`, `/admin/projects`, `/admin/users`… — mỗi màn hình
+                một địa chỉ, chia sẻ được, mở tab mới được, nút Lùi chạy đúng.
+                Một bản ghi cụ thể là một đoạn nữa: `/admin/projects/HG-2609-007`
+                — dùng mã người-đọc chứ không phải _id của cơ sở dữ liệu. */}
+            <Route path="/admin/projects/:projectId" element={
               <AdminProtectedRoute>
                 <AdminProjectDetailPage />
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/*" element={
+              <AdminProtectedRoute>
+                <AdminPanel />
               </AdminProtectedRoute>
             } />
             <Route path="/support-request" element={<SupportRequestPage />} />
@@ -421,9 +424,7 @@ export default function App() {
     const root = document.documentElement;
     const sync = () => root.classList.toggle("standalone-pwa", isStandalone());
     sync();
-    const mq = window.matchMedia(APP_DISPLAY_QUERY);
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    return subscribeDisplayMode(sync);
   }, []);
 
   useEffect(() => initGlobalHaptics(), []);

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
-import dataApi from "../services/dataApi";
+import dataApi from "../services/api/modules/dataApi";
 import useVisiblePoll from "../hooks/useVisiblePoll";
 import HugoLogo from "../components/HugoLogo";
-import { isAdminAuthenticated } from "../services/authSession";
+import { isAdminAuthenticated } from "../services/api/core/authSession";
 import { notify } from "../lib/notify";
 
 const FALLBACK_BANK_APPS = [

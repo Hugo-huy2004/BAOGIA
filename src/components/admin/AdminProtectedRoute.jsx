@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { logoutAuth, isAdminAuthenticated } from '../../services/authSession';
+import { clearAdminSession, isAdminAuthenticated } from '../../services/api/core/authSession';
 
 export default function AdminProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [error, setError] = useState('');
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -19,28 +21,29 @@ export default function AdminProtectedRoute({ children }) {
       try {
         const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
         const res = await fetch(`${API_BASE_URL}/admin/verify-session`, {
-          credentials: 'include'
+          credentials: 'include',
+          signal: AbortSignal.timeout(30000),
         });
 
         if (!res.ok) {
-          // Lỗi mạng hoặc 401/403
-          await logoutAuth();
-          if (isMounted) setIsAuthenticated(false);
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 401 && data.code === 'AUTH_SESSION_INVALID' && data.authRole === 'admin') {
+            if (isMounted) { clearAdminSession(); setIsAuthenticated(false); }
+            return;
+          }
+          throw new Error(data.error || 'Server unavailable');
         } else {
           // Thành công
           const data = await res.json();
           if (data.success) {
             if (isMounted) setIsAuthenticated(true);
           } else {
-            await logoutAuth();
-            if (isMounted) setIsAuthenticated(false);
+            throw new Error('Invalid server response');
           }
         }
       } catch (error) {
-        // Lỗi mạng (bị block bởi hacker hoặc rớt mạng)
         console.error('Lỗi xác thực Admin:', error);
-        await logoutAuth();
-        if (isMounted) setIsAuthenticated(false);
+        if (isMounted) setError('Chưa kết nối được máy chủ. Phiên đăng nhập vẫn được giữ.');
       }
     };
 
@@ -49,7 +52,14 @@ export default function AdminProtectedRoute({ children }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [attempt]);
+
+  if (error) {
+    return <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <p role="alert">{error}</p>
+      <button className="rounded-lg border px-4 py-2" onClick={() => { setError(''); setAttempt(value => value + 1); }}>Thử lại</button>
+    </div>;
+  }
 
   // Đang gọi API
   if (isAuthenticated === null) {

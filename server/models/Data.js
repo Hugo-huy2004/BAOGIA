@@ -109,6 +109,14 @@ const DataSchema = new mongoose.Schema(
       alertCrisis: { type: Boolean, default: true },
       autoApproveNew: { type: Boolean, default: false },
       autoLockInactive: { type: Boolean, default: false },
+      // Cổng quản trị cho email lifecycle. Thành viên vẫn phải tự opt-in ở
+      // cài đặt tài khoản của họ; cờ này chỉ dừng/bật lịch gửi toàn hệ thống.
+      marketingEmail: {
+        enabled: { type: Boolean, default: true },
+        lastRunAt: { type: Date, default: null },
+        lastSentCount: { type: Number, default: 0 },
+        lastError: { type: String, default: '' },
+      },
       globalSeo: {
         title: { type: String, default: 'Hugo Studio - Professional Bio & Booking Platform' },
         description: { type: String, default: 'Nền tảng quản lý bio, booking và portfolio chuyên nghiệp cho influencer, freelancer và entrepreneur.' },

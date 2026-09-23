@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
+import { isMemberAuthenticated, isAdminAuthenticated } from "../services/api/core/authSession";
 import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";

@@ -6,10 +6,21 @@ Nền tảng Biolink + chăm sóc sức khỏe tinh thần cho học sinh sinh v
 
 ```
 ├── src/                 # Frontend — React 18 + Vite, Tailwind, Zustand, SWR (port 3000)
+│   └── services/api/
+│       ├── core/        # HTTP client, auth, response/error dùng chung
+│       └── modules/     # API theo nghiệp vụ: robot, booking, JOY, survey…
 ├── server/              # Backend — Express + MongoDB (Mongoose), WebSocket (port 8099)
 ├── python-ai-server/    # AI server — proxy AI, sleep analysis, IoT (port 8000)
+├── scripts/
+│   ├── checks/          # Các chốt kiểm tra chạy độc lập hoặc qua npm run check:*
+│   └── archive/         # Script cũ được giữ lại nhưng không còn thuộc CI/runtime
 └── api/                 # Vercel serverless (redirect /pay)
 ```
+
+Quy ước tên: component React dùng `PascalCase`, hook bắt đầu bằng `use`, còn
+service/API/script dùng `camelCase` hoặc tên lệnh kebab-case. Mỗi file trong
+`services/api/modules` phụ trách một miền nghiệp vụ; phần dùng chung đặt trong
+`services/api/core` để tránh tự xử lý token và lỗi HTTP ở từng module.
 
 Vite dev server proxy: **mọi** `/api/*` và `/ws*` → Node, giống hệt rewrite của
 `vercel.json` trên production. Trình duyệt không bao giờ gọi thẳng Python — chỉ
@@ -32,7 +43,7 @@ npm run dev:backend    # backend Node (port 8099) — cần MongoDB chạy sẵn
 
 ## Xác thực
 
-- **Member**: Google Identity Services → gửi ID token lên `POST /api/auth/member/google` → server xác minh với Google (signature/expiry/audience) → phát JWT member (HttpOnly cookie `member_jwt` + Bearer fallback). Mọi route member dùng middleware `requireMember` ([server/middleware/authMiddleware.js](server/middleware/authMiddleware.js)) — danh tính lấy từ token, **không bao giờ** từ `?email=` do client gửi. Frontend gắn Bearer token tự động qua [src/services/apiAuthInterceptor.js](src/services/apiAuthInterceptor.js).
+- **Member**: Google Identity Services → gửi ID token lên `POST /api/auth/member/google` → server xác minh với Google (signature/expiry/audience) → phát JWT member (HttpOnly cookie `member_jwt` + Bearer fallback). Mọi route member dùng middleware `requireMember` ([server/middleware/authMiddleware.js](server/middleware/authMiddleware.js)) — danh tính lấy từ token, **không bao giờ** từ `?email=` do client gửi. Frontend gắn Bearer token tự động qua [src/services/api/core/authInterceptor.js](src/services/api/core/authInterceptor.js).
 - **WebAuthn** (vân tay/Face ID): cùng cơ chế — `login-verify` phát cùng loại token.
 - **Admin**: JWT riêng qua cookie `jwt`, middleware `requireAdmin`.
 - **Đăng nhập bằng Hugo Studio**: OAuth 2.0 Authorization Code + PKCE cho app/web bên ngoài; admin quản lý client ở `/admin?tab=oauth`. Xem [hướng dẫn tích hợp](docs/hugo-studio-oauth.md).

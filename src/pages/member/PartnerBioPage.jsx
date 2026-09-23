@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
-import dataApi from "../../services/dataApi";
+import dataApi from "../../services/api/modules/dataApi";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import HugoLogo, { RenderColoredText } from "../../components/HugoLogo";
 import { HugoInlineNotice, HugoNoticeToast } from "../../components/shared/HugoNotice";

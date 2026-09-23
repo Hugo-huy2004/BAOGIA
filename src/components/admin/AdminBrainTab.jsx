@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import adminBrainApi from '../../services/api/AdminBrainApi';
+import adminBrainApi from '../../services/api/modules/adminBrainApi';
 import { notify } from '../../lib/notify';
 
 export default function AdminBrainTab() {

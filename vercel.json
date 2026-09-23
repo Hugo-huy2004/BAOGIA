@@ -215,6 +215,10 @@
     {
       "source": "/zh/project/m-hike",
       "destination": "/zh/project/m-hike/index.html"
+    },
+    {
+      "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [

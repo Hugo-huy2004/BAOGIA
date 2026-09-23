@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import adminBrainApi from '../../services/api/AdminBrainApi';
+import adminBrainApi from '../../services/api/modules/adminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoyDual } from '../../utils/joyFormatter';
 

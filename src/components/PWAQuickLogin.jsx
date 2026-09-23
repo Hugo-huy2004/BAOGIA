@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { isMemberAuthenticated, loginMember } from "../services/authSession";
+import { isMemberAuthenticated, loginMember } from "../services/api/core/authSession";
 import { webauthnHelper } from "../utils/webauthnHelper";
 import { isStandalone } from "../config/platform";
 

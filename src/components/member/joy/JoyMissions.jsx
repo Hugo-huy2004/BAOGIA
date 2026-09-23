@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { claimChallenge } from "../../../services/joyApi";
+import { claimChallenge } from "../../../services/api/modules/joyApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useTranslation } from "react-i18next";
 import { hapticSelect } from "../../../utils/haptics";

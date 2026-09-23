@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { notify } from "../lib/notify";
 import { useLocation } from 'react-router-dom';
-import { getMemberSession, getMemberToken } from '../services/authSession';
+import { clearMemberSession, getMemberSession, getMemberToken } from '../services/api/core/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
 import { playNotificationSound } from '../utils/audio';
@@ -22,6 +22,7 @@ export default function PWARealtimeBridge() {
   useLocation(); // Re-evaluate the stored member session after login/logout navigation.
   const session = getMemberSession();
   const email = session?.email;
+  const token = session?.token;
   const retryTimer = useRef(null);
   const retryCount = useRef(0);
 
@@ -47,6 +48,9 @@ export default function PWARealtimeBridge() {
     let firstConnection = true;
     const connect = () => {
       if (disposed) return;
+      window.clearTimeout(retryTimer.current);
+      if (socket && socket.readyState <= WebSocket.OPEN) return;
+      if (navigator.onLine === false || !getMemberToken()) return;
       try {
         socket = new WebSocket(realtimeUrl());
       } catch (e) {
@@ -56,11 +60,13 @@ export default function PWARealtimeBridge() {
       }
 
       socket.addEventListener('open', () => {
+        if (disposed) { socket.close(); return; }
         stableTimer = window.setTimeout(() => { retryCount.current = 0; }, 4000);
         if (!firstConnection) sync();
         firstConnection = false;
       });
       socket.addEventListener('message', (event) => {
+        if (disposed) return;
         try {
           const data = JSON.parse(event.data);
 
@@ -73,15 +79,6 @@ export default function PWARealtimeBridge() {
             return;
           }
 
-          // Tung thẻ vocab giữa các thiết bị cùng tài khoản (relay từ server).
-          if (data.type === 'vocab:toss') {
-            window.dispatchEvent(new CustomEvent('hugo:vocab-toss', { detail: data }));
-            return;
-          }
-          if (data.type === 'vocab:presence') {
-            window.dispatchEvent(new Event('hugo:vocab-presence'));
-            return;
-          }
 
           if (data.type !== 'joy_update') return;
           useJoyStore.getState().setBalance(Number(data.balance) || 0);
@@ -105,7 +102,7 @@ export default function PWARealtimeBridge() {
         if (stableTimer) { window.clearTimeout(stableTimer); stableTimer = null; }
         if (disposed) return;
         if (event.code === 4001) {
-          retryTimer.current = window.setTimeout(connect, 5 * 60_000);
+          if (getMemberToken() === token) clearMemberSession();
           return;
         }
         // Cap backoff at 60s when server returns 503
@@ -117,14 +114,14 @@ export default function PWARealtimeBridge() {
     connect();
     sync();
 
-    // Cho phép mọi component gửi qua socket dùng chung (vd: tung thẻ vocab).
+    // Cho phép mọi component gửi qua socket dùng chung.
     const handleRealtimeSend = (e) => {
       try { if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(e.detail)); } catch {}
     };
     window.addEventListener('hugo:realtime-send', handleRealtimeSend);
 
     const handleResume = () => {
-      if (document.visibilityState === 'visible') sync();
+      if (document.visibilityState === 'visible') { sync(); connect(); }
     };
     const handleOnline = () => {
       sync();
@@ -164,7 +161,7 @@ export default function PWARealtimeBridge() {
       window.removeEventListener('online', handleOnline);
       navigator.serviceWorker?.removeEventListener('message', handlePushMessage);
     };
-  }, [email]);
+  }, [email, token]);
 
   return null;
 }

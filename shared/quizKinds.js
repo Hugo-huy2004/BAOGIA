@@ -103,7 +103,7 @@ const text = (value) => typeof value === "string" && value.trim().length > 0;
 
 /**
  * Kiểm tra một câu hỏi có hợp lệ không. Trả về mảng lỗi (rỗng là đạt).
- * `scripts/check-coder-content.mjs` gọi hàm này cho từng câu trong giáo trình.
+ * `scripts/checks/check-coder-content.mjs` gọi hàm này cho từng câu trong giáo trình.
  */
 export function validateQuizQuestion(question, path = "question") {
   const issues = [];

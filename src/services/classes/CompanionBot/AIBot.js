@@ -519,6 +519,11 @@ export default class AIBot extends BaseBot {
             if (!line.startsWith("data: ")) continue;
             try {
               const rawContent = line.substring(6).trim();
+              // "[DONE]" là dấu hết luồng, không phải chữ để đọc. Nó không phân
+              // tích được thành JSON nên rơi xuống nhánh chữ thô bên dưới và
+              // được nối thẳng vào câu trả lời — người dùng nhìn thấy "[DONE]"
+              // in ra cuối mỗi tin nhắn.
+              if (rawContent === "[DONE]") continue;
               try {
                 const p = JSON.parse(rawContent);
                 if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
@@ -540,8 +545,11 @@ export default class AIBot extends BaseBot {
       }
       if (buffer.trim().startsWith("data: ")) {
         try {
+          // Mẩu cuối có thể không kèm dấu xuống dòng nên không lọt vào vòng
+          // trên. `return` ở đây là sai: nó bỏ luôn onDone() bên dưới và câu
+          // trả lời không bao giờ tới nơi. Chỉ bỏ qua việc đọc mẩu này thôi.
           const rawContent = buffer.substring(6).trim();
-          try {
+          if (rawContent && rawContent !== "[DONE]") try {
             const p = JSON.parse(rawContent);
             if (p.text) { fullReply += p.text; onChunk?.(fullReply); }
             else if (p.error) {

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AppFrame from "./os/AppFrame";
 import { localeForLanguage } from "../../i18n/languages";
-import { getMemberSession } from "../../services/authSession";
+import { getMemberSession } from "../../services/api/core/authSession";
 import "../../styles/bioStudio.css";
 
 const EDITOR_SECTIONS = Object.freeze([

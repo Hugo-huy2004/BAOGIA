@@ -4,7 +4,7 @@ import { ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
 import AppFrame from "./os/AppFrame";
 import BackButton from "./shared/BackButton";
 import { notify } from "../../lib/notify";
-import { getMemberSession } from "../../services/authSession";
+import { getMemberSession } from "../../services/api/core/authSession";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage, languageCode } from "../../i18n/languages";
 import { canTranslate, guessLanguage, translateText } from "../../lib/textTranslator";

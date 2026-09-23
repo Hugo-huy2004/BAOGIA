@@ -7,7 +7,7 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { API_BASE } from "../../config/apiBase";
 import HugoLogo from "../../components/HugoLogo";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
-import { getMemberSession } from "../../services/authSession";
+import { getMemberSession } from "../../services/api/core/authSession";
 import { validateMessageContent } from "../../utils/contentFilter";
 
 const EMPTY_FORM = {

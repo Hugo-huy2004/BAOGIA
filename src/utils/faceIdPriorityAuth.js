@@ -3,7 +3,7 @@
  * Quản lý Đăng Nhập Ưu Tiên Face ID / Touch ID / WebAuthn Biometrics Chuẩn Apple.
  */
 
-import { loginMember, getMemberSession } from "../services/authSession";
+import { loginMember, getMemberSession } from "../services/api/core/authSession";
 import { IndexedDBStorage } from "./indexedDBStorage";
 
 export const FaceIdPriorityAuth = {

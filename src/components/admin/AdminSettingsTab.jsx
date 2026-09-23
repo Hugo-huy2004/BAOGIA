@@ -1,12 +1,64 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import adminBrainApi from '../../services/api/AdminBrainApi';
+import adminBrainApi from '../../services/api/modules/adminBrainApi';
+import { getAdminToken } from '../../services/api/core/authSession';
 
-const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, showNotification, handleLogout, uploadingAd, handleAdImageUpload, handleAdDelete }) => {
+const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, showNotification, handleLogout, uploadingAd, handleAdImageUpload, handleAdDelete, triggerConfirm }) => {
   const { t } = useTranslation();
 
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [changingPw, setChangingPw] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null);
+  const [emailBusy, setEmailBusy] = useState(false);
+
+  const emailRequest = async (path, options = {}) => {
+    const token = getAdminToken();
+    const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/admin/marketing-email${path}`, {
+      ...options,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Không thể cập nhật email marketing.');
+    return payload;
+  };
+
+  const loadEmailStatus = useCallback(async () => {
+    try {
+      setEmailStatus(await emailRequest(''));
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  }, [showNotification]);
+
+  useEffect(() => { loadEmailStatus(); }, [loadEmailStatus]);
+
+  const toggleLifecycleEmail = async () => {
+    if (!emailStatus) return;
+    setEmailBusy(true);
+    try {
+      const result = await emailRequest('', { method: 'PATCH', body: JSON.stringify({ enabled: !emailStatus.enabled }) });
+      setEmailStatus(result);
+      showNotification(result.enabled ? 'Đã bật email marketing tự động.' : 'Đã tắt email marketing tự động.');
+    } catch (error) {
+      showNotification(error.message, 'error');
+    } finally {
+      setEmailBusy(false);
+    }
+  };
+
+  const runLifecycleEmail = async () => {
+    setEmailBusy(true);
+    try {
+      const result = await emailRequest('/run', { method: 'POST' });
+      setEmailStatus(await emailRequest(''));
+      showNotification(result.disabled ? 'Automation đang tắt.' : result.deliveryUnavailable ? result.error : result.simulated ? 'SendGrid từ chối gửi; không có email nào được đánh dấu đã gửi.' : `Đã xử lý ${result.scanned} người, gửi ${result.sent} email.`, (result.deliveryUnavailable || result.simulated) ? 'error' : 'success');
+    } catch (error) {
+      showNotification(error.message, 'error');
+    } finally {
+      setEmailBusy(false);
+    }
+  };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -151,6 +203,36 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
               <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-md transition-transform duration-300 ${data?.systemSettings?.allowBooking !== false ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-slate-900/70 dark:bg-[#12131e]/90 backdrop-blur-3xl rounded-[28px] border border-violet-400/20 shadow-[0_20px_50px_rgba(0,0,0,0.4)] p-6 sm:p-8 space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="font-extrabold text-xs uppercase tracking-widest text-violet-300 flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-violet-400 text-xl">mark_email_unread</span>
+              Email marketing tự động
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 max-w-xl leading-relaxed">Template Hugo Studio nhiều màu, bố cục nổi bật và CTA rõ ràng. Chỉ gửi cho thành viên đã tự chọn nhận email.</p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-[11px] font-extrabold border ${emailStatus?.enabled ? 'bg-emerald-500/10 text-emerald-300 border-emerald-400/25' : 'bg-slate-800 text-slate-400 border-white/10'}`}>
+            {emailStatus?.enabled ? 'Đang tự động gửi' : 'Đã tạm dừng'}
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4"><p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Đã opt-in</p><p className="mt-1 text-2xl font-black text-white">{emailStatus?.optedIn ?? '—'}</p></div>
+          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4"><p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Lượt gửi gần nhất</p><p className="mt-1 text-2xl font-black text-white">{emailStatus?.lastSentCount ?? '—'}</p></div>
+          <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4"><p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Chạy gần nhất</p><p className="mt-1 text-xs font-bold text-slate-300">{emailStatus?.lastRunAt ? new Date(emailStatus.lastRunAt).toLocaleString('vi-VN') : 'Chưa có dữ liệu'}</p></div>
+        </div>
+        {!emailStatus?.deliveryReady && <p className="rounded-xl bg-amber-500/10 border border-amber-500/25 px-4 py-3 text-xs leading-relaxed text-amber-100">Chưa thể gửi email thật: cấu hình <strong>SENDGRID_API_KEY</strong> trên backend chưa hợp lệ. Hệ thống đang chặn chiến dịch để không báo gửi thành công giả.</p>}
+        {emailStatus?.lastError && <p className="rounded-xl bg-rose-500/10 border border-rose-500/20 px-4 py-3 text-xs text-rose-200">Lỗi gần nhất: {emailStatus.lastError}</p>}
+        <div className="flex flex-wrap gap-3">
+          <button type="button" disabled={emailBusy || !emailStatus} onClick={toggleLifecycleEmail} className="rounded-xl border border-white/15 bg-slate-800 px-4 py-2.5 text-xs font-extrabold text-white hover:bg-slate-700 disabled:opacity-50">
+            {emailStatus?.enabled ? 'Tạm dừng automation' : 'Bật automation'}
+          </button>
+          <button type="button" disabled={emailBusy || !emailStatus?.enabled || !emailStatus?.deliveryReady} onClick={() => triggerConfirm?.(`Gửi chiến dịch hiện tại tới tối đa ${emailStatus?.optedIn ?? 0} thành viên đã opt-in? Mỗi người vẫn bị giới hạn một email/ngày.`, runLifecycleEmail)} className="rounded-xl bg-violet-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-violet-500/20 hover:bg-violet-400 disabled:opacity-50">
+            {emailBusy ? 'Đang xử lý…' : 'Chạy chiến dịch ngay'}
+          </button>
         </div>
       </div>
 

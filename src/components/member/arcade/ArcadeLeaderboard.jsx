@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import useVisiblePoll from "../../../hooks/useVisiblePoll";
-import { fetchLeaderboard } from "../../../services/arcadeApi";
+import { fetchLeaderboard } from "../../../services/api/modules/arcadeApi";
 
 // Tên mặc định truyền từ ngoài vào: hàm này thuần xử lý chuỗi, không được
 // giữ chữ của một ngôn ngữ cụ thể.

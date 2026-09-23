@@ -6,6 +6,17 @@ import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 
 const MEMBER_TOKEN_TTL = '14d';
+const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
+  res.status(401).json({ code: 'AUTH_SESSION_INVALID', authRole, error });
+
+// Database/availability failures must not tell clients to destroy valid sessions.
+const sendAuthFailure = (res, error, authRole = 'member') => {
+  if (error instanceof jwt.JsonWebTokenError) {
+    return invalidSession(res, authRole, 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+  }
+  console.error('[auth availability]', error.message);
+  return res.status(503).json({ code: 'AUTH_UNAVAILABLE', error: 'Máy chủ tạm thời không thể xác thực. Vui lòng thử lại.' });
+};
 
 // Những route CẦN gọi được khi hồ sơ chưa xong — nếu chặn cả mấy đường này thì
 // người dùng không có cách nào hoàn tất hồ sơ để được mở chặn (khoá cửa rồi để
@@ -25,12 +36,15 @@ export const isProfileSetupRoute = (url = '') => {
 };
 
 const extractToken = (req, cookieName) => {
+  // Same-origin web sessions use an HttpOnly cookie. Prefer the cookie so a
+  // stale token from another role cannot shadow the valid server session.
+  if (req.cookies?.[cookieName]) return req.cookies[cookieName];
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const headerToken = authHeader.split(' ')[1];
     if (headerToken) return headerToken;
   }
-  return req.cookies?.[cookieName] || null;
+  return null;
 };
 
 /**
@@ -90,13 +104,13 @@ export const requireAdmin = async (req, res, next) => {
   const token = extractToken(req, 'jwt');
 
   if (!token) {
-    return res.status(401).json({ error: 'Unauthorized - No token provided' });
+    return invalidSession(res, 'admin');
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role !== 'admin') {
-      return res.status(403).json({ error: 'Forbidden - Not an admin role' });
+      return invalidSession(res, 'admin');
     }
 
     // UA Fingerprint Binding Verification (if signed into token)
@@ -104,7 +118,7 @@ export const requireAdmin = async (req, res, next) => {
       const currentUa = req.headers['user-agent'] || '';
       const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
       if (decoded.uaHash !== currentUaHash) {
-        return res.status(403).json({ error: 'Forbidden - Admin session device fingerprint mismatch' });
+        return invalidSession(res, 'admin', 'Phiên quản trị không còn hợp lệ trên thiết bị này.');
       }
     }
 
@@ -118,7 +132,7 @@ export const requireAdmin = async (req, res, next) => {
     // lấy một cửa sổ mà token đã thu hồi vẫn dùng được, không đáng.
     const admin = await Admin.findById(decoded.id).select({ sessionsValidFrom: 1 }).lean();
     if (!admin) {
-      return res.status(403).json({ error: 'Forbidden - Admin account no longer exists' });
+      return invalidSession(res, 'admin');
     }
     // So theo GIÂY, không theo mili-giây: `iat` của JWT chỉ có độ phân giải một
     // giây. Đăng xuất lúc 12:00:00.700 rồi đăng nhập lại lúc 12:00:00.900 sẽ
@@ -129,7 +143,7 @@ export const requireAdmin = async (req, res, next) => {
     if (admin.sessionsValidFrom) {
       const revokedAtSec = Math.floor(new Date(admin.sessionsValidFrom).getTime() / 1000);
       if (decoded.iat < revokedAtSec) {
-        return res.status(403).json({ error: 'Forbidden - Admin session has been revoked' });
+        return invalidSession(res, 'admin', 'Phiên quản trị đã bị thu hồi. Vui lòng đăng nhập lại.');
       }
     }
 
@@ -142,8 +156,8 @@ export const requireAdmin = async (req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
     next();
-  } catch {
-    return res.status(403).json({ error: 'Forbidden - Invalid or expired admin token' });
+  } catch (error) {
+    return sendAuthFailure(res, error, 'admin');
   }
 };
 
@@ -168,25 +182,24 @@ export const signMemberToken = (email, req = null) => {
 // danh sách khoá vĩnh viễn, đồng thời tuyệt đối không cho token admin giả làm
 // một thành viên.
 export const requireMemberSession = async (req, res, next) => {
-  // Cookie member thắng Authorization header để một Bearer admin cũ do client
-  // interceptor gắn vào không che mất phiên member hợp lệ trên consent page.
+  // Consent accepts the member cookie even when a stale admin Bearer is present.
   const token = req.cookies?.member_jwt || extractToken(req, 'member_jwt');
   if (!token) {
-    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
+    return invalidSession(res, 'member');
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role !== 'member' || !decoded.email) {
-      return res.status(403).json({ error: 'Forbidden - Invalid member role' });
+      return invalidSession(res, 'member');
     }
     const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
     req.memberEmail = decoded.email;
     req.member = decoded;
     return next();
-  } catch {
-    return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+  } catch (error) {
+    return sendAuthFailure(res, error, 'member');
   }
 };
 
@@ -203,7 +216,7 @@ export const signCustomerToken = (projectId) =>
 export const requireCustomer = (req, res, next) => {
   const token = extractToken(req, 'jwt') || extractToken(req, 'customer_jwt');
   if (!token) {
-    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
+    return invalidSession(res, 'customer');
   }
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -218,8 +231,8 @@ export const requireCustomer = (req, res, next) => {
       return next();
     }
     return res.status(403).json({ error: 'Forbidden - Invalid role' });
-  } catch {
-    return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+  } catch (error) {
+    return sendAuthFailure(res, error, 'customer');
   }
 };
 
@@ -231,7 +244,7 @@ export const requireMember = async (req, res, next) => {
   const token = extractToken(req, 'member_jwt') || extractToken(req, 'jwt');
 
   if (!token) {
-    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
+    return invalidSession(res, 'member');
   }
 
   try {
@@ -242,12 +255,8 @@ export const requireMember = async (req, res, next) => {
 
       // JWT validity is not account validity. A permanently blacklisted email
       // must stay blocked even if an old 14-day token is still valid.
-      try {
-        const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
-        if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
-      } catch (securityError) {
-        console.error('[member security block check]', securityError.message);
-      }
+      const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
+      if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
 
       // Note: User-Agent headers fluctuate dynamically across browser reloads,
       // DevTools toggles, and SW requests. We log req.memberEmail without destroying valid sessions.
@@ -264,7 +273,7 @@ export const requireMember = async (req, res, next) => {
         if (mongoose.connection.readyState === 1) {
           const bio = await readMemberGate(decoded.email);
           if (bio && bio.locationAnomaly) {
-            return res.status(401).json({
+            return res.status(403).json({
               error: 'PHAT_HIEN_VI_TRI_BAT_THUONG',
               message: 'Phát hiện vị trí truy cập bất thường. Vui lòng xác thực lại bằng mã PIN.'
             });
@@ -296,8 +305,8 @@ export const requireMember = async (req, res, next) => {
       return next();
     }
     return res.status(403).json({ error: 'Forbidden - Invalid role' });
-  } catch {
-    return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+  } catch (error) {
+    return sendAuthFailure(res, error);
   }
 };
 

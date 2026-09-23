@@ -218,7 +218,7 @@ Theo thứ tự đáng làm tiếp:
 
    ⚠️ Phải test: cookie đang là host-only, lưu cho host `www.`. Gọi thẳng sang host
    `api.` thì cookie cũ không được gửi → **user đang đăng nhập bị đăng xuất một lần**.
-   Có Bearer token trong localStorage làm dự phòng (`src/services/apiAuthInterceptor.js`)
+   Có Bearer token trong localStorage làm dự phòng (`src/services/api/core/authInterceptor.js`)
    nên có thể không ai để ý, nhưng phải thử thật trước khi đẩy production.
 
    > Ghi chú: `hugostudio.vn` **không có DNS**, không phân giải ra gì. Nó vẫn đang nằm
@@ -229,7 +229,7 @@ Theo thứ tự đáng làm tiếp:
    ăn băng thông mỗi lượt tải. Đã có `cloudinary` trong deps: trả signed URL thay
    vì stream qua server. Hoặc Cloudflare R2 (egress miễn phí).
 3. **Oracle Cloud Always Free** — VM ARM 4 vCPU / 24GB, chạy 24/7 thật, không đếm
-   giờ. Repo đã có sẵn `setup-vps.sh`. Đây là lựa chọn free duy nhất thực sự
+   giờ. Repo đã có sẵn `scripts/deploy/setup-vps.sh`. Đây là lựa chọn free duy nhất thực sự
    always-on.
 4. **Render Starter $7/tháng** — hết giới hạn giờ, hết ngủ. Bước 4 (Cloudflare
    cache) vẫn nên làm dù có trả tiền.

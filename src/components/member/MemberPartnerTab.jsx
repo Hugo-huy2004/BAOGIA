@@ -1,6 +1,6 @@
 import { withTranslation } from "react-i18next";
 import { Component } from 'react';
-import dataApi from "../../services/dataApi";
+import dataApi from "../../services/api/modules/dataApi";
 
 class MemberPartnerTab extends Component {
   constructor(props) {

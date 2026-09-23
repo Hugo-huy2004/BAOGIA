@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Award, RefreshCw, ShieldCheck } from "lucide-react";
 import confetti from "canvas-confetti";
 import { notify } from "../../../lib/notify";
-import { getMemberSession } from "../../../services/authSession";
+import { getMemberSession } from "../../../services/api/core/authSession";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { EXAM_BLUEPRINT, EXAM_GROUPS, EXAM_PASS_PERCENT, matchesSlot } from "../../../../shared/examBlueprint";
 

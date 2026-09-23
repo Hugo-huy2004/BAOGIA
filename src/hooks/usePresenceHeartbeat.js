@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getMemberToken } from "../services/authSession";
+import { getMemberToken } from "../services/api/core/authSession";
 
 const HEARTBEAT_COOLDOWN_MS = 5 * 60_000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";

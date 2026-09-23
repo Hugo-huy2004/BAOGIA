@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRadioHeartbeat, sendRadioHeartbeat } from "../components/member/RadioTokenStatus";
 import { setMediaSession, setMediaPlaybackState } from "../services/mediaSession";
-import { getMemberSession } from "../services/authSession";
+import { getMemberSession } from "../services/api/core/authSession";
 import {
   pickRandom, orderedUrls, resolveByName, rememberFound, forgetFound, foundStations,
   recordOk, recordFail, readHealth, resetHealth, stationStatus, lastStationId,

@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef } from "react";
 import { getCachedGeolocation } from "../utils/geoCache";
-import { getMemberToken } from "../services/authSession";
+import { getMemberToken } from "../services/api/core/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 

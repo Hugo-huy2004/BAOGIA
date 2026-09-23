@@ -6,7 +6,7 @@ import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
 import CardCodeEntry from "./CardCodeEntry";
 import { base64UrlToBytes } from "../../../utils/particleCloudCode";
-import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
+import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/api/modules/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";

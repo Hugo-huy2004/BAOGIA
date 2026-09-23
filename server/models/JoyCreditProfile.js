@@ -43,6 +43,31 @@ const JoyCreditProfileSchema = new mongoose.Schema({
 
   // Khoá kỳ xét gần nhất ("2026-W38"). Chặn xét hai lần trong một tuần khi có
   // nhiều process cùng chạy cron — cùng cách `lastReportKey` chặn báo cáo trùng.
+  /**
+   * Quyết định TAY của admin, đứng TRÊN kết quả chấm tự động.
+   *
+   * Thuật toán chấm theo thu nhập ròng và lịch sử hoàn nợ — nó đúng ở mức trung
+   * bình và sai ở từng người: một người mới đăng ký, một người vừa gặp biến cố,
+   * một người admin biết rõ ngoài đời. Trước đây admin không có cách nào chen
+   * vào, nên câu trả lời duy nhất cho khách là "hệ thống chấm vậy".
+   *
+   * `evaluate()` hằng tuần KHÔNG được ghi đè lên đây; nó chỉ cập nhật `limit`
+   * (số máy chấm), còn `effectiveLimit()` mới là số thật sự được dùng.
+   * Hết `expiresAt` thì quyền ghi đè tự hết hiệu lực, không cần ai nhớ gỡ.
+   */
+  override: {
+    limit: { type: Number, default: null, min: 0 },
+    reason: { type: String, default: '' },
+    by: { type: String, default: '' },
+    at: { type: Date, default: null },
+    expiresAt: { type: Date, default: null },
+  },
+
+  /** Tạm dừng cho RIÊNG người này vay, không đụng tới hạn mức đã chấm. */
+  suspendedAt: { type: Date, default: null },
+  suspendReason: { type: String, default: '' },
+  suspendedBy: { type: String, default: '' },
+
   lastEvaluatedKey: { type: String, default: '' },
   lastEvaluatedAt: { type: Date, default: null },
 

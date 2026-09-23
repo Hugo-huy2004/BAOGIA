@@ -929,651 +929,9 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Website Consulting For Students & Small Shops | Hugo Studio",
-      "description": "Tell Hugo what you need before choosing a solution. Direct 1-to-1 consulting for students, individuals and small shops, with scope and cost agreed before work begins.",
-      "keywords": "student website, student portfolio, personal website, small business website, website consultation, Hugo Studio"
-    },
-    "common": {
-      "youGet": "What you get",
-      "notIncluded": "Not included",
-      "discussPlan": "Discuss this package",
-      "discussProject": "Discuss your project",
-      "revealPrice": "See the investment range",
-      "priceHint": "A starting point. The final figure is agreed once the scope is clear.",
-      "getQuote": "Tell me what you need",
-      "quoteAfterChat": "Discuss first · quote second"
-    },
-    "whispers": {
-      "intro": "There is no perfect website. Only the right one.",
-      "between1": "Every bug is a signal. Listen to it.",
-      "between2": "Speed isn't the goal. Speed is the prerequisite.",
-      "between3": "A beautiful site that loads slowly is color on canvas at dusk — lovely, but no one sees it.",
-      "between4": "From one page to a whole world. The first step is the only one you need to worry about.",
-      "between5": "Only when the world can find you do you truly exist online.",
-      "climax": "And then, the website doesn't just talk — it thinks, it decides, it works for you.",
-      "closing": "Every number is a door. Which one will you open?"
-    },
-    "hero": {
-      "badge": "Direct 1-to-1 · Students come first",
-      "title1": "You do not need a package yet.",
-      "title2": "Start with what you need.",
-      "desc": "Tell me your goal, what is getting in the way, or what you want to create. I will help identify the right-sized approach — from student Bios and portfolios to websites for individuals and small shops.",
-      "viewPricing": "Choose your situation",
-      "contact": "Tell me what you need",
-      "swipe": "Swipe to continue",
-      "scroll": "Scroll to continue",
-      "trust": [
-        "Work directly with the designer and developer",
-        "Scope, timeline and cost agreed up front",
-        "Designed for mobile, speed and discoverability",
-        "Dedicated benefits and support paths for students"
-      ]
-    },
-    "outcomes": {
-      "eyebrow": "The first chapter",
-      "title": "What should your website change?",
-      "desc": "Choose the story that resembles your situation to see the related services.",
-      "items": [
-        {
-          "title": "I want customers to understand and choose my brand",
-          "desc": "A landing page or multi-page site that explains who you are, what you offer and what visitors should do next.",
-          "cta": "See the build journey"
-        },
-        {
-          "title": "My current site is losing visitors",
-          "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
-          "cta": "See ways to improve"
-        },
-        {
-          "title": "I want to tell my own story",
-          "desc": "Portfolio, Bio and learning-support options created for students.",
-          "cta": "See student options"
-        }
-      ]
-    },
-    "pricingPhilosophy": {
-      "title": "The story behind each price",
-      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
-      "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
-    },
-    "pricing": {
-      "eyebrow": "Common starting points",
-      "title": "Three ways to begin,",
-      "highlight": "not three rigid boxes",
-      "desc": "These are common scopes, not fixed packages. I first understand your needs, recommend what is enough, then confirm timing and cost."
-    },
-    "journey": {
-      "stone1": {
-        "badge": "✦ The First Stone",
-        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
-      },
-      "stone2": {
-        "badge": "✦ The Stone That Lights Up",
-        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
-      },
-      "stone3": {
-        "badge": "✦ The Stone That Takes Shape",
-        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
-      },
-      "stone4": {
-        "badge": "✦ The Grand Stone",
-        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
-      },
-      "stone5": {
-        "badge": "✦ The Pearl — Alive",
-        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
-      }
-    },
-    "plans": {
-      "fix": {
-        "label": "Quick fix",
-        "name": "Fix an existing site",
-        "price": "From $6.99",
-        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
-        "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
-        "includes": [
-          "A quote per task first — work starts only when you approve",
-          "Fixed and tested on both phone and desktop",
-          "Free 7-day warranty on the exact bug fixed",
-          "All files and access handed back when done"
-        ],
-        "excludes": [
-          "Full redesign of the whole site (see the build packages)",
-          "Domain and hosting fees — I'll hook them up for free"
-        ],
-        "timeline": "Same day – next day",
-        "payment": "Pay when it is done"
-      },
-      "seo": {
-        "label": "Optimize",
-        "name": "SEO & speed-up",
-        "price": "From $36.99",
-        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
-        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
-        "includes": [
-          "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
-          "On-page SEO: metadata, rich share previews, schema markup",
-          "Google Search Console setup, sitemap and robots.txt submitted",
-          "Optimization for your 5 key pages (or the whole site if it's small)",
-          "Before–after PageSpeed report with recommended next steps",
-          "A walkthrough of what to optimize next if you want to keep going"
-        ],
-        "excludes": [
-          "SEO copywriting, backlinks, paid ads"
-        ],
-        "timeline": "5–7 days"
-      },
-      "landing": {
-        "label": "Start",
-        "name": "One-page landing page",
-        "oldPrice": "$80.99",
-        "price": "$60.99",
-        "discount": "-25%",
-        "note": "Custom design, no mass-market templates. Done in 5-7 days.",
-        "desc": "One page, one goal: visitors finish reading and want to contact you.",
-        "tagline": "Easy to start",
-        "includes": [
-          "1 page custom-designed to your brand, up to 7 sections",
-          "2 revision rounds based on your feedback",
-          "Contact form, click-to-call, or direct Zalo/Messenger chat",
-          "Basic SEO: metadata, rich share previews, mobile-friendly",
-          "Deployed live with your domain hooked up",
-          "A 30-minute hands-on walkthrough over Zalo",
-          "Free bug support for 14 days after handover"
-        ],
-        "excludes": [
-          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
-          "Copy and images — you provide them, I polish and design",
-          "Booking or online payment systems → see the Website Pro package"
-        ],
-        "timeline": "5–7 days"
-      },
-      "website": {
-        "label": "Grow",
-        "name": "Multi-page website",
-        "oldPrice": "$202.99",
-        "price": "$121.99",
-        "discount": "-40%",
-        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
-        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
-        "tagline": "Most popular",
-        "includes": [
-          "4-6 finished pages: home, about, products/services, news (optional), contact",
-          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
-          "3 revision rounds based on your feedback",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
-          "Zalo, Messenger, Google Maps + advanced contact forms",
-          "1 month of free maintenance (4 small tweaks included)",
-          "A 30-minute training session + 14 days of post-handover support"
-        ],
-        "excludes": [
-          "Yearly domain & hosting fees (~300-800k, sourced externally)",
-          "Blog copywriting and product photography — you provide those",
-          "Booking management, online payments → Web System (the advanced package)"
-        ],
-        "timeline": "2–3 weeks",
-        "payment": "Paid in stages"
-      },
-      "system": {
-        "label": "System",
-        "name": "Dynamic web app",
-        "price": "From $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
-        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
-        "tagline": "Long-term asset",
-        "includes": [
-          "1 core flow of your choice: bookings OR basic orders",
-          "Admin dashboard: orders, customers, key numbers",
-          "Login with 2 permission levels: owner and staff",
-          "1 data connection: Google Sheet or Zalo",
-          "Full source code handover — the site is your asset",
-          "1 month of technical support after handover"
-        ],
-        "excludes": [
-          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
-          "VIP membership, points & loyalty programs → separate add-on",
-          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
-        ]
-      }
-    },
-    "studentPlans": {
-      "orderCta": "Contact to order",
-      "detailsCta": "See verification terms & student plan details",
-      "capLabel": "Scope limits",
-      "compareLabel": "Vs. standard pricing",
-      "groupCoursework": {
-        "title": "Help with end-of-term coursework",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
-      },
-      "groupProfile": {
-        "title": "Personal profile — nothing to do with grades",
-        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
-      },
-      "bug": {
-        "label": "STUDENT",
-        "name": "Diagnose & Fix",
-        "price": "$4.99",
-        "unit": "/bug",
-        "tagline": "Stuck near the deadline",
-        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
-        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
-        "includes": [
-          "Find and fix the exact bug agreed before we start",
-          "Written notes on the root cause so you can answer when asked",
-          "A Git link to clone the fixed code from",
-          "3-day warranty on the bug that was fixed"
-        ],
-        "cap": [
-          "Up to 2 bugs per order",
-          "Repairs only — no new features written"
-        ]
-      },
-      "html": {
-        "label": "HTML/CSS/JS",
-        "name": "Static Web Coursework",
-        "price": "$20.99",
-        "tagline": "Responsive front end",
-        "note": "Split between 2 students: ~$10.50 each.",
-        "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
-        "includes": [
-          "Your own Git link to clone the whole source from",
-          "Responsive interface that holds up on phones",
-          "DOM animation and basic JavaScript behaviour",
-          "Documentation: folder structure, what each file does, how to run it",
-          "Commented code plus free deploy instructions"
-        ],
-        "cap": [
-          "One course, up to 4 static pages",
-          "No backend, no database",
-          "No capstone or graduation projects"
-        ],
-        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
-      },
-      "php": {
-        "label": "PHP/SQL",
-        "name": "Dynamic Web Coursework",
-        "price": "$40.99",
-        "tagline": "CRUD & permissions",
-        "note": "Split between 3 students: ~$13.66 each.",
-        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
-        "includes": [
-          "Your own Git link to clone the whole source from",
-          "Data handling in PHP with a MySQL database",
-          "Registration, login and basic role permissions",
-          "SQL dump and seed data included so it runs on first try",
-          "Documentation: XAMPP setup, database import, the flow behind each feature"
-        ],
-        "cap": [
-          "One course, up to 6 database tables",
-          "Up to 2 CRUD feature groups plus login",
-          "No capstone or graduation projects"
-        ],
-        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
-      },
-      "react": {
-        "label": "REACT/NODE",
-        "name": "Advanced Web Coursework",
-        "price": "$68.99",
-        "tagline": "SPA + REST API",
-        "note": "Split between 4 students: ~$17.25 each.",
-        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
-        "includes": [
-          "Your own Git link to clone the whole source from",
-          "React SPA architecture with a Node.js/Express REST API",
-          "Authentication plus up to 3 CRUD feature groups",
-          "Seed data included so it runs on first try",
-          "Documentation: environment setup, env vars, a data-flow map for every API"
-        ],
-        "cap": [
-          "One course, up to 3 CRUD feature groups plus login",
-          "One REST API and one database",
-          "No capstone or graduation projects"
-        ],
-        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
-      },
-      "exclusiveBio": {
-        "label": "STUDENT",
-        "name": "Custom-Designed Bio",
-        "price": "$4.99",
-        "tagline": "An upgrade on the free one",
-        "note": "The free version you build yourself in the editor. This one I design around your story.",
-        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
-        "includes": [
-          "Layout and colour palette designed for you alone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "An about-you section: summary, interests, selected skills",
-          "Looks right on both desktop and mobile"
-        ],
-        "cap": [
-          "One page, up to 5 links",
-          "2 rounds of revisions after handover"
-        ]
-      },
-      "bento": {
-        "label": "STUDENT",
-        "name": "Bento CV / Portfolio",
-        "price": "$32.99",
-        "tagline": "Built for jobs & scholarships",
-        "note": "A personal profile, not an assignment — it touches none of your grades.",
-        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
-        "includes": [
-          "A one-page portfolio in a Bento Grid layout",
-          "GitHub, socials and contact details wired in",
-          "Contact form feeding straight into a free Google Sheet",
-          "Deployed to free lifetime hosting (Vercel/Netlify)"
-        ],
-        "cap": [
-          "Up to 7 content blocks",
-          "2 rounds of revisions after handover"
-        ]
-      }
-    },
-    "demo": {
-      "eyebrow": "See for yourself",
-      "title": "Try out",
-      "highlight": "real design demos",
-      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
-      "openCta": "Open 3 relevant demos",
-      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
-      "cta": "Build something like this",
-      "loading": "Loading demo...",
-      "templates": {
-        "photography": {
-          "title": "Photography Studio",
-          "short": "Photo",
-          "subtitle": "Photographer"
-        },
-        "cafe": {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
-        },
-        "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
-        },
-        "portfolio": {
-          "title": "Personal Portfolio",
-          "short": "Portfolio",
-          "subtitle": "Personal profile"
-        },
-        "ecommerce": {
-          "title": "Online Store",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
-        },
-        "dashboard": {
-          "title": "Admin Panel",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
-        }
-      }
-    },
-    "care": {
-      "eyebrow": "Already have a website?",
-      "title": "No rebuild needed —",
-      "highlight": "fix just what's broken",
-      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
-    },
-    "micro": {
-      "eyebrow": "Having trouble with an existing site?",
-      "title": "Fix only what is needed,",
-      "highlight": "without forcing a rebuild",
-      "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
-      "costLabel": "Cost:",
-      "cta": "Contact",
-      "customTitle": "Got a unique idea or custom request?",
-      "customDesc": "Send me the current state and the result you want. If it is a good fit, I will propose the approach, scope and timeline before quoting.",
-      "customCta": "Let's chat about it!"
-    },
-    "app": {
-      "badge": "Full web system",
-      "title1": "A website that",
-      "title2": "works for you.",
-      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
-      "extendTitle": "Extensions when you need them — quoted separately",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
-    },
-    "student": {
-      "badge": "Hugo Studio's priority",
-      "title1": "Students always have",
-      "title2": "a free place to begin.",
-      "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
-      "cta": "See free benefits",
-      "customEyebrow": "When you want to go further",
-      "customTitle": "Personal support while you still learn and own your work",
-      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
-      "customCta": "Tell me about your goal",
-      "customItems": [
-        {
-          "title": "Bespoke Bio & portfolio",
-          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
-        },
-        {
-          "title": "Guided debugging",
-          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
-        },
-        {
-          "title": "Web project direction",
-          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
-        }
-      ],
-      "items": [
-        {
-          "title": "Personal Bio",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
-        },
-        {
-          "title": "Study tools",
-          "desc": "Notes, Q&A, resources and utilities for self-study."
-        },
-        {
-          "title": "Personal support bot",
-          "desc": "Quick answers, study tips, reminders and everyday help."
-        },
-        {
-          "title": "Q&A community",
-          "desc": "A space to ask about homework and projects, and get direction within support scope."
-        }
-      ]
-    },
-    "process": {
-      "eyebrow": "Process",
-      "title": "Clear steps,",
-      "highlight": "start to finish",
-      "desc": "You always know the current step, what is in scope and what happens next.",
-      "steps": [
-        "You send your needs, current site or idea.",
-        "I advise on the approach and give a clear quote first.",
-        "We lock scope and timeline, then work in milestones.",
-        "Handover with guidance, plus support for small tweaks."
-      ]
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "title": "Quick questions,",
-      "highlight": "honest answers",
-      "desc": "Common questions before starting a web project with Hugo Studio.",
-      "items": [
-        {
-          "q": "What should I prepare before getting in touch?",
-          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
-        },
-        {
-          "q": "How is the cost determined?",
-          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
-        },
-        {
-          "q": "How do free student benefits differ from custom support?",
-          "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
-        },
-        {
-          "q": "Can you build it if I don't have a design yet?",
-          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
-        },
-        {
-          "q": "Is there support after handover?",
-          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
-        }
-      ]
-    },
-    "finalCta": {
-      "title1": "Every project starts with",
-      "title2": "one clear conversation.",
-      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
-      "cta": "Tell me what you need"
-    },
-    "promo": {
-      "title": "Free Aesthetic Bio Page for Students!",
-      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
-      "cta": "Verify Me!"
-    },
-    "tabs": {
-      "commercial": "Business / Personal",
-      "student": "For Students",
-      "micro": "Quick Fixes"
-    },
-    "microJobs": {
-      "bug-ui": {
-        "name": "Squish Interface Bugs",
-        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
-        "price": "From $6.99",
-        "time": "Done today!"
-      },
-      "style-content": {
-        "name": "Colors & Copy Polish",
-        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
-        "price": "From $8.99",
-        "time": "Done today!"
-      },
-      "mobile-beauty": {
-        "name": "Mobile Glow-up",
-        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
-        "price": "From $10.99",
-        "time": "Done today!"
-      },
-      "web-widget": {
-        "name": "Sweet Widgets",
-        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
-        "price": "From $6.99",
-        "time": "Done today!"
-      },
-      "deploy-domain": {
-        "name": "Web Launch",
-        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
-        "price": "From $10.99",
-        "time": "Done today!"
-      },
-      "seo-quick": {
-        "name": "Quick SEO Boost",
-        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
-        "price": "From $8.99",
-        "time": "Done today!"
-      },
-      "speed-optimize": {
-        "name": "Speed Boost",
-        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
-        "price": "From $12.99",
-        "time": "Done today!"
-      },
-      "monthly-maintenance": {
-        "name": "Monthly Cozy Care",
-        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
-        "price": "From $12.99/mo",
-        "time": "Ongoing care"
-      }
-    },
-    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
-    "section": {
-      "newBuildsTitle": "New Designs & Custom Builds",
-      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
-      "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
-      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
-    },
-    "devices": {
-      "desktop": "Desktop",
-      "tablet": "Tablet",
-      "mobile": "Mobile"
-    },
-    "proof": {
-      "eyebrow": "Delivered work",
-      "title": "What a multi-page website looks like in production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
-      "clientLabel": "Client",
-      "fieldLabel": "Industry",
-      "scopeLabel": "Scope",
-      "buildLabel": "Build",
-      "planLabel": "Package",
-      "clientName": "Mình Ơi Media",
-      "clientField": "Wedding photojournalism",
-      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
-      "clientBuild": "Custom design — no CMS, no template",
-      "clientPlan": "Multi-page website with a needs-based scope",
-      "cta": "Open the client site"
-    },
-    "demoLibrary": {
-      "description": "Choose a template, then preview it on phone, tablet or desktop.",
-      "live": "Interactive demo",
-      "open": "View details",
-      "selected": "Viewing",
-      "previewTitle": "Template room",
-      "close": "Close preview",
-      "previewHint": "Choose a template, then switch devices to picture your website before we talk.",
-      "included": "Can be included",
-      "liveNotice": "You can scroll and interact directly inside this frame.",
-      "fits": "Best for",
-      "details": {
-        "portfolio": {
-          "fit": "Students, freelancers and independent creatives",
-          "features": [
-            "Profile",
-            "Projects",
-            "Contact"
-          ]
-        },
-        "cafe": {
-          "fit": "Cafes, bistros and small bakeries",
-          "features": [
-            "Menu",
-            "Booking",
-            "Map"
-          ]
-        },
-        "photography": {
-          "fit": "Photographers, studios and wedding services",
-          "features": [
-            "Gallery",
-            "Services",
-            "Booking"
-          ]
-        },
-        "ecommerce": {
-          "fit": "Fashion, beauty and handmade shops",
-          "features": [
-            "Products",
-            "Filters",
-            "Cart"
-          ]
-        },
-        "jewelry": {
-          "fit": "Jewellers and premium accessory brands",
-          "features": [
-            "Collections",
-            "Reference price",
-            "Consultation"
-          ]
-        },
-        "dashboard": {
-          "fit": "Teams managing orders and business data",
-          "features": [
-            "Overview",
-            "Reports",
-            "Roles"
-          ]
-        }
-      }
+      "title": "Website & Landing Page Design from 1.9M₫ | Hugo Studio",
+      "description": "Landing pages from 1,900,000₫, brochure sites from 3,900,000₫. Hand-written code, handed over to you, price fixed in the contract. See the work.",
+      "keywords": "website design, landing page design, small business website, café website, online shop website, web design quote, freelance web developer Vietnam, Hugo Studio"
     }
   },
   "faqPage": {
@@ -7429,6 +6787,111 @@
       "price": "350,000 – 900,000₫ · one-off",
       "body": "Pointing your domain, installing the security certificate, publishing the site to your hosting, connecting the database and the inbox that receives form submissions. Required if you want Hugo Studio to handle this part."
     },
+    "connectExclude": {
+      "title": "Connecting the infrastructure.",
+      "body": "Setup and connection belong to the Connection package (350,000 – 900,000₫), billed separately from the design fee."
+    },
+    "care": {
+      "name": "Care plan",
+      "price": "350,000₫ / month",
+      "body": "Routine checks and small updates, up to two hours a month — enough for copy changes, new images, one small section. Anything beyond that is 200,000₫ per hour, quoted before the work starts. Signing up is entirely optional."
+    },
+    "compare": {
+      "kicker": "Compare",
+      "title": "Four packages, side by side.",
+      "lede": "Not a feature list. This is what you actually take away.",
+      "current": "You are here",
+      "yes": "Included",
+      "no": "Not included",
+      "extra": "Charged separately",
+      "labels": {
+        "price": "What you pay",
+        "time": "How soon it is live",
+        "pages": "How many pages you get",
+        "extraPage": "Adding a page after it is agreed",
+        "revisions": "Changing the design after sign-off",
+        "found": "People finding you on Google",
+        "contact": "How customers reach you",
+        "selling": "Customers buying and paying on the site",
+        "selfEdit": "Changing text and images later",
+        "warranty": "Who fixes it when it breaks",
+        "connect": "Domain and hosting"
+      },
+      "cells": {
+        "price": {
+          "hugo-edu-plus": "Free for 365 days"
+        },
+        "time": {
+          "hugo-one": "5 – 10 days",
+          "hugo-story": "10 days – 4 weeks",
+          "hugo-flow-plus": "4 – 8 weeks",
+          "hugo-edu-plus": "Live as soon as you are verified"
+        },
+        "pages": {
+          "hugo-one": "One page",
+          "hugo-story": "4 – 8 pages, 8 is the ceiling",
+          "hugo-flow-plus": "Up to 12 pages, product pages not counted",
+          "hugo-edu-plus": "One Bio page"
+        },
+        "extraPage": {
+          "hugo-one": "Move up to Hugo Story",
+          "hugo-story": "Locked once agreed. 450,000 – 900,000₫ per extra page",
+          "hugo-flow-plus": "Locked once agreed. 450,000 – 900,000₫ per extra page",
+          "hugo-edu-plus": "One account, one Bio page"
+        },
+        "revisions": {
+          "hugo-one": "Two rounds in the price. Locked at sign-off, then 250,000 – 600,000₫ per round",
+          "hugo-story": "Two rounds in the price. Locked at sign-off, then 250,000 – 600,000₫ per round",
+          "hugo-flow-plus": "Two rounds in the price. Locked at sign-off, then 250,000 – 600,000₫ per round",
+          "hugo-edu-plus": "Switch style any time"
+        },
+        "found": {
+          "hugo-one": "Title, description, share image and a proper sitemap",
+          "hugo-story": "Every page gets its own title and description",
+          "hugo-flow-plus": "Every page and every product gets its own",
+          "hugo-edu-plus": "Not tuned for search"
+        },
+        "contact": {
+          "hugo-one": "A form that lands in your inbox",
+          "hugo-story": "Form, a map to your door and links to your channels",
+          "hugo-flow-plus": "Form, customer accounts and order history",
+          "hugo-edu-plus": "Links to your own channels"
+        },
+        "selling": {
+          "hugo-flow-plus": "Cart, online payment and order management"
+        },
+        "selfEdit": {
+          "hugo-one": "Send it to Hugo, or edit the source yourself",
+          "hugo-story": "Send it to Hugo. Includes one session on updating it yourself",
+          "hugo-flow-plus": "Do it in the admin panel, with two training sessions",
+          "hugo-edu-plus": "Do it in your account, any time"
+        },
+        "warranty": {
+          "hugo-one": "Bugs fixed free for 30 days, small text changes for 7",
+          "hugo-story": "Bugs fixed free for 45 days, small text changes for 14",
+          "hugo-flow-plus": "Bugs fixed free for 60 days, plus 30 days alongside you in operation",
+          "hugo-edu-plus": "Support for all 365 days"
+        },
+        "connect": {
+          "hugo-one": "You buy and own them. Connecting them is in the price",
+          "hugo-story": "You buy and own them. Connecting them is 350,000 – 900,000₫",
+          "hugo-flow-plus": "You buy and own them. Connecting them is 350,000 – 900,000₫",
+          "hugo-edu-plus": "An address on Hugo Studio's shared domain — nothing to buy"
+        }
+      }
+    },
+    "stats": {
+      "price": "Cost",
+      "time": "Delivery",
+      "pages": "Pages",
+      "warranty": "Warranty",
+      "warrantyValue": {
+        "hugo-one": "30 days",
+        "hugo-story": "45 days",
+        "hugo-flow-plus": "60 days",
+        "hugo-edu-plus": "365 days"
+      }
+    },
     "handCoded": {
       "title": "Hand-written code. All of it.",
       "body": "Every line of the interface is written for your project, never assembled from a purchased theme or a drag-and-drop builder. The page loads only what it needs, and it does not depend on somebody else's plugin release schedule."
@@ -7436,45 +6899,45 @@
     "excludes": [
       {
         "title": "Domain name.",
-        "body": "You buy it and you own it. Hugo Studio advises on the name and walks you through the purchase, but does not sell domains or register one in its own name."
+        "body": "You buy them and own them. Hugo Studio advises on the name and shows you how to buy, but does not sell it or hold it for you."
       },
       {
         "title": "Hosting and database.",
-        "body": "Hosting, VPS and database are bought and owned by you. Hugo Studio neither provides nor resells infrastructure."
-      },
-      {
-        "title": "Connecting the infrastructure.",
-        "body": "Setup and connection belong to the Connection package (350,000 – 900,000₫), billed separately from the design fee."
+        "body": "Hosting, VPS and database are bought and owned by you. Hugo Studio neither provides nor resells them."
       },
       {
         "title": "Pre-built platforms.",
-        "body": "Hugo Studio takes on custom-coded projects only, not builds or maintenance on pre-built platforms. If that is what you need, you will hear it in the first conversation instead of halfway through."
+        "body": "Hugo Studio only takes hand-coded projects. If what you need belongs on a website builder, I say so at the first meeting."
       },
       {
         "title": "Source material.",
-        "body": "Copy, product photography, logo and brand files come from you. Tell us early if you need writing or photography, so it can be quoted."
+        "body": "Copy, product photos, logo and brand files come from you. Writing or photography is charged on top."
       },
       {
         "title": "Third-party costs.",
-        "body": "Ad spend, licensed fonts, paid stock imagery, payment gateways, bulk email services — paid by you, directly to the provider."
+        "body": "Ad spend, licensed fonts, paid stock, payment gateways, bulk mail services — you pay the provider directly."
       }
     ],
     "policy": [
       {
         "title": "50% deposit.",
-        "body": "Paid before work starts. The balance is due on acceptance, before the live handover."
+        "body": "Paid before work starts; the rest on sign-off, before handover."
       },
       {
-        "title": "Two rounds of revisions.",
-        "body": "Two rounds of layout and copy changes are included. From the third round on, or when the direction changes after sign-off, the extra work is quoted first."
+        "title": "Two rounds of changes are in the price.",
+        "body": "Two rounds of layout and content changes are already in the price. From the third round on, the work is charged by what it actually takes."
+      },
+      {
+        "title": "Once it is agreed, it is locked.",
+        "body": "The page list and the design are fixed in the quote and do not change after that. Extra pages or a new design direction are charged from the fee table, agreed before the work starts."
       },
       {
         "title": "The work is yours.",
-        "body": "Once paid in full, the design, copy and source code of the project belong to you. The libraries, framework and internal tooling Hugo Studio reuses across projects remain Hugo Studio's, licensed to you in perpetuity within this project. Hugo Studio keeps only the right to show the project in its portfolio, unless you ask otherwise."
+        "body": "Once paid in full, the project's design, content and source code are yours. Libraries and frameworks reused across projects remain Hugo Studio's, and you hold a perpetual licence to them within this project. Hugo Studio keeps the right to show the project in a portfolio, unless you ask otherwise."
       },
       {
         "title": "Stopping midway.",
-        "body": "If you stop the project, the work completed is handed over as it stands and the deposit is not refunded. If the stop is Hugo Studio's fault, or Hugo Studio stops, everything not yet delivered is refunded in full."
+        "body": "If you stop, what is built is handed over as-is and the deposit is not refunded. If the stop is Hugo Studio's fault, or Hugo Studio stops, everything not yet done is refunded in full."
       }
     ],
     "priceNotice": {
@@ -7482,7 +6945,7 @@
       "lines": [
         "All figures are in Vietnamese dong (VND) and are indicative ranges — not a fixed price list and not a binding offer.",
         "The final price is stated in the quote and the contract for each project, once both sides agree on the scope of work.",
-        "Excludes the domain name, hosting, database, the Connection package and any amount paid to a third-party provider.",
+        "Domain, hosting, database and any third-party provider costs are not included. The Connection package is billed separately, except on packages stated to include it.",
         "Ranges may change over time and with the actual workload. A figure signed into a contract does not change."
       ]
     },
@@ -7501,11 +6964,6 @@
         "title": "Rush delivery",
         "price": "+25% of the package",
         "body": "When you need the timeline compressed below the range stated in the package policy."
-      },
-      {
-        "title": "Maintenance after warranty",
-        "price": "350,000₫ / month",
-        "body": "Routine checks and small updates, up to two hours a month. Anything beyond that is 200,000₫ per hour."
       }
     ],
     "studentDiscount": {
@@ -7517,57 +6975,55 @@
         "title": "One page. One purpose.",
         "lede": "A static page that loads fast, reads in one pass and ends on a single action. For when you have one thing to say, and you want it said clearly.",
         "intro": [
-          "A landing page is not a small website. It is one act of persuasion. Someone arrives, understands what you sell, believes you can deliver, and clicks. Anything that does not serve that sequence comes out.",
-          "With only one page, reading order is everything. The main message sits in the first screen. Proof arrives exactly when the visitor starts weighing it up. The action button is always where the thumb already is."
+          "A landing page is one act of persuasion, not a small website. With one page, reading order is everything: the main message in the first screen, proof right when they weigh it up, the button where the thumb already is."
         ],
         "audience": [
-          "An ad campaign that needs somewhere to send its traffic.",
-          "A personal profile, portfolio or online CV that deserves its own link.",
-          "A single service, course or event that needs a compact launch.",
-          "Testing an idea before committing to a full website."
+          "An ad campaign that needs somewhere to send people.",
+          "A portfolio or online CV that needs its own address.",
+          "One service, one course or one event to launch cleanly."
         ],
         "includes": [
           {
             "title": "A one-page design, made for you.",
-            "body": "No reused template. Layout, typeface and colour follow your brand."
+            "body": "No reused template. Layout, type and colour follow your brand."
           },
           {
             "title": "Copy and call to action.",
-            "body": "The words you supply, arranged and lightly edited into a single reading line. One main action, repeated where it belongs."
+            "body": "The copy you give is edited into one reading line, leading to one main action."
           },
           {
             "title": "Right on every screen.",
-            "body": "Tested on real phones, tablets and large displays — not by dragging a browser window narrower."
+            "body": "Tested for real on phones, tablets and large screens."
           },
           {
             "title": "Contact form.",
-            "body": "The form itself and basic spam protection are included. Delivering submissions to your inbox needs the Connection package and a mail service account."
+            "body": "The form, basic spam protection and the wiring to your inbox are all in the price. You only need a mail service account."
           },
           {
             "title": "Foundational SEO.",
-            "body": "Title, description, social sharing image, sitemap and correct tag structure so Google can read the page."
+            "body": "Title, description, share image, sitemap and proper tag structure."
           },
           {
             "title": "Source code handover.",
-            "body": "All the source code and the instructions to run it again, so you or anyone else can take over."
+            "body": "All the source code with instructions to run it, so anyone can take over."
           },
           {
             "title": "Deployment.",
-            "body": "A live build on Hugo Studio's preview environment, with every flow checked before handover. Publishing it to your own domain and hosting needs the Connection package."
+            "body": "Every flow checked, then published to your own domain and hosting. Pointing the domain and the certificate are in the price."
           }
         ],
         "warranty": [
           {
             "title": "30 days of free bug fixes.",
-            "body": "Display bugs, form bugs, code bugs — fixed at no charge from the day of handover."
+            "body": "Display bugs, form bugs, code bugs — no charge."
           },
           {
             "title": "7 days of small content edits.",
-            "body": "Change a line, swap an image, update a phone number. Changing the layout counts as a new revision round."
+            "body": "Text, images, phone number. A layout change counts as a new round."
           },
           {
             "title": "A reply within 24 working hours.",
-            "body": "Through the channel agreed at the start of the project. Anything that takes the site offline is handled first."
+            "body": "Through the channel agreed at the start. A site that will not load is handled first."
           }
         ],
         "policyExtra": [
@@ -7577,9 +7033,9 @@
           }
         ],
         "price": {
-          "from": "1,500,000₫",
-          "to": "3,500,000₫",
-          "note": "Most projects land between 2 and 2.8 million. The lower figure is for a five to six block page with content you have already prepared.",
+          "from": "1,900,000₫",
+          "to": "3,900,000₫",
+          "note": "All in: domain pointed, certificate installed, published to your hosting. Most projects land between 2.3 and 3 million; the lower figure is for a five to six block page with content you already have.",
           "factors": [
             "How many content blocks the page has — six and fourteen are two different jobs.",
             "Whether the copy is ready or needs editing and rewriting.",
@@ -7591,19 +7047,15 @@
         "faq": [
           {
             "question": "Is Hugo One a good fit for running ads?",
-            "answer": "Yes. It suits a single product, service or campaign where you want traffic to land on a page with one clear action."
+            "answer": "Yes. This package is for one product, one service or one campaign, with one clear action."
           },
           {
             "question": "I already have the copy. Will you rework it?",
-            "answer": "Yes. What you supply is arranged and lightly edited into one reading line. Writing entirely new sales copy is quoted separately if you need it."
-          },
-          {
-            "question": "Does the contact form cost extra?",
-            "answer": "The form interface is part of Hugo One. For submissions to reach your inbox or another system, you need the Connection package and an account with the matching service."
+            "answer": "Yes, arranged and lightly edited. Writing sales copy from scratch is quoted separately."
           },
           {
             "question": "Can I edit the page myself after handover?",
-            "answer": "You receive the source code, so you or someone else can take it over. Hugo One does not include a CMS, so content is updated in the code."
+            "answer": "You get the source code to edit yourself or hand to someone else. There is no CMS, so content is edited in the code."
           }
         ],
         "features": [
@@ -7616,72 +7068,66 @@
         ]
       },
       "hugo-story": {
-        "title": "Several pages. One story.",
+        "title": "Room for everything you have to say.",
         "lede": "A multi-page site for individuals, small venues and small businesses. Each page holds one role, and all of them lead to the same decision.",
         "intro": [
-          "Pile everything onto one page and none of it gets read. Hugo Story separates it: who reads what, where, and where they go next.",
-          "The hard part is not the page count. It is the path between pages. Menus, in-text links and end-of-page buttons are arranged so there is always a next step, instead of a trip back to the home page and out."
+          "Too much to say on one page and none of it gets read. The hard part is not the page count but the path between pages: menu, links and end-of-page buttons are arranged so there is always a next step."
         ],
         "audience": [
-          "A small business that needs room to present its services and its track record.",
-          "Restaurants, cafés, clinics and studios that need a menu, prices, photos and a map.",
-          "Freelancers with several service lines and a body of work to show.",
-          "Anyone using Facebook as a storefront who wants an address of their own."
+          "A small business that needs to show its full range and credentials.",
+          "A restaurant, café, clinic or studio needing menu, prices, photos and a map.",
+          "Anyone using Facebook as a shopfront who wants an address of their own."
         ],
         "includes": [
           {
             "title": "A page structure built to fit.",
-            "body": "Usually four to eight pages: about, services, work, news, contact. The list is agreed before design starts."
+            "body": "Usually 4 – 8 pages: about, services, work, news, contact. The list is agreed before design starts."
           },
           {
             "title": "Content structure and navigation.",
-            "body": "Menus, readable URLs, internal links and an action at the end of every page."
+            "body": "Menu, readable URLs, internal links and an action button at the end of each page."
           },
           {
             "title": "Forms, maps and social links.",
-            "body": "A contact form that reaches your inbox, a map with directions, and links to the channels you already run."
+            "body": "A form to your inbox, a map to your door, links to the channels you run."
           },
           {
             "title": "SEO for every page.",
-            "body": "Each page gets its own title, description and sharing image. Sitemap and structured data for the whole site."
+            "body": "Each page gets its own title, description and share image. Sitemap and structured data across the site."
           },
           {
             "title": "Right on every screen.",
-            "body": "Tested on real phones and computers, tables and multi-column images included."
+            "body": "Tested for real on phones and desktops, including tables and multi-column images."
           },
           {
             "title": "Source code handover.",
-            "body": "All the source code and the instructions to run it again, so you or anyone else can take over."
+            "body": "All the source code with instructions to run it, so anyone can take over."
           }
         ],
         "warranty": [
           {
             "title": "45 days of free bug fixes.",
-            "body": "Anything Hugo Studio built, from the day of handover."
+            "body": "Anything Hugo Studio built, counted from the handover date."
           },
           {
             "title": "14 days of small content edits.",
-            "body": "Change a line, swap an image, update opening hours on the pages delivered."
+            "body": "Text, images, opening hours on the pages handed over."
           },
           {
             "title": "A walkthrough on updating it yourself.",
-            "body": "Online, screen recorded, so you can watch it again when you need to."
+            "body": "Online, screen-recorded so you can watch it again."
           }
         ],
         "policyExtra": [
           {
-            "title": "2 – 4 weeks to build.",
-            "body": "Counted from the moment the page list is agreed and all content has arrived."
-          },
-          {
-            "title": "The page count is agreed first.",
-            "body": "Pages added after that are charged at the per-page rate, agreed before the work begins."
+            "title": "10 days to 4 weeks to build.",
+            "body": "The four-page build ships in 10 – 14 days, a larger site in 3 – 4 weeks. Counted from the moment the page list is agreed and all content has arrived."
           }
         ],
         "price": {
-          "from": "4,000,000₫",
+          "from": "3,900,000₫",
           "to": "8,000,000₫",
-          "note": "Most projects land between 5 and 6.5 million for five to six pages. Extra pages are charged at the rate below.",
+          "note": "A four-page build with content you already have: 3,900,000₫ all in, delivered in 10 to 14 days. More pages, copywriting or extra languages are priced up from there. Most projects land between 5 and 6.5 million.",
           "factors": [
             "How many pages, and how involved each one is.",
             "Whether you need a news or blog section you can post to yourself.",
@@ -7692,20 +7138,16 @@
         },
         "faq": [
           {
-            "question": "How many pages does Hugo Story usually have?",
-            "answer": "Four to eight is the common range — about, services, work, articles and contact, for example. The final list is agreed before design starts."
-          },
-          {
             "question": "Will I be able to publish articles myself?",
-            "answer": "The base package delivers a coded website without a CMS. Publishing your own posts needs a suitable data system or connection package, assessed separately; that cost sits outside the design fee."
+            "answer": "The base package has no CMS. To post yourself, the right system has to be scoped and is charged separately."
           },
           {
             "question": "Can you migrate my existing website?",
-            "answer": "Content migration is possible, but the effort depends on the number of pages, images and records. It is quoted separately once the current site has been reviewed."
+            "answer": "Yes, but the effort depends on the pages, images and old data. Migration is quoted separately after I look at the current site."
           },
           {
             "question": "Are the domain and hosting included?",
-            "answer": "No. You buy and own the domain and the hosting. Hugo Studio only advises on the purchase and connects them through the separately billed Connection package."
+            "answer": "No. You buy and own them. Hugo Studio helps you choose and connects them through the Connection package, billed separately."
           }
         ],
         "features": [
@@ -7718,17 +7160,15 @@
         ]
       },
       "hugo-flow-plus": {
-        "title": "Sell. Right on your own site.",
+        "title": "Customers check out right on your site.",
         "lede": "Catalogue, cart, checkout and order management — one system, in your name. For brands that actually sell, not just display.",
         "intro": [
-          "A shop differs from a brochure site in one way: it has to be correct. No order may be lost. Stock may not drift. The money that arrives has to match the order.",
-          "So most of the work sits behind the interface. Order states, notifications for both sides, and an admin screen complete enough for one person to run the whole shop without opening the code."
+          "A shop has to be right: no dropped orders, no drifting stock, money in matching orders out. So most of the work sits behind the interface — order states, notifications both ways, and an admin screen one person can run the whole shop from."
         ],
         "audience": [
           "Brands selling on marketplaces or social media that want a channel of their own without platform fees.",
           "Shops that need orders, stock and customers in one place.",
-          "Services that take bookings, reservations or online payments.",
-          "Digital products that need to sell and deliver themselves."
+          "Services that take bookings, reservations or online payments."
         ],
         "includes": [
           {
@@ -7737,23 +7177,27 @@
           },
           {
             "title": "Cart and orders.",
-            "body": "Cart, discount codes, shipping fees, order states and notifications for both sides."
+            "body": "Cart, discount codes, shipping fees, order states and notifications both ways."
           },
           {
             "title": "Online payments.",
-            "body": "One Vietnamese payment gateway, registered by you, connected to the site. Gateway fees are charged by the provider."
+            "body": "Connected to one Vietnamese payment gateway registered by you. The gateway's fees are theirs to charge."
           },
           {
             "title": "Customer accounts.",
-            "body": "Sign-in, purchase history and saved delivery addresses."
+            "body": "Login, purchase history and saved delivery addresses."
+          },
+          {
+            "title": "SEO for every page and every product.",
+            "body": "Each page and each product gets its own title, description and share image. Sitemap and structured data across the shop."
           },
           {
             "title": "Admin screen.",
-            "body": "Where you view orders, edit products and follow basic sales figures. Hugo Studio builds the software; the data lives on infrastructure you own."
+            "body": "Where you see orders, edit products and follow basic sales figures. The data sits on infrastructure you own."
           },
           {
             "title": "API integrations as needed.",
-            "body": "Shipping, invoicing, accounting or whichever tool you already use — the list is agreed before the quote."
+            "body": "Shipping, invoicing, accounting or the software you already use — the list is agreed before the quote."
           }
         ],
         "warranty": [
@@ -7773,7 +7217,7 @@
         "policyExtra": [
           {
             "title": "4 – 8 weeks to build.",
-            "body": "Depending on the integrations. Payment and shipping providers set their own approval timelines."
+            "body": "Depends on the integrations. Payment and shipping providers set their own approval times."
           },
           {
             "title": "Paid in three parts.",
@@ -7781,17 +7225,16 @@
           },
           {
             "title": "Service accounts in your name.",
-            "body": "Payment gateway, carriers, infrastructure — all registered with your company details."
+            "body": "Payment gateway, courier, infrastructure — all registered under your business details."
           },
           {
             "title": "Customer data is yours.",
-            "body": "The site collects accounts, addresses and orders from your buyers. You decide what is collected and how it is used; Hugo Studio touches it only to build and to fix, at your request."
+            "body": "The site collects buyers' accounts, addresses and orders. You decide what is collected and how it is used; Hugo Studio only touches it to build and fix, at your request."
           }
         ],
         "price": {
-          "from": "9,000,000₫",
-          "to": "20,000,000₫",
-          "note": "A basic shop usually lands between 10 and 14 million. Integrations are what push the figure furthest.",
+          "from": "Quote on request",
+          "note": "This package is taken on selectively. After we talk, if the scope is clear and the calendar has room, you get a quote written for your project. If it is not the right moment, I say so at the first meeting.",
           "factors": [
             "How many products and variants.",
             "How many payment gateways and carriers to connect.",
@@ -7803,19 +7246,15 @@
         "faq": [
           {
             "question": "Does Hugo Flow+ build its own database?",
-            "answer": "No. Hugo Studio neither provides nor rents database infrastructure. The package connects to the systems and APIs you already have or have purchased."
+            "answer": "No. Hugo Studio neither provides nor rents databases. This package only connects to systems and APIs you already have."
           },
           {
             "question": "What do I need ready before we start?",
-            "answer": "A product list, your pricing and delivery rules, a payment or shipping account, and API documentation if you want external services connected."
-          },
-          {
-            "question": "Who pays the payment and shipping fees?",
-            "answer": "You pay the providers directly. Those charges, and the Connection package, sit outside the Hugo Flow+ development fee."
+            "answer": "A product list, pricing and delivery rules, payment or courier accounts, and API documentation if external services are involved."
           },
           {
             "question": "Can features be added after the site is live?",
-            "answer": "Yes. New features are assessed and quoted separately. Bugs inside the accepted scope are still covered by the package warranty."
+            "answer": "Yes, new features are quoted separately. Bugs inside what was signed off are still covered by the warranty."
           }
         ],
         "features": [
@@ -7831,39 +7270,37 @@
         "title": "A Bio page. Built for students.",
         "lede": "One tidy link for your introduction, your projects and every link that matters. Free for 365 days once your student status is verified.",
         "intro": [
-          "Students rarely need a website yet. They need a place to stand. One link to attach to an application, send to a lecturer, or paste on a profile.",
-          "Hugo Edu+ is that place. You fill it in, edit it and change its look inside your account. No code required. Nobody to wait for."
+          "A student rarely needs a website, they need a place to stand: one address to attach to an application, send to a teacher, paste into a profile. You fill it in, edit it and change its look inside your account, with no coding."
         ],
         "audience": [
           "School and university students who need a page for themselves and their projects.",
           "Learners building an internship application.",
-          "Clubs and project teams that need one shared link.",
-          "Anyone who wants to try a personal page before investing in a website."
+          "Clubs and project teams that need one shared link."
         ],
         "includes": [
           {
             "title": "Free for 365 days.",
-            "body": "Counted from the day you are verified. No bank card, no automatic paid renewal."
+            "body": "Counted from the day you are verified. No card, no paid auto-renewal."
           },
           {
-            "title": "Your own link, issued by Hugo Studio.",
-            "body": "A readable link with your name in it, tidy wherever you send it. Free — no domain to buy, no Connection package needed."
+            "title": "Your own address on a shared domain.",
+            "body": "An address in your name on Hugo Studio's shared domain. Free — you do not have to buy a domain."
           },
           {
             "title": "Photo and introduction.",
-            "body": "Your photo, a job title, an introduction and your contact details."
+            "body": "Photo, job title, an introduction and contact details."
           },
           {
             "title": "Projects and personal links.",
-            "body": "A project list with images and descriptions, plus every link you want to point people to."
+            "body": "A list of projects with images and descriptions, plus any links you want to point to."
           },
           {
             "title": "Edit it yourself, in your account.",
-            "body": "Change it whenever you like. It publishes immediately, with nobody to ask."
+            "body": "Edit any time, live immediately, no request to anyone."
           },
           {
             "title": "Right on every screen.",
-            "body": "Several ready-made looks, switchable at any time."
+            "body": "Several ready-made styles, switchable any time."
           }
         ],
         "warranty": [
@@ -7879,25 +7316,25 @@
         "policyExtra": [
           {
             "title": "Verify once.",
-            "body": "A school email, or valid student documentation if your email is not on a school domain."
+            "body": "A school email, or valid student documents if your email is not on the school's domain."
           },
           {
             "title": "For individual students.",
-            "body": "Not for use as a shop or an official company page. That belongs to Hugo One and above."
+            "body": "Not for a shop or a company's official site. That belongs to Hugo One and up."
           },
           {
             "title": "One account, one Bio page.",
-            "body": "Need extra pages for a club or a team? Get in touch and we will sort it out."
+            "body": "Need another page for a club or a group? Let's talk about it separately."
           },
           {
             "title": "The programme can change.",
-            "body": "Hugo Studio may adjust it or stop accepting new sign-ups. What has already been granted to you runs to the end of its term."
+            "body": "Hugo Studio may adjust the programme or stop taking new sign-ups. What you already have runs to the end of its term."
           }
         ],
         "price": {
           "from": "Free",
           "to": "365 days",
-          "note": "Entirely free once you are verified, the Hugo Studio link included — there is no domain to buy. A bespoke design beyond the Bio templates starts around 1,500,000 – 3,000,000₫, scoped before anything is priced.",
+          "note": "Completely free once verified, including an address on Hugo Studio's shared domain. A custom design beyond the Bio templates starts at 1,500,000 – 3,000,000₫, with the scope agreed first.",
           "factors": [
             "After 365 days: renew or move to a paid package. Nothing is charged automatically.",
             "Bespoke design on request sits outside this package."
@@ -7906,19 +7343,19 @@
         "faq": [
           {
             "question": "Who can use Hugo Edu+ for free?",
-            "answer": "School and university students, verified with a school email or valid student documentation through Hugo Studio's process."
+            "answer": "Pupils, students or learners, verified by a school email or valid student documents."
           },
           {
             "question": "When do the 365 days start?",
-            "answer": "From the moment your student status is verified and the benefits are opened — not from the day you created a Google account."
+            "answer": "From the moment your student status is verified and access is opened, not from the day you created the account."
           },
           {
             "question": "Do I lose my data after 365 days?",
-            "answer": "No. The page may be hidden under the policy, but the data stays in your account to download, renew or move to another package."
+            "answer": "No. The page may be hidden, but the data stays in your account to download, renew or move to another package."
           },
           {
             "question": "I am a student. Do I get a discount on a paid package?",
-            "answer": "Yes. Verified students get 15% off the design fee for Hugo One, Hugo Story and Hugo Flow+. It applies to personal projects, coursework or club work, one project per person per academic year, and never to amounts paid to third-party providers."
+            "answer": "Yes, 15% off the design fee of Hugo One, Hugo Story and Hugo Flow+. For a personal project, coursework or a club, one project per person per school year; it does not apply to third-party costs."
           }
         ],
         "features": [
@@ -7942,7 +7379,8 @@
         "includes": "What's included",
         "excludes": "Not included",
         "warranty": "Warranty",
-        "price": "Pricing"
+        "price": "Pricing",
+        "compare": "Compare"
       },
       "introKicker": "Overview",
       "introCaption": "in short.",
@@ -7973,17 +7411,37 @@
       "closingCta": "Book a conversation",
       "nextPackage": "See",
       "sampleAlt": "Sample of",
-      "metaFallback": "Services | Hugo Studio"
+      "metaFallback": "Services | Hugo Studio",
+      "guarantees": [
+        "The source code and the project's rights are yours",
+        "The price is locked in the contract, nothing new at handover",
+        "Bug warranty, counted from the handover date"
+      ]
     },
     "page": {
       "heroKicker": "Services · Hugo Studio",
-      "heroLine1": "Your website.",
-      "heroLine2": "Your customer's",
-      "heroLine3": "first impression.",
-      "heroLede": "Landing pages and websites built so visitors understand at once, trust enough, and know exactly where to click.",
-      "heroCta": "Start a project",
+      "heroLine1": "Website and",
+      "heroLine2": "landing page design,",
+      "heroLine3": "written by hand.",
+      "heroLede": "Landing pages from 1.9 million₫. Brochure sites from 3.9 million₫. The price is fixed in the contract and the source code is handed to you.",
+      "heroCta": "Get a quote",
       "heroCtaAlt": "See the work",
       "scrollHint": "Scroll through the packages",
+      "proofTitle": "Proof, not promises.",
+      "proof": [
+        {
+          "value": "{{projects}} real projects",
+          "label": "Delivered, open them on a live link — not a screenshot."
+        },
+        {
+          "value": "{{tools}} apps running",
+          "label": "Built and run by Hugo Studio, including the page you are reading."
+        },
+        {
+          "value": "100% hand-written code",
+          "label": "No bought theme, no page builder. The source code is handed to you."
+        }
+      ],
       "filmLabel": "Services",
       "filmHeading": "Four packages. One standard.",
       "filmCta": "Tell me what you need",
@@ -8000,7 +7458,8 @@
         "Every section leads back to one clear action."
       ],
       "processKicker": "End to end",
-      "processTitle": "Four steps. None of them vague.",
+      "stepLabel": "Step {{n}}",
+      "processTitle": "You always know where the project stands.",
       "process": [
         {
           "title": "Start from the goal.",
@@ -8022,8 +7481,8 @@
       "closingKicker": "Your next project",
       "closingTitle1": "You bring the goal.",
       "closingTitle2": "I build the way there.",
-      "closingLede": "There is no fixed price list, because no two projects are alike. The figure fades from memory. What stays is a website in your name, on your own domain.",
-      "closingCta": "Tell me about your project",
+      "closingLede": "Price follows the scope of work, not a one-size-fits-all list — each package states its own range inside. Once agreed it is locked: nothing new appears at handover.",
+      "closingCta": "Get a quote",
       "closingCtaAlt": "See every project",
       "catalogName": "Hugo Studio service packages",
       "catalogIncludes": "Includes",

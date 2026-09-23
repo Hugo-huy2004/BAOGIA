@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchJoyHistory } from "../../../services/joyApi";
+import { fetchJoyHistory } from "../../../services/api/modules/joyApi";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useJoy } from "../../../lib/joyDisplay";

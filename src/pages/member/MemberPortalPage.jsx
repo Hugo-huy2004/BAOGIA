@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getMemberSession, logoutAuth } from "../../services/authSession";
+import { getMemberSession, logoutAuth } from "../../services/api/core/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
 import { useNotifications } from "../../hooks/useNotifications";
@@ -32,7 +32,7 @@ const OnboardingProfileModal = React.lazy(() => import("../../components/member/
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
-import { setPortalTheme as syncPortalTheme } from "../../services/portalThemeApi";
+import { setPortalTheme as syncPortalTheme } from "../../services/api/modules/portalThemeApi";
 import {
   clearPendingPortalThemeSync,
   getPendingPortalThemeSync,

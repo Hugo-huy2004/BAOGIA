@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useArcadeSound } from '../../../hooks/useArcadeSound';
-import { submitScore } from '../../../services/arcadeApi';
+import { submitScore } from '../../../services/api/modules/arcadeApi';
 import { triggerHaptic } from '../../../utils/haptics';
 
 export default function GamePinball3D({ onScoreSubmit, onClose }) {

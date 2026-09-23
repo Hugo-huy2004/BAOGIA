@@ -1674,7 +1674,9 @@ router.post('/joylater/review', requireAdmin, async (req, res) => {
   try {
     const { forceReview } = await import('../services/joyCreditService.js');
     const email = String(req.body?.email || '').trim().toLowerCase() || null;
-    const result = await forceReview({ email, by: req.adminEmail || 'admin' });
+    // `requireAdmin` đặt `req.admin` (payload { id, role, uaHash }); `req.adminEmail`
+    // chưa bao giờ tồn tại nên trước đây `by` luôn là chuỗi 'admin'.
+    const result = await forceReview({ email, by: req.admin?.id || 'admin' });
     console.log(`[joylater] admin ép xét lại: ${result.scanned} hồ sơ, ${result.changed.length} đổi hạn mức`);
     res.json(result);
   } catch (error) {

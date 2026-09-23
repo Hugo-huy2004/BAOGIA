@@ -10,7 +10,7 @@ import {
   MoonStar,
   Settings2,
 } from "lucide-react";
-import dataApi from "../../../services/dataApi";
+import dataApi from "../../../services/api/modules/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";

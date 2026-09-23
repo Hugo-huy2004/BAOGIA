@@ -10,7 +10,7 @@
 // dò. Không có gì gửi lên máy chủ; việc dò đài vẫn đi qua proxy sẵn có
 // (`radioBrowserApi.js` → server/routes/radioRoutes.js).
 
-import { fetchStationByName } from "./radioBrowserApi";
+import { fetchStationByName } from "./api/modules/radioBrowserApi";
 
 const KEY = "hugo.radio.health";
 const DAY = 24 * 60 * 60 * 1000;

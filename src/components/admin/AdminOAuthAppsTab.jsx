@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_BASE } from "../../config/apiBase";
-import { getAdminToken } from "../../services/authSession";
+import { getAdminToken } from "../../services/api/core/authSession";
 import { notify } from "../../lib/notify";
 
 const EMPTY_FORM = {

@@ -41,6 +41,21 @@ const schema = new mongoose.Schema({
    */
   issuanceMultiplier: { type: Number, default: 1, min: 0.5, max: 1.5 },
 
+  /**
+   * Công tắc cho vay TOÀN HỆ THỐNG. Tắt là không ai mở được lượt vay mới; các
+   * khoản đang chạy vẫn phải trả như thường (khoá cửa vào, không xoá nợ của
+   * người đã vào).
+   *
+   * Cần một nút như thế này cho những lúc phát hiện lỗ hổng hoặc quỹ JOY biến
+   * động bất thường: chặn ngay trong một giây, thay vì đi sửa mã rồi deploy.
+   */
+  lending: {
+    enabled: { type: Boolean, default: true },
+    pausedReason: { type: String, default: '' },
+    pausedBy: { type: String, default: '' },
+    pausedAt: { type: Date, default: null },
+  },
+
   /** Bước điều chỉnh mỗi lần bấm nút. */
   step: { type: Number, default: 0.1 },
 

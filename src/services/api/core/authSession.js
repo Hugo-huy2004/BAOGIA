@@ -1,0 +1,335 @@
+import { API_BASE, isCrossOriginApi } from "../../../config/apiBase";
+
+const MEMBER_SESSION_KEY = "price-doc-member-session";
+const ADMIN_SESSION_KEY = "price-doc-admin-session";
+
+// Login/OTP writes are never retried: the server may already have consumed them.
+const fetchAuth = (url, options) => fetch(url, {
+  ...options,
+  signal: AbortSignal.timeout(30000),
+});
+
+const readSession = (key) => {
+  try {
+    const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
+    if (!raw) return null;
+    
+    const parsed = JSON.parse(raw);
+    
+    // Kiểm tra xem session đã hết hạn 14 ngày chưa
+    if (parsed.expiresAt) {
+      if (new Date().getTime() > new Date(parsed.expiresAt).getTime()) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+        return null;
+      }
+    }
+    
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+const writeSession = (key, value, persist = true) => {
+  const target = persist ? localStorage : sessionStorage;
+  target.setItem(key, JSON.stringify(value));
+  (persist ? sessionStorage : localStorage).removeItem(key);
+};
+
+export const getMemberSession = () => {
+  const session = readSession(MEMBER_SESSION_KEY);
+  // Sessions minted before server-side auth existed carry no token — the API
+  // would reject every call, so treat them as expired and force a clean re-login.
+  if (session && !session.token) {
+    localStorage.removeItem(MEMBER_SESSION_KEY);
+    sessionStorage.removeItem(MEMBER_SESSION_KEY);
+    return null;
+  }
+  return session;
+};
+export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
+
+export const clearAdminSession = () => {
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("hugo:admin-session-expired"));
+  }
+};
+
+export const clearMemberSession = () => {
+  localStorage.removeItem(MEMBER_SESSION_KEY);
+  sessionStorage.removeItem(MEMBER_SESSION_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("hugo:member-session-expired"));
+  }
+};
+
+// Bearer token attached to member API calls (see apiAuthInterceptor.js).
+export const getMemberToken = () => getMemberSession()?.token || null;
+export const getAdminToken = () => getAdminSession()?.token || null;
+
+export const loginMember = (member) => {
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+
+  const session = {
+    role: "member",
+    email: member.email,
+    displayName: member.displayName || member.email,
+    provider: member.provider || "google",
+    avatarUrl: member.avatarUrl || "",
+    isEduVerified: member.isEduVerified === true,
+    token: member.token || "",
+    loginAt: new Date().toISOString(),
+    expiresAt: expiresAt.toISOString()
+  };
+
+  writeSession(MEMBER_SESSION_KEY, session);
+  return session;
+};
+
+// Server-verified Google login: exchanges the Google ID token for our own
+// member session token. Returns { session, error } — never trusts a
+// client-side-decoded Google payload for identity.
+export const loginMemberWithGoogle = async (credential) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/auth/member/google`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'invalid_credential' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch (error) {
+    console.error('Lỗi khi đăng nhập Google:', error);
+    return { session: null, error: 'network' };
+  }
+};
+
+// Request 6-digit single-use OTP via Email
+export const requestMagicLinkOtp = async (email) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/auth/member/request-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Không thể gửi mã OTP' };
+    }
+    return { success: true, message: data.message };
+  } catch {
+    return { success: false, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Verify 6-digit OTP and establish session
+export const verifyMagicLinkOtp = async (email, code) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/auth/member/verify-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Xác thực OTP thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Apple Sign-In helper
+export const loginMemberWithApple = async (identityToken, email) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/auth/member/apple`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identityToken, email })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Đăng nhập Apple thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Dev-Only Local Login (Strictly disabled in production)
+export const loginDevLocal = async (email = 'dev.member@hugowishpax.studio', name = 'Dev Member') => {
+  if (!import.meta.env.DEV) {
+    return { session: null, error: 'Tính năng chỉ áp dụng ở môi trường phát triển local' };
+  }
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/auth/member/dev-login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Đăng nhập dev thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Returns { session, error } instead of throwing/null so the caller can show
+// a specific message (wrong credentials vs. network/server failure).
+export const loginAdmin = async (credentials, { remember = true } = {}) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/admin/login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: credentials.username,
+        password: credentials.password
+      })
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      return { session: null, error: 'invalid_credentials' };
+    }
+    if (!response.ok) {
+      return { session: null, error: 'server_error' };
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      return { session: null, error: 'invalid_credentials' };
+    }
+
+    // Handle 2FA OTP step
+    if (data.requireOtp) {
+      return {
+        session: null,
+        requireOtp: true,
+        tempToken: data.tempToken,
+        otpDelivered: data.otpDelivered !== false,
+        message: data.message || 'Mã OTP 4 chữ số đã được gửi.',
+      };
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
+    expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
+
+    const session = {
+      role: "admin",
+      // Token admin CHỈ lưu ở máy khi API khác origin (bản native: cookie
+      // sameSite=strict không gửi được qua origin khác nên buộc dùng Bearer).
+      // Trên web thì /api cùng origin, cookie httpOnly đã mang danh tính rồi —
+      // và mọi lệnh gọi admin đều đã có credentials:"include". Lưu thêm một bản
+      // vào localStorage chỉ tạo ra thứ JavaScript đọc được: cờ httpOnly của
+      // cookie thành vô nghĩa, một lỗi XSS là mất quyền admin 14 ngày.
+      token: isCrossOriginApi ? (data.token || "") : "",
+      username: credentials.username,
+      loginAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString()
+    };
+
+    writeSession(ADMIN_SESSION_KEY, session, remember);
+    return { session, error: null };
+  } catch (error) {
+    console.error('Lỗi khi đăng nhập admin:', error);
+    return { session: null, error: 'network' };
+  }
+};
+
+export const verifyAdminOtp = async (tempToken, otpCode, { remember = true } = {}) => {
+  try {
+    const API_BASE_URL = API_BASE;
+    const response = await fetchAuth(`${API_BASE_URL}/admin/verify-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tempToken, otpCode })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Mã OTP không chính xác.' };
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14);
+    expiresAt.setHours(0, 0, 0, 0);
+
+    const session = {
+      role: "admin",
+      // Token admin CHỈ lưu ở máy khi API khác origin (bản native: cookie
+      // sameSite=strict không gửi được qua origin khác nên buộc dùng Bearer).
+      // Trên web thì /api cùng origin, cookie httpOnly đã mang danh tính rồi —
+      // và mọi lệnh gọi admin đều đã có credentials:"include". Lưu thêm một bản
+      // vào localStorage chỉ tạo ra thứ JavaScript đọc được: cờ httpOnly của
+      // cookie thành vô nghĩa, một lỗi XSS là mất quyền admin 14 ngày.
+      token: isCrossOriginApi ? (data.token || "") : "",
+      username: "admin",
+      loginAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString()
+    };
+
+    writeSession(ADMIN_SESSION_KEY, session, remember);
+    return { session, error: null };
+  } catch {
+    return { session: null, error: 'Lỗi mạng khi xác thực OTP' };
+  }
+};
+
+export const logoutAuth = async () => {
+  localStorage.removeItem(MEMBER_SESSION_KEY);
+  localStorage.removeItem(ADMIN_SESSION_KEY);
+  sessionStorage.removeItem(MEMBER_SESSION_KEY);
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+
+  // Gọi API để xóa HttpOnly Cookie (admin + member)
+  try {
+    const API_BASE_URL = API_BASE;
+    await Promise.allSettled([
+      fetchAuth(`${API_BASE_URL}/admin/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      fetchAuth(`${API_BASE_URL}/auth/member/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    ]);
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+};
+
+export const isMemberAuthenticated = () => Boolean(getMemberSession());
+export const isAdminAuthenticated = () => Boolean(getAdminSession());

@@ -8,7 +8,7 @@ import {
   resolveActivePortalTheme,
 } from "../../../data/auraThemes";
 import { useJoyStore } from "../../../stores/joyStore";
-import { rentPortalTheme, setPortalTheme } from "../../../services/portalThemeApi";
+import { rentPortalTheme, setPortalTheme } from "../../../services/api/modules/portalThemeApi";
 import {
   clearPendingPortalThemeSync,
   setPendingPortalThemeSync,

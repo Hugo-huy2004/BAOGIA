@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { notify } from '../../lib/notify';
+import { readApiResponse } from '../../services/api/core/apiResponse';
+import { API_BASE } from '../../config/apiBase';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = API_BASE;
 
 export default function SmartUserSearch({ onSelect, placeholder = "Tìm theo Tên, Email hoặc SĐT...", selectedUser, onClear }) {
   const [query, setQuery] = useState('');
@@ -29,7 +31,7 @@ export default function SmartUserSearch({ onSelect, placeholder = "Tìm theo Tê
     const delayDebounceFn = setTimeout(async () => {
       setLoading(true);
       try {
-        const { getAdminSession } = await import('../../services/authSession');
+        const { getAdminSession } = await import('../../services/api/core/authSession');
         const session = getAdminSession();
         const response = await fetch(`${API_BASE_URL}/admin/users/search?q=${encodeURIComponent(query)}`, {
           credentials: 'include',
@@ -39,20 +41,17 @@ export default function SmartUserSearch({ onSelect, placeholder = "Tìm theo Tê
           }
         });
 
-        if (response.status === 401 || response.status === 403) {
-          setResults([]);
-          setIsOpen(false);
-          notify.error('Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.');
-          return;
-        }
-
-        const data = await response.json();
+        const data = await readApiResponse(response);
         if (data.success) {
           setResults(data.data);
           setIsOpen(true);
         }
       } catch (err) {
-        console.error('Search error:', err);
+        setResults([]);
+        setIsOpen(false);
+        notify.error(err.code === 'AUTH_SESSION_INVALID'
+          ? 'Phiên quản trị đã hết hạn. Vui lòng đăng nhập lại.'
+          : err.message || 'Không tìm được người dùng lúc này.');
       } finally {
         setLoading(false);
       }

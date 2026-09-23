@@ -43,8 +43,12 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
 
     // tokeninfo validates signature + expiry on Google's side and echoes claims.
     const verifyRes = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
+      { signal: AbortSignal.timeout(10000) }
     );
+    if (verifyRes.status === 429 || verifyRes.status >= 500) {
+      return res.status(503).json({ error: 'Google tạm thời không phản hồi. Vui lòng thử lại.' });
+    }
     if (!verifyRes.ok) {
       return res.status(401).json({ error: 'Google credential không hợp lệ hoặc đã hết hạn.' });
     }
@@ -189,38 +193,16 @@ router.post('/verify-otp', googleLoginLimiter, async (req, res) => {
 
 // ─── Apple Sign-In Endpoint Stub ────────────────────────────────────────────
 // POST /api/auth/member/apple  { identityToken, user }
-router.post('/apple', googleLoginLimiter, async (req, res) => {
-  try {
-    const { identityToken, email } = req.body;
-    if (!identityToken) {
-      return res.status(400).json({ error: 'Thiếu Apple Identity Token.' });
-    }
-
-    // Decode or fallback payload
-    const cleanEmail = String(email || 'apple.user@hugowishpax.studio').toLowerCase();
-    const token = signMemberToken(cleanEmail, req);
-    setMemberCookie(res, token);
-
-    res.json({
-      success: true,
-      token,
-      member: {
-        email: cleanEmail,
-        displayName: 'Apple User',
-        provider: 'apple',
-      },
-    });
-  } catch (error) {
-    console.error('Apple login error:', error);
-    res.status(500).json({ error: 'Đăng nhập Apple thất bại.' });
-  }
+// No Apple verifier is configured. Never turn an unverified token/email into a session.
+router.post('/apple', googleLoginLimiter, (_req, res) => {
+  res.status(503).json({ error: 'Đăng nhập Apple chưa sẵn sàng. Vui lòng dùng Google.' });
 });
 
 // ─── Dev-Only Local Login Bypass ─────────────────────────────────────────────
 // POST /api/auth/member/dev-login  { email, name }
 // Strictly disabled in production. Returns 404 in non-development environments.
 router.post('/dev-login', (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV !== 'development') {
     return res.status(404).json({ error: 'Not Found' });
   }
 

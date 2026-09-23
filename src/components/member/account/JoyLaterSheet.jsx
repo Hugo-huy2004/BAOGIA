@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   getJoyLaterStatus, quoteJoyLater, openJoyLater, payOffJoyLater, payInstallmentJoyLater,
   getJoyLaterHistory,
-} from "../../../services/joyApi";
+} from "../../../services/api/modules/joyApi";
 import JoyLaterHistory from "./JoyLaterHistory";
 import JoyLaterIntro from "./JoyLaterIntro";
 import JoyLaterLimitCard from "./JoyLaterLimitCard";

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { todayFeedApi } from "../services/todayFeedApi";
+import { todayFeedApi } from "../services/api/modules/todayFeedApi";
 import { languageCode } from "../i18n/languages";
 
 // Bài đã tóm tắt thì không đổi trong ngày — giữ lâu trong cache để quay lại

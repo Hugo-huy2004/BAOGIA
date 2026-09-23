@@ -7,6 +7,7 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60_000,
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
+        if (typeof error?.retryable === "boolean") return error.retryable && failureCount < 2;
         const status = Number(error?.status || 0);
         if (status >= 400 && status < 500) return false;
         return failureCount < 2;

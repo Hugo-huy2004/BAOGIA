@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ADMIN_DESTINATIONS } from "./adminDestinations";
 import { useTranslation } from "react-i18next";
 
 export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecuteCommand, onNavigateTab, users = [] }) {
@@ -44,15 +45,15 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
     { label: "Xem báo cáo chỉ số hệ thống", icon: "analytics", action: () => onExecuteCommand?.("/stats") },
   ].filter(c => c.label.toLowerCase().includes(query.toLowerCase()));
 
-  const TAB_NAVIGATIONS = [
-    { label: "Đi tới Control Hub & AI Terminal", icon: "dashboard", tab: "dashboard" },
-    { label: "Đi tới Điều Khiển Robot & Live Camera Feed", icon: "precision_manufacturing", tab: "robot" },
-    { label: "Đi tới Đội ngũ AI & Hộp phê duyệt", icon: "groups", tab: "workforce" },
-    { label: "Đi tới Quản lý Thành Viên & Support", icon: "group", tab: "users" },
-    { label: "Đi tới Cửa Hàng & Dịch Vụ VIP", icon: "storefront", tab: "ecosystem" },
-    { label: "Đi tới quản lý Study · Web Dev", icon: "school", tab: "coder" },
-    { label: "Đi tới Giám Sát & Cài Đặt Hệ Thống", icon: "tune", tab: "system" },
-  ].filter(t => t.label.toLowerCase().includes(query.toLowerCase()));
+  // Dựng từ registry chứ không chép tay. Bản chép tay cũ trỏ vào ba hub đã bị
+  // gỡ ("ecosystem", "coder", "system") nên ba lệnh này bấm vào không ra gì —
+  // đúng kiểu lỗi mà danh sách song song luôn đẻ ra.
+  const TAB_NAVIGATIONS = ADMIN_DESTINATIONS.map((d) => ({
+    label: `Đi tới ${d.label}`,
+    hint: d.sub,
+    icon: d.icon,
+    tab: d.id,
+  })).filter((t) => `${t.label} ${t.hint}`.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div className="fixed inset-0 z-[999] flex items-start justify-center pt-20 px-4 animate-fadeIn select-none">

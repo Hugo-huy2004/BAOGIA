@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
-import dataApi from '../services/dataApi';
+import dataApi from '../services/api/modules/dataApi';
 
 /**
  * All Healing Journey (HugoPSY check-in) state and logic, extracted

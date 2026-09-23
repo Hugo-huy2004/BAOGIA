@@ -156,6 +156,47 @@ export async function apply(email) {
  *
  * @param {boolean} force  Bỏ qua khoá tuần (dùng cho lần nộp đầu).
  */
+/**
+ * Hạn mức THẬT SỰ được dùng, sau khi tính cả quyết định tay của admin.
+ *
+ * Thứ tự ưu tiên, từ mạnh tới yếu:
+ *   1. Tạm dừng riêng người này  → 0
+ *   2. Đã quỵt nợ (`barred`)     → 0
+ *   3. Quyền ghi đè còn hiệu lực → số admin đặt
+ *   4. Kết quả chấm tự động
+ *
+ * MỌI chỗ quyết định cho vay phải gọi hàm này, đừng đọc thẳng `profile.limit`.
+ * `limit` là số MÁY CHẤM; nó cố ý vẫn được cập nhật hằng tuần kể cả khi đang có
+ * quyền ghi đè, để lúc quyền đó hết hạn thì có sẵn con số mới mà rơi về.
+ */
+export function effectiveLimit(profile) {
+  if (!profile) return { limit: 0, source: 'none', reason: 'Chưa có hồ sơ tín dụng' };
+  if (profile.suspendedAt) {
+    return { limit: 0, source: 'suspended', reason: profile.suspendReason || 'Admin tạm dừng' };
+  }
+  if (profile.status === 'barred') {
+    return { limit: 0, source: 'barred', reason: 'Đã ghi sổ đen do quỵt nợ' };
+  }
+  const ov = profile.override;
+  const active = ov && ov.limit !== null && ov.limit !== undefined
+    && (!ov.expiresAt || new Date(ov.expiresAt) > new Date());
+  if (active) {
+    return { limit: ov.limit, source: 'override', reason: ov.reason || 'Admin đặt tay', by: ov.by, expiresAt: ov.expiresAt };
+  }
+  return { limit: profile.limit || 0, source: 'auto', reason: 'Chấm tự động hằng tuần' };
+}
+
+/** Cho vay có đang mở không (công tắc toàn hệ thống). */
+export async function lendingOpen() {
+  const JoyPolicy = (await import('../models/JoyPolicy.js')).default;
+  const policy = await JoyPolicy.current?.().catch(() => null);
+  const lending = policy?.lending;
+  if (lending && lending.enabled === false) {
+    return { open: false, reason: lending.pausedReason || 'Hugo Studio đang tạm dừng cho vay.' };
+  }
+  return { open: true };
+}
+
 export async function evaluate(email, { signals = null, force = false, notify = false } = {}) {
   const key = weekKey(new Date());
   const data = signals || await gatherSignals(email);
@@ -283,4 +324,4 @@ export const recordDefault = (email) =>
   );
 
 export { CREDIT };
-export default { apply, evaluate, evaluateAll, forceReview, profileOf, gatherSignals, recordRepaid, recordDefault };
+export default { apply, evaluate, evaluateAll, forceReview, profileOf, gatherSignals, recordRepaid, recordDefault, effectiveLimit, lendingOpen };

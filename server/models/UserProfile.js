@@ -22,6 +22,14 @@ const UserProfileSchema = new mongoose.Schema({
   appUseAt: { type: Map, of: Date, default: {} },     // appId → ngày dùng gần nhất
   engagementCount: { type: Number, default: 0 },
   lastSignalAt: { type: Date },
+  // Thư giới thiệu/gợi ý dịch vụ là marketing, không phải thư hệ thống. Mặc
+  // định tắt và chỉ cron gửi sau khi thành viên tự bật ở cài đặt.
+  marketing: {
+    optedInAt: { type: Date, default: null },
+    optedOutAt: { type: Date, default: null },
+    lastCampaignAt: { type: Date, default: null },
+    lastCampaignKey: { type: String, default: '' },
+  },
 }, { timestamps: true });
 
 export default mongoose.model('UserProfile', UserProfileSchema);

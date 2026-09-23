@@ -8,7 +8,7 @@ import {
   Coffee, Droplets, Dumbbell, Monitor, BedDouble, Timer, ArrowUp, ArrowDown,
   Calendar, TrendingDown, Minus, Info, Smile, Meh, Frown, Ban, Wine,
 } from "lucide-react";
-import dataApi from "../../../services/dataApi";
+import dataApi from "../../../services/api/modules/dataApi";
 import { HugoNoticeToast } from "../../shared/HugoNotice";
 import { isStandalone } from "../../../config/platform";
 

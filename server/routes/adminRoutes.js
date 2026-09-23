@@ -1,4 +1,6 @@
 import express from 'express';
+import { buildUserOverview } from '../services/adminUserOverview.js';
+import { buildWorkQueue } from '../services/adminWorkQueue.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
@@ -459,15 +461,6 @@ router.get('/users/search', requireAdmin, async (req, res) => {
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { getQuotaStatus, generate } from '../services/aiGateway.js';
 import ErrorLog from '../models/ErrorLog.js';
-
-// GET /admin/ai-status - Gemini quota/health + auto-poster switch (the "đèn cảnh báo").
-router.get('/ai-status', requireAdmin, async (req, res) => {
-  try {
-    res.json({ success: true, quota: getQuotaStatus() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // GET /admin/error-logs?level=&source=&limit= - persisted errors for the dashboard.
 router.get('/error-logs', requireAdmin, async (req, res) => {
@@ -1236,6 +1229,7 @@ router.post('/orders/update-status', requireAdmin, async (req, res) => {
   }
 });
 
+
 // ─── DEEP USER MANAGEMENT ROUTES ─────────────────────────────────────────────
 
 // GET /admin/users/:id/details - Soi thông tin chi tiết người dùng
@@ -1274,11 +1268,284 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
   }
 });
 
+// ─── QUYỀN CỦA ADMIN VỚI VIỆC CHO VAY JOY ────────────────────────────────────
+// Trước đây admin gần như không có quyền gì: thuật toán chấm hạn mức hằng tuần,
+// còn người thì chỉ được duyệt lệnh cấm vĩnh viễn. Không xem được đang cho vay
+// bao nhiêu, không sửa được hạn mức của một người cụ thể, không có nút dừng.
+
+// GET /admin/joylater — toàn cảnh: đang cho vay bao nhiêu, ai đang trễ.
+router.get('/joylater', requireAdmin, async (req, res) => {
+  try {
+    const [Bio, JoyCreditProfile, JoyPolicy] = await Promise.all([
+      import('../models/Bio.js'), import('../models/JoyCreditProfile.js'), import('../models/JoyPolicy.js'),
+    ]).then((m) => m.map((x) => x.default));
+    const { effectiveLimit } = await import('../services/joyCreditService.js');
+
+    const [borrowers, profiles, policy] = await Promise.all([
+      Bio.find({ 'joyLoan.outstanding': { $gt: 0 } },
+        'email displayName phone joyLoan').sort({ 'joyLoan.outstanding': -1 }).limit(200).lean(),
+      JoyCreditProfile.find({ status: { $in: ['approved', 'barred'] } })
+        .sort({ limit: -1 }).limit(200).lean(),
+      JoyPolicy.current?.().catch(() => null),
+    ]);
+
+    const now = Date.now();
+    const DAY = 86400000;
+    const loans = borrowers.map((b) => {
+      const due = b.joyLoan?.dueAt ? new Date(b.joyLoan.dueAt).getTime() : null;
+      return {
+        email: b.email,
+        displayName: b.displayName || '',
+        outstanding: b.joyLoan?.outstanding || 0,
+        principal: b.joyLoan?.principal || 0,
+        paid: b.joyLoan?.paid || 0,
+        dueAt: b.joyLoan?.dueAt || null,
+        daysOverdue: due && due < now ? Math.floor((now - due) / DAY) : 0,
+        stage: b.joyLoan?.enforcedStage || '',
+      };
+    });
+
+    const totals = {
+      borrowers: loans.length,
+      outstanding: loans.reduce((a, l) => a + l.outstanding, 0),
+      overdue: loans.filter((l) => l.daysOverdue > 0).length,
+      overdueAmount: loans.filter((l) => l.daysOverdue > 0).reduce((a, l) => a + l.outstanding, 0),
+      approved: profiles.filter((p) => p.status === 'approved').length,
+      barred: profiles.filter((p) => p.status === 'barred').length,
+      // Tổng hạn mức đã cấp mà chưa dùng — đây là phần rủi ro CHƯA phát sinh.
+      headroom: profiles.filter((p) => p.status === 'approved')
+        .reduce((a, p) => a + effectiveLimit(p).limit, 0),
+    };
+
+    res.json({
+      success: true,
+      lending: policy?.lending || { enabled: true },
+      totals,
+      loans: loans.sort((a, b) => b.daysOverdue - a.daysOverdue || b.outstanding - a.outstanding),
+      profiles: profiles.map((p) => ({
+        email: p.email, status: p.status, score: p.score, autoLimit: p.limit,
+        ...effectiveLimit(p), suspendedAt: p.suspendedAt, override: p.override,
+        loansRepaid: p.loansRepaid, loansDefaulted: p.loansDefaulted,
+      })),
+    });
+  } catch (err) {
+    console.error('[admin] joylater overview:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/joylater/limit — đặt hoặc gỡ hạn mức tay cho MỘT người.
+// Thuật toán vẫn chấm như thường; con số này đứng trên nó cho tới khi hết hạn.
+router.post('/joylater/limit', requireAdmin, async (req, res) => {
+  try {
+    const { email, limit, reason, days } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Thiếu email' });
+    const JoyCreditProfile = (await import('../models/JoyCreditProfile.js')).default;
+    const profile = await JoyCreditProfile.findOne({ email: String(email).toLowerCase() });
+    if (!profile) return res.status(404).json({ error: 'Người này chưa có hồ sơ tín dụng' });
+
+    if (limit === null || limit === undefined || limit === '') {
+      profile.override = { limit: null, reason: '', by: '', at: null, expiresAt: null };
+    } else {
+      const value = Number(limit);
+      if (!Number.isFinite(value) || value < 0) return res.status(400).json({ error: 'Hạn mức không hợp lệ' });
+      if (!reason?.trim()) return res.status(400).json({ error: 'Phải ghi lý do — số này đứng trên thuật toán.' });
+      profile.override = {
+        limit: Math.round(value),
+        reason: reason.trim().slice(0, 300),
+        by: req.admin?.id || 'admin',
+        at: new Date(),
+        // Mặc định hết hạn sau 90 ngày: quyền ghi đè vĩnh viễn là thứ người ta
+        // đặt một lần rồi quên, và nó âm thầm đứng trên thuật toán mãi mãi.
+        expiresAt: new Date(Date.now() + (Number(days) > 0 ? Number(days) : 90) * 86400000),
+      };
+    }
+    await profile.save();
+    await logAdminAuditAction(req, 'joylater_set_limit', null, profile.email,
+      limit ? `Đặt hạn mức tay ${limit}` : 'Gỡ hạn mức tay', { reason, days });
+    res.json({ success: true, override: profile.override });
+  } catch (err) {
+    console.error('[admin] joylater limit:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/joylater/suspend — tạm dừng hoặc mở lại việc vay của MỘT người.
+router.post('/joylater/suspend', requireAdmin, async (req, res) => {
+  try {
+    const { email, suspend, reason } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Thiếu email' });
+    const JoyCreditProfile = (await import('../models/JoyCreditProfile.js')).default;
+    const profile = await JoyCreditProfile.findOne({ email: String(email).toLowerCase() });
+    if (!profile) return res.status(404).json({ error: 'Người này chưa có hồ sơ tín dụng' });
+
+    if (suspend) {
+      if (!reason?.trim()) return res.status(400).json({ error: 'Phải ghi lý do tạm dừng.' });
+      profile.suspendedAt = new Date();
+      profile.suspendReason = reason.trim().slice(0, 300);
+      profile.suspendedBy = req.admin?.id || 'admin';
+    } else {
+      profile.suspendedAt = null;
+      profile.suspendReason = '';
+      profile.suspendedBy = '';
+    }
+    await profile.save();
+    await logAdminAuditAction(req, suspend ? 'joylater_suspend' : 'joylater_resume', null,
+      profile.email, suspend ? `Tạm dừng: ${reason}` : 'Mở lại');
+    res.json({ success: true, suspendedAt: profile.suspendedAt });
+  } catch (err) {
+    console.error('[admin] joylater suspend:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/joylater/pause — công tắc cho vay TOÀN HỆ THỐNG.
+// Khoá cửa vào; khoản đang chạy vẫn phải trả như thường.
+router.post('/joylater/pause', requireAdmin, async (req, res) => {
+  try {
+    const { paused, reason } = req.body || {};
+    if (paused && !reason?.trim()) {
+      return res.status(400).json({ error: 'Phải ghi lý do tạm dừng cho vay toàn hệ thống.' });
+    }
+    const JoyPolicy = (await import('../models/JoyPolicy.js')).default;
+    const policy = await JoyPolicy.current();
+    policy.lending = paused
+      ? { enabled: false, pausedReason: reason.trim().slice(0, 300), pausedBy: req.admin?.id || 'admin', pausedAt: new Date() }
+      : { enabled: true, pausedReason: '', pausedBy: '', pausedAt: null };
+    await policy.save();
+    await logAdminAuditAction(req, paused ? 'joylater_pause_all' : 'joylater_resume_all', null, '',
+      paused ? `Dừng cho vay: ${reason}` : 'Mở lại cho vay');
+    res.json({ success: true, lending: policy.lending });
+  } catch (err) {
+    console.error('[admin] joylater pause:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/queue — mọi việc đang chờ người duyệt, toàn hệ thống.
+// Xếp CŨ TRƯỚC trong từng mảng: thứ chờ lâu nhất là thứ đáng lo nhất.
+router.get('/queue', requireAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+    res.json({ success: true, ...(await buildWorkQueue({ limit })) });
+  } catch (err) {
+    console.error('[admin] work queue:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/joylater/:caseId — duyệt hoặc bỏ qua một hồ sơ nợ JOY.
+// DÙNG LẠI đúng hàm mà nút bấm trong Telegram gọi, không viết lại logic: ghi
+// sổ đen, chặn tài khoản và khớp băm email đều nằm trong đó, tách ra là hai
+// đường xử lý sẽ lệch nhau.
+router.post('/joylater/:caseId', requireAdmin, async (req, res) => {
+  try {
+    const { decision } = req.body || {};
+    if (!['ban', 'skip'].includes(decision)) {
+      return res.status(400).json({ error: 'decision phải là ban hoặc skip' });
+    }
+    const { handleJoyLaterCallback } = await import('../services/joyLaterEnforcement.js');
+    const by = `web:${req.admin?.id || 'admin'}`;
+    const result = await handleJoyLaterCallback({ data: `jl:${decision}:${req.params.caseId}`, by });
+    if (!result) return res.status(400).json({ error: 'Không xử lý được hồ sơ này.' });
+
+    await logAdminAuditAction(req, `joylater_${decision}`, null, '', `Hồ sơ nợ JOY: ${decision}`, { caseId: req.params.caseId, result: result.text });
+    res.json({ success: true, message: result.text });
+  } catch (err) {
+    console.error('[admin] joylater review:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/users/:id/overview — hồ sơ 360°, gom mọi domain phía Member.
+// `/details` cũ chỉ đọc 5 nguồn; xem `server/services/adminUserOverview.js` để
+// biết vì sao khoá tra cứu của từng model không giống nhau.
+router.get('/users/:id/overview', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const bioDoc = await Bio.findById(req.params.id);
+    if (!bioDoc) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng' });
+
+    const bio = bioDoc.toObject({ getters: true });
+    const { overview, failed } = await buildUserOverview(String(bio.email || '').toLowerCase(), bio._id);
+
+    // `failed` đi kèm phản hồi thay vì bị nuốt: admin phải biết mảng nào chưa
+    // đọc được, chứ không phải nhìn một ô trống rồi tưởng người dùng sạch.
+    res.json({ success: true, bio, ...overview, failed });
+  } catch (err) {
+    console.error('[admin] user overview:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/appeal/:appealId — duyệt hoặc từ chối kháng nghị mở khoá.
+// Trước đây không có đường nào: người dùng gửi kháng nghị kèm ảnh và vị trí rồi
+// nằm đó vĩnh viễn vì admin không có nút bấm.
+router.post('/users/:id/appeal/:appealId', requireAdmin, async (req, res) => {
+  try {
+    const { decision, note } = req.body || {};
+    if (!['approve', 'reject'].includes(decision)) {
+      return res.status(400).json({ error: 'decision phải là approve hoặc reject' });
+    }
+    const SecurityAppeal = (await import('../models/SecurityAppeal.js')).default;
+    const appeal = await SecurityAppeal.findById(req.params.appealId);
+    if (!appeal) return res.status(404).json({ error: 'Không tìm thấy đơn kháng nghị' });
+
+    appeal.status = decision === 'approve' ? 'approved' : 'rejected';
+    appeal.reviewedAt = new Date();
+    appeal.reviewerNote = String(note || '').slice(0, 1000);
+    await appeal.save();
+
+    if (decision === 'approve') {
+      const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+      await SecurityBlock.updateMany(
+        { email: appeal.email, active: true },
+        { $set: { active: false, releasedAt: new Date(), releasedBy: 'admin-appeal' } },
+      );
+    }
+
+    await logAdminAuditAction(req, `appeal_${decision}`, null, appeal.email, `Kháng nghị mở khoá: ${decision}`, { appealId: String(appeal._id), note });
+    res.json({ success: true, status: appeal.status });
+  } catch (err) {
+    console.error('[admin] appeal review:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/held-transfer/:txId — thả hoặc chặn một giao dịch bị giữ.
+// Ví giữ giao dịch đáng ngờ lại chờ người duyệt, nhưng chưa có ai duyệt được.
+router.post('/users/:id/held-transfer/:txId', requireAdmin, async (req, res) => {
+  try {
+    const { decision, note } = req.body || {};
+    if (!['release', 'block'].includes(decision)) {
+      return res.status(400).json({ error: 'decision phải là release hoặc block' });
+    }
+    const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
+    const tx = await PendingTransfer.findById(req.params.txId);
+    if (!tx) return res.status(404).json({ error: 'Không tìm thấy giao dịch' });
+    if (tx.status && !['pending', 'held', 'review'].includes(tx.status)) {
+      return res.status(409).json({ error: `Giao dịch đã ở trạng thái "${tx.status}", không xử lý lại.` });
+    }
+
+    tx.status = decision === 'release' ? 'released' : 'blocked';
+    tx.reviewedAt = new Date();
+    tx.reviewerNote = String(note || '').slice(0, 1000);
+    await tx.save();
+
+    await logAdminAuditAction(req, `held_transfer_${decision}`, null, tx.fromEmail,
+      `Giao dịch bị giữ: ${decision}`, { txCode: tx.txCode, amount: tx.numAmount, note });
+    res.json({ success: true, status: tx.status });
+  } catch (err) {
+    console.error('[admin] held transfer:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT /admin/account-settings - Đổi mật khẩu & Cấu hình tài khoản Admin
 router.put('/account-settings', requireAdmin, async (req, res) => {
   try {
     const { oldPassword, newPassword, adminEmail } = req.body;
-    const adminId = req.user?.id || req.user?.username;
+    const adminId = req.admin?.id;
 
     let admin = await Admin.findOne({ username: adminId });
     if (!admin) {
@@ -1311,6 +1578,40 @@ router.put('/account-settings', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error updating admin account settings:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Lifecycle marketing chỉ tới thành viên đã opt-in. Admin quản lý lịch chung,
+// xem quy mô audience và có thể chủ động chạy một lượt đã được giới hạn sẵn.
+router.get('/marketing-email', requireAdmin, async (_req, res) => {
+  try {
+    const { getLifecycleEmailStatus } = await import('../services/lifecycleEmailService.js');
+    return res.json({ success: true, ...(await getLifecycleEmailStatus()) });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.patch('/marketing-email', requireAdmin, async (req, res) => {
+  if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ error: 'enabled must be a boolean' });
+  try {
+    const { setLifecycleEmailEnabled } = await import('../services/lifecycleEmailService.js');
+    const status = await setLifecycleEmailEnabled(req.body.enabled);
+    await logAdminAuditAction(req, 'MARKETING_EMAIL_TOGGLE', null, '', `Lifecycle email ${req.body.enabled ? 'enabled' : 'disabled'}`);
+    return res.json({ success: true, ...status });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/marketing-email/run', requireAdmin, async (req, res) => {
+  try {
+    const { runLifecycleEmailJob } = await import('../services/lifecycleEmailService.js');
+    const result = await runLifecycleEmailJob();
+    await logAdminAuditAction(req, 'MARKETING_EMAIL_RUN', null, '', `Lifecycle email: ${result.sent || 0} sent`, result);
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -1692,22 +1993,31 @@ router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
   }
 });
 
+/**
+ * Ghi một dòng nhật ký kiểm toán quản trị.
+ *
+ * LỖI ĐÃ SỬA 2026-09-23: hàm này từng ghi `adminEmail`, `targetUserId`,
+ * `targetUserEmail` và `metadata` — KHÔNG trường nào trong số đó có trong
+ * `AdminAuditLog` schema. Mongoose ở chế độ strict vứt lặng lẽ trường lạ, nên
+ * mọi dòng nhật ký do 15 chỗ gọi sinh ra đều có `targetEmail` RỖNG: sổ kiểm
+ * toán ghi được "ai làm gì" nhưng mất sạch "làm lên ai". Nay ánh xạ đúng tên
+ * trường, và phần dư (targetUserId, metadata) gộp vào `details` thay vì rơi
+ * xuống đất.
+ *
+ * Đổi chữ ký thì phải đổi cả `AdminAuditLog.js`, đừng thêm trường mới ở đây rồi
+ * tưởng nó được lưu.
+ */
 async function logAdminAuditAction(req, action, targetUserId, targetUserEmail, details, metadata = {}) {
   try {
     const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
-    const adminId = req.user?.username || req.user?.id || 'admin';
-    const adminEmail = req.user?.email || adminId;
-    const ipAddress = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
-    
     await AdminAuditLog.create({
-      adminId,
-      adminEmail,
+      adminId: String(req.admin?.id || 'admin'),
+      adminUsername: req.admin?.id || 'admin',
       action,
-      targetUserId,
-      targetUserEmail,
-      details,
-      metadata,
-      ipAddress
+      targetEmail: targetUserEmail || '',
+      ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || '',
+      userAgent: req.headers['user-agent'] || '',
+      details: { note: details, targetUserId: targetUserId ? String(targetUserId) : undefined, ...metadata },
     });
   } catch (err) {
     console.error('Failed to log admin audit action:', err);

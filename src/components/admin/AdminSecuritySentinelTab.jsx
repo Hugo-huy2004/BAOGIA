@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import useVisiblePoll from "../../hooks/useVisiblePoll";
-import { userApi } from "../../services/api/UserApi";
+import { userApi } from "../../services/api/modules/userApi";
 
 export default function AdminSecuritySentinelTab({ token, onShowToast }) {
   const [data, setData] = useState(null);

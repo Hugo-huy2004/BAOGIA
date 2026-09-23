@@ -133,17 +133,31 @@ export async function joyLaterStatus(email) {
   const credit = await profileOf(bio.email);
   const gate = canApply({ isAdult: isAdultAge(bioAge(bio)), accountDays, lifetimeEarned: earned });
 
+  // Hạn mức THẬT = quyết định tay của admin (nếu có) đứng trên số máy chấm;
+  // tạm dừng riêng người này hoặc sổ đen thì về 0. Đọc thẳng `credit.limit` ở
+  // đây là bỏ qua toàn bộ quyền can thiệp của admin.
+  const { effectiveLimit, lendingOpen } = await import('../services/joyCreditService.js');
+  const effective = effectiveLimit(credit);
+  const lending = await lendingOpen();
+
   const reasons = [];
   if (credit.status === 'none') reasons.push('notApplied');
   if (credit.status === 'pending') reasons.push('pending');
   if (credit.status === 'rejected') reasons.push(...(credit.reasons || ['lowScore']));
   if (credit.status === 'barred') reasons.push('barred');
+  if (effective.source === 'suspended') reasons.push('suspended');
+  if (!lending.open) reasons.push('lendingPaused');
   if (outstanding > 0) reasons.push('openLoan');
 
   return {
-    eligible: credit.status === 'approved' && outstanding === 0 && credit.limit > 0,
+    eligible: credit.status === 'approved' && outstanding === 0
+      && effective.limit > 0 && lending.open,
     reasons,
-    limit: credit.status === 'approved' ? credit.limit : 0,
+    limit: lending.open && credit.status === 'approved' ? effective.limit : 0,
+    // Vì sao ra con số đó — để màn hình của khách nói được lý do, và để admin
+    // soi lại quyết định của chính mình.
+    limitSource: effective.source,
+    limitNote: !lending.open ? lending.reason : effective.reason,
 
     // Hồ sơ tín dụng, hiện nguyên cho chính chủ xem: điểm bao nhiêu, vì sao,
     // lần xét kế tiếp khi nào. Một hạn mức không kèm lý do thì người bị từ chối

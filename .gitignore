@@ -38,5 +38,6 @@ ota/
 server/uploads/
 
 # Playwright E2E
-test-results/
-playwright-report/
+
+# Tệp người dùng tải lên khi chạy máy cục bộ — không thuộc mã nguồn.
+uploads/

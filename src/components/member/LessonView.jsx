@@ -7,12 +7,12 @@ import { FileCode, FileText, FileJson
 import { notify } from "../../lib/notify";
 import confetti from "canvas-confetti";
 import { HugoConfirmNotice } from "../shared/HugoNotice";
-import { getMemberSession } from "../../services/authSession";
+import { getMemberSession } from "../../services/api/core/authSession";
 import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE } from "./ideData";
 import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
-import { verifyLessonCode } from "../../services/coderLessonsApi";
-import { hugoCoderApi } from "../../services/hugoCoderApi";
+import { verifyLessonCode } from "../../services/api/modules/coderLessonsApi";
+import { hugoCoderApi } from "../../services/api/modules/hugoCoderApi";
 import { API_BASE } from "../../config/apiBase";
 import { getMobileVisualSet } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";

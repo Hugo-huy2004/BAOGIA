@@ -12,7 +12,7 @@ import ArcadeLeaderboard from "./ArcadeLeaderboard";
 const StandaloneGameShell = lazy(() => import("./StandaloneGameShell"));
 import BackButton from "../shared/BackButton";
 
-import { fetchProfile } from "../../../services/arcadeApi";
+import { fetchProfile } from "../../../services/api/modules/arcadeApi";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { isTodayFeedForLanguage, todayFeedApi } from "../services/todayFeedApi";
+import { isTodayFeedForLanguage, todayFeedApi } from "../services/api/modules/todayFeedApi";
 import { isEcoOn } from "../Save_E/ecoMode";
 import { cacheFeed, readFeedCache, recordFeedHit } from "../Save_E/ecoStore";
 import { languageCode } from "../i18n/languages";

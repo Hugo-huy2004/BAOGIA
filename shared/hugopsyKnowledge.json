@@ -1,0 +1,664 @@
+{
+  "_doc": "Kho tri thức HugoPsy — NGUỒN DUY NHẤT cho cả ba bên: engine Python (python-ai-server/services/hugopsy_companion_engine.py), bộ cứu sinh Node (server/services/hugopsyFallback.js) và bất kỳ nơi nào khác cần trả lời khi AI ngoài không gọi được. JSON chứ không phải .js vì Python không import được .js. Sửa lời ở đây là cả hai bên đổi theo; đừng chép sang chỗ khác.",
+  "_safety": "crisisTerms/crisisResponse là đường an toàn tính mạng. Mọi bên phải kiểm tra khủng hoảng TRƯỚC mọi tầng khác, và phải gửi nguyên khối crisisResponse (có đủ ba số hotline) trong MỘT khung SSE dạng JSON.",
+  "crisisTerms": [
+    "tu tu",
+    "tu sat",
+    "khong muon song",
+    "muon chet",
+    "chet di",
+    "chet quach",
+    "ket lieu",
+    "ket thuc cuoc doi",
+    "tu lam hai",
+    "tu hai",
+    "rach tay",
+    "cat tay",
+    "nhay lau",
+    "uong thuoc ngu",
+    "uoc gi minh bien mat",
+    "bien mat khoi the gioi",
+    "khong con ly do song",
+    "song lam gi nua",
+    "khong thiet song",
+    "chan song",
+    "the gioi khong can minh",
+    "moi nguoi se vui hon neu minh"
+  ],
+  "crisisResponse": "{Self} đang ở đây với {user}. Những gì {user} vừa nói cho {self} biết {user} đang chịu đựng một nỗi đau rất lớn, và {self} không xem nhẹ điều đó.\n\n{User} không phải đi qua chuyện này một mình. Xin {user} giữ an toàn cho bản thân lúc này.\n\n🚨 Hãy gọi ngay — miễn phí, có người trực:\n• Đường dây nóng Ngày Mai (trầm cảm & khủng hoảng): 096 306 1414\n• Tổng đài Quốc gia Bảo vệ Trẻ em: 111\n• Tư vấn tâm lý khẩn cấp: 1900 599 830\n\nNếu {user} đang ở gần một người mà {user} tin, hãy nói với họ ngay bây giờ, dù chỉ một câu.\n\n{Self} vẫn ở đây. {User} có muốn kể cho {self} nghe chuyện gì đã đẩy {user} tới lúc này không?",
+  "intensifiers": [
+    "rat",
+    "qua",
+    "lam",
+    "cuc ky",
+    "vo cung",
+    "khong chiu noi",
+    "het noi",
+    "mai",
+    "suot",
+    "lien tuc",
+    "ngay nao cung",
+    "kinh khung"
+  ],
+  "commonReplies": {
+    "chao": "Chào {user}. Hôm nay trong lòng {user} thế nào?",
+    "chao ban": "Chào {user}. Hôm nay trong lòng {user} thế nào?",
+    "hi": "Chào {user}. Có điều gì đang ở trong đầu {user} lúc này không?",
+    "ban la ai": "{Self} là HugoPsy — người bạn đồng hành để {user} nói ra những điều khó nói. {Self} lắng nghe và không phán xét. {Self} không phải bác sĩ và không chẩn đoán bệnh, nhưng {self} ở đây với {user}.",
+    "cam on": "Không có gì đâu. {Self} mừng vì {user} đã nói ra."
+  },
+  "topics": [
+    {
+      "id": "anxiety",
+      "keys": [
+        "lo lang",
+        "lo au",
+        "bat an",
+        "so hai",
+        "so",
+        "hoang mang",
+        "hoang loan",
+        "tim dap nhanh",
+        "kho tho",
+        "run",
+        "cang thang",
+        "hoi hop",
+        "nghi qua nhieu"
+      ],
+      "reflect": [
+        "Nghe như trong người bạn đang có một cái gì đó không chịu yên.",
+        "Lo lắng kiểu này thường không hỏi ý ta trước khi ập đến.",
+        "Cái khó của lo âu là nó nói rất to, mà thường lại không nói thật."
+      ],
+      "ask": [
+        "Nếu phải đặt tên cho điều {user} đang sợ nhất lúc này, {user} sẽ gọi nó là gì?",
+        "Cơn lo này bắt đầu từ lúc nào vậy?",
+        "Có chuyện gì vừa xảy ra ngay trước khi {user} thấy như thế này không?"
+      ],
+      "offer": "{User} có muốn thử cùng {self} một nhịp thở 4-7-8 không? Hít vào 4 giây, giữ 7, thở ra 8. Ba lần thôi."
+    },
+    {
+      "id": "sadness",
+      "keys": [
+        "buon",
+        "khoc",
+        "nuoc mat",
+        "tui than",
+        "chan",
+        "u ru",
+        "nang ne",
+        "trong long nang",
+        "khong vui",
+        "tram",
+        "buon ba"
+      ],
+      "reflect": [
+        "{Self} nghe thấy nỗi buồn trong câu {user} viết.",
+        "Có những nỗi buồn không cần lý do rõ ràng mới được phép tồn tại.",
+        "{User} không cần phải tỏ ra ổn ở đây."
+      ],
+      "ask": [
+        "Nỗi buồn này đến một mình, hay có chuyện gì dẫn nó tới?",
+        "{User} đã mang nó bao lâu rồi?",
+        "Nếu nỗi buồn này biết nói, {user} nghĩ nó muốn nói gì với {user}?"
+      ],
+      "offer": "Nếu khóc được thì cứ khóc. Khóc không phải là yếu đi, nó là cách cơ thể tự hạ áp."
+    },
+    {
+      "id": "loneliness",
+      "keys": [
+        "co don",
+        "mot minh",
+        "khong ai hieu",
+        "khong ai quan tam",
+        "lac long",
+        "bo roi",
+        "khong co ai",
+        "tach biet",
+        "khong thuoc ve"
+      ],
+      "reflect": [
+        "Cô đơn giữa nhiều người có khi còn nặng hơn cô đơn một mình.",
+        "Cảm giác không ai hiểu mình là một trong những cảm giác mệt nhất.",
+        "{User} vừa nói với {self} — như vậy là lúc này {user} không hoàn toàn một mình."
+      ],
+      "ask": [
+        "Có ai từng làm {user} thấy được hiểu không, dù chỉ một lần?",
+        "{User} thấy cô đơn nhất vào lúc nào trong ngày?",
+        "Điều gì khiến {user} khó mở lời với người xung quanh?"
+      ],
+      "offer": "Đôi khi chỉ cần một tin nhắn cho một người cũ. Không cần dài, chỉ cần một câu."
+    },
+    {
+      "id": "stress",
+      "keys": [
+        "ap luc",
+        "stress",
+        "deadline",
+        "cong viec",
+        "hoc bai",
+        "thi cu",
+        "thi",
+        "bai tap",
+        "do an",
+        "khoa luan",
+        "qua tai",
+        "lam khong xue",
+        "bi don"
+      ],
+      "reflect": [
+        "Nghe như đang có quá nhiều thứ cùng đòi {user} một lúc.",
+        "Áp lực dồn lâu thì đến lúc chỉ một việc nhỏ cũng thành quá sức.",
+        "{User} đã gồng lâu rồi."
+      ],
+      "ask": [
+        "Trong tất cả những thứ đang đè lên {user}, cái nào nặng nhất?",
+        "Nếu được bỏ bớt một việc mà không ai trách, {user} sẽ bỏ việc nào?",
+        "{User} ngủ được mấy tiếng trong mấy hôm nay rồi?"
+      ],
+      "offer": "Thử cách này xem: viết ra ba việc, khoanh tròn đúng MỘT việc cho hôm nay, gạch hai việc còn lại sang ngày mai."
+    },
+    {
+      "id": "burnout",
+      "keys": [
+        "kiet suc",
+        "can kiet",
+        "het pin",
+        "khong con suc",
+        "met moi",
+        "met",
+        "uon oai",
+        "khong muon lam gi",
+        "mat dong luc",
+        "chai san"
+      ],
+      "reflect": [
+        "Kiểu mệt này ngủ một giấc không hết, đúng không?",
+        "Khi đã cạn thì ép bản thân cố thêm chỉ làm cạn nhanh hơn.",
+        "Cơ thể {user} đang đòi nghỉ, và nó có quyền đòi."
+      ],
+      "ask": [
+        "Lần gần nhất {user} thấy nhẹ người là khi nào?",
+        "Có việc gì {user} đang làm chỉ vì thấy mình phải làm không?",
+        "Nếu được nghỉ trọn một ngày không ai hỏi han, {user} sẽ làm gì?"
+      ],
+      "offer": "Nghỉ không phải phần thưởng cho người đã làm xong. Nó là điều kiện để làm tiếp."
+    },
+    {
+      "id": "sleep",
+      "keys": [
+        "mat ngu",
+        "khong ngu duoc",
+        "kho ngu",
+        "thuc dem",
+        "tinh giac",
+        "ngu khong sau",
+        "trang mat",
+        "nam mai khong ngu",
+        "ac mong"
+      ],
+      "reflect": [
+        "Đêm là lúc mọi suy nghĩ chưa xong kéo nhau quay lại.",
+        "Không ngủ được rồi lo vì không ngủ được — cái vòng đó mệt thật.",
+        "Cơ thể muốn ngủ nhưng đầu chưa chịu tắt đèn."
+      ],
+      "ask": [
+        "Lúc nằm xuống, thường thì ý nghĩ nào quay lại nhiều nhất?",
+        "{User} khó vào giấc, hay ngủ được rồi lại tỉnh?",
+        "Chuyện này kéo dài bao lâu rồi?"
+      ],
+      "offer": "Nếu nằm quá 20 phút chưa ngủ được, hãy ngồi dậy làm gì đó thật chán dưới ánh đèn vàng, rồi mới quay lại giường."
+    },
+    {
+      "id": "self_worth",
+      "keys": [
+        "vo dung",
+        "vo gia tri",
+        "that bai",
+        "kem coi",
+        "khong lam duoc gi",
+        "ghet ban than",
+        "toi te",
+        "do bo di",
+        "khong xung dang",
+        "thua thai"
+      ],
+      "reflect": [
+        "Cái giọng nói đó trong đầu {user} nghiêm khắc hơn bất kỳ ai ngoài kia.",
+        "{User} đang nói về mình theo cách mà chắc {user} sẽ không bao giờ nói với bạn thân.",
+        "Một lần thất bại không viết lại được {user} là ai."
+      ],
+      "ask": [
+        "Nếu một người bạn thân nói y hệt câu đó về bản thân họ, {user} sẽ trả lời họ thế nào?",
+        "Giọng nói đó nghe giống ai mà {user} từng biết không?",
+        "Có việc gì dù nhỏ mà {user} đã làm xong trong tuần này không?"
+      ],
+      "offer": "Thử viết ra một việc {user} làm được hôm nay, dù nhỏ đến đâu. Dậy khỏi giường cũng tính."
+    },
+    {
+      "id": "anger",
+      "keys": [
+        "tuc gian",
+        "tuc qua",
+        "tuc that",
+        "gian",
+        "gian du",
+        "buc",
+        "buc boi",
+        "buc minh",
+        "cay cu",
+        "phat dien",
+        "khong chiu noi",
+        "uc che",
+        "muon het len",
+        "bat man",
+        "kho chiu"
+      ],
+      "reflect": [
+        "Giận thường là lớp vỏ bên ngoài của một chỗ bị làm đau.",
+        "{User} có quyền giận. Cảm xúc đó không cần xin phép ai.",
+        "Nghe như có điều gì đó rất không công bằng vừa xảy ra với {user}."
+      ],
+      "ask": [
+        "Điều gì khiến {user} giận nhất trong chuyện này?",
+        "Nếu nói thẳng được với người đó mà không sợ hậu quả, {user} sẽ nói gì?",
+        "Dưới cơn giận đó, {user} thấy mình bị tổn thương ở chỗ nào?"
+      ],
+      "offer": "Cơn giận cần đường ra. Viết hết ra giấy rồi xé đi cũng là một đường.",
+      "_why": "Bỏ 'tuc' đứng lẻ: nó trúng trong 'tức ngực', đọc một triệu chứng cơ thể thành cơn giận."
+    },
+    {
+      "id": "relationship",
+      "keys": [
+        "chia tay",
+        "nguoi yeu",
+        "ban trai",
+        "ban gai",
+        "cai nhau",
+        "phan boi",
+        "lua doi",
+        "chia xa",
+        "khong con yeu",
+        "ly than",
+        "tinh cam"
+      ],
+      "reflect": [
+        "Mất một mối quan hệ cũng là mất cả một tương lai mình đã hình dung.",
+        "Chuyện tình cảm đau vì nó chạm vào chỗ mình đã mở ra cho người khác.",
+        "Không có thời hạn nào cho việc nguôi ngoai cả."
+      ],
+      "ask": [
+        "Điều gì {user} thấy khó chấp nhận nhất trong chuyện này?",
+        "{User} nhớ người đó, hay nhớ cảm giác lúc ở bên người đó?",
+        "{User} đã kể chuyện này với ai chưa?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "family",
+      "keys": [
+        "gia dinh",
+        "bo me",
+        "cha me",
+        "ba me",
+        "me",
+        "bo",
+        "anh chi",
+        "ho hang",
+        "so sanh",
+        "ky vong",
+        "bi mang",
+        "bi so sanh"
+      ],
+      "reflect": [
+        "Những lời từ người nhà thường để lại vết sâu hơn, vì mình không chọn được họ.",
+        "Bị so sánh lâu ngày làm người ta quên mất mình vốn là ai.",
+        "Yêu thương và làm đau nhau có thể cùng tồn tại trong một nhà."
+      ],
+      "ask": [
+        "Điều {user} mong nghe được từ họ nhất là gì?",
+        "{User} có nói cho họ biết {user} cảm thấy thế nào chưa?",
+        "Ở nhà, có chỗ nào {user} thấy mình thở được không?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "grief",
+      "keys": [
+        "mat nguoi",
+        "qua doi",
+        "mat di",
+        "tang",
+        "ra di",
+        "khong con nua",
+        "nho nguoi da mat",
+        "dam tang"
+      ],
+      "reflect": [
+        "{Self} rất tiếc. Mất mát không có cách nào làm cho nhẹ đi bằng lời.",
+        "Nỗi nhớ người đã đi không phải là thứ cần chữa cho hết.",
+        "{User} được phép đau lâu như {user} cần."
+      ],
+      "ask": [
+        "{User} có muốn kể cho {self} nghe về người đó không?",
+        "Điều gì làm {user} nhớ họ nhiều nhất?",
+        "Hôm nay là một ngày đặc biệt khó, hay lúc nào cũng vậy?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "guilt",
+      "keys": [
+        "toi loi",
+        "co loi",
+        "an han",
+        "hoi han",
+        "xau ho",
+        "nhuc",
+        "loi tai minh",
+        "minh da sai",
+        "khong tha thu",
+        "day dut",
+        "tu trach"
+      ],
+      "reflect": [
+        "Mang cảm giác có lỗi lâu ngày rất nặng, nhất là khi không ai bắt mình mang.",
+        "Người biết áy náy thường là người có lương tâm, không phải người xấu.",
+        "Nhận ra mình sai và tự trừng phạt mình mãi là hai chuyện khác nhau."
+      ],
+      "ask": [
+        "Nếu chuyện đó xảy ra với người khác, {user} có trách họ nặng như đang trách mình không?",
+        "{User} đã tự mang chuyện này bao lâu rồi?",
+        "Có cách nào để sửa, dù chỉ một phần, không?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "numb",
+      "keys": [
+        "trong rong",
+        "vo cam",
+        "khong cam thay gi",
+        "te liet",
+        "nhat nheo",
+        "khong con thiet",
+        "lam gi cung chan",
+        "mat het hung thu"
+      ],
+      "reflect": [
+        "Trống rỗng nhiều khi còn khó chịu hơn đau, vì không biết bám vào đâu.",
+        "Khi cảm xúc tắt hết, đó thường là cách tâm trí tự bảo vệ sau một đợt quá tải.",
+        "Không cảm thấy gì cũng là một điều đáng để nói ra."
+      ],
+      "ask": [
+        "Lần gần nhất {user} thấy có chút gì đó — dù nhỏ — là khi nào?",
+        "Cảm giác này đến sau chuyện gì không?",
+        "Có việc gì trước đây {user} thích mà giờ thấy dửng dưng không?"
+      ],
+      "offer": "Thử một thứ chạm vào giác quan: nước lạnh lên cổ tay, một mùi quen, chân trần trên sàn. Không để vui lên, chỉ để có mặt ở đây."
+    },
+    {
+      "id": "body",
+      "keys": [
+        "dau dau",
+        "dau bung",
+        "dau nguoi",
+        "om",
+        "benh",
+        "khong khoe",
+        "chan an",
+        "bo an",
+        "an khong noi",
+        "sut can",
+        "tuc nguc",
+        "nang nguc",
+        "kho tho",
+        "ngheo tho",
+        "hoi hop trong nguc",
+        "dau da day",
+        "met nguoi",
+        "nguoi khong co suc",
+        "suy nhuoc",
+        "chong mat"
+      ],
+      "reflect": [
+        "Tâm trí mệt thì cơ thể thường lên tiếng trước.",
+        "Cơ thể {user} đang gửi tín hiệu, và {user} đã nghe được — đó là điều tốt.",
+        "Khi người không khoẻ, mọi chuyện khác đều nặng hơn bình thường.",
+        "Ở mình nhiều người thấy trong người không ổn trước khi kịp gọi tên điều đang làm mình mệt."
+      ],
+      "ask": [
+        "Chuyện này bắt đầu cùng lúc với điều gì trong đời sống của {user} không?",
+        "{User} đã đi khám chưa?",
+        "Hôm nay {user} đã ăn và uống nước chưa?",
+        "Những hôm {user} thấy trong người nặng, có chuyện gì trong đầu đang nặng theo không?"
+      ],
+      "offer": "Nếu tình trạng cơ thể kéo dài, xin {user} đi khám. {Self} chỉ đồng hành được phần tinh thần, không thay được bác sĩ.",
+      "_why": "Cơ thể hoá (somatization) rất phổ biến ở người Việt: nói 'đau đầu, tức ngực, chán ăn' dễ hơn nói 'tôi buồn'. Đừng chỉ đẩy đi khám — vẫn nhắc khám, nhưng mở thêm một cánh cửa cho phần tâm lý."
+    },
+    {
+      "id": "filial",
+      "_why": "Hiếu đạo và kỳ vọng gia đình là sức ép trung tâm của người trẻ Á Đông, nhưng bản đồ cũ chỉ có 'family' nói về mâu thuẫn. Đây là chuyện khác: không có ai để trách, mà vẫn ngộp.",
+      "keys": [
+        "con nha nguoi ta",
+        "ky vong",
+        "lam bo me that vong",
+        "khong phu long",
+        "bao hieu",
+        "tra on",
+        "bo me hy sinh",
+        "khong duoc phep",
+        "phai co gang",
+        "gia dinh dat",
+        "dat ky vong",
+        "lam rang danh"
+      ],
+      "reflect": [
+        "Mang kỳ vọng của cả nhà trên vai mà vẫn phải tỏ ra không nặng — chỗ đó mỏi lắm.",
+        "Thương bố mẹ và thấy ngộp vì bố mẹ có thể cùng tồn tại. Không phải bất hiếu.",
+        "Khi người ta hy sinh cho {user}, {user} còn khó cho phép mình mệt hơn nữa."
+      ],
+      "ask": [
+        "Nếu không ai kỳ vọng gì cả, {user} sẽ muốn điều gì cho riêng mình?",
+        "Bố mẹ {user} có biết {user} đang gánh nặng thế này không?",
+        "Điều {user} sợ nhất khi làm họ thất vọng là gì?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "face",
+      "_why": "Sĩ diện và sợ bị đánh giá: lý do người Việt hay im lặng thay vì nói ra.",
+      "keys": [
+        "xau ho voi",
+        "the dien",
+        "si dien",
+        "so nguoi ta biet",
+        "so bi danh gia",
+        "so mang tieng",
+        "giau di",
+        "khong dam noi",
+        "so lam phien",
+        "ngai ke",
+        "so bi cuoi",
+        "mat mat"
+      ],
+      "reflect": [
+        "Phải giữ mặt mũi trước mọi người trong khi bên trong đang rối là một việc rất tốn sức.",
+        "{Self} hiểu vì sao {user} chưa nói với ai. Ở mình, nói ra chuyện này không dễ.",
+        "Sợ bị đánh giá không phải yếu đuối — đó là phản xạ rất người, nhất là ở nơi ai cũng biết nhau."
+      ],
+      "ask": [
+        "{User} sợ ai biết nhất?",
+        "Nếu có một người duy nhất được biết chuyện này mà chắc chắn không phán xét, {user} chọn ai?",
+        "Điều gì làm {user} nghĩ người ta sẽ nhìn {user} khác đi?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "minimising",
+      "_why": "Người Việt hay nói giảm và tự nhận lỗi về mình: 'không sao đâu', 'chắc tại em kém'. Bản đồ cũ đọc những câu này là KHÔNG CÓ VẤN ĐỀ. Thực ra đó thường là lúc vấn đề đang bị giấu.",
+      "keys": [
+        "khong sao dau",
+        "khong co gi",
+        "chac tai",
+        "tai minh",
+        "tai em",
+        "loi cua minh",
+        "chac do minh",
+        "minh kem",
+        "chi la",
+        "hoi hoi",
+        "cung binh thuong thoi",
+        "khong den noi",
+        "chac minh nghi nhieu",
+        "chac tai minh yeu duoi"
+      ],
+      "reflect": [
+        "{User} vừa nói nhẹ đi một chuyện mà nghe ra không nhẹ chút nào.",
+        "{Self} để ý {user} hay nhận phần lỗi về mình trước khi kể chuyện gì xảy ra.",
+        "Không cần phải chứng minh là chuyện đủ to thì mới được buồn."
+      ],
+      "ask": [
+        "Nếu bỏ chữ 'chắc tại' đi, chuyện thật sự đã xảy ra là gì?",
+        "{User} có đang kể nhẹ đi để {self} khỏi lo không?",
+        "Giả sử chuyện đó không phải lỗi của {user} — thì nó là lỗi của điều gì?"
+      ],
+      "offer": null
+    },
+    {
+      "id": "stigma",
+      "_why": "Rào cản đi khám tâm lý: sợ bị gọi là điên, sợ hồ sơ, sợ gia đình biết. Nếu bot chỉ nói 'đi gặp chuyên gia' thì người ta đóng ứng dụng.",
+      "keys": [
+        "bi dien",
+        "tam than",
+        "di kham tam ly",
+        "so bi ghi ho so",
+        "uong thuoc than kinh",
+        "nguoi ta bao dien",
+        "khong dam di kham",
+        "gia dinh khong tin",
+        "bay dat",
+        "lam qua len",
+        "yeu duoi moi vay"
+      ],
+      "reflect": [
+        "Đi nói chuyện với người có chuyên môn không có nghĩa là {user} bị gì cả — cũng như đi khám răng không có nghĩa là {user} hỏng người.",
+        "{Self} biết ở mình hai chữ đó còn bị nhìn nặng. Nỗi ngại của {user} là có thật, không phải {user} nghĩ nhiều.",
+        "Không ai bắt {user} phải nói với gia đình mới được đi tìm giúp đỡ."
+      ],
+      "ask": [
+        "Điều gì làm {user} ngại nhất: người ta biết, hay chính {user} phải thừa nhận?",
+        "Nếu có một chỗ kín đáo, không ghi hồ sơ, {user} có thử không?",
+        "{User} đã từng nói chuyện này với ai chưa, dù chỉ một người?"
+      ],
+      "offer": null
+    }
+  ],
+  "address": {
+    "_doc": "Tiếng Việt không có đại từ trung tính: gọi sai một tiếng là hỏng cả câu. Bot phải GỌI THEO CÁCH NGƯỜI TA TỰ XƯNG. Dò đại từ người dùng tự nhận trong tin nhắn, rồi dựng câu bằng {user}/{User} (gọi người dùng) và {self}/{Self} (bot tự xưng). Mặc định là cậu/tớ — đúng giọng mà phần còn lại của HugoPSY đang dùng (ChatTab, các bài đánh giá).",
+    "_note": "KHÔNG soi gương 'con'/'cháu': người ta xưng vậy là đang nói với bậc trên, bot gọi lại 'con' thì hoá ra tự nhận vai cha mẹ. Với nhóm đó gọi 'em'.",
+    "default": {
+      "user": "cậu",
+      "User": "Cậu",
+      "self": "tớ",
+      "Self": "Tớ"
+    },
+    "detect": [
+      {
+        "cues": [
+          "em"
+        ],
+        "user": "em",
+        "User": "Em",
+        "self": "mình",
+        "Self": "Mình"
+      },
+      {
+        "cues": [
+          "con",
+          "chau"
+        ],
+        "user": "em",
+        "User": "Em",
+        "self": "mình",
+        "Self": "Mình"
+      },
+      {
+        "cues": [
+          "to"
+        ],
+        "user": "cậu",
+        "User": "Cậu",
+        "self": "tớ",
+        "Self": "Tớ"
+      },
+      {
+        "cues": [
+          "toi"
+        ],
+        "user": "bạn",
+        "User": "Bạn",
+        "self": "mình",
+        "Self": "Mình"
+      },
+      {
+        "cues": [
+          "minh"
+        ],
+        "user": "bạn",
+        "User": "Bạn",
+        "self": "mình",
+        "Self": "Mình"
+      },
+      {
+        "cues": [
+          "anh"
+        ],
+        "user": "anh",
+        "User": "Anh",
+        "self": "mình",
+        "Self": "Mình"
+      },
+      {
+        "cues": [
+          "chi"
+        ],
+        "user": "chị",
+        "User": "Chị",
+        "self": "mình",
+        "Self": "Mình"
+      }
+    ]
+  },
+  "phrases": {
+    "_doc": "Câu nối dùng chung cho cả engine Python lẫn bộ cứu sinh Node. Viết cứng trong mã là lý do bot vẫn gọi 'bạn' giữa câu dù đã dò ra người ta xưng 'em'.",
+    "secondTopic": "Và {self} để ý là không chỉ có một chuyện — ",
+    "intense": [
+      "Nghe mức độ {user} tả thì chuyện này không nhẹ chút nào.",
+      "{User} đã chịu đựng nhiều hơn mức đáng phải chịu rồi.",
+      "{Self} không định nói với {user} rằng rồi sẽ ổn, vì lúc này nó chưa ổn."
+    ],
+    "streakReflect": [
+      "{Self} để ý {user} quay lại chuyện này mấy lần rồi. Nó đang bám lấy {user} thật.",
+      "Chúng ta nói quanh chỗ này đã vài lượt — chắc nó nặng hơn những gì đã nói ra.",
+      "Có vẻ điều này không chịu buông {user} ra."
+    ],
+    "streakAsk": [
+      "Có phần nào của chuyện này {user} chưa kể với {self} không?",
+      "Nếu chuyện này không đổi trong một tháng nữa, {user} sợ điều gì nhất?",
+      "{User} đã nghĩ tới việc nói với một người thật ngoài đời chưa? {Self} đi cùng {user} tới đó được."
+    ],
+    "genericReflect": [
+      "{Self} đang nghe {user} đây.",
+      "{Self} đọc kỹ những gì {user} viết.",
+      "Cảm ơn {user} đã nói ra điều này."
+    ],
+    "genericAsk": [
+      "{User} kể thêm cho {self} nghe được không?",
+      "Điều gì trong chuyện đó khiến {user} bận lòng nhất?",
+      "{User} đang thấy thế nào khi nghĩ về nó?",
+      "Chuyện này bắt đầu từ khi nào vậy?"
+    ]
+  },
+  "_matching": "So khớp từ khoá phải theo RANH GIỚI TỪ, không phải chuỗi con. Khớp chuỗi con làm 'me' (mẹ) trúng trong 'met' (mệt) — 'tớ mệt lắm' bị đọc thành chuyện gia đình. Cả hai engine đệm dấu cách hai đầu rồi mới tìm ' <khoá> '."
+}

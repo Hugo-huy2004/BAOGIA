@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import dataApi from '../services/dataApi';
+import dataApi from '../services/api/modules/dataApi';
 import { renderNotification } from '../../shared/notificationText';
 import { joyDenom } from '../lib/joyDisplay';
 import { playNotificationSound } from '../utils/audio';

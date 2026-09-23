@@ -31,18 +31,20 @@ import { SUPPORTED_LANGUAGES, languageCode, languageLabel } from "../../i18n/lan
 import { changeAppLanguage } from "../../i18n/config";
 import { useJoyStore } from "../../stores/joyStore";
 import { useJoy } from "../../lib/joyDisplay";
-import { fetchJoyPerks, fetchChallengeStatus } from "../../services/joyApi";
+import { fetchJoyPerks, fetchChallengeStatus } from "../../services/api/modules/joyApi";
 import { isVoucherActive } from "./joy/voucherStatus";
 import BiometricLoginCard from "./BiometricLoginCard";
 import SecurityCenter from "./account/SecurityCenter";
 import ToggleSwitch from "../common/ToggleSwitch";
 import EcoToggle from "../../Save_E/EcoToggle";
+import { getMemberToken } from "../../services/api/core/authSession";
 
 const AccountSheet = React.lazy(() => import("./account/AccountSheet"));
 const AccountThemeSheet = React.lazy(() => import("./account/AccountThemeSheet"));
 const PersonalInfoSubTab = React.lazy(() => import("./PersonalInfoSubTab"));
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 const MemberDocReader = React.lazy(() => import("./account/MemberDocReader"));
+const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 const SheetFallback = () => {
   const { t } = useTranslation();
@@ -201,6 +203,8 @@ export default function MemberSettingsTab({
   const [activeSheet, setActiveSheet] = useState(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
+  const [marketingEnabled, setMarketingEnabled] = useState(false);
+  const [marketingBusy, setMarketingBusy] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   const joy = useJoy();
@@ -232,6 +236,13 @@ export default function MemberSettingsTab({
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
     setBiometricSupported(webauthnHelper.isSupported());
+    const token = getMemberToken();
+    if (!token) return;
+    fetch(`${apiBase}/profile/me/marketing`, {
+      headers: { Authorization: `Bearer ${token}` }, credentials: "include",
+    }).then((res) => res.ok ? res.json() : null).then((data) => {
+      if (data) setMarketingEnabled(Boolean(data.enabled));
+    }).catch(() => {});
   }, []);
 
   // Tải thông tin đặc quyền và thử thách JOY
@@ -304,6 +315,27 @@ export default function MemberSettingsTab({
       showToast?.(t("memberPortal.settings.pushErrorToast", nom("Không thể cài đặt thông báo")), "error");
     } finally {
       setPushBusy(false);
+    }
+  };
+
+  const handleToggleMarketing = async () => {
+    setMarketingBusy(true);
+    try {
+      const token = getMemberToken();
+      const next = !marketingEnabled;
+      const res = await fetch(`${apiBase}/profile/me/marketing`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        credentials: "include",
+        body: JSON.stringify({ enabled: next }),
+      });
+      if (!res.ok) throw new Error("marketing preference failed");
+      setMarketingEnabled(next);
+      showToast?.(next ? nom("Đã bật email cập nhật Hugo Studio") : nom("Đã tắt email cập nhật Hugo Studio"), "success");
+    } catch {
+      showToast?.(nom("Không thể cập nhật tùy chọn email"), "error");
+    } finally {
+      setMarketingBusy(false);
     }
   };
 
@@ -489,6 +521,20 @@ export default function MemberSettingsTab({
               onChange={handleTogglePush}
               disabled={pushBusy}
               label={t("memberPortal.settings.enableNotifications", nom("Bật thông báo"))}
+            />
+          }
+        />
+        <AppleRowItem
+          icon={Bell}
+          iconColor="bg-sky-500/10 text-sky-500"
+          title={nom("Email cập nhật Hugo Studio")}
+          subtitle={nom("Mẹo thành viên, lời mời quay lại và tư vấn website; có thể tắt bất cứ lúc nào")}
+          trailing={
+            <ToggleSwitch
+              checked={marketingEnabled}
+              onChange={handleToggleMarketing}
+              disabled={marketingBusy}
+              label={nom("Bật email cập nhật")}
             />
           }
         />
