@@ -23,7 +23,7 @@ function financeBenefit(tier) {
   const fee = f.feeFree
     ? nom("miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY")
     : `phí chuyển JOY ${f.feePercent}%`;
-  return `<b>{nom(nom("Tài chính & Giao dịch:"))}</b> ${credit}, ${fee}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
+  return `<b>${nom("Tài chính & Giao dịch:")}</b> ${credit}, ${fee}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
 }
 
 export const TIER_PRIVILEGES_MAP = {
@@ -124,10 +124,10 @@ export default function TierPrivilegesSection({
             </span>
             {isUserCurrentTier ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
-                <span className="material-symbols-outlined text-[13px]">check_circle</span>{nom(nom("Hạng của bạn"))}</span>
+                <span className="material-symbols-outlined text-[13px]">check_circle</span>{nom("Hạng của bạn")}</span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-zinc-500/15 text-zinc-500 dark:text-zinc-400 border border-zinc-500/30 whitespace-nowrap shrink-0">
-                <span className="material-symbols-outlined text-[13px]">lock</span>{nom(nom("Đang xem trước"))}</span>
+                <span className="material-symbols-outlined text-[13px]">lock</span>{nom("Đang xem trước")}</span>
             )}
           </div>
           <p className="text-[13px] text-muted-foreground mt-0.5">{data.subtitle}</p>
@@ -177,7 +177,7 @@ export default function TierPrivilegesSection({
         <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-[18px]" style={{ color: data.accentColor }}>
             stars
-          </span>{nom(nom("Chi tiết đặc quyền"))}</h4>
+          </span>{nom("Chi tiết đặc quyền")}</h4>
         <ul className="space-y-2.5">
           {data.benefits.map((benefit, idx) => (
             <li key={idx} className="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-foreground/85">

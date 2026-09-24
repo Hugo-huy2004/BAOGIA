@@ -363,6 +363,12 @@ export default function MetalCard3D({
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
+              // Lỗi đã sửa (2026-09-24): WebKit BỎ QUA backface-visibility khi
+              // phần tử có cả border-radius lẫn overflow:hidden — mặt sau lộ
+              // chữ mặt trước chồng lên, rõ nhất ở PWA standalone. Ép phần tử
+              // ra một lớp kết xuất GPU riêng thì WebKit mới tôn trọng đúng.
+              WebkitTransform: "translateZ(0)",
+              willChange: "transform",
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.12) inset",
             }}
           >
@@ -485,7 +491,12 @@ export default function MetalCard3D({
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
-              transform: "rotateY(180deg)",
+              // Cùng lỗi WebKit như mặt trước — xem chú thích ở đó. Mặt sau
+              // còn phải giữ nguyên rotateY(180deg) làm mốc lật, translateZ(0)
+              // chỉ CỘNG THÊM vào cùng transform chứ không thay thế nó.
+              transform: "rotateY(180deg) translateZ(0)",
+              WebkitTransform: "rotateY(180deg) translateZ(0)",
+              willChange: "transform",
               backgroundColor: currentTheme.backBg,
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.12) inset",
             }}

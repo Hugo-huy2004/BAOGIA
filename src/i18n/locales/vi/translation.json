@@ -2107,7 +2107,10 @@
       "verificationTitle": "Xác minh thông tin",
       "verifiedDescription": "Địa chỉ cư trú, dân tộc và tôn giáo của Quý thành viên đã được xác minh và khóa để bảo đảm tính chính xác.",
       "incompleteDescription": "Địa chỉ cư trú, dân tộc hoặc tôn giáo của Quý thành viên chưa được xác minh đầy đủ.",
-      "adminChangeDescription": "Nếu muốn thay đổi, vui lòng liên hệ quản trị viên Hugo Studio."
+      "adminChangeDescription": "Nếu muốn thay đổi, vui lòng liên hệ quản trị viên Hugo Studio.",
+      "dangerZoneTitle": "Vùng nguy hiểm",
+      "deleteAccountTitle": "Xoá tài khoản",
+      "deleteAccountDesc": "Gửi yêu cầu để Hugo Studio xử lý trực tiếp, không thể hoàn tác."
     },
     "settings": {
       "title": "Cài đặt",
@@ -2338,6 +2341,8 @@
           "out": "Dùng"
         },
         "groups": {
+          "activity": "Hoạt động có ích",
+          "investment": "Đầu tư ảo",
           "checkin": "Điểm danh",
           "friends": "Bạn bè",
           "entertainment": "Giải trí",
@@ -2955,14 +2960,14 @@
         "nfcTapHint": "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY",
         "nfcReadError": "Không đọc được thẻ NFC",
         "cancel": "Hủy",
-        "modeSendLabel": "Gửi",
-        "modeSendTitle": "Gửi JOY",
+        "modeSendLabel": "Chuyển JOY",
+        "modeSendTitle": "Chuyển JOY",
         "modeSendDesc": "Tìm đúng người nhận, kiểm tra thông tin rồi chuyển an toàn.",
         "modeReceiveLabel": "Nhận",
         "modeReceiveTitle": "Nhận JOY",
         "modeReceiveDesc": "Đưa mã động này cho người gửi hoặc chia sẻ trực tiếp.",
         "modeScanLabel": "Quét",
-        "modeScanTitle": "Quét mã",
+        "modeScanTitle": "Quét mã vạch",
         "modeScanDesc": "Camera tự nhận diện và xác minh người nhận trước khi chuyển.",
         "openSeal": "Mở JOY Seal",
         "shareInvite": "Gửi JOY cho tôi.\nMã: {{code}}",
@@ -2990,8 +2995,8 @@
         "receiveCodeCopied": "Đã sao chép mã nhận JOY",
         "copyFailed": "Không thể sao chép mã",
         "copy": "Sao chép",
-        "autoVerifyTitle": "Xác minh tự động trước khi chuyển",
-        "autoVerifyDesc": "Camera chỉ đọc mã JOY động; ứng dụng không lưu hình ảnh.",
+        "autoVerifyTitle": "Quét mã vạch thẻ thành viên",
+        "autoVerifyDesc": "Chỉ đọc mã vạch CODE128 trên thẻ; ứng dụng không lưu hình ảnh.",
         "verifyingRecipient": "Đang xác minh người nhận…",
         "holdStill": "Giữ nguyên màn hình trong giây lát.",
         "cameraUnsupportedHint": "Thiết bị này không hỗ trợ camera. Hãy tìm người nhận thủ công.",
@@ -3755,8 +3760,8 @@
       "penaltyRow": "Cộng do trễ",
       "lockedUntil": "Mở lúc {{date}}",
       "lockedNote": "Chia đợt thì đúng ngày mới hoàn được.",
-      "lateNote": "Trễ một đợt sẽ cộng {{percent}}% của đợt đó, một lần.",
-      "lateWarn": "Trễ ngày hoàn: cộng {{percent}}% của đợt đó, tính một lần.",
+      "lateNote": "Trễ đợt: phần trễ tính lãi quá hạn cao hơn {{percent}}% mỗi ngày so với lãi trong hạn, không phải cộng một lần.",
+      "lateWarn": "Trễ ngày hoàn: phần trễ tính lãi quá hạn cao hơn {{percent}}% mỗi ngày cho tới khi trả, không phải cộng một lần.",
       "stage": {
         "grace": "Đã quá hạn {{days}} ngày",
         "restricted": "Hạn chế từ ngày quá hạn thứ {{days}}",
@@ -3849,6 +3854,7 @@
       "usedAmount": "Đã dụng {{amount}}",
       "rateNow": "{{rate}}%/tuần",
       "scoreIs": "Điểm {{score}}",
+      "limitTrend": "Hạn mức {{amount}} so với lần xét trước",
       "reviewShort": "Tái thẩm {{at}}"
     },
     "walletApp": {

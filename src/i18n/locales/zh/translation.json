@@ -462,7 +462,10 @@
       "verificationTitle": "信息验证",
       "verifiedDescription": "您的居住地址、民族和宗教信息已完成验证并锁定，以确保准确性。",
       "incompleteDescription": "您的居住地址、民族或宗教信息尚未完成验证。",
-      "adminChangeDescription": "如需修改，请联系 Hugo Studio 管理员。"
+      "adminChangeDescription": "如需修改，请联系 Hugo Studio 管理员。",
+      "dangerZoneTitle": "危险区域",
+      "deleteAccountTitle": "删除账户",
+      "deleteAccountDesc": "发送请求由 Hugo Studio 直接处理，操作不可撤销。"
     },
     "settings": {
       "title": "设置",
@@ -671,6 +674,8 @@
           "out": "花费"
         },
         "groups": {
+          "activity": "有益活动",
+          "investment": "虚拟投资",
           "checkin": "入住",
           "friends": "朋友",
           "entertainment": "娱乐",
@@ -1791,14 +1796,14 @@
         "nfcTapHint": "点击对方的 NFC 标签开始发送 JOY",
         "nfcReadError": "无法读取 NFC 标签",
         "cancel": "Cancel",
-        "modeSendLabel": "发送",
-        "modeSendTitle": "发送 JOY",
+        "modeSendLabel": "转账 JOY",
+        "modeSendTitle": "转账 JOY",
         "modeSendDesc": "Find the right recipient, check the details, then transfer safely.",
         "modeReceiveLabel": "接收",
         "modeReceiveTitle": "接收JOY",
         "modeReceiveDesc": "将此动态码分享给收件人或直接发送。",
         "modeScanLabel": "扫描",
-        "modeScanTitle": "扫描二维码",
+        "modeScanTitle": "扫描条形码",
         "modeScanDesc": "摄像头在任何转账前识别并验证收件人。",
         "openSeal": "打开JOY封印",
         "shareInvite": "发送给我JOY!\n代码: {{code}}",
@@ -1826,8 +1831,8 @@
         "receiveCodeCopied": "已复制JOY接收码",
         "copyFailed": "无法复制二维码",
         "copy": "複製",
-        "autoVerifyTitle": "Verified automatically before transfer",
-        "autoVerifyDesc": "仅读取动态JOY码；应用不存储任何图片。",
+        "autoVerifyTitle": "扫描会员卡条形码",
+        "autoVerifyDesc": "仅读取会员卡上的 CODE128 条形码；应用不存储图片。",
         "verifyingRecipient": "正在验证接收方……",
         "holdStill": "请保持此屏幕打开片刻。",
         "cameraUnsupportedHint": "该设备不支持摄像头。手动查找接收方。",
@@ -2551,8 +2556,8 @@
       "penaltyRow": "逾期附加",
       "lockedUntil": "{{date}} 开放",
       "lockedNote": "分批归还只在到期当天开放。",
-      "lateNote": "逾期一批将附加该批的 {{percent}}%，只加一次。",
-      "lateWarn": "逾期未还：附加该批的 {{percent}}%，只加一次。",
+      "lateNote": "逾期一期：逾期部分每天按比正常利率高 {{percent}}% 计息，不是一次性加收。",
+      "lateWarn": "错过还款日：逾期部分每天按比正常利率高 {{percent}}% 计息，直到还清，不是一次性加收。",
       "stage": {
         "grace": "已逾期 {{days}} 天",
         "restricted": "自逾期第 {{days}} 天起受限",
@@ -2645,6 +2650,7 @@
       "usedAmount": "已用 {{amount}}",
       "rateNow": "每周 {{rate}}%",
       "scoreIs": "评分 {{score}}",
+      "limitTrend": "额度较上次核定{{amount}}",
       "reviewShort": "{{at}} 重评"
     },
     "walletApp": {

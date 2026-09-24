@@ -22,6 +22,9 @@ import {
   Zap,
   SlidersHorizontal,
   Check,
+  AlertTriangle,
+  Trash2,
+  UserX,
 } from "lucide-react";
 import { pushService } from "../../services/pushService";
 import { webauthnHelper } from "../../utils/webauthnHelper";
@@ -42,7 +45,6 @@ import { getMemberToken } from "../../services/api/core/authSession";
 const AccountSheet = React.lazy(() => import("./account/AccountSheet"));
 const AccountThemeSheet = React.lazy(() => import("./account/AccountThemeSheet"));
 const PersonalInfoSubTab = React.lazy(() => import("./PersonalInfoSubTab"));
-const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 const MemberDocReader = React.lazy(() => import("./account/MemberDocReader"));
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
@@ -389,7 +391,7 @@ export default function MemberSettingsTab({
           {/* Nút Cài đặt hồ sơ nhanh */}
           <button
             type="button"
-            onClick={() => openSheet("manage")}
+            onClick={() => openSheet("personal")}
             className="p-2 rounded-xl border border-border/60 bg-muted/40 hover:bg-muted/70 text-foreground transition-colors shrink-0"
             title={t("memberPortal.accountProfile.settings", nom("Cài đặt"))}
           >
@@ -473,7 +475,7 @@ export default function MemberSettingsTab({
           iconColor="bg-blue-500/10 text-blue-500"
           title={t("memberPortal.accountProfile.manageProfile", nom("Quản lý hồ sơ chi tiết"))}
           subtitle={t("memberPortal.accountProfile.manageProfileDetail", nom("Cập nhật avatar, số điện thoại và thông tin liên hệ"))}
-          onClick={() => openSheet("manage")}
+          onClick={() => openSheet("personal")}
         />
         <AppleRowItem
           icon={Sparkles}
@@ -604,6 +606,62 @@ export default function MemberSettingsTab({
         </button>
       </div>
 
+      {/* ── 8. GROUP 6: VÙNG NGUY HIỂM ──
+          Chuyển ra khỏi hộp thoại "Quản lý hồ sơ" (2026-09-24): xoá dữ liệu Bio
+          và xoá tài khoản là hành động cấp TÀI KHOẢN, không phải một cài đặt
+          của riêng trang Bio — nên nó thuộc về Cài đặt tài khoản chung, không
+          phải màn cài đặt Bio (nơi giờ chỉ còn gói đang sở hữu + đường dẫn).
+          Trước đây nút "Sao chép link" trong hộp thoại cũ vô tình gọi thẳng
+          hàm xoá Bio (`handleCopyLink={handleDeleteBio}`) — bản dựng lại này
+          không còn đường tắt sai đó: xoá dữ liệu chỉ gọi từ ĐÚNG nút của nó. */}
+      <div className="space-y-1 px-1 pt-1">
+        <h3 className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-rose-500/80">
+          <AlertTriangle className="size-3.5" />
+          {t("memberPortal.accountProfile.dangerZoneTitle", nom("Vùng nguy hiểm"))}
+        </h3>
+      </div>
+      <div className="overflow-hidden rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] dark:bg-rose-500/[0.06] divide-y divide-rose-500/10 shadow-xs">
+        {bio?._id && (
+          <button
+            type="button"
+            onClick={handleDeleteBio}
+            disabled={saving}
+            className="flex min-h-[52px] w-full items-center gap-3 px-4 text-left disabled:opacity-50"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
+              <Trash2 className="size-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] font-semibold text-rose-500">
+                {t("memberTabs.manage.removeBioTitle", nom("Gỡ bỏ dịch vụ Bio"))}
+              </span>
+              <span className="block truncate text-[11px] text-muted-foreground">
+                {t("memberTabs.manage.removeBioDesc", nom("Gỡ bỏ hoàn toàn dữ liệu Bio, không thể phục hồi."))}
+              </span>
+            </span>
+            <ChevronRight className="size-4 shrink-0 text-rose-500/60" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => openUtility("handle")}
+          className="flex min-h-[52px] w-full items-center gap-3 px-4 text-left"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
+            <UserX className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-rose-500">
+              {t("memberPortal.accountProfile.deleteAccountTitle", nom("Xoá tài khoản"))}
+            </span>
+            <span className="block truncate text-[11px] text-muted-foreground">
+              {t("memberPortal.accountProfile.deleteAccountDesc", nom("Gửi yêu cầu để Hugo Studio xử lý trực tiếp, không thể hoàn tác."))}
+            </span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-rose-500/60" />
+        </button>
+      </div>
+
       {/* ── SHEET MODALS ── */}
       {activeSheet === "personal" && (
         <React.Suspense fallback={<SheetFallback />}>
@@ -647,24 +705,6 @@ export default function MemberSettingsTab({
             <AccountThemeSheet bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
           </AccountSheet>
         </React.Suspense>
-      )}
-
-      {activeSheet === "manage" && (
-        <AccountSheet
-          title={t("memberPortal.accountProfile.manageProfile", nom("Quản lý hồ sơ"))}
-          onClose={closeSheet}
-          wide
-        >
-          <React.Suspense fallback={<SheetFallback />}>
-            <MemberManageTab
-              bio={bio}
-              publicLink={publicLink}
-              handleCopyLink={handleDeleteBio}
-              handleDeleteBio={handleDeleteBio}
-              saving={saving}
-            />
-          </React.Suspense>
-        </AccountSheet>
       )}
 
       {activeSheet?.startsWith("doc:") && (

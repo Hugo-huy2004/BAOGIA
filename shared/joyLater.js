@@ -45,6 +45,13 @@ export const JOYLATER = {
   installmentFeeStep: 0.04,
   /** Quá hạn một đợt: cộng ngần này của chính đợt đó, MỘT lần duy nhất. */
   latePenaltyRate: 0.25,
+  /**
+   * THANH KHOẢN (trả HẾT nợ một lần) mở sớm hơn từng đợt riêng lẻ chừng này
+   * ngày. Chia đợt thì mỗi đợt vẫn chỉ trả được đúng ngày (`stepDue`), nhưng
+   * người muốn dứt điểm cả khoản nợ không phải đợi tới đúng ngày đợt tiếp theo
+   * — họ có thể đóng sổ sớm bất cứ lúc nào trong cửa sổ này.
+   */
+  earlyPayoffDays: 3,
   /** Mỗi lần nhận JOY thì trừ bao nhiêu phần cho nợ. */
   garnishRate: 0.4,
   /** Số ngày ví phải có trước khi được vay. */
@@ -183,6 +190,17 @@ export function overdueSteps({ schedule, dueAt, paid, penalized = [], now = Date
 export function stepDue(dueAt, index, now = Date.now()) {
   const at = dueAt?.[index];
   return Boolean(at) && new Date(at).getTime() <= now;
+}
+
+/**
+ * Thanh khoản (trả HẾT) có được mở chưa — khác `stepDue` ở chỗ nó mở SỚM HƠN
+ * `earlyPayoffDays` ngày. Không có lịch cụ thể (`at` rỗng, tức khoản không
+ * chia đợt) thì luôn mở — không có gì để chờ cả.
+ */
+export function payoffDue(dueAt, index, now = Date.now(), graceDays = JOYLATER.earlyPayoffDays) {
+  const at = dueAt?.[index];
+  if (!at) return true;
+  return new Date(at).getTime() - graceDays * 86400000 <= now;
 }
 
 /** Số ngày dự kiến trả xong, để hiện TRƯỚC khi người dùng đồng ý. */

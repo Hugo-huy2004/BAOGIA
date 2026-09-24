@@ -145,10 +145,10 @@ import RejectedVerification from "../../components/member/RejectedVerification";
 import VerificationForm from "../../components/member/VerificationForm";
 import VerificationModal from "../../components/member/VerificationModal";
 import PendingVerification from "../../components/member/PendingVerification";
-// React.lazy, không import tĩnh: MemberSettingsTab và MemberSettingsTabRemade
-// đều đã lazy-load component này, nhưng một import tĩnh ở đây kéo nó (và
-// apple-account.css) vào chunk portal cho MỌI thành viên, kể cả người không
-// bao giờ mở Thông tin cá nhân — làm vô hiệu cả hai chỗ lazy kia.
+// React.lazy, không import tĩnh: MemberSettingsTab đã lazy-load component
+// này, nhưng một import tĩnh ở đây kéo nó (và apple-account.css) vào chunk
+// portal cho MỌI thành viên, kể cả người không bao giờ mở Thông tin cá nhân —
+// làm vô hiệu chỗ lazy kia.
 const PersonalInfoSubTab = React.lazy(() => import("../../components/member/PersonalInfoSubTab"));
 import StudentRewardCard from "../../components/member/StudentRewardCard";
 import DesignSubTab from "../../components/member/DesignSubTab";

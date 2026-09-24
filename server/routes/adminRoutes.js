@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import Admin from '../models/Admin.js';
 import { requireAdmin, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { awardJoy } from '../utils/joyService.js';
+import { utilityProductPrice } from '../../shared/joyPrices.js';
 import fs from 'fs/promises';
 import path from 'path';
 import mongoose from 'mongoose';
@@ -2029,7 +2030,10 @@ router.get('/store/products', requireAdmin, async (req, res) => {
   try {
     const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
     const products = await UtilityProduct.find().sort({ createdAt: -1 }).lean();
-    res.json({ success: true, products });
+    res.json({ success: true, products: products.map((product) => ({
+      ...product,
+      priceJoy: utilityProductPrice(product.productType),
+    })) });
   } catch (err) {
     console.error('Error fetching admin store products:', err);
     res.status(500).json({ error: err.message });
@@ -2039,22 +2043,25 @@ router.get('/store/products', requireAdmin, async (req, res) => {
 // POST /admin/store/products - Tạo mới sản phẩm Utility Store
 router.post('/store/products', requireAdmin, async (req, res) => {
   try {
-    const { name, description, priceJoy, icon, category, active, stock, imageUrl, productType, extendDays } = req.body;
-    if (!name || !priceJoy) {
-      return res.status(400).json({ error: 'Tên sản phẩm và Giá JOY là bắt buộc' });
+    const { name, description, icon, category, active, stock, imageUrl, productType = 'general', extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Tên sản phẩm là bắt buộc' });
     }
     const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
     const product = await UtilityProduct.create({
       name,
       description: description || '',
-      priceJoy: Number(priceJoy),
+      priceJoy: utilityProductPrice(productType),
       icon: icon || 'redeem',
       category: category || 'general',
       active: active !== undefined ? active : true,
       stock: stock !== undefined ? Number(stock) : -1,
       imageUrl: imageUrl || '',
-      productType: productType || 'general',
-      extendDays: Number(extendDays) || 0
+      productType,
+      extendDays: Number(extendDays) || 0,
+      tokenType: tokenType || 'chat',
+      tokenAmount: Number(tokenAmount) || 0,
+      radioMinutes: Number(radioMinutes) || 0,
     });
 
     logAdminAuditAction(req, 'CREATE_STORE_PRODUCT', '', '', `Tạo sản phẩm "${product.name}" với giá ${product.priceJoy} JOY`);
@@ -2070,8 +2077,18 @@ router.post('/store/products', requireAdmin, async (req, res) => {
 router.put('/store/products/:id', requireAdmin, async (req, res) => {
   try {
     const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
-    const product = await UtilityProduct.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const product = await UtilityProduct.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+
+    const fields = ['name', 'description', 'icon', 'category', 'active', 'imageUrl', 'productType', 'tokenType'];
+    for (const field of fields) {
+      if (req.body[field] !== undefined) product[field] = req.body[field];
+    }
+    for (const field of ['stock', 'extendDays', 'tokenAmount', 'radioMinutes']) {
+      if (req.body[field] !== undefined) product[field] = Number(req.body[field]);
+    }
+    product.priceJoy = utilityProductPrice(product.productType);
+    await product.save();
 
     logAdminAuditAction(req, 'UPDATE_STORE_PRODUCT', '', '', `Cập nhật sản phẩm "${product.name}" (${product.priceJoy} JOY)`);
 

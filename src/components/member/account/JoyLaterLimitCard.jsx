@@ -55,7 +55,16 @@ export default function JoyLaterLimitCard({ status }) {
       </div>
       <div className="jl-credit-card__meta">
         <span><span className="material-symbols-outlined" aria-hidden="true">percent</span>{t("memberPortal.joyLater.rateNow", { rate: ((status?.weeklyRate || 0) * 100).toFixed(2) })}</span>
-        <span><span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>{t("memberPortal.joyLater.scoreIs", { score: credit.score || 0 })}{trend !== 0 && ` ${trend > 0 ? "↑" : "↓"}${joy.number(Math.abs(trend))}`}</span>
+        <span><span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>{t("memberPortal.joyLater.scoreIs", { score: credit.score || 0 })}</span>
+        {/* Chênh lệch hạn mức là JOY, không phải điểm tín dụng — nối liền vào
+            "Điểm 35" thành "Điểm 35 ↑800" đọc như thể điểm tăng 800, vô lý với
+            thang điểm ~100. Tách thành mục riêng, kèm đơn vị. */}
+        {trend !== 0 && (
+          <span>
+            <span className="material-symbols-outlined" aria-hidden="true">{trend > 0 ? "trending_up" : "trending_down"}</span>
+            {t("memberPortal.joyLater.limitTrend", { amount: `${trend > 0 ? "+" : "−"}${joy.text(Math.abs(trend))}` })}
+          </span>
+        )}
         {reviewAt && <span><span className="material-symbols-outlined" aria-hidden="true">event_repeat</span>{t("memberPortal.joyLater.reviewShort", { at: reviewAt })}</span>}
       </div>
     </section>

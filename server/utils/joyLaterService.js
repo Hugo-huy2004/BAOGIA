@@ -6,7 +6,7 @@ import { awardJoy } from './joyService.js';
 import { bioAge, isAdultAge } from './memberAge.js';
 import {
   JOYLATER, median, expectedDays,
-  clampInstallments, nextInstallment, installmentSchedule, dueSchedule, overdueSteps, stepDue,
+  clampInstallments, nextInstallment, installmentSchedule, dueSchedule, overdueSteps, stepDue, payoffDue,
 } from '../../shared/joyLater.js';
 import {
   RATES, weeklyRate, quote as quoteRates, cycleSchedule, clampCycles, garnish,
@@ -218,6 +218,9 @@ function describeLoan(loan, medianDaily, enforcement = null) {
   // Chia đợt thì chỉ mở khoá đúng ngày. Hoàn một lần thì không khoá gì —
   // chặn người muốn xong sớm là điều không ai hiểu được.
   const locked = state.installments > 1 && !stepDue(state.dueAt, step.index - 1);
+  // Thanh khoản (trả HẾT) mở sớm hơn — người muốn dứt nợ không phải chờ đúng
+  // ngày đợt kế tiếp mới được đóng sổ.
+  const payoffLocked = state.installments > 1 && !payoffDue(state.dueAt, step.index - 1);
 
   // Cả LỊCH đợt, không chỉ đợt kế tiếp: chọn chia 4 đợt mà màn hình chỉ hiện
   // một đợt thì người dùng không thấy được thứ mình vừa chọn. Số tiền từng đợt
@@ -266,6 +269,7 @@ function describeLoan(loan, medianDaily, enforcement = null) {
       due: Math.min(step.index === step.of ? state.outstanding : step.due, state.outstanding),
       dueAt,
       locked,
+      payoffLocked,
     },
     remainingDays: expectedDays(state.outstanding, medianDaily),
   };
@@ -651,10 +655,12 @@ export async function payOffJoyLater(email) {
   const outstanding = state.outstanding;
   if (outstanding <= 0) throw new Error('JOYLATER_NO_LOAN');
 
-  // Chia đợt thì cửa hoàn chỉ mở đúng ngày — kể cả hoàn hết. Đây là hệ quả
-  // trực tiếp của luật "đúng ngày mới cho thanh toán".
+  // Thanh khoản (trả HẾT nợ) mở SỚM HƠN từng đợt riêng — người muốn dứt điểm
+  // khoản nợ không phải chờ đúng ngày đợt kế tiếp mới được đóng sổ. Đây là
+  // CỬA THẬT: `payoffLocked` ở describeLoan() chỉ là hiển thị, việc chặn thi
+  // hành nằm ở đây.
   const step = nextInstallment(state.schedule, state.paid);
-  if (state.installments > 1 && !stepDue(state.dueAt, step.index - 1)) {
+  if (state.installments > 1 && !payoffDue(state.dueAt, step.index - 1)) {
     const error = new Error('JOYLATER_NOT_DUE');
     error.dueAt = state.dueAt[step.index - 1] || null;
     throw error;

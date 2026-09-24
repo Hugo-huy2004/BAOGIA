@@ -2106,7 +2106,10 @@
       "verificationTitle": "Information verification",
       "verifiedDescription": "Your residence address, ethnicity, and religion have been verified and locked for accuracy.",
       "incompleteDescription": "Your residence address, ethnicity, or religion is not fully verified yet.",
-      "adminChangeDescription": "To request a change, please contact a Hugo Studio administrator."
+      "adminChangeDescription": "To request a change, please contact a Hugo Studio administrator.",
+      "dangerZoneTitle": "Danger zone",
+      "deleteAccountTitle": "Delete account",
+      "deleteAccountDesc": "Send a request for Hugo Studio to handle directly — cannot be undone."
     },
     "settings": {
       "title": "Settings",
@@ -2337,6 +2340,8 @@
           "out": "Spent"
         },
         "groups": {
+          "activity": "Useful activity",
+          "investment": "Virtual investment",
           "checkin": "Check-ins",
           "friends": "Friends",
           "entertainment": "Entertainment",
@@ -2954,14 +2959,14 @@
         "nfcTapHint": "Tap the recipient's NFC tag to start sending JOY",
         "nfcReadError": "Could not read NFC tag",
         "cancel": "Cancel",
-        "modeSendLabel": "Send",
-        "modeSendTitle": "Send JOY",
+        "modeSendLabel": "Transfer JOY",
+        "modeSendTitle": "Transfer JOY",
         "modeSendDesc": "Find the right recipient, check the details, then transfer safely.",
         "modeReceiveLabel": "Receive",
         "modeReceiveTitle": "Receive JOY",
         "modeReceiveDesc": "Show this dynamic code to the sender or share it directly.",
         "modeScanLabel": "Scan",
-        "modeScanTitle": "Scan code",
+        "modeScanTitle": "Scan barcode",
         "modeScanDesc": "The camera recognises and verifies the recipient before any transfer.",
         "openSeal": "Open JOY Seal",
         "shareInvite": "Send me JOY!\nCode: {{code}}",
@@ -2989,8 +2994,8 @@
         "receiveCodeCopied": "JOY receive code copied",
         "copyFailed": "Could not copy the code",
         "copy": "Copy",
-        "autoVerifyTitle": "Verified automatically before transfer",
-        "autoVerifyDesc": "The camera only reads the dynamic JOY code; the app stores no images.",
+        "autoVerifyTitle": "Scan membership-card barcode",
+        "autoVerifyDesc": "Only CODE128 barcodes on member cards are read; the app stores no images.",
         "verifyingRecipient": "Verifying the recipient…",
         "holdStill": "Please keep this screen open for a moment.",
         "cameraUnsupportedHint": "This device has no camera support. Find the recipient manually.",
@@ -3714,8 +3719,8 @@
       "penaltyRow": "Late charge",
       "lockedUntil": "Opens {{date}}",
       "lockedNote": "Split returns only open on the due date.",
-      "lateNote": "A late part adds {{percent}}% of that part, once.",
-      "lateWarn": "Miss a due date: {{percent}}% of that part is added, once.",
+      "lateNote": "Late installment: the overdue part accrues interest {{percent}}% higher per day than the in-term rate — not a one-time add-on.",
+      "lateWarn": "Miss a due date: the overdue part accrues interest {{percent}}% higher per day until it is paid — not a one-time add-on.",
       "stage": {
         "grace": "{{days}} days past due",
         "restricted": "Restricted since day {{days}} past due",
@@ -3808,6 +3813,7 @@
       "usedAmount": "{{amount}} used",
       "rateNow": "{{rate}}%/week",
       "scoreIs": "Score {{score}}",
+      "limitTrend": "Limit {{amount}} since the last review",
       "reviewShort": "Review {{at}}"
     },
     "walletApp": {

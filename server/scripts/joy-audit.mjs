@@ -22,6 +22,7 @@ import {
   JOY_INVESTMENT_SOURCES,
   JOY_SOURCES,
   JOY_TRANSFER_SOURCES,
+  reconcileJoyTransfers,
 } from '../utils/joySources.js';
 
 const arg = (name, fallback) => {
@@ -121,25 +122,13 @@ const transfers = await JoyLedger.aggregate([
 const transferPairs = await JoyLedger.aggregate([
   { $match: { source: { $in: [...JOY_TRANSFER_SOURCES] }, createdAt: { $gte: since } } },
   { $group: {
-    _id: { $cond: [{ $ne: ['$refId', ''] }, '$refId', { $concat: ['legacy:', { $toString: '$_id' }] }] },
+    _id: { $cond: [{ $and: [{ $ne: ['$refId', ''] }, { $ne: ['$refId', null] }] }, '$refId', { $concat: ['legacy:', { $toString: '$_id' }] }] },
     sentGross: { $sum: { $cond: [{ $lt: ['$amount', 0] }, { $abs: '$amount' }, 0] } },
     received: { $sum: { $cond: [{ $gt: ['$amount', 0] }, '$amount', 0] } },
     rows: { $sum: 1 },
   } },
 ]);
-const transferCheck = transferPairs.reduce((sum, pair) => {
-  const matched = pair.sentGross > 0 && pair.received > 0;
-  sum.moved += matched ? Math.min(pair.sentGross, pair.received) : 0;
-  sum.fees += matched ? Math.max(0, pair.sentGross - pair.received) : 0;
-  if (!matched) {
-    sum.mismatch += Math.max(pair.sentGross, pair.received);
-    sum.unmatched.push(pair);
-  } else if (pair.received > pair.sentGross) {
-    sum.mismatch += pair.received - pair.sentGross;
-    sum.unmatched.push(pair);
-  }
-  return sum;
-}, { moved: 0, fees: 0, mismatch: 0, unmatched: [] });
+const transferCheck = reconcileJoyTransfers(transferPairs);
 
 const report = {
   asOf: new Date().toISOString(),

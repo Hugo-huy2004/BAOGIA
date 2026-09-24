@@ -36,6 +36,8 @@ export default function JoyHistory({ limit = 50 }) {
   const joy = useJoy();
   const fmt = (n) => joy.text(Math.abs(n || 0));
   const groupLabels = {
+    hoatdong: t("memberPortal.accountHub.historyCopy.groups.activity"),
+    dautu: t("memberPortal.accountHub.historyCopy.groups.investment"),
     diemdanh: t("memberPortal.accountHub.historyCopy.groups.checkin"),
     banbe: t("memberPortal.accountHub.historyCopy.groups.friends"),
     choi: t("memberPortal.accountHub.historyCopy.groups.entertainment"),

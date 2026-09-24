@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { QRCodeSVG } from "qrcode.react";
 import { getMemberSession, clearMemberSession } from "../services/api/core/authSession";
 import { apiFetch } from "../services/api/core/apiClient";
-import { transferJoy, getJoyQrPayload } from "../services/api/modules/joyApi";
+import { transferJoy } from "../services/api/modules/joyApi";
 import { notify } from "../lib/notify";
 import memberService from "../services/classes/MemberService";
 // Đuôi .jsx tường minh: macOS không phân biệt hoa/thường nên "./EcoRadio" bắt
@@ -17,7 +16,7 @@ import { joyText } from "../lib/joyDisplay";
 // trang. Ở chế độ thường bốn tab đó gọi API riêng mỗi lần chuyển; ở đây chỉ có
 // đúng MỘT lượt gọi lấy số dư khi mở trang, sau đó không gọi lại.
 //
-// Những mục thêm vào (mã QR, điểm danh, lịch sử) nằm trong `EcoFold`: mở ra
+// Những mục thêm vào (điểm danh, lịch sử) nằm trong `EcoFold`: mở ra
 // mới gọi, và mỗi lần mở chỉ một lượt. Nhiều tính năng hơn nhưng chi phí lúc
 // mở trang vẫn y nguyên.
 
@@ -147,31 +146,6 @@ export default function EcoAccount() {
       <section className="save-e-section" aria-labelledby="eco-more">
         <h2 id="eco-more">{t("saveE.account.viJoy")}</h2>
         <div className="save-e-card">
-          <EcoFold
-            icon="qr_code_2"
-            title={t("saveE.account.maQrNhanJoy")}
-            hint="Mã do máy chủ ký, lấy một lượt khi mở"
-            load={() => getJoyQrPayload(session.email)}
-          >
-            {({ data, reload }) => (data?.payload ? (
-              <div className="save-e-qr">
-                {/* Vẽ bằng SVG chứ không phải canvas: không có lớp bitmap để GPU
-                    tô lại, và in ra vẫn nét. */}
-                <QRCodeSVG value={data.payload} size={200} bgColor="#000000" fgColor="#ffffff" level="M" />
-                {/* Token do máy chủ ký có hạn ~2 phút. Chế độ thường tự xin mã
-                    mới theo chu kỳ; ở đây KHÔNG hẹn giờ — người quét báo hết hạn
-                    thì bấm lấy mã mới, đúng một lượt gọi. */}
-                <button type="button" className="save-e-chip" onClick={reload}>
-                  <span className="material-symbols-outlined" aria-hidden="true">refresh</span>
-                  {t("saveE.account.layMaMoi")}
-                </button>
-                <p className="save-e-note">
-                  {t("saveE.account.duaMaNayCho")}
-                </p>
-              </div>
-            ) : null)}
-          </EcoFold>
-
           <EcoFold
             icon="event_available"
             title={t("saveE.account.diemDanhNhanJoy")}

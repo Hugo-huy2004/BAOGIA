@@ -1972,7 +1972,10 @@
       "verificationTitle": "確明通信",
       "verifiedDescription": "地指居住, 民族吧尊教𧵑貴成員㐌特確明吧課底保擔性正確.",
       "incompleteDescription": "地指居住, 民族或孫教𧵑貴成員渚特確明𣹓𨇜.",
-      "adminChangeDescription": "裊㦖𠊝𢷮, 𢝙𢚸聯係管治員 Hugo Studio."
+      "adminChangeDescription": "裊㦖𠊝𢷮, 𢝙𢚸聯係管治員 Hugo Studio.",
+      "dangerZoneTitle": "𡓄危險",
+      "deleteAccountTitle": "𪷮財款",
+      "deleteAccountDesc": "寄要求底 Hugo Studio 處理直接, 空体完作."
     },
     "settings": {
       "title": "𢭮達",
@@ -2199,6 +2202,8 @@
           "out": "用"
         },
         "groups": {
+          "activity": "活動固益",
+          "investment": "投資幻",
           "checkin": "點名",
           "friends": "伴𤿤",
           "entertainment": "解智",
@@ -2799,14 +2804,14 @@
         "nfcTapHint": "𪮻𥮋 NFC 𧵑𠊛認底扒頭轉 JOY",
         "nfcReadError": "空讀得体 NFC",
         "cancel": "毀",
-        "modeSendLabel": "寄",
-        "modeSendTitle": "寄 JOY",
+        "modeSendLabel": "轉 JOY",
+        "modeSendTitle": "轉 JOY",
         "modeSendDesc": "尋中𠊛認, 檢查通信耒轉安全.",
         "modeReceiveLabel": "認",
         "modeReceiveTitle": "認 JOY",
         "modeReceiveDesc": "迻碼動尼朱㝵改或𢺺𢩿直接.",
         "modeScanLabel": "𢭯",
-        "modeScanTitle": "𢭯碼",
+        "modeScanTitle": "𢭯碼劃",
         "modeScanDesc": "Camera 自認靣吧確明𠊛認𠓀欺轉.",
         "openSeal": "𨷑 JOY Seal",
         "shareInvite": "寄 JOY 朱碎.\n碼: {{code}}",
@@ -2834,8 +2839,8 @@
         "receiveCodeCopied": "㐌牢劄碼認 JOY",
         "copyFailed": "空体牢劄碼",
         "copy": "牢劄",
-        "autoVerifyTitle": "確明自動𠓀欺轉",
-        "autoVerifyDesc": "Camera 只讀碼 JOY 動; 應用空留形影.",
+        "autoVerifyTitle": "𢭯碼劃𥮋成員",
+        "autoVerifyDesc": "只讀碼劃 CODE128 𨕭体; 應用空留形影.",
         "verifyingRecipient": "當確明𠊛認…",
         "holdStill": "守原幔形𥪝𦀊𣋛.",
         "cameraUnsupportedHint": "設備尼空互助 camera. 唉尋𠊛認手工.",
@@ -3567,8 +3572,8 @@
       "penaltyRow": "共由滯",
       "lockedUntil": "𨷑𣅶 {{date}}",
       "lockedNote": "𢺹𡐿時中𣈜買完得.",
-      "lateNote": "滯沒𡐿𠱊共 {{percent}}% 𧵑𡐿妬, 沒吝.",
-      "lateWarn": "滯𣈜完: 共 {{percent}}% 𧵑𡐿妬, 性沒吝.",
+      "lateNote": "滯𡐿: 分滯性賚過限高欣 {{percent}}% 每𣈜𢫘𢭲賚𥪝限, 空沛共沒吝.",
+      "lateWarn": "滯𣈜完: 分滯性賚過限高欣 {{percent}}% 每𣈜朱細欺𪃲, 空沛共沒吝.",
       "stage": {
         "grace": "㐌過限 {{days}} 𣈜",
         "restricted": "限制詞𣈜過限次 {{days}}",
@@ -3660,6 +3665,7 @@
       "availableCredit": "限墨可用",
       "usedAmount": "㐌用 {{amount}}",
       "scoreIs": "點 {{score}}",
+      "limitTrend": "限墨 {{amount}} 𢫘𢭲吝察𠓀",
       "reviewShort": "再審 {{at}}"
     },
     "walletApp": {

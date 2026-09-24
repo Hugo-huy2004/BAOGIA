@@ -152,6 +152,20 @@ export const JOY_TRANSFER_SOURCES = new Set([
   'joy_gift_sent', 'joy_gift_received',
 ]);
 
+/** Đối soát hai vế chuyển tay: phần gửi hơn phần nhận là phí, không phải lệch sổ. */
+export const reconcileJoyTransfers = (pairs) => pairs.reduce((sum, pair) => {
+  const sentGross = Number(pair.sentGross) || 0;
+  const received = Number(pair.received) || 0;
+  const matched = sentGross > 0 && received > 0;
+  sum.moved += matched ? Math.min(sentGross, received) : 0;
+  sum.fees += matched ? Math.max(0, sentGross - received) : 0;
+  if (!matched || received > sentGross) {
+    sum.mismatch += matched ? received - sentGross : Math.max(sentGross, received);
+    sum.unmatched.push(pair);
+  }
+  return sum;
+}, { moved: 0, fees: 0, mismatch: 0, unmatched: [] });
+
 /**
  * Danh sách đóng các nguồn thưởng đang được phép phát hành.
  * Muốn thêm reward mới phải sửa chủ ý tại đây; `awardJoy` từ chối mọi nguồn
@@ -206,6 +220,13 @@ export const JOY_SOURCE_GROUPS = {
   chess_match: 'hoatdong',
   ide_learning: 'hoatdong',
   ide_course_completion: 'hoatdong',
+  ide_phase_1_completion: 'hoatdong',
+  ide_phase_2_completion: 'hoatdong',
+  ide_phase_3_completion: 'hoatdong',
+  ide_phase_4_completion: 'hoatdong',
+  ide_phase_5_completion: 'hoatdong',
+  ide_phase_6_completion: 'hoatdong',
+  ide_phase_7_completion: 'hoatdong',
   hugoso_course: 'hoc',
   coder_exam_retake: 'hoc',
   lifetime_unlock: 'hoc',

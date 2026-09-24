@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import adminBrainApi from '../../services/api/modules/adminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoyDual } from '../../utils/joyFormatter';
+import { utilityProductPrice } from '../../../shared/joyPrices';
 
 const EMPTY_FORM = {
-  name: '', description: '', priceJoy: '', category: 'general', stock: -1, imageUrl: '',
+  name: '', description: '', priceJoy: utilityProductPrice('general'), category: 'general', stock: -1, imageUrl: '',
   productType: 'general', extendDays: '', tokenType: 'chat', tokenAmount: '', radioMinutes: ''
 };
 
@@ -17,7 +17,6 @@ const PRODUCT_TYPE_META = {
 };
 
 export default function AdminUtilityStoreTab() {
-  const { t } = useTranslation();
   const [activeSubTab, setActiveSubTab] = useState('products'); // products | orders
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -50,8 +49,8 @@ export default function AdminUtilityStoreTab() {
 
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.priceJoy) {
-      return notify.error('Tên sản phẩm và Giá JOY là bắt buộc');
+    if (!form.name) {
+      return notify.error('Tên sản phẩm là bắt buộc');
     }
     setSaving(true);
     try {
@@ -213,15 +212,12 @@ export default function AdminUtilityStoreTab() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Giá JOY cơ sở *</label>
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Giá theo chính sách</label>
                   <input
                     type="number"
-                    required
-                    min="1"
-                    placeholder="Ví dụ: 1000"
+                    readOnly
                     value={form.priceJoy}
-                    onChange={(e) => setForm(p => ({ ...p, priceJoy: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-black outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-black"
                   />
                   {form.priceJoy && !isNaN(Number(form.priceJoy)) && (
                     <div className="text-[10px] text-amber-600 font-bold ml-2">
@@ -246,7 +242,10 @@ export default function AdminUtilityStoreTab() {
                 <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Loại sản phẩm (Tính năng tự động)</label>
                 <select
                   value={form.productType}
-                  onChange={(e) => setForm(p => ({ ...p, productType: e.target.value }))}
+                  onChange={(e) => {
+                    const productType = e.target.value;
+                    setForm(p => ({ ...p, productType, priceJoy: utilityProductPrice(productType) }));
+                  }}
                   className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="general">Thông thường (Quà tặng/Dịch vụ)</option>

@@ -3,10 +3,9 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
-import ParticleScanner from "./ParticleScanner";
 import CardCodeEntry from "./CardCodeEntry";
 import { base64UrlToBytes } from "../../../utils/particleCloudCode";
-import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/api/modules/joyApi";
+import { searchJoyUser, getJoyQrPayload, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/api/modules/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
@@ -24,9 +23,10 @@ const QUICK_AMOUNTS = [50, 100, 200, 500];
 // whichever language happened to be active when the chunk first loaded.
 const CONNECT_MODES = [
   { id: "search", icon: "send", key: "modeSend" },
-  { id: "myqr", icon: "qr_code_2", key: "modeReceive" },
-  { id: "scan", icon: "qr_code_scanner", key: "modeScan" },
+  { id: "scan", icon: "barcode_scanner", key: "modeScan" },
 ];
+
+const connectMode = (mode) => mode === "scan" ? "scan" : "search";
 
 // The particle code carries an opaque, server-signed token (base64url). The
 // client never interprets it — it just decodes base64url to the raw bytes the
@@ -114,10 +114,10 @@ const css = `
 
 .joy-connect-select { padding: 4px 20px 8px; }
 
-/* Bộ chọn Gửi / Nhận / Quét — thanh phân đoạn kiểu iOS, cao 44px cho ngón tay */
+/* Bộ chọn Chuyển JOY / Quét mã vạch — thanh phân đoạn kiểu iOS. */
 .joy-connect-modes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 3px;
   margin-bottom: 18px;
   padding: 3px;
@@ -651,7 +651,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const { t } = useTranslation();
   const { playWin, playLose, playBeep } = useArcadeSound();
   const [step, setStep] = useState("select"); // select | contact | amount | invoice | sending | success
-  const [mode, setMode] = useState(initialMode || "search"); // search | myqr | scan
+  const [mode, setMode] = useState(() => connectMode(initialMode)); // search | scan
   const [recipient, setRecipient] = useState(null);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -664,7 +664,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [scanResolving, setScanResolving] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
-  const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
   const [nfcScanning, setNfcScanning] = useState(false);
   const [nfcWriteStatus, setNfcWriteStatus] = useState(""); // "" | "writing" | "done" | "error"
   const [shareStatus, setShareStatus] = useState("");
@@ -681,13 +680,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [lastPin, setLastPin] = useState("");
   const [otpInput, setOtpInput] = useState("");
   const debounceRef = useRef(null);
-  const scanResolvingRef = useRef(false);
-  // A live, spinning particle code (or decode noise) yields a *different*
-  // valid-shaped token almost every frame, so the exact-value ignore set never
-  // catches a bad one twice. Without a time gate that turns into a flood of
-  // failing /joy/resolve-qr calls (one per decoded frame). This blocks any new
-  // resolve for a short window after a failure.
-  const scanCooldownUntilRef = useRef(0);
 
   const joy = useJoy();
 
@@ -739,12 +731,11 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     // giữa chừng một lượt chuyển JOY, nên muốn khoá ví trước là không có đường.
     const pinOnly = initialMode === "setup-pin";
     setStep(pinOnly ? "setup-pin" : "select");
-    setMode(pinOnly ? "search" : (initialMode || "search"));
+    setMode(pinOnly ? "search" : connectMode(initialMode));
     setRecipient(null);
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
-    setError(""); setResult(null); setIgnoredScanPayloads(new Set());
+    setError(""); setResult(null);
     setShareStatus("");
-    scanResolvingRef.current = false;
     setNfcScanning(false); setNfcWriteStatus("");
     stopNfcScan();
     setRecentContacts(getRecent());
@@ -808,42 +799,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
       if (shareError?.name !== "AbortError") setShareStatus(t("memberPortal.joy.particle.shareFailed"));
     }
   }, [bio?.displayName, myQR, t]);
-
-  const handleQRDetected = useCallback(async (rawValue) => {
-    if (!rawValue || scanResolvingRef.current || Date.now() < scanCooldownUntilRef.current || ignoredScanPayloads.has(rawValue)) return;
-    scanResolvingRef.current = true;
-    setScanResolving(true);
-    try {
-      // rawValue is the opaque server token (base64url) read off the code; the
-      // server verifies its HMAC before returning the recipient.
-      const data = await resolveJoyQr(rawValue);
-      playBeep();
-      setIgnoredScanPayloads(new Set());
-      selectRecipient(data);
-    } catch (e) {
-      playLose();
-      // Throttle the whole scanner briefly so a stream of distinct bad tokens
-      // can't flood the server with resolve-qr calls (each already 400s).
-      scanCooldownUntilRef.current = Date.now() + 1500;
-      setIgnoredScanPayloads(prev => {
-        const next = new Set(prev);
-        next.add(rawValue);
-        return next;
-      });
-      window.setTimeout(() => {
-        setIgnoredScanPayloads(prev => {
-          if (!prev.has(rawValue)) return prev;
-          const next = new Set(prev);
-          next.delete(rawValue);
-          return next;
-        });
-      }, 30000);
-      setError(e.message || t("memberPortal.joy.particle.invalidQr", "Mã JOY không hợp lệ hoặc đã hết hạn. Hãy quét mã mới hơn."));
-    } finally {
-      scanResolvingRef.current = false;
-      setScanResolving(false);
-    }
-  }, [ignoredScanPayloads, playBeep, playLose, selectRecipient, t]);
 
   const handleVerifyAndSend = async (enteredPin, enteredOtp) => {
     setStep("sending");
@@ -1190,68 +1145,31 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     </div>
                   )}
 
-                  {/* Scan mode - inline camera */}
+                  {/* Mã nhận diện duy nhất: CODE128 in trên thẻ thành viên. */}
                   {mode === "scan" && (
                     <div className="joy-connect-scan">
                       <div className="joy-connect-scan-status">
-                        <span className="material-symbols-outlined">shield_lock</span>
+                        <span className="material-symbols-outlined">barcode_scanner</span>
                         <div>
                           <strong>{t("memberPortal.joy.particle.autoVerifyTitle")}</strong>
                           <small>{t("memberPortal.joy.particle.autoVerifyDesc")}</small>
                         </div>
                       </div>
-                      {scanResolving ? (
-                        <div className="joy-connect-empty">
-                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "hsl(var(--foreground) / .55)", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                          <strong>{t("memberPortal.joy.particle.verifying", "Đang xác minh người nhận…")}</strong>
-                          <small>{t("memberPortal.joy.particle.holdStill")}</small>
-                        </div>
-                      ) : (
-                        <div className="joy-connect-scan-frame">
-                          <ParticleScanner
-                            inline
-                            onScanSuccess={handleQRDetected}
-                            onError={(err) => setError(err?.message?.includes("not supported")
-                              ? t("memberPortal.joy.particle.cameraUnsupportedHint")
-                              : t("memberPortal.joy.particle.cameraErrorHint"))}
-                            ignoredPayloads={ignoredScanPayloads}
-                            scanBoxSize={250}
-                          />
-                        </div>
-                      )}
-                      {error && <p className="text-center text-[10px] font-semibold text-red-500">{error}</p>}
-
-                      {/* MÃ TRÊN THẺ. Máy quét phía trên chỉ đọc mã chấm của
-                          Hugo; thẻ thành viên còn in một mã vạch CODE128 và dãy
-                          chữ bên dưới nó, và đó mới là thứ người ta chìa ra khi
-                          nói "quét thẻ tôi đi". Trước đây không có đường nào
-                          nhận mã đó nên tặng JOY bằng thẻ coi như không dùng được. */}
-                      <div className="joy-connect-card-code">
-                        <Divider />
-                        <CardCodeEntry
-                          busy={scanResolving}
-                          onResolve={(code) => {
-                            setError("");
-                            setScanResolving(true);
-                            resolveMemberCode(code)
-                              .then((data) => { playBeep(); selectRecipient(data); })
-                              .catch((err) => {
-                                playLose();
-                                setError(err.message || t("memberPortal.joy.particle.cardCodeNotFound", "Không tìm thấy thành viên với mã này."));
-                              })
-                              .finally(() => setScanResolving(false));
-                          }}
-                        />
-                      </div>
-
-                      <div className="joy-connect-scan-tools">
-                        <button type="button" onClick={() => { setMode("search"); setError(""); }}><span className="material-symbols-outlined">person_search</span>{t("memberPortal.joy.particle.findManually")}</button>
-                        {nfcSupported ? (
-                          <button type="button" onClick={() => { setMode("nfc"); setError(""); }}><span className="material-symbols-outlined">nfc</span>{t("memberPortal.joy.particle.useNfcBtn")}</button>
-                        ) : (
-                          <button type="button" onClick={() => { setMode("myqr"); setError(""); }}><span className="material-symbols-outlined">qr_code_2</span>{t("memberPortal.joy.particle.tabMyQr")}</button>
-                        )}
-                      </div>
+                      <CardCodeEntry
+                        busy={scanResolving}
+                        onResolve={(code) => {
+                          setError("");
+                          setScanResolving(true);
+                          resolveMemberCode(code)
+                            .then((data) => { playBeep(); selectRecipient(data); })
+                            .catch((err) => {
+                              playLose();
+                              setError(err.message || t("memberPortal.joy.particle.cardCodeNotFound", "Không tìm thấy thành viên với mã này."));
+                            })
+                            .finally(() => setScanResolving(false));
+                        }}
+                      />
+                      {error && <p className="text-center text-[13px] font-semibold text-red-500">{error}</p>}
                     </div>
                   )}
 

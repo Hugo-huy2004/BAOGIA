@@ -8,7 +8,7 @@
 // Chạy: npm run check:joy-stability
 import { suggest, NON_ISSUANCE_SOURCES, weekKey } from '../services/joyStabilityService.js';
 import { batchCode } from '../services/joyRecallService.js';
-import { JOY_SOURCE_KEYS } from '../utils/joySources.js';
+import { JOY_SOURCE_KEYS, reconcileJoyTransfers } from '../utils/joySources.js';
 
 let failed = 0;
 const check = (ok, label) => { console.log(`${ok ? '✅' : '❌'} ${label}`); if (!ok) failed++; };
@@ -36,6 +36,17 @@ check(suggest(metrics({ activeUsers: 2, recoveryRate: 0.1 }), policy()).action =
   'chỉ 2 người hoạt động → giữ nguyên dù số liệu xấu');
 check(suggest(metrics({ issued: 0, recoveryRate: null }), policy()).action === 'hold',
   'tuần không phát hành gì → giữ nguyên');
+check(suggest(metrics({ recoveryRate: 1.4, transferMismatch: 300 }), policy()).action === 'hold',
+  'còn lệch chuyển thành viên → khóa kích cầu dù tỷ lệ đang đề xuất tăng');
+
+const transfer = reconcileJoyTransfers([
+  { sentGross: 600, received: 500 },
+  { sentGross: 1200, received: 1000 },
+]);
+check(transfer.moved === 1500 && transfer.fees === 300 && transfer.mismatch === 0,
+  '1.800 gửi − 1.500 nhận = 300 phí, không phải lệch sổ');
+check(reconcileJoyTransfers([{ sentGross: 500, received: 0 }]).mismatch === 500,
+  'thiếu một vế chuyển → ghi đúng 500 JOY cần đối soát');
 
 // ── 2. CHẶN Ở SÀN VÀ TRẦN ────────────────────────────────────────────────────
 const atFloor = suggest(metrics({ recoveryRate: 0.2 }), policy(0.5));
