@@ -94,6 +94,8 @@ const PUBLIC_ROUTES = {
   "bookingRoutes.js POST /": "khách chưa có tài khoản vẫn phải đặt lịch được",
   "emailRoutes.js POST /contact": "biểu mẫu liên hệ công khai",
   "emailRoutes.js POST /support": "biểu mẫu hỗ trợ công khai",
+  "emailRoutes.js POST /education": "biểu mẫu liên hệ giáo dục công khai (cùng khuôn /contact, chịu globalLimiter của /api)",
+  "emailRoutes.js POST /adv": "biểu mẫu liên hệ quảng cáo/đối tác công khai (cùng khuôn /contact, chịu globalLimiter của /api)",
   "supportRoutes.js POST /tickets": "gửi yêu cầu hỗ trợ khi chưa đăng nhập được",
   "opsRoutes.js POST /client-event": "telemetry từ trình duyệt, gồm cả khách vãng lai",
 
