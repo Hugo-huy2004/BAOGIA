@@ -54,7 +54,7 @@ html.standalone-pwa .desktop-apple-layout {
   min-height: var(--app-viewport-height);
 }
 
-.member-portal-shell:not([data-portal-area="account"]) .mobile-portal-content {
+.member-portal-shell .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
   padding-bottom: 16px;
@@ -477,23 +477,15 @@ html.standalone-pwa .desktop-apple-layout {
   }
 }
 
-/* Navigation nằm ở đáy nên nội dung luôn tự nhận top safe-area để không chạm
-   notch/Dynamic Island. */
-html.standalone-pwa .mobile-portal-content {
-  padding-top: calc(constant(safe-area-inset-top) + 12px) !important;
-  padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
-}
-
-/* Riêng màn Account / Setting: Nền theme sau lưng avatar tự tràn mép trên (full bleed dưới Dynamic Island),
-   không bị chừa dải đen do padding-top của shell. */
-.member-portal-shell[data-portal-area="account"] .mobile-portal-content,
-html.standalone-pwa .member-portal-shell[data-portal-area="account"] .mobile-portal-content {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.member-portal-shell[data-portal-area="account"] {
-  background: transparent !important;
+/* Top safe-area nằm NGOÀI ô cuộn, không phải padding bên trong nó. Đệm bên
+   trong thì nội dung (cả thanh sticky) vẫn trôi lên dưới Dynamic Island, nơi
+   iOS 26 phủ lớp mờ cạnh trên — ô tìm kiếm tab Ứng dụng và hàng điểm danh tab
+   Hôm nay từng bị nuốt mất ở đó. (Luật cũ đệm trong ô cuộn còn bị luật 12px ở
+   đầu file đè độ ưu tiên, nên thực tế chưa từng có hiệu lực.) App đang mở tự lo
+   inset trong header AppFrame. (Tab Tài khoản từng được miễn vì tự vẽ nền tràn
+   mép trên; từ 04/10 nó dùng chung khuôn Today nên theo luật chung.) */
+.member-portal-shell .portal-mobile-main:not(:has(.mobile-portal-content--app)) {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .pwa-safe-sheet {

@@ -994,8 +994,10 @@ function MemberPortalPage() {
         data-portal-area={portalArea}
         data-aura-theme={activePortalTheme}
       >
-        {portalArea !== "account" && <AuraBackground theme={activePortalTheme} area={portalArea} />}
-        {weatherBackgroundOn && portalArea !== "account" && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
+        {/* Tài khoản từng bị loại khỏi nền theme vì nó tự vẽ nền tối riêng; từ khi
+            dựng lại theo khuôn Today, nó dùng chung nền theme như mọi tab. */}
+        <AuraBackground theme={activePortalTheme} area={portalArea} />
+        {weatherBackgroundOn && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
 
         {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
         {!isMobileView && (
@@ -1096,14 +1098,13 @@ function MemberPortalPage() {
         <div
           className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} ${
             activeTab === "account"
-              ? "w-full max-w-none p-0 m-0 space-y-0"
+              ? "w-full max-w-6xl mx-auto px-3 sm:px-4 pt-2 sm:pt-4 space-y-0"
               : activeTab === "utilities" || activeTab === "apps"
               ? "w-full max-w-6xl mx-auto sm:px-4 pt-0 space-y-0 px-0"
               : activeTab === "today"
               ? "w-full max-w-6xl mx-auto sm:px-4 pt-1 sm:pt-4 space-y-2.5 px-0 sm:px-4"
               : "w-full max-w-6xl mx-auto sm:px-4 pt-2 sm:pt-4 space-y-4"
           } relative z-10`}
-          style={activeTab === "account" ? { paddingTop: 0, paddingBottom: 0 } : undefined}
         >
           <ErrorBoundary>
             <React.Suspense fallback={

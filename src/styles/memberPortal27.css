@@ -40,7 +40,6 @@
 .member-portal-shell[data-portal-area="apps"] { --portal-glass-tint: 175 82 222; }
 .member-portal-shell[data-portal-area="activity"] { --portal-glass-tint: 255 55 95; }
 .member-portal-shell[data-portal-area="account"] { --portal-glass-tint: 48 209 88; }
-.member-portal-shell[data-portal-area="account"] .portal-chromatic-field { opacity: 0 !important; display: none !important; }
 
 .dark .member-portal-shell {
   --portal-glass: hsl(240 18% 9% / 0.62);
