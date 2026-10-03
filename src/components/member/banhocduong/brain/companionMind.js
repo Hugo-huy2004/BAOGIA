@@ -45,26 +45,34 @@ const EMOTION_STYLE = {
 // ── Đọc tín hiệu từ câu người dùng ─────────────────────────────────────────────
 // ponytail: từ điển nhỏ, đủ để biết câu nghiêng về đâu. Muốn tinh hơn thì cho
 // chính model chấm cảm xúc — đổi lại tốn thêm một lượt sinh chữ.
-const has = (t, words) => words.some((w) => t.includes(w));
+// Khớp NGUYÊN TỪ trên chữ đã bỏ dấu — "lo" không được khớp "lop", "so" không khớp "so sanh".
+const wordRe = new Map();
+const has = (t, words) => words.some((w) => {
+  if (!wordRe.has(w)) wordRe.set(w, new RegExp(`(^|[^a-z0-9])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^a-z0-9])`));
+  return wordRe.get(w).test(t);
+});
 const SIGNALS = {
   insultBot: ["may ngu", "bot ngu", "do ngu", "vo dung", "nham chan", "im di", "cam mom", "may te", "ghet may", "stupid", "useless"],
   selfInsult: ["minh vo dung", "toi vo dung", "to vo dung", "em vo dung", "minh that bai", "minh te qua", "minh ngu", "to ngu", "toi ngu", "khong ra gi", "an hai", "ghet ban than"],
   verySad: ["khoc", "tuyet vong", "suy sup", "khong chiu noi", "kiet suc", "co don qua", "buon lam"],
-  sad: ["buon", "met", "chan", "so", "lo", "cang thang", "ap luc", "co don", "that vong", "mat ngu", "sad", "tired", "lonely"],
+  sad: ["buon", "met", "chan", "so qua", "so lam", "lo so", "so rot", "lo", "lo lang", "cang thang", "ap luc", "co don", "that vong", "mat ngu", "rot mon", "sad", "tired", "lonely"],
   laugh: ["haha", "hihi", "keke", "kaka", "=))", ":))", "buon cuoi", "vui qua", "hai qua", "lol", "funny"],
   love: ["cam on", "thuong", "yeu", "quy", "may man co", "ban that tot", "thank", "love you", "co ban"],
-  happy: ["vui", "on roi", "tot", "nhe nhom", "hanh phuc", "tuyet", "dat roi", "xong roi", "happy", "great"],
+  happy: ["vui", "on roi", "on hon", "tot", "nhe nhom", "hanh phuc", "tuyet", "dat roi", "xong roi", "do hon", "kha hon", "lam duoc", "duoc roi", "qua mon", "happy", "great"],
 };
 
 export function readSignal(text = "") {
   const t = removeVietnameseTones(String(text)).toLowerCase();
-  if (has(t, SIGNALS.insultBot)) return "insultBot";
+  // Tự chê xét TRƯỚC: "tớ vô dụng" là người dùng tự làm đau mình, không phải mắng nhân vật.
   if (has(t, SIGNALS.selfInsult)) return "selfInsult";
+  if (has(t, SIGNALS.insultBot)) return "insultBot";
   if (has(t, SIGNALS.verySad)) return "verySad";
   if (has(t, SIGNALS.laugh)) return "laugh";
   if (has(t, SIGNALS.love)) return "love";
-  if (has(t, SIGNALS.sad)) return "sad";
+  // Tin tốt thắng tin buồn trong cùng câu ("mệt nhưng làm được rồi") — ghi nhận
+  // tiến bộ quan trọng hơn lặp lại nỗi mệt.
   if (has(t, SIGNALS.happy)) return "happy";
+  if (has(t, SIGNALS.sad)) return "sad";
   return "neutral";
 }
 
@@ -122,8 +130,8 @@ export function feel(companion, mind, userText) {
   }
   if (signal === "neutral") {
     // Không có gì đáng kể: cảm xúc lắng dần về trạng thái nghỉ của nhân vật.
-    const intensity = mind.intensity * 0.6;
-    return { ...mind, emotion: intensity < 0.3 ? (temperament.restEmotion || "binh") : mind.emotion, intensity: Math.max(intensity, 0.3), turns: mind.turns + 1, awayDays: 0 };
+    const intensity = mind.intensity * 0.5;
+    return { ...mind, emotion: intensity < 0.35 ? (temperament.restEmotion || "binh") : mind.emotion, intensity: Math.max(intensity, 0.3), turns: mind.turns + 1, awayDays: 0 };
   }
   const intensity = clamp(0.35 + reactivity * 0.6, 0, 1);
   return { ...mind, emotion: target, intensity, turns: mind.turns + 1, awayDays: 0 };
@@ -146,6 +154,20 @@ export function avatarMotion(mind) {
 }
 
 // ── Lời nhắc cho model ─────────────────────────────────────────────────────────
+
+// Nước đi hội thoại theo loại câu người dùng vừa nói — đây là phần "dẫn dắt".
+// Thử thật 03/10: không có nó, model hỏi một khuôn cho mọi câu, và khi nghe "tớ
+// vô dụng" còn hỏi "điều gì làm cậu thấy vô dụng nhất" — khoét sâu lời tự chê.
+const MOVES = {
+  selfInsult: "Người dùng vừa tự chê bản thân. Đừng đồng ý, đừng hỏi thêm về điều họ chê. Phản đối nhẹ nhàng và nhắc một điều tốt cụ thể họ đã làm hoặc đã kể.",
+  insultBot: "Người dùng vừa nói nặng với bạn. Thể hiện cảm xúc của bạn ngắn gọn, không cãi, rồi hỏi có phải hôm nay họ đang bực chuyện gì không.",
+  verySad: "Người dùng đang rất buồn. Ở bên họ, công nhận nỗi buồn bằng một chi tiết họ kể, hỏi một câu thật nhỏ và dễ trả lời.",
+  sad: "Công nhận cụ thể điều vất vả họ vừa kể, rồi hỏi một câu nhỏ giúp họ kể tiếp chi tiết đó.",
+  happy: "Họ vừa có tiến bộ hoặc tin vui. Mừng cùng họ thật cụ thể, rồi hỏi họ đã làm thế nào hoặc bước tiếp theo là gì.",
+  laugh: "Họ đang vui đùa. Đùa lại theo giọng của bạn, rồi hỏi tiếp một câu nhẹ.",
+  love: "Họ vừa cảm ơn hoặc quý bạn. Đáp lại ấm áp theo giọng của bạn, rồi hỏi về họ.",
+  neutral: "Hỏi tiếp về đúng điều họ vừa nói.",
+};
 const LANGUAGE_NAME = { vi: "tiếng Việt", nom: "tiếng Việt", en: "English", zh: "简体中文" };
 
 function userSnapshot(bio, historyLogs) {
@@ -163,7 +185,7 @@ export const shouldShare = (mind) => mind.turns > 0 && mind.turns % 4 === 0 && !
 
 // Đã thử thật với Qwen3.5-0.8B: lời nhắc dài nhiều luật làm model nhỏ rối vai.
 // Giữ gọn: ai · cảm xúc · nhiệm vụ · đúng 2 câu.
-export function buildCharacterPrompt({ companion, mind, days = 0, letter = null, bio, historyLogs, lang = "vi" }) {
+export function buildCharacterPrompt({ companion, mind, days = 0, letter = null, bio, historyLogs, lang = "vi", userText = "" }) {
   const name = bio?.displayName?.trim().split(" ").pop() || "cậu";
   const snapshot = userSnapshot(bio, historyLogs);
   const lines = [
@@ -175,7 +197,9 @@ export function buildCharacterPrompt({ companion, mind, days = 0, letter = null,
   if (letter) lines.push(`Thư bàn giao từ ${letter.from}: ${letter.text}`);
   if (snapshot) lines.push(`Về ${name}: ${snapshot}.`);
   lines.push(
-    `Trả lời ĐÚNG 2 câu ngắn, dưới 35 chữ: câu 1 thể hiện cảm xúc của bạn về điều ${name} vừa nói, câu 2 hỏi ${name} một câu. ${companion.voice.humor}`,
+    `Lượt này: ${MOVES[readSignal(userText)]}`,
+    `Giọng của bạn, ví dụ (KHÔNG chép lại câu này): "${companion.sample}"`,
+    `Trả lời 2 câu ngắn, dưới 35 chữ, nhắc đúng chi tiết ${name} vừa kể. Mỗi lượt đặt câu hỏi theo một kiểu khác nhau, không lặp lại câu hỏi đã hỏi. ${companion.voice.humor}`,
     "Không chẩn đoán, không nói về thuốc, không chê trách, không bịa số liệu. Nếu nghe chuyện tự làm hại bản thân thì khuyên gọi 111 hoặc 115 ngay.",
     `Trả lời bằng ${LANGUAGE_NAME[lang] || "tiếng Việt"}.`,
   );
@@ -187,10 +211,15 @@ export function buildCharacterPrompt({ companion, mind, days = 0, letter = null,
  * 300 ký tự mỗi tin cho vừa ngữ cảnh) → câu người dùng vừa nói.
  */
 export function buildMessages({ companion, characterPrompt, history = [], userText }) {
+  // Câu mở đầu cảm xúc do app gắn (voiceReply) — để trong lịch sử thì model chép
+  // lại nguyên câu ở lượt sau, nên gỡ ra trước khi gửi.
   const turns = history
     .filter((m) => m?.text && (m.sender === "user" || m.sender === "bot"))
     .slice(-6)
-    .map((m) => ({ role: m.sender === "user" ? "user" : "assistant", content: String(m.text).slice(0, 300) }));
+    .map((m) => ({
+      role: m.sender === "user" ? "user" : "assistant",
+      content: (m.sender === "bot" ? stripExpr(companion, String(m.text)) : String(m.text)).slice(0, 300),
+    }));
   while (turns.length && turns[0].role !== "user") turns.shift();
   const merged = [];
   for (const turn of [...turns, { role: "user", content: userText }]) {
@@ -198,20 +227,29 @@ export function buildMessages({ companion, characterPrompt, history = [], userTe
     if (last && last.role === turn.role) last.content += `\n${turn.content}`;
     else merged.push({ ...turn });
   }
-  return [
-    { role: "system", content: characterPrompt },
-    { role: "user", content: "Hôm nay tớ hơi mệt." },
-    { role: "assistant", content: companion.sample },
-    ...merged,
-  ];
+  // Không còn lượt mẫu: thử thật cho thấy model chép NGUYÊN khuôn câu mẫu cho mọi
+  // lượt. Giọng giờ nằm trong một dòng "ví dụ, không chép" của lời nhắc.
+  return [{ role: "system", content: characterPrompt }, ...merged];
 }
 
-/** Gắn câu mở đầu đúng cảm xúc + đúng giọng nhân vật nếu model quên. */
+/** Gỡ mọi câu mở đầu cảm xúc của nhân vật khỏi đầu một câu trả lời. */
+export function stripExpr(companion, text = "") {
+  let out = String(text).trim();
+  for (const phrase of Object.values(companion.expr || {})) {
+    if (out.startsWith(phrase)) out = out.slice(phrase.length).trim();
+  }
+  return out;
+}
+
+/**
+ * Gắn câu mở đầu đúng cảm xúc + đúng giọng nhân vật. Model hay tự chép câu mở
+ * đầu từ lượt trước, nên gỡ hết trước rồi mới gắn đúng câu của cảm xúc hiện tại.
+ */
 export function voiceReply(companion, mind, reply) {
+  const body = stripExpr(companion, reply);
   const expr = companion.expr?.[mind.emotion];
-  if (!expr || !reply) return reply;
-  const head = removeVietnameseTones(reply.slice(0, 24)).toLowerCase();
-  return head.includes(removeVietnameseTones(expr).toLowerCase().slice(0, 4)) ? reply : `${expr} ${reply}`;
+  if (!body) return "";
+  return expr ? `${expr} ${body}` : body;
 }
 
 /** Câu nhân vật nói khi gặp lại sau nhiều ngày — lẫy, tất định, đúng giọng. */

@@ -15,6 +15,7 @@ import { generateWeeklyReportForUser } from '../services/companionReportService.
 import { nextAllowedSendTime } from '../services/pushGuard.js';
 
 import { getVietnamDateString } from '../utils/timeUtils.js';
+import * as companionBrain from '../services/companionBrainService.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -518,6 +519,20 @@ router.post('/history', requireMember, async (req, res) => {
 // above, this bypasses any accumulation threshold so Admin is alerted on the
 // very first message, with enough context (phone, recent messages) to call
 // the member back immediately without having to dig through their history.
+// Bộ não đám mây cho nhân vật đồng hành (máy không chạy được model trên máy).
+// Hồ sơ nhân vật do client dựng (brain/companionMind.js); máy chủ chỉ kiểm khuôn
+// tin nhắn và giữ hạn mức. 429/503 → client lùi về bộ câu soạn sẵn.
+router.post('/brain', requireAdultMember, async (req, res) => {
+  const messages = companionBrain.sanitizeMessages(req.body?.messages);
+  if (!messages) return res.status(400).json({ error: 'invalid_messages' });
+  try {
+    const { reply } = await companionBrain.think(req.memberEmail, messages);
+    res.json({ reply });
+  } catch (err) {
+    res.status(err.status || 503).json({ error: err.message });
+  }
+});
+
 router.post('/crisis-alert', requireMember, async (req, res) => {
   try {
     const { trigger, conversationSummary } = req.body;

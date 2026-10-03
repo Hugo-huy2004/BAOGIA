@@ -28,10 +28,12 @@ import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { companionPromptHint } from "./constants/companions";
 import { BorderBeam } from "border-beam";
+import { CompanionAvatar } from "./AnimulaAvatar";
 import { notify } from "../../../lib/notify";
 import { isCrisisText } from "./constants/intentClassifier";
 import * as brain from "./brain/companionBrain";
-import { buildCharacterPrompt, buildMessages, currentChapter, feel, loadMind, moodLabel, saveMind } from "./brain/companionMind";
+import { avatarMotion, buildCharacterPrompt, buildMessages, emotionOf, feel, loadMind, saveMind, stripExpr, sulkGreeting, voiceReply } from "./brain/companionMind";
+import EmotionGauge from "./components/EmotionGauge";
 import { useJoyStore } from "../../../stores/joyStore";
 
 // Raw chat text is only kept for 7 days — older messages are permanently
@@ -133,8 +135,9 @@ export default function ChatTab({
   healingActive,
   onProfileUpdate,
   companion,
-  journeyPercent = null,
-  onMoodChange,
+  companionDays: daysTogether = 0,
+  handoffLetter = null,
+  onActivity,
   isGuestMode = false,
   requireAccount
 }) {
@@ -592,7 +595,16 @@ export default function ChatTab({
   const [brainProgress, setBrainProgress] = useState(0);
   const [mind, setMind] = useState(() => loadMind(companion));
   useEffect(() => { setMind(loadMind(companion)); }, [companion]);
-  useEffect(() => { onMoodChange?.(moodLabel(mind, lang)); }, [mind, lang, onMoodChange]);
+  // Lâu không gặp → nhân vật mở lời bằng câu lẫy (một lần, sau khi chat đã nạp).
+  const sulkDoneRef = useRef(false);
+  useEffect(() => {
+    if (sulkDoneRef.current || messages.length === 0) return;
+    sulkDoneRef.current = true;
+    const line = sulkGreeting(companion, mind);
+    if (!line) return;
+    saveMind(companion, mind); // đã lẫy rồi — tải lại trang không lẫy lần nữa
+    setMessages(prev => [...prev, { id: `bot-sulk-${Date.now()}`, sender: "bot", text: line, time: new Date(), emotion: "lay" }]);
+  }, [messages.length, companion, mind]);
 
   const wakeBrain = useCallback(async () => {
     setBrainStatus("loading");
@@ -605,8 +617,11 @@ export default function ChatTab({
     }
   }, []);
 
-  // Khách dùng thử cũng được bộ não: nó chạy trên máy họ, máy chủ không tốn gì.
+  // Bộ não trên máy chỉ dành cho KHÁCH (khách không gọi được bộ não đám mây).
+  // Thành viên dùng đám mây; nạp thêm ~2GB vào GPU mỗi lần mở chat chỉ để dự
+  // phòng thì tốn pin và bộ nhớ điện thoại hơn là đáng.
   useEffect(() => {
+    if (!isGuestMode) { setBrainStatus("unsupported"); return undefined; }
     let cancelled = false;
     (async () => {
       if (brain.isAwake()) { setBrainStatus("awake"); return; }
@@ -616,7 +631,7 @@ export default function ChatTab({
       if (!cancelled) setBrainStatus("asleep");
     })();
     return () => { cancelled = true; };
-  }, [wakeBrain]);
+  }, [wakeBrain, isGuestMode]);
 
   const askToWake = async () => {
     const conn = typeof navigator !== "undefined" ? navigator.connection : null;
@@ -1061,6 +1076,12 @@ export default function ChatTab({
       return;
     }
 
+    // Nhân vật nghe câu này → cảm xúc của nó đổi, dù ai trả lời (bộ não hay luật).
+    onActivity?.();
+    const nextMind = feel(companion, mind, text);
+    setMind(nextMind);
+    saveMind(companion, nextMind);
+
     // 0. Sleep summary needs a network call (SleepLog isn't in historyLogs),
     // so it can't be a synchronous intentClassifier.js rule like the rest.
     if (isSleepSummaryRequest(text)) {
@@ -1084,11 +1105,11 @@ export default function ChatTab({
 
     // 1. Bộ luật cục bộ chỉ còn tự trả lời khi (a) bắt buộc phải tất định:
     // khủng hoảng, lệnh mở/mở khoá bài tập, chỉ số đọc thẳng từ dữ liệu; hoặc
-    // (b) bộ não trên máy chưa thức (máy không hỗ trợ, chưa tải, đang tải).
+    // (b) khách chưa đánh thức bộ não trên máy (khách không gọi được đám mây).
     const matched = findMatchingIntent(text, bio, historyLogs);
     const brainAwake = brainStatus === "awake";
     const mustAnswerLocally = Boolean(matched) && LOCAL_ONLY_INTENTS.has(matched.id);
-    if (matched && (mustAnswerLocally || !brainAwake)) {
+    if (matched && (mustAnswerLocally || (isGuestMode && !brainAwake))) {
       setInputText("");
       const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
       setMessages(prev => [...prev, userMsg]);
@@ -1141,25 +1162,13 @@ export default function ChatTab({
     setTypingLabel(getTypingLabel(text, matched?.id || null));
     setLoading(true);
 
-    // 3. Bộ não chưa thức → trợ lý tất định trên máy (cũng không gọi ra ngoài).
-    if (!brainAwake) {
-      const localResponse = buildLocalReply(text, { bio, historyLogs });
-      const localChunks = localResponse.rawReplyArray || [localResponse.reply];
-      await pushBotMessageChunks(localChunks, localResponse);
-      setLoading(false);
-      setChatQuickReplies(deriveSmartFollowUps(text, localResponse.reply, currentMood));
-      return;
-    }
-
-    // 4. Nhân vật nghe → cảm xúc của nó đổi → nó trả lời theo tâm trạng và
-    // theo chương hiện tại của hành trình.
-    const nextMind = feel(companion, mind, text);
-    setMind(nextMind);
-    saveMind(companion, nextMind);
+    // 4. Nhân vật trả lời theo cảm xúc vừa đổi và nhiệm vụ của chặng.
     const characterPrompt = buildCharacterPrompt({
       companion,
       mind: nextMind,
-      chapter: currentChapter({ journeyPercent, historyLogs }),
+      days: daysTogether,
+      letter: handoffLetter,
+      userText: text,
       bio,
       historyLogs,
       lang,
@@ -1178,14 +1187,35 @@ export default function ChatTab({
       });
     };
 
+    // Bộ não, theo thứ tự — 0 đồng ở mọi tầng:
+    //   1. Đám mây (thành viên): Qwen3-30B trên Cloudflare Workers AI, gói miễn phí.
+    //      Thử thật 03/10: model 1–2B trên máy lặp và lạc ý qua nhiều lượt, nên
+    //      bộ não lớn đi trước. Render chỉ chuyển tiếp vài KB, không phải nghĩ.
+    //   2. Trên máy (đã đánh thức): khi hết hạn mức ngày, mất mạng, hoặc là khách.
+    //   3. Bộ câu soạn sẵn (bên dưới).
+    const brainMessages = buildMessages({ companion, characterPrompt, history: messages, userText: text });
+    const strip = (x) => stripExpr(companion, x);
     let reply = "";
-    try {
-      reply = await brain.think(buildMessages({ companion, characterPrompt, history: messages, userText: text }), (live) => {
-        setLoading(false);
-        showLive(live);
-      });
-    } catch (err) {
-      console.error("HugoPSY brain think:", err);
+    if (!isGuestMode) {
+      try { reply = await brain.thinkRemote(brainMessages, { strip }); }
+      catch (err) { console.warn("HugoPSY cloud brain:", err.message); }
+    }
+    if (!reply && brainAwake) {
+      try { reply = await brain.think(brainMessages, (live) => { setLoading(false); showLive(live); }, { strip }); }
+      catch (err) { console.warn("HugoPSY device brain:", err.message); }
+    }
+    if (!reply) {
+      // Không bộ não nào trả lời (khách chưa đánh thức, hết hạn mức, mất mạng):
+      // câu soạn sẵn đúng chủ đề nếu luật có khớp, không thì trợ lý tất định.
+      setMessages(prev => prev.filter(m => m.id !== botMsgId));
+      const fallback = matched || buildLocalReply(text, { bio, historyLogs });
+      const chunks = fallback.rawReplyArray || (Array.isArray(fallback.reply) ? fallback.reply : [fallback.reply]);
+      // Chỉ chuyển trường widget — `fallback.id` (tên intent) mà lọt vào sẽ đè id tin nhắn.
+      const { suggestPhq9, suggestGad7, showInlineBreathing, showInlineCbt, quickActions } = fallback;
+      await pushBotMessageChunks(chunks, { suggestPhq9, suggestGad7, showInlineBreathing, showInlineCbt, quickActions: quickActions || null, emotion: nextMind.emotion });
+      setLoading(false);
+      setChatQuickReplies(fallback.quickReplies?.length ? fallback.quickReplies : deriveSmartFollowUps(text, chunks.join(" "), currentMood));
+      return;
     }
     if (_rafRef.current) { cancelAnimationFrame(_rafRef.current); _rafRef.current = null; }
     _pendingChunkRef.current = null;
@@ -1194,8 +1224,9 @@ export default function ChatTab({
     // Chốt an toàn đầu ra: model 1B thỉnh thoảng lạc đề; câu trả lời rỗng hoặc
     // chạm chủ đề tự hại thì thay bằng câu an toàn soạn sẵn.
     const unsafe = !reply || isCrisisText(removeVietnameseTones(reply).toLowerCase());
-    const finalText = unsafe ? createLocalSafetyReply(text, { bio, historyLogs }).reply : reply;
+    const finalText = unsafe ? createLocalSafetyReply(text, { bio, historyLogs }).reply : voiceReply(companion, nextMind, reply);
     pushBotMessageChunks([finalText], {
+      emotion: unsafe ? "buon" : nextMind.emotion,
       suggestPhq9: matched?.suggestPhq9,
       suggestGad7: matched?.suggestGad7,
       suggestWho5: matched?.suggestWho5,
@@ -1216,11 +1247,25 @@ export default function ChatTab({
   // (gợi ý, kế hoạch, đánh giá, trút giận, lượt chat) gom vào nút ✦ của ô nhập.
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      {/* Đồng hồ cảm xúc: người dùng luôn thấy nhân vật đang cảm thấy gì. */}
+      <div className="relative z-20 flex shrink-0 items-center gap-3 border-b border-border/60 px-4 pb-1.5 pt-2" role="status" aria-live="polite">
+        <EmotionGauge emotion={mind.emotion} intensity={mind.intensity} />
+        <div className="min-w-0">
+          <p className="text-[15px] font-semibold text-foreground">
+            {companion.name} <span style={{ color: emotionOf(mind).color }}>{emotionOf(mind).label}</span>
+          </p>
+          <p className="truncate text-[13px] text-muted-foreground">{companion.role} · ngày {Math.max(1, daysTogether)}</p>
+        </div>
+        <div className="ml-auto">
+          <CompanionAvatar companion={companion} size={44} motion={avatarMotion(mind)} interactive={false} />
+        </div>
+      </div>
       <div className="relative z-10 min-h-0 flex-1 overflow-hidden">
         {chatMode === "normal" && (
           <ChatMessages
             messages={messages}
             companion={companion}
+            mind={mind}
             completedMessageIds={completedMessageIds}
             setCompletedMessageIds={setCompletedMessageIds}
             onStartTest={handleStartTest}
@@ -1336,7 +1381,7 @@ export default function ChatTab({
               )}
             </AnimatePresence>
 
-            {(brainStatus === "asleep" || brainStatus === "loading" || brainStatus === "error") && (
+            {isGuestMode && (brainStatus === "asleep" || brainStatus === "loading" || brainStatus === "error") && (
               <BrainWakeCard
                 companion={companion}
                 status={brainStatus}

@@ -11,8 +11,9 @@ import { notify } from "../../../lib/notify";
 import { sensory } from "../../../lib/sensory";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
-import { AnimulaAvatar } from "./AnimulaAvatar";
-import { COMPANIONS, companionById, recommendCompanion, resolveCompanion, saveCompanionChoice } from "./constants/companions";
+import { CompanionAvatar } from "./AnimulaAvatar";
+import { COMPANIONS, companionById, companionDayLog, companionDays, companionForDays, nextCompanion } from "./constants/companions";
+import { writeHandoffLetter } from "./brain/companionMind";
 import "../../../styles/hugoPsy.css";
 import { isStandalone } from "../../../config/platform";
 
@@ -305,13 +306,16 @@ function StatBar({ label, value, color }) {
   );
 }
 
-function CompanionSheet({ current, auto, recommendedId, onPick, onClose }) {
+// Hành trình 10 nhân vật: người đã gặp, người đang đồng hành, người đang chờ
+// phía trước. Nhân vật kế tiếp lộ tên để có điều mong đợi; xa hơn thì giữ bí mật.
+function JourneySheet({ current, days, onClose }) {
   const dark = document.documentElement.classList.contains("dark");
+  const next = nextCompanion(current);
   return (
     <Overlay z="z-[1100]" sheet onClose={onClose}>
       <motion.div
         role="dialog"
-        aria-label="Chọn người đồng hành"
+        aria-label="Hành trình đồng hành"
         initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
         transition={{ type: "spring", stiffness: 340, damping: 32 }}
         className="w-full md:w-[640px] max-h-[90dvh] overflow-y-auto rounded-t-[28px] md:rounded-[28px] border border-border bg-card px-4 pt-3"
@@ -319,8 +323,10 @@ function CompanionSheet({ current, auto, recommendedId, onPick, onClose }) {
       >
         <div className="flex items-start justify-between gap-3 px-1">
           <div>
-            <h3 className="text-[17px] font-bold text-foreground">Người đồng hành</h3>
-            <p className="text-[15px] text-muted-foreground">Mỗi màu đồng hành một chiều cảm xúc, suốt lộ trình của cậu.</p>
+            <h3 className="text-[17px] font-bold text-foreground">Hành trình đồng hành</h3>
+            <p className="text-[15px] text-muted-foreground">
+              Ngày thứ {Math.max(1, days)} bên nhau.{next ? ` Còn ${next.fromDay - days} ngày nữa ${next.name} sẽ đến.` : ""}
+            </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Đóng"
             className="-mr-2 w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-muted-foreground">
@@ -328,44 +334,44 @@ function CompanionSheet({ current, auto, recommendedId, onPick, onClose }) {
           </button>
         </div>
 
-        <button type="button" onClick={() => onPick("auto")}
-          className={`mt-3 flex w-full min-h-[52px] items-center gap-3 rounded-2xl border px-4 text-left ${auto ? "border-foreground/30 bg-muted" : "border-border"}`}>
-          <span className="material-symbols-outlined text-[22px] text-foreground">auto_mode</span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold text-foreground">Tự động theo đánh giá</span>
-            <span className="block text-[13px] text-muted-foreground">
-              Hiện hợp với cậu: {COMPANIONS.find((c) => c.id === recommendedId)?.name}
-            </span>
-          </span>
-          {auto && <span className="material-symbols-outlined text-[22px] text-foreground">check</span>}
-        </button>
-
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <ol className="mt-3 grid gap-3 sm:grid-cols-2">
           {COMPANIONS.map((c) => {
-            const selected = !auto && current.id === c.id;
+            const met = days >= c.fromDay;
+            const isCurrent = c.id === current.id;
+            const revealed = met || c.id === next?.id;
             const card = (
-              <button type="button" onClick={() => onPick(c.id)}
-                className={`flex w-full items-start gap-3 rounded-[22px] border bg-card p-3.5 text-left transition active:scale-[0.98] ${selected ? "border-transparent" : "border-border"}`}>
-                <AnimulaAvatar size={56} type={c.type} color={c.color} interactive={false} />
-                <span className="min-w-0 flex-1 space-y-1.5">
-                  <span className="flex items-baseline gap-2">
-                    <span className="text-[17px] font-bold text-foreground">{c.name}</span>
-                    <span className="text-[13px] text-muted-foreground">{c.mood}</span>
-                  </span>
-                  <span className="block text-[13px] text-muted-foreground">{c.tagline}</span>
-                  <StatBar label="Thông minh" value={c.stats.smart} color={c.color} />
-                  <StatBar label="Hài hước" value={c.stats.humor} color={c.color} />
-                  <StatBar label="Thẳng thắn" value={c.stats.honest} color={c.color} />
-                </span>
-              </button>
+              <div className={`flex items-start gap-3 rounded-[22px] border bg-card p-3.5 ${isCurrent ? "border-transparent" : "border-border"}`}>
+                <div className={revealed ? "" : "opacity-25 grayscale"}>
+                  <CompanionAvatar companion={c} size={52} interactive={false} />
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="text-[13px] text-muted-foreground">{c.order}. {c.period}</p>
+                  <p className="text-[17px] font-bold text-foreground">
+                    {revealed ? c.name : "???"}
+                    {revealed && <span className="ml-2 text-[13px] font-medium text-muted-foreground">{c.role}</span>}
+                  </p>
+                  <p className="text-[13px] text-muted-foreground">
+                    {isCurrent ? "Đang đồng hành cùng cậu" : met ? "Đã đồng hành" : revealed ? `Gặp sau ${c.fromDay - days} ngày nữa` : "Đang chờ cậu ở phía trước"}
+                  </p>
+                  {met && (
+                    <div className="space-y-1 pt-1">
+                      <StatBar label="Thông minh" value={c.stats.smart} color={c.color} />
+                      <StatBar label="Hài hước" value={c.stats.humor} color={c.color} />
+                      <StatBar label="Thẳng thắn" value={c.stats.honest} color={c.color} />
+                    </div>
+                  )}
+                </div>
+              </div>
             );
-            return selected ? (
-              <BorderBeam key={c.id} size="md" colorVariant="colorful" theme={dark ? "dark" : "light"} strength={0.9} borderRadius={22}>
-                {card}
-              </BorderBeam>
-            ) : <div key={c.id}>{card}</div>;
+            return (
+              <li key={c.id}>
+                {isCurrent ? (
+                  <BorderBeam size="md" colorVariant="colorful" theme={dark ? "dark" : "light"} strength={0.9} borderRadius={22}>{card}</BorderBeam>
+                ) : card}
+              </li>
+            );
           })}
-        </div>
+        </ol>
       </motion.div>
     </Overlay>
   );
@@ -374,7 +380,7 @@ function CompanionSheet({ current, auto, recommendedId, onPick, onClose }) {
 // ── Hoạt cảnh chuyển ca ────────────────────────────────────────────────────────
 // Nhân vật cũ vẫy tay lùi ra, nhân vật mới nhảy vào — đổi nhân vật là một khoảnh
 // khắc trong câu chuyện, không phải đổi một cài đặt.
-function CompanionHandoff({ from, to, auto, onDone }) {
+function CompanionHandoff({ from, to, days, onDone }) {
   useEffect(() => {
     confetti({ particleCount: 70, spread: 75, origin: { y: 0.45 }, colors: [to.color, "#ffffff"] });
     const timer = setTimeout(onDone, 3200);
@@ -399,7 +405,7 @@ function CompanionHandoff({ from, to, auto, onDone }) {
               animate={{ x: -110, opacity: 0, scale: 0.6, rotate: [0, -14, 14, -14, 0] }}
               transition={{ duration: 1.1, ease: "easeIn" }}
             >
-              <AnimulaAvatar size={88} type={from.type} color={from.color} interactive={false} />
+              <CompanionAvatar companion={from} size={88} interactive={false} />
             </motion.div>
           )}
           <motion.div
@@ -408,7 +414,7 @@ function CompanionHandoff({ from, to, auto, onDone }) {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ delay: 0.7, type: "spring", stiffness: 260, damping: 14 }}
           >
-            <AnimulaAvatar size={120} type={to.type} color={to.color} state="working" interactive={false} />
+            <CompanionAvatar companion={to} size={120} state="working" interactive={false} />
           </motion.div>
         </div>
 
@@ -423,8 +429,8 @@ function CompanionHandoff({ from, to, auto, onDone }) {
                 {from ? `${from.name} chuyển ca cho ${to.name}` : `${to.name} đến rồi đây!`}
               </p>
               <p className="mt-1 text-[15px] text-muted-foreground">
-                {auto
-                  ? `Theo nhịp cảm xúc gần đây của cậu, ${to.name} sẽ đồng hành tiếp chặng này.`
+                {from
+                  ? `Cậu đã đi được ${days} ngày. ${from.name} để lại một lá thư, ${to.name} sẽ đồng hành tiếp chặng ${to.role.toLowerCase()}.`
                   : to.tagline}
               </p>
             </div>
@@ -474,8 +480,6 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
   const [showSettings, setShowSettings]       = useState(false);
   const [showCompanions, setShowCompanions]   = useState(false);
   const [showMenu, setShowMenu]               = useState(false);
-  const [companionTick, setCompanionTick]     = useState(0);
-  const [companionMood, setCompanionMood]     = useState("");
   const [clearMessagesKey, setClearMessagesKey] = useState(0); // bump to force ChatTab remount
 
   // DB state
@@ -657,36 +661,20 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
     .map((tab) => ({ ...tab, label: t(`companion.tab.${tab.id}`, tab.label) }));
   const activeShortcut = shortcuts.find((tab) => tab.id === activeTab);
 
-  // Nhân vật đồng hành: tự gán theo đánh giá mới nhất, hoặc người dùng đã khoá.
-  const { companion, auto: companionAuto } = useMemo(
-    () => resolveCompanion(historyLogs),
-    [historyLogs, companionTick], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-  const pickCompanion = async (id) => {
-    const nextId = id === "auto" ? recommendCompanion(historyLogs) : id;
-    if (nextId !== companion.id) {
-      const next = companionById(nextId);
-      const ok = await notify.confirm({
-        title: `Đổi sang ${next.name}?`,
-        message: `${next.name} sẽ bắt đầu một cuộc trò chuyện mới cùng cậu. Những gì đã trò chuyện với ${companion.name} sẽ được khép lại.`,
-        confirmText: `Gặp ${next.name}`,
-        cancelText: "Ở lại",
-      });
-      if (!ok) return;
-    }
-    saveCompanionChoice(id);
-    setCompanionTick((n) => n + 1);
-    setShowCompanions(false);
-    sensory.tap();
-  };
-
-  // ── Đổi nhân vật = cuộc trò chuyện mới ─────────────────────────────────────
-  // Tự động (đánh giá mới đổi gợi ý) hay tự chọn đều đi qua đây: hoạt cảnh chuyển
-  // ca, xoá lịch sử chat, nhân vật mới chào lại từ đầu. Nhân vật đang đồng hành
-  // được nhớ theo tài khoản, nên đổi xảy ra khi rời app cũng được báo lần mở sau.
+  // ── Nhân vật theo chuỗi ngày đồng hành ───────────────────────────────────
+  // Tổng số ngày (không phải liên tiếp) quyết định ai đồng hành. Đổi người =
+  // hoạt cảnh chuyển ca + chat khép lại + thư bàn giao để trí nhớ không mất.
+  // Chỉ so sánh SAU lần đồng bộ đầu: trước đó historyLogs rỗng, số ngày = 0, và
+  // mỗi lần mở app sẽ "đổi về Bông" rồi xoá sạch lịch sử oan.
+  const days = useMemo(() => companionDays(historyLogs), [historyLogs]);
+  const companion = companionForDays(days);
   const [handoff, setHandoff] = useState(null);
   const closeHandoff = useCallback(() => setHandoff(null), []);
   const activeKey = `hugopsy_active_companion:${memberEmail || "guest"}`;
+  const letterKey = `hugopsy_handoff_letter:${memberEmail || "guest"}`;
+  const [handoffLetter, setHandoffLetter] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(letterKey) || "null"); } catch { return null; }
+  });
   useEffect(() => {
     if (!synced) return;
     let previous = null;
@@ -694,16 +682,27 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
     if (previous === companion.id) return;
     try { localStorage.setItem(activeKey, companion.id); } catch { /* ignore */ }
     if (!previous) return; // lần đầu gặp: không có ai để chuyển ca
-    setHandoff({ from: companionById(previous), to: companion, auto: companionAuto });
+    const from = companionById(previous);
+    const letter = writeHandoffLetter({ from, to: companion, days, chatMessages, historyLogs });
+    try { localStorage.setItem(letterKey, JSON.stringify(letter)); } catch { /* ignore */ }
+    setHandoffLetter(letter);
+    setHandoff({ from, to: companion, days });
     try { localStorage.removeItem("banhocduong_chat_messages"); } catch { /* ignore */ }
     setChatMessages([]);
     handleUpdateCompanionState({ chatMessages: [] });
     setClearMessagesKey((k) => k + 1);
   }, [synced, companion.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const subtitle = !isChat ? undefined : journeyProgress
-    ? `${companion.name} · ${companionMood || companion.mood} · ${t("hugoPsy.tab.ngay2")} ${journeyProgress.currentDay}/${journeyProgress.duration} · ${journeyProgress.percent}%`
-    : `${companion.name} · ${companionMood || companion.mood}`;
+  // Mỗi ngày có trò chuyện là một ngày đồng hành. Log mang sẵn tổng tích luỹ
+  // (xem companionDayLog) nên máy chủ cắt log cũ cũng không làm tụt số ngày.
+  const markCompanionDay = useCallback(() => {
+    if (!memberEmail) return;
+    const log = companionDayLog(historyLogs);
+    if (log) handleUpdateCompanionState({ historyLogs: [...historyLogs, log] });
+  }, [memberEmail, historyLogs, handleUpdateCompanionState]);
+
+  const subtitle = !isChat ? undefined
+    : `${companion.name} · ${companion.role}`;
 
   const iconBtn = "w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-transform";
   const actions = (
@@ -718,8 +717,8 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
       {isChat && (
         <>
           <button type="button" onClick={() => setShowCompanions(true)}
-            aria-label={`Người đồng hành: ${companion.name}`} className={`${iconBtn} hidden md:flex`}>
-            <AnimulaAvatar size={34} type={companion.type} color={companion.color} interactive={false} />
+            aria-label={`Hành trình đồng hành: ${companion.name}`} className={`${iconBtn} hidden md:flex`}>
+            <CompanionAvatar companion={companion} size={34} interactive={false} />
           </button>
           {/* Từ md: lối tắt nằm thẳng trên thanh. Hẹp hơn: NavBar chỉ chừa ~77px bên
               phải (đã trừ chỗ nút X), hai nút trở lên là tràn đè tiêu đề — gom
@@ -778,8 +777,9 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
               <ChatTab
                 key={clearMessagesKey}
                 companion={companion}
-                journeyPercent={journeyProgress?.percent ?? null}
-                onMoodChange={setCompanionMood}
+                companionDays={days}
+                handoffLetter={handoffLetter?.to === companion.name ? handoffLetter : null}
+                onActivity={markCompanionDay}
                 onNavigateToTab={handleNavigateToTab}
                 bio={bio}
                 historyLogs={historyLogs}
@@ -841,10 +841,10 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
             >
               <button type="button" onClick={() => { setShowMenu(false); setShowCompanions(true); }}
                 className="flex w-full min-h-[52px] items-center gap-3 rounded-2xl px-2 text-left active:bg-muted">
-                <AnimulaAvatar size={34} type={companion.type} color={companion.color} interactive={false} />
+                <CompanionAvatar companion={companion} size={34} interactive={false} />
                 <span className="min-w-0">
                   <span className="block text-[15px] font-medium text-foreground">{companion.name}</span>
-                  <span className="block text-[13px] text-muted-foreground">Đổi người đồng hành</span>
+                  <span className="block text-[13px] text-muted-foreground">Hành trình đồng hành</span>
                 </span>
               </button>
               <div className="my-1 h-px bg-border" />
@@ -866,7 +866,7 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
           <CompanionHandoff
             from={handoff.from}
             to={handoff.to}
-            auto={handoff.auto}
+            days={handoff.days}
             onDone={closeHandoff}
           />
         )}
@@ -874,13 +874,7 @@ export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange
 
       <AnimatePresence>
         {showCompanions && (
-          <CompanionSheet
-            current={companion}
-            auto={companionAuto}
-            recommendedId={recommendCompanion(historyLogs)}
-            onPick={pickCompanion}
-            onClose={() => setShowCompanions(false)}
-          />
+          <JourneySheet current={companion} days={days} onClose={() => setShowCompanions(false)} />
         )}
       </AnimatePresence>
 

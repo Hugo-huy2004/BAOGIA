@@ -2,7 +2,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
 import { BorderBeam } from "border-beam";
-import { AnimulaAvatar } from "./AnimulaAvatar";
+import { CompanionAvatar } from "./AnimulaAvatar";
+import { EMOTIONS, avatarMotion } from "./brain/companionMind";
 import TypewriterText from "./TypewriterText";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { joyCode } from "../../../lib/joyDisplay";
@@ -724,6 +725,7 @@ function ChatMessages({
   bio,
   historyLogs = [],
   companion,
+  mind,
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -837,7 +839,7 @@ function ChatMessages({
                   {isBot && (
                     <div className="shrink-0 w-8">
                       {firstOfGroup && (
-                        <AnimulaAvatar size={32} type={companion?.type} color={companion?.color} face="mouth" />
+                        <CompanionAvatar companion={companion} size={32} face="mouth" motion={index === renderMessages.length - 1 ? avatarMotion(mind) : null} />
                       )}
                     </div>
                   )}
@@ -857,6 +859,12 @@ function ChatMessages({
                 {/* Timestamp */}
                 {(lastOfGroup || msg.timeLeft !== undefined) && (
                 <div className={`flex items-center gap-1.5 mt-1 ${isBot ? "ml-10" : "mr-1"}`}>
+                  {isBot && EMOTIONS[msg.emotion] && (
+                    <span className="flex items-center gap-1 text-[13px] font-medium" style={{ color: EMOTIONS[msg.emotion].color }}>
+                      <span className="material-symbols-outlined text-[15px]" aria-hidden="true">{EMOTIONS[msg.emotion].icon}</span>
+                      {EMOTIONS[msg.emotion].label} ·
+                    </span>
+                  )}
                   <span className="text-[13px] text-muted-foreground/70 font-medium">
                     {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -878,7 +886,7 @@ function ChatMessages({
             <motion.div key="typing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="flex items-end gap-2.5 justify-start mb-1">
               <div className="shrink-0">
-                <AnimulaAvatar size={32} type={companion?.type} color={companion?.color} state="working" face="mouth" interactive={false} />
+                <CompanionAvatar companion={companion} size={32} state="working" face="mouth" interactive={false} />
               </div>
               <div className="px-4 py-3.5 bg-muted rounded-[20px] rounded-tl-md flex items-center gap-2.5" role="status" aria-label={typingLabel}>
                 <span className="flex items-center gap-[3px]">
