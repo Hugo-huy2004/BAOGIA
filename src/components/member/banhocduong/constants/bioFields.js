@@ -34,3 +34,19 @@ export const BIO_FIELD_LABELS = {
 };
 
 export const fieldLabel = (k) => BIO_FIELD_LABELS[k] || k;
+
+// Lệnh sửa hồ sơ bằng lời, đọc tất định trên máy: "đổi biệt danh thành Mèo",
+// "đổi sở thích là đọc sách". Trước đây AI đám mây trả về [UPDATE_PROFILE:{...}];
+// bộ não trên máy (model 1B) không đủ tin cậy để sinh dữ liệu có cấu trúc.
+const LABEL_TO_FIELD = Object.fromEntries(Object.entries(BIO_FIELD_LABELS).map(([k, v]) => [v, k]));
+const PROFILE_COMMAND = new RegExp(
+  `(?:đổi|sửa|cập nhật|thay)\\s+(${Object.keys(LABEL_TO_FIELD).join("|")})\\s+(?:của\\s+(?:tớ|mình|tôi|em)\\s+)?(?:thành|là|sang)\\s+(.+)`,
+  "i",
+);
+
+export function parseProfileCommand(text = "") {
+  const m = String(text).trim().match(PROFILE_COMMAND);
+  if (!m) return null;
+  const value = m[2].trim().replace(/^["'“”]+|["'“”.!]+$/g, "");
+  return value ? { [LABEL_TO_FIELD[m[1].toLowerCase()]]: value } : null;
+}

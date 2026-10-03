@@ -371,7 +371,10 @@ export default class AIBot extends BaseBot {
       ...(age ? { age } : {}),
       ...(summary ? { wellnessSummary: summary } : {}),
       ...(psychProfile ? { psychProfile } : {}),
-      ...(companionContext ? { companionContext } : {})
+      ...(companionContext ? { companionContext } : {}),
+      // Tính cách nhân vật đồng hành đang chọn (constants/companions.js);
+      // python-ai-server ghép khoá này vào system instruction.
+      ...(this.bio?.companionPersonaHint ? { adaptivePersonaHint: this.bio.companionPersonaHint } : {})
     };
   }
 

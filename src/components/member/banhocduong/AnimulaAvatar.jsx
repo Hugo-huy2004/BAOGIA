@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { BotAvatar } from 'bot-avatars';
 import { sensory } from '../../../lib/sensory';
 
@@ -18,6 +18,7 @@ export function AnimulaAvatar({
   hat = 'none',
   glasses = 'none',
   onClick,
+  color,
 }) {
   const [internalState, setInternalState] = useState(state);
 
@@ -41,11 +42,11 @@ export function AnimulaAvatar({
       className={`inline-flex items-center justify-center shrink-0 select-none cursor-pointer transition-transform active:scale-90 ${className}`}
       style={{ width: size, height: size }}
       role="img"
-      aria-label="Hugo Animula AI Companion"
-      title="Hugo Animula • Người bạn đồng hành tinh thần"
+      aria-hidden="true"
     >
       <BotAvatar
         type={type}
+        color={color}
         size={size}
         state={internalState}
         face={face}

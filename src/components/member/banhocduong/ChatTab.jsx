@@ -1,37 +1,20 @@
-import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  BrainCircuit,
   ClipboardCheck,
   Flame,
   HeartHandshake,
-  HeartPulse,
-  LockKeyhole,
-  MoonStar,
   Smile,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
-import ClinicScanner from "./ClinicScanner";
-// BanhocduongTab đã React.lazy đúng ba component này, nhưng import tĩnh ở đây
-// kéo cả 167 KB (SleepTracker 80 + TherapyTab 47 + EvaluationTab 40) vào chunk
-// chat — người chỉ nhắn tin, không mở ngăn nào, vẫn phải tải hết. Cả bốn chỗ
-// dùng đều nằm sau điều kiện nên lazy được; Suspense đặt tại chỗ để mở ngăn
-// không làm cả khung chat nháy fallback của BanhocduongTab.
-const TherapyTab = lazy(() => import("./TherapyTab"));
-const EvaluationTab = lazy(() => import("./EvaluationTab"));
-const SleepTracker = lazy(() => import("./SleepTracker"));
 import ChatInputBar from "./ChatInputBar";
-import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
-import { AnimulaAvatar } from "./AnimulaAvatar";
-import { Liquid } from "liquid-gooey";
-import { sensory } from "../../../lib/sensory";
-import { getLockedFields, fieldLabel } from "./constants/bioFields";
+
+import { getLockedFields, fieldLabel, parseProfileCommand } from "./constants/bioFields";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
 import { useChatEngine } from "./hooks/useChatEngine";
@@ -39,13 +22,17 @@ import { joyText } from "../../../lib/joyDisplay";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { buildLocalReply } from "../../../services/classes/CompanionBot/localFallback";
-import { computeAdaptivePersona } from "./utils/adaptivePersonaEngine";
 import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
 import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 
 import { THERAPY_METHODS } from "./constants/therapyMethods";
+import { companionPromptHint } from "./constants/companions";
+import { BorderBeam } from "border-beam";
+import { notify } from "../../../lib/notify";
+import { isCrisisText } from "./constants/intentClassifier";
+import * as brain from "./brain/companionBrain";
+import { buildCharacterPrompt, buildMessages, currentChapter, feel, loadMind, moodLabel, saveMind } from "./brain/companionMind";
 import { useJoyStore } from "../../../stores/joyStore";
-import { CLOSE_BUTTON_RESERVE } from "../shared/BackButton";
 
 // Raw chat text is only kept for 7 days — older messages are permanently
 // dropped to keep the stored history light. Long-term "memory" instead comes
@@ -71,27 +58,10 @@ function pruneOldMessages(msgs) {
   });
 }
 
-const getAuraColors = (mood) => {
-  if (mood <= 2) {
-    return {
-      topRight: "bg-rose-400/25 dark:bg-rose-600/20",
-      middleLeft: "bg-orange-400/20 dark:bg-orange-600/15",
-      bottomRight: "bg-indigo-400/10 dark:bg-indigo-600/10"
-    };
-  } else if (mood === 3) {
-    return {
-      topRight: "bg-blue-400/20 dark:bg-blue-600/20",
-      middleLeft: "bg-purple-400/20 dark:bg-purple-600/15",
-      bottomRight: "bg-emerald-400/10 dark:bg-emerald-600/10"
-    };
-  } else {
-    return {
-      topRight: "bg-[#5856d6]/20 dark:bg-[#5856d6]/20",
-      middleLeft: "bg-violet-400/20 dark:bg-violet-600/15",
-      bottomRight: "bg-teal-400/15 dark:bg-teal-600/15"
-    };
-  }
-};
+// Luật cục bộ vẫn tự trả lời những intent này dù còn lượt AI: an toàn (crisis)
+// phải tất định; lệnh mở/mở khoá bài tập là thao tác, không phải trò chuyện;
+// chỉ số đọc thẳng từ historyLogs chính xác hơn để AI diễn giải lại.
+const LOCAL_ONLY_INTENTS = new Set(["crisis", "therapy_open", "therapy_locked", "metrics_report"]);
 
 function deriveSmartFollowUps(userText, botText, mood) {
   const source = removeVietnameseTones(`${userText} ${botText}`).toLowerCase();
@@ -113,6 +83,44 @@ function deriveSmartFollowUps(userText, botText, mood) {
   return ["Hỏi tớ thêm một câu", "Tạo kế hoạch hôm nay", "Xem tiến triển của tớ"];
 }
 
+// Thẻ "đánh thức" — chỉ hiện khi máy chạy được bộ não mà chưa tải. Trong lúc
+// tải, chat vẫn dùng bộ luật trên máy nên người dùng không phải chờ.
+function BrainWakeCard({ companion, status, progress, onWake }) {
+  const dark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const loading = status === "loading";
+  // Kể bằng câu chuyện, không bằng thông số: người dùng đang gặp một nhân vật,
+  // không phải đang cài phần mềm.
+  const title = loading
+    ? `${companion.name} đang dụi mắt thức dậy…`
+    : status === "error" ? `${companion.name} ngủ say quá` : `Đánh thức khả năng trò chuyện của ${companion.name}`;
+  const line = status === "error"
+    ? `Gọi ${companion.name} thêm lần nữa nhé.`
+    : `${companion.name} đang ngủ. Gọi dậy để ${companion.name} thật sự lắng nghe và trò chuyện cùng cậu.`;
+  return (
+    <BorderBeam size="md" colorVariant="colorful" theme={dark ? "dark" : "light"} strength={0.7} active={!loading} borderRadius={22}>
+      <div className="flex items-center gap-3 rounded-[22px] border border-border bg-card px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[15px] font-semibold text-foreground">{title}</p>
+          {loading ? (
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-full rounded-full transition-all" style={{ width: `${Math.max(4, Math.round(progress * 100))}%`, background: companion.color }} />
+            </div>
+          ) : (
+            <p className="text-[13px] text-muted-foreground">{line}</p>
+          )}
+        </div>
+        {!loading && (
+          <button type="button" onClick={onWake}
+            className="min-h-[44px] shrink-0 rounded-full px-4 text-[15px] font-semibold text-white"
+            style={{ background: "var(--ax, #0A84FF)" }}>
+            {status === "error" ? "Gọi lại" : "Đánh thức"}
+          </button>
+        )}
+      </div>
+    </BorderBeam>
+  );
+}
+
 export default function ChatTab({ 
   onNavigateToTab, 
   bio, 
@@ -124,42 +132,17 @@ export default function ChatTab({
   showToast, 
   healingActive,
   onProfileUpdate,
-  onExitFullscreen,
-  journeyProgress,
-  sleepAutoDetect,
-  onClaimChallenge,
+  companion,
+  journeyPercent = null,
+  onMoodChange,
   isGuestMode = false,
   requireAccount
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage || i18n.language || "vi").split("-")[0];
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [currentMood, setCurrentMood] = useState(3);
-  const [companionType, setCompanionType] = useState(() => {
-    try {
-      return localStorage.getItem("hugo_animula_type") || "clover";
-    } catch {
-      return "clover";
-    }
-  });
-
-  const cycleCompanionType = useCallback(() => {
-    const types = ["clover", "star", "cloud", "cat", "flower"];
-    setCompanionType((prev) => {
-      const nextIdx = (types.indexOf(prev) + 1) % types.length;
-      const next = types[nextIdx];
-      try {
-        localStorage.setItem("hugo_animula_type", next);
-        sensory.pop();
-        sensory.vibrate("light");
-      } catch {}
-      return next;
-    });
-  }, []);
-
-  const adaptivePersona = useMemo(() => {
-    return computeAdaptivePersona(historyLogs, bio);
-  }, [historyLogs, bio]);
 
   useEffect(() => {
     if (Array.isArray(historyLogs)) {
@@ -172,16 +155,12 @@ export default function ChatTab({
   }, [historyLogs]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
-  const [showTokenExchangeModal, setShowTokenExchangeModal] = useState(false);
-  const [showTherapyOverlay, setShowTherapyOverlay] = useState(false);
   const [showCoachMenu, setShowCoachMenu] = useState(false);
-  const [activeModalDrawer, setActiveModalDrawer] = useState(null); // therapy, sleep, evaluation, null
 
-  const [therapyInitialMethod, setTherapyInitialMethod] = useState(null);
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
-  const { createLocalSafetyReply, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
+  const { createLocalSafetyReply } = useChatEngine();
   // Pixel height the mobile keyboard overlaps the viewport — lifts the input
   // bar to sit flush above the keyboard (Viber-style) instead of being covered.
   // Standards-track PWA keyboard handling (VirtualKeyboard API): when the
@@ -234,14 +213,19 @@ export default function ChatTab({
     return () => clearInterval(interval);
   }, [isVentingMode]);
 
+  // Bot nói bằng giọng của nhân vật đang đồng hành (constants/companions.js).
+  const botBio = useMemo(
+    () => ({ ...bio, companionPersonaHint: companionPromptHint(companion) }),
+    [bio, companion],
+  );
   const botManagerRef = useRef(null);
   if (!botManagerRef.current) {
-    botManagerRef.current = new BotManager(bio, historyLogs, healingActive, messages);
+    botManagerRef.current = new BotManager(botBio, historyLogs, healingActive, messages);
   }
   const botManager = botManagerRef.current;
   useEffect(() => {
-    botManager.updateContext(bio, historyLogs, healingActive, messages);
-  }, [botManager, bio, historyLogs, healingActive, messages]);
+    botManager.updateContext(botBio, historyLogs, healingActive, messages);
+  }, [botManager, botBio, historyLogs, healingActive, messages]);
 
   // Returns a contextual Vietnamese typing label based on the matched intent or user text keywords.
   const getTypingLabel = (text, intentId) => {
@@ -515,14 +499,13 @@ export default function ChatTab({
       fetchJoyBalance(bio.email);
       const method = THERAPY_METHODS.find(m => m.id === action.methodId);
       pushBotMessageChunks([`Đã mở khoá xong rồi nè! Mở "${method?.name || action.label}" cho cậu luôn đây.`]);
-      setTherapyInitialMethod(action.methodId);
-      setShowTherapyOverlay(true);
+      onNavigateToTab?.("therapy", action.methodId);
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {
       setUnlockingMethodId(null);
     }
-  }, [bio?.email, unlockingMethodId, joyBalance, onProfileUpdate, fetchJoyBalance, showToast, pushBotMessageChunks]);
+  }, [bio?.email, unlockingMethodId, joyBalance, onProfileUpdate, fetchJoyBalance, showToast, pushBotMessageChunks, onNavigateToTab]);
 
   const runSleepSummary = useCallback(async () => {
     setLoading(true);
@@ -578,24 +561,18 @@ export default function ChatTab({
   // state) so the very first synchronous line of the function can check it
   // without waiting for a re-render.
   const testCompletingRef = useRef(false);
-  const [remainingChatTokens, setRemainingChatTokens] = useState(10);
-  const [maxChatTokens, setMaxChatTokens] = useState(20);
+  // Chat nay chạy trên máy nên không còn ngân sách lượt; chỉ giữ khoá bảo mật
+  // (máy chủ khoá tài khoản lạm dụng — xem security lockout).
   const [tokenLockMinutes, setTokenLockMinutes] = useState(0);
   const [inputText, setInputText] = useState("");
   const [chatQuickReplies, setChatQuickReplies] = useState([]);
   const [moodCheckinDone, setMoodCheckinDone] = useState(false);
   const [typingLabel, setTypingLabel] = useState("Đang soạn tin...");
 
-  // Server (rate_limit_service) is the source of truth for the daily chat budget —
-  // refresh from it instead of guessing locally, so the badge never goes stale.
   const refreshRemainingTokens = useCallback(async () => {
     if (isGuestMode) return;
     const data = await botManager.getRemainingTokens();
-    if (data && typeof data.remaining === "number") {
-      setRemainingChatTokens(data.remaining);
-      if (typeof data.max === "number") setMaxChatTokens(data.max);
-      setTokenLockMinutes(data.locked ? (data.lockMinutes || 180) : 0);
-    }
+    if (data) setTokenLockMinutes(data.locked ? (data.lockMinutes || 180) : 0);
   }, [botManager, isGuestMode]);
 
   useEffect(() => {
@@ -605,10 +582,56 @@ export default function ChatTab({
   const messagesEndRef = useRef(null);
   const lastSavedMessageIdRef = useRef("");
   const inputRef = useRef(null);
-  const chatWrapperRef = useRef(null);
   // RAF batch: commit streaming chunks at most once per animation frame (60fps cap).
   const _rafRef = useRef(null);
   const _pendingChunkRef = useRef(null);
+
+  // ── Bộ não trên máy ────────────────────────────────────────────────────────
+  // checking → unsupported | asleep | loading → awake | error
+  const [brainStatus, setBrainStatus] = useState("checking");
+  const [brainProgress, setBrainProgress] = useState(0);
+  const [mind, setMind] = useState(() => loadMind(companion));
+  useEffect(() => { setMind(loadMind(companion)); }, [companion]);
+  useEffect(() => { onMoodChange?.(moodLabel(mind, lang)); }, [mind, lang, onMoodChange]);
+
+  const wakeBrain = useCallback(async () => {
+    setBrainStatus("loading");
+    try {
+      await brain.wake((report) => setBrainProgress(report.progress || 0));
+      setBrainStatus("awake");
+    } catch (err) {
+      console.error("HugoPSY brain:", err);
+      setBrainStatus("error");
+    }
+  }, []);
+
+  // Khách dùng thử cũng được bộ não: nó chạy trên máy họ, máy chủ không tốn gì.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (brain.isAwake()) { setBrainStatus("awake"); return; }
+      if (!(await brain.isSupported())) { if (!cancelled) setBrainStatus("unsupported"); return; }
+      // Đã tải rồi thì nạp lại từ máy — không tốn mạng, khỏi hỏi.
+      if (await brain.isDownloaded()) { if (!cancelled) wakeBrain(); return; }
+      if (!cancelled) setBrainStatus("asleep");
+    })();
+    return () => { cancelled = true; };
+  }, [wakeBrain]);
+
+  const askToWake = async () => {
+    const conn = typeof navigator !== "undefined" ? navigator.connection : null;
+    const onCellular = conn && (conn.type === "cellular" || conn.saveData);
+    if (onCellular) {
+      const ok = await notify.confirm({
+        title: `Gọi ${companion.name} dậy ngay?`,
+        message: `Lần đầu gọi ${companion.name} dậy sẽ tốn khá nhiều dữ liệu di động. Đợi có Wi-Fi rồi gọi nhé?`,
+        confirmText: "Gọi luôn",
+        cancelText: "Đợi Wi-Fi",
+      });
+      if (!ok) return;
+    }
+    wakeBrain();
+  };
 
   // The chat frame is configured purely via CSS flexbox. Manual layout updates
   // based on visualViewport were removed because they conflict with native
@@ -690,13 +713,23 @@ export default function ChatTab({
         id: "init",
         sender: "bot",
         type: "mood_checkin",
-        text: `Chào ${name}! Trước khi mình bắt đầu, cho tớ bắt nhịp hôm nay của cậu nhé.`,
+        // Mỗi lần đổi nhân vật là một cuộc trò chuyện mới — nhân vật tự giới thiệu.
+        text: `Chào ${name}! Tớ là ${companion.name}, ${companion.voice.who}. ${companion.self.catchphrase}. Trước khi mình bắt đầu, cho tớ bắt nhịp hôm nay của cậu nhé.`,
         time: new Date()
       };
       setMessages(checkedInToday ? [{ ...initMsg, type: undefined }] : [initMsg]);
       setMoodCheckinDone(checkedInToday);
       setCompletedMessageIds(new Set(["init"]));
       lastSavedMessageIdRef.current = "init";
+    } else {
+      // Khách dùng thử: không có check-in (cần tài khoản) nhưng vẫn được nhân vật chào.
+      setMessages([{
+        id: "init",
+        sender: "bot",
+        text: `Chào cậu! Tớ là ${companion.name}, ${companion.voice.who}. ${companion.self.catchphrase}. Hôm nay cậu thế nào?`,
+        time: new Date(),
+      }]);
+      setCompletedMessageIds(new Set(["init"]));
     }
     };
     initBot();
@@ -976,69 +1009,6 @@ export default function ChatTab({
     setLoading(false);
   };
 
-  const handleScanComplete = (testType, resultLog) => {
-    setLoading(true);
-
-    const safeText = (value, fallback = "Không có dữ liệu") => {
-      if (value === null || value === undefined || value === "") return fallback;
-      return String(value).replace(/[\r\n|]/g, " ").trim().slice(0, 100) || fallback;
-    };
-    let responseMsgText = "";
-    if (testType === "dass") {
-      responseMsgText = `HugoPSY đã lưu các giá trị được cậu kiểm tra lại từ hồ sơ DASS:\n\n` +
-        `• **D:** ${safeText(resultLog.scores?.D)}\n` +
-        `• **A:** ${safeText(resultLog.scores?.A)}\n` +
-        `• **S:** ${safeText(resultLog.scores?.S)}\n\n` +
-        "Ứng dụng không tự gắn mức độ, chẩn đoán hoặc thay đổi lộ trình từ các điểm này. Hãy đối chiếu với báo cáo gốc và trao đổi với người có chuyên môn đã thực hiện đánh giá.";
-    } else if (testType === "general_medical") {
-      const indices = Array.isArray(resultLog.indices) ? resultLog.indices : [];
-      const rows = indices.map((item) => {
-        const unit = item?.unit ? ` ${safeText(item.unit, "")}` : "";
-        const reference = item?.reference ? ` · khoảng trên phiếu: ${safeText(item.reference, "")}` : "";
-        return `• **${safeText(item?.name, "Chỉ số")}**: ${safeText(item?.value)}${unit}${reference}`;
-      });
-      responseMsgText = `HugoPSY đã lưu **${indices.length} chỉ số** sau khi cậu xác nhận:\n\n` +
-        `${rows.join("\n")}\n\n` +
-        "Đây là dữ liệu được chép lại bằng OCR, không phải nhận định y khoa. Ứng dụng không tự kết luận “cao/thấp/bình thường” và không thay đổi lộ trình; hãy đối chiếu báo cáo gốc hoặc trao đổi với cơ sở xét nghiệm.";
-    } else {
-      const validity = resultLog.validity || {};
-      const clinical = Array.isArray(resultLog.clinical) ? resultLog.clinical : [];
-      const validityRows = ["L", "F", "K"]
-        .map((code) => `• **${code}:** ${safeText(validity[code])} T-score`)
-        .join("\n");
-      const clinicalRows = clinical
-        .map((item) => `• **${safeText(item?.code, "Thang")}:** ${safeText(item?.score)} T-score`)
-        .join("\n");
-      responseMsgText = `HugoPSY đã lưu các T-score được cậu kiểm tra lại từ báo cáo:\n\n` +
-        `**L–F–K**\n${validityRows}\n\n` +
-        `**Các thang trên báo cáo**\n${clinicalRows || "Không có dữ liệu"}\n\n` +
-        "Tên mã và điểm số được giữ nguyên như tài liệu. HugoPSY không tự xác nhận độ tin cậy, gắn nhãn bệnh, đề xuất điều trị hoặc diễn giải MMPI; việc này cần người được đào tạo và có đầy đủ bối cảnh đánh giá.";
-    }
-
-    const updatedLogs = [...historyLogs, resultLog];
-    const updatedTestScores = {
-      ...(bio?.testScores || {}),
-      [resultLog.test || testType]: resultLog.scores ?? resultLog.clinical ?? resultLog.score
-    };
-    onUpdateCompanionState({
-      historyLogs: updatedLogs,
-      testScores: updatedTestScores
-    });
-
-    const botMsgId = `bot-scan-${Date.now()}`;
-    const botMsg = {
-      id: botMsgId,
-      sender: "bot",
-      text: responseMsgText,
-      time: new Date()
-    };
-
-    setMessages((prev) => [...prev, botMsg]);
-    setChatMode("normal");
-    setLoading(false);
-
-  };
-
   // Periodic self-check prompt for active roadmap users.
   useEffect(() => {
     const isRoadmapActive = healingActive || bio?.healingActive || false;
@@ -1100,10 +1070,25 @@ export default function ChatTab({
       return;
     }
 
-    // 1. Local fast-path: handle ALL matched intents offline — no AI call consumed.
-    // LLM is only invoked when nothing matches (truly open-ended, novel messages).
+    // 0b. Lệnh sửa hồ sơ ("đổi biệt danh thành …") — đọc tất định, không qua model.
+    const profileUpdate = !isGuestMode && parseProfileCommand(text);
+    if (profileUpdate) {
+      setMessages(prev => [...prev, { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() }]);
+      applyBioUpdate(profileUpdate);
+      const [field, value] = Object.entries(profileUpdate)[0];
+      if (!getLockedFields(bio).has(field)) {
+        pushBotMessageChunks([`Xong! Tớ đã đổi ${fieldLabel(field)} của cậu thành "${value}" rồi nha.`]);
+      }
+      return;
+    }
+
+    // 1. Bộ luật cục bộ chỉ còn tự trả lời khi (a) bắt buộc phải tất định:
+    // khủng hoảng, lệnh mở/mở khoá bài tập, chỉ số đọc thẳng từ dữ liệu; hoặc
+    // (b) bộ não trên máy chưa thức (máy không hỗ trợ, chưa tải, đang tải).
     const matched = findMatchingIntent(text, bio, historyLogs);
-    if (matched) {
+    const brainAwake = brainStatus === "awake";
+    const mustAnswerLocally = Boolean(matched) && LOCAL_ONLY_INTENTS.has(matched.id);
+    if (matched && (mustAnswerLocally || !brainAwake)) {
       setInputText("");
       const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
       setMessages(prev => [...prev, userMsg]);
@@ -1140,541 +1125,102 @@ export default function ChatTab({
           // Therapy-navigation intents (see intentClassifier.js) ask to open a
           // panel directly — do it once the reply has finished dripping in.
           if (matched.action?.type === "open_therapy") {
-            setTherapyInitialMethod(matched.action.methodId);
-            setShowTherapyOverlay(true);
+            onNavigateToTab?.("therapy", matched.action.methodId);
           }
         });
       }, 600);
       return;
     }
-    // 2. Full conversational LLM — only reached when no local path fits.
-    setInputText("");
+    // 2. Khớp luật nhưng để bộ não trả lời: luật vẫn ghi check-in và gắn widget
+    // nó gợi ý (bài thở, gợi ý test) vào câu trả lời.
+    if (matched?.companionUpdate?.newLog && onUpdateCompanionState) {
+      onUpdateCompanionState({ historyLogs: [...historyLogs, matched.companionUpdate.newLog] });
+    }
     const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
     setMessages(prev => [...prev, userMsg]);
-    setTypingLabel(getTypingLabel(text, null));
+    setTypingLabel(getTypingLabel(text, matched?.id || null));
     setLoading(true);
 
-    // Public visitors use the deterministic on-device assistant. The cloud AI
-    // routes require an adult member session, so calling them here would always
-    // return 401 and disguise a local fallback as an online response.
-    if (isGuestMode) {
+    // 3. Bộ não chưa thức → trợ lý tất định trên máy (cũng không gọi ra ngoài).
+    if (!brainAwake) {
       const localResponse = buildLocalReply(text, { bio, historyLogs });
       const localChunks = localResponse.rawReplyArray || [localResponse.reply];
       await pushBotMessageChunks(localChunks, localResponse);
       setLoading(false);
-      setChatQuickReplies(
-        deriveSmartFollowUps(text, localResponse.reply, currentMood),
-      );
+      setChatQuickReplies(deriveSmartFollowUps(text, localResponse.reply, currentMood));
       return;
     }
 
-    // 4. Streaming conversational LLM AI server (costs 3 tokens on success).
-    const bonusTokens = bio?.bonusChatTokens || 0;
-    if (remainingChatTokens + bonusTokens <= 0) {
-      setLoading(false);
-      setShowTokenExchangeModal(true); // Open exchange modal directly
-      return;
-    }
-
+    // 4. Nhân vật nghe → cảm xúc của nó đổi → nó trả lời theo tâm trạng và
+    // theo chương hiện tại của hành trình.
+    const nextMind = feel(companion, mind, text);
+    setMind(nextMind);
+    saveMind(companion, nextMind);
+    const characterPrompt = buildCharacterPrompt({
+      companion,
+      mind: nextMind,
+      chapter: currentChapter({ journeyPercent, historyLogs }),
+      bio,
+      historyLogs,
+      lang,
+    });
     const botMsgId = `bot-text-${Date.now()}`;
-    const localSafetyReply = createLocalSafetyReply(text);
-    await botManager.chatStream(
-      text,
-      (chunkText) => {
-        setLoading(false);
-        const safeChunkText = sanitizeStreamChunk(chunkText, localSafetyReply);
-        // The LLM may emit "|||" mid-stream as its multi-bubble separator —
-        // while still streaming there's only one live bubble, so just show
-        // it as a paragraph break rather than the raw delimiter.
-        const displayText = safeChunkText.split("|||").join("\n\n");
-        // Batch setMessages to at most one per animation frame — prevents
-        // a React setState storm on high-frequency SSE chunks (60fps cap).
-        _pendingChunkRef.current = { text: displayText, id: botMsgId };
-        if (_rafRef.current) return;
-        _rafRef.current = requestAnimationFrame(() => {
-          _rafRef.current = null;
-          const pending = _pendingChunkRef.current;
-          if (!pending) return;
-          setMessages(prev => {
-            if (!prev.some(m => m.id === pending.id)) {
-              return [...prev, { id: pending.id, sender: "bot", text: pending.text, time: new Date() }];
-            }
-            return prev.map(m => m.id === pending.id ? { ...m, text: pending.text } : m);
-          });
-        });
-      },
-      (botResponse) => {
-        // Flush any pending RAF before replacing the live bubble with split chunks.
-        if (_rafRef.current) { cancelAnimationFrame(_rafRef.current); _rafRef.current = null; }
-        _pendingChunkRef.current = null;
-        
-        if (botResponse.outOfTokens) {
-          setLoading(false);
-          setMessages(prev => prev.filter(m => m.id !== botMsgId));
-          setShowTokenExchangeModal(true);
-          return;
-        }
+    const showLive = (liveText) => {
+      _pendingChunkRef.current = { text: liveText, id: botMsgId };
+      if (_rafRef.current) return;
+      _rafRef.current = requestAnimationFrame(() => {
+        _rafRef.current = null;
+        const pending = _pendingChunkRef.current;
+        if (!pending) return;
+        setMessages(prev => prev.some(m => m.id === pending.id)
+          ? prev.map(m => m.id === pending.id ? { ...m, text: pending.text } : m)
+          : [...prev, { id: pending.id, sender: "bot", text: pending.text, time: new Date() }]);
+      });
+    };
 
-        // The server only charges (3 tokens, or a bonus token) after a confirmed successful
-        // reply — errors never cost anything. Resync from the server instead of guessing locally.
-        refreshRemainingTokens();
-        if (botResponse.bioUpdate && onProfileUpdate) {
-          applyBioUpdate(botResponse.bioUpdate);
-        }
-        const finalBotResponse = normalizeFinalResponse(botResponse, localSafetyReply);
-        // Now that streaming is done, replace the single live bubble with the
-        // real split bubbles (the LLM was asked to separate them with "|||").
-        const chunks = finalBotResponse.reply.split("|||").map(c => c.trim()).filter(Boolean);
-        setMessages(prev => prev.filter(m => m.id !== botMsgId));
-        pushBotMessageChunks(chunks.length ? chunks : [finalBotResponse.reply], {
-          suggestPhq9: finalBotResponse.suggestPhq9,
-          suggestGad7: finalBotResponse.suggestGad7,
-          suggestWho5: finalBotResponse.suggestWho5,
-          suggestBigFive: finalBotResponse.suggestBigFive,
-          showInlineBreathing: finalBotResponse.showInlineBreathing,
-          showInlineCbt: finalBotResponse.showInlineCbt,
-          showInlineBuy: finalBotResponse.showInlineBuy,
-        }).then(() => {
-          setLoading(false);
-          setChatQuickReplies(
-            deriveSmartFollowUps(text, finalBotResponse.reply, currentMood),
-          );
-        });
-      }
-    );
+    let reply = "";
+    try {
+      reply = await brain.think(buildMessages({ companion, characterPrompt, history: messages, userText: text }), (live) => {
+        setLoading(false);
+        showLive(live);
+      });
+    } catch (err) {
+      console.error("HugoPSY brain think:", err);
+    }
+    if (_rafRef.current) { cancelAnimationFrame(_rafRef.current); _rafRef.current = null; }
+    _pendingChunkRef.current = null;
+    setMessages(prev => prev.filter(m => m.id !== botMsgId));
+
+    // Chốt an toàn đầu ra: model 1B thỉnh thoảng lạc đề; câu trả lời rỗng hoặc
+    // chạm chủ đề tự hại thì thay bằng câu an toàn soạn sẵn.
+    const unsafe = !reply || isCrisisText(removeVietnameseTones(reply).toLowerCase());
+    const finalText = unsafe ? createLocalSafetyReply(text, { bio, historyLogs }).reply : reply;
+    pushBotMessageChunks([finalText], {
+      suggestPhq9: matched?.suggestPhq9,
+      suggestGad7: matched?.suggestGad7,
+      suggestWho5: matched?.suggestWho5,
+      suggestBigFive: matched?.suggestBigFive,
+      showInlineBreathing: matched?.showInlineBreathing,
+      showInlineCbt: matched?.showInlineCbt,
+    }).then(() => {
+      setLoading(false);
+      setChatQuickReplies(deriveSmartFollowUps(text, finalText, currentMood));
+    });
   };
 
-  // Therapy methods open right inside the chat (no tab switch) — Mở trị liệu
-  // tâm lý from the "+" menu, or asking by name in free text, both land here.
-  // Reusing TherapyTab wholesale (instead of re-implementing unlock checks,
-  // JOY balance, and 8+ exercise panels a second time) keeps the paywall and
-  // panel logic in exactly one place.
-  if (showTherapyOverlay) {
-    return (
-      <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
-        <div
-          className="psy-chat-safe-header psy-liquid-glass shrink-0 flex items-center gap-2 px-4 py-2.5 border-x-0 border-t-0 rounded-none"
-          style={{ paddingRight: CLOSE_BUTTON_RESERVE }}
-        >
-          <button
-            type="button"
-            onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
-            className="w-11 h-11 -ml-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
-          >
-            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-          </button>
-          <p className="text-[13px] font-extrabold text-foreground">{t("hugoPsy.chat.thuGianTuCham")}</p>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          <Suspense fallback={null}>
-          <TherapyTab
-            onClaimChallenge={onClaimChallenge}
-            bio={bio}
-            historyLogs={historyLogs}
-            chatMessages={messages}
-            healingActive={healingActive}
-            showToast={showToast}
-            onUpdateCompanionState={onUpdateCompanionState}
-            onBioUpdate={onProfileUpdate}
-            onNavigateToTab={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
-            initialMethod={therapyInitialMethod}
-          />
-          </Suspense>
-        </div>
-        <TokenExchangeModal
-          isOpen={showTokenExchangeModal}
-          onClose={() => setShowTokenExchangeModal(false)}
-          email={bio?.email}
-          onSuccess={() => {
-            // Gửi lại tin nhắn tự động hoặc yêu cầu người dùng thử lại
-            showToast?.(t("hugoPsy.chat.banDaCoToken"), "success");
-          }}
-          showToast={showToast}
-        />
-      </div>
-    );
-  }
+  const coachRow = "flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-3 text-left transition active:scale-[0.98] hover:bg-muted/60";
+  const coachIcon = "grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground/75";
 
-  const aura = getAuraColors(currentMood);
-
+  // Chat 100%: không header riêng, không thanh nút nhanh, không nền động —
+  // AppFrame vẽ thanh trên cùng, phần còn lại là tin nhắn + ô nhập. Các lối tắt
+  // (gợi ý, kế hoạch, đánh giá, trút giận, lượt chat) gom vào nút ✦ của ô nhập.
   return (
-    <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/50 dark:bg-[#060609] animate-fadeIn relative overflow-hidden md:rounded-3xl shadow-sm dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
-      
-      {/* Ambient background glow (Dynamic Aura) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <motion.div
-          animate={{ x: [0, 20, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className={`absolute -top-32 -right-32 w-[500px] h-[500px] blur-[100px] rounded-full transition-colors duration-1000 ${aura.topRight}`}
-        />
-        <motion.div
-          animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className={`absolute top-1/4 -left-32 w-[400px] h-[400px] blur-[120px] rounded-full transition-colors duration-1000 ${aura.middleLeft}`}
-        />
-        <motion.div
-          animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-          className={`absolute bottom-1/4 right-1/4 w-[300px] h-[300px] blur-[100px] rounded-full transition-colors duration-1000 ${aura.bottomRight}`}
-        />
-      </div>
-
-      {/* ── Header — redesigned ────────────────────────────────────────────────── */}
-      <div
-        className="psy-chat-safe-header psy-liquid-glass shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 border-x-0 border-t-0 rounded-none"
-        /* Chừa chỗ cho nút X đỏ mà portal đặt `fixed` đè lên góc trên-phải.
-           ChatTab tự dựng header nên KHÔNG đi qua AppFrame — nó là header duy
-           nhất trong portal chưa từng chừa chỗ, nên nút cuối hàng (coach) nằm
-           ngay dưới nút X. Dùng chung hằng số với mọi chỗ khác. */
-        style={{ paddingRight: CLOSE_BUTTON_RESERVE }}
-      >
-        {/* Back button (mobile fullscreen only) */}
-        {onExitFullscreen && (
-          <button type="button" onClick={onExitFullscreen}
-            className="md:hidden -ml-1 w-11 h-11 rounded-full flex items-center justify-center text-foreground/80 bg-white/45 dark:bg-white/[0.08] border border-white/40 dark:border-white/10 hover:bg-white/70 dark:hover:bg-white/[0.13] active:scale-90 transition-all shrink-0 shadow-sm">
-            <span className="material-symbols-outlined text-[22px]">chevron_left</span>
-          </button>
-        )}
-
-        {/* Interactive Animula Companion Avatar */}
-        <div className="relative shrink-0" onClick={cycleCompanionType}>
-          <AnimulaAvatar
-            size={38}
-            type={companionType}
-            state={loading ? "working" : "default"}
-            interactive={true}
-          />
-        </div>
-
-        {/* Bot identity with Latin branding & metal badge */}
-        <div className="flex-1 min-w-[92px]">
-          <div className="flex items-center gap-1.5">
-            <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
-              Hugo Animula
-            </p>
-            <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 whitespace-nowrap">
-              Latin Soul
-            </span>
-          </div>
-          <p className="text-[13px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5 truncate whitespace-nowrap">
-            {loading ? typingLabel : isGuestMode ? "● Dùng thử cục bộ" : t("hugoPsy.chat.trucTuyen")}
-          </p>
-        </div>
-
-        {/* Adaptive Persona Pill */}
-        {adaptivePersona?.autoEnabled && (
-          <div
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-500 dark:text-indigo-400 shrink-0 cursor-pointer"
-            title={adaptivePersona.hint || t("hugoPsy.chat.cheDoTuDong")}
-          >
-            <span className="material-symbols-outlined text-[13px]">{adaptivePersona.icon}</span>
-            <span className="text-[13px] font-black whitespace-nowrap">{adaptivePersona.label}</span>
-          </div>
-        )}
-
-        {/* Journey progress pill */}
-        {journeyProgress && (
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-600 dark:text-emerald-400 shrink-0">
-            <span className="material-symbols-outlined text-[13px]">route</span>
-            <span className="text-[13px] font-black whitespace-nowrap">{t("hugoPsy.chat.ngay")} {journeyProgress.currentDay}/{journeyProgress.duration}</span>
-          </div>
-        )}
-
-        {/* Right actions */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Token progress ring capsule */}
-          {!isGuestMode && (() => {
-            const totalTokens = remainingChatTokens + (bio?.bonusChatTokens || 0);
-            const percentage = Math.min(100, Math.max(0, (totalTokens / maxChatTokens) * 100));
-            const radius = 8;
-            const circumference = 2 * Math.PI * radius; // ~50.26
-            const strokeDashoffset = circumference - (percentage / 100) * circumference;
-            const TokenIcon = tokenLockMinutes > 0 ? LockKeyhole : Zap;
-
-            return (
-              <button
-                type="button"
-                onClick={() => setShowTokenExchangeModal(true)}
-                /* `hidden sm:flex` — trên điện thoại pill này đã chuyển xuống menu
-                   coach. Thanh tiêu đề của một app CHAT chỉ nên có: đường ra, mình
-                   đang nói với ai, và một lối vào phần còn lại. */
-                className="hidden sm:flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
-                title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
-              >
-                <div className="relative w-4 h-4 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle 
-                      cx="8" 
-                      cy="8" 
-                      r={radius} 
-                      className="stroke-zinc-200 dark:stroke-zinc-800/60" 
-                      strokeWidth="1.5" 
-                      fill="transparent" 
-                    />
-                    <motion.circle 
-                      cx="8" 
-                      cy="8" 
-                      r={radius} 
-                      className="stroke-foreground/70"
-                      strokeWidth="1.5" 
-                      fill="transparent" 
-                      strokeDasharray={circumference}
-                      initial={{ strokeDashoffset: circumference }}
-                      animate={{ strokeDashoffset }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                  </svg>
-                  <TokenIcon className="absolute h-2.5 w-2.5 text-foreground/75" strokeWidth={2.25} />
-                </div>
-                {/* Con số ẩn trên màn rất hẹp, chỉ còn vòng tiến độ. Cả hàng có
-                    sáu phần tử không co cộng khoảng chừa cho nút X — trên máy
-                    390px tổng bề ngang vượt màn, và thứ bị đẩy đi là TÊN APP.
-                    Vòng tròn vẫn cho biết còn nhiều hay ít; bấm vào là ra số đầy
-                    đủ trong bảng đổi token. */}
-                <span className="hidden font-extrabold text-foreground/80 min-[400px]:inline">
-                  {tokenLockMinutes > 0 ? t("hugoPsy.chat.khoa") : `${totalTokens}/${maxChatTokens}`}
-                </span>
-              </button>
-            );
-          })()}
-
-          {/* Re-test button (desktop, inside active journey) */}
-          {healingActive && (
-            <button type="button"
-              onClick={() => {
-                const lastTestDateStr = localStorage.getItem("banhocduong_last_test_date");
-                if (lastTestDateStr) {
-                  const h = (Date.now() - new Date(lastTestDateStr).getTime()) / 3_600_000;
-                  if (h < 32) { showToast?.(`Đợi thêm ${Math.ceil(32 - h)} giờ nhé.`, "warning"); return; }
-                }
-                setShowTestsMenu(true);
-              }}
-              className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[13px] font-black active:scale-90 transition-all">
-              <span className="material-symbols-outlined text-[13px]">refresh</span>
-              {t("hugoPsy.chat.testLai")}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowCoachMenu((open) => !open)}
-            title={t("hugoPsy.coach.title")}
-            className={`h-11 w-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
-              showCoachMenu
-                ? "bg-foreground/10 text-foreground ring-1 ring-foreground/10"
-                : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
-            }`}
-          >
-            <BrainCircuit className="h-[17px] w-[17px]" />
-          </button>
-
-          {/* Venting mode toggle — `hidden sm:flex` trên điện thoại, đã có một hàng
-              tương đương trong menu coach. */}
-          <button type="button" onClick={toggleVentingMode}
-            title={isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
-            className={`hidden sm:flex w-11 h-11 rounded-full items-center justify-center transition-all active:scale-90 ${
-              isVentingMode
-                ? "bg-foreground/10 text-foreground border border-foreground/15"
-                : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
-            }`}>
-            {isVentingMode
-              ? <Flame className="h-[17px] w-[17px]" strokeWidth={2} />
-              : <Smile className="h-[17px] w-[17px]" strokeWidth={2} />}
-          </button>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {showCoachMenu && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            className="absolute left-3 right-3 z-30 mx-auto max-w-xl rounded-[24px] border border-white/60 bg-white/88 p-3 shadow-[0_24px_70px_rgba(31,41,55,0.18)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#17171b]/92"
-            style={{ top: "calc(env(safe-area-inset-top, 0px) + 76px)" }}
-          >
-            <div className="mb-2 flex items-center justify-between px-1">
-              <div>
-                <p className="text-[13px] font-bold tracking-[-0.02em] text-foreground">{t("hugoPsy.coach.title")}</p>
-                <p className="text-[13px] text-muted-foreground">{t("hugoPsy.coach.subtitle")}</p>
-              </div>
-              <span className="rounded-full bg-blue-500/10 px-2 py-1 text-[13px] font-bold text-blue-600 dark:text-blue-400">
-                {t("hugoPsy.coach.private")}
-              </span>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() => handleCoachAction("insight")}
-                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-                <span>
-                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.insight")}</strong>
-                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.insightDescription")}</small>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCoachAction("plan")}
-                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
-                  <ClipboardCheck className="h-4 w-4" />
-                </span>
-                <span>
-                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.plan")}</strong>
-                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.planDescription")}</small>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCoachAction("assessment")}
-                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
-                  <HeartHandshake className="h-4 w-4" />
-                </span>
-                <span>
-                  <strong className="block text-[13px] text-foreground">{t("hugoPsy.coach.assessment")}</strong>
-                  <small className="mt-1 block text-[13px] leading-4 text-muted-foreground">{t("hugoPsy.coach.assessmentDescription")}</small>
-                </span>
-              </button>
-            </div>
-            {/* ── Hai mục CHỈ HIỆN TRÊN ĐIỆN THOẠI ──────────────────────────
-                Chúng vốn là hai nút riêng trên thanh tiêu đề. Thanh đó đã có sáu
-                phần tử không co cộng khoảng chừa nút X, nên trên màn 390px tổng
-                bề ngang vượt màn và thứ bị bóp lại chính là TÊN APP. Dời xuống
-                đây thì thanh chỉ còn: đường ra · đang nói với ai · lối vào phần
-                còn lại — đúng thứ một app chat cần. Không mất chức năng nào. */}
-            <div className="mt-2 grid gap-2 sm:hidden">
-              <button
-                type="button"
-                onClick={() => { toggleVentingMode(); setShowCoachMenu(false); }}
-                className="flex min-h-11 items-center gap-2.5 rounded-2xl border border-border/60 bg-card/80 px-3 py-2.5 text-left transition active:scale-[0.98]"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
-                  {isVentingMode ? <Flame className="h-4 w-4" /> : <Smile className="h-4 w-4" />}
-                </span>
-                <strong className="text-[13px] text-foreground">
-                  {isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
-                </strong>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => { setShowTokenExchangeModal(true); setShowCoachMenu(false); }}
-                className="flex min-h-11 items-center gap-2.5 rounded-2xl border border-border/60 bg-card/80 px-3 py-2.5 text-left transition active:scale-[0.98]"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
-                  {tokenLockMinutes > 0
-                    ? <LockKeyhole className="h-4 w-4" strokeWidth={2.25} />
-                    : <Zap className="h-4 w-4" strokeWidth={2.25} />}
-                </span>
-                <strong className="flex-1 text-[13px] text-foreground">{t("hugoPsy.chat.luotTroChuyen", "Lượt trò chuyện")}</strong>
-                <span className="text-[13px] font-black text-muted-foreground">
-                  {tokenLockMinutes > 0
-                    ? t("hugoPsy.chat.khoa")
-                    : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}
-                </span>
-              </button>
-            </div>
-
-            <p className="mt-2 px-1 text-[13px] leading-4 text-muted-foreground">
-              {t("hugoPsy.coach.disclaimer")}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
-      {showTestsMenu && (
-        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowTestsMenu(false)}>
-          <div className="bg-white dark:bg-card rounded-t-3xl px-5 pt-4 space-y-2.5"
-            style={{ paddingBottom: "max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px))" }}
-            onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-1">
-              <p className="text-[13px] font-black uppercase tracking-widest text-zinc-500">{t("hugoPsy.assessment.title")}</p>
-              <button type="button" onClick={() => setShowTestsMenu(false)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center active:scale-90">
-                <span className="material-symbols-outlined text-sm text-zinc-500">close</span>
-              </button>
-            </div>
-            {[
-              { id:'phq9',    label:'PHQ-9',    desc:t("hugoPsy.chat.sangLocTrieuChung"), cls:'text-rose-600 bg-rose-500/8 border-rose-300/40 dark:text-rose-400 dark:border-rose-700/30' },
-              { id:'gad7',    label:'GAD-7',    desc:t("hugoPsy.chat.sangLocTrieuChung2"), cls:'text-cyan-600 bg-cyan-500/8 border-cyan-300/40 dark:text-cyan-400 dark:border-cyan-700/30' },
-              { id:'who5',    label:'WHO-5',    desc:t("hugoPsy.chat.trangThaiTinhThan"),  cls:'text-emerald-600 bg-emerald-500/8 border-emerald-300/40 dark:text-emerald-400 dark:border-emerald-700/30' },
-              { id:'bigfive', label:'Big Five', desc:t("hugoPsy.chat.tracNghiemNhanCach"), cls:'text-indigo-600 bg-indigo-500/8 border-indigo-300/40 dark:text-indigo-400 dark:border-indigo-700/30' },
-            ].map(t => (
-              <button key={t.id} type="button"
-                onClick={() => { handleStartTest(t.id); setShowTestsMenu(false); }}
-                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border ${t.cls} active:scale-[0.98] transition-all`}>
-                <div className="text-left">
-                  <p className="text-[13px] font-extrabold">[{t.label}]</p>
-                  <p className="text-[13px] font-semibold opacity-70 mt-0.5">{t.desc}</p>
-                </div>
-                <span className="material-symbols-outlined text-[16px] opacity-50">chevron_right</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Mobile quick actions wrapped in Liquid Gooey */}
-      <div className="psy-chat-quick-actions psy-liquid-glass md:hidden px-3 py-2 border-x-0 border-t-0 rounded-none z-20 shrink-0">
-        <Liquid blur={4} contrast={14} fill="rgba(255, 255, 255, 0.05)">
-          <div className="grid grid-cols-3 gap-2">
-            <Liquid.Item transition="bouncy">
-              <button
-                type="button"
-                onClick={() => {
-                  try { sensory.tap(); } catch {}
-                  setActiveModalDrawer("therapy");
-                }}
-                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
-              >
-                <HeartPulse className="h-3.5 w-3.5 shrink-0 text-rose-500" strokeWidth={2} />
-                <span className="truncate">{t("hugoPsy.chat.thuGian")}</span>
-              </button>
-            </Liquid.Item>
-            <Liquid.Item transition="bouncy">
-              <button
-                type="button"
-                onClick={() => {
-                  try { sensory.tap(); } catch {}
-                  isGuestMode ? requireAccount?.() : setActiveModalDrawer("sleep");
-                }}
-                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
-              >
-                <MoonStar className="h-3.5 w-3.5 shrink-0 text-indigo-500" strokeWidth={2} />
-                <span className="truncate">{t("hugoPsy.chat.giacNgu")}</span>
-              </button>
-            </Liquid.Item>
-            <Liquid.Item transition="bouncy">
-              <button
-                type="button"
-                onClick={() => {
-                  try { sensory.tap(); } catch {}
-                  isGuestMode ? requireAccount?.() : setActiveModalDrawer("evaluation");
-                }}
-                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
-              >
-                <ClipboardCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" strokeWidth={2} />
-                <span className="truncate">{t("hugoPsy.chat.danhGia")}</span>
-              </button>
-            </Liquid.Item>
-          </div>
-        </Liquid>
-      </div>
-
-      {/* ── Messages area ─────────────────────────────────────────────────────── */}
-      <div className="flex-1 min-h-0 overflow-hidden relative bg-transparent z-10">
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="relative z-10 min-h-0 flex-1 overflow-hidden">
         {chatMode === "normal" && (
           <ChatMessages
             messages={messages}
-            companionType={companionType}
+            companion={companion}
             completedMessageIds={completedMessageIds}
             setCompletedMessageIds={setCompletedMessageIds}
             onStartTest={handleStartTest}
@@ -1702,148 +1248,134 @@ export default function ChatTab({
             onCancel={() => { setChatMode("normal"); setActiveTest(null); }}
           />
         )}
-        {chatMode === "scan" && (
-          <ClinicScanner
-            onScanComplete={handleScanComplete}
-            onCancel={() => setChatMode("normal")}
-          />
-        )}
       </div>
 
-      {/* ── Input section (Floating Dynamic Island) ─────────────────────────────────────────────────────── */}
-      {chatMode === "normal" && (
-        <div
-          className="absolute left-0 right-0 z-20 pointer-events-none pb-4 px-3 sm:px-6 will-change-transform"
-          style={hasNativeKeyboard ? {
-            // VirtualKeyboard API path: the browser updates this env() on the
-            // compositor thread, so the bar rides the keyboard animation 1:1
-            // with zero jank — no JS transform, no transition needed.
-            bottom: "env(keyboard-inset-height, 0px)",
-            left: "env(safe-area-inset-left, 0px)",
-            right: "env(safe-area-inset-right, 0px)",
-            paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
-          } : {
-            // iOS Safari fallback: lift with a GPU transform. iOS fires a
-            // single late viewport resize (not per-frame), so a short ease
-            // makes the jump feel animated instead of teleporting.
-            bottom: 0,
-            left: "env(safe-area-inset-left, 0px)",
-            right: "env(safe-area-inset-right, 0px)",
-            transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : "none",
-            transition: "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
-            paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
-          }}
-        >
-          <div className="pointer-events-auto max-w-3xl mx-auto space-y-2">
-            {/* Quick Purchase Ribbon when out of tokens */}
-            {!isGuestMode && (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 && (
-              <div className="mx-2 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-amber-500 text-sm animate-pulse">bolt</span>
-                  <span className="text-[13px] font-bold text-amber-700 dark:text-amber-300">{t("hugoPsy.chat.hetTokenTroChuyen")}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowTokenExchangeModal(true)}
-                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-[13px] font-black transition-all shadow-md shrink-0"
-                >
-                  {t("hugoPsy.chat.muaNhanhBangJoy")}
-                </button>
-              </div>
-            )}
-
-            <div className="psy-liquid-composer p-1.5 transition-all">
-              <ChatInputBar
-                inputRef={inputRef}
-                value={inputText}
-                onChange={setInputText}
-                onSend={handleSendFreeText}
-                disabled={(!isGuestMode && (tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0)) || loading}
-                placeholder={
-                  isGuestMode
-                    ? "Hỏi về cách học, kế hoạch hoặc điều đang làm cậu bối rối..."
-                    : tokenLockMinutes > 0
-                    ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
-                    : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
-                    ? t("hugoPsy.chat.hetTokenHomNay")
-                    : isVentingMode
-                    ? t("hugoPsy.chat.trutBoMoiMuon")
-                    : t("hugoPsy.chat.nhanTinVoiHugopsy")
-                }
-                quickReplies={chatQuickReplies}
-                onQuickReply={(qr) => {
-                  const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
-                  if (!msgText || loading) return;
-                  setInputText("");
-                  handleSendFreeText(msgText);
-                }}
-                onUploadReport={() => setChatMode("scan")}
-              />
+      {/* ── Chọn bài sàng lọc ─────────────────────────────────────────────── */}
+      {showTestsMenu && (
+        <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/45" onClick={() => setShowTestsMenu(false)}>
+          <div className="mx-auto w-full max-w-xl rounded-t-[28px] border border-border bg-card px-4 pt-3 space-y-1"
+            style={{ paddingBottom: "max(20px, calc(env(safe-area-inset-bottom, 0px) + 12px))" }}
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-1 pb-1">
+              <p className="text-[17px] font-bold text-foreground">{t("hugoPsy.assessment.title")}</p>
+              <button type="button" onClick={() => setShowTestsMenu(false)} aria-label={t("common.close", "Đóng")}
+                className="-mr-2 w-11 h-11 rounded-full flex items-center justify-center text-muted-foreground">
+                <span className="material-symbols-outlined text-[22px]">close</span>
+              </button>
             </div>
+            {[
+              { id: "phq9", label: "PHQ-9", desc: t("hugoPsy.chat.sangLocTrieuChung") },
+              { id: "gad7", label: "GAD-7", desc: t("hugoPsy.chat.sangLocTrieuChung2") },
+              { id: "who5", label: "WHO-5", desc: t("hugoPsy.chat.trangThaiTinhThan") },
+              { id: "bigfive", label: "Big Five", desc: t("hugoPsy.chat.tracNghiemNhanCach") },
+            ].map(item => (
+              <button key={item.id} type="button"
+                onClick={() => { handleStartTest(item.id); setShowTestsMenu(false); }}
+                className={coachRow}>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold text-foreground">{item.label}</span>
+                  <span className="block text-[13px] text-muted-foreground">{item.desc}</span>
+                </span>
+                <span className="material-symbols-outlined text-[20px] text-muted-foreground">chevron_right</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
-      <TokenExchangeModal
-        isOpen={!isGuestMode && showTokenExchangeModal}
-        onClose={() => setShowTokenExchangeModal(false)}
-        email={bio?.email}
-        onSuccess={() => {
-          showToast?.(t("hugoPsy.chat.banDaCoToken"), "success");
-        }}
-        showToast={showToast}
-      />
-      {/* Interactive Modal Drawer overlay for Therapy, Sleep, or Evaluation in PWA / Chat mode */}
-      <AnimatePresence>
-        {activeModalDrawer && (
-          <div className="psy-modal-safe-layer fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-border rounded-3xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden relative text-left"
-              style={{ maxHeight: "calc(100dvh - max(16px, env(safe-area-inset-top, 0px)) - max(16px, env(safe-area-inset-bottom, 0px)))" }}
-            >
-              <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
-                <span className="flex min-w-0 items-center gap-2 text-[13px] font-black uppercase tracking-wider text-foreground">
-                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baiTapTinhTam")}</span></>}
-                  {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.nhatKyChuKy")}</span></>}
-                  {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baoCaoDanhGia")}</span></>}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveModalDrawer(null)}
-                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
-                >
-                  ✕
-                </button>
-              </div>
 
-              <div className="flex-1 overflow-y-auto p-4">
-                <Suspense fallback={null}>
-                {activeModalDrawer === "therapy" && (
-                  <TherapyTab
-                    onNavigateToTab={onNavigateToTab}
-                    onClaimChallenge={onClaimChallenge}
-                    bio={bio}
-                    historyLogs={historyLogs}
-                    chatMessages={messages}
-                    onUpdateCompanionState={onUpdateCompanionState}
-                    healingActive={healingActive}
-                    showToast={showToast}
-                  />
-                )}
-                {activeModalDrawer === "sleep" && (
-                  <SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} />
-                )}
-                {activeModalDrawer === "evaluation" && (
-                  <EvaluationTab onNavigateToTab={onNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
-                )}
-                </Suspense>
-              </div>
-            </motion.div>
+      {/* ── Ô nhập nổi ─────────────────────────────────────────────────────── */}
+      {chatMode === "normal" && (
+        <div
+          className="absolute left-0 right-0 z-20 pointer-events-none px-3 sm:px-4 will-change-transform"
+          style={hasNativeKeyboard ? {
+            // VirtualKeyboard API: env() cập nhật trên compositor thread — ô nhập
+            // bám theo bàn phím 1:1 không giật.
+            bottom: "env(keyboard-inset-height, 0px)",
+            paddingBottom: keyboardInset > 0 ? "8px" : "max(12px, env(safe-area-inset-bottom))",
+          } : {
+            // iOS Safari: nâng bằng transform GPU.
+            bottom: 0,
+            transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : "none",
+            transition: "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
+            paddingBottom: keyboardInset > 0 ? "8px" : "max(12px, env(safe-area-inset-bottom))",
+          }}
+        >
+          <div className="pointer-events-auto mx-auto max-w-3xl space-y-2">
+            <AnimatePresence>
+              {showCoachMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
+                  className="rounded-[24px] border border-border bg-card p-2 shadow-lg"
+                >
+                  <div className="flex items-center justify-between px-2 pb-1 pt-1">
+                    <p className="text-[15px] font-bold text-foreground">{t("hugoPsy.coach.title")}</p>
+                    <span className="text-[13px] text-muted-foreground">{t("hugoPsy.coach.private")}</span>
+                  </div>
+                  <div className="grid sm:grid-cols-2">
+                    <button type="button" onClick={() => handleCoachAction("insight")} className={coachRow}>
+                      <span className={coachIcon}><Sparkles className="h-4 w-4" /></span>
+                      <span className="text-[15px] font-medium text-foreground">{t("hugoPsy.coach.insight")}</span>
+                    </button>
+                    <button type="button" onClick={() => handleCoachAction("plan")} className={coachRow}>
+                      <span className={coachIcon}><ClipboardCheck className="h-4 w-4" /></span>
+                      <span className="text-[15px] font-medium text-foreground">{t("hugoPsy.coach.plan")}</span>
+                    </button>
+                    <button type="button" onClick={() => handleCoachAction("assessment")} className={coachRow}>
+                      <span className={coachIcon}><HeartHandshake className="h-4 w-4" /></span>
+                      <span className="text-[15px] font-medium text-foreground">{t("hugoPsy.coach.assessment")}</span>
+                    </button>
+                    <button type="button" onClick={() => { toggleVentingMode(); setShowCoachMenu(false); }} className={coachRow}>
+                      <span className={coachIcon}>{isVentingMode ? <Flame className="h-4 w-4" /> : <Smile className="h-4 w-4" />}</span>
+                      <span className="text-[15px] font-medium text-foreground">
+                        {isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
+                      </span>
+                    </button>
+                  </div>
+                  <p className="px-2 pb-1 pt-1 text-[13px] leading-snug text-muted-foreground">{t("hugoPsy.coach.disclaimer")}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {(brainStatus === "asleep" || brainStatus === "loading" || brainStatus === "error") && (
+              <BrainWakeCard
+                companion={companion}
+                status={brainStatus}
+                progress={brainProgress}
+                onWake={askToWake}
+              />
+            )}
+
+            <ChatInputBar
+              inputRef={inputRef}
+              value={inputText}
+              onChange={setInputText}
+              onSend={handleSendFreeText}
+              busy={loading}
+              disabled={(!isGuestMode && tokenLockMinutes > 0) || loading}
+              placeholder={
+                isGuestMode
+                  ? `Nhắn cho ${companion.name}...`
+                  : tokenLockMinutes > 0
+                  ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
+                  : isVentingMode
+                  ? t("hugoPsy.chat.trutBoMoiMuon")
+                  : `Nhắn cho ${companion.name}...`
+              }
+              quickReplies={chatQuickReplies}
+              onQuickReply={(qr) => {
+                const msgText = typeof qr === "string" ? qr : (qr.text || qr.label || "");
+                if (!msgText || loading) return;
+                setInputText("");
+                handleSendFreeText(msgText);
+              }}
+              coachOpen={showCoachMenu}
+              onToggleCoach={() => setShowCoachMenu((open) => !open)}
+              coachLabel={t("hugoPsy.coach.title")}
+            />
           </div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
+
 
       {/* Calm safety prompt; SOS sound only starts after an explicit tap. */}
       <CrisisSosCountdown open={sosPromptOpen} onClose={() => setSosPromptOpen(false)} />

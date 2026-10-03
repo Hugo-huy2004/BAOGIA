@@ -34,6 +34,7 @@ const CERTIFIED = {
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
+  banhocduong: "03/10/2026 — làm lại thành app chat 100% trên AppFrame: gỡ header chat tự dựng (nút X đè nút coach vì CSS !important ghi đè chỗ chừa), thẻ Lộ trình, nền aura động, 3 nút nhanh + drawer trùng TherapyTab; Thư giãn/Giấc ngủ/Đánh giá lên thanh tiêu đề; 4 nhân vật đồng hành theo đánh giá; chữ lên sàn 13px",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
 };
 

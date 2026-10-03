@@ -116,8 +116,8 @@ function SoundscapePanel({ onBack, onComplete }) {
               <div className="flex items-center gap-2 min-w-0">
                 <HugeIcon name={item.icon} size={18} className="text-indigo-400 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-[13px] font-black text-foreground">{item.label}</p>
-                  <p className="text-[11px] sm:text-[13px] text-zinc-400 truncate">{item.desc}</p>
+                  <p className="text-[13px] sm:text-[13px] font-black text-foreground">{item.label}</p>
+                  <p className="text-[13px] sm:text-[13px] text-zinc-400 truncate">{item.desc}</p>
                 </div>
               </div>
               
@@ -703,16 +703,16 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                 <Award className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
-                <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground leading-none truncate">
+                <h4 className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-foreground leading-none truncate">
                   Thử thách Chăm sóc Tinh thần
                 </h4>
-                <p className="text-[11px] sm:text-[13px] text-muted-foreground font-bold leading-none mt-1 truncate">
+                <p className="text-[13px] sm:text-[13px] text-muted-foreground font-bold leading-none mt-1 truncate">
                   Thực hành tự phục hồi và tích lũy JOY hằng ngày
                 </p>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <span className="text-[11px] sm:text-[13px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-amber-500/20">
+              <span className="text-[13px] sm:text-[13px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-amber-500/20">
                 {totalCompleted}/3
               </span>
             </div>
@@ -742,10 +742,10 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                       <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-[13px] font-black text-foreground leading-tight">
+                      <p className="text-[13px] sm:text-[13px] font-black text-foreground leading-tight">
                         {ch.title}
                       </p>
-                      <p className="text-[11px] sm:text-[13px] text-muted-foreground font-medium leading-tight mt-0.5">
+                      <p className="text-[13px] sm:text-[13px] text-muted-foreground font-medium leading-tight mt-0.5">
                         {ch.desc}
                       </p>
                     </div>
@@ -753,16 +753,16 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
 
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30">
                     <div className="flex flex-col">
-                      <span className="text-[10px] sm:text-[11px] font-bold uppercase text-muted-foreground/70 leading-none">
+                      <span className="text-[13px] sm:text-[13px] font-bold uppercase text-muted-foreground/70 leading-none">
                         Tiến độ
                       </span>
-                      <span className="text-xs sm:text-[13px] font-black text-foreground mt-0.5">
+                      <span className="text-[13px] sm:text-[13px] font-black text-foreground mt-0.5">
                         {ch.progressText}
                       </span>
                     </div>
 
                     {ch.claimed ? (
-                      <span className="flex items-center gap-1 text-[11px] sm:text-[13px] font-black uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
+                      <span className="flex items-center gap-1 text-[13px] sm:text-[13px] font-black uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
                         <Check size={14} className="align-middle inline-block" /> Đã nhận
                       </span>
                     ) : ch.completed ? (
@@ -771,12 +771,12 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleClaimReward(ch.id)}
                         disabled={claimingId !== null}
-                        className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider rounded-lg sm:rounded-xl shadow-sm active:scale-95 transition-all"
+                        className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[13px] sm:text-[13px] font-black uppercase tracking-wider rounded-lg sm:rounded-xl shadow-sm active:scale-95 transition-all"
                       >
                         {claimingId === ch.id ? "Đang nhận..." : `Nhận +${joyText(ch.reward)}`}
                       </motion.button>
                     ) : (
-                      <span className="text-[11px] sm:text-[13px] font-bold uppercase text-muted-foreground/70 bg-muted/60 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
+                      <span className="text-[13px] sm:text-[13px] font-bold uppercase text-muted-foreground/70 bg-muted/60 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
                         Chưa đạt
                       </span>
                     )}
@@ -794,8 +794,8 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Tuần này</p>
-              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{weekActivities} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">hoạt động</span></p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Tuần này</p>
+              <p className="text-[13px] sm:text-[13px] font-black text-foreground truncate">{weekActivities} <span className="text-[13px] sm:text-[13px] font-bold text-muted-foreground/70">hoạt động</span></p>
             </div>
           </div>
         </BorderBeam>
@@ -803,8 +803,8 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Streak</p>
-              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{streak} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">ngày</span></p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Streak</p>
+              <p className="text-[13px] sm:text-[13px] font-black text-foreground truncate">{streak} <span className="text-[13px] sm:text-[13px] font-bold text-muted-foreground/70">ngày</span></p>
             </div>
           </div>
         </BorderBeam>
@@ -812,8 +812,8 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Phương pháp</p>
-              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{ALL_METHODS.length} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">có sẵn</span></p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Phương pháp</p>
+              <p className="text-[13px] sm:text-[13px] font-black text-foreground truncate">{ALL_METHODS.length} <span className="text-[13px] sm:text-[13px] font-bold text-muted-foreground/70">có sẵn</span></p>
             </div>
           </div>
         </BorderBeam>
@@ -854,44 +854,44 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                       <method.Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     {ok ? (
-                      <span className={`flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${method.badge}`}>
+                      <span className={`flex items-center gap-1 text-[13px] sm:text-[13px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${method.badge}`}>
                         <Unlock className="w-2.5 h-2.5" /> Mở
                       </span>
                     ) : needsAccount ? (
-                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
+                      <span className="flex items-center gap-1 text-[13px] sm:text-[13px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
                         <Lock className="w-2.5 h-2.5" /> Tài khoản
                       </span>
                     ) : showJoyUnlock ? (
-                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <span className="flex items-center gap-1 text-[13px] sm:text-[13px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                         <Lock className="w-2.5 h-2.5" /> JOY
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
+                      <span className="flex items-center gap-1 text-[13px] sm:text-[13px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
                         <Lock className="w-2.5 h-2.5" /> Khóa
                       </span>
                     )}
                   </div>
 
                   {/* Category */}
-                  <span className={`inline-block text-[9.5px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${method.badge}`}>
+                  <span className={`inline-block text-[13px] sm:text-[13px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${method.badge}`}>
                     {method.category}
                   </span>
 
                   {/* Name & desc */}
                   <div>
                     <p className="text-[13px] sm:text-[14px] font-black text-foreground leading-tight">{method.name}</p>
-                    <p className="text-[11px] sm:text-[12px] text-muted-foreground font-medium leading-snug mt-1 line-clamp-2">{method.desc}</p>
+                    <p className="text-[13px] sm:text-[13px] text-muted-foreground font-medium leading-snug mt-1 line-clamp-2">{method.desc}</p>
                   </div>
                 </div>
 
                 {/* Duration + button / JOY unlock */}
                 <div className="pt-3 mt-2 border-t border-border/20 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/80 bg-muted/60 px-2 py-0.5 rounded-md">{method.duration}</span>
+                    <span className="text-[13px] sm:text-[13px] font-bold text-muted-foreground/80 bg-muted/60 px-2 py-0.5 rounded-md">{method.duration}</span>
                     {ok && (
                       <button
                         onClick={() => openPanel(method.id)}
-                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[13px] sm:text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
                       >
                         Bắt đầu <ChevronRight className="w-3 h-3" />
                       </button>
@@ -905,7 +905,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                         handleUnlockFeature(method);
                       }}
                       disabled={isUnlockingThis}
-                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] sm:text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
                     >
                       {needsAccount ? (
                         <>
@@ -972,7 +972,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                         <span className="text-lg font-black text-foreground">{joyText(unlockReceipt.balanceAfter)}</span>
                       </div>
                     </div>
-                    <p className="text-[12px] text-muted-foreground text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
+                    <p className="text-[13px] text-muted-foreground text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
                   </div>
                   <div className="p-4 border-t border-border/30">
                     <button

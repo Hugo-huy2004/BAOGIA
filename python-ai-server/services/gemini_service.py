@@ -302,7 +302,16 @@ class GeminiService:
 
         adaptive_persona = (bio or {}).get("adaptivePersona") or {}
         adaptive_hint = adaptive_persona.get("hint") or (bio or {}).get("adaptivePersonaHint", "")
-        adaptive_section = f"\n        Ghi chú cấu hình tự động thích ứng (Adaptive Persona): {adaptive_hint}" if adaptive_hint else ""
+        # Nhân vật đồng hành (Lém/Cốm/Sương/Bông — src/.../constants/companions.js).
+        # Phần cá tính chung bên dưới ("cực kỳ nhây"...) mặc định cho mọi người; khi
+        # có nhân vật thì tên, mức hài hước và độ thẳng thắn của NHÂN VẬT thắng —
+        # nếu không, Sương (hài hước 30%) vẫn bị ép "nhây hết nấc". Luật an toàn
+        # bên dưới thì KHÔNG nhân vật nào được ghi đè.
+        adaptive_section = (
+            "\n        NHÂN VẬT BẠN ĐANG ĐÓNG (ƯU TIÊN CAO HƠN phần cá tính chung bên dưới: "
+            "dùng tên, giọng, mức hài hước và độ thẳng thắn của nhân vật này; "
+            f"chỉ các nguyên tắc an toàn và hy vọng là không được ghi đè): {adaptive_hint}"
+        ) if adaptive_hint else ""
 
         recalled_rag = (bio or {}).get("recalledRagMemories") or (bio or {}).get("longTermMemories") or []
         long_term_memory_section = ""

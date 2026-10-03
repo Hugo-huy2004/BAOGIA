@@ -139,6 +139,8 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "team",
   "radio",
   "nom",
+  // HugoPSY dựng trên AppFrame (app chat toàn màn) từ 03/10.
+  "psychology",
   // Id đã nghỉ hưu nhưng vẫn mở app kế nhiệm; bookmark cũ phải ra đúng vỏ.
   "ide",
   "hugoso",

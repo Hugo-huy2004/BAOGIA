@@ -47,7 +47,7 @@ function InlineBreathingCircle() {
     <div className="mt-2 w-full max-w-[260px]">
       <BorderBeam size="md" colorVariant="ocean" strength={0.8} borderRadius={20}>
         <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent border border-sky-400/20 dark:border-sky-800/30 flex flex-col items-center gap-2.5 sm:gap-3.5 w-full shadow-sm backdrop-blur-md text-foreground">
-          <div className="text-xs sm:text-[13px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
+          <div className="text-[13px] sm:text-[13px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px] animate-pulse">air</span>
             Bài tập Thở 4-7-8
           </div>
@@ -77,11 +77,11 @@ function InlineBreathingCircle() {
               )}
             </div>
           </div>
-          <p className="text-xs sm:text-[13px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
+          <p className="text-[13px] sm:text-[13px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
             {phaseLabel}
           </p>
           <button type="button" onClick={isActive ? stopBreathing : startBreathing}
-            className={`w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
+            className={`w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
               isActive 
                 ? "bg-zinc-400 hover:bg-zinc-500 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
                 : "bg-sky-500 hover:bg-sky-600 shadow-[0_2px_10px_rgba(14,165,233,0.3)]"
@@ -100,13 +100,13 @@ function InlineCbtCard() {
     <div className="mt-2 w-full max-w-[260px]">
       <BorderBeam size="md" colorVariant="candy" strength={0.8} borderRadius={20}>
         <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-2 sm:gap-3 w-full shadow-sm backdrop-blur-md">
-          <div className="text-xs sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+          <div className="text-[13px] sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px]">psychology</span>
             Thử thách Suy nghĩ (CBT)
           </div>
           <div className="bg-zinc-100/80 dark:bg-zinc-900/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]">
-            <p className="text-[11px] sm:text-[13px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-            <p className="text-xs sm:text-[13px] font-bold text-foreground/70 mt-0.5 sm:mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
+            <p className="text-[13px] sm:text-[13px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
+            <p className="text-[13px] sm:text-[13px] font-bold text-foreground/70 mt-0.5 sm:mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
           </div>
           <AnimatePresence mode="wait">
             {challenged ? (
@@ -119,9 +119,9 @@ function InlineCbtCard() {
               >
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-emerald-500 text-[13px] animate-pulse">sparkles</span>
-                  <p className="text-[11px] sm:text-[13px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
+                  <p className="text-[13px] sm:text-[13px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
                 </div>
-                <p className="text-xs sm:text-[13px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
+                <p className="text-[13px] sm:text-[13px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
                   "Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."
                 </p>
               </motion.div>
@@ -132,7 +132,7 @@ function InlineCbtCard() {
                 onClick={() => setChallenged(true)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
+                className="w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-[13px] sm:text-[13px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
               >
                 Thử thách suy nghĩ
               </motion.button>
@@ -172,8 +172,8 @@ function InlineSleepReportCard({ bio }) {
   if (avgDur === null) {
     return (
       <div className="mt-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-teal-500/8 border border-teal-500/20 text-left max-w-sm">
-        <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
-        <p className="mt-1 text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+        <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
+        <p className="mt-1 text-[13px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bản ghi giấc ngủ để tính trung bình. Hãy ghi ít nhất một đêm trước khi xem báo cáo.
         </p>
       </div>
@@ -185,28 +185,28 @@ function InlineSleepReportCard({ bio }) {
       <BorderBeam size="md" colorVariant="ocean" strength={0.75} borderRadius={18}>
         <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
           <div className="flex items-center justify-between border-b border-teal-500/20 pb-1.5 sm:pb-2">
-            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
+            <span className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
               <span className="material-symbols-outlined align-middle text-[16px] sm:text-[18px]" aria-hidden="true">bedtime</span> Báo Cáo Giấc Ngủ & Chu Kỳ
             </span>
-            <span className="text-[10.5px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
+            <span className="text-[13px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
               {recentLogs.length} đêm gần nhất
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-center">
             <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
-              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
-              <p className="text-xs sm:text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
+              <p className="text-[13px] sm:text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
             </div>
             <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
-              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
-              <p className={`text-xs sm:text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
+              <p className={`text-[13px] sm:text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
                 {debt > 0 ? `${debt} giờ` : "0 giờ (Tốt)"}
               </p>
             </div>
           </div>
 
-          <p className="text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+          <p className="text-[13px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
             Đây là thống kê từ dữ liệu cậu đã ghi, không phải kết quả chẩn đoán giấc ngủ.
           </p>
         </div>
@@ -231,8 +231,8 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
   if (!hasScores) {
     return (
       <div className="mt-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-violet-500/8 border border-violet-500/20 text-left max-w-sm">
-        <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
-        <p className="mt-1 text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+        <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
+        <p className="mt-1 text-[13px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bài tự đánh giá nào được hoàn thành. HugoPSY sẽ không tự điền kết quả thay cậu.
         </p>
       </div>
@@ -244,29 +244,29 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
       <BorderBeam size="md" colorVariant="candy" strength={0.75} borderRadius={18}>
         <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
           <div className="flex items-center justify-between border-b border-violet-500/20 pb-1.5 sm:pb-2">
-            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+            <span className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
               <span className="material-symbols-outlined align-middle text-[16px] sm:text-[18px]" aria-hidden="true">monitoring</span> Báo Cáo Sức Khỏe Tinh Thần
             </span>
-            <span className="text-[10.5px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
+            <span className="text-[13px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
               Tự Nhận Thức
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-1 sm:gap-1.5 text-center">
             <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
-              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">PHQ-9</p>
-              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase text-muted-foreground">PHQ-9</p>
+              <p className="text-[13px] sm:text-[13px] font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
             </div>
             <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
-              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">GAD-7</p>
-              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase text-muted-foreground">GAD-7</p>
+              <p className="text-[13px] sm:text-[13px] font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
             </div>
             <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
-              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">WHO-5</p>
-              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase text-muted-foreground">WHO-5</p>
+              <p className="text-[13px] sm:text-[13px] font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
             </div>
           </div>
-          <p className="text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+          <p className="text-[13px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
             Điểm tự đánh giá chỉ hỗ trợ theo dõi xu hướng và không phải chẩn đoán.
           </p>
         </div>
@@ -282,7 +282,7 @@ function InlineTherapyReportCard() {
       <BorderBeam size="md" colorVariant="ocean" strength={0.75} borderRadius={18}>
         <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
           <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 sm:pb-2">
-            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            <span className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">spa</span> Gợi Ý Thư Giãn Phù Hợp
             </span>
             <span className="px-2 py-0.5 rounded-full text-[13px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
@@ -379,14 +379,14 @@ function MoodCheckinCard({ onMoodSelect }) {
         <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-50/95 via-violet-50/75 to-sky-50/80 dark:from-indigo-950/50 dark:via-violet-950/30 dark:to-sky-950/25 border border-indigo-100/70 dark:border-indigo-800/30 w-full shadow-sm space-y-2.5 sm:space-y-3.5 backdrop-blur-xl">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs sm:text-[13px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
-              <p className="text-[11px] sm:text-[13px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
+              <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
+              <p className="text-[13px] sm:text-[13px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
             </div>
             <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-indigo-500">vital_signs</span>
           </div>
 
           <div className="space-y-1 sm:space-y-1.5">
-            <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
+            <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
             <div className="flex justify-between gap-1">
               {MOOD_OPTS.map(opt => {
                 const Icon = opt.icon;
@@ -402,7 +402,7 @@ function MoodCheckinCard({ onMoodSelect }) {
                     }`}
                   >
                     <Icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${selected === opt.value ? "text-white" : "text-foreground"}`} />
-                    <span className={`text-[10px] sm:text-[13px] font-bold leading-tight text-center ${
+                    <span className={`text-[13px] sm:text-[13px] font-bold leading-tight text-center ${
                       selected === opt.value ? "text-white" : "text-muted-foreground"
                     }`}>{opt.label}</span>
                   </button>
@@ -417,14 +417,14 @@ function MoodCheckinCard({ onMoodSelect }) {
           </div>
 
           <div className="space-y-1 sm:space-y-1.5">
-            <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
+            <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
             <div className="grid grid-cols-2 gap-1.5">
               {NEED_OPTS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => setNeed(option.value)}
-                  className={`min-h-8 sm:min-h-9 px-2 sm:px-2.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.97] ${
+                  className={`min-h-8 sm:min-h-9 px-2 sm:px-2.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 text-[13px] sm:text-[13px] font-bold transition-all active:scale-[0.97] ${
                     need === option.value
                       ? "bg-indigo-500 text-white shadow-sm"
                       : "bg-background/75 border border-border/60 text-foreground/75"
@@ -437,13 +437,13 @@ function MoodCheckinCard({ onMoodSelect }) {
             </div>
           </div>
 
-          {error && <p role="alert" className="text-xs sm:text-[13px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
+          {error && <p role="alert" className="text-[13px] sm:text-[13px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
 
           <button
             type="button"
             disabled={!selected || !need || saving}
             onClick={handleSubmit}
-            className="w-full min-h-8 sm:min-h-10 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider shadow-sm disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
+            className="w-full min-h-8 sm:min-h-10 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[13px] sm:text-[13px] font-black uppercase tracking-wider shadow-sm disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
           >
             {saving ? "Đang lưu..." : "Lưu kế hoạch hôm nay"}
           </button>
@@ -468,18 +468,18 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
             <div className="w-5 h-5 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
               <span className="material-symbols-outlined text-[13px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
             </div>
-            <span className="text-xs sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
+            <span className="text-[13px] sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
           </div>
           <div className="flex flex-col gap-0.5 sm:gap-1">
-            <p className="text-xs sm:text-[13px] font-extrabold text-foreground leading-snug">{method.name}</p>
-            <p className="text-[11px] sm:text-[13px] text-muted-foreground leading-normal">
+            <p className="text-[13px] sm:text-[13px] font-extrabold text-foreground leading-snug">{method.name}</p>
+            <p className="text-[13px] sm:text-[13px] text-muted-foreground leading-normal">
               Trải nghiệm trọn vẹn bài tập và lộ trình chuyên sâu giúp cậu cân bằng cảm xúc tốt hơn.
             </p>
           </div>
           <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
             <div className="flex items-center gap-1">
-              <span className="text-xs sm:text-[13px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
-              <span className="text-xs sm:text-[13px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
+              <span className="text-[13px] sm:text-[13px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
+              <span className="text-[13px] sm:text-[13px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
             </div>
             <motion.button
               type="button"
@@ -496,7 +496,7 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
                 }
               }}
               disabled={!canAfford || isUnlocking}
-              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
                 isUnlocking
                   ? "bg-zinc-400 dark:bg-zinc-700 cursor-wait"
                   : !canAfford
@@ -517,16 +517,16 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
-      <div className="px-3.5 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-[13px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-2xl sm:rounded-[24px] rounded-tl-[6px] sm:rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
+      <div className="px-4 py-2.5 text-[15px] leading-relaxed bg-muted text-foreground rounded-[20px] rounded-tl-md max-w-full">
         {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
           <TypewriterText text={msg.text} id={msg.id}
             onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
         ) : (
-          <p className="whitespace-pre-wrap font-medium"><FormatText text={msg.text} /></p>
+          <p className="whitespace-pre-wrap"><FormatText text={msg.text} /></p>
         )}
         {msg.showTherapyButton && (
           <button type="button" onClick={() => onNavigateToTab?.("therapy")}
-            className="mt-2 flex items-center gap-1.5 w-full justify-center py-1.5 sm:py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs sm:text-[13px] font-bold rounded-xl transition-all active:scale-95">
+            className="mt-2 flex items-center gap-1.5 w-full justify-center py-1.5 sm:py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[13px] sm:text-[13px] font-bold rounded-xl transition-all active:scale-95">
             <Heart className="w-3.5 h-3.5" /> Mở bài thư giãn
           </button>
         )}
@@ -696,8 +696,8 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
 
 function UserBubble({ msg }) {
   return (
-    <div className="px-5 py-3.5 text-[13px] md:text-[14px] leading-relaxed bg-gradient-to-br from-[#0071e3] to-[#5856d6] text-white rounded-[24px] rounded-tr-[8px] shadow-[0_8px_32px_rgba(0,113,227,0.3),inset_0_2px_6px_rgba(255,255,255,0.25)] border border-border/20/[0.15] max-w-full">
-      <p className="whitespace-pre-wrap font-medium">{msg.text}</p>
+    <div className="px-4 py-2.5 text-[15px] leading-relaxed text-white rounded-[20px] rounded-tr-md max-w-full" style={{ background: "var(--ax, #0A84FF)" }}>
+      <p className="whitespace-pre-wrap">{msg.text}</p>
     </div>
   );
 }
@@ -723,7 +723,7 @@ function ChatMessages({
   unlockedFeatures = [],
   bio,
   historyLogs = [],
-  companionType = "clover",
+  companion,
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -805,6 +805,13 @@ function ChatMessages({
             );
             if (isPrecedingBotTyping) return null;
 
+            // Cụm tin liên tiếp cùng người gửi: avatar ở tin đầu, giờ ở tin cuối —
+            // như mọi app chat, thay vì lặp avatar + giờ dưới từng dòng.
+            const prev = renderMessages[index - 1];
+            const next = renderMessages[index + 1];
+            const firstOfGroup = !prev || prev.sender !== msg.sender;
+            const lastOfGroup = !next || next.sender !== msg.sender;
+
             const hasWideCard = isBot && Boolean(
               msg.type === "mood_checkin" ||
               msg.showInlineBreathing ||
@@ -823,19 +830,15 @@ function ChatMessages({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
                 transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                className={`flex flex-col ${isBot ? "items-start" : "items-end"} mb-4`}
+                className={`flex flex-col ${isBot ? "items-start" : "items-end"} ${lastOfGroup ? "mb-4" : "mb-1"}`}
               >
                 <div className={`flex ${isBot ? "items-start" : "items-end"} gap-2.5 w-full ${isBot ? "justify-start" : "justify-end"}`}>
                   {/* Bot avatar */}
                   {isBot && (
-                    <div className="shrink-0 mt-1">
-                      <AnimulaAvatar
-                        size={32}
-                        type={companionType || "clover"}
-                        state={msg.id === "typing" ? "working" : "default"}
-                        face="mouth"
-                        interactive={true}
-                      />
+                    <div className="shrink-0 w-8">
+                      {firstOfGroup && (
+                        <AnimulaAvatar size={32} type={companion?.type} color={companion?.color} face="mouth" />
+                      )}
                     </div>
                   )}
 
@@ -852,7 +855,8 @@ function ChatMessages({
                 </div>
 
                 {/* Timestamp */}
-                <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-10" : "mr-1"}`}>
+                {(lastOfGroup || msg.timeLeft !== undefined) && (
+                <div className={`flex items-center gap-1.5 mt-1 ${isBot ? "ml-10" : "mr-1"}`}>
                   <span className="text-[13px] text-muted-foreground/70 font-medium">
                     {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -862,6 +866,7 @@ function ChatMessages({
                     </span>
                   )}
                 </div>
+                )}
               </motion.div>
             );
           })}
@@ -873,18 +878,12 @@ function ChatMessages({
             <motion.div key="typing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="flex items-end gap-2.5 justify-start mb-1">
               <div className="shrink-0">
-                <AnimulaAvatar
-                  size={32}
-                  type={companionType || "clover"}
-                  state="working"
-                  face="mouth"
-                  interactive={false}
-                />
+                <AnimulaAvatar size={32} type={companion?.type} color={companion?.color} state="working" face="mouth" interactive={false} />
               </div>
-              <div className="px-4 py-3 bg-card/80 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-border/60/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5" role="status" aria-label={typingLabel}>
+              <div className="px-4 py-3.5 bg-muted rounded-[20px] rounded-tl-md flex items-center gap-2.5" role="status" aria-label={typingLabel}>
                 <span className="flex items-center gap-[3px]">
-                  {[0, 150, 300].map((delay, i) => (
-                    <span key={delay} className={`w-1.5 h-1.5 rounded-full animate-bounce ${i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-purple-500"}`}
+                  {[0, 150, 300].map((delay) => (
+                    <span key={delay} className="w-1.5 h-1.5 rounded-full animate-bounce bg-muted-foreground"
                       style={{ animationDelay: `${delay}ms` }} />
                   ))}
                 </span>
@@ -904,7 +903,8 @@ function ChatMessages({
             initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
             onClick={() => { userScrolledUpRef.current = false; scrollToBottom("smooth"); }}
-            className="absolute bottom-4 right-4 z-10 w-9 h-9 rounded-full bg-white dark:bg-[#1e1d2c] border border-border shadow-lg flex items-center justify-center text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 active:scale-90 transition-all"
+            aria-label="Xuống tin mới nhất"
+            className="absolute bottom-24 right-4 z-10 w-11 h-11 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-muted-foreground active:scale-90 transition-transform"
           >
             <ChevronDown className="w-4 h-4" />
           </motion.button>

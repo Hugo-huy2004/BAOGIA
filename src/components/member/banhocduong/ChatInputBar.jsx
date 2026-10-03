@@ -1,9 +1,12 @@
-import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+import { BorderBeam } from "border-beam";
 import { sensory } from "../../../lib/sensory";
+import useDarkScheme from "../os/useDarkScheme";
 
 /**
- * Modern iMessage-style composer with BorderBeam glow and sensory feedback.
+ * Ô nhập kiểu app chat. BorderBeam chỉ chạy khi có chuyện đang xảy ra — đang gõ
+ * (focus) hoặc nhân vật đang soạn trả lời (busy) — nên viền sáng mang nghĩa
+ * "đang nghe / đang nghĩ", không phải trang trí thường trực.
  * Memoized so typing a keystroke never re-renders the message list above.
  */
 function ChatInputBar({
@@ -12,20 +15,20 @@ function ChatInputBar({
   onChange,
   onSend,
   disabled,
+  busy = false,
   placeholder,
   quickReplies = [],
   onQuickReply,
-  onUploadReport,
+  coachOpen = false,
+  onToggleCoach,
+  coachLabel,
 }) {
+  const [focused, setFocused] = useState(false);
+  const dark = useDarkScheme();
   const hasText = value.trim().length > 0;
 
   const handleSend = () => {
-    try {
-      sensory.pop();
-      sensory.vibrate('light');
-    } catch {
-      // Ignore
-    }
+    try { sensory.pop(); sensory.vibrate("light"); } catch { /* ignore */ }
     onSend?.();
   };
 
@@ -36,100 +39,81 @@ function ChatInputBar({
   const autoResize = (e) => {
     const el = e.target;
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 88) + "px";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
   };
 
+  const iconButton = "grid h-11 w-11 shrink-0 place-items-center rounded-full transition active:scale-90 disabled:opacity-40";
+
   return (
-    <div className="px-3 sm:px-4 pb-1 pt-1 space-y-1.5">
-      {/* Quick-reply chips — float above input */}
-      <AnimatePresence>
-        {quickReplies.length > 0 && (
-          <motion.div
-            key="qr"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.18 }}
-            className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5"
-          >
-            {quickReplies.map((qr, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => {
-                  try { sensory.tap(); sensory.vibrate('light'); } catch {}
-                  onQuickReply?.(qr);
-                }}
-                className="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-card/60 backdrop-blur-md border border-border/80/[0.08] text-foreground/80 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
-              >
-                {qr.label || qr}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="space-y-2">
+      {quickReplies.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {quickReplies.map((qr, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => {
+                try { sensory.tap(); } catch { /* ignore */ }
+                onQuickReply?.(qr);
+              }}
+              className="min-h-[40px] shrink-0 whitespace-nowrap rounded-full border border-border bg-card px-4 text-[15px] text-foreground transition active:scale-95"
+            >
+              {qr.label || qr}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Composer pill — clean iMessage-style */}
-      <div className={`relative flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[24px] bg-white/80 dark:bg-[#161624]/85 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-200 ${
-          disabled
-            ? "opacity-60"
-            : "focus-within:border-blue-500/40 focus-within:shadow-[0_4px_25px_rgba(59,130,246,0.18)]"
-        }`}>
-        {onUploadReport && (
-          <button
-            type="button"
-            onClick={onUploadReport}
+      <BorderBeam
+        size="md"
+        colorVariant="ocean"
+        theme={dark ? "dark" : "light"}
+        strength={0.8}
+        active={focused || busy}
+        borderRadius={26}
+        className="w-full"
+      >
+        <div className={`flex items-end gap-1 rounded-[26px] border border-border bg-card p-1 ${disabled && !busy ? "opacity-60" : ""}`}>
+
+          {/* 16px: iOS tự phóng to trang khi ô nhập có chữ nhỏ hơn mức này. */}
+          <textarea
+            ref={inputRef}
+            value={value}
+            onChange={e => { onChange(e.target.value); autoResize(e); }}
+            onKeyDown={handleKey}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder={placeholder}
             disabled={disabled}
-            aria-label="Đọc phiếu kết quả"
-            title="Đọc phiếu kết quả"
-            className="mb-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90 disabled:opacity-40"
-          >
-            <span className="material-symbols-outlined text-[17px]">attach_file</span>
-          </button>
-        )}
+            rows={1}
+            className="min-w-0 flex-1 resize-none self-center bg-transparent pl-3 pr-2 py-2.5 text-[16px] leading-snug text-foreground outline-none placeholder:text-muted-foreground placeholder:whitespace-nowrap placeholder:overflow-hidden placeholder:text-ellipsis max-h-[120px] overflow-y-auto"
+            style={{ height: "44px" }}
+          />
 
-        <textarea
-          ref={inputRef}
-          value={value}
-          onChange={e => { onChange(e.target.value); autoResize(e); }}
-          onKeyDown={handleKey}
-          placeholder={placeholder}
-          disabled={disabled}
-          rows={1}
-          className="flex-1 bg-transparent text-[13px] text-foreground placeholder-zinc-500 dark:placeholder-zinc-400 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
-          style={{ height: "30px" }}
-        />
-
-        {/* Send / pulse button */}
-        <AnimatePresence mode="wait">
           {hasText ? (
-            <motion.button
-              key="send"
+            <button
               type="button"
               onClick={handleSend}
               disabled={disabled}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-11 h-11 shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 active:scale-90 text-white flex items-center justify-center shadow-md shadow-blue-500/30 transition-colors disabled:opacity-40"
+              aria-label="Gửi"
+              className={`${iconButton} text-white`}
+              style={{ background: "var(--ax, #0A84FF)" }}
             >
-              <span className="material-symbols-outlined text-[15px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
-            </motion.button>
+              <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_upward</span>
+            </button>
           ) : (
-            <motion.div
-              key="idle"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 28 }}
-              className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-tr from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/20 dark:to-purple-500/20 flex items-center justify-center border border-indigo-500/20 dark:border-indigo-400/20"
+            <button
+              type="button"
+              onClick={onToggleCoach}
+              aria-label={coachLabel}
+              aria-expanded={coachOpen}
+              className={`${iconButton} ${coachOpen ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}
             >
-              <span className="material-symbols-outlined text-[15px] text-indigo-500 dark:text-indigo-400 animate-pulse">auto_awesome</span>
-            </motion.div>
+              <span className="material-symbols-outlined text-[22px]">{coachOpen ? "close" : "auto_awesome"}</span>
+            </button>
           )}
-        </AnimatePresence>
         </div>
+      </BorderBeam>
     </div>
   );
 }
