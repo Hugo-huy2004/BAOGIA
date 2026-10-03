@@ -313,7 +313,7 @@ export default function StudyLandingPage() {
           >
             <WordsPullUpMultiStyle
               segments={[
-                { text: "Peter Hugo Wishpax Lê,", className: "font-normal" },
+                { text: "Hugo Wishpax,", className: "font-normal" },
                 { text: "sinh viên năm cuối Kỹ thuật Phần mềm.", className: "cine-serif cine-grad" },
               ]}
             />
@@ -431,7 +431,10 @@ export default function StudyLandingPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <PillButton to="/study/login" Icon={ArrowRight}>Tạo tài khoản / Đăng nhập</PillButton>
-            <Link className="learning-ghost-pill" to="/support-request">Liên hệ hỗ trợ</Link>
+            <a className="learning-ghost-pill" href="mailto:education@hugowishpax.studio?subject=%5BH%E1%BB%8Dc%20t%E1%BA%ADp%5D%20Li%C3%AAn%20h%E1%BB%87%20h%E1%BB%97%20tr%E1%BB%A3%20gi%C3%A1o%20tr%C3%ACnh%20Hugo%20Learning">
+              Hòm thư học vụ (education@)
+            </a>
+            <Link className="learning-ghost-pill" to="/support-request">Trợ lý hỗ trợ</Link>
           </div>
         </AboutCard>
       </section>
@@ -443,10 +446,11 @@ export default function StudyLandingPage() {
         </div>
         <nav aria-label="Liên kết chân trang">
           <Link to="/study/login">Đăng nhập bằng Hugo Studio</Link>
+          <a href="mailto:education@hugowishpax.studio">Hòm thư học vụ (education@hugowishpax.studio)</a>
           <Link to="/introduction">Về Hugo Studio</Link>
           <Link to="/privacy-policy">Chính sách bảo mật</Link>
           <Link to="/terms">Điều khoản sử dụng</Link>
-          <Link to="/support-request">Hỗ trợ</Link>
+          <Link to="/support-request">Hỗ trợ 1:1</Link>
         </nav>
         <p className="learning-copyright">
           © {new Date().getFullYear()} Hugo Studio. Giáo trình và nội dung trên trang này thuộc bản

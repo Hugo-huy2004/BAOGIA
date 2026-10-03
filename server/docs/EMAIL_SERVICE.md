@@ -14,6 +14,8 @@ EMAIL_SMTP_PORT=587
 
 EMAIL_SUPPORT=support@hugowishpax.studio
 EMAIL_CONTACT=contact@hugowishpax.studio
+EMAIL_EDUCATION=education@hugowishpax.studio
+EMAIL_ADV=adv@hugowishpax.studio
 ```
 
 ## Email Service (server/services/emailService.js)
@@ -113,10 +115,11 @@ Send a support request email.
 }
 ```
 
-## Email Distribution
-
-- **support@hugowishpax.studio**: Technical issues, admin notifications, support requests
-- **contact@hugowishpax.studio**: General inquiries, contact form submissions
+## Email Distribution & Roles
+- **contact@hugowishpax.studio**: General inquiries, client project quotes, contract negotiations, legal affairs
+- **support@hugowishpax.studio**: Technical issues, admin notifications, account assistance, security appeals, JOY wallet disputes
+- **education@hugowishpax.studio**: Hugo Learning curriculum, student verifications (.edu), course certificates, code mentoring
+- **adv@hugowishpax.studio**: Advertising inquiries, Today feed sponsorship, media kits, brand partnerships
 
 ## Hugo Team Integration
 

@@ -14,6 +14,8 @@ import { DEFAULT_HOTLINES } from "./constants/hotlines";
 // so autoplay policies never block it.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { sensory } from "../../../lib/sensory";
+
 const SIREN_CSS = `
 @keyframes sosFlash { 0%,100%{background:rgba(190,18,60,.96)} 50%{background:rgba(255,241,242,.98)} }
 @keyframes sosPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
@@ -22,6 +24,7 @@ const SIREN_CSS = `
 // Shared siren engine. It only starts after an explicit user gesture.
 const safelyVibrate = (pattern) => {
   try {
+    sensory.vibrate('error');
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
       navigator.vibrate(pattern);

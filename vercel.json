@@ -1,4 +1,17 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "hugowishpax.studio"
+        }
+      ],
+      "destination": "https://www.hugowishpax.studio/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/.well-known/oauth-authorization-server",
@@ -71,6 +84,34 @@
     {
       "source": "/project/m-hike",
       "destination": "/project/m-hike/index.html"
+    },
+    {
+      "source": "/services/hugo-one",
+      "destination": "/services/hugo-one/index.html"
+    },
+    {
+      "source": "/services/hugo-story",
+      "destination": "/services/hugo-story/index.html"
+    },
+    {
+      "source": "/services/hugo-flow-plus",
+      "destination": "/services/hugo-flow-plus/index.html"
+    },
+    {
+      "source": "/services/add-ons/domain-setup",
+      "destination": "/services/add-ons/domain-setup/index.html"
+    },
+    {
+      "source": "/services/add-ons/seo",
+      "destination": "/services/add-ons/seo/index.html"
+    },
+    {
+      "source": "/services/add-ons/flow-care-plan",
+      "destination": "/services/add-ons/flow-care-plan/index.html"
+    },
+    {
+      "source": "/services/add-ons/support",
+      "destination": "/services/add-ons/support/index.html"
     },
     {
       "source": "/2048",
@@ -169,6 +210,34 @@
       "destination": "/en/project/m-hike/index.html"
     },
     {
+      "source": "/en/services/hugo-one",
+      "destination": "/en/services/hugo-one/index.html"
+    },
+    {
+      "source": "/en/services/hugo-story",
+      "destination": "/en/services/hugo-story/index.html"
+    },
+    {
+      "source": "/en/services/hugo-flow-plus",
+      "destination": "/en/services/hugo-flow-plus/index.html"
+    },
+    {
+      "source": "/en/services/add-ons/domain-setup",
+      "destination": "/en/services/add-ons/domain-setup/index.html"
+    },
+    {
+      "source": "/en/services/add-ons/seo",
+      "destination": "/en/services/add-ons/seo/index.html"
+    },
+    {
+      "source": "/en/services/add-ons/flow-care-plan",
+      "destination": "/en/services/add-ons/flow-care-plan/index.html"
+    },
+    {
+      "source": "/en/services/add-ons/support",
+      "destination": "/en/services/add-ons/support/index.html"
+    },
+    {
       "source": "/zh/introduction",
       "destination": "/zh/introduction/index.html"
     },
@@ -215,6 +284,34 @@
     {
       "source": "/zh/project/m-hike",
       "destination": "/zh/project/m-hike/index.html"
+    },
+    {
+      "source": "/zh/services/hugo-one",
+      "destination": "/zh/services/hugo-one/index.html"
+    },
+    {
+      "source": "/zh/services/hugo-story",
+      "destination": "/zh/services/hugo-story/index.html"
+    },
+    {
+      "source": "/zh/services/hugo-flow-plus",
+      "destination": "/zh/services/hugo-flow-plus/index.html"
+    },
+    {
+      "source": "/zh/services/add-ons/domain-setup",
+      "destination": "/zh/services/add-ons/domain-setup/index.html"
+    },
+    {
+      "source": "/zh/services/add-ons/seo",
+      "destination": "/zh/services/add-ons/seo/index.html"
+    },
+    {
+      "source": "/zh/services/add-ons/flow-care-plan",
+      "destination": "/zh/services/add-ons/flow-care-plan/index.html"
+    },
+    {
+      "source": "/zh/services/add-ons/support",
+      "destination": "/zh/services/add-ons/support/index.html"
     },
     {
       "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).*)",

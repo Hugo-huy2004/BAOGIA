@@ -376,7 +376,6 @@
       "navPortfolio": "𧗱碎",
       "navServices": "役務",
       "navBooking": "達曆",
-      "heroEyebrow": "Hugo 梨 · Portfolio",
       "heroTitle1": "𨉟羅 Hugo.",
       "heroTitle2": "命設計吧𡏦産品數.",
       "heroDesc": "生員𢆥𡳳技術分綿在 Greenwich 越南. 低羅 portfolio 各預案𨉟㐌𡏦孕.",
@@ -387,7 +386,6 @@
       "previewStatus": "當活動",
       "previewTagline": "沒名姓數, 饒便益.",
       "aboutLabel": "𧗱命",
-      "aboutH1": "Peter Hugo Wishpax 梨,",
       "aboutH2": "生員𢆥𡳳技術分𣟮.",
       "aboutH3": "命學卒一欺自些變見識成仍産品固体𧼋和得使用.",
       "education": {
@@ -459,9 +457,9 @@
         ]
       },
       "meta": {
-        "title": "Peter Hugo Wishpax 梨 — Portfolio 立程吧設計産品",
-        "description": "Portfolio 個人𧵑 Peter Hugo Wishpax 黎生員𢆥𡳳技術分綿在 Greenwich 越南, 𠁝行程學習, 技能吧各産品㐌𡏦孕.",
-        "keywords": "Peter Hugo Wishpax 梨, Hugo 梨, portfolio 立程員生員技術分𣟮, Greenwich 越南, 預案 React"
+        "title": "Hugo Wishpax — Portfolio 立程吧設計産品",
+        "description": "Portfolio 個人𧵑 Hugo Wishpax, 生員𢆥𡳳技術分綿在 Greenwich 越南, 𠁝行程學習, 技能吧各産品㐌𡏦孕.",
+        "keywords": "Hugo Wishpax, portfolio 立程員生員技術分𣟮, Greenwich 越南, 預案 React"
       },
       "heroCvCta": "載 CV",
       "weak3": "章程學𧵑𨉟𠫾𢌌過𡗉言語欣 󰑼𠫾溇沒丐 — 命讀曉吧𢯢得, 仍𣗓專溇言語芇.",
@@ -469,12 +467,11 @@
     },
     "apple": {
       "meta": {
-        "title": "Peter Hugo Wishpax 黎生員技術分𣟮 & 𠊛𥩯産品",
+        "title": "Hugo Wishpax — 生員技術分𣟮 & 𠊛𥩯産品",
         "description": "嘲, 𨉟羅 Hugo. 生員𢆥𡳳技術分綿在 Greenwich 越南, 自些𢸞和運行沒系統 22 應用當𧼋實.",
-        "keywords": "Peter Hugo Wishpax 梨, Hugo 梨, portfolio 立程員生員技術分𣟮, Greenwich 越南, React, Node.js"
+        "keywords": "Hugo Wishpax, portfolio 立程員生員技術分𣟮, Greenwich 越南, React, Node.js"
       },
       "hero": {
-        "kicker": "Peter Hugo Wishpax 梨",
         "line1": "沒𡭱設計.",
         "line2": "慄𡗉𣎀晚.",
         "status1": "生員𢆥𡳳技術分綿在 Greenwich 越南.",
@@ -771,13 +768,12 @@
         "summary": "命適𪵯仍産品𠊛些𨷑𦋦用每𣈜. 交面, API, 基礎與料 – 三笠, 沒𠊛爫. 吧次之㐌𨑗𦀴時命認連分運行.",
         "educationHeading": "过程學",
         "school1": {
-          "school": "THPT 阮廷沼",
           "degree": "卒業忠𭓇普通"
         },
         "school2": {
           "school": "Greenwich 越南",
-          "degree": "工藝通信 · GPA 3.6/4.0",
-          "description": "工藝通信 · University of Greenwich (UK) - 胡志明 Campus · 預見卒業 08/2027. GPA 積累过程學習現在 3.6/4.0."
+          "degree": "工藝通信",
+          "description": "工藝通信 · University of Greenwich (UK) - 胡志明 Campus · 預見卒業 08/2027."
         },
         "milestoneNow": "現在",
         "techHeading": "工藝命用",
@@ -835,8 +831,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "設計 Website & Landing Page 自 1,9 兆 | Hugo Studio",
-      "description": "Landing page 自 1.900.000₫, website 介紹自 3.900.000₫. 碼源曰𢬣 100%, 搬交朱伴, 價𣖠𥪝合同. 䀡預案㐌爫.",
+      "title": "設計 Website & Landing Page 自 1,29 兆 | Hugo Studio",
+      "description": "Landing page 1.290.000₫ 空勤㭲, website 4 張 2.990.000₫, web 達曆/認單自 4.990.000₫. 爫 online, 碼源交朱伴.",
       "keywords": "設計 website, 設計 landing page, 爫 website 营業𡮈, website 館茄批, website 𧸝行, 報價設計 web, freelancer 設計 website, Hugo Studio"
     }
   },
@@ -1247,7 +1243,7 @@
     "customerForm": {
       "title": "追及管治預案",
       "desc": "管理預案, 䀡進渡吧𢭂𢬭貝隊伍.",
-      "codeLabel": "碼預案 (6 記自)",
+      "codeLabel": "馬追及 (10 記自)",
       "btn": "𠓨 Portal 預案",
       "securityTitle": "保密通信",
       "securityDesc": "碼預案得供給𥢆西. 絶對空𢺺𢩿碼尼朱𠊛恪底擔保安全與料預案𧵑貴客."
@@ -1281,7 +1277,9 @@
     "tabs": {
       "profile": "胡疏",
       "service": "役務",
-      "requests": "要求"
+      "requests": "要求",
+      "brief": "要求預案",
+      "contract": "合同"
     },
     "profile": {
       "title": "通信個人",
@@ -1315,7 +1313,51 @@
       "empty": "𣗓固要求 󰅹駭𠸕信朱󰕛 碎𡀮貴客固不期忑𢹇芇.",
       "placeholderNormal": "入要求或信𠴍...",
       "placeholderCompleted": "入要求保持或信𠴍..."
-    }
+    },
+    "brief": {
+      "editsLeft": "貴客群 {{n}} 吝自𢯢票. 𡢐妬 Hugo Studio 𠱊整𠢞.",
+      "error": "𣗓寄特票, 貴客試吏.",
+      "intro": "填強嚕, Hugo Studio 強爫中𣦍自頭. 只𠄽烏固鬪 * 羅扒縛.",
+      "locked": "範圍㐌𣖠. 勤𢷮之, 貴客𠴍 Hugo Studio 於目𢭂𢷮.",
+      "missing": "群少",
+      "refNote": "條貴客適 / 空適於妬",
+      "saved": "㐌寄票要求. Hugo Studio 𠱊讀吧返囬𣋽.",
+      "sending": "當寄…",
+      "submit": "寄票要求",
+      "update": "及日票要求",
+      "docLocked": "低羅榜要求貴客㐌寄. 範圍㐌𣖠; 勤𢷮之, 鏡𠶆貴客𠴍於目𢭂𢷮.",
+      "docIntro": "低羅榜要求貴客㐌寄. 貴客群 {{n}} 吝自𢯢.",
+      "edit": "𢯢票",
+      "print": "印 / 留 PDF"
+    },
+    "contract": {
+      "acceptNote": "𢫈𣱆𠸜吧𢶸確認羅交結合同朋方便電子 (律交易電子 2023). 系統記吏時點, 地指 IP 吧程閲.",
+      "accepted": "㐌確認合同. Hugo Studio 吀感恩貴客.",
+      "accept": "碎㐌讀吧同意",
+      "addonsSend": "寄攄撰",
+      "addonsSent": "㐌寄攄撰. Hugo Studio 𠱊確認吧及日合同.",
+      "addonsSkip": "空勤添",
+      "addonsTitle": "撰添𢶒𥛭 (空扒縛)",
+      "claimPh": "張芇, 設備, 程閲, 𤻳𠚢牢. 寄兼影𢴇於目𢭂𢷮.",
+      "claimSend": "寄要求保行",
+      "claimSent": "㐌寄要求保行. Hugo Studio 返囬𥪝 1 – 2 𣈜爫役.",
+      "claimTitle": "報𤂬保行",
+      "download": "載 .ZIP",
+      "due": "群吏",
+      "error": "𣗓實現得, 貴客試吏.",
+      "lifetime": "𠓹𠁀",
+      "namePh": "户和𠸜",
+      "needsAccept": "合同固番版買 (v{{v}}). 貴客讀技邊𠁑耒確認.",
+      "paid": "㐌清算",
+      "pdf": "載 PDF",
+      "subscription": "𥪝時間登記",
+      "terminatedBody": "通報吧根據𦣰於頭合同邊𠁑吧𥪝目𢭂𢷮.",
+      "terminated": "合同㐌點𢩮",
+      "total": "總合同",
+      "zip": "碼源搬交"
+    },
+    "invalidBody": "Link 固体㐌差或歇限. 貴客𠴍 Hugo Studio 底認 link 買.",
+    "invalidTitle": "Link 預案空𨷑得"
   },
   "adminPanel": {
     "sidebar": {
@@ -6172,9 +6214,7 @@
   },
   "common": {
     "regionVietnamOnly": {
-      "title": "只服務越南.",
-      "service": "報價朋同越南清算過 PayOS 吧銀行𥪝渃.",
-      "booking": "Hugo Studio 認預案在越南; 銀冊性朋同吧𢭂𢷮過 email 或 Zalo."
+      "title": "只服務越南."
     },
     "vietnameseContentOnly": {
       "title": "內容㗂越.",
@@ -6541,20 +6581,6 @@
     "pickATool": "撰没公具於名冊邊竟底扒頭."
   },
   "servicePkg": {
-    "connect": {
-      "name": "𢶒結𦀼",
-      "price": "350.000 – 900.000₫ · 沒吝",
-      "body": "𢭰𠸜沔, 𢭮證只保密, 迻 website 𨕭尼留貯𧵑伴, 𦀼基礎與料吧盒書認 form. 扒縛𧷸兼𡀮伴㦖 Hugo Studio 實現分尼."
-    },
-    "connectExclude": {
-      "title": "役𦀼下層𠓨 website.",
-      "body": "分𢭮達吧結𦀼𦣰於𢶒結𦀼 (350.000 – 900.000₫ · 沒吝), 性𥢅外價設計."
-    },
-    "care": {
-      "name": "𢶒𥊀𥉮",
-      "price": "350.000₫ / 𣎃",
-      "body": "檢查定期吧及日𡮈𥪝𠄩𣇞每𣎃 — 𨇜朱役𢷮𡨸, 𢷮影, 添沒目𡮈. 役越墨妬性 200.000₫ 每𣇞, 報𠓀欺爫. 登記咍空羅隨伴."
-    },
     "compare": {
       "kicker": "𢫘並",
       "title": "𦊚𢶒, 𥆾竟饒.",
@@ -6566,75 +6592,73 @@
         "price": "伴𪃲包饒",
         "time": "包𥹰時固本𧼋實",
         "pages": "伴特包饒張",
-        "extraPage": "𣖠衝麻㦖添張",
-        "revisions": "𣖠設計耒麻㦖𢷮",
         "found": "客尋𧡊伴𨕭 Google",
         "contact": "客聯係伴朋格󰅹",
         "selling": "客𧷸和𪃲錢𣦍𨑗 web",
         "selfEdit": "伴自𢷮𡨸, 𢷮影𡢐尼",
         "warranty": "Web 𤻳時埃𢯢",
-        "connect": "𠸜沔𠄧坭留貯"
+        "deposit": "固沛達㭲空",
+        "live": "Web 𨑗𠸜沔𧵑伴世芇",
+        "monthly": "固損費恒𣎃空"
       },
       "cells": {
         "price": {
           "hugo-edu-plus": "免費 365 𣈜"
         },
         "time": {
-          "hugo-one": "5 – 10 𣈜",
-          "hugo-story": "10 𣈜 – 4 旬",
-          "hugo-flow-plus": "4 – 8 旬",
+          "hugo-one": "7 – 10 𣈜",
+          "hugo-story": "2 – 3 旬",
+          "hugo-flow-plus": "3 – 5 旬",
           "hugo-edu-plus": "󰘉𣦍𡢐欺確明"
         },
         "pages": {
-          "hugo-one": "01 張",
-          "hugo-story": "4 – 8 張, 陳羅 8 張",
-          "hugo-flow-plus": "最多 12 張, 張産品空性",
+          "hugo-one": "01 張, 最多 7 分",
+          "hugo-story": "4 張, 𨷑細 6",
+          "hugo-flow-plus": "4 張 + 1 職䏻",
           "hugo-edu-plus": "01 張 Bio"
         },
-        "extraPage": {
-          "hugo-one": "轉創 Hugo Story",
-          "hugo-story": "𣖠耒羅鎖. 450.000 – 900.000₫ 每張添",
-          "hugo-flow-plus": "𣖠耒羅鎖. 450.000 – 900.000₫ 每張添",
-          "hugo-edu-plus": "沒財款, 沒張 Bio"
-        },
-        "revisions": {
-          "hugo-one": "𠄩𥿺𥪝價. 𣖠設計羅鎖, 𢷮接 250.000 – 600.000₫ 每𤥑",
-          "hugo-story": "𠄩𥿺𥪝價. 𣖠設計羅鎖, 𢷮接 250.000 – 600.000₫ 每𤥑",
-          "hugo-flow-plus": "𠄩𥿺𥪝價. 𣖠設計羅鎖, 𢷮接 250.000 – 600.000₫ 每𤥑",
-          "hugo-edu-plus": "自𢷮母不據𣅶芇"
-        },
         "found": {
-          "hugo-one": "標題, 模寫, 影𢺺𢩿吧 sitemap 準",
-          "hugo-story": "每張𠬠部標題吧模寫𥢅",
-          "hugo-flow-plus": "每張𠄧每産品𠬠部𥢅",
+          "hugo-one": "現𢢲𨕭 Google 吧欺寄 link",
+          "hugo-story": "每張現𥢅𨕭 Google",
+          "hugo-flow-plus": "每張現𥢅𨕭 Google",
           "hugo-edu-plus": "空爫最優尋劎"
         },
         "contact": {
-          "hugo-one": "Form 寄𣦎𧗱盒書𧵑伴",
-          "hugo-story": "Form, 版圖指塘吧連結𦀴社会",
-          "hugo-flow-plus": "Form, 財款客行吧歷史單行",
+          "hugo-one": "Form 寄𣦎𧗱 email 𧵑伴",
+          "hugo-story": "Form, 版圖, 鈕噲吧 Zalo",
+          "hugo-flow-plus": "達曆或達單, 𧗱張管治吧 email",
           "hugo-edu-plus": "連結細各𣻽個人𧵑伴"
         },
         "selling": {
-          "hugo-flow-plus": "𥶇行, 清算直線, 管理單行"
+          "hugo-flow-plus": "客達𨑗 web, 𪃲朋 QR 轉款"
         },
         "selfEdit": {
-          "hugo-one": "寄 Hugo 𢯢, 或字𢯢𥪝碼源",
-          "hugo-story": "寄 Hugo 𢯢. 固沒𣇜向引自及日",
-          "hugo-flow-plus": "自爫𥪝張管治, 兼𠄩𣇜向引",
+          "hugo-one": "𠸕𨉟𢯢, 或字𢯢𥪝碼源",
+          "hugo-story": "𠸕𨉟𢯢, 或字𢯢𥪝碼源",
+          "hugo-flow-plus": "産品, 價, 曆: 自𢯢𥪝張管治",
           "hugo-edu-plus": "自爫沖財款, 不據𣅶芇"
         },
         "warranty": {
-          "hugo-one": "𢯢纇免費 30 𣈜, 𢷮𡨸𡮈 7 𣈜",
-          "hugo-story": "𢯢纇免費 45 𣈜, 𢷮𡨸𡮈 14 𣈜",
-          "hugo-flow-plus": "𢯢纇免費 60 𣈜, 兼 30 𣈜同行運行",
+          "hugo-one": "𢯢𤻳𠓹𠁀 · 7 𣈜𢷮𡨸, 影",
+          "hugo-story": "𢯢𤻳𠓹𠁀 · 14 𣈜𢷮𡨸, 影",
+          "hugo-flow-plus": "𢯢𤻳𠓹𠁀 · 30 𣈜𢷮𡨸, 影",
           "hugo-edu-plus": "互助率 365 𣈜"
         },
-        "connect": {
-          "hugo-one": "伴自𥪸𠸛𧷸. 分𦀼𠓨 website 㐌𠁝𥪝價",
-          "hugo-story": "伴自𥪸𠸛𧷸. 分𦀼性𥢅 350.000 – 900.000₫",
-          "hugo-flow-plus": "伴自𥪸𠸛𧷸. 分𦀼性𥢅 350.000 – 900.000₫",
-          "hugo-edu-plus": "用終𠸜沔𧵑 Hugo Studio, 伴空沛𧷸之"
+        "deposit": {
+          "hugo-one": "空勤㭲, 𪃲欺驗收",
+          "hugo-edu-plus": "免費"
+        },
+        "live": {
+          "hugo-one": "交碼源 .ZIP. 𢘾命迻𨑗: 𢶒連結 350.000₫",
+          "hugo-story": "㐌𠁝: 命𦀼𥪝𣅶爫, 交 link 㐌𧼋",
+          "hugo-flow-plus": "㐌𠁝: 命𦀼𥪝𣅶爫, 交 link 㐌𧼋",
+          "hugo-edu-plus": "用終𠸜沔𧵑 Hugo Studio"
+        },
+        "monthly": {
+          "hugo-one": "空㖡命恒𣎃. 只費𠸜沔, hosting 朱茹供給",
+          "hugo-story": "空㖡命恒𣎃. 只費𠸜沔, hosting 朱茹供給",
+          "hugo-flow-plus": "隨撰襘維持 490.000₫/𣎃, 共費茹供給",
+          "hugo-edu-plus": "免費"
         }
       }
     },
@@ -6644,79 +6668,69 @@
       "pages": "數張",
       "warranty": "保行",
       "warrantyValue": {
-        "hugo-one": "30 𣈜",
-        "hugo-story": "45 𣈜",
-        "hugo-flow-plus": "60 𣈜",
+        "hugo-one": "𠓹𠁀",
+        "hugo-story": "𠓹𠁀",
+        "hugo-flow-plus": "𠓹𠁀",
         "hugo-edu-plus": "365 𣈜"
       }
     },
     "handCoded": {
-      "title": "碼源曰𢬣 100%.",
-      "body": "層𣳔交面得曰𥢅朱預案, 空𥩯𨕭 theme 𧷸𠻿咍程𢫃抯. 張只納中次奴勤和空負屬󱚢 曆及日𧵑𠬠便益邊外."
+      "title": "曰碼𢬣. 珥吧𨘱.",
+      "body": "空 theme 𧷸𠻿, 空程𢫃抯. 張𨷑𨘱𠄧𣃣每幔形, 自電話細𣛠性."
     },
     "excludes": [
       {
         "title": "𠸜沔.",
-        "body": "伴𥪸𠸛𧷸和守權所有. Hugo Studio 咨問撰𠸜吧向引𧷸, 𫽄𬥓吧空𥪸𠸛𠊝伴."
+        "body": "伴𥪸𠸛𧷸和加限恒𢆥貝茹登記. 𨉟空𧸝吏空𥪸𠸛𠊝."
       },
       {
         "title": "坭留貯吧基礎與料.",
-        "body": "Hosting, VPS, 基礎與料由伴𧷸和所有. Hugo Studio 空供給, 空朱税吏."
+        "body": "伴𥪸𠸛税. Web 靜如 Hugo One, Story 損慄𠃣; Flow+ 吧張管治勤添基礎與料, 饒茹供給固𢶒免費底扒頭."
       },
       {
-        "title": "𡋂磉𥩯産.",
-        "body": "Hugo Studio 只認預案曰碼𥢅. 𡀮需求𧵑伴屬𡖡𡋂磉𥩯産, 命呐𣦍自𣇜頭."
+        "title": "Email 蹺𠸜沔.",
+        "body": "地指橋 lienhe@tenban.vn 用 Google Workspace 或役務相自, 把費蹺𣎃朱茹供給."
       },
       {
-        "title": "內容㭲.",
-        "body": "𡨸, 影産品, logo 吧紙祠商號由伴供給. 勤曰內容或𢴇影時性添."
+        "title": "役務寄書朱 form.",
+        "body": "沒財款𥪸𠸛伴底 form 寄特書𧗱盒書. 常固𢶒免費."
       },
       {
-        "title": "之費𧵑邊次𠀧."
+        "title": "財款認錢.",
+        "body": "銀行, 𨶛清算𥪸𠸛伴. 費交易由茹供給收."
+      },
+      {
+        "title": "𡨸, 影吧 logo.",
+        "body": "伴供給. 命編輯珥𡨸伴寄; 曰買全部, 設計 logo 吧𢴇影𨉟空認."
+      },
+      {
+        "body": "伴𪃲𣦛朱茹供給."
+      },
+      {
+        "title": "正冊權𥢆西吧條款.",
+        "body": "Web 固 form 咍認單羅當收拾通信個人. 內容正冊由伴供給吧𠹾責任; 命𥩯張底顯是."
+      },
+      {
+        "title": "役外名冊.",
+        "body": "每次空固𥪝目𢶒包𠁝. 命報價朋信𠴍𠓀欺爫."
       }
     ],
     "policy": [
       {
-        "title": "達㭲 50%.",
-        "body": "㭲𠓀欺扒頭, 分群吏欺驗收, 𠓀𣅶盤交."
+        "title": "爫役 100% online.",
+        "body": "過 Zalo, email 或噲 video. 伴於兜拱爫得."
       },
       {
-        "title": "𠄩𥿺整𦣰𥪝價.",
-        "body": "𠄩𥿺整佈局吧內容㐌固𥪝價. 自𤥑次𠀧性蹺塊量實."
+        "body": "㭲底扒頭, 分群吏欺伴驗收, 𠓀𣅶盤交. 伴停𡧲澄時分㐌爫得交吏, 㭲空完."
       },
       {
-        "title": "𣖠衝羅鎖.",
-        "body": "名冊張𠄧本設計𣖠𥪝報價, 自妬空𢷮. 添張咍𢷮向設計時性蹺榜費, 統一𠓀欺爫."
-      },
-      {
-        "title": "本權屬𧗱伴.",
-        "body": "清算𨇜時設計, 內容吧碼源𧵑預案屬𧗱伴. 書院吧椌碼用吏𡧲各預案吻屬 Hugo Studio, 伴特用永遠𥪝範為預案尼. Hugo Studio 守權迻預案𠓨胡疏能力, 除欺伴要求空."
-      },
-      {
-        "title": "停𡧲澄.",
-        "body": "伴停時分㐌爫得搬交原狀, 㭲空還吏. 𡀮由𤻳𧵑 Hugo Studio 或 Hugo Studio 主動停, 分𣗓實現得完𣹓𨇜."
+        "title": "本權羅𧵑伴.",
+        "body": "清算𨇜羅設計吧碼源屬𧗱伴. 椌碼用終𡧲各預案吻𧵑 Hugo Studio, 伴特用永遠. 命吀迻預案𠓨胡疏能力, 除欺伴空闷."
       }
     ],
     "priceNotice": {
       "updated": "及日 09/2026"
     },
-    "extraFees": [
-      {
-        "title": "添沒張",
-        "price": "450.000 – 900.000₫ / 張",
-        "body": "押用欺數張越名冊㐌𣖠. 張強種沒張㐌固時強近墨棧."
-      },
-      {
-        "title": "𤥑整慈次三",
-        "price": "250.000 – 600.000₫ / 𤥑",
-        "body": "𠄩𥿺頭㐌𦣰𥪝價. 𤥑𡢐性蹺塊量實, 報𠓀欺爫."
-      },
-      {
-        "title": "爫急",
-        "price": "+25% 價𢶒",
-        "body": "欺伴勤𢯰時間𫴋󰡎 曠㐌記𥪝正冊𧵑𢶒."
-      }
-    ],
     "studentDiscount": {
       "title": "𠊛學達襘把費: 減 15%",
       "body": "㐌確明資格𠊛學時 Hugo One, Hugo Story 吧 Hugo Flow+ 減 15% 𨕭價設計. 押朱預案個人, 圖案或句樂部, 每𠊛沒預案𥪝每𢆥學. 空押連之費者朱茹供給邊次𠀧."
@@ -6725,9 +6739,6 @@
       "hugo-one": {
         "title": "沒張. 𠓹沒目標.",
         "lede": "沒張靜, 載𨘱, 讀沒脈吧結吏平中沒行動. 𠲜朱𣅶畔止勤吶沒條, 喡呐朱实𠓑.",
-        "intro": [
-          "Landing page 羅沒吝說服, 空沛 website 收𡮈. 只沒張𢧚次序讀羅悉奇: 通牒正於幔形頭朋證中𣅶客斤𠲤, 鈕行動於尼𢬣𣃣細."
-        ],
         "audience": [
           "戰譯廣告勤𠬠坭引客𧗱.",
           "Portfolio 或 CV 直線勤塘引𥢅.",
@@ -6735,83 +6746,65 @@
         ],
         "includes": [
           {
-            "title": "設計𥢅 01 張."
+            "title": "沒張, 𦉱分.",
+            "body": "頭張, 介紹, 役務, 凭證, 𠳨答, 聯係. 𢯛蹺沒脈讀, 結朋沒行動."
           },
           {
-            "title": "內容吧鈕呌噲行動.",
-            "body": "𡨸伴迻得編輯吏城没塘讀, 引𧗱沒行動正."
-          },
-          {
-            "title": "顯是卒𨑗每設被.",
-            "body": "檢查實𨕭電話, 𣛠性榜吧幔形𡘯."
+            "title": "交面蹺商效."
           },
           {
             "title": "Form 聯係.",
-            "body": "Form, 𢫝寄𦹺吧役𦀼𧗱盒書調𥪝價. 畔止勤𠬠財款役務書."
+            "body": "寄𣦎𧗱 email 𧵑伴, 固𢫝書𦹺."
           },
           {
-            "body": "標題, 模寫, 影𢺺𢩿, sitemap 吧構築体中準."
-          },
-          {
-            "title": "搬交碼源.",
-            "body": "全部碼源兼向引𨂼吏, 底埃接管拱特."
-          },
-          {
-            "title": "展開 website.",
-            "body": "檢查層𨻫耒迻𨑗𠸜沔𠄧坭留貯𧵑伴. 𢭰𠸜沔𠄧證只㐌𥪝價."
+            "title": "産床迻𨑗𦀴.",
+            "body": "搬交碼源 (.ZIP) 㐌最優, 𧼋得𣦍. 㦖命拫𠸜沔𠄧結𦀼𠢞時添𢶒連結."
           }
         ],
         "warranty": [
           {
-            "title": "30 𣈜𢯢纇免費.",
-            "body": "𤻳顯是, 𤻳 form, 𤻳碼源 — 空性費."
+            "title": "𢯢𤻳𠓹𠁀."
           },
           {
-            "title": "7 𣈜整內容𡮈.",
-            "body": "𢯢𡨸, 𢷮影, 𢷮數電話. 𢷮佈局性羅𤥑整買."
-          },
-          {
-            "title": "返囬𥪝 24 𣇞爫役.",
-            "body": "過𣻽㐌𢭂𢷮自頭. 張空追及得連處理𠓀."
+            "title": "7 𣈜𢷮𡨸, 𢷮影.",
+            "body": "𢯢句𡨸, 𠊝影, 𢷮數電話𡢐欺搬交."
           }
         ],
-        "policyExtra": [
-          {
-            "title": "時間實現 5 – 10 𣈜.",
-            "body": "性自𣅶認賭内容和影. 少內容羅銅壼停."
-          }
-        ],
+        "policyExtra": [],
         "price": {
-          "note": "𠓹𢶒: 㐌𠁝𢭰𠸜沔, 證只保密吧迻𨑗坭留貯𧵑伴. 分𡘯預案於 2,3 – 3 兆; 墨棧朱張 5 – 6 塊貝內容固𠻿.",
-          "factors": [
-            "數塊內容𨕭張 (6 塊咍 14 塊羅𠄩塊量恪饒).",
-            "內容㐌固𠻿咍勤編輯, 曰吏.",
-            "𣞪度轉動吧號應.",
-            "積合添: 版圖, chat, 曆限, 蹺唯廣告.",
-            "進渡急𠁑 5 𣈜."
-          ]
+          "note": "沒𡥵數𠓹𢶒朱張最多 7 分, 貝𡨸吧影伴㐌固. 搬交碼源産床𨑗𦀴; 勤命迻𨑗𠸜沔𧵑伴時添𢶒連結 350.000₫.",
+          "factors": []
         },
         "faq": [
           {
-            "question": "Hugo One 固扶合底𧼋廣告空?",
-            "answer": "固. 𢶒尼𠲜朱沒産品, 沒役務或沒戰譯, 貝沒行動正𤑟𤉜."
+            "question": "Hugo One 固用底𧼋廣告特空?",
+            "answer": "得. 𢶒尼爫𠚢朱󱦛 役怒𠬠産品, 沒役務或沒戰譯, 引客𧗱沒行動."
           },
           {
-            "question": "碎㐌固內容, Hugo 固互助𢯛疊吏空?",
-            "answer": "固, 𢯛疊吧編輯珥. 曰買完全內容𧸝行時報價𥢅."
+            "question": "碎𣗓固內容時牢?",
+            "answer": "伴寄意正, 命𢯛城没塘讀吧編輯珥, 免費. 曰買全部內容時𨉟空認, 伴准僃𡨸𠓀欺扒頭."
           },
           {
-            "question": "𡢐欺搬交碎固自𢯢得空?",
-            "answer": "伴認碼源底自𢯢或交𠊛恪. 𢶒尼空固 CMS, 內容𢯢𥪝碼."
+            "question": "𡢐尼碎自𢯢得空?",
+            "answer": "伴認全部碼源底自𢯢或交𠊛恪. 𢶒尼空固張管治, 𢧚𢷮𡨸𡮈時𠸕𨉟羅𨘱一."
           }
-        ]
+        ],
+        "features": [
+          "沒張, 𦉱分",
+          "交面蹺商效",
+          "Form 聯係𧗱 email",
+          "碼源 .ZIP 産床𨑗𦀴",
+          "𢯢𤻳𠓹𠁀"
+        ],
+        "seo": {
+          "title": "設計 Landing Page 1,29 兆, 空㭲 | Hugo One",
+          "description": "設計 landing page 沒張, 曰碼𢬣, 載𨘱, 朱廣告, 𠚢𥉴産品, portfolio. 𠓹𢶒 1.290.000₫, 空勤㭲, 交𥪝 7–10 𣈜, 𢯢𤻳𠓹𠁀.",
+          "keywords": "設計 landing page, landing page 價𥚯, 爫 landing page 𧼋廣告, landing page 空㭲, 張的𧸝行, Hugo One"
+        }
       },
       "hugo-story": {
         "title": "𨇜𡊲朱每次伴勤𠸥.",
         "lede": "Website 介紹饒張朱個人, 館𠄧营業𡮈. 每張守𠬠𦠘𠻀, 悉奇共引𧗱沒決定.",
-        "intro": [
-          "饒條底𠸥麻屯歇𠓨沒張時空條閙得讀. 分𠺟空於數張麻於塘𠫾𡧲各張: menu, 連結吧鈕𡳳張得插底客連𣎏𨀈計接."
-        ],
         "audience": [
           "营業𡮈勤介紹𨇜役務吧能力.",
           "館咹, 館茄批, 房勘, studio 勤實單, 榜價, 形影吧版圖.",
@@ -6819,178 +6812,155 @@
         ],
         "includes": [
           {
-            "title": "系統張蹺需求.",
-            "body": "常 4 – 8 張: 介紹, 役務, 預案, 信息, 聯係. 椊名册畧欺設計."
+            "title": "𦊚張.",
+            "body": "常󰑼 主頁, 介紹, 役務吧連系. 椊名册畧欺爫, 添得細𦒹張."
           },
           {
-            "title": "構築內容吧調向.",
-            "body": "Menu, 塘引親善, 連結內部吧鈕行動𡳳每張."
+            "title": "交面蹺商效."
           },
           {
-            "title": "Form, 版圖吧𦀴社会.",
-            "body": "Form 𠳚𧗱盒書, 版圖指塘, 連結創各𣻽伴當𧼋."
+            "title": "Menu 𠓑, 塘𠫾𠓑.",
+            "body": "每張結朋沒鈕引細𨀈接蹺."
           },
           {
-            "body": "每張𠬠標題, 模寫吧影𢺺𢩿𥢅. Sitemap 吧與料固構築朱全 site."
+            "title": "聯係沒𢵺.",
+            "body": "Form 𧗱 email, 版圖指塘, 鈕噲吧鈕 Zalo."
           },
           {
-            "title": "顯是卒𨑗每設被.",
-            "body": "檢查實𨕭電話吧𣛠倂𪞍奇榜表吧影饒橛."
+            "title": "每張現𥢅𨕭 Google.",
+            "body": "𠸜, 模寫吧影䀡𠓀𥢅朱曾張."
           },
           {
-            "title": "搬交碼源.",
-            "body": "全部碼源兼向引𨂼吏, 底埃接管拱特."
+            "title": "連結𥪝𣅶爫.",
+            "body": "伴𧷸𠸛沔, hosting 朋財款𧵑伴蹺榜價命寄𨉟𦀼𣦍𥪝过程爫. 搬交碼源 (.ZIP) 吧 link website 㐌𧼋."
           }
         ],
         "warranty": [
           {
-            "title": "45 𣈜𢯢纇免費.",
-            "body": "每纇屬分 Hugo Studio 𥩯, 性自𣈜搬交."
+            "title": "𢯢𤻳𠓹𠁀."
           },
           {
-            "title": "14 𣈜整內容𡮈.",
-            "body": "𢯢𡨸, 𠊝影, 及日𣇞𨷑𨷯𨕭各張㐌搬交."
-          },
-          {
-            "title": "沒𣇜向引自及日.",
-            "body": "直線, 固𢮿幔形底伴䀡吏欺勤."
+            "title": "14 𣈜𢷮𡨸, 𢷮影.",
+            "body": "𢯢句𡨸, 𠊝影, 及日𣇞𨷑𨷯𨕭各張㐌搬交."
           }
         ],
-        "policyExtra": [
-          {
-            "title": "時間實現 10 𣈜 – 4 旬.",
-            "body": "本 4 張交𥪝 10 – 14 𣈜, site 饒張 3 – 4 旬. 性自𣅶椊名冊張𠄧認賭内容."
-          }
-        ],
+        "policyExtra": [],
         "price": {
-          "note": "本 4 張貝內容固𠻿: 3.900.000₫ 𠓹𢶒, 交𥪝 10 – 14 𣈜. 添張, 曰內容或添言語時性𨑗自妬. 分𡘯預案於 5 – 6,5 兆.",
-          "factors": [
-            "數張𠄧度複雜𧵑曾張.",
-            "固勤張信息 / blog 自登排咍空.",
-            "內容吧形影㐌産床𦤾兜.",
-            "多言語.",
-            "轉與料自 website 𡳵創."
-          ]
+          "note": "𠓹𢶒 4 張貝𡨸吧影伴㐌固, 㐌𠁝迻 website 𨑗𠸜沔𧵑伴. 勤添張時 390.000₫ 每張, 最多 6 張.",
+          "factors": []
         },
         "faq": [
           {
-            "question": "碎固自登排曰𡢐尼特空?",
-            "answer": "𢶒基本空兼 CMS. 㦖自登排時考察添系統符合, 之費妬性𥢅."
+            "question": "碎固自登排曰特空?",
+            "answer": "空. Hugo Story 空固張管治. 添排咍𢷮𡨸𡢐搬交時𠸕𨉟過互助𥛭."
           },
           {
             "question": "固轉 website 𡳵𨖅空?",
-            "answer": "固, 仍塊量隨數張, 影吧與料𡳵. 分轉與料報價𥢅𡢐欺䀡 website 現在."
+            "answer": "𨉟空認轉與料自 web 𡳵. 伴寄吏𡨸吧影㦖守, 命𥩯𨕭 web 買如沒預案平常."
           },
           {
-            "question": "𠸜沔𠄧坭留貯固特𧷸冲𫋻空?",
-            "answer": "空. 伴自𥪸𠸛𧷸. Hugo Studio 互助撰𧷸和𦀼𠓨 website 過𢶒結𦀼性𥢅."
+            "question": "𠸜沔𠄧 hosting 固𦣰𥪝𢶒空?",
+            "answer": "空, 伴自𥪸𠸛𧷸底抒權所有. 命寄榜價𠓀欺𧷸和𦀼𠓨 web 𣦍𥪝𣅶爫㐌𠁝𥪝價."
           }
-        ]
+        ],
+        "features": [
+          "4 張, 𨷑細 6",
+          "Menu & 塘𠫾𡧲各張",
+          "Form, 版圖, 鈕噲 & Zalo",
+          "每張現𥢅𨕭 Google",
+          "迻𨑗𦀴𠢞伴",
+          "𢯢𤻳𠓹𠁀"
+        ],
+        "seo": {
+          "title": "設計 Website 4 張朱营業𡮈 | Hugo Story",
+          "description": "Website 4 張朱館, 𨷯行, 营業𡮈: menu, 版圖, 鈕噲, Zalo, 每張現𨕭 Google. 2.990.000₫, 㐌𠁝迻𨑗𠸜沔, 交𥪝 2–3 旬.",
+          "keywords": "設計 website 营業𡮈, website 館茄批, website 𨷯行, 設計 web 介紹公司, 爫 website 價𥚯, Hugo Story"
+        }
       },
       "hugo-flow-plus": {
-        "title": "客𢶸𧷸𣦍𨕭張𧵑伴.",
-        "lede": "名目, 𥶇行, 清算吧管理單 — 共沒系統, 芒𠸜伴. 𠲜朱商號𧸝行實, 空址徵排.",
-        "intro": [
-          "Website 𧸝行沛中: 單空特𢴐, 存庫空特𨇗, 錢𠓨沛恰𢭲單. 𢧚墳𡘯工飭𦣰𢖕交面 — 狀態單, 通報朱奇𠄩𪰂, 吧沒張管治𨇜底沒𠊛運行奇𨷯行."
-        ],
+        "title": "客自達𣦍𨑗張𧵑伴.",
+        "lede": "Website 兼沒職䏻𧼋實: 達曆, 認單或名目産品固鈕達. 伴管理單𥪝張管治𥢅, 錢𧗱𣦛財款𧵑伴.",
         "audience": [
-          "商號當𧸝𨕭棧或𦀴社会, 㦖固𣻽𥢆空𠅎費棧.",
-          "𨷯行勤管理單, 存庫吧客行於没尼.",
-          "役務勤達曆達𡊲或收前直線."
+          "店, studio, 笠學勤客自達曆.",
+          "Shop 𡮈當𣖠單過信𠴍, 㦖沒張認單𥪸𠸛命.",
+          "役務㦖搛單𧗱蔑𡊲𠊝為洒𦹺𥪝 Zalo 吧 Messenger."
         ],
         "includes": [
           {
-            "title": "管理産品.",
-            "body": "名目, 分類, 變體, 影, 價吧情狀群行."
+            "title": "每次𧵑 Hugo Story.",
+            "body": "𦊚張, menu, 聯係沒𢵺, 現𨕭 Google, 連結𥪝𣅶爫."
           },
           {
-            "title": "𥶇行吧單行.",
-            "body": "𥶇行, 碼減價, 費運轉, 狀態單吧通报朱奇𠄩𪰂."
+            "title": "沒職䏻𧼋實.",
+            "body": "撰沒: 達曆, 認單, 或名目産品固鈕達."
           },
           {
-            "title": "清算直線.",
-            "body": "𦀼沒𨶛清算在越南由伴登記. 費𨶛由茹供給收."
+            "title": "張管治𥢅.",
+            "body": "登入朋財款𧵑伴底䀡單, 𢷮狀態單. 固單買 󰑼固 email 報."
           },
           {
-            "title": "財款客行.",
-            "body": "登入, 歷史𧷸和地指交行㐌留."
+            "title": "𪃲錢朋碼 QR.",
+            "body": "碼 QR 財款𧵑伴現𣦍𡢐欺客達. 錢𠓨𣦛財款."
           },
           {
-            "body": "每張𠄧每産品沒標題, 模寫吧影𢺺𢩿𥢅. Sitemap 吧與料固構築朱全𨷯行."
-          },
-          {
-            "title": "張管治.",
-            "body": "坭伴 󰏙單, 𢯢産品吧蹺唯数料𧸝行. 與料𦣰𨕭下層由伴所有."
-          },
-          {
-            "title": "積合 API 蹺需求.",
-            "body": "運轉, 化單, 計算或分𣟮伴當用 — 椊名册畧欺報價."
+            "title": "自𢯢産品, 價, 曆𥧪.",
+            "body": "𢯢𣦍𥪝張管治, web 及日蹺."
           }
         ],
         "warranty": [
           {
-            "title": "60 𣈜𢯢纇免費.",
-            "body": "優先髙一朱纇屬𨻫達行吧清算."
+            "title": "𢯢𤻳𠓹𠁀.",
+            "body": "𤻳於𨻫達曆達單連特處理𠓀."
           },
           {
-            "title": "30 𣈜同行運行.",
-            "body": "互助欺伴﨤𦁽工倘頭𧸝行實."
+            "title": "30 𣈜𢷮𡨸, 𢷮影.",
+            "body": "分空𢯢得𥪝張管治, 命𢯢𠢞𥪝 30 𣈜頭."
           },
           {
-            "title": "𠄩𣇜向引管治.",
-            "body": "沒𣇜畧欺𨷑𬥓𠬠𣇜𡢐𠄩旬運行."
+            "title": "Video 向引𢮿𠻿.",
+            "body": "曾𨀈管理單, 䀡吏不據𣅶芇."
           }
         ],
         "policyExtra": [
           {
-            "title": "時間實現 4 – 8 旬.",
-            "body": "隨數積合. 𨶛清算吧運轉附属時間閲𧵑茹供給."
-          },
-          {
-            "title": "清算蹺𠀧達.",
-            "body": "50% 欺扒頭, 30% 欺𧼋試內部, 20% 欺𨷑𧸝實."
-          },
-          {
-            "title": "財款役務𥪸𠸛伴.",
-            "body": "𨶛清算, 單位運轉, 下層 — 登記朋通信营業𧵑伴."
-          },
-          {
-            "title": "與料客行羅𧵑伴."
+            "title": "財款吧與料羅𧵑伴."
           }
         ],
         "price": {
-          "from": "報價𥢅",
-          "note": "𢶒尼認固撰淥. 𡢐𣇜𢭂𢷮, 𡀮範圍𨇜𠓑吧曆群𡊲, 伴認報價曰𥢅朱預案𧵑𨉟. 𣗓沛𣅶時命吶𣦛𣦍自頭.",
+          "from": "自 4.990.000₫",
+          "note": "價棧朱 website 4 張共沒職䏻吧張管治. 職䏻次𠄩, 清算自動咍𥶇行饒産品時命報價𡢐𣇜𢭂𢷮.",
           "factors": [
-            "数量産品吧變體.",
-            "數𨶛清算吧單位運轉勤𦀼.",
-            "固勤同步貝分𣟮庫 / 計算産固空.",
-            "𣞪度隨變𧵑張管治.",
-            "要求𧗱報吿吧数料."
+            "職䏻伴撰: 達曆羅鈍一, 名目饒産品損工一.",
+            "數産品或役務勤入𠻿."
           ]
         },
         "faq": [
           {
-            "question": "Hugo Flow+ 固自𡏦基礎與料𥢆空?",
-            "answer": "空. Hugo Studio 空供給咍朱税基礎與料. 𢶒尼只𦀼𢭲系統吧 API 伴㐌固."
+            "question": "固清算自動吧𥶇行空?",
+            "answer": "𢶒尼空固𠻿. 𨉟爫沒命𢧚撰格𧼋礩: 單𧗱張管治, 𪃲錢朋 QR 轉款. 勤添時命報價𥢅𡢐𣇜𢭂𢷮, 或吶𣦛𡀮役妬過飭沒𠊛."
           },
           {
-            "question": "碎沛准僃之𠓀欺扒頭?",
-            "answer": "名冊産品, 歸則價吧交行, 財款清算或運轉, 吧材料 API 𡀮勤𦀼役務外."
+            "question": "碎勤準被之?",
+            "answer": "名冊産品或役務兼價吧影, 共數財款銀行認錢."
           },
           {
-            "question": "固体添職䏻𡢐欺 website 㐌𧼋空?",
-            "answer": "固, 職䏻買報價𥢅. 纇屬範圍㐌驗收吻處理蹺時限保行."
+            "question": "添職䏻𡢐欺 web 㐌𧼋得空?",
+            "answer": "得, 職䏻買報價𥢅. 纇屬分㐌驗收吻𢯢免費𥪝時限保行."
           }
         ],
         "features": [
-          "管理産品",
-          "𥶇行 & 單行",
-          "清算直線",
-          "結𦀼與料固𠻿",
-          "張狀態單行",
-          "積合 API 蹺需求"
-        ]
+          "每次𧵑 Hugo Story",
+          "沒職䏻: 達曆或認單",
+          "張管治單𥢅",
+          "𪃲錢朋 QR 轉款",
+          "自𢯢産品, 價, 曆",
+          "𢯢𤻳𠓹𠁀"
+        ],
+        "seo": {
+          "title": "Website 達曆, 認單固張管治 | Hugo Flow+",
+          "description": "Website 達曆, 認單 online 貝張管治𥢅, 𪃲錢朋碼 QR 轉款. 自 4.990.000₫, 交𥪝 3–5 旬, 𢯢𤻳𠓹𠁀.",
+          "keywords": "website 達曆 online, website 認單, web 𧸝行固張管治, website 達𡊲 spa salon, 清算 QR 𨕭 website, Hugo Flow+"
+        }
       },
       "hugo-edu-plus": {
         "title": "張 Bio. 停𥢅朱𠊛學.",
@@ -7060,7 +7030,7 @@
         "price": {
           "from": "免費",
           "to": "365 𣈜",
-          "note": "免費完全𡢐欺確明, 𠁝奇塘引𨕭𠸜沔終𧵑 Hugo Studio. 勤切計𥢅外母 Bio 時自 1.500.000 – 3.000.000₫, 𣖠範為𠓀.",
+          "note": "免費完全𡢐欺確明, 𠁝奇塘引𨕭𠸜沔終𧵑 Hugo Studio. 勤張𥢅外母 Bio 時用 Hugo One, 得減 15%.",
           "factors": [
             "歇 365 𣈜: 加限或轉𢲲󰜋 襘把費, 空自動除錢.",
             "設計𥢅蹺要求𦣰外𢶒尼."
@@ -7100,56 +7070,56 @@
       "verifyCta": "確明𠊛學",
       "navLabel": "各分𥪝張",
       "nav": {
-        "intro": "介紹",
         "audience": "𠲜朱埃",
-        "includes": "𢶒包𠁝",
+        "includes": "包𠁝",
         "excludes": "𣗓包𠁝",
         "warranty": "保行",
-        "price": "之費",
+        "feedback": "𢵰意",
+        "price": "訂兼",
         "compare": "𢫘並"
       },
-      "introKicker": "介紹",
-      "introCaption": "󰑼之.",
       "audienceKicker": "𠲜朱𣜿需求",
       "audienceTitle": "𢶒尼合貝埃.",
       "includesKicker": "𢶒包𠁝",
       "includesTitle": "伴認得之.",
-      "includesLede": "全部項目𠁑低𦣰𥪝價, 空沛隨撰共添.",
-      "excludesKicker": "𣗓包𠁝",
-      "excludesTitle": "吧仍之空𦣰𥪝價.",
-      "excludesLede": "吶𫏾底伴預廚中, 𠊝為發現𣅶𢯛搬交.",
-      "warrantyKicker": "保行吧互助",
-      "warrantyTitle": "𡢐欺搬交.",
-      "policyKicker": "正冊𠲜朱𢶒",
-      "policyTitle": "律𨔈, 吶𠓀.",
-      "priceKicker": "之費摇動",
-      "priceTitle": "曠價, 吧爲牢奴摇動.",
-      "priceScope": "範圍畧駕𡢐. 𡥵數𡳳共𦣰𥪝報價吧合同, 吧空𢷮𢖖欺㐌記.",
+      "includesLede": "悉奇𦣰𥪝價.",
+      "excludesTitle": "仍次伴自張被.",
+      "warrantyKicker": "保行",
+      "warrantyTitle": "𢯢𤻳𠓹𠁀. 条件呐𤑟.",
+      "policyKicker": "格爫役",
+      "policyTitle": "爫役貝命世芇.",
+      "priceKicker": "訂兼添",
+      "priceTitle": "勤添之, 價固𠻿.",
+      "priceScope": "價𣖠𥪝報價吧合同. 㐌記時空發生𣅶盤交.",
       "priceCta": "認報價",
-      "priceFactors": "調之𢩽價𨑗或𢫃價𨑜",
-      "extraFeesTitle": "之費發生󰡏𢼂𠻿",
+      "priceFactors": "欺󰅹 價恪𠫾",
+      "extraFeesTitle": "𢶒訂兼",
       "priceNoticeTitle": "記注𧗱價",
       "faqKicker": "句𠳨常﨤",
       "faqTitle": "𠳨畧朱𠰹𠅎時間.",
       "closingKicker": "𨀈接蹺",
       "closingTitle": "計𨉟𦖑伴干之.",
-      "closingTitleQuiet": "範圍畧駕𡢐.",
+      "closingTitleQuiet": "𦖑需 󰂌畧, 報價𡢐.",
       "closingCta": "達曆𢭂𢷮",
       "nextPackage": "䀡𢶒",
       "sampleAlt": "本母",
       "metaFallback": "役務 | Hugo Studio",
       "guarantees": [
-        "碼源吧本權預案羅𧵑伴",
-        "價鎖𥪝合同, 空發生𣅶盤交",
-        "保行𢯢𤻳, 性自𣈜搬交"
-      ]
+        "碼源羅𧵑伴",
+        "價𣖠𥪝合同, 空發生",
+        "𢯢𤻳𠓹𠁀"
+      ],
+      "unitsTitle": "單價𥛭",
+      "priceLabel": "𠓹𢶒",
+      "excludesKicker": "𣗓包𠁝",
+      "excludesLede": "𥪸𠸛伴底伴守權所有."
     },
     "page": {
       "heroKicker": "役務 · Hugo Studio",
       "heroLine1": "設計 website",
       "heroLine2": "吧 landing page",
       "heroLine3": "曰𢬣層𣳔.",
-      "heroLede": "Landing page 自 1,9 兆. Website 介紹自 3,9 兆. 價𣖠𥪝合同, 碼源搬交朱伴.",
+      "heroLede": "Landing page 1,29 兆, 空勤㭲. Website 4 張 2,99 兆, 㐌𠁝迻𨑗𠸜沔. 爫役 100% online, 碼源交朱伴.",
       "heroCta": "認報價",
       "heroCtaAlt": "䀡預案㐌爫",
       "scrollHint": "捲底䀡曾𢶒",
@@ -7204,12 +7174,450 @@
       "closingKicker": "預案接蹺",
       "closingTitle1": "伴芒目標.",
       "closingTitle2": "命𥩯塘𦤾妬.",
-      "closingLede": "價𠫾蹺範圍功役, 空蹺沒榜終 — 曠價𧵑曾𢶒𥱬𤑟邊𥪝. 𣖠衝羅鎖: 空發生𣅶盤交.",
+      "closingLede": "每𢶒沒𡥵數𠓹𢶒, 兼榜價添朱層性能. 𨉟爫沒命𢧚每𣎃只認數預案固限, 達曆𣋽底抒𡊲.",
       "closingCta": "認報價",
       "closingCtaAlt": "䀡全部預案",
       "catalogName": "𢶒役務 Hugo Studio",
       "catalogIncludes": "包𠁝",
-      "schemaName": "設計 landing page, website 介紹吧 website 動"
+      "schemaName": "設計 landing page, website 介紹吧 website 動",
+      "pricingKicker": "榜價",
+      "pricingTitle": "三𢶒, 三𡥵數𠓹𢶒.",
+      "pricingLede": "價㐌𠁝迻 web 𨑗𦀴吧𢯢𤻳𠓹𠁀. 𤔯底䀡曾𢶒.",
+      "addonsKicker": "互助𥢅𥛭",
+      "addonsTitle": "勤添之, 價固𠻿.",
+      "addonsLede": "𢶒訂兼朱仍次咍勤添, 吧單價𥛭朱分群吏. 椊𠓀欺記.",
+      "recommended": "合貝館, 营業𡮈"
+    },
+    "addons": {
+      "lede": "勤添之時撰襘訂兼, 價固𠻿, 椊𠓀欺記.",
+      "note": "役空固於低時命報價朋信𠴍𠓀欺爫. 空爫𠓀耒買性.",
+      "forLabel": "添得𠓨",
+      "units": [
+        {
+          "title": "添沒張 (Story, Flow+, 最多 6 張)",
+          "price": "390.000₫ / 張"
+        },
+        {
+          "price": "150.000₫ / 分"
+        },
+        {
+          "title": "𢯢設計自吝次三 (𠄩吝頭免費)",
+          "price": "200.000₫ / 吝"
+        }
+      ]
+    },
+    "warrantyTerms": {
+      "title": "条件保行",
+      "lines": [
+        "𠓹𠁀羅率時間 website 群𧼋中本碼源命搬交.",
+        "𣅶盤交命留沒本 ZIP. 欺伴報𤂬, 命對詔貝本妬.",
+        "報𤂬朋𡨸, 兼影𢴇幔形, 設備吧程閲. 命返囬𥪝 1 – 2 𣈜爫役."
+      ]
+    },
+    "includesTail": [
+      {
+        "title": "𠄩吝整設計.",
+        "body": "伴閲𨕭本母𠓀欺命曰碼. 每吝整羅沒名冊𢵰意搛𨇜."
+      },
+      {
+        "title": "碼源羅𧵑伴.",
+        "body": "搬交𨇜碼源兼向引. 命守𠬠本 ZIP 底對詔欺保行."
+      }
+    ],
+    "warrantyExclusions": {
+      "title": "空屬保行"
+    },
+    "feedback": {
+      "kicker": "𢵰意吧整𢯢",
+      "title": "呐𤑟沒吝. 爫中沒吝.",
+      "rules": [
+        {
+          "title": "搛𢵰意𠓨沒名冊.",
+          "body": "每吝整, 伴改蔑名冊𣹓𨇜朋𡨸. 𨉟爫没𦀎蹺名冊妬. 𢵰意𨖨落層信𠴍𠱊得搛創吝整𡢐."
+        },
+        {
+          "title": "吶條具體, 空呐感覺."
+        },
+        {
+          "title": "曠格蹺系䋥, 空蹺眜."
+        },
+        {
+          "title": "閲耒羅𣖠.",
+          "body": "本設計㐌閲羅本命曰碼. 𠊝𢷮𢖖欺閲性羅沒吝整添, 200.000₫ 每吝."
+        },
+        {
+          "title": "沒𣻽, 𥪝𣇞爫役."
+        }
+      ]
+    },
+    "policyNoDeposit": {
+      "title": "空勤㭲.",
+      "body": "Hugo One 爫𠓀, 𪃲𡢐. 伴清算𨇜沒吝欺驗收, 𠓀𣅶盤交."
+    },
+    "addonPage": {
+      "back": "悉奇𢶒𥛭",
+      "detailCta": "䀡枝節",
+      "includesTitle": "𠁝之",
+      "excludesTitle": "空𠁝之",
+      "extrasTitle": "固体添",
+      "priceTitle": "價世芇",
+      "warrantyTitle": "保行",
+      "exclusionsTitle": "空屬保行",
+      "periodLabel": "保行",
+      "priceLabel": "價",
+      "cta": "𢭂𢷮𧗱𢶒尼",
+      "note": "價𣖠朋信𠴍𠓀欺爫. 𣗓𠁝錢者朱茹供給邊次𠀧.",
+      "groups": {
+        "start": "底扒頭",
+        "after": "𡢐搬交",
+        "care": "維持恒𣎃"
+      },
+      "timeLabel": "時間",
+      "stepsTitle": "格爫",
+      "relatedTitle": "𢶒𥛭恪",
+      "copyLabel": "Link 𢶒尼",
+      "copy": "牢劄",
+      "copied": "㐌牢劄 link",
+      "seeMore": "䀡添",
+      "careTitle": "𢶒維持, 空扒縛"
+    },
+    "addonItems": {
+      "link": {
+        "name": "𢶒連結",
+        "when": "迻 web 𨑗𠸜沔𧵑伴, 朋正財款𧵑伴.",
+        "priceNote": "沒吝, 朱 Hugo One. Hugo Story 吧 Flow+ 㐌𠁝産冲𣅶爫.",
+        "lede": "伴𧷸, 命𦀼. 每財款𥪸𠸛伴, 每𨀈登入吧確明演𠚢𨕭正財款𧵑伴.",
+        "includes": [
+          {
+            "title": "榜價邊次𠀧."
+          },
+          {
+            "title": "及日𠸜沔𠓨碼.",
+            "body": "塘引準, 疏圖張𠄧影䀡𠓀欺𢺺𢩿用中𠸜沔實𧵑伴."
+          },
+          {
+            "title": "結𦀼朋財款𧵑伴.",
+            "body": "拫𠸜沔, 𢭮證只保密, 迻 web 𨕭尼留貯, 𦀼 email 認 form."
+          },
+          {
+            "title": "檢查𠓀欺交.",
+            "body": "𨷑試曾張, 寄試 form, 䀡𨕭電話吧𣛠性."
+          },
+          {
+            "title": "搬交.",
+            "body": "Link website 㐌𧼋, 共榜記各財款㐌用. 密口由伴自守."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "錢𧷸役務邊次𠀧.",
+            "body": "𠸜沔, hosting, email: 伴𪃲𣦛朱茹供給."
+          },
+          {
+            "title": "比價吧費轉𢷮.",
+            "body": "役務黏謁朋 USD 得銀行𧵑伴歸𢷮, 兼費轉𢷮隨銀行."
+          },
+          {
+            "body": "隨蹺層役務吧茹供給, 伴𪃲共化單𧵑𣱆."
+          },
+          {
+            "title": "𥪸𠸛護, 守密口.",
+            "body": "𨉟空𥪸𠸛財款吧空守密口𧵑伴."
+          },
+          {
+            "title": "加限恒𢆥.",
+            "body": "伴自加限蹺𠲤𧵑茹供給."
+          },
+          {
+            "title": "紙祠登記.",
+            "body": "𠸜沔 .vn 勤紙祠個人或营業, 伴自准僃."
+          }
+        ],
+        "warranty": {
+          "period": "30 𣈜",
+          "lines": [
+            "𥪝 30 𣈜, 分𢭮達𨉟爫被𤻳 (𠸜沔空𢭰中, email 空認得書) 時命𢯢免費."
+          ]
+        },
+        "time": "1 – 2 𣈜, 𥪝妬伴𠲜 30 發共命",
+        "seo": {
+          "title": "役務結𦀼𠸜沔, Hosting 朱 Website | Hugo Studio",
+          "description": "𧷸𠸛沔, hosting, email 𥪸𠸛伴; Hugo Studio 結𦀼 website 𥪝𣇜爫共 30 發. 350.000₫ 沒吝, 保行𢭮達 30 𣈜.",
+          "keywords": "𢭰𠸜沔, 結𦀼𠸜沔 hosting, 𢭮達 website 𨑗 hosting, 造 email 𠸜沔, 迻 website 𨑗𦀴"
+        }
+      },
+      "support": {
+        "name": "互助𥛭",
+        "when": "勤𢷮內容𡢐搬交, 或 web 㐌被𠊛恪𢯢吧歇保行.",
+        "price": "自 300.000₫ / 吝",
+        "priceNote": "空登記𣎃. 價㐌𠁝工讀吏碼源𠓀欺𢯢.",
+        "for": "每𢶒",
+        "items": [
+          "𢷮𡨸, 𠊝影, 及日通信",
+          "𢯢𤻳, 添沒目𡮈",
+          "檢查 web 㐌被𠊛恪整𢯢",
+          "報價𠓀, 伴同意耒買爫"
+        ],
+        "lede": "空登記𣎃. 干之時𠸕𨉟報價𠓀, 伴同意耒買爫.",
+        "includes": [
+          {
+            "title": "讀吏碼𠓀欺𢯢."
+          },
+          {
+            "title": "報價𠓀.",
+            "body": "伴寄要求朋𡨸, 命𪃲𠳒價吧時間𥪝 1 – 2 𣈜爫役."
+          },
+          {
+            "title": "爫中役特腰求."
+          },
+          {
+            "title": "及日本留.",
+            "body": "爫衝, 命留本 ZIP 𪦲底對詔朱𨁮𡢐."
+          }
+        ],
+        "excludes": [
+          {
+            "body": "互助𥛭空保行全部 website."
+          },
+          {
+            "title": "恢復與料㐌𠅎.",
+            "body": "𨉟空守與料𧵑伴, 空恢復得次㐌𪷮."
+          },
+          {
+            "title": "設計吏, 添性能𡘯.",
+            "body": "妬󰑼 預案買, 報價蹺𢶒."
+          },
+          {
+            "title": "Website 空由 Hugo Studio 爫.",
+            "body": "命只互助 website 𨉟㐌搬交."
+          },
+          {
+            "title": "役損過 3 𣇞空認樣互助𥛭",
+            "body": "役損過 3 𣇞空認樣互助𥛭: 命報價如沒預案."
+          }
+        ],
+        "priceRows": [
+          {
+            "title": "𢷮𡨸, 𠊝影, 寄沒吝最多 10 𡊲",
+            "price": "300.000₫ / 吝"
+          },
+          {
+            "title": "𢯢𤻳, 添沒目𡮈"
+          },
+          {
+            "title": "檢查 web 㐌被𠊛恪整𢯢",
+            "price": "500.000₫, 除𠓨費𢯢𡀮爫接"
+          }
+        ],
+        "extras": [
+          {
+            "title": "迻 web 𧗱本準吧𨷑吏保行𠓹𠁀",
+            "price": "報價𡢐欺檢查"
+          }
+        ],
+        "warranty": {
+          "period": "7 𣈜",
+          "lines": [
+            "分𣃣𢯢被纇𥪝 7 𣈜時命𢀦吏免費."
+          ]
+        },
+        "exclusions": [
+          "分恪𧵑 website 空𦣰𥪝要求.",
+          "Web 吏被𠊛恪整𢯢𢖕欺𨉟爫衝.",
+          "𤻳由邊次𠀧: Google, 𨶛清算, hosting, 程閲."
+        ],
+        "time": "1 – 3 𣈜爫役𡢐欺伴同意價",
+        "steps": [
+          "寄要求朋𡨸, 兼影𢴇閙固.",
+          "命報價吧時間𥪝 1 – 2 𣈜爫役.",
+          "伴同意, 𨉟爫吧留本 ZIP 買."
+        ],
+        "illo": [
+          "𢷮𠢞𨉟𣇞𨷑𨷯成 8:00 𠰚",
+          "300.000₫ · 衝𥪝 2 𣈜",
+          "㐌衝"
+        ],
+        "seo": {
+          "title": "𢯢 Website, 及日內容蹺吝 | Hugo Studio",
+          "description": "𢯢 website 蹺吝朱 web Hugo Studio 㐌爫: 𢷮𡨸, 𠊝影, 𢯢纇𡮈, 檢查 web 被整𢯢. 自 300.000₫, 報價𠓀欺爫.",
+          "keywords": "𢯢 website, 及日內容 website, 𢯢𤻳 web, 互助 website 蹺吝, 整𢯢 website"
+        }
+      },
+      "seo": {
+        "when": "底 Google 曉 web 𧵑伴, 吧客尋𧡊伴欺𣱆尋中次伴𧸝.",
+        "price": "自 990.000₫",
+        "priceNote": "Hugo One 990.000₫ · Hugo Story, Flow+ 1.790.000₫. 爫沒吝, 朱 website 㐌𨑗𦀴.",
+        "for": "每𢶒",
+        "items": [
+          "撰自鎖客實事尋",
+          "𠸜, 模寫曾張曰蹺自鎖",
+          "開報 web 貝 Google, 寄疏圖張",
+          "胡疏 Google Maps 吧度客𦤾自兜"
+        ],
+        "lede": "Web 𢢲麻空埃尋𧡊時拱如空. 𢶒尼爫分𡋂: Google 讀中 web 𧵑伴, 吧伴別客𦤾自兜.",
+        "includes": [
+          {
+            "title": "撰自鎖."
+          },
+          {
+            "title": "𠸜吧模寫曾張.",
+            "body": "曰吏標題, 模寫現𨕭 Google 蹺自鎖㐌撰."
+          },
+          {
+            "title": "開報貝 Google.",
+            "body": "確明 web 𥪝 Google Search Console, 寄疏圖張, 檢查張芇渚特讀."
+          },
+          {
+            "title": "與料固構築.",
+            "body": "添通信营業: 𠸜, 地指, 𣇞𨷑𨷯, 底 Google 顯是中."
+          },
+          {
+            "title": "胡疏 Google Maps.",
+            "body": "共伴造或𢯢胡疏营業, 拫 link web, 𣇞𨷑𨷯, 影."
+          },
+          {
+            "title": "度客𦤾自兜.",
+            "body": "𢭮 Google Analytics, 兼 video 短格䀡𢼂料."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "甘結次項.",
+            "body": "次項𨕭 Google 由 Google 決定, 𢧚命空甘結位置咍時間𨑗 top."
+          },
+          {
+            "title": "曰排定期.",
+            "body": "𢶒尼爫𡋂沒吝, 空曰排恒𣎃."
+          },
+          {
+            "title": "𧷸咍𢭂𢷮連結."
+          },
+          {
+            "title": "𧼋和最優廣告.",
+            "body": "空𨑗戰譯, 空管理銀冊廣告."
+          },
+          {
+            "title": "確明胡疏 Google Maps.",
+            "body": "Google 寄碼或要求 video 朱主营業. 伴自寰悉𨀈尼."
+          }
+        ],
+        "time": "2 – 3 𣈜",
+        "steps": [
+          "伴𠸥客𧵑伴 󰑼埃吧於兜.",
+          "命撰自鎖, 𢯢𠸜吧模寫曾張, 添與料固構築.",
+          "開報貝 Google, 造胡疏 Maps 共伴, 寄 video 讀数料."
+        ],
+        "warranty": {
+          "period": "30 𣈜",
+          "lines": [
+            "𥪝 30 𣈜, Google 報𤂬確明, 疏圖張咍與料固構築由命𢭮差時命𢯢免費."
+          ]
+        },
+        "exclusions": [
+          "Google 踸顯是或空顯是 web: 役妬由 Google 決定.",
+          "Google 辭咥或暫鎖胡疏 Maps.",
+          "伴自𢷮𠸛, 模寫咍𪷮張𡢐欺搬交.",
+          "Google 𢷮格疊項."
+        ],
+        "illo": [
+          "店餅𧵆低",
+          "店餅𧵑伴",
+          "𨷑𨷯 · 7:00 – 21:00"
+        ],
+        "priceRows": [
+          {
+            "title": "Hugo One: 沒張"
+          },
+          {
+            "title": "Hugo Story, Hugo Flow+: 細 6 張"
+          }
+        ]
+      },
+      "maintain": {
+        "name": "𢶒維持 Flow+",
+        "when": "Web 固單, 固錢𧼋過時勤𠊛𥄡. 命𥄡𠢞每𣎃.",
+        "price": "490.000₫ / 𣎃",
+        "priceNote": "𪃲蹺𢆥 4.900.000₫, 朋 10 𣎃空扒縛, 停𣅶芇拱得, 報𠓀 1 𣎃.",
+        "items": [
+          "抄留與料單恒旬",
+          "蹺唯 web 連續, 空𠓨特羅命別",
+          "𦀪保密, 蹺及𠊝𢷮𧵑𨶛清算",
+          "每𣎃試沒單自頭細𡳳"
+        ],
+        "lede": "保行𠓹𠁀𢗼𤻳由𨉟爫𠚢. 𢶒維持𢗼分群吏: 書院勤𦀪, 𨶛清算𢷮格結𦀼, 與料勤抄留.",
+        "includes": [
+          {
+            "title": "抄留恒旬.",
+            "body": "與料單吧産品得抄留𠓨坭留貯𥪸𠸛伴, 守 8 本近一."
+          },
+          {
+            "title": "蹺唯 web 群𧼋.",
+            "body": "Web 空追及特羅命認警報吧處理𥪝𣈜爫役."
+          },
+          {
+            "title": "𦀪保密."
+          },
+          {
+            "title": "蹺及邊次𠀧.",
+            "body": "𨶛清算, Google 咍茹供給 hosting 𢷮格結𦀼時命𢯢蹺, 空性添."
+          },
+          {
+            "title": "檢查恒𣎃.",
+            "body": "試沒單自頭細𡳳, 寄伴報吿短."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "性能買.",
+            "body": "添職䏻咍𢷮交面: 報價𥢅."
+          },
+          {
+            "title": "費役務邊次𠀧.",
+            "body": "Hosting, 基礎與料, 𨶛清算: 伴𪃲𣦛朱茹供給."
+          },
+          {
+            "title": "入料𠊝伴.",
+            "body": "添産品, 處理單: 伴爫𥪝張管治."
+          },
+          {
+            "title": "與料𠓀欺登記.",
+            "body": "只恢復祠各本抄留𥪝時間𢶒群效力."
+          }
+        ],
+        "extras": [
+          {
+            "title": "役外𢶒: 互助𥛭",
+            "price": "自 300.000₫ / 吝"
+          }
+        ],
+        "time": "扒頭𣦍𡢐搬交",
+        "steps": [
+          "登記𡢐欺搬交, 𪃲蹺𣎃或蹺𢆥.",
+          "命𢭮抄留吧蹺唯𨕭財款𧵑伴.",
+          "每𣎃認報吿短: 抄留, 及日, 單試."
+        ],
+        "warranty": {
+          "period": "𥪝時間登記",
+          "lines": [
+            "𤻳發生自分𠇮及日得𢯢免費𥪝時間𢶒群效力."
+          ]
+        },
+        "illo": [
+          "抄留旬尼",
+          "Web 當𧼋",
+          "及日保密"
+        ],
+        "seo": {
+          "title": "𢶒保持 Website 恒𣎃 490.000₫ | Hugo Studio",
+          "description": "保持 website 達曆, 𧸝行恒𣎃: 抄留恒旬, 蹺唯 web, 𦀪保密, 試單每𣎃. 490.000₫/𣎃, 停𣅶芇拱得.",
+          "keywords": "保持 website 恒𣎃, 役務保持 web, 抄留 website, 保密 website, 𥊀𥉮 website"
+        }
+      }
+    },
+    "trademarkNote": "Google, Google Maps, Facebook, TikTok, Zalo, PayOS 吧各𠸜恪𨕭張羅眼效𧵑主所有相應. Hugo Studio 只標𠸜底模寫役務相適, 空沛對作咍大理𧵑各邊尼.",
+    "linkIncludedNote": {
+      "title": "㐌𠁝連結.",
+      "body": "命寄榜價𠸜沔, hosting, email 𠓀; 伴𧷸朋財款𧵑伴, 命𦀼𣦍𥪝𣅶爫. 搬交碼源 (.ZIP) 吧 link website 㐌𧼋."
     }
   },
   "studentPage": {

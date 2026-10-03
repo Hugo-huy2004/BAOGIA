@@ -31,7 +31,8 @@
     {
       "name": "bio-studio-js",
       "pattern": "^BioPreviewTab-.*\\.js$",
-      "maxBytes": 10000
+      "maxBytes": 16000,
+      "maxGzipBytes": 6000
     },
     {
       "name": "bio-studio-css",

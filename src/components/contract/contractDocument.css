@@ -1,0 +1,54 @@
+/* Hợp đồng dạng văn bản: nền giấy, chữ có chân, bảng kẻ mảnh. Dùng token màu để
+   đọc được cả nền tối; khi in thì ép về đen trắng. */
+.contract-doc {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid hsl(var(--border));
+  border-radius: 1.25rem;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.contract-head { text-align: center; border-bottom: 1px solid hsl(var(--border)); padding-bottom: 1rem; }
+.contract-brand { font-family: inherit; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; color: hsl(var(--muted-foreground)); }
+.contract-doc h1 { font-size: clamp(1.15rem, 2.4vw, 1.5rem); font-weight: 700; margin: .5rem 0 1rem; }
+.contract-doc h2 { font-size: 1rem; font-weight: 700; text-transform: uppercase; margin: 1.75rem 0 .6rem; letter-spacing: .02em; }
+.contract-doc h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .35rem; }
+.contract-article ol { list-style: decimal; padding-left: 1.4rem; }
+.contract-article li, .contract-list li { margin: .25rem 0; text-align: justify; }
+.contract-list { list-style: disc; padding-left: 1.4rem; }
+.contract-facts { display: grid; gap: .15rem 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); margin: .5rem 0; text-align: left; }
+.contract-facts > div { display: flex; gap: .5rem; min-width: 0; }
+.contract-facts dt { color: hsl(var(--muted-foreground)); white-space: nowrap; }
+.contract-facts dd { font-weight: 600; overflow-wrap: anywhere; }
+.contract-parties { display: grid; gap: 0 2rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.contract-table-wrap { overflow-x: auto; margin: .6rem 0 1rem; }
+.contract-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: ui-sans-serif, system-ui, sans-serif; }
+.contract-table th, .contract-table td { border: 1px solid hsl(var(--border)); padding: .4rem .5rem; vertical-align: top; text-align: left; }
+.contract-table th { background: hsl(var(--muted)); font-weight: 600; }
+.contract-table tfoot td { font-weight: 700; }
+.contract-table td { white-space: pre-line; }
+/* Chỉ bảng tiền (có dòng tổng) giữ số tiền trên một dòng; bảng chữ được xuống dòng. */
+.contract-table:has(tfoot) td:last-child { white-space: nowrap; }
+.contract-caption { margin: 1rem 0 .4rem; font-size: .95em; font-weight: 600; }
+.contract-a4 { max-width: 210mm; border-radius: .5rem; box-shadow: 0 1px 3px hsl(var(--foreground) / .08); }
+.contract-qa th { width: 36%; background: hsl(var(--muted) / .5); font-weight: 600; }
+.contract-empty { color: hsl(var(--muted-foreground)); }
+.contract-termination { border: 2px solid hsl(var(--destructive)); border-radius: .75rem; padding: .25rem 1rem .75rem; margin-top: 1rem; }
+.contract-references ul { padding-left: 1.4rem; text-indent: -1.4rem; list-style: none; }
+.contract-references li { margin: .3rem 0; }
+
+@media print {
+  body * { visibility: hidden !important; }
+  .contract-print, .contract-print * { visibility: visible !important; }
+  .contract-print { position: absolute; inset: 0 auto auto 0; width: 100%; max-width: none; border: 0; border-radius: 0; padding: 0; background: #fff; color: #000; }
+  .contract-print .contract-table th { background: #eee; }
+  .contract-print .contract-table th, .contract-print .contract-table td { border-color: #999; }
+  .contract-print .contract-article { break-inside: avoid; }
+  .contract-print.contract-a4 { box-shadow: none; }
+  .contract-print .contract-qa tr { break-inside: avoid; }
+  @page { size: A4; margin: 18mm 16mm; }
+}

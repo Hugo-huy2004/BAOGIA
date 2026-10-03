@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import logos from "./logos";
 import { API_BASE } from "../config/apiBase";
 import { isVietnameseLanguage } from "../i18n/languages";
+import { EMAIL_CHANNELS, createMailtoUrl } from "../../shared/emailChannels";
 
 const linkClass = "inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -187,8 +188,41 @@ export default function Footer() {
           </nav>
         </div>
 
+        {/* Hộp thư chuyên biệt theo nghiệp vụ */}
+        <div className="border-t border-border/70 pt-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-foreground mb-3">
+            {resolvedLang === "vi" ? "Hộp thư liên hệ & Hỗ trợ chuyên biệt" : (resolvedLang === "zh" ? "专属服务与支持邮箱" : "Specialized Inboxes & Direct Support")}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {Object.values(EMAIL_CHANNELS).map((channel) => (
+              <a
+                key={channel.id}
+                href={createMailtoUrl(channel.id, { lang: resolvedLang })}
+                className="group flex flex-col justify-between p-3.5 rounded-2xl border border-border/60 bg-card/60 hover:bg-card hover:border-primary/40 transition-all shadow-sm hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">
+                      {channel.icon}
+                    </span>
+                    <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                      {channel.label[resolvedLang] || channel.label.vi}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    {channel.description[resolvedLang] || channel.description.vi}
+                  </p>
+                </div>
+                <span className="mt-2 font-mono text-[11px] text-primary/80 group-hover:underline">
+                  {channel.address}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+
         <p className="border-t border-border pt-4 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {data.profile.fullName || "Peter Hugo Wishpax Le"}
+          © {new Date().getFullYear()} {data.profile.fullName || "Hugo Wishpax"}
         </p>
       </div>
     </footer>

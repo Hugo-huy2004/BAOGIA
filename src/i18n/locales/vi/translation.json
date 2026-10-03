@@ -334,7 +334,7 @@
       "badge": "✦ Người Đứng Sau Studio",
       "title1": "Sinh viên năm cuối,",
       "title2": "kiến tạo trải nghiệm đẹp.",
-      "desc": "Mình là Peter Hugo Wishpax Lê, thuộc thế hệ Gen Z và đang học năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Mình tập trung vào web app, UI/UX và trải nghiệm trên điện thoại. Hugo Studio là portfolio ghi lại các dự án, kỹ năng và hướng phát triển của mình. Jason Phan đồng hành trong một số hạng mục.",
+      "desc": "Mình là Hugo Wishpax, thuộc thế hệ Gen Z và đang học năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Mình tập trung vào web app, UI/UX và trải nghiệm trên điện thoại. Hugo Studio là portfolio ghi lại các dự án, kỹ năng và hướng phát triển của mình. Jason Phan đồng hành trong một số hạng mục.",
       "founderRole": "Sinh viên thiết kế & phát triển",
       "partnerRole": "Đối Tác Đồng Phát Triển",
       "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
@@ -408,7 +408,7 @@
       "navServices": "Dịch vụ",
       "navBooking": "Đặt lịch",
       "heroWord": "Hugo",
-      "heroEyebrow": "Hugo Lê · Portfolio",
+      "heroEyebrow": "Hugo Wishpax · Portfolio",
       "heroTitle1": "Mình là Hugo.",
       "heroTitle2": "Mình thiết kế và xây sản phẩm số.",
       "heroDesc": "Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam. Đây là portfolio các dự án mình đã xây dựng.",
@@ -420,7 +420,7 @@
       "previewName": "Hugo Student",
       "previewTagline": "Một danh tính số, nhiều tiện ích.",
       "aboutLabel": "Về mình",
-      "aboutH1": "Peter Hugo Wishpax Lê,",
+      "aboutH1": "Hugo Wishpax,",
       "aboutH2": "sinh viên năm cuối Kỹ thuật Phần mềm.",
       "aboutH3": "Mình học tốt nhất khi tự tay biến kiến thức thành những sản phẩm có thể chạy và được sử dụng.",
       "education": {
@@ -501,9 +501,9 @@
         ]
       },
       "meta": {
-        "title": "Peter Hugo Wishpax Lê — Portfolio Lập Trình Và Thiết Kế Sản Phẩm",
-        "description": "Portfolio cá nhân của Peter Hugo Wishpax Lê, sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam, gồm hành trình học tập, kỹ năng và các sản phẩm đã xây dựng.",
-        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, dự án React"
+        "title": "Hugo Wishpax — Portfolio Lập Trình Và Thiết Kế Sản Phẩm",
+        "description": "Portfolio cá nhân của Hugo Wishpax, sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam, gồm hành trình học tập, kỹ năng và các sản phẩm đã xây dựng.",
+        "keywords": "Hugo Wishpax, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, dự án React"
       },
       "heroCvCta": "Tải CV",
       "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào.",
@@ -512,12 +512,12 @@
     },
     "apple": {
       "meta": {
-        "title": "Peter Hugo Wishpax Lê — Sinh viên Kỹ thuật Phần mềm & Người dựng sản phẩm",
+        "title": "Hugo Wishpax — Sinh viên Kỹ thuật Phần mềm & Người dựng sản phẩm",
         "description": "Chào, mình là Hugo. Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam, tự tay dựng và vận hành một hệ thống 22 ứng dụng đang chạy thật.",
-        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, React, Node.js"
+        "keywords": "Hugo Wishpax, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, React, Node.js"
       },
       "hero": {
-        "kicker": "Peter Hugo Wishpax Lê",
+        "kicker": "Hugo Wishpax",
         "line1": "Một chút thiết kế.",
         "line2": "Rất nhiều đêm muộn.",
         "status1": "Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam.",
@@ -856,16 +856,16 @@
         "summary": "Mình thích làm những sản phẩm người ta mở ra dùng mỗi ngày. Giao diện, API, cơ sở dữ liệu – ba lớp, một người làm. Và thứ gì đã lên mạng thì mình nhận luôn phần vận hành.",
         "educationHeading": "Quá trình học",
         "school1": {
-          "school": "THPT Nguyễn Đình Chiểu",
-          "period": "09/2020 – 06/2023",
+          "school": "Collège de Mytho — THPT Nguyễn Đình Chiểu",
+          "period": "08/2019 – 06/2022",
           "degree": "Tốt nghiệp trung học phổ thông",
           "description": "Trưởng thành từ ngôi trường có lịch sử từ năm 1879, tiền thân là Collège de Mytho. Truyền thống hiếu học hơn một thế kỷ tại Mỹ Tho là nền tảng để mình rèn tính kỷ luật, tư duy giải quyết vấn đề và tinh thần hợp tác."
         },
         "school2": {
           "school": "Greenwich Việt Nam",
           "period": "2023 – 2027",
-          "degree": "Công nghệ Thông tin · GPA 3.6/4.0",
-          "description": "Công nghệ Thông tin · University of Greenwich (UK) - Hồ Chí Minh Campus · dự kiến tốt nghiệp 08/2027. GPA tích lũy quá trình học tập hiện tại 3.6/4.0."
+          "degree": "Công nghệ Thông tin",
+          "description": "Công nghệ Thông tin · University of Greenwich (UK) - Hồ Chí Minh Campus · dự kiến tốt nghiệp 08/2027."
         },
         "milestoneNow": "Hiện tại",
         "techHeading": "Công nghệ mình dùng",
@@ -929,8 +929,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Thiết Kế Website & Landing Page Từ 1,9 Triệu | Hugo Studio",
-      "description": "Landing page từ 1.900.000₫, website giới thiệu từ 3.900.000₫. Mã nguồn viết tay 100%, bàn giao cho bạn, giá chốt trong hợp đồng. Xem dự án đã làm.",
+      "title": "Thiết Kế Website & Landing Page Từ 1,29 Triệu | Hugo Studio",
+      "description": "Landing page 1.290.000₫ không cần cọc, website 4 trang 2.990.000₫, web đặt lịch/nhận đơn từ 4.990.000₫. Làm online, mã nguồn giao cho bạn.",
       "keywords": "thiết kế website, thiết kế landing page, làm website doanh nghiệp nhỏ, website quán cà phê, website bán hàng, báo giá thiết kế web, freelancer thiết kế website, Hugo Studio"
     }
   },
@@ -1348,8 +1348,8 @@
     "customerForm": {
       "title": "Truy cập Quản trị dự án",
       "desc": "Quản lý dự án, xem tiến độ và trao đổi với đội ngũ.",
-      "codeLabel": "Mã Dự Án (6 Ký Tự)",
-      "codePlaceholder": "VD: 1A2B3C",
+      "codeLabel": "Mã truy cập (10 ký tự)",
+      "codePlaceholder": "VD: 7K2M9QX4TP",
       "btn": "Vào Portal Dự Án",
       "securityTitle": "Bảo mật thông tin",
       "securityDesc": "Mã dự án được cung cấp riêng tư. Tuyệt đối không chia sẻ mã này cho người khác để đảm bảo an toàn dữ liệu dự án của Quý khách."
@@ -1383,7 +1383,9 @@
     "tabs": {
       "profile": "Hồ Sơ",
       "service": "Dịch Vụ",
-      "requests": "Yêu Cầu"
+      "requests": "Yêu Cầu",
+      "brief": "Yêu cầu dự án",
+      "contract": "Hợp đồng"
     },
     "profile": {
       "title": "Thông tin cá nhân",
@@ -1417,7 +1419,52 @@
       "empty": "Chưa có yêu cầu nào. Hãy nhắn tin cho chúng tôi nếu Quý khách có bất kỳ thắc mắc nào.",
       "placeholderNormal": "Nhập yêu cầu hoặc tin nhắn...",
       "placeholderCompleted": "Nhập yêu cầu bảo trì hoặc tin nhắn..."
-    }
+    },
+    "brief": {
+      "editsLeft": "Quý khách còn {{n}} lần tự sửa phiếu. Sau đó Hugo Studio sẽ chỉnh giúp.",
+      "error": "Chưa gửi được phiếu, Quý khách thử lại.",
+      "intro": "Điền càng rõ, Hugo Studio càng làm đúng ngay từ đầu. Chỉ vài ô có dấu * là bắt buộc.",
+      "locked": "Phạm vi đã chốt. Cần đổi gì, Quý khách nhắn Hugo Studio ở mục Trao đổi.",
+      "missing": "Còn thiếu",
+      "refNote": "Điều Quý khách thích / không thích ở đó",
+      "saved": "Đã gửi phiếu yêu cầu. Hugo Studio sẽ đọc và phản hồi sớm.",
+      "sending": "Đang gửi…",
+      "submit": "Gửi phiếu yêu cầu",
+      "update": "Cập nhật phiếu yêu cầu",
+      "docLocked": "Đây là bảng yêu cầu Quý khách đã gửi. Phạm vi đã chốt; cần đổi gì, kính mời Quý khách nhắn ở mục Trao đổi.",
+      "docIntro": "Đây là bảng yêu cầu Quý khách đã gửi. Quý khách còn {{n}} lần tự sửa.",
+      "edit": "Sửa phiếu",
+      "print": "In / lưu PDF"
+    },
+    "contract": {
+      "acceptNote": "Gõ họ tên và bấm xác nhận là giao kết hợp đồng bằng phương tiện điện tử (Luật Giao dịch điện tử 2023). Hệ thống ghi lại thời điểm, địa chỉ IP và trình duyệt.",
+      "accepted": "Đã xác nhận hợp đồng. Hugo Studio xin cảm ơn Quý khách.",
+      "accept": "Tôi đã đọc và đồng ý",
+      "addonsSend": "Gửi lựa chọn",
+      "addonsSent": "Đã gửi lựa chọn. Hugo Studio sẽ xác nhận và cập nhật hợp đồng.",
+      "addonsSkip": "Không cần thêm",
+      "addonsTitle": "Chọn thêm gói lẻ (không bắt buộc)",
+      "claimPh": "Trang nào, thiết bị, trình duyệt, lỗi ra sao. Gửi kèm ảnh chụp ở mục Trao đổi.",
+      "claimSend": "Gửi yêu cầu bảo hành",
+      "claimSent": "Đã gửi yêu cầu bảo hành. Hugo Studio phản hồi trong 1 – 2 ngày làm việc.",
+      "claimTitle": "Báo lỗi bảo hành",
+      "docTitle": "Toàn văn hợp đồng và phụ lục",
+      "download": "Tải .ZIP",
+      "due": "Còn lại",
+      "error": "Chưa thực hiện được, Quý khách thử lại.",
+      "lifetime": "trọn đời",
+      "namePh": "Họ và tên",
+      "needsAccept": "Hợp đồng có phiên bản mới (v{{v}}). Quý khách đọc kỹ bên dưới rồi xác nhận.",
+      "paid": "Đã thanh toán",
+      "pdf": "Tải PDF",
+      "subscription": "trong thời gian đăng ký",
+      "terminatedBody": "Thông báo và căn cứ nằm ở đầu hợp đồng bên dưới và trong mục Trao đổi.",
+      "terminated": "Hợp đồng đã chấm dứt",
+      "total": "Tổng hợp đồng",
+      "zip": "Mã nguồn bàn giao"
+    },
+    "invalidBody": "Link có thể đã sai hoặc hết hạn. Quý khách nhắn Hugo Studio để nhận link mới.",
+    "invalidTitle": "Link dự án không mở được"
   },
   "adminPanel": {
     "sidebar": {
@@ -6452,8 +6499,6 @@
   "common": {
     "regionVietnamOnly": {
       "title": "Chỉ phục vụ Việt Nam.",
-      "service": "Báo giá bằng đồng Việt Nam, thanh toán qua PayOS và ngân hàng trong nước.",
-      "booking": "Hugo Studio nhận dự án tại Việt Nam; ngân sách tính bằng đồng và trao đổi qua email hoặc Zalo.",
       "donate": "Ủng hộ thực hiện bằng VNĐ qua PayOS và ngân hàng Việt Nam."
     },
     "vietnameseContentOnly": {
@@ -6830,20 +6875,6 @@
     "pickATool": "Chọn một công cụ ở danh sách bên cạnh để bắt đầu."
   },
   "servicePkg": {
-    "connect": {
-      "name": "Gói kết nối",
-      "price": "350.000 – 900.000₫ · một lần",
-      "body": "Trỏ tên miền, cài chứng chỉ bảo mật, đưa website lên nơi lưu trữ của bạn, nối cơ sở dữ liệu và hộp thư nhận form. Bắt buộc mua kèm nếu bạn muốn Hugo Studio thực hiện phần này."
-    },
-    "connectExclude": {
-      "title": "Việc nối hạ tầng vào website.",
-      "body": "Phần cài đặt và kết nối nằm ở Gói kết nối (350.000 – 900.000₫ · một lần), tính riêng ngoài giá thiết kế."
-    },
-    "care": {
-      "name": "Gói chăm sóc",
-      "price": "350.000₫ / tháng",
-      "body": "Kiểm tra định kỳ và cập nhật nhỏ trong hai giờ mỗi tháng — đủ cho việc đổi chữ, đổi ảnh, thêm một mục nhỏ. Việc vượt mức đó tính 200.000₫ mỗi giờ, báo trước khi làm. Đăng ký hay không là tuỳ bạn."
-    },
     "compare": {
       "kicker": "So sánh",
       "title": "Bốn gói, nhìn cạnh nhau.",
@@ -6856,75 +6887,75 @@
         "price": "Bạn trả bao nhiêu",
         "time": "Bao lâu thì có bản chạy thật",
         "pages": "Bạn được bao nhiêu trang",
-        "extraPage": "Chốt xong mà muốn thêm trang",
-        "revisions": "Chốt thiết kế rồi mà muốn đổi",
         "found": "Khách tìm thấy bạn trên Google",
         "contact": "Khách liên hệ bạn bằng cách nào",
         "selling": "Khách mua và trả tiền ngay trên web",
         "selfEdit": "Bạn tự đổi chữ, đổi ảnh sau này",
         "warranty": "Web lỗi thì ai sửa",
-        "connect": "Tên miền và nơi lưu trữ"
+        "deposit": "Có phải đặt cọc không",
+        "live": "Web lên tên miền của bạn thế nào",
+        "monthly": "Có tốn phí hằng tháng không"
       },
       "cells": {
         "price": {
           "hugo-edu-plus": "Miễn phí 365 ngày"
         },
         "time": {
-          "hugo-one": "5 – 10 ngày",
-          "hugo-story": "10 ngày – 4 tuần",
-          "hugo-flow-plus": "4 – 8 tuần",
+          "hugo-one": "7 – 10 ngày",
+          "hugo-story": "2 – 3 tuần",
+          "hugo-flow-plus": "3 – 5 tuần",
           "hugo-edu-plus": "Mở ngay sau khi xác minh"
         },
         "pages": {
-          "hugo-one": "01 trang",
-          "hugo-story": "4 – 8 trang, trần là 8 trang",
-          "hugo-flow-plus": "Tối đa 12 trang, trang sản phẩm không tính",
+          "hugo-one": "01 trang, tối đa 7 phần",
+          "hugo-story": "4 trang, mở tới 6",
+          "hugo-flow-plus": "4 trang + 1 chức năng",
           "hugo-edu-plus": "01 trang Bio"
         },
-        "extraPage": {
-          "hugo-one": "Chuyển sang Hugo Story",
-          "hugo-story": "Chốt rồi là khoá. 450.000 – 900.000₫ mỗi trang thêm",
-          "hugo-flow-plus": "Chốt rồi là khoá. 450.000 – 900.000₫ mỗi trang thêm",
-          "hugo-edu-plus": "Một tài khoản, một trang Bio"
-        },
-        "revisions": {
-          "hugo-one": "Hai vòng trong giá. Chốt thiết kế là khoá, đổi tiếp 250.000 – 600.000₫ mỗi vòng",
-          "hugo-story": "Hai vòng trong giá. Chốt thiết kế là khoá, đổi tiếp 250.000 – 600.000₫ mỗi vòng",
-          "hugo-flow-plus": "Hai vòng trong giá. Chốt thiết kế là khoá, đổi tiếp 250.000 – 600.000₫ mỗi vòng",
-          "hugo-edu-plus": "Tự đổi mẫu bất cứ lúc nào"
-        },
         "found": {
-          "hugo-one": "Tiêu đề, mô tả, ảnh chia sẻ và sitemap chuẩn",
-          "hugo-story": "Mỗi trang một bộ tiêu đề và mô tả riêng",
-          "hugo-flow-plus": "Mỗi trang và mỗi sản phẩm một bộ riêng",
+          "hugo-one": "Hiện đẹp trên Google và khi gửi link",
+          "hugo-story": "Mỗi trang hiện riêng trên Google",
+          "hugo-flow-plus": "Mỗi trang hiện riêng trên Google",
           "hugo-edu-plus": "Không làm tối ưu tìm kiếm"
         },
         "contact": {
-          "hugo-one": "Form gửi thẳng về hộp thư của bạn",
-          "hugo-story": "Form, bản đồ chỉ đường và liên kết mạng xã hội",
-          "hugo-flow-plus": "Form, tài khoản khách hàng và lịch sử đơn hàng",
+          "hugo-one": "Form gửi thẳng về email của bạn",
+          "hugo-story": "Form, bản đồ, nút gọi và Zalo",
+          "hugo-flow-plus": "Đặt lịch hoặc đặt đơn, về trang quản trị và email",
           "hugo-edu-plus": "Liên kết tới các kênh cá nhân của bạn"
         },
         "selling": {
-          "hugo-flow-plus": "Giỏ hàng, thanh toán trực tuyến, quản lý đơn hàng"
+          "hugo-flow-plus": "Khách đặt trên web, trả bằng QR chuyển khoản"
         },
         "selfEdit": {
-          "hugo-one": "Gửi Hugo sửa, hoặc tự sửa trong mã nguồn",
-          "hugo-story": "Gửi Hugo sửa. Có một buổi hướng dẫn tự cập nhật",
-          "hugo-flow-plus": "Tự làm trong trang quản trị, kèm hai buổi hướng dẫn",
+          "hugo-one": "Nhắn mình sửa, hoặc tự sửa trong mã nguồn",
+          "hugo-story": "Nhắn mình sửa, hoặc tự sửa trong mã nguồn",
+          "hugo-flow-plus": "Sản phẩm, giá, lịch: tự sửa trong trang quản trị",
           "hugo-edu-plus": "Tự làm trong tài khoản, bất cứ lúc nào"
         },
         "warranty": {
-          "hugo-one": "Sửa lỗi miễn phí 30 ngày, đổi chữ nhỏ 7 ngày",
-          "hugo-story": "Sửa lỗi miễn phí 45 ngày, đổi chữ nhỏ 14 ngày",
-          "hugo-flow-plus": "Sửa lỗi miễn phí 60 ngày, kèm 30 ngày đồng hành vận hành",
+          "hugo-one": "Sửa lỗi trọn đời · 7 ngày đổi chữ, ảnh",
+          "hugo-story": "Sửa lỗi trọn đời · 14 ngày đổi chữ, ảnh",
+          "hugo-flow-plus": "Sửa lỗi trọn đời · 30 ngày đổi chữ, ảnh",
           "hugo-edu-plus": "Hỗ trợ suốt 365 ngày"
         },
-        "connect": {
-          "hugo-one": "Bạn tự đứng tên mua. Phần nối vào website đã gồm trong giá",
-          "hugo-story": "Bạn tự đứng tên mua. Phần nối tính riêng 350.000 – 900.000₫",
-          "hugo-flow-plus": "Bạn tự đứng tên mua. Phần nối tính riêng 350.000 – 900.000₫",
-          "hugo-edu-plus": "Dùng chung tên miền của Hugo Studio, bạn không phải mua gì"
+        "deposit": {
+          "hugo-one": "Không cần cọc, trả khi nghiệm thu",
+          "hugo-story": "Cọc 50%, trả nốt khi nghiệm thu",
+          "hugo-flow-plus": "Cọc 50%, trả nốt khi nghiệm thu",
+          "hugo-edu-plus": "Miễn phí"
+        },
+        "live": {
+          "hugo-one": "Giao mã nguồn .ZIP. Nhờ mình đưa lên: Gói Liên kết 350.000₫",
+          "hugo-story": "Đã gồm: mình nối trong lúc làm, giao link đã chạy",
+          "hugo-flow-plus": "Đã gồm: mình nối trong lúc làm, giao link đã chạy",
+          "hugo-edu-plus": "Dùng chung tên miền của Hugo Studio"
+        },
+        "monthly": {
+          "hugo-one": "Không trả mình hằng tháng. Chỉ phí tên miền, hosting cho nhà cung cấp",
+          "hugo-story": "Không trả mình hằng tháng. Chỉ phí tên miền, hosting cho nhà cung cấp",
+          "hugo-flow-plus": "Tuỳ chọn Gói Duy trì 490.000₫/tháng, cộng phí nhà cung cấp",
+          "hugo-edu-plus": "Miễn phí"
         }
       }
     },
@@ -6934,86 +6965,75 @@
       "pages": "Số trang",
       "warranty": "Bảo hành",
       "warrantyValue": {
-        "hugo-one": "30 ngày",
-        "hugo-story": "45 ngày",
-        "hugo-flow-plus": "60 ngày",
+        "hugo-one": "Trọn đời",
+        "hugo-story": "Trọn đời",
+        "hugo-flow-plus": "Trọn đời",
         "hugo-edu-plus": "365 ngày"
       }
     },
     "handCoded": {
-      "title": "Mã nguồn viết tay 100%.",
-      "body": "Từng dòng giao diện được viết riêng cho dự án, không dựng trên theme mua sẵn hay trình kéo thả. Trang chỉ nạp đúng thứ nó cần, và không phụ thuộc vào lịch cập nhật của một tiện ích bên ngoài."
+      "title": "Viết mã tay. Nhẹ và nhanh.",
+      "body": "Không theme mua sẵn, không trình kéo thả. Trang mở nhanh và vừa mọi màn hình, từ điện thoại tới máy tính."
     },
     "excludes": [
       {
         "title": "Tên miền.",
-        "body": "Bạn đứng tên mua và giữ quyền sở hữu. Hugo Studio tư vấn chọn tên và hướng dẫn mua, không bán và không đứng tên thay bạn."
+        "body": "Bạn đứng tên mua và gia hạn hằng năm với nhà đăng ký. Mình không bán lại, không đứng tên thay."
       },
       {
         "title": "Nơi lưu trữ và cơ sở dữ liệu.",
-        "body": "Hosting, VPS, cơ sở dữ liệu do bạn mua và sở hữu. Hugo Studio không cung cấp, không cho thuê lại."
+        "body": "Bạn đứng tên thuê. Web tĩnh như Hugo One, Story tốn rất ít; Flow+ và trang quản trị cần thêm cơ sở dữ liệu, nhiều nhà cung cấp có gói miễn phí để bắt đầu."
       },
       {
-        "title": "Nền tảng dựng sẵn.",
-        "body": "Hugo Studio chỉ nhận dự án viết mã riêng. Nếu nhu cầu của bạn thuộc nhóm nền tảng dựng sẵn, mình nói ngay từ buổi đầu."
+        "title": "Email theo tên miền.",
+        "body": "Địa chỉ kiểu lienhe@tenban.vn dùng Google Workspace hoặc dịch vụ tương tự, trả phí theo tháng cho nhà cung cấp."
       },
       {
-        "title": "Nội dung gốc.",
-        "body": "Chữ, ảnh sản phẩm, logo và giấy tờ thương hiệu do bạn cung cấp. Cần viết nội dung hoặc chụp ảnh thì tính thêm."
+        "title": "Dịch vụ gửi thư cho form.",
+        "body": "Một tài khoản đứng tên bạn để form gửi được thư về hộp thư. Thường có gói miễn phí."
       },
       {
-        "title": "Chi phí của bên thứ ba.",
-        "body": "Phí quảng cáo, phông chữ bản quyền, kho ảnh trả phí, cổng thanh toán, dịch vụ gửi thư — bạn trả trực tiếp cho nhà cung cấp."
+        "title": "Tài khoản nhận tiền.",
+        "body": "Ngân hàng, cổng thanh toán đứng tên bạn. Phí giao dịch do nhà cung cấp thu."
+      },
+      {
+        "title": "Chữ, ảnh và logo.",
+        "body": "Bạn cung cấp. Mình biên tập nhẹ chữ bạn gửi; viết mới toàn bộ, thiết kế logo và chụp ảnh mình không nhận."
+      },
+      {
+        "title": "Phông chữ, ảnh trả phí, quảng cáo.",
+        "body": "Bạn trả thẳng cho nhà cung cấp."
+      },
+      {
+        "title": "Chính sách quyền riêng tư và điều khoản.",
+        "body": "Web có form hay nhận đơn là đang thu thập thông tin cá nhân. Nội dung chính sách do bạn cung cấp và chịu trách nhiệm; mình dựng trang để hiển thị."
+      },
+      {
+        "title": "Việc ngoài danh sách.",
+        "body": "Mọi thứ không có trong mục Gói bao gồm. Mình báo giá bằng tin nhắn trước khi làm."
       }
     ],
     "policy": [
       {
-        "title": "Đặt cọc 50%.",
-        "body": "Cọc trước khi bắt đầu, phần còn lại khi nghiệm thu, trước lúc bàn giao."
+        "title": "Làm việc 100% online.",
+        "body": "Qua Zalo, email hoặc gọi video. Bạn ở đâu cũng làm được."
       },
       {
-        "title": "Hai vòng chỉnh nằm trong giá.",
-        "body": "Hai vòng chỉnh bố cục và nội dung đã có trong giá. Từ vòng thứ ba tính theo khối lượng thật."
+        "title": "Cọc 50%, trả nốt khi ưng.",
+        "body": "Cọc để bắt đầu, phần còn lại khi bạn nghiệm thu, trước lúc bàn giao. Bạn dừng giữa chừng thì phần đã làm được giao lại, cọc không hoàn."
       },
       {
-        "title": "Chốt xong là khoá.",
-        "body": "Danh sách trang và bản thiết kế chốt trong báo giá, từ đó không đổi. Thêm trang hay đổi hướng thiết kế thì tính theo bảng phí, thống nhất trước khi làm."
-      },
-      {
-        "title": "Bản quyền thuộc về bạn.",
-        "body": "Thanh toán đủ thì thiết kế, nội dung và mã nguồn của dự án thuộc về bạn. Thư viện và khung mã dùng lại giữa các dự án vẫn thuộc Hugo Studio, bạn được dùng vĩnh viễn trong phạm vi dự án này. Hugo Studio giữ quyền đưa dự án vào hồ sơ năng lực, trừ khi bạn yêu cầu không."
-      },
-      {
-        "title": "Dừng giữa chừng.",
-        "body": "Bạn dừng thì phần đã làm được bàn giao nguyên trạng, cọc không hoàn lại. Nếu do lỗi của Hugo Studio hoặc Hugo Studio chủ động dừng, phần chưa thực hiện được hoàn đầy đủ."
+        "title": "Bản quyền là của bạn.",
+        "body": "Thanh toán đủ là thiết kế và mã nguồn thuộc về bạn. Khung mã dùng chung giữa các dự án vẫn của Hugo Studio, bạn được dùng vĩnh viễn. Mình xin đưa dự án vào hồ sơ năng lực, trừ khi bạn không muốn."
       }
     ],
     "priceNotice": {
       "updated": "Cập nhật 09/2026",
       "lines": [
-        "Toàn bộ con số tính bằng đồng Việt Nam (VNĐ) và là khoảng giá tham khảo, không phải bảng giá cố định hay lời chào hàng có giá trị ràng buộc.",
-        "Giá chính thức được ghi trong báo giá và hợp đồng của từng dự án, sau khi hai bên thống nhất phạm vi công việc.",
-        "Chưa bao gồm tên miền, nơi lưu trữ, cơ sở dữ liệu và mọi chi phí trả cho nhà cung cấp bên thứ ba. Gói kết nối tính riêng, trừ gói đã ghi rõ là đã gộp sẵn vào giá.",
-        "Khoảng giá có thể thay đổi theo thời điểm và theo khối lượng thực tế. Con số đã ký trong hợp đồng thì không đổi."
+        "Giá tính bằng VNĐ. Con số chính thức ghi trong báo giá và hợp đồng, đã ký thì không đổi.",
+        "Chưa gồm tên miền, hosting và phí trả cho bên thứ ba. Mình báo giá các dịch vụ này bằng VNĐ trước khi bạn mua; dịch vụ niêm yết bằng USD quy đổi theo ngân hàng của bạn, kèm phí chuyển đổi; thuế tuỳ theo dịch vụ của bên thứ ba."
       ]
     },
-    "extraFees": [
-      {
-        "title": "Thêm một trang",
-        "price": "450.000 – 900.000₫ / trang",
-        "body": "Áp dụng khi số trang vượt danh sách đã chốt. Trang càng giống một trang đã có thì càng gần mức sàn."
-      },
-      {
-        "title": "Vòng chỉnh từ thứ ba",
-        "price": "250.000 – 600.000₫ / vòng",
-        "body": "Hai vòng đầu đã nằm trong giá. Vòng sau tính theo khối lượng thật, báo trước khi làm."
-      },
-      {
-        "title": "Làm gấp",
-        "price": "+25% giá gói",
-        "body": "Khi bạn cần rút thời gian xuống dưới khoảng đã ghi trong chính sách của gói."
-      }
-    ],
     "studentDiscount": {
       "title": "Người học đặt gói trả phí: giảm 15%",
       "body": "Đã xác minh tư cách người học thì Hugo One, Hugo Story và Hugo Flow+ giảm 15% trên giá thiết kế. Áp cho dự án cá nhân, đồ án hoặc câu lạc bộ, mỗi người một dự án trong mỗi năm học. Không áp lên chi phí trả cho nhà cung cấp bên thứ ba."
@@ -7022,9 +7042,6 @@
       "hugo-one": {
         "title": "Một trang. Trọn một mục tiêu.",
         "lede": "Một trang tĩnh, tải nhanh, đọc một mạch và kết lại bằng đúng một hành động. Dành cho lúc bạn chỉ cần nói một điều, và nói cho thật rõ.",
-        "intro": [
-          "Landing page là một lần thuyết phục, không phải website thu nhỏ. Chỉ một trang nên thứ tự đọc là tất cả: thông điệp chính ở màn hình đầu, bằng chứng đúng lúc khách cân nhắc, nút hành động ở nơi tay vừa tới."
-        ],
         "audience": [
           "Chiến dịch quảng cáo cần một nơi dẫn khách về.",
           "Portfolio hoặc CV trực tuyến cần đường dẫn riêng.",
@@ -7032,95 +7049,68 @@
         ],
         "includes": [
           {
-            "title": "Thiết kế riêng 01 trang.",
-            "body": "Không dùng lại mẫu. Bố cục, phông chữ và màu bám theo thương hiệu của bạn."
+            "title": "Một trang, bảy phần.",
+            "body": "Đầu trang, giới thiệu, dịch vụ, bằng chứng, hỏi đáp, liên hệ. Sắp theo một mạch đọc, kết bằng một hành động."
           },
           {
-            "title": "Nội dung và nút kêu gọi hành động.",
-            "body": "Chữ bạn đưa được biên tập lại thành một đường đọc, dẫn về một hành động chính."
-          },
-          {
-            "title": "Hiển thị tốt trên mọi thiết bị.",
-            "body": "Kiểm tra thật trên điện thoại, máy tính bảng và màn hình lớn."
+            "title": "Giao diện theo thương hiệu.",
+            "body": "Màu, phông chữ, hình ảnh theo nhận diện của bạn, dựng trên bộ khung Hugo đã chạy thật."
           },
           {
             "title": "Form liên hệ.",
-            "body": "Form, chống gửi rác và việc nối về hộp thư đều trong giá. Bạn chỉ cần một tài khoản dịch vụ thư."
+            "body": "Gửi thẳng về email của bạn, có chống thư rác."
           },
           {
-            "title": "SEO nền tảng.",
-            "body": "Tiêu đề, mô tả, ảnh chia sẻ, sitemap và cấu trúc thẻ đúng chuẩn."
-          },
-          {
-            "title": "Bàn giao mã nguồn.",
-            "body": "Toàn bộ mã nguồn kèm hướng dẫn chạy lại, để ai tiếp quản cũng được."
-          },
-          {
-            "title": "Triển khai website.",
-            "body": "Kiểm tra từng luồng rồi đưa lên tên miền và nơi lưu trữ của bạn. Trỏ tên miền và chứng chỉ đã trong giá."
+            "title": "Sẵn sàng đưa lên mạng.",
+            "body": "Bàn giao mã nguồn (.ZIP) đã tối ưu, chạy được ngay. Muốn mình gắn tên miền và kết nối giúp thì thêm Gói Liên kết."
           }
         ],
         "warranty": [
           {
-            "title": "30 ngày sửa lỗi miễn phí.",
-            "body": "Lỗi hiển thị, lỗi form, lỗi mã nguồn — không tính phí."
+            "title": "Sửa lỗi trọn đời.",
+            "body": "Lỗi do mình làm ra thì mình sửa miễn phí, bao lâu cũng vậy."
           },
           {
-            "title": "7 ngày chỉnh nội dung nhỏ.",
-            "body": "Sửa chữ, đổi ảnh, đổi số điện thoại. Đổi bố cục tính là vòng chỉnh mới."
-          },
-          {
-            "title": "Phản hồi trong 24 giờ làm việc.",
-            "body": "Qua kênh đã trao đổi từ đầu. Trang không truy cập được luôn xử lý trước."
+            "title": "7 ngày đổi chữ, đổi ảnh.",
+            "body": "Sửa câu chữ, thay ảnh, đổi số điện thoại sau khi bàn giao."
           }
         ],
-        "policyExtra": [
-          {
-            "title": "Thời gian thực hiện 5 – 10 ngày.",
-            "body": "Tính từ lúc nhận đủ nội dung và ảnh. Thiếu nội dung là đồng hồ dừng."
-          }
-        ],
+        "policyExtra": [],
         "price": {
-          "from": "1.900.000₫",
-          "to": "3.900.000₫",
-          "note": "Trọn gói: đã gồm trỏ tên miền, chứng chỉ bảo mật và đưa lên nơi lưu trữ của bạn. Phần lớn dự án ở 2,3 – 3 triệu; mức sàn cho trang 5 – 6 khối với nội dung có sẵn.",
-          "factors": [
-            "Số khối nội dung trên trang (6 khối hay 14 khối là hai khối lượng khác nhau).",
-            "Nội dung đã có sẵn hay cần biên tập, viết lại.",
-            "Mức độ chuyển động và hiệu ứng.",
-            "Tích hợp thêm: bản đồ, chat, lịch hẹn, theo dõi quảng cáo.",
-            "Tiến độ gấp dưới 5 ngày."
-          ]
+          "from": "1.290.000₫",
+          "note": "Một con số trọn gói cho trang tối đa 7 phần, với chữ và ảnh bạn đã có. Bàn giao mã nguồn sẵn sàng lên mạng; cần mình đưa lên tên miền của bạn thì thêm Gói Liên kết 350.000₫.",
+          "factors": []
         },
         "faq": [
           {
-            "question": "Hugo One có phù hợp để chạy quảng cáo không?",
-            "answer": "Có. Gói này dành cho một sản phẩm, một dịch vụ hoặc một chiến dịch, với một hành động chính rõ ràng."
+            "question": "Hugo One có dùng để chạy quảng cáo được không?",
+            "answer": "Được. Gói này làm ra cho đúng việc đó: một sản phẩm, một dịch vụ hoặc một chiến dịch, dẫn khách về một hành động."
           },
           {
-            "question": "Tôi đã có nội dung, Hugo có hỗ trợ sắp xếp lại không?",
-            "answer": "Có, sắp xếp và biên tập nhẹ. Viết mới hoàn toàn nội dung bán hàng thì báo giá riêng."
+            "question": "Tôi chưa có nội dung thì sao?",
+            "answer": "Bạn gửi ý chính, mình sắp thành một đường đọc và biên tập nhẹ, miễn phí. Viết mới toàn bộ nội dung thì mình không nhận, bạn chuẩn bị chữ trước khi bắt đầu."
           },
           {
-            "question": "Sau khi bàn giao tôi có tự sửa được không?",
-            "answer": "Bạn nhận mã nguồn để tự sửa hoặc giao người khác. Gói này không có CMS, nội dung sửa trong mã."
+            "question": "Sau này tôi tự sửa được không?",
+            "answer": "Bạn nhận toàn bộ mã nguồn để tự sửa hoặc giao người khác. Gói này không có trang quản trị, nên đổi chữ nhỏ thì nhắn mình là nhanh nhất."
           }
         ],
         "features": [
-          "Thiết kế riêng 01 trang",
-          "Hiển thị tốt trên mọi thiết bị",
-          "Nội dung & nút kêu gọi hành động",
-          "Form liên hệ",
-          "SEO nền tảng",
-          "Triển khai website"
-        ]
+          "Một trang, bảy phần",
+          "Giao diện theo thương hiệu",
+          "Form liên hệ về email",
+          "Mã nguồn .ZIP sẵn sàng lên mạng",
+          "Sửa lỗi trọn đời"
+        ],
+        "seo": {
+          "title": "Thiết Kế Landing Page 1,29 Triệu, Không Cọc | Hugo One",
+          "description": "Thiết kế landing page một trang, viết mã tay, tải nhanh, cho quảng cáo, ra mắt sản phẩm, portfolio. Trọn gói 1.290.000₫, không cần cọc, giao trong 7–10 ngày, sửa lỗi trọn đời.",
+          "keywords": "thiết kế landing page, landing page giá rẻ, làm landing page chạy quảng cáo, landing page không cọc, trang đích bán hàng, Hugo One"
+        }
       },
       "hugo-story": {
         "title": "Đủ chỗ cho mọi thứ bạn cần kể.",
         "lede": "Website giới thiệu nhiều trang cho cá nhân, quán và doanh nghiệp nhỏ. Mỗi trang giữ một vai trò, tất cả cùng dẫn về một quyết định.",
-        "intro": [
-          "Nhiều điều để kể mà dồn hết vào một trang thì không điều nào được đọc. Phần khó không ở số trang mà ở đường đi giữa các trang: menu, liên kết và nút cuối trang được sắp để khách luôn có bước kế tiếp."
-        ],
         "audience": [
           "Doanh nghiệp nhỏ cần giới thiệu đủ dịch vụ và năng lực.",
           "Quán ăn, quán cà phê, phòng khám, studio cần thực đơn, bảng giá, hình ảnh và bản đồ.",
@@ -7128,191 +7118,159 @@
         ],
         "includes": [
           {
-            "title": "Hệ thống trang theo nhu cầu.",
-            "body": "Thường 4 – 8 trang: giới thiệu, dịch vụ, dự án, tin tức, liên hệ. Chốt danh sách trước khi thiết kế."
+            "title": "Bốn trang.",
+            "body": "Thường là trang chủ, giới thiệu, dịch vụ và liên hệ. Chốt danh sách trước khi làm, thêm được tới sáu trang."
           },
           {
-            "title": "Cấu trúc nội dung và điều hướng.",
-            "body": "Menu, đường dẫn thân thiện, liên kết nội bộ và nút hành động cuối mỗi trang."
+            "title": "Giao diện theo thương hiệu.",
+            "body": "Màu, phông chữ, hình ảnh theo nhận diện của bạn, dựng trên bộ khung Hugo đã chạy thật."
           },
           {
-            "title": "Form, bản đồ và mạng xã hội.",
-            "body": "Form gửi về hộp thư, bản đồ chỉ đường, liên kết sang các kênh bạn đang chạy."
+            "title": "Menu rõ, đường đi rõ.",
+            "body": "Mỗi trang kết bằng một nút dẫn tới bước tiếp theo."
           },
           {
-            "title": "SEO cho từng trang.",
-            "body": "Mỗi trang một tiêu đề, mô tả và ảnh chia sẻ riêng. Sitemap và dữ liệu có cấu trúc cho toàn site."
+            "title": "Liên hệ một chạm.",
+            "body": "Form về email, bản đồ chỉ đường, nút gọi và nút Zalo."
           },
           {
-            "title": "Hiển thị tốt trên mọi thiết bị.",
-            "body": "Kiểm tra thật trên điện thoại và máy tính, gồm cả bảng biểu và ảnh nhiều cột."
+            "title": "Mỗi trang hiện riêng trên Google.",
+            "body": "Tên, mô tả và ảnh xem trước riêng cho từng trang."
           },
           {
-            "title": "Bàn giao mã nguồn.",
-            "body": "Toàn bộ mã nguồn kèm hướng dẫn chạy lại, để ai tiếp quản cũng được."
+            "title": "Liên kết trong lúc làm.",
+            "body": "Bạn mua tên miền, hosting bằng tài khoản của bạn theo bảng giá mình gửi; mình nối ngay trong quá trình làm. Bàn giao mã nguồn (.ZIP) và link website đã chạy."
           }
         ],
         "warranty": [
           {
-            "title": "45 ngày sửa lỗi miễn phí.",
-            "body": "Mọi lỗi thuộc phần Hugo Studio dựng, tính từ ngày bàn giao."
+            "title": "Sửa lỗi trọn đời.",
+            "body": "Lỗi do mình làm ra thì mình sửa miễn phí, bao lâu cũng vậy."
           },
           {
-            "title": "14 ngày chỉnh nội dung nhỏ.",
-            "body": "Sửa chữ, thay ảnh, cập nhật giờ mở cửa trên các trang đã bàn giao."
-          },
-          {
-            "title": "Một buổi hướng dẫn tự cập nhật.",
-            "body": "Trực tuyến, có quay màn hình để bạn xem lại khi cần."
+            "title": "14 ngày đổi chữ, đổi ảnh.",
+            "body": "Sửa câu chữ, thay ảnh, cập nhật giờ mở cửa trên các trang đã bàn giao."
           }
         ],
-        "policyExtra": [
-          {
-            "title": "Thời gian thực hiện 10 ngày – 4 tuần.",
-            "body": "Bản 4 trang giao trong 10 – 14 ngày, site nhiều trang 3 – 4 tuần. Tính từ lúc chốt danh sách trang và nhận đủ nội dung."
-          }
-        ],
+        "policyExtra": [],
         "price": {
-          "from": "3.900.000₫",
-          "to": "8.000.000₫",
-          "note": "Bản 4 trang với nội dung có sẵn: 3.900.000₫ trọn gói, giao trong 10 – 14 ngày. Thêm trang, viết nội dung hoặc thêm ngôn ngữ thì tính lên từ đó. Phần lớn dự án ở 5 – 6,5 triệu.",
-          "factors": [
-            "Số trang và độ phức tạp của từng trang.",
-            "Có cần trang tin tức / blog tự đăng bài hay không.",
-            "Nội dung và hình ảnh đã sẵn sàng đến đâu.",
-            "Đa ngôn ngữ.",
-            "Chuyển dữ liệu từ website cũ sang."
-          ]
+          "from": "2.990.000₫",
+          "note": "Trọn gói 4 trang với chữ và ảnh bạn đã có, đã gồm đưa website lên tên miền của bạn. Cần thêm trang thì 390.000₫ mỗi trang, tối đa 6 trang.",
+          "factors": []
         },
         "faq": [
           {
-            "question": "Tôi có tự đăng bài viết sau này được không?",
-            "answer": "Gói cơ bản không kèm CMS. Muốn tự đăng bài thì khảo sát thêm hệ thống phù hợp, chi phí đó tính riêng."
+            "question": "Tôi có tự đăng bài viết được không?",
+            "answer": "Không. Hugo Story không có trang quản trị. Thêm bài hay đổi chữ sau bàn giao thì nhắn mình qua Hỗ trợ lẻ."
           },
           {
             "question": "Có chuyển website cũ sang không?",
-            "answer": "Có, nhưng khối lượng tuỳ số trang, ảnh và dữ liệu cũ. Phần chuyển dữ liệu báo giá riêng sau khi xem website hiện tại."
+            "answer": "Mình không nhận chuyển dữ liệu từ web cũ. Bạn gửi lại chữ và ảnh muốn giữ, mình dựng trên web mới như một dự án bình thường."
           },
           {
-            "question": "Tên miền và nơi lưu trữ có được mua trong gói không?",
-            "answer": "Không. Bạn tự đứng tên mua. Hugo Studio hỗ trợ chọn mua và nối vào website qua Gói kết nối tính riêng."
+            "question": "Tên miền và hosting có nằm trong gói không?",
+            "answer": "Không, bạn tự đứng tên mua để giữ quyền sở hữu. Mình gửi bảng giá trước khi mua và nối vào web ngay trong lúc làm, đã gồm trong giá."
           }
         ],
         "features": [
-          "Hệ thống trang theo nhu cầu",
-          "Cấu trúc nội dung & điều hướng",
-          "Form, bản đồ & mạng xã hội",
-          "SEO cho từng trang",
-          "Hiển thị tốt trên mọi thiết bị",
-          "Bàn giao mã nguồn"
-        ]
+          "4 trang, mở tới 6",
+          "Menu & đường đi giữa các trang",
+          "Form, bản đồ, nút gọi & Zalo",
+          "Mỗi trang hiện riêng trên Google",
+          "Đưa lên mạng giúp bạn",
+          "Sửa lỗi trọn đời"
+        ],
+        "seo": {
+          "title": "Thiết Kế Website 4 Trang Cho Doanh Nghiệp Nhỏ | Hugo Story",
+          "description": "Website 4 trang cho quán, cửa hàng, doanh nghiệp nhỏ: menu, bản đồ, nút gọi, Zalo, mỗi trang hiện trên Google. 2.990.000₫, đã gồm đưa lên tên miền, giao trong 2–3 tuần.",
+          "keywords": "thiết kế website doanh nghiệp nhỏ, website quán cà phê, website cửa hàng, thiết kế web giới thiệu công ty, làm website giá rẻ, Hugo Story"
+        }
       },
       "hugo-flow-plus": {
-        "title": "Khách bấm mua ngay trên trang của bạn.",
-        "lede": "Danh mục, giỏ hàng, thanh toán và quản lý đơn — cùng một hệ thống, mang tên bạn. Dành cho thương hiệu bán hàng thật, không chỉ trưng bày.",
-        "intro": [
-          "Website bán hàng phải đúng: đơn không được rơi, tồn kho không được lệch, tiền vào phải khớp với đơn. Nên phần lớn công sức nằm sau giao diện — trạng thái đơn, thông báo cho cả hai phía, và một trang quản trị đủ để một người vận hành cả cửa hàng."
-        ],
+        "title": "Khách tự đặt ngay trên trang của bạn.",
+        "lede": "Website kèm một chức năng chạy thật: đặt lịch, nhận đơn hoặc danh mục sản phẩm có nút đặt. Bạn quản lý đơn trong trang quản trị riêng, tiền về thẳng tài khoản của bạn.",
         "audience": [
-          "Thương hiệu đang bán trên sàn hoặc mạng xã hội, muốn có kênh riêng không mất phí sàn.",
-          "Cửa hàng cần quản lý đơn, tồn kho và khách hàng ở một nơi.",
-          "Dịch vụ cần đặt lịch, đặt chỗ hoặc thu tiền trực tuyến."
+          "Tiệm, studio, lớp học cần khách tự đặt lịch.",
+          "Shop nhỏ đang chốt đơn qua tin nhắn, muốn một trang nhận đơn đứng tên mình.",
+          "Dịch vụ muốn gom đơn về một chỗ thay vì rải rác trong Zalo và Messenger."
         ],
         "includes": [
           {
-            "title": "Quản lý sản phẩm.",
-            "body": "Danh mục, phân loại, biến thể, ảnh, giá và tình trạng còn hàng."
+            "title": "Mọi thứ của Hugo Story.",
+            "body": "Bốn trang, menu, liên hệ một chạm, hiện trên Google, liên kết trong lúc làm."
           },
           {
-            "title": "Giỏ hàng và đơn hàng.",
-            "body": "Giỏ hàng, mã giảm giá, phí vận chuyển, trạng thái đơn và thông báo cho cả hai phía."
+            "title": "Một chức năng chạy thật.",
+            "body": "Chọn một: đặt lịch, nhận đơn, hoặc danh mục sản phẩm có nút đặt."
           },
           {
-            "title": "Thanh toán trực tuyến.",
-            "body": "Nối một cổng thanh toán tại Việt Nam do bạn đăng ký. Phí cổng do nhà cung cấp thu."
+            "title": "Trang quản trị riêng.",
+            "body": "Đăng nhập bằng tài khoản của bạn để xem đơn, đổi trạng thái đơn. Có đơn mới là có email báo."
           },
           {
-            "title": "Tài khoản khách hàng.",
-            "body": "Đăng nhập, lịch sử mua và địa chỉ giao hàng đã lưu."
+            "title": "Trả tiền bằng mã QR.",
+            "body": "Mã QR tài khoản của bạn hiện ngay sau khi khách đặt. Tiền vào thẳng tài khoản."
           },
           {
-            "title": "SEO cho từng trang và từng sản phẩm.",
-            "body": "Mỗi trang và mỗi sản phẩm một tiêu đề, mô tả và ảnh chia sẻ riêng. Sitemap và dữ liệu có cấu trúc cho toàn cửa hàng."
-          },
-          {
-            "title": "Trang quản trị.",
-            "body": "Nơi bạn xem đơn, sửa sản phẩm và theo dõi số liệu bán hàng. Dữ liệu nằm trên hạ tầng do bạn sở hữu."
-          },
-          {
-            "title": "Tích hợp API theo nhu cầu.",
-            "body": "Vận chuyển, hoá đơn, kế toán hoặc phần mềm bạn đang dùng — chốt danh sách trước khi báo giá."
+            "title": "Tự sửa sản phẩm, giá, lịch trống.",
+            "body": "Sửa ngay trong trang quản trị, web cập nhật theo."
           }
         ],
         "warranty": [
           {
-            "title": "60 ngày sửa lỗi miễn phí.",
-            "body": "Ưu tiên cao nhất cho lỗi thuộc luồng đặt hàng và thanh toán."
+            "title": "Sửa lỗi trọn đời.",
+            "body": "Lỗi ở luồng đặt lịch, đặt đơn luôn được xử lý trước."
           },
           {
-            "title": "30 ngày đồng hành vận hành.",
-            "body": "Hỗ trợ khi bạn gặp vướng trong tháng đầu bán hàng thật."
+            "title": "30 ngày đổi chữ, đổi ảnh.",
+            "body": "Phần không sửa được trong trang quản trị, mình sửa giúp trong 30 ngày đầu."
           },
           {
-            "title": "Hai buổi hướng dẫn quản trị.",
-            "body": "Một buổi trước khi mở bán, một buổi sau hai tuần vận hành."
+            "title": "Video hướng dẫn quay sẵn.",
+            "body": "Từng bước quản lý đơn, xem lại bất cứ lúc nào."
           }
         ],
         "policyExtra": [
           {
-            "title": "Thời gian thực hiện 4 – 8 tuần.",
-            "body": "Tuỳ số tích hợp. Cổng thanh toán và vận chuyển phụ thuộc thời gian duyệt của nhà cung cấp."
-          },
-          {
-            "title": "Thanh toán theo ba đợt.",
-            "body": "50% khi bắt đầu, 30% khi chạy thử nội bộ, 20% khi mở bán thật."
-          },
-          {
-            "title": "Tài khoản dịch vụ đứng tên bạn.",
-            "body": "Cổng thanh toán, đơn vị vận chuyển, hạ tầng — đăng ký bằng thông tin doanh nghiệp của bạn."
-          },
-          {
-            "title": "Dữ liệu khách hàng là của bạn.",
-            "body": "Website thu thập tài khoản, địa chỉ và đơn hàng của người mua. Bạn quyết định việc thu thập và sử dụng; Hugo Studio chỉ đụng tới khi phát triển và sửa lỗi, theo yêu cầu của bạn."
+            "title": "Tài khoản và dữ liệu là của bạn.",
+            "body": "Nơi lưu trữ, cơ sở dữ liệu, email và tài khoản ngân hàng đều đứng tên bạn. Bạn quyết định việc thu thập và dùng thông tin khách; mình chỉ đụng tới khi sửa lỗi, theo yêu cầu của bạn."
           }
         ],
         "price": {
-          "from": "Báo giá riêng",
-          "note": "Gói này nhận có chọn lọc. Sau buổi trao đổi, nếu phạm vi đủ rõ và lịch còn chỗ, bạn nhận báo giá viết riêng cho dự án của mình. Chưa phải lúc thì mình nói thẳng ngay từ đầu.",
+          "from": "Từ 4.990.000₫",
+          "note": "Giá sàn cho website 4 trang cộng một chức năng và trang quản trị. Chức năng thứ hai, thanh toán tự động hay giỏ hàng nhiều sản phẩm thì mình báo giá sau buổi trao đổi.",
           "factors": [
-            "Số lượng sản phẩm và biến thể.",
-            "Số cổng thanh toán và đơn vị vận chuyển cần nối.",
-            "Có cần đồng bộ với phần mềm kho / kế toán sẵn có không.",
-            "Mức độ tuỳ biến của trang quản trị.",
-            "Yêu cầu về báo cáo và số liệu."
+            "Chức năng bạn chọn: đặt lịch là gọn nhất, danh mục nhiều sản phẩm tốn công nhất.",
+            "Số sản phẩm hoặc dịch vụ cần nhập sẵn."
           ]
         },
         "faq": [
           {
-            "question": "Hugo Flow+ có tự xây cơ sở dữ liệu riêng không?",
-            "answer": "Không. Hugo Studio không cung cấp hay cho thuê cơ sở dữ liệu. Gói này chỉ nối với hệ thống và API bạn đã có."
+            "question": "Có thanh toán tự động và giỏ hàng không?",
+            "answer": "Gói này không có sẵn. Mình làm một mình nên chọn cách chạy chắc: đơn về trang quản trị, trả tiền bằng QR chuyển khoản. Cần thêm thì mình báo giá riêng sau buổi trao đổi, hoặc nói thẳng nếu việc đó quá sức một người."
           },
           {
-            "question": "Tôi phải chuẩn bị gì trước khi bắt đầu?",
-            "answer": "Danh sách sản phẩm, quy tắc giá và giao hàng, tài khoản thanh toán hoặc vận chuyển, và tài liệu API nếu cần nối dịch vụ ngoài."
+            "question": "Tôi cần chuẩn bị gì?",
+            "answer": "Danh sách sản phẩm hoặc dịch vụ kèm giá và ảnh, cùng số tài khoản ngân hàng nhận tiền."
           },
           {
-            "question": "Có thể thêm chức năng sau khi website đã chạy không?",
-            "answer": "Có, chức năng mới báo giá riêng. Lỗi thuộc phạm vi đã nghiệm thu vẫn xử lý theo thời hạn bảo hành."
+            "question": "Thêm chức năng sau khi web đã chạy được không?",
+            "answer": "Được, chức năng mới báo giá riêng. Lỗi thuộc phần đã nghiệm thu vẫn sửa miễn phí trong thời hạn bảo hành."
           }
         ],
         "features": [
-          "Quản lý sản phẩm",
-          "Giỏ hàng & đơn hàng",
-          "Thanh toán trực tuyến",
-          "Kết nối dữ liệu có sẵn",
-          "Trang trạng thái đơn hàng",
-          "Tích hợp API theo nhu cầu"
-        ]
+          "Mọi thứ của Hugo Story",
+          "Một chức năng: đặt lịch hoặc nhận đơn",
+          "Trang quản trị đơn riêng",
+          "Trả tiền bằng QR chuyển khoản",
+          "Tự sửa sản phẩm, giá, lịch",
+          "Sửa lỗi trọn đời"
+        ],
+        "seo": {
+          "title": "Website Đặt Lịch, Nhận Đơn Có Trang Quản Trị | Hugo Flow+",
+          "description": "Website đặt lịch, nhận đơn online với trang quản trị riêng, trả tiền bằng mã QR chuyển khoản. Từ 4.990.000₫, giao trong 3–5 tuần, sửa lỗi trọn đời.",
+          "keywords": "website đặt lịch online, website nhận đơn, web bán hàng có trang quản trị, website đặt chỗ spa salon, thanh toán QR trên website, Hugo Flow+"
+        }
       },
       "hugo-edu-plus": {
         "title": "Trang Bio. Dành riêng cho người học.",
@@ -7382,7 +7340,7 @@
         "price": {
           "from": "Miễn phí",
           "to": "365 ngày",
-          "note": "Miễn phí hoàn toàn sau khi xác minh, gồm cả đường dẫn trên tên miền chung của Hugo Studio. Cần thiết kế riêng ngoài mẫu Bio thì từ 1.500.000 – 3.000.000₫, chốt phạm vi trước.",
+          "note": "Miễn phí hoàn toàn sau khi xác minh, gồm cả đường dẫn trên tên miền chung của Hugo Studio. Cần trang riêng ngoài mẫu Bio thì dùng Hugo One, được giảm 15%.",
           "factors": [
             "Hết 365 ngày: gia hạn hoặc chuyển sang một gói trả phí, không tự động trừ tiền.",
             "Thiết kế riêng theo yêu cầu nằm ngoài gói này."
@@ -7422,56 +7380,56 @@
       "verifyCta": "Xác minh người học",
       "navLabel": "Các phần trong trang",
       "nav": {
-        "intro": "Giới thiệu",
         "audience": "Dành cho ai",
-        "includes": "Gói bao gồm",
+        "includes": "Bao gồm",
         "excludes": "Chưa bao gồm",
         "warranty": "Bảo hành",
-        "price": "Chi phí",
+        "feedback": "Góp ý",
+        "price": "Đính kèm",
         "compare": "So sánh"
       },
-      "introKicker": "Giới thiệu",
-      "introCaption": "là gì.",
       "audienceKicker": "Dành cho tệp nhu cầu",
       "audienceTitle": "Gói này hợp với ai.",
       "includesKicker": "Gói bao gồm",
       "includesTitle": "Bạn nhận được gì.",
-      "includesLede": "Toàn bộ hạng mục dưới đây nằm trong giá, không phải tuỳ chọn cộng thêm.",
-      "excludesKicker": "Chưa bao gồm",
-      "excludesTitle": "Và những gì không nằm trong giá.",
-      "excludesLede": "Nói trước để bạn dự trù đúng, thay vì phát hiện lúc sắp bàn giao.",
-      "warrantyKicker": "Bảo hành và hỗ trợ",
-      "warrantyTitle": "Sau khi bàn giao.",
-      "policyKicker": "Chính sách dành cho gói",
-      "policyTitle": "Luật chơi, nói trước.",
-      "priceKicker": "Chi phí dao động",
-      "priceTitle": "Khoảng giá, và vì sao nó dao động.",
-      "priceScope": "Phạm vi trước. Giá sau. Con số cuối cùng nằm trong báo giá và hợp đồng, và không đổi sau khi đã ký.",
+      "includesLede": "Tất cả nằm trong giá.",
+      "excludesTitle": "Những thứ bạn tự trang bị.",
+      "warrantyKicker": "Bảo hành",
+      "warrantyTitle": "Sửa lỗi trọn đời. Điều kiện nói rõ.",
+      "policyKicker": "Cách làm việc",
+      "policyTitle": "Làm việc với mình thế nào.",
+      "priceKicker": "Đính kèm thêm",
+      "priceTitle": "Cần thêm gì, giá có sẵn.",
+      "priceScope": "Giá chốt trong báo giá và hợp đồng. Đã ký thì không phát sinh lúc bàn giao.",
       "priceCta": "Nhận báo giá",
-      "priceFactors": "Điều gì đẩy giá lên hoặc kéo giá xuống",
-      "extraFeesTitle": "Chi phí phát sinh, có số sẵn",
+      "priceFactors": "Khi nào giá khác đi",
+      "extraFeesTitle": "Gói đính kèm",
       "priceNoticeTitle": "Ghi chú về giá",
       "faqKicker": "Câu hỏi thường gặp",
       "faqTitle": "Hỏi trước cho đỡ mất thời gian.",
       "closingKicker": "Bước tiếp theo",
       "closingTitle": "Kể mình nghe bạn cần gì.",
-      "closingTitleQuiet": "Phạm vi trước, giá sau.",
+      "closingTitleQuiet": "Nghe nhu cầu trước, báo giá sau.",
       "closingCta": "Đặt lịch trao đổi",
       "nextPackage": "Xem gói",
       "sampleAlt": "Bản mẫu",
       "metaFallback": "Dịch vụ | Hugo Studio",
       "guarantees": [
-        "Mã nguồn và bản quyền dự án là của bạn",
-        "Giá khoá trong hợp đồng, không phát sinh lúc bàn giao",
-        "Bảo hành sửa lỗi, tính từ ngày bàn giao"
-      ]
+        "Mã nguồn là của bạn",
+        "Giá chốt trong hợp đồng, không phát sinh",
+        "Sửa lỗi trọn đời"
+      ],
+      "unitsTitle": "Đơn giá lẻ",
+      "priceLabel": "Trọn gói",
+      "excludesKicker": "Chưa bao gồm",
+      "excludesLede": "Đứng tên bạn để bạn giữ quyền sở hữu."
     },
     "page": {
       "heroKicker": "Dịch vụ · Hugo Studio",
       "heroLine1": "Thiết kế website",
       "heroLine2": "và landing page",
       "heroLine3": "viết tay từng dòng.",
-      "heroLede": "Landing page từ 1,9 triệu. Website giới thiệu từ 3,9 triệu. Giá chốt trong hợp đồng, mã nguồn bàn giao cho bạn.",
+      "heroLede": "Landing page 1,29 triệu, không cần cọc. Website 4 trang 2,99 triệu, đã gồm đưa lên tên miền. Làm việc 100% online, mã nguồn giao cho bạn.",
       "heroCta": "Nhận báo giá",
       "heroCtaAlt": "Xem dự án đã làm",
       "scrollHint": "Cuộn để xem từng gói",
@@ -7529,12 +7487,519 @@
       "closingKicker": "Dự án tiếp theo",
       "closingTitle1": "Bạn mang mục tiêu.",
       "closingTitle2": "Mình dựng đường đến đó.",
-      "closingLede": "Giá đi theo phạm vi công việc, không theo một bảng chung — khoảng giá của từng gói ghi rõ bên trong. Chốt xong là khoá: không phát sinh lúc bàn giao.",
+      "closingLede": "Mỗi gói một con số trọn gói, kèm bảng giá thêm cho từng tính năng. Mình làm một mình nên mỗi tháng chỉ nhận số dự án có hạn, đặt lịch sớm để giữ chỗ.",
       "closingCta": "Nhận báo giá",
       "closingCtaAlt": "Xem toàn bộ dự án",
       "catalogName": "Gói dịch vụ Hugo Studio",
       "catalogIncludes": "Bao gồm",
-      "schemaName": "Thiết kế landing page, website giới thiệu và website động"
+      "schemaName": "Thiết kế landing page, website giới thiệu và website động",
+      "pricingKicker": "Bảng giá",
+      "pricingTitle": "Ba gói, ba con số trọn gói.",
+      "pricingLede": "Giá đã gồm đưa web lên mạng và sửa lỗi trọn đời. Vuốt để xem từng gói.",
+      "addonsKicker": "Hỗ trợ riêng lẻ",
+      "addonsTitle": "Cần thêm gì, giá có sẵn.",
+      "addonsLede": "Gói đính kèm cho những thứ hay cần thêm, và đơn giá lẻ cho phần còn lại. Chốt trước khi ký.",
+      "recommended": "Hợp với quán, doanh nghiệp nhỏ"
+    },
+    "addons": {
+      "lede": "Cần thêm gì thì chọn gói đính kèm, giá có sẵn, chốt trước khi ký.",
+      "note": "Việc không có ở đây thì mình báo giá bằng tin nhắn trước khi làm. Không làm trước rồi mới tính.",
+      "forLabel": "Thêm được vào",
+      "units": [
+        {
+          "title": "Thêm một trang (Story, Flow+, tối đa 6 trang)",
+          "price": "390.000₫ / trang"
+        },
+        {
+          "title": "Thêm một phần vào trang Hugo One (ví dụ bảng giá, lời khen của khách)",
+          "price": "150.000₫ / phần"
+        },
+        {
+          "title": "Sửa thiết kế từ lần thứ ba (hai lần đầu miễn phí)",
+          "price": "200.000₫ / lần"
+        }
+      ]
+    },
+    "warrantyTerms": {
+      "title": "Điều kiện bảo hành",
+      "lines": [
+        "Trọn đời là suốt thời gian website còn chạy đúng bản mã nguồn mình bàn giao.",
+        "Lúc bàn giao mình lưu một bản ZIP. Khi bạn báo lỗi, mình đối chiếu với bản đó.",
+        "Báo lỗi bằng chữ, kèm ảnh chụp màn hình, thiết bị và trình duyệt. Mình phản hồi trong 1 – 2 ngày làm việc."
+      ]
+    },
+    "includesTail": [
+      {
+        "title": "Hai lần chỉnh thiết kế.",
+        "body": "Bạn duyệt trên bản mẫu trước khi mình viết mã. Mỗi lần chỉnh là một danh sách góp ý gom đủ."
+      },
+      {
+        "title": "Mã nguồn là của bạn.",
+        "body": "Bàn giao đủ mã nguồn kèm hướng dẫn. Mình giữ một bản ZIP để đối chiếu khi bảo hành."
+      }
+    ],
+    "warrantyExclusions": {
+      "title": "Không thuộc bảo hành",
+      "lines": [
+        "Mã nguồn đã bị chỉnh sửa so với bản ZIP. Bảo hành chấm dứt và mình ngừng hỗ trợ website đó; muốn tiếp tục, bạn dùng Hỗ trợ lẻ.",
+        "Thay đổi từ bên thứ ba: Google, cổng thanh toán, nhà cung cấp hosting, trình duyệt.",
+        "Tên miền, hosting hết hạn; tài khoản bị lộ mật khẩu từ phía bạn.",
+        "Chữ, ảnh hoặc mã do bạn hay người khác tự thêm.",
+        "Đổi thiết kế hay thêm tính năng. Đó là việc mới, không phải lỗi.",
+        "Trình duyệt đã ngừng cập nhật, như Internet Explorer."
+      ]
+    },
+    "feedback": {
+      "kicker": "Góp ý và chỉnh sửa",
+      "title": "Nói rõ một lần. Làm đúng một lần.",
+      "lede": "Website đẹp nhờ một hệ thiết kế nhất quán, không nhờ sửa lắt nhắt từng chỗ. Đây là cách mình nhận góp ý.",
+      "rules": [
+        {
+          "title": "Gom góp ý vào một danh sách.",
+          "body": "Mỗi lần chỉnh, bạn gửi một danh sách đầy đủ bằng chữ. Mình làm một lượt theo danh sách đó. Góp ý rời rạc từng tin nhắn sẽ được gom sang lần chỉnh sau."
+        },
+        {
+          "title": "Nói điều cụ thể, không nói cảm giác.",
+          "body": "“Chưa wow”, “chưa ưng lắm” chưa đủ để sửa. Hãy chỉ ra phần nào: chữ, ảnh, màu hay bố cục, và bạn muốn nó thế nào. Chưa rõ thì mình đề xuất hai hướng để bạn chọn."
+        },
+        {
+          "title": "Khoảng cách theo hệ lưới, không theo mắt.",
+          "body": "Căn lề, khoảng cách và cỡ chữ đi theo một hệ tỉ lệ chung cho mọi màn hình. Mình không xê dịch từng chi tiết vài điểm ảnh, vì đẹp trên máy này sẽ lệch trên máy khác."
+        },
+        {
+          "title": "Duyệt rồi là chốt.",
+          "body": "Bản thiết kế đã duyệt là bản mình viết mã. Thay đổi sau khi duyệt tính là một lần chỉnh thêm, 200.000₫ mỗi lần."
+        },
+        {
+          "title": "Một kênh, trong giờ làm việc.",
+          "body": "Trao đổi qua một kênh đã thống nhất. Mình trả lời trong 1 – 2 ngày làm việc, không nhận yêu cầu qua cuộc gọi bất chợt."
+        }
+      ]
+    },
+    "policyNoDeposit": {
+      "title": "Không cần cọc.",
+      "body": "Hugo One làm trước, trả sau. Bạn thanh toán đủ một lần khi nghiệm thu, trước lúc bàn giao."
+    },
+    "faqShared": [
+      {
+        "question": "Duyệt xong rồi, tôi muốn nhích một chi tiết lên chút được không?",
+        "answer": "Nếu đó là lỗi hiển thị, mình sửa miễn phí. Nếu là thay đổi theo cảm nhận sau khi đã duyệt, nó tính là một lần chỉnh thêm (200.000₫) và cần gửi kèm danh sách cụ thể. Nhờ vậy website giữ được một hệ thiết kế nhất quán, thay vì chắp vá từng chỗ."
+      }
+    ],
+    "addonPage": {
+      "back": "Tất cả gói lẻ",
+      "detailCta": "Xem chi tiết",
+      "includesTitle": "Gồm gì",
+      "excludesTitle": "Không gồm gì",
+      "extrasTitle": "Có thể thêm",
+      "priceTitle": "Giá thế nào",
+      "warrantyTitle": "Bảo hành",
+      "exclusionsTitle": "Không thuộc bảo hành",
+      "periodLabel": "Bảo hành",
+      "priceLabel": "Giá",
+      "cta": "Trao đổi về gói này",
+      "note": "Giá chốt bằng tin nhắn trước khi làm. Chưa gồm tiền trả cho nhà cung cấp bên thứ ba.",
+      "groups": {
+        "start": "Để bắt đầu",
+        "after": "Sau bàn giao",
+        "care": "Duy trì hằng tháng"
+      },
+      "timeLabel": "Thời gian",
+      "stepsTitle": "Cách làm",
+      "relatedTitle": "Gói lẻ khác",
+      "copyLabel": "Link gói này",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép link",
+      "seeMore": "Xem thêm",
+      "careTitle": "Gói duy trì, không bắt buộc"
+    },
+    "addonItems": {
+      "link": {
+        "name": "Gói Liên kết",
+        "when": "Đưa web lên tên miền của bạn, bằng chính tài khoản của bạn.",
+        "price": "350.000₫",
+        "priceNote": "Một lần, cho Hugo One. Hugo Story và Flow+ đã gồm sẵn trong lúc làm.",
+        "for": "Hugo One",
+        "items": [
+          "Báo giá tên miền, hosting, email bằng VNĐ trước khi mua",
+          "Bạn tự mua bằng tài khoản của bạn",
+          "Mình kết nối web bằng tài khoản của bạn",
+          "Bạn dành 30 phút để nhận mã xác minh"
+        ],
+        "lede": "Bạn mua, mình nối. Mọi tài khoản đứng tên bạn, mọi bước đăng nhập và xác minh diễn ra trên chính tài khoản của bạn.",
+        "includes": [
+          {
+            "title": "Bảng giá bên thứ ba.",
+            "body": "Giá tên miền, hosting, email theo niêm yết của nhà cung cấp, tính bằng VNĐ, gửi trước khi bạn mua."
+          },
+          {
+            "title": "Cập nhật tên miền vào mã.",
+            "body": "Đường dẫn chuẩn, sơ đồ trang và ảnh xem trước khi chia sẻ dùng đúng tên miền thật của bạn."
+          },
+          {
+            "title": "Kết nối bằng tài khoản của bạn.",
+            "body": "Gắn tên miền, cài chứng chỉ bảo mật, đưa web lên nơi lưu trữ, nối email nhận form."
+          },
+          {
+            "title": "Kiểm tra trước khi giao.",
+            "body": "Mở thử từng trang, gửi thử form, xem trên điện thoại và máy tính."
+          },
+          {
+            "title": "Bàn giao.",
+            "body": "Link website đã chạy, cùng bảng ghi các tài khoản đã dùng. Mật khẩu do bạn tự giữ."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "Tiền mua dịch vụ bên thứ ba.",
+            "body": "Tên miền, hosting, email: bạn trả thẳng cho nhà cung cấp."
+          },
+          {
+            "title": "Tỷ giá và phí chuyển đổi.",
+            "body": "Dịch vụ niêm yết bằng USD được ngân hàng của bạn quy đổi, kèm phí chuyển đổi tuỳ ngân hàng."
+          },
+          {
+            "title": "Thuế của dịch vụ bên thứ ba.",
+            "body": "Tuỳ theo từng dịch vụ và nhà cung cấp, bạn trả cùng hoá đơn của họ."
+          },
+          {
+            "title": "Đứng tên hộ, giữ mật khẩu.",
+            "body": "Mình không đứng tên tài khoản và không giữ mật khẩu của bạn."
+          },
+          {
+            "title": "Gia hạn hằng năm.",
+            "body": "Bạn tự gia hạn theo nhắc của nhà cung cấp."
+          },
+          {
+            "title": "Giấy tờ đăng ký.",
+            "body": "Tên miền .vn cần giấy tờ cá nhân hoặc doanh nghiệp, bạn tự chuẩn bị."
+          }
+        ],
+        "warranty": {
+          "period": "30 ngày",
+          "lines": [
+            "Trong 30 ngày, phần cài đặt mình làm bị lỗi (tên miền không trỏ đúng, email không nhận được thư) thì mình sửa miễn phí."
+          ]
+        },
+        "exclusions": [
+          "Bạn tự đổi cài đặt tên miền, email hay mật khẩu sau buổi làm.",
+          "Tên miền, hosting, email hết hạn vì chưa gia hạn.",
+          "Nhà cung cấp đổi chính sách, khoá hay tạm ngưng tài khoản.",
+          "Thư rơi vào thư rác vì nội dung hoặc bên nhận chặn."
+        ],
+        "time": "1 – 2 ngày, trong đó bạn dành 30 phút cùng mình",
+        "steps": [
+          "Mình gửi bảng giá tên miền, hosting, email của nhà cung cấp, tính bằng VNĐ.",
+          "Bạn tự mua bằng tài khoản của bạn.",
+          "Bạn gửi lại mã nguồn (.ZIP) mình đã bàn giao.",
+          "Mình kết nối web bằng tài khoản của bạn. Bạn dành khoảng 30 phút để nhận mã đăng nhập, xác minh.",
+          "Kiểm tra từng trang, bàn giao link web đã chạy."
+        ],
+        "illo": [
+          "tenban.vn",
+          "Website",
+          "lienhe@tenban.vn"
+        ],
+        "seo": {
+          "title": "Dịch Vụ Kết Nối Tên Miền, Hosting Cho Website | Hugo Studio",
+          "description": "Mua tên miền, hosting, email đứng tên bạn; Hugo Studio kết nối website trong buổi làm cùng 30 phút. 350.000₫ một lần, bảo hành cài đặt 30 ngày.",
+          "keywords": "trỏ tên miền, kết nối tên miền hosting, cài đặt website lên hosting, tạo email tên miền, đưa website lên mạng"
+        }
+      },
+      "support": {
+        "name": "Hỗ trợ lẻ",
+        "when": "Cần đổi nội dung sau bàn giao, hoặc web đã bị người khác sửa và hết bảo hành.",
+        "price": "Từ 300.000₫ / lần",
+        "priceNote": "Không đăng ký tháng. Giá đã gồm công đọc lại mã nguồn trước khi sửa.",
+        "for": "Mọi gói",
+        "items": [
+          "Đổi chữ, thay ảnh, cập nhật thông tin",
+          "Sửa lỗi, thêm một mục nhỏ",
+          "Kiểm tra web đã bị người khác chỉnh sửa",
+          "Báo giá trước, bạn đồng ý rồi mới làm"
+        ],
+        "lede": "Không đăng ký tháng. Cần gì thì nhắn, mình báo giá trước, bạn đồng ý rồi mới làm.",
+        "includes": [
+          {
+            "title": "Đọc lại mã trước khi sửa.",
+            "body": "Mỗi lần sửa, mình mở lại dự án, dựng lại môi trường chạy và đọc lại phần liên quan. Giá đã tính phần việc này, nên không có mức vài chục nghìn."
+          },
+          {
+            "title": "Báo giá trước.",
+            "body": "Bạn gửi yêu cầu bằng chữ, mình trả lời giá và thời gian trong 1 – 2 ngày làm việc."
+          },
+          {
+            "title": "Làm đúng việc được yêu cầu.",
+            "body": "Chỉ đụng tới phần đã thống nhất, không tự ý sửa chỗ khác."
+          },
+          {
+            "title": "Cập nhật bản lưu.",
+            "body": "Làm xong, mình lưu bản ZIP mới để đối chiếu cho lần sau."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "Phần web mình không đụng tới.",
+            "body": "Hỗ trợ lẻ không bảo hành toàn bộ website."
+          },
+          {
+            "title": "Khôi phục dữ liệu đã mất.",
+            "body": "Mình không giữ dữ liệu của bạn, không khôi phục được thứ đã xoá."
+          },
+          {
+            "title": "Thiết kế lại, thêm tính năng lớn.",
+            "body": "Đó là dự án mới, báo giá theo gói."
+          },
+          {
+            "title": "Website không do Hugo Studio làm.",
+            "body": "Mình chỉ hỗ trợ website mình đã bàn giao."
+          },
+          {
+            "title": "Việc tốn quá 3 giờ không nhận dạng hỗ trợ lẻ",
+            "body": "Việc tốn quá 3 giờ không nhận dạng hỗ trợ lẻ: mình báo giá như một dự án."
+          }
+        ],
+        "priceRows": [
+          {
+            "title": "Đổi chữ, thay ảnh, gửi một lần tối đa 10 chỗ",
+            "price": "300.000₫ / lần"
+          },
+          {
+            "title": "Sửa lỗi, thêm một mục nhỏ",
+            "price": "500.000 – 1.000.000₫"
+          },
+          {
+            "title": "Kiểm tra web đã bị người khác chỉnh sửa",
+            "price": "500.000₫, trừ vào phí sửa nếu làm tiếp"
+          }
+        ],
+        "extras": [
+          {
+            "title": "Đưa web về bản chuẩn và mở lại bảo hành trọn đời",
+            "price": "Báo giá sau khi kiểm tra"
+          }
+        ],
+        "warranty": {
+          "period": "7 ngày",
+          "lines": [
+            "Phần vừa sửa bị lỗi trong 7 ngày thì mình sửa lại miễn phí."
+          ]
+        },
+        "exclusions": [
+          "Phần khác của website không nằm trong yêu cầu.",
+          "Web lại bị người khác chỉnh sửa sau khi mình làm xong.",
+          "Lỗi do bên thứ ba: Google, cổng thanh toán, hosting, trình duyệt."
+        ],
+        "time": "1 – 3 ngày làm việc sau khi bạn đồng ý giá",
+        "steps": [
+          "Gửi yêu cầu bằng chữ, kèm ảnh chụp nếu có.",
+          "Mình báo giá và thời gian trong 1 – 2 ngày làm việc.",
+          "Bạn đồng ý, mình làm và lưu bản ZIP mới."
+        ],
+        "illo": [
+          "Đổi giúp mình giờ mở cửa thành 8:00 nhé",
+          "300.000₫ · xong trong 2 ngày",
+          "Đã xong"
+        ],
+        "seo": {
+          "title": "Sửa Website, Cập Nhật Nội Dung Theo Lần | Hugo Studio",
+          "description": "Sửa website theo lần cho web Hugo Studio đã làm: đổi chữ, thay ảnh, sửa lỗi nhỏ, kiểm tra web bị chỉnh sửa. Từ 300.000₫, báo giá trước khi làm.",
+          "keywords": "sửa website, cập nhật nội dung website, sửa lỗi web, hỗ trợ website theo lần, chỉnh sửa website"
+        }
+      },
+      "seo": {
+        "name": "Gói SEO",
+        "when": "Để Google hiểu web của bạn, và khách tìm thấy bạn khi họ tìm đúng thứ bạn bán.",
+        "price": "Từ 990.000₫",
+        "priceNote": "Hugo One 990.000₫ · Hugo Story, Flow+ 1.790.000₫. Làm một lần, cho website đã lên mạng.",
+        "for": "Mọi gói",
+        "items": [
+          "Chọn từ khoá khách thật sự tìm",
+          "Tên, mô tả từng trang viết theo từ khoá",
+          "Khai báo web với Google, gửi sơ đồ trang",
+          "Hồ sơ Google Maps và đo khách đến từ đâu"
+        ],
+        "lede": "Web đẹp mà không ai tìm thấy thì cũng như không. Gói này làm phần nền: Google đọc đúng web của bạn, và bạn biết khách đến từ đâu.",
+        "includes": [
+          {
+            "title": "Chọn từ khoá.",
+            "body": "Tìm 5 – 10 cụm từ khách trong khu vực của bạn hay tìm, xếp mỗi cụm vào đúng trang."
+          },
+          {
+            "title": "Tên và mô tả từng trang.",
+            "body": "Viết lại tiêu đề, mô tả hiện trên Google theo từ khoá đã chọn."
+          },
+          {
+            "title": "Khai báo với Google.",
+            "body": "Xác minh web trong Google Search Console, gửi sơ đồ trang, kiểm tra trang nào chưa được đọc."
+          },
+          {
+            "title": "Dữ liệu có cấu trúc.",
+            "body": "Thêm thông tin doanh nghiệp: tên, địa chỉ, giờ mở cửa, để Google hiển thị đúng."
+          },
+          {
+            "title": "Hồ sơ Google Maps.",
+            "body": "Cùng bạn tạo hoặc sửa hồ sơ doanh nghiệp, gắn link web, giờ mở cửa, ảnh."
+          },
+          {
+            "title": "Đo khách đến từ đâu.",
+            "body": "Cài Google Analytics, kèm video ngắn cách xem số liệu."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "Cam kết thứ hạng.",
+            "body": "Thứ hạng trên Google do Google quyết định, nên mình không cam kết vị trí hay thời gian lên top."
+          },
+          {
+            "title": "Viết bài định kỳ.",
+            "body": "Gói này làm nền một lần, không viết bài hằng tháng."
+          },
+          {
+            "title": "Mua hay trao đổi liên kết.",
+            "body": "Mình không dùng cách lách thuật toán có thể khiến web bị Google phạt."
+          },
+          {
+            "title": "Chạy và tối ưu quảng cáo.",
+            "body": "Không lên chiến dịch, không quản lý ngân sách quảng cáo."
+          },
+          {
+            "title": "Xác minh hồ sơ Google Maps.",
+            "body": "Google gửi mã hoặc yêu cầu video cho chủ doanh nghiệp. Bạn tự hoàn tất bước này."
+          }
+        ],
+        "time": "2 – 3 ngày",
+        "steps": [
+          "Bạn kể khách của bạn là ai và ở đâu.",
+          "Mình chọn từ khoá, sửa tên và mô tả từng trang, thêm dữ liệu có cấu trúc.",
+          "Khai báo với Google, tạo hồ sơ Maps cùng bạn, gửi video đọc số liệu."
+        ],
+        "warranty": {
+          "period": "30 ngày",
+          "lines": [
+            "Trong 30 ngày, Google báo lỗi xác minh, sơ đồ trang hay dữ liệu có cấu trúc do mình cài sai thì mình sửa miễn phí."
+          ]
+        },
+        "exclusions": [
+          "Google chậm hiển thị hoặc không hiển thị web: việc đó do Google quyết định.",
+          "Google từ chối hoặc tạm khoá hồ sơ Maps.",
+          "Bạn tự đổi tên, mô tả hay xoá trang sau khi bàn giao.",
+          "Google đổi cách xếp hạng."
+        ],
+        "illo": [
+          "tiệm bánh gần đây",
+          "Tiệm bánh của bạn",
+          "Mở cửa · 7:00 – 21:00"
+        ],
+        "priceRows": [
+          {
+            "title": "Hugo One: một trang",
+            "price": "990.000₫"
+          },
+          {
+            "title": "Hugo Story, Hugo Flow+: tới 6 trang",
+            "price": "1.790.000₫"
+          }
+        ],
+        "seo": {
+          "title": "Dịch Vụ SEO Onpage Và Google Maps Làm Một Lần | Hugo Studio",
+          "description": "SEO làm một lần: chọn từ khoá, viết tiêu đề và mô tả từng trang, Google Search Console, dữ liệu có cấu trúc, hồ sơ Google Maps. Từ 990.000₫.",
+          "keywords": "dịch vụ seo onpage, seo website một lần, tạo google maps doanh nghiệp, google search console, seo local, seo giá rẻ"
+        }
+      },
+      "maintain": {
+        "name": "Gói Duy trì Flow+",
+        "when": "Web có đơn, có tiền chạy qua thì cần người trông. Mình trông giúp mỗi tháng.",
+        "price": "490.000₫ / tháng",
+        "priceNote": "Trả theo năm 4.900.000₫, bằng 10 tháng. Không bắt buộc, dừng lúc nào cũng được, báo trước 1 tháng.",
+        "for": "Hugo Flow+",
+        "items": [
+          "Sao lưu dữ liệu đơn hằng tuần",
+          "Theo dõi web liên tục, không vào được là mình biết",
+          "Vá bảo mật, theo kịp thay đổi của cổng thanh toán",
+          "Mỗi tháng thử một đơn từ đầu tới cuối"
+        ],
+        "lede": "Bảo hành trọn đời lo lỗi do mình làm ra. Gói duy trì lo phần còn lại: thư viện cần vá, cổng thanh toán đổi cách kết nối, dữ liệu cần sao lưu.",
+        "includes": [
+          {
+            "title": "Sao lưu hằng tuần.",
+            "body": "Dữ liệu đơn và sản phẩm được sao lưu vào nơi lưu trữ đứng tên bạn, giữ 8 bản gần nhất."
+          },
+          {
+            "title": "Theo dõi web còn chạy.",
+            "body": "Web không truy cập được là mình nhận cảnh báo và xử lý trong ngày làm việc."
+          },
+          {
+            "title": "Vá bảo mật.",
+            "body": "Cập nhật các thư viện có lỗ hổng mỗi tháng, kiểm tra lại trước khi đưa lên."
+          },
+          {
+            "title": "Theo kịp bên thứ ba.",
+            "body": "Cổng thanh toán, Google hay nhà cung cấp hosting đổi cách kết nối thì mình sửa theo, không tính thêm."
+          },
+          {
+            "title": "Kiểm tra hằng tháng.",
+            "body": "Thử một đơn từ đầu tới cuối, gửi bạn báo cáo ngắn."
+          }
+        ],
+        "excludes": [
+          {
+            "title": "Tính năng mới.",
+            "body": "Thêm chức năng hay đổi giao diện: báo giá riêng."
+          },
+          {
+            "title": "Phí dịch vụ bên thứ ba.",
+            "body": "Hosting, cơ sở dữ liệu, cổng thanh toán: bạn trả thẳng cho nhà cung cấp."
+          },
+          {
+            "title": "Nhập liệu thay bạn.",
+            "body": "Thêm sản phẩm, xử lý đơn: bạn làm trong trang quản trị."
+          },
+          {
+            "title": "Dữ liệu trước khi đăng ký.",
+            "body": "Chỉ khôi phục từ các bản sao lưu trong thời gian gói còn hiệu lực."
+          }
+        ],
+        "extras": [
+          {
+            "title": "Việc ngoài gói: Hỗ trợ lẻ",
+            "price": "Từ 300.000₫ / lần"
+          }
+        ],
+        "time": "Bắt đầu ngay sau bàn giao",
+        "steps": [
+          "Đăng ký sau khi bàn giao, trả theo tháng hoặc theo năm.",
+          "Mình cài sao lưu và theo dõi trên tài khoản của bạn.",
+          "Mỗi tháng nhận báo cáo ngắn: sao lưu, cập nhật, đơn thử."
+        ],
+        "warranty": {
+          "period": "Trong thời gian đăng ký",
+          "lines": [
+            "Lỗi phát sinh từ phần mình cập nhật được sửa miễn phí trong thời gian gói còn hiệu lực."
+          ]
+        },
+        "exclusions": [
+          "Mã nguồn bị người khác chỉnh sửa: gói dừng như bảo hành chính.",
+          "Hosting, cơ sở dữ liệu hết hạn hay bị khoá vì chưa thanh toán.",
+          "Sự cố từ phía nhà cung cấp mà mình không can thiệp được: mình báo bạn và theo dõi tới khi họ khắc phục.",
+          "Tháng chưa thanh toán phí duy trì."
+        ],
+        "illo": [
+          "Sao lưu tuần này",
+          "Web đang chạy",
+          "Cập nhật bảo mật"
+        ],
+        "seo": {
+          "title": "Gói Bảo Trì Website Hằng Tháng 490.000₫ | Hugo Studio",
+          "description": "Bảo trì website đặt lịch, bán hàng hằng tháng: sao lưu hằng tuần, theo dõi web, vá bảo mật, thử đơn mỗi tháng. 490.000₫/tháng, dừng lúc nào cũng được.",
+          "keywords": "bảo trì website hằng tháng, dịch vụ bảo trì web, sao lưu website, bảo mật website, chăm sóc website"
+        }
+      }
+    },
+    "trademarkNote": "Google, Google Maps, Facebook, TikTok, Zalo, PayOS và các tên khác trên trang là nhãn hiệu của chủ sở hữu tương ứng. Hugo Studio chỉ nêu tên để mô tả dịch vụ tương thích, không phải đối tác hay đại lý của các bên này.",
+    "linkIncludedNote": {
+      "title": "Đã gồm liên kết.",
+      "body": "Mình gửi bảng giá tên miền, hosting, email trước; bạn mua bằng tài khoản của bạn, mình nối ngay trong lúc làm. Bàn giao mã nguồn (.ZIP) và link website đã chạy."
     }
   },
   "studentPage": {

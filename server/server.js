@@ -1,17 +1,11 @@
 import express from 'express';
 import http from 'http';
-import { WebSocketServer } from 'ws';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 import { oauthMetadata } from './routes/oauthRoutes.js';
-import OAuthClient from './models/OAuthClient.js';
 import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from './utils/secrets.js';
-import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import { cachePolicy } from './middleware/cachePolicy.js';
@@ -20,14 +14,20 @@ import { requireAdultMember } from './middleware/authMiddleware.js';
 import { mountServices } from './services.manifest.js';
 import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
-  findActiveSecurityBlock,
-  recordSecurityViolation,
   requestThreatGuard,
   safeServerErrors,
   securityIpGate,
-  sendSecurityBlockResponse,
 } from './services/securityEnforcement.js';
 import { reportSpecialistIncident } from './services/aiIncidentResponseService.js';
+import mongoose from 'mongoose';
+import {
+  connectDatabase,
+  oauthCorsOptions,
+  appCorsOptions,
+  globalLimiter,
+  getRedisStatus,
+} from './config/index.js';
+import { setupWebSocketServers } from './services/websocketServer.js';
 
 dotenv.config();
 
@@ -35,82 +35,17 @@ const app = express();
 app.use(cachePolicy);
 
 // Trust the first proxy in front of the app (Railway/Render/Vercel/Nginx all
-// put exactly one). Without this, req.ip is the PROXY's IP, so express-rate-
-// limit keys EVERY user into a single shared bucket — the whole userbase then
-// blows the 1500/15min cap almost instantly and everyone gets 429. Trusting
-// one hop makes req.ip the real client (from X-Forwarded-For) so each user gets
-// their own bucket. We trust exactly 1 (not `true`) so clients can't spoof
-// X-Forwarded-For to dodge the limiter.
+// put exactly one).
 app.set('trust proxy', 1);
 
 // 8099 chứ không phải 8081: 8081 là cổng mặc định của Metro/Expo, mở bất kỳ dự
 // án React Native nào là mất cổng — và Metro trả HTML kèm status 200 cho mọi
 // đường dẫn, nên `/api/*` "thành công" với một trang web thay vì JSON.
 const PORT = process.env.PORT || 8099;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
-// Middleware
-const allowedOrigins = [
-  ...((process.env.CLIENT_URLS || "").split(",")),
-  "https://www.hugowishpax.studio",
-  "https://hugowishpax.studio",
-  // The App Store build is not served over http(s): WKWebView loads it from
-  // `capacitor://localhost`, and that string is what lands in the Origin
-  // header. It is a constant baked into Capacitor, not a host anyone can point
-  // DNS at, so listing it literally is the whole check — a web page cannot
-  // forge this origin. Without it every request from the app is a CORS
-  // rejection, which reaches the client as a network error and reads like the
-  // phone is offline.
-  // Android is not covered here: with androidScheme "https" its origin is
-  // `https://localhost`, which is a real scheme any local server can claim.
-  // Give it a distinct `server.hostname` before adding it to this list.
-  "capacitor://localhost"
-].filter(Boolean);
-
-const isDev = process.env.NODE_ENV !== 'production';
-const localOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/;
-
-// Origin lạ đã bị từ chối, ghi nhớ để không lặp lại log. Reset khi restart —
-// đủ dùng, và không phình theo thời gian như một bản ghi mỗi request.
-const corsRejected = new Set();
-
-// Public SPA OAuth clients exchange their PKCE code directly from their own
-// registered origin. CORS is derived from redirect URIs saved by Admin; it is
-// not a wildcard and does not replace OAuth client/PKCE authentication.
-app.use('/api/oauth', cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || (isDev && localOriginRegex.test(origin))) {
-      return callback(null, true);
-    }
-    OAuthClient.exists({ status: 'active', clientType: 'public', allowedOrigins: origin })
-      .then((exists) => callback(null, Boolean(exists)))
-      .catch(() => callback(null, false));
-  },
-  // Admin UI ở www.* gọi API host với cookie/Bearer và credentials=include.
-  // ACAO luôn là origin cụ thể đã allowlist (không phải *), nên bật credentials
-  // vẫn an toàn cho public PKCE clients dùng fetch không kèm cookie.
-  credentials: true,
-}));
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || (isDev && localOriginRegex.test(origin))) {
-      return callback(null, true);
-    }
-    // KHÔNG ném Error ở đây. CORS là cơ chế của TRÌNH DUYỆT — chặn tại server
-    // không ngăn được curl hay bot, chúng bỏ qua CORS hoàn toàn. Nhưng ném Error
-    // thì mỗi lượt bot quét thành: một stack trace, một bản ghi ErrorLog trong
-    // MongoDB, một console.error, và một 500 sai (đúng ra là 403).
-    // Thực tế: 23/23 dòng đầu tiên của error log đều là "Blocked by CORS",
-    // nhấn chìm mọi lỗi thật. Trả false = không cấp header, trình duyệt tự chặn.
-    if (!corsRejected.has(origin)) {
-      corsRejected.add(origin);
-      console.warn('[CORS] từ chối origin lạ:', origin);
-    }
-    return callback(null, false);
-  },
-  credentials: true
-}));
+// CORS — cấu hình tập trung trong config/cors.js (Quy tắc 4)
+app.use('/api/oauth', cors(oauthCorsOptions));
+app.use(cors(appCorsOptions));
 
 app.use(cookieParser());
 
@@ -180,88 +115,11 @@ app.use(mongoSanitize());
 // Response Compression (Significantly reduces payload size)
 app.use(compression());
 
-// Rate Limiting — skipped for localhost (Vite proxy collapses all dev requests
-// to 127.0.0.1/::1, making the shared IP window hit 429 almost immediately in
-// dev with React StrictMode double-invoking effects). Production keeps the cap.
-const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: isDev ? 0 : 1500, // 0 = unlimited in dev; 1500/15 min (1.67 req/s avg) in prod
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Telemetry (/api/ops/client-event) must NOT count against a user's API
-  // budget: it fires on web-vitals + every slow/failed request, so counting it
-  // would (a) burn the quota faster and (b) once a 429 storm starts, each 429
-  // gets reported as another /api hit — a self-amplifying loop that keeps the
-  // user rate-limited. Excluding it breaks that feedback loop.
-  skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || req.originalUrl.startsWith('/api/ops'),
-  message: { error: 'Quá nhiều truy cập từ IP này, vui lòng thử lại sau 15 phút.' },
-  handler: async (req, res, _next, options) => {
-    try {
-      // One runaway browser receives 429; a repeated window breach within 24h
-      // is treated as an availability attack and blocks the network for 30d.
-      const result = await recordSecurityViolation({
-        req,
-        category: 'availability_attack',
-        severity: 'high',
-        ruleId: 'global_rate_limit_repeated',
-        evidence: `${req.method} ${req.originalUrl}`,
-        enforcement: 'threshold',
-      });
-      if (result.block) return sendSecurityBlockResponse(res, result.block);
-    } catch (error) {
-      console.error('[rate-limit security event]', error.message);
-    }
-    return res.status(options.statusCode).json(options.message);
-  },
-});
+// Rate Limiting — cấu hình tập trung trong config/limiter.js (Quy tắc 4)
 app.use('/api', globalLimiter);
 
-// MongoDB Connection (Pool size 5 suited for low-memory Render 512MB RAM limits)
-mongoose.connect(MONGODB_URI, {
-  maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 5,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
-  .then(async () => {
-    console.log('✅ MongoDB connected successfully');
-    
-    // In-memory valid-slug set: O(1) rejection of bogus /bio/:slug hits before
-    // they reach MongoDB. Kept in sync by bioRoutes on create/rename/delete.
-    // NOTE: per-process — if the API ever runs multiple instances, move this
-    // to Redis (redisClient.js already exists).
-    try {
-      const { redisSlugService } = await import('./services/redisSlugService.js');
-      await redisSlugService.init();
-    } catch(err) {
-      console.error('Valid-slug set error:', err);
-    }
-
-    try {
-      const Admin = (await import('./models/Admin.js')).default;
-      const count = await Admin.countDocuments();
-      if (count === 0) {
-        // Seed the first admin from env only — never hardcode credentials in a
-        // public repo. Set ADMIN_SEED_USERNAME / ADMIN_SEED_PASSWORD once,
-        // start the server, then remove them from the env.
-        const seedUser = process.env.ADMIN_SEED_USERNAME;
-        const seedPass = process.env.ADMIN_SEED_PASSWORD;
-        if (seedUser && seedPass) {
-          const cryptoMod = await import('crypto');
-          const bcryptMod = (await import('bcryptjs')).default;
-          // Username is a lookup hash; password is bcrypt (salted, slow) — never SHA-256.
-          const usernameHash = cryptoMod.createHash('sha256').update(seedUser).digest('hex');
-          await Admin.create({ username: usernameHash, password: await bcryptMod.hash(seedPass, 12) });
-          console.log('👥 Admin account seeded from ADMIN_SEED_* env vars');
-        } else {
-          console.warn('⚠️  No admin account exists and ADMIN_SEED_USERNAME/ADMIN_SEED_PASSWORD are not set — admin login unavailable until seeded.');
-        }
-      }
-    } catch (err) {
-      console.error('Error seeding admin account:', err);
-    }
-  })
-  .catch(err => console.error(' MongoDB connection failed:', err));
+// MongoDB Connection & Seeds — cấu hình tập trung trong config/database.js (Quy tắc 4)
+await connectDatabase();
 
 import { initTelegramBot } from './routes/telegramWebhookRoutes.js';
 
@@ -302,8 +160,22 @@ app.get('/api/auth/verify-edu', async (req, res) => {
 
 // Health checks. Render's web-service healthCheckPath uses /health, while the
 // frontend/dev proxy can still call /api/health.
-const healthHandler = (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date() });
+const healthHandler = (_req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  const redisInfo = getRedisStatus();
+  const mem = process.memoryUsage();
+  res.json({
+    status: dbStatus === 'connected' ? 'ok' : 'degraded',
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
+    database: { status: dbStatus, name: mongoose.connection.name || 'hugostudio' },
+    redis: redisInfo,
+    memory: {
+      rssMb: Math.round(mem.rss / 1024 / 1024),
+      heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),
+    },
+    version: '2.0.0',
+  });
 };
 app.get('/health', healthHandler);
 app.get('/api/health', healthHandler);
@@ -364,120 +236,9 @@ process.on('unhandledRejection', (reason) => {
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);
 
-// WebSocket server for real-time IoT data (path: /ws)
-const wss = new WebSocketServer({ noServer: true });
-
-// Chess WebSocket server (path: /ws/chess)
-const chessWss = initChessWS({ noServer: true });
-
-// Manual WebSocket upgrade dispatcher
-server.on('upgrade', async (request, socket, head) => {
-  const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
-  const { pathname } = requestUrl;
-
-  try {
-    const forwarded = String(request.headers['x-forwarded-for'] || '').split(',').map((item) => item.trim()).filter(Boolean);
-    const clientIp = forwarded.at(-1) || request.socket.remoteAddress || '';
-    let email = '';
-    if (pathname === '/ws') {
-      const token = requestUrl.searchParams.get('token');
-      if (token) {
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET);
-          if (decoded.role === 'member') email = decoded.email || '';
-        } catch {
-          // The connection handler below returns the normal auth close code.
-        }
-      }
-    }
-    const block = await findActiveSecurityBlock({ ip: clientIp, email });
-    if (block) {
-      socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Type: application/json\r\nCache-Control: no-store\r\n\r\n{"error":"ACCESS_BLOCKED"}');
-      socket.destroy();
-      return;
-    }
-  } catch (error) {
-    console.error('[WebSocket security gate]', error.message);
-  }
-
-  if (pathname === '/ws') {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request);
-    });
-  } else if (pathname === '/ws/chess') {
-    chessWss.handleUpgrade(request, socket, head, (ws) => {
-      chessWss.emit('connection', ws, request);
-    });
-  } else {
-    socket.destroy();
-  }
-});
-
-// global.wsClients maps email -> Set of connected WebSocket clients
-global.wsClients = {};
-
-wss.on('connection', (ws, req) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const token = url.searchParams.get('token');
-
-  if (!token) {
-    ws.close(4001, 'Authentication required');
-    return;
-  }
-
-  // The channel carries private wallet/notification events, so the subscriber
-  // must prove identity: token is a member JWT and the email comes from it —
-  // a bare email here would let anyone stream any member's balance updates.
-  let email;
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role === 'member' && decoded.email) email = decoded.email;
-  } catch {}
-
-  if (!email) {
-    ws.close(4001, 'Invalid or expired token');
-    return;
-  }
-
-  if (!global.wsClients[email]) {
-    global.wsClients[email] = new Set();
-  }
-  global.wsClients[email].add(ws);
-
-  ws.on('message', (data) => {
-    // Devices can also push vitals via WebSocket
-    try {
-      const msg = JSON.parse(data.toString());
-      // Relay thiết-bị-tới-thiết-bị trong cùng tài khoản: vitals IoT.
-      // Hai kênh "tung thẻ" của app Hoa Ngữ đã gỡ cùng app đó (21/09/2026).
-      let relay = null;
-      if (msg.type === 'vitals' && msg.data) {
-        relay = msg;
-      }
-      if (relay) {
-        const payload = JSON.stringify(relay);
-        for (const client of global.wsClients[email]) {
-          if (client !== ws && client.readyState === 1 /* OPEN */) client.send(payload);
-        }
-      }
-    } catch {
-      // Ignore malformed messages
-    }
-  });
-
-  ws.on('close', () => {
-    if (global.wsClients[email]) {
-      global.wsClients[email].delete(ws);
-      if (global.wsClients[email].size === 0) {
-        delete global.wsClients[email];
-      }
-    }
-  });
-
-  ws.on('error', (err) => {
-    console.error('[WebSocket] Error:', err.message);
-  });
-});
+// WebSocket servers & upgrade dispatcher — quản lý tập trung trong services/websocketServer.js (Quy tắc 2).
+// Phục vụ các kênh WS: '/ws' (realtime) và '/ws/chess' (cờ vua).
+setupWebSocketServers(server);
 
 /**
  * CHỈ MỘT process được chạy cron.
@@ -549,4 +310,29 @@ server.listen(PORT, () => {
   // the process back up once Render had actually suspended it. An external
   // pinger does both, on a schedule we control: see workers/keepalive/.
 });
-// Nodemon watch trigger
+
+// Graceful shutdown handling (SIGTERM, SIGINT) — Chuẩn Node.js an toàn
+const gracefulShutdown = (signal) => {
+  console.log(`\n🛑 Nhận tín hiệu ${signal}: Bắt đầu đóng server an toàn...`);
+  server.close(async () => {
+    console.log('HTTP & WebSocket server đã ngừng nhận kết nối mới.');
+    try {
+      if (mongoose.connection.readyState === 1) {
+        await mongoose.connection.close(false);
+        console.log('✅ MongoDB connection đã đóng an toàn.');
+      }
+    } catch (e) {
+      console.warn('⚠️ Lỗi khi đóng MongoDB:', e.message);
+    }
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error('⚠️ Đóng server quá thời gian chờ (10s) — buộc dừng.');
+    process.exit(1);
+  }, 10000).unref();
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+

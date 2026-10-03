@@ -28,6 +28,9 @@ const SleepTracker = lazy(() => import("./SleepTracker"));
 import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
+import { AnimulaAvatar } from "./AnimulaAvatar";
+import { Liquid } from "liquid-gooey";
+import { sensory } from "../../../lib/sensory";
 import { getLockedFields, fieldLabel } from "./constants/bioFields";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
@@ -132,6 +135,27 @@ export default function ChatTab({
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [currentMood, setCurrentMood] = useState(3);
+  const [companionType, setCompanionType] = useState(() => {
+    try {
+      return localStorage.getItem("hugo_animula_type") || "clover";
+    } catch {
+      return "clover";
+    }
+  });
+
+  const cycleCompanionType = useCallback(() => {
+    const types = ["clover", "star", "cloud", "cat", "flower"];
+    setCompanionType((prev) => {
+      const nextIdx = (types.indexOf(prev) + 1) % types.length;
+      const next = types[nextIdx];
+      try {
+        localStorage.setItem("hugo_animula_type", next);
+        sensory.pop();
+        sensory.vibrate("light");
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const adaptivePersona = useMemo(() => {
     return computeAdaptivePersona(historyLogs, bio);
@@ -1312,26 +1336,26 @@ export default function ChatTab({
           </button>
         )}
 
-        {/* Monochrome app mark with a semantic presence dot. */}
-        <div className="relative shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center shadow-sm">
-            <BrainCircuit className="h-[18px] w-[18px]" strokeWidth={2} />
-          </div>
-          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white dark:border-[#0d0c16] shadow-sm" />
+        {/* Interactive Animula Companion Avatar */}
+        <div className="relative shrink-0" onClick={cycleCompanionType}>
+          <AnimulaAvatar
+            size={38}
+            type={companionType}
+            state={loading ? "working" : "default"}
+            interactive={true}
+          />
         </div>
 
-        {/* Bot identity.
-
-            `min-w-0` một mình khiến khối này co tới 0 khi hàng chật — và vì nó là
-            phần tử `flex-1` DUY NHẤT giữa sáu phần tử `shrink-0`, nó là thứ chịu
-            toàn bộ phần thiếu chỗ. Trên điện thoại hẹp tên app co thành "H…" và
-            "Trực tuyến" vỡ hai dòng. Danh tính app phải là thứ co SAU CÙNG:
-            `min-w-[92px]` giữ đủ chỗ cho tên, `whitespace-nowrap` chặn dòng trạng
-            thái xuống hàng. */}
+        {/* Bot identity with Latin branding & metal badge */}
         <div className="flex-1 min-w-[92px]">
-          <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
-            HugoPSY
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
+              Hugo Animula
+            </p>
+            <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 whitespace-nowrap">
+              Latin Soul
+            </span>
+          </div>
           <p className="text-[13px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5 truncate whitespace-nowrap">
             {loading ? typingLabel : isGuestMode ? "● Dùng thử cục bộ" : t("hugoPsy.chat.trucTuyen")}
           </p>
@@ -1598,32 +1622,51 @@ export default function ChatTab({
         </div>
       )}
 
-      {/* Mobile quick actions keep every HugoPSY capability reachable from chat. */}
-      <div className="psy-chat-quick-actions psy-liquid-glass md:hidden grid grid-cols-3 gap-2 px-3 py-2 border-x-0 border-t-0 rounded-none z-20 shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveModalDrawer("therapy")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
-          >
-            <HeartPulse className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">{t("hugoPsy.chat.thuGian")}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("sleep")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
-          >
-            <MoonStar className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">{t("hugoPsy.chat.giacNgu")}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("evaluation")}
-            className="min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
-          >
-            <ClipboardCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">{t("hugoPsy.chat.danhGia")}</span>
-          </button>
+      {/* Mobile quick actions wrapped in Liquid Gooey */}
+      <div className="psy-chat-quick-actions psy-liquid-glass md:hidden px-3 py-2 border-x-0 border-t-0 rounded-none z-20 shrink-0">
+        <Liquid blur={4} contrast={14} fill="rgba(255, 255, 255, 0.05)">
+          <div className="grid grid-cols-3 gap-2">
+            <Liquid.Item transition="bouncy">
+              <button
+                type="button"
+                onClick={() => {
+                  try { sensory.tap(); } catch {}
+                  setActiveModalDrawer("therapy");
+                }}
+                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+              >
+                <HeartPulse className="h-3.5 w-3.5 shrink-0 text-rose-500" strokeWidth={2} />
+                <span className="truncate">{t("hugoPsy.chat.thuGian")}</span>
+              </button>
+            </Liquid.Item>
+            <Liquid.Item transition="bouncy">
+              <button
+                type="button"
+                onClick={() => {
+                  try { sensory.tap(); } catch {}
+                  isGuestMode ? requireAccount?.() : setActiveModalDrawer("sleep");
+                }}
+                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+              >
+                <MoonStar className="h-3.5 w-3.5 shrink-0 text-indigo-500" strokeWidth={2} />
+                <span className="truncate">{t("hugoPsy.chat.giacNgu")}</span>
+              </button>
+            </Liquid.Item>
+            <Liquid.Item transition="bouncy">
+              <button
+                type="button"
+                onClick={() => {
+                  try { sensory.tap(); } catch {}
+                  isGuestMode ? requireAccount?.() : setActiveModalDrawer("evaluation");
+                }}
+                className="w-full min-w-0 px-2.5 py-2 rounded-xl text-[13px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+              >
+                <ClipboardCheck className="h-3.5 w-3.5 shrink-0 text-emerald-500" strokeWidth={2} />
+                <span className="truncate">{t("hugoPsy.chat.danhGia")}</span>
+              </button>
+            </Liquid.Item>
+          </div>
+        </Liquid>
       </div>
 
       {/* ── Messages area ─────────────────────────────────────────────────────── */}
@@ -1631,6 +1674,7 @@ export default function ChatTab({
         {chatMode === "normal" && (
           <ChatMessages
             messages={messages}
+            companionType={companionType}
             completedMessageIds={completedMessageIds}
             setCompletedMessageIds={setCompletedMessageIds}
             onStartTest={handleStartTest}

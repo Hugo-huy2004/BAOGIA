@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "lucide-react";
+import { Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "../../ui/HugeIcon";
 import { getBestViVoice } from "./utils/getBestViVoice";
 import { MUSCLE_STEPS } from "./constants/pmrSteps";
 

@@ -122,10 +122,10 @@ export default function LibraryCatalog({
                 setActiveTab("apps");
                 setActiveCategory(cat.id);
               }}
-              className={`whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-medium transition-all active:scale-95 ${
+              className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-all active:scale-95 ${
                 active
-                  ? "bg-primary text-white"
-                  : "bg-muted/60 text-muted-foreground hover:text-foreground"
+                  ? "swiftui-btn-prominent shadow-xs"
+                  : "swiftui-glass text-muted-foreground hover:text-foreground"
               }`}
             >
               {cat.label}
@@ -136,10 +136,10 @@ export default function LibraryCatalog({
           type="button"
           aria-selected={activeTab === "installed"}
           onClick={() => setActiveTab("installed")}
-          className={`whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-medium transition-all active:scale-95 ${
+          className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-all active:scale-95 ${
             activeTab === "installed"
-              ? "bg-primary text-white"
-              : "bg-muted/60 text-muted-foreground hover:text-foreground"
+              ? "swiftui-btn-prominent shadow-xs"
+              : "swiftui-glass text-muted-foreground hover:text-foreground"
           }`}
         >
           {t("utilities.library.installedCount", { count: installedApps.length })}
@@ -157,7 +157,7 @@ export default function LibraryCatalog({
 
       {/* ── 6. CATALOG APP CARDS GRID (HUGO ARCADE GAMECARD STYLE) ────────────────── */}
       {filteredApps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 bg-card border border-border/60 rounded-3xl p-6">
+        <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 swiftui-liquid-glass rounded-3xl p-6">
           <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
             <span className="material-symbols-outlined text-2xl">search_off</span>
           </div>
@@ -167,7 +167,7 @@ export default function LibraryCatalog({
           </div>
         </div>
       ) : (
-        <div className="bg-card border border-border/60 rounded-3xl shadow-sm divide-y divide-border/50 overflow-hidden">
+        <div className="swiftui-grouped-card shadow-sm divide-y divide-border/40 overflow-hidden">
           {filteredApps.map((app) => {
             const gradient = gradients[app.tint] || gradients.indigo;
             const isInstalled = installedApps.includes(app.id);
@@ -246,8 +246,8 @@ export default function LibraryCatalog({
 
       {/* ── 8. MODAL SHEET: INSTALL LOCATION CHOICE ────────────────────────────── */}
       {pendingInstallApp && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[600] p-4 text-center animate-fadeIn">
-          <div className="bg-card border border-border/60 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[600] p-4 text-center animate-fadeIn">
+          <div className="swiftui-liquid-glass rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
             <UtilityAppIcon app={pendingInstallApp} gradient={gradients[pendingInstallApp.tint] || gradients.indigo} size="medium" className="mx-auto" />
 
             <div className="text-center space-y-1">
@@ -262,7 +262,7 @@ export default function LibraryCatalog({
             <div className="space-y-2 pt-2">
               <button
                 onClick={() => confirmInstall(true)}
-                className="w-full py-3.5 px-4 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-4 swiftui-btn-prominent font-semibold text-sm rounded-2xl flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-base">add_to_home_screen</span>
                 <span>{t("utilities.library.homeAndLibrary")}</span>
@@ -270,7 +270,7 @@ export default function LibraryCatalog({
 
               <button
                 onClick={() => confirmInstall(false)}
-                className="w-full py-3.5 px-4 bg-muted hover:bg-muted/80 text-foreground font-semibold text-sm rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-4 swiftui-btn-bordered font-semibold text-sm rounded-2xl flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-base">inventory_2</span>
                 <span>{t("utilities.library.libraryOnly")}</span>
@@ -278,7 +278,7 @@ export default function LibraryCatalog({
 
               <button
                 onClick={() => setPendingInstallApp(null)}
-                className="w-full py-2 text-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors pt-1"
+                className="w-full py-2.5 text-center text-sm font-medium swiftui-btn-plain transition-colors pt-1"
               >
                 {t("utilities.library.cancel")}
               </button>
@@ -292,7 +292,7 @@ export default function LibraryCatalog({
         <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 transition-opacity">
           <div className="absolute inset-0" onClick={() => setSelectedApp(null)} />
 
-          <div className="pwa-safe-sheet relative w-full sm:max-w-lg bg-card border-t sm:border border-border/60 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[510] max-h-[90dvh] overflow-y-auto animate-slideUp text-left space-y-6">
+          <div className="pwa-safe-sheet relative w-full sm:max-w-lg swiftui-liquid-glass rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[510] max-h-[90dvh] overflow-y-auto animate-slideUp text-left space-y-6">
             <div className="w-9 h-1 bg-muted rounded-full mx-auto sm:hidden" />
 
             <div className="flex items-center gap-4">
@@ -302,12 +302,12 @@ export default function LibraryCatalog({
                 <h3 className="text-lg font-semibold text-foreground truncate">{selectedApp.title}</h3>
                 <p className="text-sm text-muted-foreground truncate">{selectedApp.subLabel}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-md">
                     {categoryLabel(selectedApp.category)}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground">v{getAppVersion(selectedApp.id)}</span>
                   {appInstallationPolicy.isRequired(selectedApp.id) ? (
-                    <span className="text-xs font-medium text-success">
+                    <span className="text-xs font-semibold text-emerald-500">
                       {t("utilities.library.included")}
                     </span>
                   ) : null}
@@ -316,7 +316,7 @@ export default function LibraryCatalog({
 
               <button
                 onClick={() => setSelectedApp(null)}
-                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0"
+                className="w-8 h-8 rounded-full swiftui-glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0"
               >
                 <span className="material-symbols-outlined text-base">close</span>
               </button>
@@ -337,16 +337,16 @@ export default function LibraryCatalog({
             </div>
 
             {/* Technical Metadata Grid */}
-            <div className="grid grid-cols-3 gap-2 py-2 border-y border-border/50 text-center">
-              <div className="p-2 rounded-xl bg-muted/40">
+            <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/10 text-center">
+              <div className="p-2.5 rounded-2xl swiftui-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.storage")}</span>
                 <span className="text-sm font-semibold text-foreground font-mono">{getAppStorageMb(selectedApp.id)} MB</span>
               </div>
-              <div className="p-2 rounded-xl bg-muted/40">
+              <div className="p-2.5 rounded-2xl swiftui-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.age")}</span>
                 <span className="text-sm font-semibold text-foreground">4+</span>
               </div>
-              <div className="p-2 rounded-xl bg-muted/40">
+              <div className="p-2.5 rounded-2xl swiftui-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.availability")}</span>
                 <span className="text-sm font-semibold text-foreground">PWA &amp; Web</span>
               </div>
@@ -357,7 +357,7 @@ export default function LibraryCatalog({
               {installedApps.includes(selectedApp.id) ? (
                 <button
                   onClick={() => { setSelectedApp(null); handleOpenApp(selectedApp.id); }}
-                  className="w-full py-3.5 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 swiftui-btn-prominent font-semibold text-sm rounded-2xl flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                   <span>{t("utilities.library.openApp")}</span>
@@ -365,7 +365,7 @@ export default function LibraryCatalog({
               ) : (
                 <button
                   onClick={() => { setSelectedApp(null); setPendingInstallApp(selectedApp); }}
-                  className="w-full py-3.5 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 swiftui-btn-prominent font-semibold text-sm rounded-2xl flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-base">download</span>
                   <span>{t("utilities.library.installApp")}</span>
@@ -374,7 +374,7 @@ export default function LibraryCatalog({
 
               <button
                 onClick={() => triggerPWAInstallDirectly(selectedApp.title)}
-                className="w-full py-3.5 bg-muted hover:bg-muted/80 text-foreground font-semibold text-sm rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 swiftui-btn-bordered font-semibold text-sm rounded-2xl flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-base text-primary">shortcut</span>
                 <span>{t("utilities.library.createShortcut")}</span>

@@ -24,6 +24,9 @@ export type EducationEntry = {
   school: string;
   degree: string;
   description: string;
+  logoSrc?: string;
+  logoAlt?: string;
+  website?: string;
   /** The year stamped on the note. */
   year: string;
 };
@@ -213,6 +216,11 @@ export default function ProfileStory({
                   <li key={item.school} className="border-t border-border pt-5">
                     <p className="text-sm text-muted-foreground tabular-nums">{item.period}</p>
                     <p className="mt-2 text-lg font-semibold text-foreground">{item.school}</p>
+                    {item.logoSrc && item.website && (
+                      <a href={item.website} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded border border-border p-2 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-foreground">
+                        <img src={item.logoSrc} alt={item.logoAlt || item.school} className="h-8 max-w-48 object-contain" />
+                      </a>
+                    )}
                     <p className="mt-1 text-foreground/80">{item.degree}</p>
                     <p className="mt-2 leading-relaxed text-muted-foreground">{item.description}</p>
                   </li>
@@ -779,6 +787,18 @@ function ArchiveNote({
       >
         {item.school}
       </motion.p>
+      {item.logoSrc && item.website && (
+        <a
+          href={item.website}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Visit ${item.school}`}
+          title={`Visit ${item.school}`}
+          className="relative mt-3 inline-flex h-10 max-w-48 items-center rounded bg-white/75 px-2 shadow-sm transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#2b241b]"
+        >
+          <img src={item.logoSrc} alt={item.logoAlt || item.school} className="max-h-7 max-w-44 object-contain" />
+        </a>
+      )}
       <svg viewBox="0 0 220 12" className="relative mt-1 h-3 w-40 overflow-visible sm:w-52" aria-hidden>
         <motion.path
           d="M2 8 C 40 2, 70 11, 110 6 S 180 3, 218 7"

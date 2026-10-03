@@ -630,28 +630,28 @@ function ServiceWebsiteScreen({ index, mobile = false, progress }: { index: numb
             <div>
               <div className="flex items-center justify-between">
                 <p className="text-[11px] font-semibold tracking-[.12em] text-[#667085] uppercase">Hugo Flow+</p>
-                <span className="rounded-full bg-[#101828] px-[14px] py-[7px] text-[12px] font-bold text-white">Giỏ · 2</span>
+                <span className="rounded-full bg-[#101828] px-[14px] py-[7px] text-[12px] font-bold text-white">Đơn mới · 2</span>
               </div>
-              <p className="mt-[12px] text-[28px] leading-[1.04] font-bold tracking-[-0.055em]">Cửa hàng sẵn sàng bán.</p>
+              <p className="mt-[12px] text-[28px] leading-[1.04] font-bold tracking-[-0.055em]">Khách tự đặt lịch.</p>
             </div>
           ) : (
             <div className="flex items-end justify-between">
-              <div><p className="text-[0.48rem] font-semibold tracking-[.12em] text-[#667085] uppercase">Hugo Flow+</p><p className="text-[1.45rem] font-bold tracking-[-0.05em]">Cửa hàng sẵn sàng bán.</p></div>
-              <span className="rounded-full bg-[#101828] px-3 py-2 text-[.72rem] font-bold text-white">Giỏ · 2</span>
+              <div><p className="text-[0.48rem] font-semibold tracking-[.12em] text-[#667085] uppercase">Hugo Flow+</p><p className="text-[1.45rem] font-bold tracking-[-0.05em]">Khách tự đặt lịch.</p></div>
+              <span className="rounded-full bg-[#101828] px-3 py-2 text-[.72rem] font-bold text-white">Đơn mới · 2</span>
             </div>
           )}
           <div className={`${mobile ? "mt-[20px] grid-cols-2 gap-[10px]" : "mt-[4%] grid-cols-[1fr_1fr_.85fr] gap-[3%]"} grid`}>
-            {["Studio Tee", "Everyday Bag"].map((item, itemIndex) => (
+            {["Tư vấn · 10:00", "Lớp thử · 14:30"].map((item, itemIndex) => (
               <div key={item} className={`${mobile ? "rounded-2xl p-[12px]" : "rounded-xl p-[5%]"} overflow-hidden border border-[#dce8f2] bg-white shadow-[0_12px_28px_rgb(38_68_120/.12)]`}>
                 <span className={`block aspect-[1.5/1] rounded-lg ${itemIndex ? "bg-linear-to-br from-[#aebcff] to-[#6078EA]" : "bg-linear-to-br from-[#b8fff4] to-[#35CFE1]"}`} />
                 <span className={`${mobile ? "mt-[10px] text-[13px]" : "mt-[6%] text-[.58rem]"} block font-bold`}>{item}</span>
-                <span className={`${mobile ? "mt-[2px] block text-[11px]" : "text-[.44rem]"} text-[#667085]`}>Thêm vào giỏ</span>
+                <span className={`${mobile ? "mt-[2px] block text-[11px]" : "text-[.44rem]"} text-[#667085]`}>Đặt lịch</span>
               </div>
             ))}
             <div className={`${mobile ? "col-span-2 mt-[2px] rounded-2xl p-[16px]" : "rounded-xl p-[7%]"} bg-[#101828] text-white shadow-[0_16px_35px_rgb(16_24_40/.25)]`}>
-              <p className={`${mobile ? "text-[14px]" : "text-[.62rem]"} font-bold`}>Thanh toán an toàn</p>
-              <div className={`${mobile ? "mt-[12px] gap-[8px]" : "mt-[9%] gap-2"} flex`}>{["VISA", "QR", "PAY"].map((pay) => <span key={pay} className={`${mobile ? "rounded-md px-[10px] py-[5px] text-[10px]" : "rounded px-2 py-1 text-[.36rem]"} bg-white/12 font-bold`}>{pay}</span>)}</div>
-              <span className={`${mobile ? "mt-[14px] py-[11px] text-[13px]" : "mt-[10%] py-[6%] text-[.42rem]"} block rounded-full bg-linear-to-r from-[#17EAD9] to-[#6078EA] text-center font-bold text-[#101828]`}>Hoàn tất đơn hàng</span>
+              <p className={`${mobile ? "text-[14px]" : "text-[.62rem]"} font-bold`}>Chuyển khoản QR</p>
+              <div className={`${mobile ? "mt-[12px] gap-[8px]" : "mt-[9%] gap-2"} flex`}>{["QR", "Sheets", "Email"].map((pay) => <span key={pay} className={`${mobile ? "rounded-md px-[10px] py-[5px] text-[10px]" : "rounded px-2 py-1 text-[.36rem]"} bg-white/12 font-bold`}>{pay}</span>)}</div>
+              <span className={`${mobile ? "mt-[14px] py-[11px] text-[13px]" : "mt-[10%] py-[6%] text-[.42rem]"} block rounded-full bg-linear-to-r from-[#17EAD9] to-[#6078EA] text-center font-bold text-[#101828]`}>Xác nhận đặt lịch</span>
             </div>
           </div>
         </div>

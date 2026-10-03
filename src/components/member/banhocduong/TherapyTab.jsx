@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BorderBeam } from "border-beam";
 import {
   Lock, Unlock, Wind, Brain,
   Pencil, Dumbbell, Users, Flame, CheckCircle2, Circle,
   ChevronRight, Sparkles, TrendingUp,
   Headphones, Volume2, Award, MessageSquare, ClipboardList,
-  Activity, RefreshCw, Hand, Phone, Heart, Ear
-} from "lucide-react";
+  Activity, RefreshCw, Hand, Phone, Heart, Ear,
+  HugeIcon, Check, FileCheck2
+} from "../../ui/HugeIcon";
 import confetti from "canvas-confetti";
 import BreathingTherapy from "./BreathingTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
@@ -109,13 +111,13 @@ function SoundscapePanel({ onBack, onComplete }) {
           { key: "campfire", label: "Lửa Trại", icon: "local_fire_department", desc: "Tiếng lửa trại bập bùng, tí tách" },
           { key: "whiteNoise", label: "Nhạc Tĩnh Tâm", icon: "spa", desc: "Nhạc thiền định thư giãn nhịp sóng não" }
         ].map(item => (
-          <div key={item.key} className="bg-card/50 rounded-2xl p-3 flex flex-col gap-2 border border-border">
+          <div key={item.key} className="bg-card/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex flex-col gap-1.5 sm:gap-2 border border-border/40">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="material-symbols-outlined text-lg text-indigo-400 shrink-0">{item.icon}</span>
+                <HugeIcon name={item.icon} size={18} className="text-indigo-400 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-[13px] font-black text-foreground">{item.label}</p>
-                  <p className="text-[13px] text-zinc-400 truncate">{item.desc}</p>
+                  <p className="text-xs sm:text-[13px] font-black text-foreground">{item.label}</p>
+                  <p className="text-[11px] sm:text-[13px] text-zinc-400 truncate">{item.desc}</p>
                 </div>
               </div>
               
@@ -128,7 +130,7 @@ function SoundscapePanel({ onBack, onComplete }) {
                     : "bg-muted text-zinc-500 hover:bg-zinc-200"
                 }`}
               >
-                <span className="material-symbols-outlined text-sm">{playing[item.key] ? "pause" : "play_arrow"}</span>
+                <HugeIcon name={playing[item.key] ? "pause" : "play"} size={14} />
               </button>
             </div>
             
@@ -462,12 +464,12 @@ function SocialConnectionPanel({ onBack, onComplete }) {
 // ─── Card definitions ─────────────────────────────────────────────────────────
 
 const ALL_METHODS = [
-  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ PMR)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing",  joyLockable:true  },
-  { id:"soundscape", Icon: Headphones,name:"Âm Thanh Thiên Nhiên", desc:"Tự tạo không gian thư giãn với tiếng mưa, sóng biển, lửa trại", category:"Thư giãn", duration:"Tự do", gradient:"from-emerald-500/10 to-emerald-500/5", border:"border-emerald-500/20 dark:border-emerald-400/15", badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", btn:"bg-emerald-500 hover:bg-emerald-600", lockKey:"soundscape", joyLockable:true },
-  { id:"depression", Icon: Brain,     name:"CBT Worksheet & Lộ Trình", desc:"AI phân tích lịch sử chat, soạn bảng ghi suy nghĩ và lộ trình riêng", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
-  { id:"writing",    Icon: Pencil,    name:"Viết Cảm Xúc",     desc:"Viết tự do 10-15 phút giúp giảm cortisol, cải thiện giấc ngủ", category:"Viết & Ngẫm", duration:"10–15 ph", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"writing", joyLockable:true },
-  { id:"exercise",   Icon: Dumbbell,  name:"Vận Động Nhẹ",     desc:"7 bài tập ngắn giúp giải phóng endorphin, giảm stress tức thì", category:"Vận động", duration:"5 ph", gradient:"from-orange-500/10 to-orange-500/5", border:"border-orange-500/20 dark:border-orange-400/15", badge:"bg-orange-500/10 text-orange-600 dark:text-orange-400", iconBg:"bg-orange-500/15 text-orange-600 dark:text-orange-400", btn:"bg-orange-500 hover:bg-orange-600", lockKey:"exercise", joyLockable:true },
-  { id:"social",     Icon: Users,     name:"Kết Nối Xã Hội",   desc:"6 hoạt động kết nối tích cực giúp giảm 50% nguy cơ trầm cảm", category:"Xã hội", duration:"Tùy chỉnh", gradient:"from-blue-500/10 to-blue-500/5", border:"border-blue-500/20 dark:border-blue-400/15", badge:"bg-blue-500/10 text-blue-600 dark:text-blue-400", iconBg:"bg-blue-500/15 text-blue-600 dark:text-blue-400", btn:"bg-blue-500 hover:bg-blue-600", lockKey:"social", joyLockable:true },
+  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ PMR)", category:"Thở",   duration:"5 ph",     beamColor:"sunset",   gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing",  joyLockable:true  },
+  { id:"soundscape", Icon: Headphones,name:"Âm Thanh Thiên Nhiên", desc:"Tự tạo không gian thư giãn với tiếng mưa, sóng biển, lửa trại", category:"Thư giãn", duration:"Tự do", beamColor:"forest",   gradient:"from-emerald-500/10 to-emerald-500/5", border:"border-emerald-500/20 dark:border-emerald-400/15", badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", btn:"bg-emerald-500 hover:bg-emerald-600", lockKey:"soundscape", joyLockable:true },
+  { id:"depression", Icon: Brain,     name:"CBT Worksheet & Lộ Trình", desc:"AI phân tích lịch sử chat, soạn bảng ghi suy nghĩ và lộ trình riêng", category:"AI · Nhận thức", duration:"15 ph", beamColor:"candy",    gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
+  { id:"writing",    Icon: Pencil,    name:"Viết Cảm Xúc",     desc:"Viết tự do 10-15 phút giúp giảm cortisol, cải thiện giấc ngủ", category:"Viết & Ngẫm", duration:"10–15 ph", beamColor:"sunset",   gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"writing", joyLockable:true },
+  { id:"exercise",   Icon: Dumbbell,  name:"Vận Động Nhẹ",     desc:"7 bài tập ngắn giúp giải phóng endorphin, giảm stress tức thì", category:"Vận động", duration:"5 ph", beamColor:"gold",     gradient:"from-orange-500/10 to-orange-500/5", border:"border-orange-500/20 dark:border-orange-400/15", badge:"bg-orange-500/10 text-orange-600 dark:text-orange-400", iconBg:"bg-orange-500/15 text-orange-600 dark:text-orange-400", btn:"bg-orange-500 hover:bg-orange-600", lockKey:"exercise", joyLockable:true },
+  { id:"social",     Icon: Users,     name:"Kết Nối Xã Hội",   desc:"6 hoạt động kết nối tích cực giúp giảm 50% nguy cơ trầm cảm", category:"Xã hội", duration:"Tùy chỉnh", beamColor:"ice",      gradient:"from-blue-500/10 to-blue-500/5", border:"border-blue-500/20 dark:border-blue-400/15", badge:"bg-blue-500/10 text-blue-600 dark:text-blue-400", iconBg:"bg-blue-500/15 text-blue-600 dark:text-blue-400", btn:"bg-blue-500 hover:bg-blue-600", lockKey:"social", joyLockable:true },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -690,33 +692,34 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
   }
 
   return (
-    <div className="p-4 pb-20 space-y-4 animate-fadeIn">
+    <div className="px-2 py-2.5 sm:p-4 pb-20 space-y-3 sm:space-y-4 animate-fadeIn">
 
       {/* Daily Challenges Widget */}
-      <div className="bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent dark:from-amber-950/10 dark:via-zinc-900/5 rounded-3xl border border-amber-500/20 dark:border-amber-900/35 p-5 shadow-sm backdrop-blur-md space-y-4">
+      <BorderBeam size="md" colorVariant="sunset" strength={0.8} borderRadius={24} className="w-full">
+        <div className="swiftui-liquid-glass rounded-[24px] p-3.5 sm:p-5 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-500">
-                <Award className="w-5 h-5" />
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-500 shrink-0">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground leading-none">
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground leading-none truncate">
                   Thử thách Chăm sóc Tinh thần
                 </h4>
-                <p className="text-[13px] text-zinc-400 font-bold leading-none mt-1">
+                <p className="text-[11px] sm:text-[13px] text-muted-foreground font-bold leading-none mt-1 truncate">
                   Thực hành tự phục hồi và tích lũy JOY hằng ngày
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-[13px] font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">
-                Hoàn thành: {totalCompleted}/3
+            <div className="text-right shrink-0">
+              <span className="text-[11px] sm:text-[13px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-amber-500/20">
+                {totalCompleted}/3
               </span>
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden relative">
+          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden relative">
             <motion.div
               className="h-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500 rounded-full"
               initial={{ width: 0 }}
@@ -726,41 +729,41 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           </div>
 
           {/* Challenge List */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
             {challenges.map((ch) => {
               const Icon = ch.icon;
               return (
                 <div
                   key={ch.id}
-                  className={`bg-white/40 dark:bg-background/20 border border-border/40 rounded-2xl p-3 flex flex-col justify-between gap-3 relative transition-all hover:bg-white/60 dark:hover:bg-[#1c1a26]/40`}
+                  className="swiftui-liquid-glass rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between gap-2 sm:gap-3 relative transition-all"
                 >
-                  <div className="flex items-start gap-2.5">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br ${ch.color} shrink-0`}>
-                      <Icon className="w-4 h-4" />
+                  <div className="flex items-start gap-2 sm:gap-2.5">
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${ch.color} shrink-0`}>
+                      <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[13px] font-black text-foreground leading-tight">
+                      <p className="text-xs sm:text-[13px] font-black text-foreground leading-tight">
                         {ch.title}
                       </p>
-                      <p className="text-[13px] text-zinc-400 font-medium leading-tight mt-0.5">
+                      <p className="text-[11px] sm:text-[13px] text-muted-foreground font-medium leading-tight mt-0.5">
                         {ch.desc}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60">
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/30">
                     <div className="flex flex-col">
-                      <span className="text-[13px] font-black uppercase text-muted-foreground/70 leading-none">
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase text-muted-foreground/70 leading-none">
                         Tiến độ
                       </span>
-                      <span className="text-[13px] font-black text-foreground/80 mt-0.5">
+                      <span className="text-xs sm:text-[13px] font-black text-foreground mt-0.5">
                         {ch.progressText}
                       </span>
                     </div>
 
                     {ch.claimed ? (
-                      <span className="flex items-center gap-1 text-[13px] font-black uppercase text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-xl">
-                        <span className="material-symbols-outlined align-middle text-[16px]" aria-hidden="true">check</span> Đã nhận
+                      <span className="flex items-center gap-1 text-[11px] sm:text-[13px] font-black uppercase text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
+                        <Check size={14} className="align-middle inline-block" /> Đã nhận
                       </span>
                     ) : ch.completed ? (
                       <motion.button
@@ -768,12 +771,12 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleClaimReward(ch.id)}
                         disabled={claimingId !== null}
-                        className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[13px] font-black uppercase tracking-wider rounded-xl shadow-md shadow-amber-555/20 active:scale-95 transition-all"
+                        className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider rounded-lg sm:rounded-xl shadow-sm active:scale-95 transition-all"
                       >
                         {claimingId === ch.id ? "Đang nhận..." : `Nhận +${joyText(ch.reward)}`}
                       </motion.button>
                     ) : (
-                      <span className="text-[13px] font-black uppercase text-zinc-400 bg-muted px-2.5 py-1 rounded-xl">
+                      <span className="text-[11px] sm:text-[13px] font-bold uppercase text-muted-foreground/70 bg-muted/60 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">
                         Chưa đạt
                       </span>
                     )}
@@ -782,140 +785,156 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
               );
             })}
           </div>
-      </div>
+        </div>
+      </BorderBeam>
 
       {/* Stats bar */}
-      <div className="flex items-center gap-3">
-          <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
-            <TrendingUp className="w-4 h-4 text-indigo-500 shrink-0" />
-            <div>
-              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Tuần này</p>
-              <p className="text-[13px] font-black text-foreground">{weekActivities} <span className="text-[13px] font-bold text-zinc-500">hoạt động</span></p>
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+        <BorderBeam size="sm" colorVariant="ocean" strength={0.6} borderRadius={18} className="w-full">
+          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Tuần này</p>
+              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{weekActivities} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">hoạt động</span></p>
             </div>
           </div>
-          <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
-            <Flame className="w-4 h-4 text-orange-500 shrink-0" />
-            <div>
-              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Streak</p>
-              <p className="text-[13px] font-black text-foreground">{streak} <span className="text-[13px] font-bold text-zinc-500">ngày</span></p>
+        </BorderBeam>
+        <BorderBeam size="sm" colorVariant="sunset" strength={0.6} borderRadius={18} className="w-full">
+          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+            <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Streak</p>
+              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{streak} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">ngày</span></p>
             </div>
           </div>
-          <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-purple-500 shrink-0" />
-            <div>
-              <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">Phương pháp</p>
-              <p className="text-[13px] font-black text-foreground">{ALL_METHODS.length} <span className="text-[13px] font-bold text-zinc-500">có sẵn</span></p>
+        </BorderBeam>
+        <BorderBeam size="sm" colorVariant="candy" strength={0.6} borderRadius={18} className="w-full">
+          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[12px] font-black uppercase tracking-wider text-muted-foreground truncate">Phương pháp</p>
+              <p className="text-xs sm:text-[13px] font-black text-foreground truncate">{ALL_METHODS.length} <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/70">có sẵn</span></p>
             </div>
           </div>
+        </BorderBeam>
       </div>
 
-      {/* Card grid — every method is now JOY-lockable (shows an unlock
-          button inline) except the "basic" clinical-gated methods, which
-          keep their original earn-via-engagement lock. */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {ALL_METHODS.map((method) => {
-            const ok = isUnlocked(method);
-            const showJoyUnlock = method.joyLockable && !ok;
-            const needsAccount = showJoyUnlock && !canUseAccountFeatures;
-            const isUnlockingThis = unlockingId === method.id;
-            return (
+      {/* Methods grid — with BorderBeam on each method card */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3.5">
+        {ALL_METHODS.map((method) => {
+          const ok = isUnlocked(method);
+          const showJoyUnlock = method.joyLockable && !ok;
+          const needsAccount = showJoyUnlock && !canUseAccountFeatures;
+          const isUnlockingThis = unlockingId === method.id;
+          return (
+            <BorderBeam
+              key={method.id}
+              size="md"
+              colorVariant={method.beamColor || "ocean"}
+              strength={ok ? 0.75 : 0.4}
+              borderRadius={22}
+              className="h-full"
+            >
               <motion.div
-                key={method.id}
-                whileHover={ok ? { scale: 1.02 } : {}}
+                whileHover={ok ? { scale: 1.01 } : {}}
                 whileTap={ok ? { scale: 0.98 } : {}}
                 onClick={() => ok && openPanel(method.id)}
-                className={`relative flex flex-col gap-2 p-4 rounded-2xl border transition-all ${
+                className={`swiftui-liquid-glass rounded-[22px] h-full flex flex-col justify-between p-3.5 sm:p-4 transition-all ${
                   ok
-                    ? `bg-gradient-to-br ${method.gradient} ${method.border} shadow-sm hover:shadow-lg cursor-pointer`
+                    ? "cursor-pointer hover:bg-white/10 dark:hover:bg-white/5"
                     : showJoyUnlock
-                      ? `bg-gradient-to-br ${method.gradient} ${method.border} opacity-90 cursor-default`
-                      : "bg-muted/50 border-border opacity-60 grayscale cursor-default"
+                      ? "opacity-90 cursor-default"
+                      : "opacity-60 grayscale cursor-default"
                 }`}
               >
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${ok || showJoyUnlock ? method.iconBg : "bg-muted/60 text-zinc-400"}`}>
-                    <method.Icon className="w-5 h-5" />
+                <div className="space-y-2.5">
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center ${ok || showJoyUnlock ? method.iconBg : "bg-muted/60 text-zinc-400"}`}>
+                      <method.Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                    {ok ? (
+                      <span className={`flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${method.badge}`}>
+                        <Unlock className="w-2.5 h-2.5" /> Mở
+                      </span>
+                    ) : needsAccount ? (
+                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
+                        <Lock className="w-2.5 h-2.5" /> Tài khoản
+                      </span>
+                    ) : showJoyUnlock ? (
+                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        <Lock className="w-2.5 h-2.5" /> JOY
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[10px] sm:text-[12px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
+                        <Lock className="w-2.5 h-2.5" /> Khóa
+                      </span>
+                    )}
                   </div>
-                  {ok ? (
-                    <span className={`flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${method.badge}`}>
-                      <Unlock className="w-2.5 h-2.5" /> Mở
-                    </span>
-                  ) : needsAccount ? (
-                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
-                      <Lock className="w-2.5 h-2.5" /> Tài khoản
-                    </span>
-                  ) : showJoyUnlock ? (
-                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                      <Lock className="w-2.5 h-2.5" /> JOY
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-[13px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-muted/80 text-zinc-500">
-                      <Lock className="w-2.5 h-2.5" /> Khóa
-                    </span>
-                  )}
+
+                  {/* Category */}
+                  <span className={`inline-block text-[9.5px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${method.badge}`}>
+                    {method.category}
+                  </span>
+
+                  {/* Name & desc */}
+                  <div>
+                    <p className="text-[13px] sm:text-[14px] font-black text-foreground leading-tight">{method.name}</p>
+                    <p className="text-[11px] sm:text-[12px] text-muted-foreground font-medium leading-snug mt-1 line-clamp-2">{method.desc}</p>
+                  </div>
                 </div>
 
-                {/* Category */}
-                <span className={`self-start text-[13px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${method.badge}`}>
-                  {method.category}
-                </span>
+                {/* Duration + button / JOY unlock */}
+                <div className="pt-3 mt-2 border-t border-border/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/80 bg-muted/60 px-2 py-0.5 rounded-md">{method.duration}</span>
+                    {ok && (
+                      <button
+                        onClick={() => openPanel(method.id)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
+                      >
+                        Bắt đầu <ChevronRight className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
 
-                {/* Name & desc */}
-                <div className="flex-1">
-                  <p className="text-[13px] font-black text-foreground leading-tight">{method.name}</p>
-                  <p className="text-[13px] text-muted-foreground font-bold leading-snug mt-0.5 line-clamp-2">{method.desc}</p>
-                </div>
-
-                {/* Duration + button */}
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-[13px] font-black text-zinc-400 bg-muted px-2 py-0.5 rounded-md">{method.duration}</span>
-                  {ok && (
+                  {showJoyUnlock && (
                     <button
-                      onClick={() => openPanel(method.id)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-xl ${method.btn} text-white text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUnlockFeature(method);
+                      }}
+                      disabled={isUnlockingThis}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
                     >
-                      Bắt đầu <ChevronRight className="w-3 h-3" />
+                      {needsAccount ? (
+                        <>
+                          <Lock className="w-3 h-3" />
+                          <span>Đăng nhập để mở</span>
+                        </>
+                      ) : isUnlockingThis ? "Đang xử lý..." : (
+                        <>
+                          <JoyCoinBadge amount={UNLOCK_COST} size="sm" className="[&_span]:text-white" />
+                          <span>Mở khoá</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
-
-                {/* JOY unlock CTA */}
-                {showJoyUnlock && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUnlockFeature(method);
-                    }}
-                    disabled={isUnlockingThis}
-                    className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
-                  >
-                    {needsAccount ? (
-                      <>
-                        <Lock className="w-3 h-3" />
-                        <span>Đăng nhập để mở</span>
-                      </>
-                    ) : isUnlockingThis ? "Đang xử lý..." : (
-                      <>
-                        <JoyCoinBadge amount={UNLOCK_COST} size="sm" className="[&_span]:text-white" />
-                        <span>Mở khoá</span>
-                      </>
-                    )}
-                  </button>
-                )}
               </motion.div>
-            );
-          })}
+            </BorderBeam>
+          );
+        })}
       </div>
 
-      {/* Invoice for a JOY-for-therapy exchange — see unlockReceipt above */}
+      {/* Invoice for a JOY-for-therapy exchange */}
       <AnimatePresence>
         {unlockReceipt && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
             onClick={() => setUnlockReceipt(null)}
           >
             <motion.div
@@ -923,44 +942,48 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-[#1a1924] w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl border border-border flex flex-col"
+              className="w-full max-w-sm"
             >
-              <div className="p-6 pb-4 border-b border-border flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
-                  <span className="material-symbols-outlined text-2xl">receipt_long</span>
+              <BorderBeam size="md" colorVariant="gold" strength={0.9} borderRadius={28} className="w-full">
+                <div className="swiftui-liquid-glass rounded-[28px] overflow-hidden flex flex-col">
+                  <div className="p-6 pb-4 border-b border-border/40 flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center mb-3 border border-emerald-500/20">
+                      <FileCheck2 size={24} />
+                    </div>
+                    <h3 className="text-lg font-black text-foreground uppercase tracking-wider">Hoá Đơn Trao Đổi JOY</h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="swiftui-liquid-glass rounded-2xl p-4 text-left space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Liệu pháp</span>
+                        <span className="text-sm font-bold text-foreground text-right">{unlockReceipt.name}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Thời gian</span>
+                        <span className="text-sm font-medium text-foreground">{unlockReceipt.time.toLocaleString("vi-VN")}</span>
+                      </div>
+                      <div className="w-full border-t border-dashed border-border/40 my-1" />
+                      <div className="flex justify-between items-center">
+                        <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Số JOY đã trừ</span>
+                        <span className="text-sm font-bold text-destructive">-{joyText(unlockReceipt.cost)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[13px] font-black text-foreground/80 uppercase tracking-wider">Số dư còn lại</span>
+                        <span className="text-lg font-black text-foreground">{joyText(unlockReceipt.balanceAfter)}</span>
+                      </div>
+                    </div>
+                    <p className="text-[12px] text-muted-foreground text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
+                  </div>
+                  <div className="p-4 border-t border-border/30">
+                    <button
+                      onClick={() => setUnlockReceipt(null)}
+                      className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    >
+                      Đã hiểu
+                    </button>
+                  </div>
                 </div>
-                <h3 className="text-lg font-black text-foreground uppercase tracking-wider">Hoá Đơn Trao Đổi JOY</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="bg-muted/50 rounded-2xl p-4 text-left space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Liệu pháp</span>
-                    <span className="text-sm font-bold text-foreground text-right">{unlockReceipt.name}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Thời gian</span>
-                    <span className="text-sm font-medium text-foreground">{unlockReceipt.time.toLocaleString("vi-VN")}</span>
-                  </div>
-                  <div className="w-full border-t border-dashed border-border my-1" />
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-bold text-zinc-500 uppercase tracking-wider">Số JOY đã trừ</span>
-                    <span className="text-sm font-bold text-destructive">-{joyText(unlockReceipt.cost)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[13px] font-black text-foreground/80 uppercase tracking-wider">Số dư còn lại</span>
-                    <span className="text-lg font-black text-foreground">{joyText(unlockReceipt.balanceAfter)}</span>
-                  </div>
-                </div>
-                <p className="text-[13px] text-zinc-400 text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>
-              </div>
-              <div className="p-4 bg-muted/50 border-t border-border">
-                <button
-                  onClick={() => setUnlockReceipt(null)}
-                  className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold uppercase tracking-wider transition-colors"
-                >
-                  Đã hiểu
-                </button>
-              </div>
+              </BorderBeam>
             </motion.div>
           </motion.div>
         )}

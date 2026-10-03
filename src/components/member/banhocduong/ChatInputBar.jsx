@@ -1,8 +1,9 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { sensory } from "../../../lib/sensory";
 
 /**
- * Modern iMessage-style composer.
+ * Modern iMessage-style composer with BorderBeam glow and sensory feedback.
  * Memoized so typing a keystroke never re-renders the message list above.
  */
 function ChatInputBar({
@@ -18,8 +19,18 @@ function ChatInputBar({
 }) {
   const hasText = value.trim().length > 0;
 
+  const handleSend = () => {
+    try {
+      sensory.pop();
+      sensory.vibrate('light');
+    } catch {
+      // Ignore
+    }
+    onSend?.();
+  };
+
   const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const autoResize = (e) => {
@@ -45,7 +56,10 @@ function ChatInputBar({
               <button
                 key={i}
                 type="button"
-                onClick={() => onQuickReply?.(qr)}
+                onClick={() => {
+                  try { sensory.tap(); sensory.vibrate('light'); } catch {}
+                  onQuickReply?.(qr);
+                }}
                 className="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-card/60 backdrop-blur-md border border-border/80/[0.08] text-foreground/80 hover:bg-white/80 dark:hover:bg-zinc-800/60 active:scale-95 transition-all shadow-sm whitespace-nowrap"
               >
                 {qr.label || qr}
@@ -55,12 +69,12 @@ function ChatInputBar({
         )}
       </AnimatePresence>
 
-      {/* Composer pill */}
-      <div className={`psy-liquid-composer-inner flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] border transition-all duration-200 ${
-        disabled
-          ? "border-border/50/[0.04] opacity-60"
-          : "border-border/60/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
-      }`}>
+      {/* Composer pill — clean iMessage-style */}
+      <div className={`relative flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[24px] bg-white/80 dark:bg-[#161624]/85 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-200 ${
+          disabled
+            ? "opacity-60"
+            : "focus-within:border-blue-500/40 focus-within:shadow-[0_4px_25px_rgba(59,130,246,0.18)]"
+        }`}>
         {onUploadReport && (
           <button
             type="button"
@@ -92,7 +106,7 @@ function ChatInputBar({
             <motion.button
               key="send"
               type="button"
-              onClick={onSend}
+              onClick={handleSend}
               disabled={disabled}
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -115,7 +129,7 @@ function ChatInputBar({
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+        </div>
     </div>
   );
 }

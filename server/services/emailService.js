@@ -151,7 +151,7 @@ export const sendContactForm = async (name, email, subject, message, recipientEm
 
 export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null, attachments = null) => {
   try {
-    const sender = fromEmail || process.env.EMAIL_SUPPORT || 'support@hugostudio.vn';
+    const sender = fromEmail || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
     const msg = {
       from: sender,
       to,

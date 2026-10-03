@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
-import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts } from "../../../shared/projectPackages";
+import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts, listPrice, formatMoney } from "../../../shared/projectPackages";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../../config/apiBase';
@@ -36,6 +36,9 @@ export default function AdminProjectsTab({ showNotification }) {
   const DEFAULT_PACKAGE = PROJECT_PACKAGE_GROUPS[0].options[0].id;
   const EMPTY_PROJECT = {
     fullName: '',
+    // Chọn TRƯỚC khi tạo: trong nước lấy giá VNĐ + hợp đồng gốc tiếng Việt,
+    // quốc tế lấy giá USD + bản gốc tiếng Anh. Không đổi được sau khi tạo.
+    market: 'domestic',
     servicePackage: DEFAULT_PACKAGE,
     phone: '',
     handlerName: '',
@@ -81,7 +84,14 @@ export default function AdminProjectsTab({ showNotification }) {
         body: JSON.stringify(newProject)
       });
       if (res.ok) {
-        showNotification(t("admin.texts.txt_77"));
+        const created = await res.json();
+        // Mã truy cập chỉ trả về đúng lần tạo — sao chép link gửi khách luôn.
+        if (created.portalPath) {
+          await navigator.clipboard.writeText(`${window.location.origin}${created.portalPath}`).catch(() => {});
+          showNotification(`${t("admin.texts.txt_77")} · ${created.projectId} — link gửi khách đã được sao chép`);
+        } else {
+          showNotification(t("admin.texts.txt_77"));
+        }
         setNewProject(EMPTY_PROJECT);
         fetchProjects();
       } else {
@@ -147,14 +157,20 @@ export default function AdminProjectsTab({ showNotification }) {
     }
   };
 
-  const getShareLink = (code) => {
-    return `${window.location.origin}/login?portalCode=${code}`;
-  };
-
-  const handleCopyLink = (e, code) => {
+  // Link khách bấm là vào thẳng cổng dự án. Mã truy cập là bí mật nên phải xin
+  // server (route chỉ admin gọi được); đừng dựng link từ mã HG-… — đó là mã công
+  // khai, không mở được gì.
+  const handleCopyLink = async (e, project) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(getShareLink(code));
-    showNotification(t("admin.texts.txt_85"));
+    try {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/share`, { credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      await navigator.clipboard.writeText(`${window.location.origin}${data.path}`);
+      showNotification(t("admin.texts.txt_85"));
+    } catch (err) {
+      showNotification(err.message || t("admin.texts.txt_85"), 'error');
+    }
   };
 
   const handleOpenDetail = (project) => {
@@ -193,6 +209,17 @@ export default function AdminProjectsTab({ showNotification }) {
               <input type="text" required value={newProject.fullName} onChange={e => setNewProject({...newProject, fullName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
             </div>
             <div className="space-y-1">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Thị trường (quyết định giá và hợp đồng)</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[['domestic', 'Trong nước · VNĐ'], ['international', 'Quốc tế · USD']].map(([id, label]) => (
+                  <button key={id} type="button" onClick={() => setNewProject({ ...newProject, market: id })}
+                    className={`rounded-md border p-3 text-xs font-semibold ${newProject.market === id ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1">
               <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_73")}</label>
               <select value={newProject.servicePackage} onChange={e => setNewProject({...newProject, servicePackage: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
                 {PROJECT_PACKAGE_GROUPS.map(group => (
@@ -217,6 +244,16 @@ export default function AdminProjectsTab({ showNotification }) {
                       {eta && (
                         <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
                           Bàn giao ~ {fmt(eta.from)} – {fmt(eta.to)}
+                        </span>
+                      )}
+                      {listPrice(picked.id, '', newProject.market) > 0 && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          {picked.priceFrom ? 'Từ ' : ''}{formatMoney(listPrice(picked.id, '', newProject.market), newProject.market === 'international' ? 'usd' : 'vnd')}{picked.recurring ? ' / tháng' : ''}
+                        </span>
+                      )}
+                      {picked.warranty === 'lifetime' && (
+                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                          Bảo hành trọn đời
                         </span>
                       )}
                       {picked.warrantyDays > 0 && (
@@ -332,7 +369,7 @@ export default function AdminProjectsTab({ showNotification }) {
                 {/* Always-visible action row — no hover-only controls so this works on touch devices */}
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
                   <button
-                    onClick={(e) => handleCopyLink(e, p.projectId)}
+                    onClick={(e) => handleCopyLink(e, p)}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase transition-colors"
                   >
                     <span className="material-symbols-outlined text-[14px]">share</span>

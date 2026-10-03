@@ -1,6 +1,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
+import { BorderBeam } from "border-beam";
+import { AnimulaAvatar } from "./AnimulaAvatar";
 import TypewriterText from "./TypewriterText";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { joyCode } from "../../../lib/joyDisplay";
@@ -37,53 +39,57 @@ function InlineBreathingCircle() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isActive]);
 
+  const outerPulse = phase === "inhale" ? 1.35 : phase === "hold" ? 1.35 : phase === "exhale" ? 0.9 : 1.0;
   const circleScale = phase === "inhale" ? 1.25 : phase === "hold" ? 1.25 : phase === "exhale" ? 0.85 : 1.0;
-  const outerPulse = phase === "hold" ? [1.25, 1.35, 1.25] : circleScale;
   const phaseLabel = phase === "inhale" ? "Hít Vào (4s)" : phase === "hold" ? "Nín Thở (7s)" : phase === "exhale" ? "Thở Ra (8s)" : "Hít thở 4-7-8";
 
   return (
-    <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent border border-sky-400/20 dark:border-sky-800/30 flex flex-col items-center gap-3.5 w-full max-w-[240px] shadow-sm backdrop-blur-md text-foreground">
-      <div className="text-[13px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
-        <span className="material-symbols-outlined text-[13px] animate-pulse">air</span>
-        Bài tập Thở 4-7-8
-      </div>
-      <div className="w-20 h-20 rounded-full flex items-center justify-center relative bg-sky-500/5 dark:bg-sky-500/10">
-        {/* Outer glowing pulsing halo */}
-        <motion.div 
-          className="absolute inset-0 rounded-full bg-sky-400/10 dark:bg-sky-400/5 blur-[4px]"
-          animate={{ scale: outerPulse }}
-          transition={{ 
-            duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, 
-            ease: phase === "hold" ? "easeInOut" : "linear",
-            repeat: phase === "hold" ? Infinity : 0
-          }} 
-        />
-        {/* Middle breathing ring */}
-        <motion.div 
-          className="absolute inset-1 rounded-full bg-sky-400/20 dark:bg-sky-500/15 border border-sky-400/30"
-          animate={{ scale: circleScale }}
-          transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} 
-        />
-        {/* Inner solid counter circle */}
-        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 shadow-sm z-10">
-          {isActive ? (
-            <span className="text-[14px] font-black text-sky-700 dark:text-sky-300">{sec}</span>
-          ) : (
-            <Wind className="w-4 h-4 text-sky-500" />
-          )}
+    <div className="mt-2 w-full max-w-[260px]">
+      <BorderBeam size="md" colorVariant="ocean" strength={0.8} borderRadius={20}>
+        <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent border border-sky-400/20 dark:border-sky-800/30 flex flex-col items-center gap-2.5 sm:gap-3.5 w-full shadow-sm backdrop-blur-md text-foreground">
+          <div className="text-xs sm:text-[13px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
+            <span className="material-symbols-outlined text-[13px] animate-pulse">air</span>
+            Bài tập Thở 4-7-8
+          </div>
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center relative bg-sky-500/5 dark:bg-sky-500/10">
+            {/* Outer glowing pulsing halo */}
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-sky-400/10 dark:bg-sky-400/5 blur-[4px]"
+              animate={{ scale: outerPulse }}
+              transition={{ 
+                duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, 
+                ease: phase === "hold" ? "easeInOut" : "linear",
+                repeat: phase === "hold" ? Infinity : 0
+              }} 
+            />
+            {/* Middle breathing ring */}
+            <motion.div 
+              className="absolute inset-1 rounded-full bg-sky-400/20 dark:bg-sky-500/15 border border-sky-400/30"
+              animate={{ scale: circleScale }}
+              transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} 
+            />
+            {/* Inner solid counter circle */}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-white dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 shadow-sm z-10">
+              {isActive ? (
+                <span className="text-[13px] sm:text-[14px] font-black text-sky-700 dark:text-sky-300">{sec}</span>
+              ) : (
+                <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-500" />
+              )}
+            </div>
+          </div>
+          <p className="text-xs sm:text-[13px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
+            {phaseLabel}
+          </p>
+          <button type="button" onClick={isActive ? stopBreathing : startBreathing}
+            className={`w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
+              isActive 
+                ? "bg-zinc-400 hover:bg-zinc-500 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
+                : "bg-sky-500 hover:bg-sky-600 shadow-[0_2px_10px_rgba(14,165,233,0.3)]"
+            }`}>
+            {isActive ? "Dừng bài tập" : "Bắt đầu thở"}
+          </button>
         </div>
-      </div>
-      <p className="text-[13px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
-        {phaseLabel}
-      </p>
-      <button type="button" onClick={isActive ? stopBreathing : startBreathing}
-        className={`w-full py-2.5 rounded-2xl text-[13px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
-          isActive 
-            ? "bg-zinc-400 hover:bg-zinc-500 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
-            : "bg-sky-500 hover:bg-sky-600 shadow-[0_2px_10px_rgba(14,165,233,0.3)]"
-        }`}>
-        {isActive ? "Dừng bài tập" : "Bắt đầu thở"}
-      </button>
+      </BorderBeam>
     </div>
   );
 }
@@ -91,45 +97,49 @@ function InlineBreathingCircle() {
 function InlineCbtCard() {
   const [challenged, setChallenged] = React.useState(false);
   return (
-    <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-3 w-full max-w-[240px] shadow-sm backdrop-blur-md">
-      <div className="text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
-        <span className="material-symbols-outlined text-[13px]">psychology</span>
-        Thử thách Suy nghĩ (CBT)
-      </div>
-      <div className="bg-zinc-100/80 dark:bg-zinc-900/60 p-3 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]">
-        <p className="text-[13px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-        <p className="text-[13px] font-bold text-foreground/70 mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
-      </div>
-      <AnimatePresence mode="wait">
-        {challenged ? (
-          <motion.div 
-            key="reframe" 
-            initial={{ opacity: 0, scale: 0.95, y: 8 }} 
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 dark:from-emerald-500/5 dark:to-teal-500/0 p-3 rounded-2xl border border-emerald-500/30 dark:border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-emerald-500 text-[13px] animate-pulse">sparkles</span>
-              <p className="text-[13px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
-            </div>
-            <p className="text-[13px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
-              "Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."
-            </p>
-          </motion.div>
-        ) : (
-          <motion.button 
-            key="btn" 
-            type="button" 
-            onClick={() => setChallenged(true)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full py-2.5 rounded-2xl text-[13px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
-          >
-            Thử thách suy nghĩ
-          </motion.button>
-        )}
-      </AnimatePresence>
+    <div className="mt-2 w-full max-w-[260px]">
+      <BorderBeam size="md" colorVariant="candy" strength={0.8} borderRadius={20}>
+        <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-2 sm:gap-3 w-full shadow-sm backdrop-blur-md">
+          <div className="text-xs sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+            <span className="material-symbols-outlined text-[13px]">psychology</span>
+            Thử thách Suy nghĩ (CBT)
+          </div>
+          <div className="bg-zinc-100/80 dark:bg-zinc-900/60 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]">
+            <p className="text-[11px] sm:text-[13px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
+            <p className="text-xs sm:text-[13px] font-bold text-foreground/70 mt-0.5 sm:mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
+          </div>
+          <AnimatePresence mode="wait">
+            {challenged ? (
+              <motion.div 
+                key="reframe" 
+                initial={{ opacity: 0, scale: 0.95, y: 8 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 dark:from-emerald-500/5 dark:to-teal-500/0 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-emerald-500/30 dark:border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-emerald-500 text-[13px] animate-pulse">sparkles</span>
+                  <p className="text-[11px] sm:text-[13px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
+                </div>
+                <p className="text-xs sm:text-[13px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
+                  "Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."
+                </p>
+              </motion.div>
+            ) : (
+              <motion.button 
+                key="btn" 
+                type="button" 
+                onClick={() => setChallenged(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
+              >
+                Thử thách suy nghĩ
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+      </BorderBeam>
     </div>
   );
 }
@@ -161,9 +171,9 @@ function InlineSleepReportCard({ bio }) {
 
   if (avgDur === null) {
     return (
-      <div className="mt-2.5 p-4 rounded-2xl bg-teal-500/8 border border-teal-500/20 text-left max-w-sm">
-        <p className="text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
-        <p className="mt-1.5 text-[13px] font-semibold leading-relaxed text-muted-foreground">
+      <div className="mt-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-teal-500/8 border border-teal-500/20 text-left max-w-sm">
+        <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
+        <p className="mt-1 text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bản ghi giấc ngủ để tính trung bình. Hãy ghi ít nhất một đêm trước khi xem báo cáo.
         </p>
       </div>
@@ -171,32 +181,36 @@ function InlineSleepReportCard({ bio }) {
   }
 
   return (
-    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-3 shadow-md max-w-sm">
-      <div className="flex items-center justify-between border-b border-teal-500/20 pb-2">
-        <span className="text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
-          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">bedtime</span> Báo Cáo Giấc Ngủ & Chu Kỳ
-        </span>
-        <span className="text-[13px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
-          {recentLogs.length} đêm gần nhất
-        </span>
-      </div>
+    <div className="mt-2 w-full max-w-sm">
+      <BorderBeam size="md" colorVariant="ocean" strength={0.75} borderRadius={18}>
+        <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
+          <div className="flex items-center justify-between border-b border-teal-500/20 pb-1.5 sm:pb-2">
+            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
+              <span className="material-symbols-outlined align-middle text-[16px] sm:text-[18px]" aria-hidden="true">bedtime</span> Báo Cáo Giấc Ngủ & Chu Kỳ
+            </span>
+            <span className="text-[10.5px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
+              {recentLogs.length} đêm gần nhất
+            </span>
+          </div>
 
-      <div className="grid grid-cols-2 gap-2 text-center">
-        <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[13px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
-          <p className="text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
-        </div>
-        <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[13px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
-          <p className={`text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
-            {debt > 0 ? `${debt} giờ` : "0 giờ (Tốt)"}
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-center">
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
+              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
+              <p className="text-xs sm:text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
+            </div>
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
+              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
+              <p className={`text-xs sm:text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
+                {debt > 0 ? `${debt} giờ` : "0 giờ (Tốt)"}
+              </p>
+            </div>
+          </div>
+
+          <p className="text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+            Đây là thống kê từ dữ liệu cậu đã ghi, không phải kết quả chẩn đoán giấc ngủ.
           </p>
         </div>
-      </div>
-
-      <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
-        Đây là thống kê từ dữ liệu cậu đã ghi, không phải kết quả chẩn đoán giấc ngủ.
-      </p>
+      </BorderBeam>
     </div>
   );
 }
@@ -216,9 +230,9 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
 
   if (!hasScores) {
     return (
-      <div className="mt-2.5 p-4 rounded-2xl bg-violet-500/8 border border-violet-500/20 text-left max-w-sm">
-        <p className="text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
-        <p className="mt-1.5 text-[13px] font-semibold leading-relaxed text-muted-foreground">
+      <div className="mt-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-violet-500/8 border border-violet-500/20 text-left max-w-sm">
+        <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
+        <p className="mt-1 text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
           Chưa có bài tự đánh giá nào được hoàn thành. HugoPSY sẽ không tự điền kết quả thay cậu.
         </p>
       </div>
@@ -226,33 +240,37 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
   }
 
   return (
-    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-3 shadow-md max-w-sm">
-      <div className="flex items-center justify-between border-b border-violet-500/20 pb-2">
-        <span className="text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
-          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">monitoring</span> Báo Cáo Sức Khỏe Tinh Thần
-        </span>
-        <span className="text-[13px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
-          Tự Nhận Thức
-        </span>
-      </div>
+    <div className="mt-2 w-full max-w-sm">
+      <BorderBeam size="md" colorVariant="candy" strength={0.75} borderRadius={18}>
+        <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
+          <div className="flex items-center justify-between border-b border-violet-500/20 pb-1.5 sm:pb-2">
+            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+              <span className="material-symbols-outlined align-middle text-[16px] sm:text-[18px]" aria-hidden="true">monitoring</span> Báo Cáo Sức Khỏe Tinh Thần
+            </span>
+            <span className="text-[10.5px] sm:text-[13px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
+              Tự Nhận Thức
+            </span>
+          </div>
 
-      <div className="grid grid-cols-3 gap-1.5 text-center">
-        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[13px] font-black uppercase text-muted-foreground">PHQ-9</p>
-          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
+          <div className="grid grid-cols-3 gap-1 sm:gap-1.5 text-center">
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
+              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">PHQ-9</p>
+              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
+            </div>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
+              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">GAD-7</p>
+              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
+            </div>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-background/80 border border-border/50">
+              <p className="text-[10px] sm:text-[13px] font-black uppercase text-muted-foreground">WHO-5</p>
+              <p className="text-xs sm:text-[13px] font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
+            </div>
+          </div>
+          <p className="text-[11px] sm:text-[13px] font-semibold leading-relaxed text-muted-foreground">
+            Điểm tự đánh giá chỉ hỗ trợ theo dõi xu hướng và không phải chẩn đoán.
+          </p>
         </div>
-        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[13px] font-black uppercase text-muted-foreground">GAD-7</p>
-          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
-        </div>
-        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
-          <p className="text-[13px] font-black uppercase text-muted-foreground">WHO-5</p>
-          <p className="text-[13px] font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
-        </div>
-      </div>
-      <p className="text-[13px] font-semibold leading-relaxed text-muted-foreground">
-        Điểm tự đánh giá chỉ hỗ trợ theo dõi xu hướng và không phải chẩn đoán.
-      </p>
+      </BorderBeam>
     </div>
   );
 }
@@ -260,18 +278,22 @@ function InlineEvalReportCard({ bio, historyLogs = [] }) {
 // ─── Inline Therapy Report Card ──────────────────────────────────────────────
 function InlineTherapyReportCard() {
   return (
-    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-3 shadow-md max-w-sm">
-      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
-        <span className="text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-          <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">spa</span> Gợi Ý Thư Giãn Phù Hợp
-        </span>
-        <span className="px-2 py-0.5 rounded-full text-[13px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-          Khuyên Dùng
-        </span>
-      </div>
-      <p className="text-[13px] text-foreground/80 font-bold leading-relaxed">
-        Đề xuất thực hành **Điều hòa nhịp thở 4-7-8** (10 phút) hoặc **Nhật ký nhận thức CBT** để tái tạo năng lượng thần kinh.
-      </p>
+    <div className="mt-2 w-full max-w-sm">
+      <BorderBeam size="md" colorVariant="ocean" strength={0.75} borderRadius={18}>
+        <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-2.5 sm:space-y-3 shadow-sm">
+          <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5 sm:pb-2">
+            <span className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <span className="material-symbols-outlined align-middle text-[18px]" aria-hidden="true">spa</span> Gợi Ý Thư Giãn Phù Hợp
+            </span>
+            <span className="px-2 py-0.5 rounded-full text-[13px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              Khuyên Dùng
+            </span>
+          </div>
+          <p className="text-[13px] text-foreground/80 font-bold leading-relaxed">
+            Đề xuất thực hành **Điều hòa nhịp thở 4-7-8** (10 phút) hoặc **Nhật ký nhận thức CBT** để tái tạo năng lượng thần kinh.
+          </p>
+        </div>
+      </BorderBeam>
     </div>
   );
 }
@@ -351,78 +373,82 @@ function MoodCheckinCard({ onMoodSelect }) {
       initial={{ opacity: 0, y: 6, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-      className="mt-2.5 p-3.5 rounded-3xl bg-gradient-to-br from-indigo-50/95 via-violet-50/75 to-sky-50/80 dark:from-indigo-950/40 dark:via-violet-950/25 dark:to-sky-950/20 border border-indigo-100/80 dark:border-indigo-800/25 w-full sm:min-w-[320px] shadow-sm space-y-3.5"
+      className="mt-2.5 w-full sm:min-w-[320px]"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[13px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
-          <p className="text-[13px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
+      <BorderBeam size="md" colorVariant="colorful" strength={0.85} borderRadius={20}>
+        <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-50/95 via-violet-50/75 to-sky-50/80 dark:from-indigo-950/50 dark:via-violet-950/30 dark:to-sky-950/25 border border-indigo-100/70 dark:border-indigo-800/30 w-full shadow-sm space-y-2.5 sm:space-y-3.5 backdrop-blur-xl">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs sm:text-[13px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
+              <p className="text-[11px] sm:text-[13px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
+            </div>
+            <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-indigo-500">vital_signs</span>
+          </div>
+
+          <div className="space-y-1 sm:space-y-1.5">
+            <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
+            <div className="flex justify-between gap-1">
+              {MOOD_OPTS.map(opt => {
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelected(opt.value)}
+                    className={`flex-1 flex flex-col items-center gap-1 sm:gap-1.5 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl transition-all duration-200 active:scale-90 ${
+                      selected === opt.value
+                        ? "bg-indigo-500 shadow-md shadow-indigo-500/25 scale-105"
+                        : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${selected === opt.value ? "text-white" : "text-foreground"}`} />
+                    <span className={`text-[10px] sm:text-[13px] font-bold leading-tight text-center ${
+                      selected === opt.value ? "text-white" : "text-muted-foreground"
+                    }`}>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:gap-3 sm:grid-cols-2">
+            <PulseScale label="Năng lượng" value={energy} onChange={setEnergy} lowLabel="Cạn pin" highLabel="Dồi dào" tone="bg-sky-500" />
+            <PulseScale label="Áp lực" value={stress} onChange={setStress} lowLabel="Nhẹ" highLabel="Rất cao" tone="bg-violet-500" />
+          </div>
+
+          <div className="space-y-1 sm:space-y-1.5">
+            <p className="text-xs sm:text-[13px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {NEED_OPTS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setNeed(option.value)}
+                  className={`min-h-8 sm:min-h-9 px-2 sm:px-2.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.97] ${
+                    need === option.value
+                      ? "bg-indigo-500 text-white shadow-sm"
+                      : "bg-background/75 border border-border/60 text-foreground/75"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[13px] sm:text-[14px]">{option.icon}</span>
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && <p role="alert" className="text-xs sm:text-[13px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
+
+          <button
+            type="button"
+            disabled={!selected || !need || saving}
+            onClick={handleSubmit}
+            className="w-full min-h-8 sm:min-h-10 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-xs sm:text-[13px] font-black uppercase tracking-wider shadow-sm disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
+          >
+            {saving ? "Đang lưu..." : "Lưu kế hoạch hôm nay"}
+          </button>
         </div>
-        <span className="material-symbols-outlined text-[18px] text-indigo-500">vital_signs</span>
-      </div>
-
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
-      <div className="flex justify-between gap-1">
-        {MOOD_OPTS.map(opt => {
-          const Icon = opt.icon;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setSelected(opt.value)}
-              className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-90 ${
-                selected === opt.value
-                  ? "bg-indigo-500 shadow-lg shadow-indigo-500/25 scale-105"
-                  : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
-              }`}
-            >
-              <Icon className={`w-5 h-5 ${selected === opt.value ? "text-white" : "text-foreground"}`} />
-              <span className={`text-[13px] font-bold leading-none ${
-                selected === opt.value ? "text-white" : "text-muted-foreground"
-              }`}>{opt.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <PulseScale label="Năng lượng" value={energy} onChange={setEnergy} lowLabel="Cạn pin" highLabel="Dồi dào" tone="bg-sky-500" />
-        <PulseScale label="Áp lực" value={stress} onChange={setStress} lowLabel="Nhẹ" highLabel="Rất cao" tone="bg-violet-500" />
-      </div>
-
-      <div className="space-y-1.5">
-        <p className="text-[13px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
-        <div className="grid grid-cols-2 gap-1.5">
-          {NEED_OPTS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setNeed(option.value)}
-              className={`min-h-9 px-2.5 rounded-xl flex items-center gap-1.5 text-[13px] font-bold transition-all active:scale-[0.97] ${
-                need === option.value
-                  ? "bg-indigo-500 text-white shadow-sm"
-                  : "bg-background/75 border border-border/60 text-foreground/75"
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">{option.icon}</span>
-              <span>{option.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {error && <p role="alert" className="text-[13px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
-
-      <button
-        type="button"
-        disabled={!selected || !need || saving}
-        onClick={handleSubmit}
-        className="w-full min-h-10 rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[13px] font-black uppercase tracking-wider shadow-md shadow-indigo-500/20 disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
-      >
-        {saving ? "Đang lưu nhịp hôm nay..." : "Lưu và tạo kế hoạch hôm nay"}
-      </button>
+      </BorderBeam>
     </motion.div>
   );
 }
@@ -435,50 +461,54 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
   const canAfford = (joyBalance ?? 0) >= method.cost;
 
   return (
-    <div className="mt-2.5 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-200/50 dark:border-indigo-900/30 flex flex-col gap-3 w-full max-w-[260px] shadow-sm backdrop-blur-md">
-      <div className="flex items-center gap-1.5">
-        <div className="w-5 h-5 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
-          <span className="material-symbols-outlined text-[13px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
+    <div className="mt-2 w-full max-w-[270px]">
+      <BorderBeam size="md" colorVariant="gold" strength={0.8} borderRadius={20}>
+        <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-200/50 dark:border-indigo-900/30 flex flex-col gap-2 sm:gap-3 w-full shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[13px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
+            </div>
+            <span className="text-xs sm:text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
+          </div>
+          <div className="flex flex-col gap-0.5 sm:gap-1">
+            <p className="text-xs sm:text-[13px] font-extrabold text-foreground leading-snug">{method.name}</p>
+            <p className="text-[11px] sm:text-[13px] text-muted-foreground leading-normal">
+              Trải nghiệm trọn vẹn bài tập và lộ trình chuyên sâu giúp cậu cân bằng cảm xúc tốt hơn.
+            </p>
+          </div>
+          <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
+            <div className="flex items-center gap-1">
+              <span className="text-xs sm:text-[13px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
+              <span className="text-xs sm:text-[13px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
+            </div>
+            <motion.button
+              type="button"
+              whileHover={canAfford && !isUnlocking ? { scale: 1.02 } : {}}
+              whileTap={canAfford && !isUnlocking ? { scale: 0.98 } : {}}
+              onClick={() => {
+                if (canAfford) {
+                  onUnlockFeature?.({ 
+                    cost: method.cost, 
+                    lockKey: method.lockKey, 
+                    methodId: method.id, 
+                    label: method.name 
+                  });
+                }
+              }}
+              disabled={!canAfford || isUnlocking}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl text-xs sm:text-[13px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
+                isUnlocking
+                  ? "bg-zinc-400 dark:bg-zinc-700 cursor-wait"
+                  : !canAfford
+                  ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed shadow-none"
+                  : "bg-indigo-500 hover:bg-indigo-600 shadow-[0_2px_10px_rgba(99,102,241,0.35)]"
+              }`}
+            >
+              {isUnlocking ? "Đang mở..." : !canAfford ? "Thiếu JOY" : "Mở khóa"}
+            </motion.button>
+          </div>
         </div>
-        <span className="text-[13px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-[13px] font-extrabold text-foreground leading-snug">{method.name}</p>
-        <p className="text-[13px] text-muted-foreground leading-normal">
-          Trải nghiệm trọn vẹn bài tập và lộ trình chuyên sâu giúp cậu cân bằng cảm xúc tốt hơn.
-        </p>
-      </div>
-      <div className="flex items-center justify-between gap-2 mt-1">
-        <div className="flex items-center gap-1">
-          <span className="text-[13px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
-          <span className="text-[13px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
-        </div>
-        <motion.button
-          type="button"
-          whileHover={canAfford && !isUnlocking ? { scale: 1.02 } : {}}
-          whileTap={canAfford && !isUnlocking ? { scale: 0.98 } : {}}
-          onClick={() => {
-            if (canAfford) {
-              onUnlockFeature?.({ 
-                cost: method.cost, 
-                lockKey: method.lockKey, 
-                methodId: method.id, 
-                label: method.name 
-              });
-            }
-          }}
-          disabled={!canAfford || isUnlocking}
-          className={`px-4 py-2 rounded-2xl text-[13px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
-            isUnlocking
-              ? "bg-zinc-400 dark:bg-zinc-700 cursor-wait"
-              : !canAfford
-              ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed shadow-none"
-              : "bg-indigo-500 hover:bg-indigo-600 shadow-[0_2px_10px_rgba(99,102,241,0.35)]"
-          }`}
-        >
-          {isUnlocking ? "Đang mở..." : !canAfford ? "Không đủ JOY" : "Mở khóa ngay"}
-        </motion.button>
-      </div>
+      </BorderBeam>
     </div>
   );
 }
@@ -487,7 +517,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
-      <div className="px-5 py-3.5 text-[13px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-[24px] rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
+      <div className="px-3.5 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-[13px] md:text-[14px] leading-relaxed bg-white/70 dark:bg-[#1a1a24]/60 backdrop-blur-3xl text-foreground rounded-2xl sm:rounded-[24px] rounded-tl-[6px] sm:rounded-tl-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.04),inset_0_2px_4px_rgba(255,255,255,0.8)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.08)] border border-border/80/[0.12] max-w-full">
         {!completedMessageIds.has(msg.id) && msg.id !== "init" ? (
           <TypewriterText text={msg.text} id={msg.id}
             onComplete={() => setCompletedMessageIds(prev => { const s = new Set(prev); s.add(msg.id); return s; })} />
@@ -496,7 +526,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         )}
         {msg.showTherapyButton && (
           <button type="button" onClick={() => onNavigateToTab?.("therapy")}
-            className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[13px] font-bold rounded-xl transition-all active:scale-95">
+            className="mt-2 flex items-center gap-1.5 w-full justify-center py-1.5 sm:py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs sm:text-[13px] font-bold rounded-xl transition-all active:scale-95">
             <Heart className="w-3.5 h-3.5" /> Mở bài thư giãn
           </button>
         )}
@@ -534,63 +564,71 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         <MoodCheckinCard onMoodSelect={onMoodSelect} />
       )}
 
-      {/* Test suggestion card — redesigned: soft pill chips, no pushy full-width buttons */}
+      {/* Test suggestion card — soft pill chips with BorderBeam */}
       {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
-        <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-50/80 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/15 border border-violet-100 dark:border-violet-800/25 space-y-2 w-full max-w-[260px]">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[13px] text-violet-600 dark:text-violet-400">monitoring</span>
+        <div className="w-full max-w-[270px]">
+          <BorderBeam size="md" colorVariant="ocean" strength={0.75} borderRadius={20}>
+            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-violet-50/85 to-indigo-50/70 dark:from-violet-950/25 dark:to-indigo-950/20 border border-violet-200/50 dark:border-violet-800/25 space-y-2 w-full">
+              <div className="flex items-center gap-1.5">
+                <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[13px] text-violet-600 dark:text-violet-400">monitoring</span>
+                </div>
+                <span className="text-[13px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
+              </div>
+              <p className="text-[13px] text-muted-foreground leading-snug">
+                Tớ muốn hiểu cậu sâu hơn — thử đo nhanh nhé? Chỉ 2 phút thôi.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {msg.suggestPhq9 && (
+                  <button type="button" onClick={() => onStartTest("phq9")}
+                    className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
+                    PHQ-9 · Triệu chứng khí sắc
+                  </button>
+                )}
+                {msg.suggestGad7 && (
+                  <button type="button" onClick={() => onStartTest("gad7")}
+                    className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
+                    GAD-7 · Triệu chứng lo âu
+                  </button>
+                )}
+                {msg.suggestWho5 && (
+                  <button type="button" onClick={() => onStartTest("who5")}
+                    className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-emerald-500/12 hover:bg-emerald-500/20 border border-emerald-300/40 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 transition-all active:scale-95">
+                    WHO-5 · Hạnh phúc
+                  </button>
+                )}
+                {msg.suggestBigFive && (
+                  <button type="button" onClick={() => onStartTest("bigfive")}
+                    className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
+                    Big Five · Nhân cách
+                  </button>
+                )}
+              </div>
+              <p className="text-[13px] text-muted-foreground/70">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
             </div>
-            <span className="text-[13px] font-extrabold text-violet-700 dark:text-violet-300">Gợi ý nhỏ từ tớ</span>
-          </div>
-          <p className="text-[13px] text-muted-foreground leading-snug">
-            Tớ muốn hiểu cậu sâu hơn — thử đo nhanh nhé? Chỉ 2 phút thôi.
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {msg.suggestPhq9 && (
-              <button type="button" onClick={() => onStartTest("phq9")}
-                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
-                PHQ-9 · Triệu chứng khí sắc
-              </button>
-            )}
-            {msg.suggestGad7 && (
-              <button type="button" onClick={() => onStartTest("gad7")}
-                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
-                GAD-7 · Triệu chứng lo âu
-              </button>
-            )}
-            {msg.suggestWho5 && (
-              <button type="button" onClick={() => onStartTest("who5")}
-                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-emerald-500/12 hover:bg-emerald-500/20 border border-emerald-300/40 dark:border-emerald-700/30 text-emerald-600 dark:text-emerald-400 transition-all active:scale-95">
-                WHO-5 · Hạnh phúc
-              </button>
-            )}
-            {msg.suggestBigFive && (
-              <button type="button" onClick={() => onStartTest("bigfive")}
-                className="px-2.5 py-1.5 text-[13px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
-                Big Five · Nhân cách
-              </button>
-            )}
-          </div>
-          <p className="text-[13px] text-muted-foreground/70">Không muốn làm ngay cũng ổn — cứ tâm sự tiếp nha!</p>
+          </BorderBeam>
         </div>
       )}
 
       {/* Crisis call card */}
       {Array.isArray(msg.quickActions) && msg.quickActions.some(a => a.tel) && (
-        <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/30 border-2 border-red-300 dark:border-red-700/50 space-y-2 w-full max-w-[270px]">
-          <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
-            <span className="material-symbols-outlined text-[15px]">emergency</span>
-            <span className="text-[13px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {msg.quickActions.filter(a => a.tel).map((action, i) => (
-              <a key={i} href={`tel:${action.tel}`}
-                className="w-full py-2 text-[13px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
-                {action.label}
-              </a>
-            ))}
-          </div>
+        <div className="w-full max-w-[270px]">
+          <BorderBeam size="md" colorVariant="sunset" strength={0.85} borderRadius={20}>
+            <div className="p-3.5 rounded-2xl bg-red-50/90 dark:bg-red-950/40 border border-red-300/60 dark:border-red-700/50 space-y-2 w-full">
+              <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+                <span className="material-symbols-outlined text-[15px]">emergency</span>
+                <span className="text-[13px] font-extrabold uppercase tracking-wider">Gọi ngay để được giúp đỡ</span>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {msg.quickActions.filter(a => a.tel).map((action, i) => (
+                  <a key={i} href={`tel:${action.tel}`}
+                    className="w-full py-2 text-[13px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all active:scale-95 text-center flex items-center justify-center gap-1.5">
+                    {action.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </BorderBeam>
         </div>
       )}
 
@@ -685,6 +723,7 @@ function ChatMessages({
   unlockedFeatures = [],
   bio,
   historyLogs = [],
+  companionType = "clover",
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -709,9 +748,16 @@ function ChatMessages({
     if (el) el.scrollTo({ top: el.scrollHeight, behavior });
   };
 
+  const hasUserSpoken = React.useMemo(() => messages.some(m => m.sender === "user"), [messages]);
+
   React.useEffect(() => {
-    if (!userScrolledUpRef.current) requestAnimationFrame(() => scrollToBottom("smooth"));
-  }, [messages, loading]);
+    if (userScrolledUpRef.current) return;
+    if (!hasUserSpoken && !moodCheckinDone) {
+      if (containerRef.current) containerRef.current.scrollTop = 0;
+      return;
+    }
+    requestAnimationFrame(() => scrollToBottom("smooth"));
+  }, [messages, loading, hasUserSpoken, moodCheckinDone]);
 
   // When the keyboard opens (inset grows), keep the latest message in view above
   // the lifted input bar — mirrors how native chat apps stay pinned to bottom.
@@ -721,7 +767,14 @@ function ChatMessages({
     }
   }, [keyboardInset]);  
 
-  React.useLayoutEffect(() => { scrollToBottom("auto"); }, []);
+  React.useLayoutEffect(() => {
+    if (!hasUserSpoken && !moodCheckinDone) {
+      if (containerRef.current) containerRef.current.scrollTop = 0;
+    } else {
+      scrollToBottom("auto");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="relative h-full">
@@ -729,11 +782,10 @@ function ChatMessages({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="psy-chat-message-list h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 space-y-1"
+        className="psy-chat-message-list h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-3 space-y-1"
         style={{
           scrollbarWidth: "thin",
-          // Extra clearance so the last message clears the keyboard-lifted input.
-          paddingBottom: keyboardInset > 0 ? `${keyboardInset}px` : undefined,
+          paddingBottom: keyboardInset > 0 ? `${keyboardInset + 80}px` : "92px",
         }}
       >
         {/* Date separator */}
@@ -753,6 +805,16 @@ function ChatMessages({
             );
             if (isPrecedingBotTyping) return null;
 
+            const hasWideCard = isBot && Boolean(
+              msg.type === "mood_checkin" ||
+              msg.showInlineBreathing ||
+              msg.showInlineCbt ||
+              msg.showInlineSleep ||
+              msg.showInlineEval ||
+              msg.showInlineTherapy ||
+              msg.showInlineBuy
+            );
+
             return (
               <motion.div
                 key={msg.id}
@@ -763,15 +825,21 @@ function ChatMessages({
                 transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                 className={`flex flex-col ${isBot ? "items-start" : "items-end"} mb-4`}
               >
-                <div className={`flex items-end gap-2.5 w-full ${isBot ? "justify-start" : "justify-end"}`}>
+                <div className={`flex ${isBot ? "items-start" : "items-end"} gap-2.5 w-full ${isBot ? "justify-start" : "justify-end"}`}>
                   {/* Bot avatar */}
                   {isBot && (
-                    <div className="w-8 h-8 rounded-2xl overflow-hidden shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center relative z-10">
-                      <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                    <div className="shrink-0 mt-1">
+                      <AnimulaAvatar
+                        size={32}
+                        type={companionType || "clover"}
+                        state={msg.id === "typing" ? "working" : "default"}
+                        face="mouth"
+                        interactive={true}
+                      />
                     </div>
                   )}
 
-                  <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isBot ? "items-start" : "items-end"}`}>
+                  <div className={`flex flex-col ${hasWideCard ? "w-full max-w-[95%] sm:max-w-[85%]" : isBot ? "max-w-[86%] sm:max-w-[74%]" : "max-w-[85%] sm:max-w-[72%]"} ${isBot ? "items-start" : "items-end"}`}>
                     {isBot
                       ? <BotBubble msg={msg} completedMessageIds={completedMessageIds} setCompletedMessageIds={setCompletedMessageIds}
                           onStartTest={onStartTest}
@@ -784,7 +852,7 @@ function ChatMessages({
                 </div>
 
                 {/* Timestamp */}
-                <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-11" : "mr-1"}`}>
+                <div className={`flex items-center gap-1.5 mt-1.5 ${isBot ? "ml-10" : "mr-1"}`}>
                   <span className="text-[13px] text-muted-foreground/70 font-medium">
                     {new Date(msg.time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -804,13 +872,16 @@ function ChatMessages({
           {loading && (
             <motion.div key="typing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="flex items-end gap-2.5 justify-start mb-1">
-              <div className="relative">
-                <div className="w-8 h-8 rounded-2xl shrink-0 bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-sm relative z-10">
-                  <span className="material-symbols-outlined text-white text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
-                </div>
-                <div className="absolute inset-0 bg-blue-500 rounded-2xl animate-ping opacity-20" />
+              <div className="shrink-0">
+                <AnimulaAvatar
+                  size={32}
+                  type={companionType || "clover"}
+                  state="working"
+                  face="mouth"
+                  interactive={false}
+                />
               </div>
-              <div className="px-4 py-3 bg-card/80 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-border/60/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5">
+              <div className="px-4 py-3 bg-card/80 backdrop-blur-md rounded-[20px] rounded-tl-[6px] border border-border/60/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)] flex items-center gap-2.5" role="status" aria-label={typingLabel}>
                 <span className="flex items-center gap-[3px]">
                   {[0, 150, 300].map((delay, i) => (
                     <span key={delay} className={`w-1.5 h-1.5 rounded-full animate-bounce ${i === 0 ? "bg-blue-500" : i === 1 ? "bg-indigo-500" : "bg-purple-500"}`}
@@ -822,7 +893,7 @@ function ChatMessages({
           )}
         </AnimatePresence>
 
-        <div ref={messagesEndRef} className="h-32" />
+        <div ref={messagesEndRef} className="h-2" />
       </div>
 
       {/* Scroll-to-bottom FAB */}

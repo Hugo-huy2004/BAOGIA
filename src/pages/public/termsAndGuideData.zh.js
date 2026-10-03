@@ -18,7 +18,7 @@ export const META_ZH = {
   pageTitle: "服务条款与系统架构指南",
   intro:
     "Hugo Studio 生态系统的深度系统架构报告与全功能用户手册。深度融合针对1,000,000 CCU高并发抗压答辩的全面技术论证、断网物理隔离自愈架构，以及严格遵循哈佛规范的学术参考文献。",
-  footerLeft: "© 2026 Hugo Studio. 研发与系统架构设计：黎家辉 (Hugo Le).",
+  footerLeft: "© 2026 Hugo Studio. 研发与系统架构设计：Hugo Wishpax.",
   footerRight: "安全内生设计 • 隐私优先 • 渐进式Web应用 (PWA)",
 };
 

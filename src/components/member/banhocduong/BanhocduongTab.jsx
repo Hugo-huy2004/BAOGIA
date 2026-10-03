@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import { BorderBeam } from "border-beam";
 import {
   BrainCircuit,
   ChevronLeft,
@@ -18,8 +19,10 @@ import { localeForLanguage } from "../../../i18n/languages";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { notify } from "../../../lib/notify";
+import { sensory } from "../../../lib/sensory";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
+import { AnimulaAvatar } from "./AnimulaAvatar";
 import "../../../styles/hugoPsy.css";
 import { isStandalone } from "../../../config/platform";
 
@@ -73,107 +76,108 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
   const { t } = useTranslation();
   const adminHotline = import.meta.env.VITE_CRISIS_HOTLINE || "";
 
-  // Popup mode for the fullscreen mobile chat: a centered modal over a dimmed
-  // backdrop — never clipped by the notch/Dynamic Island, doesn't eat chat
-  // space, and can be temporarily dismissed (X) without resolving the flag.
   if (compact) {
     return (
-      <div className="fixed inset-0 z-[300] flex items-center justify-center p-5 bg-black/55 backdrop-blur-sm animate-fadeIn">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="relative w-full max-w-sm rounded-3xl border border-rose-300/60 dark:border-rose-800/50 bg-card shadow-2xl p-5 space-y-4"
-        >
-          <button type="button" onClick={onDismiss}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center active:scale-95 transition-transform"
-            aria-label={t("hugoPsy.tab.dongTamThoi")}>
-            <span className="material-symbols-outlined text-[18px]">close</span>
-          </button>
-
-          <div className="flex flex-col items-center text-center gap-2 pt-1">
-            <span className="w-14 h-14 rounded-full bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center">
-              <span className="material-symbols-outlined text-rose-500 text-[30px]" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
-            </span>
-            <p className="text-base font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
-            <p className="text-[13px] text-muted-foreground leading-relaxed">
-              {t("companion.crisis.descShort", "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.")}
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            {DEFAULT_HOTLINES.map((h) => (
-              <a key={h.number} href={`tel:${h.number}`}
-                className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
-                <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{h.label}</span>
-                <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
-                  <span className="material-symbols-outlined text-[14px]">call</span>{h.display || h.number}
-                </span>
-              </a>
-            ))}
-            {adminHotline && (
-              <a href={`tel:${adminHotline}`}
-                className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200/60 dark:border-rose-800/40 active:scale-[0.98] transition-transform">
-                <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}</span>
-                <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
-                  <span className="material-symbols-outlined text-[14px]">call</span>{adminHotline}
-                </span>
-              </a>
-            )}
-          </div>
-
-          <div className="flex gap-2">
-            <EmergencySiren />
-            <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-              className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
-              {t("companion.crisis.imSafeShort", "Tớ đã an toàn")}
+      <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fadeIn">
+        <BorderBeam size="md" colorVariant="sunset" strength={0.9} borderRadius={28} className="w-full max-w-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full swiftui-liquid-glass rounded-[28px] p-5 space-y-4 shadow-2xl"
+          >
+            <button type="button" onClick={onDismiss}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-muted/60 text-muted-foreground flex items-center justify-center active:scale-95 transition-transform"
+              aria-label={t("hugoPsy.tab.dongTamThoi")}>
+              <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
-          </div>
-        </motion.div>
+
+            <div className="flex flex-col items-center text-center gap-2 pt-1">
+              <span className="w-14 h-14 rounded-full bg-rose-500/15 flex items-center justify-center">
+                <span className="material-symbols-outlined text-rose-500 text-[30px]" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
+              </span>
+              <p className="text-base font-black text-rose-600 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">
+                {t("companion.crisis.descShort", "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.")}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              {DEFAULT_HOTLINES.map((h) => (
+                <a key={h.number} href={`tel:${h.number}`}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 active:scale-[0.98] transition-transform">
+                  <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{h.label}</span>
+                  <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
+                    <span className="material-symbols-outlined text-[14px]">call</span>{h.display || h.number}
+                  </span>
+                </a>
+              ))}
+              {adminHotline && (
+                <a href={`tel:${adminHotline}`}
+                  className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 active:scale-[0.98] transition-transform">
+                  <span className="text-[13px] font-bold text-rose-700 dark:text-rose-300">{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}</span>
+                  <span className="flex items-center gap-1 text-[13px] font-black text-rose-600 dark:text-rose-400">
+                    <span className="material-symbols-outlined text-[14px]">call</span>{adminHotline}
+                  </span>
+                </a>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <EmergencySiren />
+              <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
+                className="flex-1 py-2.5 rounded-xl swiftui-liquid-glass border border-rose-400/30 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
+                {t("companion.crisis.imSafeShort", "Tớ đã an toàn")}
+              </button>
+            </div>
+          </motion.div>
+        </BorderBeam>
       </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-rose-300/60 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/20 p-4 space-y-3"
-    >
-      <div className="flex items-start gap-2.5">
-        <span className="material-symbols-outlined text-rose-500 text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
-        <div className="min-w-0">
-          <p className="text-[13px] font-black text-rose-700 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
-          <p className="text-[13px] text-rose-600/90 dark:text-rose-400/80 leading-relaxed mt-0.5">
-            {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc đến cơ sở y tế gần nhất. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
-          </p>
-          <div className="mt-2 space-y-1.5">
-            {DEFAULT_HOTLINES.map((h) => (
-              <a key={h.number} href={`tel:${h.number}`}
-                className="flex items-center gap-1.5 text-[13px] font-bold text-rose-700 dark:text-rose-400">
-                <span className="material-symbols-outlined text-[14px]">call</span>
-                <span>{h.label}: <span className="underline">{h.display || h.number}</span></span>
-                {h.note && <span className="text-[13px] font-medium text-rose-500/70">({h.note})</span>}
-              </a>
-            ))}
-            {adminHotline && (
-              <a href={`tel:${adminHotline}`} className="flex items-center gap-1.5 text-[13px] font-bold text-rose-700 dark:text-rose-400">
-                <span className="material-symbols-outlined text-[14px]">call</span>
-                <span>{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: <span className="underline">{adminHotline}</span></span>
-              </a>
-            )}
+    <BorderBeam size="md" colorVariant="sunset" strength={0.85} borderRadius={20} className="w-full">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        className="swiftui-liquid-glass rounded-[20px] p-4 space-y-3"
+      >
+        <div className="flex items-start gap-2.5">
+          <span className="material-symbols-outlined text-rose-500 text-xl mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>emergency</span>
+          <div className="min-w-0">
+            <p className="text-[13px] font-black text-rose-600 dark:text-rose-400">{t("companion.crisis.title", "Bạn không một mình")}</p>
+            <p className="text-[13px] text-muted-foreground leading-relaxed mt-0.5">
+              {t("companion.crisis.desc", "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc đến cơ sở y tế gần nhất. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.")}
+            </p>
+            <div className="mt-2 space-y-1.5">
+              {DEFAULT_HOTLINES.map((h) => (
+                <a key={h.number} href={`tel:${h.number}`}
+                  className="flex items-center gap-1.5 text-[13px] font-bold text-rose-600 dark:text-rose-400">
+                  <span className="material-symbols-outlined text-[14px]">call</span>
+                  <span>{h.label}: <span className="underline">{h.display || h.number}</span></span>
+                  {h.note && <span className="text-[13px] font-medium opacity-70">({h.note})</span>}
+                </a>
+              ))}
+              {adminHotline && (
+                <a href={`tel:${adminHotline}`} className="flex items-center gap-1.5 text-[13px] font-bold text-rose-600 dark:text-rose-400">
+                  <span className="material-symbols-outlined text-[14px]">call</span>
+                  <span>{t("companion.crisis.hotlineLabel", "Tổng đài tư vấn tâm lý")}: <span className="underline">{adminHotline}</span></span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex gap-2">
-        <EmergencySiren />
-        <button type="button" onClick={onTalkNow}
-          className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13px] font-bold transition-all active:scale-[0.98]">
-          {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
-        </button>
-        <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
-          className="flex-1 py-2.5 rounded-xl bg-card border border-rose-300 dark:border-rose-800/50 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
-          {t("companion.crisis.imSafe", "Tớ đã an toàn / đã liên hệ trợ giúp")}
-        </button>
-      </div>
-    </motion.div>
+        <div className="flex gap-2">
+          <EmergencySiren />
+          <button type="button" onClick={onTalkNow}
+            className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13px] font-bold transition-all active:scale-[0.98] shadow-sm">
+            {t("companion.crisis.talkNow", "Tớ cần nói chuyện ngay")}
+          </button>
+          <button type="button" onClick={() => onResolve(flag.flagId || flag._id)}
+            className="flex-1 py-2.5 rounded-xl swiftui-liquid-glass border border-rose-400/30 text-rose-600 dark:text-rose-400 text-[13px] font-bold transition-all active:scale-[0.98]">
+            {t("companion.crisis.imSafe", "Tớ đã an toàn / đã liên hệ trợ giúp")}
+          </button>
+        </div>
+      </motion.div>
+    </BorderBeam>
   );
 }
 
@@ -204,52 +208,54 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
   };
 
   return (
-    <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent dark:from-emerald-950/20 dark:via-zinc-900/10 rounded-2xl border border-emerald-555/20 dark:border-emerald-800/30 px-4 py-2.5 flex items-center justify-between gap-4 shadow-sm shadow-emerald-500/5 backdrop-blur-md">
-      <div className="flex-1 flex items-center gap-3 min-w-0">
-        <div className="relative shrink-0 flex items-center justify-center">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-505 bg-emerald-500 animate-pulse" />
-        </div>
-        <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:gap-4">
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <p className="text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("hugoPsy.tab.loTrinh")}</p>
-              {shortenedDays > 0 && (
-                <span className="text-[13px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                  -{shortenedDays} {t("hugoPsy.tab.ngay")}
-                </span>
-              )}
-            </div>
-            <p className="text-[13px] font-bold text-foreground/80 leading-tight">
-              {t("hugoPsy.tab.ngay2")} {currentDay}/{effectiveDur} {t("hugoPsy.tab.batDau")} {startStr}
-            </p>
+    <BorderBeam size="md" colorVariant="ocean" strength={0.8} borderRadius={20} className="w-full">
+      <div className="swiftui-liquid-glass rounded-[20px] px-4 py-3 flex items-center justify-between gap-4 shadow-sm">
+        <div className="flex-1 flex items-center gap-3 min-w-0">
+          <div className="relative shrink-0 flex items-center justify-center">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-          {/* Thin progress bar side-by-side */}
-          <div className="flex-grow flex items-center gap-2 mt-1 md:mt-0 min-w-[120px] max-w-xs">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 1.2, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-              />
+          <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-[13px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("hugoPsy.tab.loTrinh")}</p>
+                {shortenedDays > 0 && (
+                  <span className="text-[12px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                    -{shortenedDays} {t("hugoPsy.tab.ngay")}
+                  </span>
+                )}
+              </div>
+              <p className="text-[13px] font-bold text-foreground/80 leading-tight">
+                {t("hugoPsy.tab.ngay2")} {currentDay}/{effectiveDur} · {t("hugoPsy.tab.batDau")} {startStr}
+              </p>
             </div>
-            <span className="text-[13px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">{progressPercent}%</span>
+            {/* Thin progress bar side-by-side */}
+            <div className="flex-grow flex items-center gap-2 mt-1 md:mt-0 min-w-[120px] max-w-xs">
+              <div className="flex-1 h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+                />
+              </div>
+              <span className="text-[13px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">{progressPercent}%</span>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="flex items-center gap-1.5 shrink-0">
-        {webPushHelper.isSupported() && notifStatus !== 'granted' && (
-          <button type="button" onClick={handleEnablePush} title={t("companion.tab.enablePush", "Bật nhắc nhở")}
-            className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 active:scale-90 transition-transform">
-            <span className="material-symbols-outlined text-[14px]">notifications</span>
+        
+        <div className="flex items-center gap-1.5 shrink-0">
+          {webPushHelper.isSupported() && notifStatus !== 'granted' && (
+            <button type="button" onClick={handleEnablePush} title={t("companion.tab.enablePush", "Bật nhắc nhở")}
+              className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 active:scale-90 transition-transform">
+              <span className="material-symbols-outlined text-[14px]">notifications</span>
+            </button>
+          )}
+          <button type="button" onClick={onCancel} title={t("companion.tab.cancelRoadmap", "Dừng lộ trình")}
+            className="w-7 h-7 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500/25 active:scale-90 transition-transform">
+            <span className="material-symbols-outlined text-[14px]">stop_circle</span>
           </button>
-        )}
-        <button type="button" onClick={onCancel} title={t("companion.tab.cancelRoadmap", "Dừng lộ trình")}
-          className="w-7 h-7 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500/25 active:scale-90 transition-transform">
-          <span className="material-symbols-outlined text-[14px]">stop_circle</span>
-        </button>
+        </div>
       </div>
-    </div>
+    </BorderBeam>
   );
 }
 
@@ -331,115 +337,117 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1100] bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:pb-4"
+      className="fixed inset-0 z-[1100] bg-black/60 backdrop-blur-md flex items-end md:items-center justify-center p-0 md:p-4 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] md:pb-4"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <motion.div
-        initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 340, damping: 32 }}
-        className="bg-white dark:bg-card rounded-t-3xl md:rounded-2xl w-full md:w-[400px] shadow-2xl border-t border-border/50 overflow-hidden"
-        style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
-      >
-        {/* Drag handle */}
-        <div className="pt-3 pb-1 flex justify-center md:hidden">
-          <div className="w-10 h-1 bg-muted rounded-full" />
-        </div>
-
-        <div className="px-5 py-4 space-y-5">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-200 flex items-center justify-center">
-                <span className="material-symbols-outlined text-background text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
-              </div>
-              <h3 className="text-sm font-extrabold text-foreground">{t("companion.tab.settingsHeader", "Cài đặt HugoPSY")}</h3>
-            </div>
-            <button type="button" onClick={onClose}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center active:scale-90 transition-transform">
-              <span className="material-symbols-outlined text-zinc-500 text-sm">close</span>
-            </button>
+      <BorderBeam size="md" colorVariant="ocean" strength={0.8} borderRadius={28} className="w-full md:w-[420px]">
+        <motion.div
+          initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 340, damping: 32 }}
+          className="swiftui-liquid-glass rounded-t-[28px] md:rounded-[28px] w-full shadow-2xl overflow-hidden"
+          style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
+        >
+          {/* Drag handle */}
+          <div className="pt-3 pb-1 flex justify-center md:hidden">
+            <div className="w-10 h-1 bg-white/20 dark:bg-white/10 rounded-full" />
           </div>
 
-          {/* Personalized stats */}
-          {(totalDays > 0 || streak > 0 || lastTest) && (
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-base font-black text-foreground">{totalDays}</p>
-                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
+          <div className="px-5 py-4 space-y-5">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings:"'FILL' 1" }}>settings</span>
+                </div>
+                <h3 className="text-sm font-extrabold text-foreground">{t("companion.tab.settingsHeader", "Cài đặt HugoPSY")}</h3>
               </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-base font-black text-orange-500">{streak}<span className="material-symbols-outlined align-middle text-[15px]" aria-hidden="true">local_fire_department</span></p>
-                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
-              </div>
-              <div className="bg-muted/50 rounded-xl p-3 text-center">
-                <p className="text-base font-black text-indigo-500 truncate">{lastTest ? lastTest.name : "—"}</p>
-                <p className="text-[13px] font-bold uppercase tracking-wide text-zinc-400 mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
-              </div>
+              <button type="button" onClick={onClose}
+                className="w-8 h-8 rounded-full bg-white/20 dark:bg-white/10 flex items-center justify-center active:scale-90 transition-transform">
+                <span className="material-symbols-outlined text-foreground/70 text-sm">close</span>
+              </button>
             </div>
-          )}
 
-          {/* Token usage */}
-          <div className="bg-muted/50 rounded-2xl p-4 space-y-3">
-            <p className="text-[13px] font-black uppercase tracking-wider text-zinc-400">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
-            {[
-              { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-primary', low: chatLeft < 4 },
-            ].map(item => (
-              <div key={item.label} className="space-y-1.5">
-                <div className="flex justify-between text-[13px] font-bold">
-                  <span className="text-muted-foreground">{item.label}</span>
-                  <span className={item.low ? 'text-amber-500 font-black' : 'text-zinc-500'}>{item.left + (bio?.bonusChatTokens || 0)}/{item.max}</span>
+            {/* Personalized stats */}
+            {(totalDays > 0 || streak > 0 || lastTest) && (
+              <div className="grid grid-cols-3 gap-2">
+                <div className="swiftui-liquid-glass rounded-2xl p-3 text-center">
+                  <p className="text-base font-black text-foreground">{totalDays}</p>
+                  <p className="text-[12px] font-bold uppercase tracking-wide text-muted-foreground mt-0.5">{t("companion.tab.statsDays", "Ngày đồng hành")}</p>
                 </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${Math.min(100, ((item.left + (bio?.bonusChatTokens || 0)) / item.max) * 100)}%` }} />
+                <div className="swiftui-liquid-glass rounded-2xl p-3 text-center">
+                  <p className="text-base font-black text-orange-500">{streak}<span className="material-symbols-outlined align-middle text-[15px]" aria-hidden="true">local_fire_department</span></p>
+                  <p className="text-[12px] font-bold uppercase tracking-wide text-muted-foreground mt-0.5">{t("companion.tab.statsStreak", "Streak check-in")}</p>
                 </div>
-              </div>
-            ))}
-            {bio?.bonusChatTokens > 0 && (
-              <div className="flex items-center gap-3 pt-1 border-t border-border/60">
-                <span className="flex items-center gap-1 text-[13px] font-black text-indigo-600 dark:text-indigo-400">
-                  <span className="material-symbols-outlined text-[13px]">add_circle</span>
-                  {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
-                </span>
+                <div className="swiftui-liquid-glass rounded-2xl p-3 text-center">
+                  <p className="text-base font-black text-indigo-500 truncate">{lastTest ? lastTest.name : "—"}</p>
+                  <p className="text-[12px] font-bold uppercase tracking-wide text-muted-foreground mt-0.5">{lastTest ? lastTest.when : t("companion.tab.statsNoTest", "Chưa test")}</p>
+                </div>
               </div>
             )}
-            <p className="text-[13px] text-zinc-400 font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
-          </div>
 
-          {/* Notifications */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-amber-500 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>notifications_active</span>
-              </div>
-              <div>
-                <p className="text-[13px] font-bold text-foreground">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
-                <p className="text-[13px] text-zinc-400">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
-              </div>
+            {/* Token usage */}
+            <div className="swiftui-liquid-glass rounded-2xl p-4 space-y-3">
+              <p className="text-[12px] font-black uppercase tracking-wider text-muted-foreground">{t("companion.tab.aiLimitToday", "Giới hạn AI hôm nay")}</p>
+              {[
+                { label: t('companion.tab.limitChat', 'Cuộc trò chuyện'), left: chatLeft, max: chatMax, color: 'bg-primary', low: chatLeft < 4 },
+              ].map(item => (
+                <div key={item.label} className="space-y-1.5">
+                  <div className="flex justify-between text-[13px] font-bold">
+                    <span className="text-muted-foreground">{item.label}</span>
+                    <span className={item.low ? 'text-amber-500 font-black' : 'text-foreground/80'}>{item.left + (bio?.bonusChatTokens || 0)}/{item.max}</span>
+                  </div>
+                  <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                    <div className={`h-full ${item.color} rounded-full transition-all`} style={{ width: `${Math.min(100, ((item.left + (bio?.bonusChatTokens || 0)) / item.max) * 100)}%` }} />
+                  </div>
+                </div>
+              ))}
+              {bio?.bonusChatTokens > 0 && (
+                <div className="flex items-center gap-3 pt-1 border-t border-white/10">
+                  <span className="flex items-center gap-1 text-[13px] font-black text-indigo-600 dark:text-indigo-400">
+                    <span className="material-symbols-outlined text-[13px]">add_circle</span>
+                    {bio.bonusChatTokens} {t("memberPortal.joy.store.chatTokens", "lượt chat")} {t("companion.tab.bonusLabel", "thưởng")}
+                  </span>
+                </div>
+              )}
+              <p className="text-[12px] text-muted-foreground font-semibold">{t("companion.tab.tokenRefreshNote", "Token tự động làm mới lúc 00:00 mỗi ngày")}</p>
             </div>
-            <button type="button" onClick={handlePush}
-              className={`px-3 py-1.5 rounded-full text-[13px] font-black transition-all ${
-                notifStatus === 'granted'   ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
-                notifStatus === 'denied'    ? 'bg-muted text-zinc-400' :
-                notifStatus === 'unsupported' ? 'bg-muted text-zinc-400' :
-                'bg-primary text-white shadow-sm shadow-primary/20'
-              }`}
-              disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
-            >
-              {notifStatus === 'granted' ? t('companion.tab.activeStatus.granted', 'Đã bật') : notifStatus === 'denied' ? t('companion.tab.activeStatus.denied', 'Bị chặn') : notifStatus === 'unsupported' ? t('companion.tab.activeStatus.unsupported', 'Không hỗ trợ') : t('companion.tab.enableNow', 'Bật ngay')}
-            </button>
-          </div>
 
-          {/* Danger zone */}
-          <div className="space-y-2 pt-2 border-t border-border/60">
-            <p className="text-[13px] font-black uppercase tracking-widest text-zinc-400">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
-            <button type="button" onClick={handleClearChat}
-              className="w-full flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-200/50 dark:border-red-900/20 hover:bg-red-500/10 transition-colors text-red-500 text-[13px] font-bold active:scale-[0.98]">
-              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>delete_sweep</span>
-              {t("companion.tab.deleteChatToday", "Xóa lịch sử trò chuyện hôm nay")}
-            </button>
+            {/* Notifications */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-amber-500 text-[17px]" style={{ fontVariationSettings:"'FILL' 1" }}>notifications_active</span>
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold text-foreground">{t("companion.tab.dailyReminder", "Nhắc nhở hằng ngày")}</p>
+                  <p className="text-[12px] text-muted-foreground">{t("companion.tab.checkinSchedule", "Check-in cảm xúc + lộ trình")}</p>
+                </div>
+              </div>
+              <button type="button" onClick={handlePush}
+                className={`px-3 py-1.5 rounded-full text-[13px] font-black transition-all ${
+                  notifStatus === 'granted'   ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' :
+                  notifStatus === 'denied'    ? 'bg-muted text-zinc-400' :
+                  notifStatus === 'unsupported' ? 'bg-muted text-zinc-400' :
+                  'bg-primary text-white shadow-sm shadow-primary/20'
+                }`}
+                disabled={notifStatus === 'denied' || notifStatus === 'unsupported'}
+              >
+                {notifStatus === 'granted' ? t('companion.tab.activeStatus.granted', 'Đã bật') : notifStatus === 'denied' ? t('companion.tab.activeStatus.denied', 'Bị chặn') : notifStatus === 'unsupported' ? t('companion.tab.activeStatus.unsupported', 'Không hỗ trợ') : t('companion.tab.enableNow', 'Bật ngay')}
+              </button>
+            </div>
+
+            {/* Danger zone */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <p className="text-[12px] font-black uppercase tracking-widest text-muted-foreground">{t("companion.tab.dangerZone", "Vùng nguy hiểm")}</p>
+              <button type="button" onClick={handleClearChat}
+                className="w-full flex items-center gap-3 p-3 rounded-2xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors text-red-500 text-[13px] font-bold active:scale-[0.98]">
+                <span className="material-symbols-outlined text-base" style={{ fontVariationSettings:"'FILL' 1" }}>delete_sweep</span>
+                {t("companion.tab.deleteChatToday", "Xóa lịch sử trò chuyện hôm nay")}
+              </button>
+            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </BorderBeam>
     </motion.div>
   );
 }
@@ -550,7 +558,11 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
     return () => clearInterval(t);
   }, [syncWithDb]);
 
-  const handleSubTabChange = (id) => { setActiveSubTab(id); setPresetTest(null); };
+  const handleSubTabChange = (id) => {
+    sensory.tap();
+    setActiveSubTab(id);
+    setPresetTest(null);
+  };
   // useCallback so this stays a stable prop reference into ChatTab → keeps
   // ChatMessages.jsx's React.memo from being defeated by a fresh fn every render.
   const handleNavigateToTab = useCallback((id, preset = null) => { setActiveSubTab(id); setPresetTest(preset); }, []);
@@ -657,10 +669,15 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
           ChatTab's own header (with its back-chevron via onExitFullscreen) is
           the only app bar shown in that mode. Always visible on desktop. */}
       <div className={`psy-app-header relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
-        <div className="psy-app-brand">
-          <span className="psy-app-icon"><BrainCircuit /></span>
+        <div className="psy-app-brand flex items-center gap-3">
+          <AnimulaAvatar size={42} state="default" type="clover" />
           <div>
-            <h2>HugoPSY</h2>
+            <div className="flex items-center gap-2">
+              <h2>Hugo Animula</h2>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 whitespace-nowrap">
+                Latin Soul
+              </span>
+            </div>
             <p>{t("companion.tab.subtitle", "Người bạn đồng hành tinh thần")}</p>
           </div>
         </div>
@@ -722,15 +739,7 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
           );
         })}
       </div>
-
-      {/* ── Main workspace ─────────────────────────────────────────────────────────
-          True fullscreen for the Chat tab is handled one level up — see
-          MemberPortalPage.jsx's `isFullscreenUtility` branch, which renders
-          this whole component inside its own `fixed inset-0` page (no portal
-          header/bottom tab bar at all), exactly like HugoArcade/HugoCoder
-          already do. A `fixed` div nested in here can't escape that ancestor's
-          stacking context to cover siblings outside it, so this just needs to
-          fill the height it's given. */}
+      {/* ── Main workspace ───────────────────────────────────────────────────────── */}
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* Desktop sidebar (md+) */}
@@ -763,102 +772,104 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
         )}
 
         {/* Content area */}
-        <div className={`psy-workspace flex-1 min-w-0 overflow-hidden flex flex-col relative ${
-          effectiveSubTab === "chat"
-            ? "rounded-none border-0 shadow-none md:rounded-3xl md:border md:border-zinc-200/40 md:dark:border-zinc-800/50 md:shadow-lg"
-            : "rounded-3xl border border-border/40 shadow-lg"
-        }`}>
-          {/* Subtle animated background */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-[80px]" />
-            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-400/10 dark:bg-purple-600/10 rounded-full blur-[80px]" />
-          </div>
+        <BorderBeam size="md" colorVariant="ocean" strength={0.4} borderRadius={28} className="flex-1 min-w-0 flex flex-col h-full">
+          <div className={`psy-workspace swiftui-liquid-glass flex-1 min-w-0 overflow-hidden flex flex-col relative ${
+            effectiveSubTab === "chat"
+              ? "rounded-none border-0 shadow-none md:rounded-[28px]"
+              : "rounded-none border-0 shadow-none md:rounded-[28px]"
+          }`}>
+            {/* Subtle animated background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+              <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-400/10 dark:bg-blue-600/10 rounded-full blur-[80px]" />
+              <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-400/10 dark:bg-purple-600/10 rounded-full blur-[80px]" />
+            </div>
 
-          <div className="relative z-10 flex-1 flex flex-col min-h-0">
-            {/* Bốn tab đều là chunk riêng. Chunk hỏng mà không có ranh giới lỗi thì
-                lỗi vọt lên làm trắng cả portal — ở một app sức khoẻ tâm thần, đó
-                là chặn luôn đường tới danh sách đường dây nóng. `resetKey` theo
-                tab để một tab lỗi không khoá ba tab kia. */}
-            <LazyBoundary resetKey={effectiveSubTab}>
-            <React.Suspense
-              fallback={
-                <div className="flex flex-1 items-center justify-center">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
-                </div>
-              }
-            >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={effectiveSubTab}
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -12 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
-                className="flex-1 flex flex-col min-h-0 h-full"
+            <div className="relative z-10 flex-1 flex flex-col min-h-0">
+              {/* Bốn tab đều là chunk riêng. Chunk hỏng mà không có ranh giới lỗi thì
+                  lỗi vọt lên làm trắng cả portal — ở một app sức khoẻ tâm thần, đó
+                  là chặn luôn đường tới danh sách đường dây nóng. `resetKey` theo
+                  tab để một tab lỗi không khoá ba tab kia. */}
+              <LazyBoundary resetKey={effectiveSubTab}>
+              <React.Suspense
+                fallback={
+                  <div className="flex flex-1 items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
+                  </div>
+                }
               >
-                {effectiveSubTab === "chat" && (
-                  <ChatTab
-                    key={clearMessagesKey}
-                    onNavigateToTab={handleNavigateToTab}
-                    onExitFullscreen={onBack}
-                    journeyProgress={journeyProgress}
-                    bio={bio}
-                    historyLogs={historyLogs}
-                    onUpdateCompanionState={handleUpdateCompanionState}
-                    chatMessages={chatMessages}
-                    presetTest={presetTest}
-                    setPresetTest={setPresetTest}
-                    showToast={showToast}
-                    healingActive={healingActive}
-                    onClaimChallenge={handleClaimChallenge}
-                    isGuestMode={isGuestMode}
-                    requireAccount={requireAccount}
-                    onProfileUpdate={(newFields) => {
-                      if (setFormData && handleSave) {
-                        setFormData(prev => {
-                          const updated = { ...prev, ...newFields };
-                          setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
-                          return updated;
-                        });
-                      }
-                    }}
-                  />
-                )}
-                {effectiveSubTab === "therapy" && (
-                  <TherapyTab
-                    onNavigateToTab={handleNavigateToTab}
-                    bio={bio}
-                    historyLogs={historyLogs}
-                    chatMessages={chatMessages}
-                    claimedChallengesToday={claimedChallengesToday}
-                    onClaimChallenge={handleClaimChallenge}
-                    onUpdateCompanionState={handleUpdateCompanionState}
-                    healingActive={healingActive}
-                    showToast={showToast}
-                    initialMethod={presetTest}
-                    onBioUpdate={(newFields) => {
-                      if (setFormData && handleSave) {
-                        setFormData(prev => {
-                          const updated = { ...prev, ...newFields };
-                          setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
-                          return updated;
-                        });
-                      }
-                    }}
-                  />
-                )}
-                {effectiveSubTab === "sleep" && (
-                  <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} /></div>
-                )}
-                {effectiveSubTab === "evaluation" && (
-                  <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
-                )}
-              </motion.div>
-            </AnimatePresence>
-            </React.Suspense>
-            </LazyBoundary>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={effectiveSubTab}
+                  initial={{ opacity: 0, x: 12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -12 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="flex-1 flex flex-col min-h-0 h-full"
+                >
+                  {effectiveSubTab === "chat" && (
+                    <ChatTab
+                      key={clearMessagesKey}
+                      onNavigateToTab={handleNavigateToTab}
+                      onExitFullscreen={onBack}
+                      journeyProgress={journeyProgress}
+                      bio={bio}
+                      historyLogs={historyLogs}
+                      onUpdateCompanionState={handleUpdateCompanionState}
+                      chatMessages={chatMessages}
+                      presetTest={presetTest}
+                      setPresetTest={setPresetTest}
+                      showToast={showToast}
+                      healingActive={healingActive}
+                      onClaimChallenge={handleClaimChallenge}
+                      isGuestMode={isGuestMode}
+                      requireAccount={requireAccount}
+                      onProfileUpdate={(newFields) => {
+                        if (setFormData && handleSave) {
+                          setFormData(prev => {
+                            const updated = { ...prev, ...newFields };
+                            setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
+                            return updated;
+                          });
+                        }
+                      }}
+                    />
+                  )}
+                  {effectiveSubTab === "therapy" && (
+                    <TherapyTab
+                      onNavigateToTab={handleNavigateToTab}
+                      bio={bio}
+                      historyLogs={historyLogs}
+                      chatMessages={chatMessages}
+                      claimedChallengesToday={claimedChallengesToday}
+                      onClaimChallenge={handleClaimChallenge}
+                      onUpdateCompanionState={handleUpdateCompanionState}
+                      healingActive={healingActive}
+                      showToast={showToast}
+                      initialMethod={presetTest}
+                      onBioUpdate={(newFields) => {
+                        if (setFormData && handleSave) {
+                          setFormData(prev => {
+                            const updated = { ...prev, ...newFields };
+                            setTimeout(() => handleSave({ preventDefault: () => {} }, updated), 0);
+                            return updated;
+                          });
+                        }
+                      }}
+                    />
+                  )}
+                  {effectiveSubTab === "sleep" && (
+                    <div className="flex-1 overflow-y-auto p-4"><SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} /></div>
+                  )}
+                  {effectiveSubTab === "evaluation" && (
+                    <EvaluationTab onNavigateToTab={handleNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+              </React.Suspense>
+              </LazyBoundary>
+            </div>
           </div>
-        </div>
+        </BorderBeam>
       </div>
 
       {/* ── Settings panel ────────────────────────────────────────────────────── */}
@@ -881,36 +892,38 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
           >
-            <motion.div
-              initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-              className="bg-card rounded-3xl border border-emerald-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5 overflow-hidden"
-            >
-              <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-full -mx-6 -mt-6 mb-2" />
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
-                <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
-                <p className="text-[13px] text-zinc-500 mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
-              </div>
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-4 text-left space-y-2">
-                <p className="text-[13px] text-muted-foreground leading-relaxed">
-                  {t("companion.tab.adaptiveAlert.recorded", "Ghi nhận:")} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
-                </p>
-                <p className="text-[13px] text-muted-foreground leading-relaxed">
-                  {t("companion.tab.adaptiveAlert.reduced", { count: adaptationAlert.reducedDays }, `Rút ngắn: -${adaptationAlert.reducedDays} ngày`)}
-                </p>
-                <div className="flex justify-between text-[13px] font-bold text-zinc-500 pt-2 border-t border-emerald-200 dark:border-emerald-800">
-                  <span>{t("companion.tab.adaptiveAlert.before", { count: adaptationAlert.oldDuration }, `Trước: ${adaptationAlert.oldDuration} ngày`)}</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">{t("companion.tab.adaptiveAlert.newDuration", { count: adaptationAlert.newDuration }, `Mới: ${adaptationAlert.newDuration} ngày`)}</span>
+            <BorderBeam size="md" colorVariant="forest" strength={0.9} borderRadius={28} className="max-w-sm w-full">
+              <motion.div
+                initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
+                className="swiftui-liquid-glass rounded-[28px] p-6 max-w-sm w-full shadow-2xl text-center space-y-5 overflow-hidden"
+              >
+                <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-full -mx-6 -mt-6 mb-2" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
+                  <span className="material-symbols-outlined text-white text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>auto_awesome</span>
                 </div>
-              </div>
-              <p className="text-[13px] text-zinc-500 italic">{t("companion.tab.adaptiveAlert.encouragement", "\"Cậu đang làm rất tốt — tiếp tục nhé!\"")}</p>
-              <button type="button" onClick={() => setAdaptationAlert(null)}
-                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[13px] font-extrabold uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all">
-                {t("companion.tab.adaptiveAlert.btn", "Tuyệt vời, tiếp tục thôi!")}
-              </button>
-            </motion.div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.adaptiveAlert.title", "Tiến triển xuất sắc!")}</h4>
+                  <p className="text-[13px] text-muted-foreground mt-1">{t("companion.tab.adaptiveAlert.subtitle", "Lộ trình đồng hành thích ứng")}</p>
+                </div>
+                <div className="swiftui-liquid-glass rounded-2xl p-4 text-left space-y-2 border border-emerald-500/20">
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">
+                    {t("companion.tab.adaptiveAlert.recorded", "Ghi nhận:")} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{adaptationAlert.improvement}</span>
+                  </p>
+                  <p className="text-[13px] text-muted-foreground leading-relaxed">
+                    {t("companion.tab.adaptiveAlert.reduced", { count: adaptationAlert.reducedDays }, `Rút ngắn: -${adaptationAlert.reducedDays} ngày`)}
+                  </p>
+                  <div className="flex justify-between text-[13px] font-bold text-muted-foreground pt-2 border-t border-emerald-500/20">
+                    <span>{t("companion.tab.adaptiveAlert.before", { count: adaptationAlert.oldDuration }, `Trước: ${adaptationAlert.oldDuration} ngày`)}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{t("companion.tab.adaptiveAlert.newDuration", { count: adaptationAlert.newDuration }, `Mới: ${adaptationAlert.newDuration} ngày`)}</span>
+                  </div>
+                </div>
+                <p className="text-[13px] text-muted-foreground italic">{t("companion.tab.adaptiveAlert.encouragement", "\"Cậu đang làm rất tốt — tiếp tục nhé!\"")}</p>
+                <button type="button" onClick={() => setAdaptationAlert(null)}
+                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[13px] font-extrabold uppercase tracking-wider rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all">
+                  {t("companion.tab.adaptiveAlert.btn", "Tuyệt vời, tiếp tục thôi!")}
+                </button>
+              </motion.div>
+            </BorderBeam>
           </motion.div>
         )}
       </AnimatePresence>
@@ -922,32 +935,34 @@ export default function BanhocduongTab({ onBack, route: activeSubTabProp, onRout
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
           >
-            <motion.div
-              initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-              className="bg-card rounded-3xl border border-red-500/20 p-6 max-w-sm w-full shadow-2xl text-center space-y-5"
-            >
-              <div className="h-1 bg-gradient-to-r from-red-500 via-orange-400 to-red-500 rounded-full -mx-6 -mt-6 mb-2" />
-              <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
-                <span className="material-symbols-outlined text-red-500 text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
-              </div>
-              <div>
-                <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
-                <p className="text-[13px] text-zinc-500 mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
-              </div>
-              <p className="text-[13px] text-muted-foreground leading-relaxed text-left bg-red-50 dark:bg-red-900/10 rounded-xl p-3 border border-red-200/50 dark:border-red-900/20">
-                {t("companion.tab.stopRoadmap.desc", "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?")}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <button type="button" onClick={() => setShowCancelModal(false)}
-                  className="py-3 rounded-2xl border border-border text-[13px] font-bold text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
-                  {t("companion.tab.stopRoadmap.cancel", "Quay lại")}
-                </button>
-                <button type="button" onClick={confirmCancelHealing}
-                  className="py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-extrabold shadow-md shadow-red-500/20 active:scale-[0.98] transition-all">
-                  {t("companion.tab.stopRoadmap.confirm", "Xác nhận dừng")}
-                </button>
-              </div>
-            </motion.div>
+            <BorderBeam size="md" colorVariant="sunset" strength={0.85} borderRadius={28} className="max-w-sm w-full">
+              <motion.div
+                initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
+                className="swiftui-liquid-glass rounded-[28px] p-6 max-w-sm w-full shadow-2xl text-center space-y-5"
+              >
+                <div className="h-1 bg-gradient-to-r from-red-500 via-orange-400 to-red-500 rounded-full -mx-6 -mt-6 mb-2" />
+                <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
+                  <span className="material-symbols-outlined text-red-500 text-3xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-foreground">{t("companion.tab.stopRoadmap.title", "Dừng lộ trình?")}</h4>
+                  <p className="text-[13px] text-muted-foreground mt-1">{t("companion.tab.stopRoadmap.subtitle", "Thao tác này không thể hoàn tác")}</p>
+                </div>
+                <p className="text-[13px] text-muted-foreground leading-relaxed text-left swiftui-liquid-glass rounded-xl p-3 border border-red-500/20">
+                  {t("companion.tab.stopRoadmap.desc", "Dữ liệu check-in, lịch sử trắc nghiệm và nhật ký cảm xúc sẽ bị xóa vĩnh viễn. Cậu có chắc chắn không?")}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" onClick={() => setShowCancelModal(false)}
+                    className="py-3 rounded-2xl border border-white/20 text-[13px] font-bold text-muted-foreground hover:bg-white/10 transition-colors">
+                    {t("companion.tab.stopRoadmap.cancel", "Quay lại")}
+                  </button>
+                  <button type="button" onClick={confirmCancelHealing}
+                    className="py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-extrabold shadow-md shadow-red-500/20 active:scale-[0.98] transition-all">
+                    {t("companion.tab.stopRoadmap.confirm", "Xác nhận dừng")}
+                  </button>
+                </div>
+              </motion.div>
+            </BorderBeam>
           </motion.div>
         )}
       </AnimatePresence>

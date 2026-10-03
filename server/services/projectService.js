@@ -2,6 +2,9 @@ import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import CustomerProject from '../models/CustomerProject.js';
 import Counter from '../models/Counter.js';
+import { onStatusChanged } from './projectContractService.js';
+import { gateStatus, CHECK_ITEMS } from '../../shared/projectPhases.js';
+import { normalizePackageId, MARKETS } from '../../shared/projectPackages.js';
 import {
   PROJECT_STATUSES, canTransition, formatProjectId, projectIdPeriod,
   estimateProject, addWorkingDays, MAX_CUSTOMER_EDITS,
@@ -46,7 +49,7 @@ function historyEntry({ actor, actorName = '', action, fromStatus = '', toStatus
 /**
  * Admin mở một dự án mới. Mã sinh ở đây, không nhận từ client.
  */
-export async function createProject({ name, customer = {}, packageId = '', actorName = 'admin' }) {
+export async function createProject({ name, customer = {}, packageId = '', market = 'domestic', actorName = 'admin' }) {
   const period = projectIdPeriod();
   const seq = await nextSequence(period);
   const projectId = formatProjectId(period, seq);
@@ -57,7 +60,9 @@ export async function createProject({ name, customer = {}, packageId = '', actor
     name: String(name).trim(),
     accessCode: generateAccessCode(),
     formToken: generateFormToken(),
-    packageId,
+    packageId: normalizePackageId(packageId) || packageId,
+    // Trong nước → VNĐ + hợp đồng gốc tiếng Việt; quốc tế → USD + bản gốc tiếng Anh.
+    market: MARKETS[market] ? market : 'domestic',
     status: 'draft',
     customer: {
       fullName: customer.fullName || '',
@@ -67,7 +72,7 @@ export async function createProject({ name, customer = {}, packageId = '', actor
     },
     history: [historyEntry({
       actor: 'admin', actorName, action: 'Mở hồ sơ dự án', toStatus: 'draft',
-      note: `Cấp mã ${projectId}`,
+      note: `Cấp mã ${projectId} · ${(MARKETS[market] || MARKETS.domestic).label}`,
     })],
   });
 }
@@ -97,6 +102,21 @@ export async function transitionProject(project, toStatus, { actor, actorName = 
 
   const target = PROJECT_STATUSES[toStatus];
 
+  // Cổng giai đoạn: bước TIẾN phải đủ điều kiện (shared/projectPhases.js).
+  const gate = gateStatus(project.toObject ? project.toObject() : project, toStatus);
+  if (!gate.ok) {
+    const error = new Error(`Chưa đủ điều kiện để sang "${target.adminLabel}": ${gate.missing.map((id) => CHECK_ITEMS[id].label).join('; ')}.`);
+    error.code = 'GATE';
+    throw error;
+  }
+
+  // Chấm dứt chỉ đi qua cửa riêng (recordTermination) — phải có căn cứ trước.
+  if (toStatus === 'terminated' && !project.termination?.at) {
+    const error = new Error('Chấm dứt hợp đồng phải ghi căn cứ và lý do ở mục Chấm dứt.');
+    error.code = 'BAD_TRANSITION';
+    throw error;
+  }
+
   // Bàn giao mà chưa có tệp mã nguồn thì thư "đã bàn giao" là nói dối.
   if (target.requiresSourceZip && !project.sourceDelivery?.fileUrl) {
     const error = new Error('Chưa có tệp mã nguồn. Tải tệp ZIP lên trước khi chuyển sang bàn giao.');
@@ -107,7 +127,7 @@ export async function transitionProject(project, toStatus, { actor, actorName = 
   // Chốt thiết kế: khoá phạm vi và tính ngày dự kiến TỪ ĐÂY, không phải từ lúc
   // mở hồ sơ — đồng hồ chỉ chạy khi đã biết phải làm gì.
   if (target.startsEstimate && !project.estimate?.startedAt) {
-    const estimate = estimateProject(project.packageId, project.requirements || {});
+    const estimate = estimateProject(normalizePackageId(project.packageId) || project.packageId, project.requirements || {});
     const startedAt = new Date();
     const dueAt = addWorkingDays(startedAt, estimate.workingDays);
     project.estimate = {
@@ -125,6 +145,7 @@ export async function transitionProject(project, toStatus, { actor, actorName = 
   project.history.push(historyEntry({
     actor, actorName, action: 'Đổi trạng thái', fromStatus: from, toStatus, note,
   }));
+  onStatusChanged(project, toStatus, { actorName });
   await project.save();
 
   return { project, shouldNotify: Boolean(target.notify) };
@@ -156,7 +177,7 @@ export async function saveRequirements(project, requirements, { actor, actorName
 
   const first = !project.requirementsSubmittedAt;
   project.requirements = { ...before, ...requirements };
-  if (requirements.packageId) project.packageId = requirements.packageId;
+  if (requirements.packageId) project.packageId = normalizePackageId(requirements.packageId) || requirements.packageId;
   for (const key of ['fullName', 'email', 'phone', 'orgName']) {
     if (requirements[key]) project.customer[key] = key === 'email'
       ? String(requirements[key]).toLowerCase() : requirements[key];
@@ -199,7 +220,9 @@ export function toCustomerView(project) {
   delete obj.accessCode;
   delete obj.formToken;
   delete obj.adminNote;
+  if (obj.scope) delete obj.scope.savedBy;
   obj.backlog = (obj.backlog || []).filter((item) => item.visibleToCustomer);
+  obj.worklog = (obj.worklog || []).filter((w) => w.visibleToCustomer !== false);
   obj.history = (obj.history || []).filter((h) => h.actor !== 'admin' || h.toStatus);
   return obj;
 }

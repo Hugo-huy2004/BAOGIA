@@ -87,7 +87,7 @@ function PackageCard({ name, duration, durationUnit, color, startLabel, expiresL
       <div className="relative z-10 h-full flex flex-col justify-between text-white">
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[9px] font-black uppercase tracking-widest opacity-80 flex items-center gap-1.5">
+            <span className="text-[13px] font-black uppercase tracking-widest opacity-80 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               {isBasePackage ? t("memberPortal.package.base", "GÓI CƠ BẢN") : t("memberPortal.package.promo", "GÓI ƯU ĐÃI")}
             </span>
@@ -99,12 +99,12 @@ function PackageCard({ name, duration, durationUnit, color, startLabel, expiresL
         </div>
         <div className="flex items-end justify-between mt-2">
           <div>
-            <span className="block text-[8px] font-bold uppercase tracking-widest opacity-75">{t("memberPortal.package.startDate", "Ngày bắt đầu")}</span>
-            <span className="text-[12px] font-mono font-bold tracking-wide">{startLabel}</span>
+            <span className="block text-[13px] font-bold uppercase tracking-widest opacity-75">{t("memberPortal.package.startDate", "Ngày bắt đầu")}</span>
+            <span className="text-[13px] font-mono font-bold tracking-wide">{startLabel}</span>
           </div>
           <div className="text-right">
-            <span className="block text-[8px] font-bold uppercase tracking-widest opacity-75">{expiresLabel ? t("memberPortal.package.bioDuration", "Hạn dùng") : t("memberPortal.package.addedDuration", "Thời hạn")}</span>
-            <span className="text-[12px] font-mono font-bold tracking-wide">{durationLabel}</span>
+            <span className="block text-[13px] font-bold uppercase tracking-widest opacity-75">{expiresLabel ? t("memberPortal.package.bioDuration", "Hạn dùng") : t("memberPortal.package.addedDuration", "Thời hạn")}</span>
+            <span className="text-[13px] font-mono font-bold tracking-wide">{durationLabel}</span>
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@ function PackageDetailsSheet({ pkg, onClose, t }) {
             </span>
             <div>
               <h3 className="text-sm font-black text-foreground uppercase tracking-tight">{pkg.name}</h3>
-              <p className="text-[9px] text-muted-foreground/70">{t("memberTabs.manage.benefitsTitle")}</p>
+              <p className="text-[13px] text-muted-foreground/70">{t("memberTabs.manage.benefitsTitle")}</p>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-zinc-500">
@@ -142,13 +142,13 @@ function PackageDetailsSheet({ pkg, onClose, t }) {
           <div className="space-y-2">
             {benefits.map((benefit, i) => (
               <div key={i} className="flex gap-2.5 items-start p-3 rounded-xl bg-muted/50 border border-border/60">
-                <span className="material-symbols-outlined text-xs mt-0.5 shrink-0" style={{ color: pkg.color }}>check_circle</span>
-                <p className="text-[11px] font-bold text-foreground/80 leading-relaxed">{benefit}</p>
+                <span className="material-symbols-outlined text-sm mt-0.5 shrink-0" style={{ color: pkg.color }}>check_circle</span>
+                <p className="text-[13px] font-bold text-foreground/80 leading-relaxed">{benefit}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-[10px] text-muted-foreground italic py-2">{t("memberPortal.package.noDetails")}</p>
+          <p className="text-[13px] text-muted-foreground italic py-2">{t("memberPortal.package.noDetails")}</p>
         )}
       </div>
     </div>
@@ -294,7 +294,7 @@ export default function BioPreviewTab({
                 <span className="material-symbols-outlined text-base text-primary" aria-hidden="true">wallet</span>
                 {t("memberTabs.manage.ownedPackagesTitle")}
               </h2>
-              <p className="text-[10px] text-muted-foreground/70">{t("memberTabs.manage.ownedPackagesDesc")}</p>
+              <p className="text-[13px] text-muted-foreground/70">{t("memberTabs.manage.ownedPackagesDesc")}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <PackageCard

@@ -24,7 +24,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
-import { servicePackages } from "../src/data/servicePackages.js";
+import { priceCurrency, servicePackages } from "../src/data/servicePackages.js";
+import { SERVICE_ADDONS, addonPath } from "../src/data/serviceAddons.js";
 import { projects } from "../src/data/projects.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -33,9 +34,10 @@ const ORIGIN = "https://www.hugowishpax.studio";
 
 /** Bốn gói kèm giá, đọc từ cùng nguồn với trang thật. Gói báo giá riêng không
  *  có mức trần nên chỉ in một con số. */
+// Chỉ đọc SỐ ĐẦU TIÊN: bản en/zh ghi "₫5,690,000 (≈ $219)" — gộp mọi chữ số sẽ ra 5690000219.
 const digitsOf = (display) => {
-  const d = String(display || "").replace(/[^\d]/g, "");
-  return d ? Number(d) : undefined;
+  const m = String(display || "").match(/\d[\d.,\s]*\d|\d/);
+  return m ? Number(m[0].replace(/[^\d]/g, "")) : undefined;
 };
 
 const planList = (tr) =>
@@ -47,6 +49,12 @@ const planList = (tr) =>
       // Gói miễn phí có `to` là thời hạn ("365 ngày"), không phải tiền — đọc nó
       // như một con số sẽ kéo sập khoảng giá của cả trang.
       free: !!pkg.freeTier,
+      // Một dòng phạm vi cho llms.txt: thời gian · số trang · bảo hành.
+      scope: [
+        tr.servicePkg.compare.cells.time?.[pkg.id],
+        tr.servicePkg.compare.cells.pages?.[pkg.id],
+        tr.servicePkg.stats.warrantyValue?.[pkg.id],
+      ].filter(Boolean).join(" · "),
       min: pkg.freeTier ? 0 : digitsOf(price.from),
       max: pkg.freeTier ? 0 : digitsOf(price.to) || digitsOf(price.from),
     };
@@ -67,6 +75,15 @@ const LOCALES = [
   { code: "zh", prefix: "/zh" },
 ];
 
+const OG_LOCALE = { vi: "vi_VN", en: "en_US", zh: "zh_CN" };
+// x-default là trang cho người đọc không khớp ngôn ngữ nào: khách quốc tế →
+// bản tiếng Anh nếu trang đó có bản tiếng Anh, nếu không thì bản gốc tiếng Việt.
+const xDefault = (p) => ((publishedLocalePaths.get(p) || LOCALES).some((l) => l.code === "en") ? `/en${p}` : p);
+
+// Filled before writing pages. A locale with untranslated copy is deliberately
+// not published, so it must not appear in any hreflang cluster either.
+let publishedLocalePaths = new Map();
+
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 
 function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
@@ -76,7 +93,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
 
   /** "Từ 1.490.000đ" → 1490000. Schema.org needs a number, not the display string. */
   /** Số tiền máy đọc cho một gói: 0 nếu miễn phí, mức sàn nếu là khoảng. */
-  const vndAmount = (plan) => (plan.free ? 0 : plan.min);
+  const offerAmount = (plan) => (plan.free ? 0 : plan.min);
 
   const esc = (s) =>
     String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -113,7 +130,8 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
       body: () =>
         `<h1>${esc(t.intro.cine.heroTitle1)} ${esc(t.intro.cine.heroTitle2)}</h1>` +
         `<p>${esc(t.intro.cine.heroDesc)}</p>` +
-        `<h2>${esc(t.intro.cine.work.title)}</h2><p>${esc(t.intro.cine.work.desc)}</p>`,
+        `<h2>${esc(t.intro.cine.work.title)}</h2><p>${esc(t.intro.cine.work.desc)}</p>` +
+        `<p><a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="${prefix}/services">${esc(h1of(t.servicesPage.meta.title))}</a></p>`,
     },
     {
       path: "/services",
@@ -137,8 +155,9 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
             url: `${ORIGIN}/services`,
             image: `${ORIGIN}/og-image.png`,
             description: t.servicesPage.meta.description,
-            areaServed: { "@type": "Country", name: "Việt Nam" },
-            availableLanguage: ["vi", "en"],
+            // Mọi bản đều niêm yết VNĐ; en/zh kèm "≈ $…" tham khảo cho khách nước ngoài.
+            ...(lang === "vi" ? { areaServed: { "@type": "Country", name: "Việt Nam" } } : {}),
+            availableLanguage: ["vi", "en", "zh"],
             priceRange: `${Math.min(...amounts).toLocaleString("vi-VN")}₫ – ${Math.max(...amounts).toLocaleString("vi-VN")}₫`,
           },
           {
@@ -154,21 +173,23 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
       schema: () => ({
         "@context": "https://schema.org",
         "@type": "Service",
-        name: "Thiết kế website",
-        provider: { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
-        areaServed: { "@type": "Country", name: "Vietnam" },
+        name: lang === "en" ? "Freelance website and landing page development" : "Thiết kế website",
+        provider: lang === "en"
+          ? { "@type": "Person", name: "Hugo Wishpax", jobTitle: "Freelance Web Developer", url: `${ORIGIN}/en/introduction` }
+          : { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+        ...(lang === "en" ? {} : { areaServed: { "@type": "Country", name: "Vietnam" } }),
         hasOfferCatalog: {
           "@type": "OfferCatalog",
           name: "Bảng giá dịch vụ website",
           itemListElement: plans.map((p) => ({
             "@type": "Offer",
             itemOffered: { "@type": "Service", name: p.name },
-            priceCurrency: "VND",
+            priceCurrency: priceCurrency(lang),
             description: p.price,
             priceSpecification: {
               "@type": "PriceSpecification",
-              priceCurrency: "VND",
-              price: vndAmount(p),
+              priceCurrency: priceCurrency(lang),
+              price: offerAmount(p),
               valueAddedTaxIncluded: true,
             },
           })),
@@ -314,7 +335,110 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         description: item(pr.id, "summary", pr.summary),
         url: `${ORIGIN}/project/${pr.id}`,
         ...(pr.url ? { sameAs: [pr.url] } : {}),
-        author: { "@type": "Person", name: "Lê Gia Huy" },
+        author: { "@type": "Person", name: "Hugo Wishpax" },
+      }),
+    });
+  }
+
+  // Trang từng gói trả phí: trước đây chỉ có bản SPA, nên Google và bot AI đọc
+  // được đúng cái khung rỗng. Chữ lấy từ cùng servicePkg.* mà trang thật render.
+  for (const pkg of servicePackages.filter((p) => !p.freeTier)) {
+    const it = t.servicePkg.items[pkg.id];
+    const cells = t.servicePkg.compare.cells;
+    const price = it.price.to ? `${it.price.from} – ${it.price.to}` : it.price.from;
+    const facts = [
+      [t.servicePkg.stats.price, price],
+      [t.servicePkg.stats.time, cells.time[pkg.id]],
+      [t.servicePkg.stats.pages, cells.pages[pkg.id]],
+      [t.servicePkg.stats.warranty, t.servicePkg.stats.warrantyValue[pkg.id]],
+    ];
+    const includes = [t.servicePkg.handCoded, ...it.includes, ...t.servicePkg.includesTail];
+    routes.push({
+      path: `/services/${pkg.slug}`,
+      title: it.seo?.title || `${pkg.name} — ${it.title} | Hugo Studio`,
+      description: it.seo?.description || `${it.lede} ${price}.`,
+      keywords: it.seo?.keywords || `${pkg.name}, ${t.servicesPage.meta.keywords}`,
+      body: () =>
+        `<h1>${esc(pkg.name)} — ${esc(it.title)}</h1><p>${esc(it.lede)}</p>` +
+        `<ul>${facts.map(([k, v]) => `<li>${esc(k)}: ${esc(v)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.detail.includesTitle)}</h2>` +
+        `<ul>${includes.map((x) => `<li><strong>${esc(x.title)}</strong> ${esc(x.body)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.detail.priceTitle)}</h2><p>${esc(it.price.note)}</p>` +
+        `<h2>${esc(t.servicePkg.detail.extraFeesTitle)}</h2>` +
+        `<ul>${SERVICE_ADDONS.map((ad) => { const b = t.servicePkg.addonItems[ad.id]; return `<li><a href="${prefix}${addonPath(ad)}">${esc(b.name)}</a> (${esc(b.for)}): ${esc(b.price)}</li>`; }).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.detail.unitsTitle)}</h2>` +
+        `<ul>${t.servicePkg.addons.units.map((u) => `<li>${esc(u.title)}: ${esc(u.price)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.detail.excludesTitle)}</h2>` +
+        `<ul>${t.servicePkg.excludes.map((x) => `<li><strong>${esc(x.title)}</strong> ${esc(x.body)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.warrantyTerms.title)}</h2>` +
+        `<ul>${t.servicePkg.warrantyTerms.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.warrantyExclusions.title)}</h2>` +
+        `<ul>${t.servicePkg.warrantyExclusions.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` +
+        `<h2>${esc(t.servicePkg.feedback.title)}</h2>` +
+        `<ul>${t.servicePkg.feedback.rules.map((r) => `<li><strong>${esc(r.title)}</strong> ${esc(r.body)}</li>`).join("")}</ul>` +
+        (it.faq || []).map((f) => `<h2>${esc(f.question)}</h2><p>${esc(f.answer)}</p>`).join("") +
+        `<p><a href="${prefix}/booking">${esc(t.servicePkg.detail.closingCta)}</a> · <a href="${prefix}/services">${esc(t.servicePkg.detail.backToAll)}</a></p>`,
+      schema: () => ({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: `${pkg.name} — ${it.title}`,
+        description: it.lede,
+        provider: { "@id": `${ORIGIN}/#studio` },
+        url: `${ORIGIN}${prefix}/services/${pkg.slug}`,
+        offers: {
+          "@type": "Offer",
+          priceCurrency: priceCurrency(lang),
+          description: price,
+          ...(digitsOf(it.price.from) ? { price: digitsOf(it.price.from) } : {}),
+        },
+      }),
+      extraSchema: () => (it.faq?.length
+        ? [{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: it.faq.map((f) => ({
+              "@type": "Question",
+              name: f.question,
+              acceptedAnswer: { "@type": "Answer", text: f.answer },
+            })),
+          }]
+        : []),
+    });
+  }
+
+  // Trang từng gói lẻ /services/add-ons/<slug>: link Hugo copy gửi khách, nên bot và
+  // xem trước liên kết Zalo/Facebook phải đọc được đủ giá và điều khoản.
+  for (const ad of SERVICE_ADDONS) {
+    const b = t.servicePkg.addonItems[ad.id];
+    const pg = t.servicePkg.addonPage;
+    const li = (arr) => `<ul>${arr.map((x) => `<li>${typeof x === "string" ? esc(x) : `<strong>${esc(x.title)}</strong> ${esc(x.body || x.price || "")}`}</li>`).join("")}</ul>`;
+    routes.push({
+      path: addonPath(ad),
+      title: b.seo?.title || `${b.name} — ${b.price} | Hugo Studio`,
+      keywords: b.seo?.keywords,
+      // Mô tả đầy đủ quá 200 (chữ Hán tính 2) thì rút về câu "cần khi nào" + giá.
+      description: b.seo?.description || ([...`${b.when} ${b.lede}`].reduce((n, ch) => n + (/[\u3000-\u9fff\uff00-\uffef]/.test(ch) ? 2 : 1), 0) <= 200
+        ? `${b.when} ${b.lede}`
+        : `${b.when} ${pg.priceLabel}: ${b.price}.`),
+      body: () =>
+        `<h1>${esc(b.name)}</h1><p>${esc(b.when)}</p><p>${esc(b.lede)}</p>` +
+        `<p>${esc(pg.priceLabel)}: ${esc(b.price)}${b.priceNote ? ` — ${esc(b.priceNote)}` : ""} · ${esc(pg.timeLabel)}: ${esc(b.time)} · ${esc(pg.periodLabel)}: ${esc(b.warranty.period)}</p>` +
+        `<h2>${esc(pg.includesTitle)}</h2>${li(b.includes)}` +
+        `<h2>${esc(pg.stepsTitle)}</h2>${li(b.steps || [])}` +
+        `<h2>${esc(pg.excludesTitle)}</h2>${li(b.excludes)}` +
+        `<h2>${esc(pg.priceTitle)}</h2>${li(b.priceRows || [{ title: b.name, price: b.price }])}` +
+        (b.extras?.length ? `<h2>${esc(pg.extrasTitle)}</h2>${li(b.extras)}` : "") +
+        `<h2>${esc(pg.warrantyTitle)}</h2>${li(b.warranty.lines)}` +
+        `<h2>${esc(pg.exclusionsTitle)}</h2>${li(b.exclusions)}` +
+        `<p><a href="${prefix}/booking">${esc(pg.cta)}</a> · <a href="${prefix}/services">${esc(pg.back)}</a></p>`,
+      schema: () => ({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: b.name,
+        description: b.lede,
+        provider: { "@id": `${ORIGIN}/#studio` },
+        url: `${ORIGIN}${prefix}${addonPath(ad)}`,
+        offers: { "@type": "Offer", priceCurrency: priceCurrency(lang), description: b.price, ...(digitsOf(b.price) && !/%/.test(b.price) ? { price: digitsOf(b.price) } : {}) },
       }),
     });
   }
@@ -347,7 +471,12 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   }
 
   // ── Per-route static HTML ─────────────────────────────────────────────────────
-  const NAV = `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="/introduction">Giới thiệu</a><a href="/services">Dịch vụ &amp; báo giá</a><a href="/faq">Câu hỏi thường gặp</a><a href="/booking">Đặt lịch</a><a href="/student-benefits">Quyền lợi sinh viên</a><a href="/user-guide">Hướng dẫn</a></nav>`;
+  const navLabels = {
+    vi: ["Giới thiệu", "Dịch vụ & báo giá", "Câu hỏi thường gặp", "Đặt lịch", "Quyền lợi sinh viên", "Hướng dẫn"],
+    en: ["About", "Services & pricing", "FAQ", "Start a conversation", "Student benefits", "User guide"],
+    zh: ["介绍", "服务与价格", "常见问题", "开始沟通", "学生权益", "使用指南"],
+  }[lang];
+  const NAV = `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="${prefix}/introduction">${navLabels[0]}</a><a href="${prefix}/services">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/booking">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
 
   // Scoped so it cannot leak into the React tree that replaces this block.
   const BLOCK_CSS =
@@ -372,11 +501,13 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
     // hreflang: ba bản của cùng một trang chỉ vào nhau, bản tiếng Việt là mặc
     // định. Thiếu khối này, Google coi ba trang là nội dung trùng lặp và chỉ
     // giữ lại một.
-    const alternates = LOCALES
+    const alternates = (publishedLocalePaths.get(r.path) || LOCALES)
       .map(({ code, prefix: p }) => `<link rel="alternate" hreflang="${code}" href="${ORIGIN}${p}${r.path}" />`)
-      .join("\n    ") + `\n    <link rel="alternate" hreflang="x-default" href="${ORIGIN}${r.path}" />`;
+      .join("\n    ") + `\n    <link rel="alternate" hreflang="x-default" href="${ORIGIN}${xDefault(r.path)}" />`;
 
     html = replaceTag(html, /<title>[\s\S]*?<\/title>/, `<title>${esc(r.title)}</title>`);
+    // og:locale theo đúng ngôn ngữ trang — trước đây mọi bản đều khai vi_VN.
+    html = replaceTag(html, /<meta property="og:locale" content="[^"]*" \/>/, `<meta property="og:locale" content="${OG_LOCALE[lang]}" />`);
     html = replaceTag(
       html,
       /<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/,
@@ -426,9 +557,15 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
           url,
           name: r.title,
           description: r.description,
-          inLanguage: "vi",
+          inLanguage: lang,
           isPartOf: { "@id": `${ORIGIN}/#website` },
           about: { "@id": `${ORIGIN}/#organization` },
+          author: {
+            "@type": "Person",
+            "@id": `${ORIGIN}/#hugo`,
+            name: "Hugo Wishpax",
+            ...(lang === "en" ? { jobTitle: "Freelance Web Developer" } : {}),
+          },
         },
         {
           "@type": "BreadcrumbList",
@@ -437,7 +574,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
               "@type": "ListItem",
               position: 1,
               name: "Hugo Studio",
-              item: `${ORIGIN}/introduction`,
+              item: `${ORIGIN}${prefix}/introduction`,
             },
             ...(r.path === "/introduction"
               ? []
@@ -491,16 +628,28 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
 // Việt. Trang chưa dịch mà vẫn đẻ ra /en/... thì đó là nội dung trùng lặp:
 // Google gộp lại và có khi bỏ qua cả hai, còn người đọc bấm vào "English" lại
 // thấy tiếng Việt.
-const viRoutes = buildLocale("vi", "");
+const drafts = LOCALES.map(({ code, prefix }) => ({
+  code,
+  prefix,
+  routes: buildLocale(code, prefix, { emit: false }),
+}));
+const viRoutes = drafts.find(({ code }) => code === "vi").routes;
 const viCopy = new Map(viRoutes.map((r) => [r.path, `${r.title}|${r.description}`]));
-const perLocale = [{ prefix: "", routes: viRoutes }];
-for (const { code, prefix } of LOCALES.slice(1)) {
-  const translated = buildLocale(code, prefix, { emit: false }).filter(
-    (r) => viCopy.get(r.path) !== `${r.title}|${r.description}`,
-  );
-  // Dựng lại đúng những trang đã lọc để ghi ra đĩa.
-  buildLocale(code, prefix, { only: new Set(translated.map((r) => r.path)) });
-  perLocale.push({ prefix, routes: translated });
+const perLocale = drafts.map(({ code, prefix, routes: localeRoutes }) => ({
+  code,
+  prefix,
+  routes: code === "vi"
+    ? localeRoutes
+    : localeRoutes.filter((r) => viCopy.get(r.path) !== `${r.title}|${r.description}`),
+}));
+publishedLocalePaths = new Map(
+  viRoutes.map((r) => [
+    r.path,
+    perLocale.filter(({ routes: localeRoutes }) => localeRoutes.some((candidate) => candidate.path === r.path)),
+  ]),
+);
+for (const { code, prefix, routes: localeRoutes } of perLocale) {
+  buildLocale(code, prefix, { only: new Set(localeRoutes.map((r) => r.path)) });
 }
 const routes = perLocale[0].routes;
 // Sitemap liệt kê cả ba bản; mỗi mục kèm hreflang để Google nhóm chúng lại.
@@ -513,8 +662,9 @@ fs.writeFileSync(
     urls
       .map((u) =>
         `  <url>\n    <loc>${ORIGIN}${u.path}</loc>\n` +
-        LOCALES.map(({ code, prefix }) =>
+        (publishedLocalePaths.get(u.base) || LOCALES).map(({ code, prefix }) =>
           `    <xhtml:link rel="alternate" hreflang="${code}" href="${ORIGIN}${prefix}${u.base}"/>`).join("\n") +
+        `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${xDefault(u.base)}"/>` +
         `\n  </url>`)
       .join("\n") +
     `\n</urlset>\n`,
@@ -522,17 +672,43 @@ fs.writeFileSync(
 
 // ── llms.txt ──────────────────────────────────────────────────────────────────
 // Plain-text summary for AI answer engines. Same authored strings, no spin.
-// llms.txt và phần đối chiếu giá viết bằng tiếng Việt — bản gốc của tác giả.
+// Keep the personal portfolio and Hugo Studio explicitly connected: one is the
+// engineer; the other is the product lab and portfolio behind the work.
 // `plans`/`faqs` sống trong buildLocale nên phải dựng lại ở đây.
 const tVI = JSON.parse(
   fs.readFileSync(path.join(ROOT, "src/i18n/locales/vi/translation.json"), "utf8"),
 );
 const plans = planList(tVI);
 const faqs = (tVI.faqPage.faqs || []).map(({ question, answer }) => ({ question, answer }));
+// Bản tiếng Anh cho trợ lý AI khi khách quốc tế hỏi — cùng nguồn trang /en (VNĐ, kèm USD tham khảo).
+const tEN = JSON.parse(fs.readFileSync(path.join(ROOT, "src/i18n/locales/en/translation.json"), "utf8"));
+const enPricing =
+  `## Pricing in English (for clients outside Vietnam; prices in VND, US$ figures approximate)\n\n` +
+  servicePackages.filter((p) => !p.freeTier).map((p) => {
+    const it = tEN.servicePkg.items[p.id];
+    const price = it.price.to ? `${it.price.from} – ${it.price.to}` : it.price.from;
+    return `- [${p.name}](${ORIGIN}/en/services/${p.slug}): ${price} — ${it.seo?.description || it.lede}`;
+  }).join("\n") + "\n\n" +
+  `### Add-ons\n\n` +
+  SERVICE_ADDONS.map((ad) => {
+    const b = tEN.servicePkg.addonItems[ad.id];
+    return `- [${b.name}](${ORIGIN}/en${addonPath(ad)}) (${b.for}): ${b.price} — ${b.when} Warranty: ${b.warranty.period}.`;
+  }).join("\n") + "\n\n" +
+  `### ${tEN.servicePkg.warrantyTerms.title}\n\n${tEN.servicePkg.warrantyTerms.lines.map((l) => `- ${l}`).join("\n")}\n\n` +
+  `### ${tEN.servicePkg.warrantyExclusions.title}\n\n${tEN.servicePkg.warrantyExclusions.lines.map((l) => `- ${l}`).join("\n")}\n\n`;
 fs.writeFileSync(
   path.join(DIST, "llms.txt"),
-  `# Hugo Studio\n\n> ${tVI.servicesPage.meta.description}\n\n` +
-    `## Bảng giá\n\n${plans.map((p) => `- ${p.name}: ${p.price}`).join("\n")}\n\n` +
+  `# Hugo Wishpax / Hugo Studio\n\n` +
+    `> Hugo Wishpax is a software engineer and product builder. Hugo Studio is the product lab and portfolio behind the work. He is open to software engineering internships, junior roles and freelance web projects.\n\n` +
+    `## Start here\n\n- [Portfolio and CV](${ORIGIN}/en/introduction)\n- [English freelance services](${ORIGIN}/en/services)\n- [Selected projects](${ORIGIN}/en/project)\n\n` +
+    `## Hugo Studio services\n\n> ${tVI.servicesPage.meta.description}\n\n` +
+    enPricing +
+    `## Bảng giá\n\n${plans.map((p) => `- ${p.name}: ${p.price}${p.scope ? ` — ${p.scope}` : ""}`).join("\n")}\n\n` +
+    `## Gói lẻ\n\n${SERVICE_ADDONS.map((ad) => { const b = tVI.servicePkg.addonItems[ad.id]; return `- [${b.name}](${ORIGIN}${addonPath(ad)}) (${b.for}): ${b.price} — ${b.when} Bảo hành: ${b.warranty.period}.`; }).join("\n")}\n\n` +
+    `## Đơn giá lẻ\n\n${tVI.servicePkg.addons.units.map((u) => `- ${u.title}: ${u.price}`).join("\n")}\n\n` +
+    `## ${tVI.servicePkg.warrantyTerms.title}\n\n${tVI.servicePkg.warrantyTerms.lines.map((l) => `- ${l}`).join("\n")}\n\n` +
+    `## ${tVI.servicePkg.warrantyExclusions.title}\n\n${tVI.servicePkg.warrantyExclusions.lines.map((l) => `- ${l}`).join("\n")}\n\n` +
+    `Giá niêm yết bằng VNĐ ở mọi ngôn ngữ; bản tiếng Anh/Trung (${ORIGIN}/en/services) là giá cho khách nước ngoài, kèm số USD quy đổi chỉ để tham khảo.\n\n` +
     `## Trang\n\n${routes.map((r) => `- [${r.title}](${ORIGIN}${r.path}): ${r.description}`).join("\n")}\n\n` +
     `## Câu hỏi thường gặp\n\n${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}\n`,
 );

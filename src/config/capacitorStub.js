@@ -16,4 +16,11 @@
  * instead of throwing at module scope; the methods resolve to undefined, which
  * is only reachable if a native guard is ever wrong.
  */
-export default new Proxy({}, { get: () => () => Promise.resolve() });
+const proxyStub = new Proxy({}, { get: () => () => Promise.resolve() });
+export const Haptics = proxyStub;
+export const ImpactStyle = { Heavy: 'HEAVY', Medium: 'MEDIUM', Light: 'LIGHT' };
+export const NotificationType = { Success: 'SUCCESS', Warning: 'WARNING', Error: 'ERROR' };
+export const PushNotifications = proxyStub;
+export const LocalNotifications = proxyStub;
+export const App = proxyStub;
+export default proxyStub;

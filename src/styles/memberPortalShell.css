@@ -54,7 +54,7 @@ html.standalone-pwa .desktop-apple-layout {
   min-height: var(--app-viewport-height);
 }
 
-.mobile-portal-content {
+.member-portal-shell:not([data-portal-area="account"]) .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
   padding-bottom: 16px;
@@ -484,6 +484,18 @@ html.standalone-pwa .mobile-portal-content {
   padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
 }
 
+/* Riêng màn Account / Setting: Nền theme sau lưng avatar tự tràn mép trên (full bleed dưới Dynamic Island),
+   không bị chừa dải đen do padding-top của shell. */
+.member-portal-shell[data-portal-area="account"] .mobile-portal-content,
+html.standalone-pwa .member-portal-shell[data-portal-area="account"] .mobile-portal-content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.member-portal-shell[data-portal-area="account"] {
+  background: transparent !important;
+}
+
 .pwa-safe-sheet {
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
 }
@@ -524,10 +536,12 @@ html.standalone-pwa .mobile-portal-content {
   display: grid;
   gap: 22px;
   padding: clamp(24px, 4.5vw, 48px);
-  border: 1px solid hsl(var(--border) / 0.65);
-  border-radius: 30px 8px 30px 8px;
-  background: hsl(var(--card) / 0.92);
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.055);
+  border: 0.5px solid rgb(255 255 255 / 0.25);
+  border-radius: 28px;
+  background: hsl(var(--card) / 0.75);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  backdrop-filter: blur(32px) saturate(190%);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgb(255 255 255 / 0.35);
 }
 
 .activity-gallery-hero::before {
@@ -675,11 +689,13 @@ html.standalone-pwa .mobile-portal-content {
   position: relative;
   min-width: 0;
   overflow: hidden;
-  padding: 26px 16px 16px;
-  border: 1px solid hsl(var(--border) / 0.6);
-  border-radius: 8px 24px 8px 24px;
-  background: hsl(var(--card) / 0.92);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  padding: 24px 18px 18px;
+  border: 0.5px solid rgb(255 255 255 / 0.2);
+  border-radius: 20px;
+  background: hsl(var(--card) / 0.75);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgb(255 255 255 / 0.3);
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -723,7 +739,7 @@ html.standalone-pwa .mobile-portal-content {
   .activity-gallery-hero {
     gap: 18px;
     padding: 24px 18px;
-    border-radius: 26px 7px 26px 7px;
+    border-radius: 24px;
   }
 
   .activity-gallery-intro { grid-template-columns: minmax(0, 1fr) 64px; }
@@ -732,7 +748,19 @@ html.standalone-pwa .mobile-portal-content {
   .activity-gallery-count strong { font-size: 42px; }
   .activity-gallery-toolbar { align-items: flex-start; flex-direction: column; }
   .activity-gallery-grid { grid-template-columns: 1fr; }
-  .activity-artifact:first-child { grid-column: auto; padding: 26px 16px 16px; }
+  .activity-artifact:first-child { grid-column: auto; padding: 24px 18px 18px; }
+}
+
+.dark .activity-gallery-hero {
+  border-color: rgb(255 255 255 / 0.15);
+  background: hsl(var(--card) / 0.45);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.dark .activity-artifact {
+  background: hsl(var(--card) / 0.45);
+  border-color: rgb(255 255 255 / 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgb(255 255 255 / 0.15);
 }
 
 button, a, [role="button"], input, textarea, select {

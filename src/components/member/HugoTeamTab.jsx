@@ -485,11 +485,19 @@ export default function HugoTeamTab({ onBack }) {
       </div>
 
       {/* Contact */}
-      <div className="border-t border-border pt-8 text-center">
-        <p className="text-sm text-muted-foreground mb-3">{t("memberPortal.team.contactTitle")}</p>
-        <a href="mailto:contact@hugowishpax.studio" className="text-primary font-semibold hover:underline">
-          contact@hugowishpax.studio
-        </a>
+      <div className="border-t border-border pt-8 text-center space-y-2">
+        <p className="text-sm text-muted-foreground">{t("memberPortal.team.contactTitle")}</p>
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+          <a href="mailto:education@hugowishpax.studio?subject=%5BHugo%20Team%5D%20Th%E1%BA%AFc%20m%E1%BA%AFc%20%C4%90%C3%A0o%20t%E1%BA%A1o%20%26%20Tuy%E1%BB%83n%20d%E1%BB%A5ng" className="text-primary hover:underline flex items-center gap-1">
+            <span className="material-symbols-outlined text-[15px]">school</span>
+            Đào tạo & Ứng tuyển: education@hugowishpax.studio
+          </a>
+          <span className="text-muted-foreground/40">·</span>
+          <a href="mailto:support@hugowishpax.studio?subject=%5BHugo%20Team%5D%20H%E1%BB%97%20tr%E1%BB%A3%20k%E1%BB%B9%20thu%E1%BA%ADt%20th%C3%A0nh%20vi%C3%AAn" className="text-primary hover:underline flex items-center gap-1">
+            <span className="material-symbols-outlined text-[15px]">support_agent</span>
+            Hỗ trợ kỹ thuật: support@hugowishpax.studio
+          </a>
+        </div>
       </div>
       </div>
       </div>

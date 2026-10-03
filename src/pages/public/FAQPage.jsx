@@ -6,6 +6,7 @@ import "../../components/public/hwagfu/hwagfu.css";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { API_BASE } from "../../config/apiBase";
+import { createMailtoUrl } from "../../../shared/emailChannels";
 
 /**
  * /faq — một câu hỏi, một câu trả lời, không có gì khác trên đường đi.
@@ -110,13 +111,21 @@ export default function FAQPage() {
               {t("navbar.booking", "Đặt lịch")} <CalendarCheck size={17} />
             </Link>
           </div>
-          <p className="mt-6 text-sm text-muted-foreground">
-            <a href={`${API_BASE}/contact/zalo`} target="_blank" rel="noreferrer" className="link-more">
+          <p className="mt-6 text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+            <a href={`${API_BASE}/contact/zalo`} target="_blank" rel="noreferrer" className="link-more font-semibold">
               {t("faqPage.contact.chatBtn")}
             </a>
-            <span aria-hidden className="mx-2 opacity-50">·</span>
-            <a href="mailto:contact@hugowishpax.studio" className="link-more">
-              {t("faqPage.contact.emailBtn")}
+            <span aria-hidden className="opacity-40">·</span>
+            <a href={createMailtoUrl("support", { lang: i18n.language })} className="link-more font-medium">
+              Hỗ trợ: support@hugowishpax.studio
+            </a>
+            <span aria-hidden className="opacity-40">·</span>
+            <a href={createMailtoUrl("education", { lang: i18n.language })} className="link-more font-medium">
+              Học tập: education@hugowishpax.studio
+            </a>
+            <span aria-hidden className="opacity-40">·</span>
+            <a href={createMailtoUrl("contact", { lang: i18n.language })} className="link-more font-medium">
+              Dự án: contact@hugowishpax.studio
             </a>
           </p>
         </div>

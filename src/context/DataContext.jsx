@@ -7,11 +7,11 @@ const DataContext = createContext();
 // Initial data structure (fallback if API is unavailable)
 const initialData = {
   profile: {
-    fullName: "Peter Hugo Wishpax Le",
+    fullName: "Hugo Wishpax",
     shortName: "Hugo Studio",
-    title: "Peter Hugo Wishpax Le • Bio & Premium Services",
+    title: "Hugo Wishpax • Bio & Premium Services",
     introBadge: "Hello! Chào mừng tới vũ trụ của Hugo Studio!",
-    headline: "Xin chào! Tôi là Peter Hugo Wishpax Le",
+    headline: "Xin chào! Tôi là Hugo Wishpax",
     subtitle: "Kiến tạo thế giới số bằng những dòng code kẹo ngọt, thiết kế Claymorphism tinh tế kết hợp hiệu năng vượt trội.",
     country: "Việt Nam",
     birthday: "Gen Z",
@@ -44,7 +44,7 @@ const initialData = {
     {
       id: "photo1",
       url: "https://res.cloudinary.com/dyehwoscu/image/upload/f_auto,q_auto,w_800/v1779117104/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_22.11.38_vlij7l.png",
-      title: "Peter Hugo Wishpax Lê",
+      title: "Hugo Wishpax",
       category: "Chân dung cá nhân",
       desc: "Hình ảnh đại diện mang đậm phong thái lập trình viên & nhà thiết kế sáng tạo."
     },

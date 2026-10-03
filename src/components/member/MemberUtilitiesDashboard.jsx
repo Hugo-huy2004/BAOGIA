@@ -834,7 +834,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           </div>
 
           {myAppsList.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-card border border-border/60 rounded-3xl p-8">
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 swiftui-liquid-glass rounded-3xl p-8">
               <div className="w-16 h-16 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center">
                 <span className="material-symbols-outlined text-3xl">add_to_home_screen</span>
               </div>
@@ -844,7 +844,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               </div>
               <button
                 onClick={() => setSelectedUtility("store")}
-                className="px-5 py-3 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.97] transition-all"
+                className="px-5 py-2.5 swiftui-btn-prominent font-semibold text-sm rounded-2xl"
               >
                 {t("utilities.library.openLibrary")}
               </button>
@@ -919,7 +919,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[200] p-0 sm:p-4 transition-opacity">
           <div className="absolute inset-0" onClick={() => setEditingApp(null)} />
 
-          <div className="pwa-safe-sheet relative w-full sm:max-w-md bg-card border-t sm:border border-border/60 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[210] max-h-[90dvh] overflow-y-auto animate-slideUp text-left">
+          <div className="pwa-safe-sheet relative w-full sm:max-w-md swiftui-liquid-glass border-t sm:border border-white/20 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[210] max-h-[90dvh] overflow-y-auto animate-slideUp text-left">
             <div className="w-9 h-1 bg-muted rounded-full mx-auto mb-5 sm:hidden" />
 
             <div className="flex items-center gap-4 mb-6">
@@ -948,14 +948,14 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                     <button
                       key={sz.id}
                       onClick={() => handleSetWidgetSize(editingApp.id, sz.id)}
-                      className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-[0.97] ${
+                      className={`flex flex-col items-center justify-center p-3 rounded-2xl transition-all active:scale-[0.97] ${
                         active
-                          ? "bg-primary/10 border-primary text-primary"
-                          : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
+                          ? "swiftui-btn-prominent shadow-xs"
+                          : "swiftui-glass text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <span className="text-sm font-semibold">{sz.label}</span>
-                      <span className="text-[11px] opacity-70 mt-0.5">{sz.desc}</span>
+                      <span className="text-[11px] opacity-75 mt-0.5">{sz.desc}</span>
                     </button>
                   );
                 })}

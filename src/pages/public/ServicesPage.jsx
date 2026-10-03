@@ -16,6 +16,7 @@ import { projects } from "../../data/projects";
 import { PUBLIC_TOOLS } from "../../config/publicTools";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
+import { PackagePriceCards, ServiceAddons } from "../../components/public/ServicePricing";
 
 /**
  * Chữ nghĩa của cả trang nằm trong `servicePkg.page.*` và `servicePkg.items.*`
@@ -134,6 +135,23 @@ function Proof() {
   );
 }
 
+/**
+ * Hai "slide" giá ngay sau phim gói: phim kể từng gói, còn ở đây khách thấy
+ * cả bảng giá và phần tính thêm trong một cái nhìn trước khi bấm đi đâu.
+ */
+function PriceSlide({ id, kicker, title, lede, children, band = false }) {
+  return (
+    <section id={id} className={`relative isolate scroll-mt-20 border-t border-border/40 px-5 py-16 sm:px-8 sm:py-24 ${band ? "bg-band" : "bg-background"}`}>
+      <div className="mx-auto max-w-6xl">
+        <Kicker className="mb-4">{kicker}</Kicker>
+        <h2 className="headline-section mt-3 max-w-3xl">{title}</h2>
+        <p className="lede mt-4 max-w-2xl">{lede}</p>
+        <div className="mt-10">{children}</div>
+      </div>
+    </section>
+  );
+}
+
 function LandingFocus() {
   const { t } = useTranslation();
   const points = t("servicePkg.page.landingPoints", { returnObjects: true });
@@ -227,7 +245,7 @@ function Closing() {
 }
 
 export default function ServicesPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const chapters = useChapters();
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll();
@@ -241,8 +259,10 @@ export default function ServicesPage() {
     "@context": "https://schema.org",
     "@type": "Service",
     name: t("servicePkg.page.schemaName"),
-    provider: { "@type": "Organization", name: "Hugo Studio", url: "https://www.hugowishpax.studio" },
-    areaServed: { "@type": "Country", name: "Vietnam" },
+    provider: i18n.language === "en"
+      ? { "@type": "Person", name: "Hugo Wishpax", jobTitle: "Freelance Web Developer", url: "https://www.hugowishpax.studio/en/introduction" }
+      : { "@type": "Organization", name: "Hugo Studio", url: "https://www.hugowishpax.studio" },
+    ...(i18n.language === "en" ? {} : { areaServed: { "@type": "Country", name: "Vietnam" } }),
     url: "https://www.hugowishpax.studio/services",
     hasOfferCatalog: {
       "@type": "OfferCatalog",
@@ -253,7 +273,7 @@ export default function ServicesPage() {
         description: `${chapter.description} ${t("servicePkg.page.catalogIncludes")}: ${chapter.features.join(", ")}.`,
       })),
     },
-  }), [chapters, t]));
+  }), [chapters, i18n.language, t]));
 
   return (
     <div ref={containerRef} className="hwagfu-copy relative">
@@ -272,6 +292,12 @@ export default function ServicesPage() {
         cta={t("servicePkg.page.filmCta")}
         ctaHref="/booking"
       />
+      <PriceSlide id="pricing" kicker={t("servicePkg.page.pricingKicker")} title={t("servicePkg.page.pricingTitle")} lede={t("servicePkg.page.pricingLede")}>
+        <PackagePriceCards />
+      </PriceSlide>
+      <PriceSlide id="add-ons" kicker={t("servicePkg.page.addonsKicker")} title={t("servicePkg.page.addonsTitle")} lede={t("servicePkg.page.addonsLede")} band>
+        <ServiceAddons />
+      </PriceSlide>
       <LandingFocus />
       <Process />
       <Closing />

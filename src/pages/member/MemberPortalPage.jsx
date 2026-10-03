@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { getMemberSession, logoutAuth } from "../../services/api/core/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
@@ -41,6 +41,7 @@ import {
   setPortalThemePreference,
 } from "../../utils/portalThemePreference";
 import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
+import HugeIcon from "../../components/ui/HugeIcon";
 import "../../styles/memberPortalShell.css";
 import "../../styles/memberPortal27.css";
 // Maps a raw Bio document onto the editable formData shape — pulled out so
@@ -113,16 +114,11 @@ function MobilePortalNav({
               onClick={() => onTabClick(tab)}
             >
               <span className="mobile-portal-nav__icon">
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontVariationSettings: isActive
-                      ? "'FILL' 1, 'wght' 550"
-                      : "'FILL' 0, 'wght' 420",
-                  }}
-                >
-                  {tab.icon}
-                </span>
+                <HugeIcon
+                  name={tab.icon}
+                  size={22}
+                  strokeWidth={isActive ? 2 : 1.5}
+                />
                 {tab.id === "activity" && unreadCount > 0 && (
                   <span className="mobile-portal-nav__badge">
                     {unreadCount > 99 ? "99+" : unreadCount}
@@ -162,6 +158,7 @@ const MemberUtilitiesTab = React.lazy(() => import("../../components/member/Memb
 const MemberSettingsTab  = React.lazy(() => import("../../components/member/remade/MemberSettingsTab"));
 const MemberTodayTab     = React.lazy(() => import("../../components/member/MemberTodayTab"));
 const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
+const TodayArticleSummary = React.lazy(() => import("../../components/member/today/TodayArticleSummary"));
 const ParticleConnectModal = React.lazy(() => import("../../components/member/shared/ParticleConnectModal"));
 const BirthdaySurprise   = React.lazy(() => import("../../components/member/BirthdaySurprise"));
 const BirthdayWheel      = React.lazy(() => import("../../components/member/BirthdayWheel"));
@@ -269,8 +266,12 @@ function MemberPortalPage() {
     return "account";
   }, [activeTab]);
   const accountSubTab = subTab || "profile";
-  // /member/today/<id> mở trang đọc bài ngay trong portal.
-  const todayArticleId = activeTab === "today" ? (subTab || null) : null;
+  const [searchParams] = useSearchParams();
+  const summaryParam = activeTab === "today" ? (searchParams.get("summary") || searchParams.get("ai") || searchParams.get("tldr") || null) : null;
+  const isSummaryPath = activeTab === "today" && subTab === "summary";
+  const summaryArticleId = summaryParam || (isSummaryPath ? psychTab : null);
+  // /member/today/<id> mở trang đọc bài ngay trong portal (trừ khi là summary).
+  const todayArticleId = activeTab === "today" && subTab !== "summary" ? (subTab || null) : null;
 
   // ── Utilities navigation — synced to the URL so a page refresh keeps the
   // member on the exact same utility/sub-tab instead of bouncing them back to
@@ -895,9 +896,13 @@ function MemberPortalPage() {
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
   // TRONG app và lối ra là nút "Quay lại" của chính app đó. Giữ thêm thanh tab
   // của portal chỉ tổ chồng hai lớp điều hướng và ăn mất chiều cao.
+  // Khi mở bài đọc hoặc đúc kết AI (activeTab === "today" có bài), ẩn tab bar hoàn toàn.
+  const isArticleOpen = activeTab === "today" && Boolean(summaryArticleId || todayArticleId);
   const isAppOpen = isMobileView
-    && activeTab === "utilities"
-    && Boolean(utilitySelection);
+    && (
+      (activeTab === "utilities" && Boolean(utilitySelection))
+      || isArticleOpen
+    );
   const showMobileNavigation = isMobileView
     && bio?.status !== "pending"
     && !isAppOpen
@@ -989,8 +994,8 @@ function MemberPortalPage() {
         data-portal-area={portalArea}
         data-aura-theme={activePortalTheme}
       >
-        <AuraBackground theme={activePortalTheme} area={portalArea} />
-        {weatherBackgroundOn && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
+        {portalArea !== "account" && <AuraBackground theme={activePortalTheme} area={portalArea} />}
+        {weatherBackgroundOn && portalArea !== "account" && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
 
         {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
         {!isMobileView && (
@@ -1027,8 +1032,16 @@ function MemberPortalPage() {
               ) : (
                 <>
                   {activeTab === "today" && (
-                    /* /member/today/<id> là trang đọc bài; không có id thì là feed. */
-                    todayArticleId ? (
+                    /* Trang tóm tắt AI độc lập; trang đọc bài; hoặc bảng tin feed */
+                    summaryArticleId ? (
+                      <TodayArticleSummary
+                        articleId={summaryArticleId}
+                        onBack={() => navigate("/member/today")}
+                        onOpenFull={(art) => navigate(`/member/today/${art?.id || summaryArticleId}`)}
+                        showToast={showToast}
+                        companionType={bio?.companionType || "clover"}
+                      />
+                    ) : todayArticleId ? (
                       <TodayArticleReader
                         articleId={todayArticleId}
                         onBack={() => navigate("/member/today")}
@@ -1040,6 +1053,7 @@ function MemberPortalPage() {
                         <MemberTodayTab
                           bio={bio}
                           onNavigate={navigate}
+                          showToast={showToast}
                         />
                       </>
                     )
@@ -1079,7 +1093,18 @@ function MemberPortalPage() {
         {/* `w-full` là bắt buộc, không thừa: trên mobile `.portal-mobile-main` là
             flex cột, và margin ngang `auto` của `mx-auto` HUỶ `align-items: stretch`
             — ô này co về min-content (rộng hơn màn) và mọi tab tràn ngang. */}
-        <div className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} w-full max-w-6xl mx-auto sm:px-4 ${(activeTab === 'utilities' || activeTab === 'apps') ? 'pt-0 space-y-0' : activeTab === 'account' ? 'pt-2 space-y-4' : 'pt-2 sm:pt-4 space-y-4'} relative z-10`}>
+        <div
+          className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} ${
+            activeTab === "account"
+              ? "w-full max-w-none p-0 m-0 space-y-0"
+              : activeTab === "utilities" || activeTab === "apps"
+              ? "w-full max-w-6xl mx-auto sm:px-4 pt-0 space-y-0 px-0"
+              : activeTab === "today"
+              ? "w-full max-w-6xl mx-auto sm:px-4 pt-1 sm:pt-4 space-y-2.5 px-0 sm:px-4"
+              : "w-full max-w-6xl mx-auto sm:px-4 pt-2 sm:pt-4 space-y-4"
+          } relative z-10`}
+          style={activeTab === "account" ? { paddingTop: 0, paddingBottom: 0 } : undefined}
+        >
           <ErrorBoundary>
             <React.Suspense fallback={
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -1096,8 +1121,16 @@ function MemberPortalPage() {
               ) : (
                 <>
                   {activeTab === "today" && (
-                    <div className="px-3">
-                      {todayArticleId ? (
+                    <div className="px-0.5 sm:px-3 w-full max-w-full min-w-0 overflow-x-hidden box-border">
+                      {summaryArticleId ? (
+                        <TodayArticleSummary
+                          articleId={summaryArticleId}
+                          onBack={() => navigate("/member/today")}
+                          onOpenFull={(art) => navigate(`/member/today/${art?.id || summaryArticleId}`)}
+                          showToast={showToast}
+                          companionType={bio?.companionType || "clover"}
+                        />
+                      ) : todayArticleId ? (
                         <TodayArticleReader
                           articleId={todayArticleId}
                           onBack={() => navigate("/member/today")}
@@ -1106,6 +1139,7 @@ function MemberPortalPage() {
                         <MemberTodayTab
                           bio={bio}
                           onNavigate={navigate}
+                          showToast={showToast}
                         />
                       )}
                     </div>
@@ -1126,7 +1160,7 @@ function MemberPortalPage() {
                     </div>
                   )}
                   {activeTab === "account" && (
-                    <div style={{ padding: "0 12px"  }}>
+                    <div className="w-full">
                       {renderSettings()}
                     </div>
                   )}
@@ -1196,7 +1230,7 @@ function MemberPortalPage() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
             <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
               <div className="flex items-center gap-2 text-destructive">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings:"'FILL' 1" }}>warning</span>
+                <HugeIcon name="warning" size={24} className="shrink-0 text-destructive" />
                 <h3 className="font-extrabold text-sm uppercase tracking-wider text-foreground">{t("memberPortal.confirm.title")}</h3>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">{confirmModal.message}</p>

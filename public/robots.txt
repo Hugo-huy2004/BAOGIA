@@ -3,25 +3,27 @@
 User-agent: *
 Allow: /
 
-# Opt out of training and AI-answer crawlers while keeping ordinary search
-# indexing available for the public portfolio.
+# Let AI answer engines discover the public portfolio pages. Training crawlers
+# remain opted out; private application routes use X-Robots-Tag.
 User-agent: GPTBot
 Disallow: /
 
 User-agent: OAI-SearchBot
-Disallow: /
+Allow: /
 
+# Người dùng dán link vào ChatGPT/Claude thì trợ lý cần đọc được trang —
+# đây là bot đọc theo yêu cầu, không phải bot lấy dữ liệu huấn luyện.
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
 
 User-agent: ClaudeBot
 Disallow: /
 
 User-agent: Claude-SearchBot
-Disallow: /
+Allow: /
 
 User-agent: Claude-User
-Disallow: /
+Allow: /
 
 User-agent: Google-Extended
 Disallow: /
@@ -30,7 +32,7 @@ User-agent: CCBot
 Disallow: /
 
 User-agent: PerplexityBot
-Disallow: /
+Allow: /
 
 User-agent: Bytespider
 Disallow: /

@@ -28,11 +28,16 @@ const updateOrCreateMeta = (name, content, attributeType = "name") => {
  * default; account, payment and internal routes opt into `noindex` explicitly.
  */
 export const useHeadMeta = (options = {}) => {
-  const canonicalUrl = options.canonicalUrl || currentCanonical();
+  // Route components historically pass an unprefixed canonical. On `/en/*`
+  // and `/zh/*` that would undo the locale URL after hydration, so the current
+  // browser pathname is the canonical source of truth whenever it is present.
+  const canonicalUrl = typeof window === "undefined"
+    ? (options.canonicalUrl || SITE_ORIGIN)
+    : currentCanonical();
   const title = options.title || "Hugo Studio";
   const description =
     options.description ||
-    "Hugo Studio giới thiệu các sản phẩm số, trang Bio và dịch vụ thiết kế website của Hugo Lê.";
+    "Hugo Studio giới thiệu các sản phẩm số, trang Bio và dịch vụ thiết kế website của Hugo Wishpax.";
   const ogTitle = options.ogTitle || title;
   const ogDescription = options.ogDescription || description;
   const ogImage = options.ogImage || DEFAULT_IMAGE;
@@ -78,10 +83,18 @@ export const useHeadMeta = (options = {}) => {
     }
 
     updateOrCreateMeta("twitter:card", "summary_large_image");
+    updateOrCreateMeta("twitter:site", "@hugowishpax");
+    updateOrCreateMeta("twitter:creator", "@hugowishpax");
     updateOrCreateMeta("twitter:title", ogTitle);
     updateOrCreateMeta("twitter:description", ogDescription);
     updateOrCreateMeta("twitter:image", ogImage);
     updateOrCreateMeta("twitter:image:alt", imageAlt);
+
+    // Alternate locales for search engines
+    const alternateLocales = ["vi_VN", "en_US", "zh_CN"].filter((l) => l !== locale);
+    alternateLocales.forEach((altLoc) => {
+      updateOrCreateMeta("og:locale:alternate", altLoc, "property");
+    });
 
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -90,6 +103,18 @@ export const useHeadMeta = (options = {}) => {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", canonicalUrl);
+
+    // Dynamic JSON-LD Structured Data
+    if (options.jsonLd) {
+      let scriptTag = document.querySelector('script[data-dynamic-jsonld="true"]');
+      if (!scriptTag) {
+        scriptTag = document.createElement("script");
+        scriptTag.type = "application/ld+json";
+        scriptTag.setAttribute("data-dynamic-jsonld", "true");
+        document.head.appendChild(scriptTag);
+      }
+      scriptTag.textContent = JSON.stringify(options.jsonLd);
+    }
   }, [
     canonicalUrl,
     description,
@@ -106,6 +131,7 @@ export const useHeadMeta = (options = {}) => {
     options.imageWidth,
     options.keywords,
     options.ogType,
+    options.jsonLd,
     robots,
     title,
   ]);

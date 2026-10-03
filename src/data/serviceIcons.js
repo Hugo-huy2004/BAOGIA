@@ -14,31 +14,33 @@
  * sửa mảng ở đây — `useServiceCopy` ghép hai bên theo chỉ số.
  */
 export const SHARED_ICONS = {
-  // "Mã nguồn viết tay 100%" luôn là mục đầu của Gói bao gồm.
+  // "Viết mã tay" luôn đứng đầu Gói bao gồm, hai mục `includesTail` đứng cuối.
   handCoded: "code_blocks",
-  excludes: ["public", "dns", "block", "photo_library", "receipt_long"],
-  connectExclude: "cable",
-  policy: ["account_balance_wallet", "checklist", "lock", "copyright", "pause_circle"],
+  includesTail: ["design_services", "folder_zip"],
+  excludes: ["language", "dns", "alternate_email", "forward_to_inbox", "account_balance", "photo_library", "receipt_long", "gavel", "add_circle"],
+  // Thứ tự khớp servicePkg.policy: online · cọc (hoặc miễn cọc) · bản quyền.
+  policy: ["forum", "account_balance_wallet", "copyright"],
+  feedback: ["checklist", "chat_bubble", "grid_on", "lock", "schedule"],
 };
 
 export const PACKAGE_ICONS = {
   "hugo-one": {
     audience: ["campaign", "badge", "event"],
-    includes: ["design_services", "ads_click", "devices", "mail", "search", "code", "rocket_launch"],
-    warranty: ["bug_report", "edit", "schedule"],
-    policyExtra: ["hourglass_top"],
+    includes: ["view_agenda", "palette", "mail", "rocket_launch"],
+    warranty: ["all_inclusive", "edit"],
+    policyExtra: [],
   },
   "hugo-story": {
     audience: ["storefront", "restaurant", "public"],
-    includes: ["account_tree", "alt_route", "place", "search", "devices", "code"],
-    warranty: ["bug_report", "edit", "school"],
-    policyExtra: ["hourglass_top"],
+    includes: ["account_tree", "palette", "alt_route", "call", "search", "rocket_launch"],
+    warranty: ["all_inclusive", "edit"],
+    policyExtra: [],
   },
   "hugo-flow-plus": {
-    audience: ["storefront", "inventory_2", "event_available"],
-    includes: ["inventory_2", "shopping_cart", "credit_card", "account_circle", "search", "dashboard", "api"],
-    warranty: ["bug_report", "support_agent", "school"],
-    policyExtra: ["hourglass_top", "payments", "badge", "admin_panel_settings"],
+    audience: ["event_available", "storefront", "inbox"],
+    includes: ["web", "touch_app", "table_chart", "qr_code_2", "edit_note"],
+    warranty: ["all_inclusive", "edit", "smart_display"],
+    policyExtra: ["admin_panel_settings"],
   },
   "hugo-edu-plus": {
     audience: ["school", "work", "groups"],

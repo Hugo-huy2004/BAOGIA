@@ -81,8 +81,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 bg-card border rounded-3xl cursor-pointer shadow-sm transition-all duration-200 hover:-translate-y-0.5 overflow-hidden h-[136px] ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-border/60"
+                className={`relative group flex flex-col justify-between p-5 swiftui-liquid-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[136px] ${
+                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
                 }`}
               >
                 {isEditMode && (
@@ -188,8 +188,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 bg-card border rounded-3xl cursor-pointer shadow-sm transition-all duration-200 hover:-translate-y-0.5 overflow-hidden h-[260px] text-left ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-border/60"
+                className={`relative group flex flex-col justify-between p-5 swiftui-liquid-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[260px] text-left ${
+                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
                 }`}
               >
                 {isEditMode && (

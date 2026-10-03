@@ -1,7 +1,7 @@
 # Product Marketing Context
 
 **Document version:** v1  
-**Last updated:** 2026-08-09
+**Last updated:** 2026-09-28
 
 ## Product Overview
 
@@ -13,7 +13,9 @@
 
 **Product type:** Cộng đồng/sản phẩm freemium kết hợp dịch vụ chuyên môn.
 
-**Business model:** Quyền lợi cốt lõi cho HSSV được ưu tiên miễn phí; doanh thu đến từ website đặt làm, hỗ trợ chuyên biệt và các hạng mục kỹ thuật theo phạm vi. Dịch vụ dùng báo giá 1-1 thay vì cạnh tranh bằng bảng giá công khai.
+**Business model:** Quyền lợi cốt lõi cho HSSV được ưu tiên miễn phí; doanh thu đến từ website đặt làm. Từ 2026-09-28 dịch vụ niêm yết **giá trọn gói một con số** (không khoảng giá): Hugo One 1.490.000₫ · Hugo Story 2.990.000₫ (4 trang) · Hugo Flow+ từ 4.990.000₫ (web + 1 chức năng, đơn về Google Sheets, trả bằng QR). Tiếng Việt báo VNĐ, ngôn ngữ khác báo USD ($249 / $449 / từ $749).
+
+**Ràng buộc năng lực (định vị sản phẩm quanh nó):** một người làm, 100% online, giờ làm linh hoạt, năng lực thiết kế/code có hạn → không hứa thiết kế vẽ tay từ đầu, không SLA 24h, không giỏ hàng/thanh toán thẻ tự động, không gói chăm sóc theo tháng (sửa theo lần). Giới hạn đó được nói ra như lợi ích: giá thấp, trao đổi thẳng với người làm, nhận ít dự án mỗi tháng.
 
 ## Target Audience
 
@@ -137,4 +139,5 @@
 
 ## Changelog
 
+- v2 (2026-09-28) — Định giá lại theo năng lực một người làm online; bỏ khoảng giá, gộp phí kết nối.
 - v1 (2026-08-09) — Tạo context student-first/contact-first từ codebase và định hướng trực tiếp của chủ dự án.

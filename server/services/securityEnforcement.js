@@ -123,7 +123,7 @@ export function securityBlockPayload(block) {
     caseId: block?.lastCaseId || '',
     permanent: Boolean(block?.permanent),
     blockedUntil: block?.permanent ? null : block?.expiresAt || null,
-    appealPath: 'mailto:contact@hugowishpax.studio',
+    appealPath: 'mailto:support@hugowishpax.studio?subject=%5BKh%C3%A1ng%20ngh%E1%BB%8B%20B%E1%BA%A3o%20m%E1%BA%ADt%5D%20Y%C3%AAu%20c%E1%BA%A7u%20xem%20x%C3%A9t%20kh%C3%B3a%20t%C3%A0i%20kho%E1%BA%A3n',
   };
 }
 

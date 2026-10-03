@@ -133,11 +133,11 @@ function Contact({ email, t }) {
 export default function IntroductionPage() {
   const { t } = useTranslation();
   const { data } = useData();
-  const name = data?.profile?.fullName || "Peter Hugo Wishpax Lê";
+  const name = data?.profile?.fullName || "Hugo Wishpax";
   const email = data?.profile?.emailAddress || "contact@hugowishpax.studio";
 
   useEffect(() => {
-    document.title = t("intro.apple.meta.title", "Peter Hugo Wishpax Lê — Portfolio");
+    document.title = t("intro.apple.meta.title", "Hugo Wishpax — Portfolio");
   }, [t]);
 
   // Ba thẻ nổi bật lấy từ src/data/projects.js — cùng nguồn với trang /project.
@@ -169,14 +169,21 @@ export default function IntroductionPage() {
   const education = useMemo(
     () =>
       [
-        { key: "school1", year: "2023" },
-        { key: "school2", year: "2027" },
-      ].map(({ key, year }) => ({
+        { key: "school1", year: "2022" },
+        {
+          key: "school2",
+          year: "2027",
+          logoSrc: "https://static.ybox.vn/2023/11/1/1699255479928-Official_logo_of_Greenwich_Vietnam.png",
+          website: "https://greenwich.edu.vn/",
+        },
+      ].map(({ key, year, ...school }) => ({
         year,
         school: t(`intro.story.profile.${key}.school`),
         period: t(`intro.story.profile.${key}.period`),
         degree: t(`intro.story.profile.${key}.degree`),
         description: t(`intro.story.profile.${key}.description`),
+        logoAlt: t(`intro.cine.education.${key === "school2" ? "university" : "highSchool"}.logoAlt`),
+        ...school,
       })),
     [t],
   );
@@ -246,4 +253,3 @@ export default function IntroductionPage() {
     </div>
   );
 }
-

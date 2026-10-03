@@ -1,32 +1,24 @@
 import "./today-article.css";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
-
-import BackButton from "./shared/BackButton";
 import { languageCode } from "../../i18n/languages";
+import { triggerHaptic } from "../../utils/haptics";
+import { HugeIcon } from "../ui/HugeIcon";
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
   const language = languageCode(i18n.resolvedLanguage || i18n.language);
-  // Phải tra cứu trong đúng ấn bản đã sinh ra id này (VI hay EN) và đúng
-  // chuyên mục mà người đọc vừa bấm từ đó.
   const category = new URLSearchParams(window.location.search).get("c") || "all";
   const { data, isLoading, refetch } = useTodayArticle(articleId, language, category);
 
-  // Mở bài khác thì phải đọc từ đầu, không giữ vị trí cuộn của bài trước.
-  // Trên portal mobile, thứ cuộn KHÔNG phải window mà là `.mobile-portal-content`
-  // (vỏ app là fixed inset:0) — cuộn window ở đó không làm gì cả, và người đọc
-  // rơi thẳng vào giữa thân bài mới.
   const rootRef = useRef(null);
   useEffect(() => {
     rootRef.current?.closest(".mobile-portal-content")?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }, [articleId]);
 
-  // Tốc độ tải = 0: Lấy ngay bài báo đã có sẵn trong cache của danh sách feed.
-  // Trình duyệt không bao giờ phải đợi gọi mạng mới bắt đầu render.
   const queryClient = useQueryClient();
   const cachedArticle = useMemo(() => {
     for (const [, feed] of queryClient.getQueriesData({ queryKey: ["today-feed"] })) {
@@ -38,12 +30,10 @@ export default function TodayArticleReader({ articleId, onBack }) {
 
   const article = data?.article || cachedArticle;
 
-  // Tách ý chính thông minh tức thì (0ms) từ sapo của toà soạn nếu chưa có summary từ server
-  // Tách ý chính & viết lại độc lập tức thì (0ms) từ dữ liệu sự kiện để bảo vệ tác quyền
-  const instantRewrite = useMemo(() => {
+  // Tổng hợp ý chính tự nhiên, loại bỏ các cụm từ pháp lý rườm rà
+  const articleInsight = useMemo(() => {
     const title = String(article?.title || "").trim();
     const desc = String(article?.description || "").trim();
-    const source = String(article?.source || "Cơ quan báo chí").trim();
     if (!title && !desc) return null;
 
     const sentences = desc
@@ -51,157 +41,136 @@ export default function TodayArticleReader({ articleId, onBack }) {
       .map((s) => s.trim())
       .filter((s) => s.length > 15);
 
-    const metricSentence = sentences.find((s) => /\b(?:\d+%|\d+[.,]\d+%|\d+\s*(?:tỷ|triệu|nghìn|USD|VNĐ|học sinh|sinh viên|trường|mô hình))/i.test(s))
-      || (sentences[0] !== title ? sentences[0] : null);
+    const metricSentence = sentences.find((s) =>
+      /\b(?:\d+%|\d+[.,]\d+%|\d+\s*(?:tỷ|triệu|nghìn|USD|VNĐ|học sinh|sinh viên|trường|mô hình))/i.test(s)
+    ) || (sentences[0] !== title ? sentences[0] : null);
 
     const cleanTitle = title.replace(/^(tin nóng|nóng|mới nhất|bất ngờ|hé lộ|công bố):\s*/i, "");
 
-    let rewrittenText = "";
-    if (metricSentence) {
-      rewrittenText = `Theo thông tin ghi nhận từ ${source}, diễn biến mới nhất liên quan đến "${cleanTitle}" đang thu hút sự quan tâm rộng rãi. Cụ thể, các chỉ số thực tế cho thấy ${metricSentence.replace(/\.$/, "")}. Đây là bước phát triển quan trọng, tạo tiền đề cho những quan sát và định hình xu hướng tiếp theo.`;
-    } else {
-      rewrittenText = `Dựa trên dữ liệu sự kiện từ ${source}, sự việc "${cleanTitle}" vừa có thêm những chuyển động mới đáng chú ý. Bản tin được phân tích và viết lại độc lập nhằm cung cấp góc nhìn toàn cảnh súc tích mà vẫn bảo tồn đầy đủ giá trị tác quyền của tác phẩm báo chí gốc.`;
-    }
-
     const points = [];
-    points.push(`⚡ Diễn biến cốt lõi: ${cleanTitle}`);
+    points.push(`Diễn biến chính: ${cleanTitle}`);
     if (metricSentence) {
-      points.push(`📊 Dữ liệu & Quy mô: ${metricSentence}`);
+      points.push(`Số liệu & quy mô: ${metricSentence}`);
     }
     if (sentences.length > 1 && sentences[sentences.length - 1] !== title) {
-      points.push(`🎯 Điểm mấu chốt: ${sentences[sentences.length - 1]}`);
+      points.push(`Điểm đáng chú ý: ${sentences[sentences.length - 1]}`);
     } else if (desc.length > 50) {
-      points.push(`🎯 Điểm mấu chốt: ${desc.slice(0, 160)}${desc.length > 160 ? "…" : ""}`);
+      points.push(`Nội dung chi tiết: ${desc.slice(0, 160)}${desc.length > 160 ? "…" : ""}`);
     }
 
     return {
-      rewrittenText,
+      leadText: desc || `Thông tin mới nhất về "${cleanTitle}" vừa được cập nhật và ghi nhận từ cơ quan báo chí.`,
       points: points.slice(0, 3),
-      attribution: `Bản tin phân tích & viết lại độc lập từ ${source} (Fair Use Standard)`
     };
-  }, [article?.title, article?.description, article?.source]);
-
-  const summary = data?.summary || instantRewrite;
-
-  // ── ĐẶC QUYỀN CHẾ ĐỘ TIẾNG TRUNG: học qua bài báo ──
-  // Khi ngôn ngữ app là tiếng Trung, ấn bản Today là báo tiếng Trung — gạch chân
-  // các từ trong giáo trình, chạm ra pinyin/nghĩa/phát âm/thêm vào ôn.
+  }, [article?.title, article?.description]);
 
   const dateLabel = article?.publishedAt
-    ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" })
-      .format(new Date(article.publishedAt))
+    ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" }).format(
+        new Date(article.publishedAt)
+      )
     : "";
+
+  const handleBack = () => {
+    triggerHaptic(10);
+    onBack();
+  };
 
   return (
     <section className="today-article-page" data-lang={language} ref={rootRef}>
+      {/* ── TOPBAR: Nút quay lại chuẩn iOS + Nút mở bài gốc ── */}
       <header className="today-article-topbar">
-        <BackButton onClick={onBack} label={t("memberPortal.today.backToFeed")} />
+        <button
+          type="button"
+          onClick={handleBack}
+          className="today-article-back-btn swiftui-glass"
+          aria-label={t("memberPortal.today.backToFeed", "Quay lại danh sách")}
+        >
+          <HugeIcon name="arrow_back" size={16} />
+          <span>{t("memberPortal.today.backToFeed", "Bản tin")}</span>
+        </button>
+
         {article ? (
           <a
-            className="today-article-origin"
+            className="today-article-origin-btn swiftui-glass"
             href={article.url}
             target="_blank"
             rel="noopener noreferrer external"
           >
-            {t("memberPortal.today.openSource")}
-            <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+            <span>{t("memberPortal.today.openSource", "Mở nguồn")}</span>
+            <HugeIcon name="open_in_new" size={14} />
           </a>
         ) : null}
       </header>
 
-      {/* Tốc độ tải = 0: Nếu bài đã có trong cache feed, hiển thị ngay lập tức, không xoay vòng chờ */}
       {!article && isLoading ? (
         <div className="today-article-skeleton" aria-label={t("memberPortal.today.loading")}>
           <span /><span /><span /><span />
         </div>
       ) : !article ? (
         <div className="portal-card portal-empty">
-          <span className="material-symbols-outlined" aria-hidden="true">cloud_off</span>
-          <p>{t("memberPortal.today.articleUnavailable")}</p>
-          <button type="button" onClick={() => refetch()}>{t("memberPortal.today.tryAgain")}</button>
+          <HugeIcon name="cloud_off" size={32} />
+          <p>{t("memberPortal.today.articleUnavailable", "Không tải được bài viết.")}</p>
+          <button type="button" onClick={() => refetch()}>
+            {t("memberPortal.today.tryAgain", "Thử lại")}
+          </button>
         </div>
       ) : (
-        <>
+        <article className="today-article-content-wrapper">
+          {/* Thông tin xuất bản & Tiêu đề bài báo */}
           <div className="today-article-head">
-            <p className="today-article-kicker">
-              <span>{article.source}</span>
-              {article.author ? <span>· {article.author}</span> : null}
-              {dateLabel ? <span>· {dateLabel}</span> : null}
-            </p>
+            <div className="today-article-meta-row">
+              <span className="today-article-source-tag">{article.source}</span>
+              {dateLabel && <span className="today-article-date">{dateLabel}</span>}
+              {article.author && <span className="today-article-author">· {article.author}</span>}
+            </div>
+
             <h1 className="today-article-title">{article.title}</h1>
           </div>
 
-          {/* ── BẢN TIN VIẾT LẠI ĐỘC LẬP & TỔNG HỢP (FAIR USE SYNTHESIS) ── */}
-          <section className="today-article-summary" aria-labelledby="today-article-summary-title">
-            <div className="today-article-synthesis-header">
-              <h2 id="today-article-summary-title">
-                <span className="material-symbols-outlined" aria-hidden="true" style={{ color: "#38bdf8" }}>auto_awesome</span>
-                Bản Tin Viết Lại Độc Lập
+          {/* Đoạn văn tóm tắt mở đầu chuẩn phong cách tạp chí thoáng đãng */}
+          <div className="today-article-lead-section">
+            <p className="today-article-lead-text">
+              {data?.summary?.rewrittenText || articleInsight?.leadText}
+            </p>
+          </div>
+
+          {/* 3 Điểm cốt lõi súc tích */}
+          {articleInsight?.points?.length > 0 && (
+            <div className="today-article-highlights swiftui-liquid-glass">
+              <h2 className="today-article-highlights-title">
+                <HugeIcon name="insights" size={18} className="text-primary" />
+                <span>Điểm tin cốt lõi</span>
               </h2>
-              <span className="today-article-badge-fairuse">
-                <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
-                Bảo vệ tác quyền • Fair Use
-              </span>
-            </div>
-
-            {/* Đoạn văn phân tích và diễn đạt lại hoàn toàn sự kiện */}
-            {summary?.rewrittenText && (
-              <div className="today-article-rewritten-body">
-                <p className="today-article-rewritten-text">
-                  {summary.rewrittenText}
-                </p>
-              </div>
-            )}
-
-
-            {/* 3 Điểm bước ngoặt & số liệu then chốt */}
-            <div className="today-article-points-card">
-              <p className="today-article-points-heading">
-                <span className="material-symbols-outlined" aria-hidden="true">insights</span>
-                3 Điểm cốt lõi & tác động:
-              </p>
-              <ul>
-                {(summary?.points || []).map((point, index) => (
+              <ul className="today-article-highlights-list">
+                {articleInsight.points.map((point, index) => (
                   <li key={index}>{point}</li>
                 ))}
               </ul>
             </div>
+          )}
 
-            {/* Thông tin nguồn và cam kết bản quyền báo chí */}
-            <div className="today-article-attribution-box">
-              <p className="today-article-source-info">
-                <span className="material-symbols-outlined" aria-hidden="true">newspaper</span>
-                {t("memberPortal.today.sourceInfo", {
-                  source: article.source,
-                  author: article.author || "",
-                  date: dateLabel,
-                })}
-              </p>
-              <p className="today-article-summary-by">
-                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 14 }}>gavel</span>
-                {summary?.attribution || `Bản tin được AI tổng hợp sự kiện và viết lại độc lập theo chuẩn Fair-Use, không sao chép nguyên văn từ ${article.source}.`}
-              </p>
+          {/* Chân trang bài viết: Ghi nhỏ gọn, phẳng hoàn toàn, KHÔNG DÙNG CARD */}
+          <footer className="today-article-footer-compact">
+            <div className="today-article-compact-attribution">
+              <HugeIcon name="check_circle" size={13} className="text-blue-500 shrink-0" />
+              <span>
+                Toàn văn bài viết thuộc bản quyền của <strong>{article.source}</strong>.
+              </span>
             </div>
-          </section>
 
-          {/* ── PHẦN 2: THÔNG BẢN BẢN QUYỀN + NÚT ĐỌC BÀI GỐC ── */}
-          <section className="today-article-body" aria-labelledby="today-article-body-title">
-            <h2 id="today-article-body-title">{t("memberPortal.today.contentTitle")}</h2>
-            <div className="today-article-locked">
-              <span className="material-symbols-outlined" aria-hidden="true">policy</span>
-              <p>{t("memberPortal.today.copyrightNotice", { source: article.source })}</p>
+            {article.url && (
               <a
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer external"
-                className="today-article-read-original"
+                className="today-article-compact-source-link"
               >
-                {t("memberPortal.today.readOriginal")}
-                <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+                <span>Đọc bài gốc tại {article.source}</span>
+                <HugeIcon name="open_in_new" size={12} />
               </a>
-            </div>
-          </section>
-        </>
+            )}
+          </footer>
+        </article>
       )}
     </section>
   );

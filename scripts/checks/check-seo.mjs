@@ -51,6 +51,8 @@ for (const url of urls) {
   );
   const twitterCard = capture(html, /<meta name="twitter:card" content="([^"]+)" \/>/);
   const h1Count = (html.match(/<h1(?:\s|>)/g) || []).length;
+  const alternateUrls = [...html.matchAll(/<link rel="alternate" hreflang="[^"]+" href="([^"]+)" \/>/g)]
+    .map((match) => match[1]);
 
   // Google cắt theo BỀ RỘNG hiển thị, không theo số ký tự — mà một chữ Hán
   // rộng gấp đôi một chữ cái. Đếm ký tự trần thì mọi tiêu đề tiếng Trung đúng
@@ -77,6 +79,9 @@ for (const url of urls) {
     errors.push(`${pathname}: route công khai không có robots index.`);
   }
   if (h1Count !== 1) errors.push(`${pathname}: HTML tĩnh cần đúng một H1.`);
+  if (alternateUrls.some((url) => !urls.includes(url))) {
+    errors.push(`${pathname}: hreflang trỏ tới URL không có trong sitemap.`);
+  }
 
   for (const script of html.matchAll(
     /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,

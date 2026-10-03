@@ -26,41 +26,44 @@ export function useServiceCopy(idOrSlug) {
   const base = `servicePkg.items.${pkg.id}`;
   const policyExtra = t(`${base}.policyExtra`, OBJ) || [];
   const icons = PACKAGE_ICONS[pkg.id] || { audience: [], includes: [], warranty: [], policyExtra: [] };
+  const paid = !pkg.freeTier;
+  // Gói miễn cọc thay điều số 2 ("Cọc 50%") bằng "Không cần cọc".
+  const policy = t("servicePkg.policy", OBJ).map((item, i) => (i === 1 && pkg.noDeposit ? t("servicePkg.policyNoDeposit", OBJ) : item));
+  const tail = paid ? t("servicePkg.includesTail", OBJ) : [];
 
   return {
     ...pkg,
     title: t(`${base}.title`),
     lede: t(`${base}.lede`),
-    intro: t(`${base}.intro`, OBJ),
+    seo: t(`${base}.seo`, OBJ),
     audience: t(`${base}.audience`, OBJ),
-    includes: [t("servicePkg.handCoded", OBJ), ...t(`${base}.includes`, OBJ)],
-    // Gói đã gộp Gói kết nối vào giá thì không được liệt kê nó ở "chưa bao gồm".
-    excludes: pkg.connectIncluded
-      ? t("servicePkg.excludes", OBJ)
-      : [...t("servicePkg.excludes", OBJ), t("servicePkg.connectExclude", OBJ)],
+    includes: [t("servicePkg.handCoded", OBJ), ...t(`${base}.includes`, OBJ), ...tail],
+    excludes: t("servicePkg.excludes", OBJ),
     warranty: t(`${base}.warranty`, OBJ),
-    policy: pkg.freeTier ? policyExtra : [...t("servicePkg.policy", OBJ), ...policyExtra],
+    policy: paid ? [...policy, ...policyExtra] : policyExtra,
     price: t(`${base}.price`, OBJ),
-    faq: t(`${base}.faq`, OBJ),
+    // Câu hỏi "nhích lên tí" chỉ dành cho gói trả phí; /student-pricing đọc chung nguồn này.
+    faq: [...t(`${base}.faq`, OBJ), ...(paid ? t("servicePkg.faqShared", OBJ) : [])],
     // Icon ghép theo chỉ số, đúng thứ tự đã ghép chữ ở trên.
     icons: {
       audience: icons.audience,
-      includes: [SHARED_ICONS.handCoded, ...icons.includes],
-      excludes: pkg.connectIncluded ? SHARED_ICONS.excludes : [...SHARED_ICONS.excludes, SHARED_ICONS.connectExclude],
+      includes: [SHARED_ICONS.handCoded, ...icons.includes, ...(paid ? SHARED_ICONS.includesTail : [])],
+      excludes: SHARED_ICONS.excludes,
       warranty: icons.warranty,
-      policy: pkg.freeTier ? icons.policyExtra : [...SHARED_ICONS.policy, ...icons.policyExtra],
+      policy: paid ? [...SHARED_ICONS.policy, ...icons.policyExtra] : icons.policyExtra,
     },
   };
 }
 
-/** Phần dùng chung cho mọi gói: gói kết nối, gói chăm sóc, ghi chú giá, phí phát sinh, ưu đãi người học. */
+/** Phần dùng chung cho mọi gói: điều kiện bảo hành, ghi chú giá, gói đính kèm, ưu đãi người học. */
 export function useSharedServiceCopy() {
   const { t } = useTranslation();
   return {
-    connect: t("servicePkg.connect", OBJ),
     priceNotice: t("servicePkg.priceNotice", OBJ),
-    extraFees: t("servicePkg.extraFees", OBJ),
-    care: t("servicePkg.care", OBJ),
+    addons: t("servicePkg.addons", OBJ),
+    warrantyTerms: t("servicePkg.warrantyTerms", OBJ),
+    warrantyExclusions: t("servicePkg.warrantyExclusions", OBJ),
+    feedback: t("servicePkg.feedback", OBJ),
     compare: t("servicePkg.compare", OBJ),
     stats: t("servicePkg.stats", OBJ),
     studentDiscount: { ...t("servicePkg.studentDiscount", OBJ), href: "/student-pricing" },

@@ -27,25 +27,22 @@
  * số từ `servicePkg.items.<gói>.price`, không chép số tiền sang chỗ thứ hai.
  *
  * Mọi câu trả lời phải truy ra được từ `includes` / `warranty` / `policy` /
- * `extraFees` của gói. Bảng so sánh không phải chỗ hứa thêm.
+ * `addons` của gói. Bảng so sánh không phải chỗ hứa thêm.
  */
 
 export const COMPARE_ROWS = [
   { id: "price", icon: "payments", price: true },
+  // Hai chỗ các gói khác nhau rõ nhất (2026-09-28): cọc và cách web lên tên miền.
+  { id: "deposit", icon: "account_balance_wallet" },
   { id: "time", icon: "schedule" },
-  // Số trang và vòng chỉnh đều là TRẦN, chốt xong là khoá, đổi tiếp thì tính
-  // thêm. Luật gốc nằm ở `servicePkg.policy`, hai hàng này chỉ nói lại bằng số.
+  // Phí thêm trang và vòng chỉnh ba gói trả phí như nhau, nên chúng nằm ở bảng
+  // phí trong trang chứ không chiếm hàng ở đây (2026-09-28).
   { id: "pages", icon: "description" },
-  { id: "extraPage", icon: "post_add", marks: { "hugo-story": "extra", "hugo-flow-plus": "extra", "hugo-edu-plus": false } },
-  { id: "revisions", icon: "lock", marks: { "hugo-one": "extra", "hugo-story": "extra", "hugo-flow-plus": "extra", "hugo-edu-plus": true } },
+  { id: "live", icon: "public", marks: { "hugo-one": "extra", "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
   { id: "found", icon: "search", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": false } },
   { id: "contact", icon: "mail", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
   { id: "selling", icon: "shopping_cart", marks: { "hugo-one": false, "hugo-story": false, "hugo-flow-plus": true, "hugo-edu-plus": false } },
   { id: "selfEdit", icon: "edit_note", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
+  { id: "monthly", icon: "event_repeat" },
   { id: "warranty", icon: "build", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
-  // Hugo Studio KHÔNG cấp tên miền hay nơi lưu trữ cho gói trả phí — khách tự
-  // đứng tên mua (xem `servicePkg.excludes`), nên ba gói đó là dấu gạch dù
-  // việc NỐI hạ tầng có nằm trong giá hay không. Chỉ Hugo Edu+ được dùng chung
-  // tên miền của studio, nên riêng nó là dấu tick.
-  { id: "connect", icon: "public", marks: { "hugo-one": false, "hugo-story": false, "hugo-flow-plus": false, "hugo-edu-plus": true } },
 ];

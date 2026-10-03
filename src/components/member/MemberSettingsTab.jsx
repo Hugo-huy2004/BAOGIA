@@ -1,35 +1,38 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { nom } from "../../lib/nomText";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  User,
-  Edit3,
-  Sparkles,
-  Palette,
-  Globe,
-  Bell,
-  Lock,
+  ChevronLeft,
   ChevronRight,
+  Bell,
+  Edit3,
+  Activity,
+  Award,
+  Star,
+  Heart,
+  FileCheck2,
   LogOut,
-  Share2,
+  Globe,
+  Lock,
+  ShieldCheck,
+  SlidersHorizontal,
+  Wallet,
+  Camera,
+  Check,
+  Trash2,
+  ClipboardList,
+  Sparkles,
+  Zap,
+  Palette,
   ExternalLink,
   GraduationCap,
-  Award,
   BookOpen,
-  FileCheck2,
-  ShieldCheck,
-  Zap,
-  SlidersHorizontal,
-  Check,
-  AlertTriangle,
-  Trash2,
-  UserX,
-} from "lucide-react";
+} from "../ui/HugeIcon";
 import { pushService } from "../../services/pushService";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { hapticSelect } from "../../utils/haptics";
-import { auraThemeTranslationKey, resolveActivePortalTheme } from "../../data/auraThemes";
+import { getAuraTheme, resolveActivePortalTheme } from "../../data/auraThemes";
 import { SUPPORTED_LANGUAGES, languageCode, languageLabel } from "../../i18n/languages";
 import { changeAppLanguage } from "../../i18n/config";
 import { useJoyStore } from "../../stores/joyStore";
@@ -58,7 +61,6 @@ const SheetFallback = () => {
   );
 };
 
-// 2 BẢN VĂN BẢN QUY CHUẨN DUY NHẤT VÀ ÁNH XẠ TƯƠNG THÍCH NGƯỢC
 const STANDARDIZED_DOCS = {
   "terms-manifest": {
     id: "terms-manifest",
@@ -67,7 +69,8 @@ const STANDARDIZED_DOCS = {
     subtitle: "Cam kết vận hành bền vững, quyền lợi thành viên và nguyên tắc tương hỗ",
     badge: nom("Bản hiện hành"),
     icon: FileCheck2,
-    color: "bg-blue-500/10 text-blue-500",
+    gradient: "from-blue-500 via-indigo-600 to-purple-600",
+    shadow: "shadow-md shadow-blue-500/25",
   },
   "database-policy": {
     id: "database-policy",
@@ -76,7 +79,8 @@ const STANDARDIZED_DOCS = {
     subtitle: nom("Kiến trúc CSDL Zero-Trust, quy chế ví JOY/JOY Gối Đầu và đặc quyền"),
     badge: nom("Quy ước hệ thống"),
     icon: ShieldCheck,
-    color: "bg-emerald-500/10 text-emerald-500",
+    gradient: "from-emerald-400 via-teal-500 to-green-600",
+    shadow: "shadow-md shadow-emerald-500/25",
   },
 };
 
@@ -89,29 +93,40 @@ const LEGACY_DOC_MAPPING = {
 };
 
 /**
- * Khung Apple Inset Grouped Section
+ * Pill icon đa màu sắc, phong cách liquid glass dễ thương & cao cấp
  */
-function AppleGroupSection({ title, children }) {
+function CuteGlassIcon({ icon: Icon, gradient, shadow }) {
   return (
-    <div className="space-y-1.5 text-left">
-      {title && (
-        <h3 className="px-4 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground/85">
-          {title}
-        </h3>
-      )}
-      <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/85 dark:bg-card/45 backdrop-blur-xl divide-y divide-border/40 shadow-xs transition-colors">
-        {children}
-      </div>
+    <div
+      className={`size-9 rounded-2xl flex items-center justify-center text-white shrink-0 bg-gradient-to-tr ${gradient} ${shadow} ring-1 ring-white/30 backdrop-blur-md transition-transform duration-200 group-hover:scale-105 group-active:scale-95`}
+    >
+      <Icon className="size-4.5" strokeWidth={2} />
     </div>
   );
 }
 
 /**
- * Dòng mục cài đặt chuẩn Apple Settings Row
+ * Khung thẻ Liquid Glass theo chuẩn SwiftUI (Kính mờ đen nhám siêu thực)
  */
-function AppleRowItem({
-  icon: Icon,
-  iconColor = "bg-primary/10 text-primary",
+function LiquidGlassCard({ children, className = "" }) {
+  return (
+    <div
+      className={`swiftui-liquid-glass relative overflow-hidden rounded-3xl divide-y divide-zinc-200/50 dark:divide-white/[0.08] transition-all ${className}`}
+    >
+      {/* Specular highlight lớp kính trên cùng của thẻ */}
+      <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent pointer-events-none z-10" />
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Hàng mục danh sách chạm có hiệu ứng Liquid Glass
+ */
+function LiquidRow({
+  icon,
+  gradient,
+  shadow,
   title,
   subtitle,
   value,
@@ -119,60 +134,70 @@ function AppleRowItem({
   onClick,
   href,
   trailing,
+  isDestructive = false,
 }) {
-  const innerContent = (
+  const content = (
     <>
-      <div className={`size-8 shrink-0 rounded-xl flex items-center justify-center ${iconColor}`}>
-        <Icon className="size-4" />
-      </div>
+      <CuteGlassIcon icon={icon} gradient={gradient} shadow={shadow} />
       <div className="min-w-0 flex-1 text-left">
-        <p className="text-[14px] font-semibold text-foreground tracking-tight truncate leading-tight">
+        <p
+          className={`text-[14px] font-semibold tracking-tight truncate leading-snug ${
+            isDestructive ? "text-rose-500" : "text-foreground"
+          }`}
+        >
           {title}
         </p>
         {subtitle && (
-          <p className="text-[12px] text-muted-foreground truncate mt-0.5 leading-tight">
+          <p className="text-[12px] text-muted-foreground truncate leading-tight mt-0.5">
             {subtitle}
           </p>
         )}
       </div>
+
       {badge && (
         <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold shrink-0">
           {badge}
         </span>
       )}
+
       {value && (
-        <span className="text-[13px] font-medium text-muted-foreground shrink-0 truncate max-w-[40%]">
+        <span className="text-[13px] font-semibold text-muted-foreground shrink-0 tabular-nums">
           {value}
         </span>
       )}
+
       {trailing !== undefined ? (
         trailing
       ) : href ? (
         <ExternalLink className="size-4 text-muted-foreground/60 shrink-0" />
       ) : (
-        <ChevronRight className="size-4 text-muted-foreground/60 shrink-0" />
+        <ChevronRight
+          className={`size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 ${
+            isDestructive ? "text-rose-400" : "text-zinc-400"
+          }`}
+        />
       )}
     </>
   );
 
-  const baseStyle =
-    "flex min-h-[50px] w-full items-center gap-3 px-4 py-2.5 transition-colors hover:bg-muted/40 active:bg-muted/60 focus-visible:outline-none";
+  const baseClasses =
+    "group flex items-center gap-3.5 px-4 py-3.5 w-full transition-colors hover:bg-white/40 dark:hover:bg-white/[0.04] active:bg-white/60 dark:active:bg-white/[0.08] text-left focus:outline-none";
 
   if (trailing !== undefined) {
-    return <div className={baseStyle}>{innerContent}</div>;
+    return <div className={baseClasses}>{content}</div>;
   }
 
   if (href) {
     return (
-      <a className={baseStyle} href={href} target="_blank" rel="noreferrer">
-        {innerContent}
+      <a className={baseClasses} href={href} target="_blank" rel="noreferrer">
+        {content}
       </a>
     );
   }
 
   return (
-    <button type="button" className={baseStyle} onClick={onClick}>
-      {innerContent}
+    <button type="button" className={baseClasses} onClick={onClick}>
+      {content}
     </button>
   );
 }
@@ -202,6 +227,8 @@ export default function MemberSettingsTab({
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
+  const currentView = accountSubTab === "setting" ? "setting" : "account";
+
   const [activeSheet, setActiveSheet] = useState(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
@@ -224,45 +251,46 @@ export default function MemberSettingsTab({
     bio?.displayName ||
     memberSession?.displayName ||
     t("memberPortal.navigation.memberFallback", nom("Thành viên Hugo"));
-  const usernameSlug = bio?.slug || "member";
 
-  const schoolName = [
-    formData.education,
-    bio?.verificationRequest?.schoolName,
-    bio?.schoolName,
-  ].find((v) => typeof v === "string" && v.trim() && !v.startsWith("$enc$") && !v.startsWith("enc:"))?.trim() || "";
+  // Lấy màu nền theme Aura hiện hành cho vùng avatar
+  const activeThemeKey = resolveActivePortalTheme(bio);
+  const themeConfig = getAuraTheme(activeThemeKey);
+  const palette = themeConfig?.palette || ["#007aff", "#5ac8fa", "#af52de", "#34c759"];
 
-  const profileBio = formData.bio || bio?.bio || formData.headline || bio?.headline || "";
-
-  // Khởi tạo kiểm tra tính năng thiết bị
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
     setBiometricSupported(webauthnHelper.isSupported());
     const token = getMemberToken();
     if (!token) return;
     fetch(`${apiBase}/profile/me/marketing`, {
-      headers: { Authorization: `Bearer ${token}` }, credentials: "include",
-    }).then((res) => res.ok ? res.json() : null).then((data) => {
-      if (data) setMarketingEnabled(Boolean(data.enabled));
-    }).catch(() => {});
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setMarketingEnabled(Boolean(data.enabled));
+      })
+      .catch(() => {});
   }, []);
 
-  // Tải thông tin đặc quyền và thử thách JOY
   useEffect(() => {
     if (!email || email === "—") return;
-    fetchJoyPerks(bio).then((data) => {
-      setPerks(data);
-      setPerksLoaded(true);
-    }).catch(() => {});
-    fetchChallengeStatus(email).then((data) => {
-      setChallenges(data);
-      setChallengesLoaded(true);
-    }).catch(() => {});
+    fetchJoyPerks(bio)
+      .then((data) => {
+        setPerks(data);
+        setPerksLoaded(true);
+      })
+      .catch(() => {});
+    fetchChallengeStatus(email)
+      .then((data) => {
+        setChallenges(data);
+        setChallengesLoaded(true);
+      })
+      .catch(() => {});
   }, [email, bio]);
 
-  // Xử lý deep link /member/account/:subTab (có fallback tương thích ngược)
   useEffect(() => {
-    if (!accountSubTab) return;
+    if (!accountSubTab || accountSubTab === "setting") return;
     const resolvedDocId = LEGACY_DOC_MAPPING[accountSubTab] || accountSubTab;
     if (STANDARDIZED_DOCS[resolvedDocId]) {
       setActiveSheet(`doc:${resolvedDocId}`);
@@ -274,10 +302,9 @@ export default function MemberSettingsTab({
     return () => window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: false } }));
   }, [activeSheet]);
 
-  const activeVoucherCount = useMemo(() => {
-    const vouchers = perksLoaded ? (perks?.vouchers || []) : (Array.isArray(bio?.serviceVouchers) ? bio.serviceVouchers : []);
-    return vouchers.filter((v) => isVoucherActive(v)).length;
-  }, [bio?.serviceVouchers, perks, perksLoaded]);
+  const activeVoucherCount = perksLoaded
+    ? (perks?.vouchers || []).filter((v) => isVoucherActive(v)).length
+    : (Array.isArray(bio?.serviceVouchers) ? bio.serviceVouchers.filter((v) => isVoucherActive(v)).length : 0);
 
   const completedMissionsCount = challenges.filter((c) => c.completed).length;
 
@@ -347,322 +374,458 @@ export default function MemberSettingsTab({
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl sm:max-w-2xl space-y-5 pb-28 text-left animate-in fade-in duration-200 font-sans select-none px-2 sm:px-0">
-      
-      {/* ── 1. APPLE ACCOUNT CARD (PROFILE HEADER) ── */}
-      <section className="overflow-hidden rounded-3xl border border-border/50 bg-card/85 dark:bg-card/45 p-5 sm:p-6 backdrop-blur-xl shadow-xs space-y-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-            {/* Avatar với nút chạm tải ảnh */}
-            <div className="relative shrink-0">
-              <div className="size-16 sm:size-18 rounded-full overflow-hidden border border-border bg-muted flex items-center justify-center shadow-xs">
-                {formData.avatarUrl ? (
-                  <img className="size-full object-cover" src={formData.avatarUrl} alt={displayName} />
-                ) : (
-                  <span className="text-xl sm:text-2xl font-bold text-primary">
-                    {displayName[0]?.toUpperCase()}
-                  </span>
-                )}
-              </div>
-              {bio?.isEduVerified && (
-                <span
-                  className="absolute bottom-0 right-0 size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-card shadow-xs"
-                  title={t("memberPortal.account.eduVerified", nom("Đã xác minh sinh viên"))}
-                >
-                  <GraduationCap className="size-3" />
-                </span>
-              )}
+    <div className="w-full min-h-screen flex flex-col select-none font-sans bg-[#0c0d12] text-foreground">
+      {/* Ẩn file input phục vụ đổi ảnh đại diện */}
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleAvatarChange}
+      />
+
+      {/* ─────────────────────────────────────────────────────────────
+          1. ACCOUNT VIEW (MÀN HÌNH TÀI KHOẢN CHÍNH)
+         ───────────────────────────────────────────────────────────── */}
+      {currentView === "account" && (
+        <div
+          className="w-full flex-1 flex flex-col relative overflow-hidden animate-in fade-in duration-200 transition-colors"
+          style={{
+            background: `radial-gradient(ellipse 110% 70% at 50% 12%, ${palette[0]}55 0%, ${palette[1]}30 45%, #08090e 100%), #08090e`,
+          }}
+        >
+          {/* Vầng hào quang ánh sáng Theme trôi dưới lớp kính mờ */}
+          <div
+            className="absolute -top-12 -left-12 size-72 rounded-full blur-3xl opacity-50 pointer-events-none"
+            style={{ background: palette[0] }}
+          />
+          <div
+            className="absolute top-28 -right-16 size-80 rounded-full blur-3xl opacity-40 pointer-events-none"
+            style={{ background: palette[1] }}
+          />
+          <div
+            className="absolute top-1/2 left-1/4 size-96 rounded-full blur-[100px] opacity-25 pointer-events-none"
+            style={{ background: palette[0] }}
+          />
+          <div
+            className="absolute bottom-1/4 -right-20 size-80 rounded-full blur-3xl opacity-20 pointer-events-none"
+            style={{ background: palette[1] }}
+          />
+
+          {/* HEADER NỀN THEME SAU LƯNG AVATAR (TRÀN MÉP TRÊN DƯỚI DYNAMIC ISLAND) */}
+          <div
+            className="relative w-full overflow-hidden pb-10 px-4 flex flex-col items-center justify-center text-center transition-colors z-10"
+            style={{
+              paddingTop: "calc(env(safe-area-inset-top, 0px) + 16px)",
+            }}
+          >
+            {/* Thanh điều hướng đầu trang */}
+            <div className="w-full max-w-lg mx-auto flex items-center justify-between mb-4 relative z-10 px-1">
+              <button
+                type="button"
+                onClick={() => navigate("/member/today")}
+                className="size-9 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center backdrop-blur-xl border border-white/20 transition-all shadow-sm"
+                aria-label="Back"
+              >
+                <ChevronLeft className="size-4.5" />
+              </button>
+              <h1 className="text-[15px] font-bold text-white tracking-wide">
+                Account
+              </h1>
+              <button
+                type="button"
+                onClick={() => navigate("/member/activity")}
+                className="size-9 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center backdrop-blur-xl border border-white/20 transition-all shadow-sm"
+                aria-label="Notifications"
+              >
+                <Bell className="size-4" />
+              </button>
             </div>
 
-            {/* Thông tin tên & email */}
-            <div className="min-w-0 flex-1 space-y-0.5">
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate">
+            {/* Avatar trung tâm với nút Camera đổi ảnh */}
+            <div className="relative z-10 flex flex-col items-center max-w-lg mx-auto">
+              <div
+                className="relative group cursor-pointer"
+                onClick={() => avatarInputRef?.current?.click()}
+              >
+                <div
+                  className="size-28 sm:size-32 rounded-full overflow-hidden border-[2.5px] border-white/60 shadow-2xl bg-zinc-800 flex items-center justify-center transition-transform group-hover:scale-105"
+                  style={{
+                    boxShadow: `0 14px 40px ${palette[0]}55`,
+                  }}
+                >
+                  {formData.avatarUrl ? (
+                    <img className="size-full object-cover" src={formData.avatarUrl} alt={displayName} />
+                  ) : (
+                    <span className="text-3xl sm:text-4xl font-bold text-white">
+                      {displayName[0]?.toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  style={{
+                    width: "26px",
+                    height: "26px",
+                    minWidth: "26px",
+                    minHeight: "26px",
+                    maxWidth: "26px",
+                    maxHeight: "26px",
+                    borderRadius: "9999px",
+                    padding: 0,
+                    margin: 0,
+                    boxSizing: "border-box",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  className="absolute bottom-1 right-1 bg-zinc-900/95 dark:bg-zinc-800/95 border-[1.5px] border-white/80 text-white shadow-md hover:bg-zinc-800 active:scale-90 transition-transform shrink-0 cursor-pointer overflow-hidden"
+                  title="Đổi ảnh đại diện"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    avatarInputRef?.current?.click();
+                  }}
+                >
+                  <Camera className="size-3 shrink-0" strokeWidth={2.2} />
+                </button>
+              </div>
+
+              {/* Tên và Email */}
+              <h2 className="text-lg font-bold text-white tracking-tight mt-3">
                 {displayName}
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">
+              </h2>
+              <p className="text-xs text-white/70 font-medium mt-0.5">
                 {email}
               </p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground/80 font-mono truncate">
-                @{usernameSlug}
-              </p>
             </div>
           </div>
 
-          {/* Nút Cài đặt hồ sơ nhanh */}
-          <button
-            type="button"
-            onClick={() => openSheet("personal")}
-            className="p-2 rounded-xl border border-border/60 bg-muted/40 hover:bg-muted/70 text-foreground transition-colors shrink-0"
-            title={t("memberPortal.accountProfile.settings", nom("Cài đặt"))}
-          >
-            <SlidersHorizontal className="size-4 text-muted-foreground" />
-          </button>
-        </div>
+          {/* KHUNG NỘI DUNG KÍNH MỜ ĐEN NHÁM LIQUID GLASS TRÀN MÀN HÌNH ĐẾN TẬN ĐÁY */}
+          <div className="relative z-10 flex-1 w-full -mt-4 backdrop-blur-3xl bg-white/70 dark:bg-black/35 rounded-t-[2.5rem] pt-6 pb-40 px-3.5 sm:px-4 space-y-4 border-t border-white/60 dark:border-white/15 shadow-[0_-16px_50px_rgba(0,0,0,0.45)] min-h-[65vh]">
+            {/* Specular highlight viền kính cong trên cùng */}
+            <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent pointer-events-none rounded-t-[2.5rem]" />
+            <div className="w-full max-w-xl mx-auto space-y-4">
+              
+              {/* Thẻ 1: Ví JOY & Đặc quyền phần thưởng */}
+              <LiquidGlassCard>
+                <LiquidRow
+                  icon={Wallet}
+                  gradient="from-amber-400 via-amber-500 to-orange-500"
+                  shadow="shadow-md shadow-amber-500/25"
+                  title="Ví JOY & Quà tặng"
+                  subtitle={`${activeVoucherCount} voucher khả dụng • Quy đổi đặc quyền`}
+                  value={`${joy.number(joyBalance || 0)} ${joy.code}`}
+                  onClick={() => openUtility("joy_wallet")}
+                />
+              </LiquidGlassCard>
 
-        {/* Thông tin phụ: Trường học & Tiểu sử (nếu có) */}
-        {(schoolName || profileBio) && (
-          <div className="pt-1 space-y-2">
-            {schoolName && (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold border border-primary/20 max-w-full truncate">
-                <GraduationCap className="size-3.5 shrink-0" />
-                <span className="truncate">{t("memberPortal.accountProfile.studentBadge", nom("HSSV tại {{school}}"), { school: schoolName })}</span>
-              </div>
-            )}
-            {profileBio && (
-              <p className="text-xs text-muted-foreground leading-relaxed italic bg-muted/30 p-2.5 rounded-xl border border-border/40">
-                "{profileBio}"
-              </p>
-            )}
-          </div>
-        )}
+              {/* Thẻ 2: Hồ sơ, Danh tính & Trang cá nhân Hugo Bio */}
+              <LiquidGlassCard>
+                <LiquidRow
+                  icon={Edit3}
+                  gradient="from-sky-400 via-blue-500 to-indigo-500"
+                  shadow="shadow-md shadow-sky-500/25"
+                  title="Hồ sơ thành viên"
+                  subtitle="Cập nhật thông tin, số điện thoại & liên hệ"
+                  onClick={() => openSheet("personal")}
+                />
+                <LiquidRow
+                  icon={Sparkles}
+                  gradient="from-violet-500 via-fuchsia-500 to-pink-500"
+                  shadow="shadow-md shadow-fuchsia-500/25"
+                  title="Trang cá nhân Hugo Bio"
+                  subtitle={publicLink ? "Xem & tùy biến liên kết Bio độc bản" : "Khởi tạo Bio cá nhân độc bản"}
+                  onClick={() => openUtility("bio")}
+                />
+                <LiquidRow
+                  icon={ClipboardList}
+                  gradient="from-orange-400 via-rose-500 to-amber-500"
+                  shadow="shadow-md shadow-rose-500/25"
+                  title="Nhiệm vụ & Thử thách JOY"
+                  subtitle={
+                    challengesLoaded
+                      ? `${completedMissionsCount}/${challenges.length} nhiệm vụ đã xong`
+                      : "Đồng bộ nhiệm vụ"
+                  }
+                  onClick={() => openUtility("joy_wallet")}
+                />
+                <LiquidRow
+                  icon={Activity}
+                  gradient="from-emerald-400 via-teal-500 to-cyan-500"
+                  shadow="shadow-md shadow-teal-500/25"
+                  title="Nhật ký hoạt động"
+                  subtitle="Thông báo bảo mật, quà tặng & lịch sử"
+                  onClick={() => navigate("/member/activity")}
+                />
+              </LiquidGlassCard>
 
-        {/* 2 nút hành động chính chuẩn Apple */}
-        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
-          <button
-            type="button"
-            onClick={() => openSheet("personal")}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-border/60 bg-muted/40 hover:bg-muted/80 text-foreground font-semibold text-xs sm:text-[13px] transition-colors active:scale-[0.98]"
-          >
-            <Edit3 className="size-3.5 text-primary shrink-0" />
-            <span className="truncate">{t("memberPortal.accountProfile.editProfile", nom("Chỉnh sửa hồ sơ"))}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => openUtility("bio")}
-            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-border/60 bg-muted/40 hover:bg-muted/80 text-foreground font-semibold text-xs sm:text-[13px] transition-colors active:scale-[0.98]"
-          >
-            <Sparkles className="size-3.5 text-indigo-500 shrink-0" />
-            <span className="truncate">{t("memberPortal.accountProfile.viewBio", "Xem Hugo Bio")}</span>
-          </button>
-        </div>
-      </section>
+              {/* Thẻ 3: Tiện ích hệ sinh thái & Cài đặt hệ thống */}
+              <LiquidGlassCard>
+                <LiquidRow
+                  icon={SlidersHorizontal}
+                  gradient="from-slate-600 via-zinc-700 to-neutral-800 dark:from-zinc-400 dark:to-slate-600"
+                  shadow="shadow-md shadow-zinc-500/25"
+                  title="Cài đặt hệ thống"
+                  subtitle="Theme Aura, Ngôn ngữ, Thông báo & Bảo mật"
+                  onClick={() => navigate("/member/account/setting")}
+                />
+                <LiquidRow
+                  icon={Star}
+                  gradient="from-yellow-400 via-amber-500 to-orange-400"
+                  shadow="shadow-md shadow-yellow-500/25"
+                  title="Đặc quyền thành viên"
+                  subtitle={bio?.isEduVerified ? "HSSV VIP • Đã xác minh học đường" : "Thành viên chính thức"}
+                  onClick={() => openSheet("personal")}
+                />
+                <LiquidRow
+                  icon={Heart}
+                  gradient="from-rose-400 via-pink-500 to-red-400"
+                  shadow="shadow-md shadow-pink-500/25"
+                  title="Bạn Học Đường AI"
+                  subtitle="Liệu pháp CBT & đồng hành sức khỏe tinh thần"
+                  onClick={() => navigate("/member/utilities/banhocduong")}
+                />
+                <LiquidRow
+                  icon={GraduationCap}
+                  gradient="from-indigo-400 via-blue-500 to-cyan-500"
+                  shadow="shadow-md shadow-indigo-500/25"
+                  title="Hugo Coder Hub"
+                  subtitle="Lộ trình học lập trình & cấp chứng chỉ"
+                  onClick={() => navigate("/member/utilities/study")}
+                />
+                <LiquidRow
+                  icon={FileCheck2}
+                  gradient="from-blue-500 via-indigo-600 to-purple-600"
+                  shadow="shadow-md shadow-blue-500/25"
+                  title="Quy ước & Văn bản hệ thống"
+                  subtitle="Tuyên ngôn dịch vụ & CSDL Zero-Trust"
+                  onClick={() => navigate("/member/account/terms-manifest")}
+                />
+              </LiquidGlassCard>
 
-      {/* ── 2. WALLET & REWARDS SUMMARY (APPLE WALLET STYLE BANNER) ── */}
-      <button
-        type="button"
-        onClick={() => openUtility("joy_wallet")}
-        className="w-full text-left overflow-hidden rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 flex items-center justify-between gap-3 hover:from-amber-500/15 transition-all shadow-xs active:scale-[0.99]"
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="size-10 rounded-xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/20">
-            <Award className="size-5" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                {t("memberPortal.accountProfile.joyWallet", nom("Ví JOY"))}
-              </span>
-              <strong className="text-base sm:text-lg font-bold text-foreground tabular-nums">
-                {joy.number(joyBalance || 0)}
-              </strong>
-              <span className="text-xs font-semibold text-muted-foreground">{joy.code}</span>
+              {/* Thẻ 4: Đăng xuất an toàn */}
+              <LiquidGlassCard>
+                <LiquidRow
+                  icon={LogOut}
+                  gradient="from-rose-500 via-red-600 to-pink-600"
+                  shadow="shadow-md shadow-rose-500/25"
+                  title="Đăng xuất tài khoản"
+                  subtitle="Đăng xuất an toàn khỏi thiết bị này"
+                  isDestructive
+                  onClick={handleLogout}
+                />
+              </LiquidGlassCard>
             </div>
-            <p className="text-[11.5px] text-muted-foreground truncate mt-0.5">
-              {challengesLoaded ? `${completedMissionsCount}/${challenges.length} nhiệm vụ đã xong` : nom("Đang đồng bộ")} • {activeVoucherCount} vouchers ưu đãi
-            </p>
           </div>
         </div>
-        <div className="flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">
-          <span>{nom(nom("Chi tiết"))}</span>
-          <ChevronRight className="size-4" />
-        </div>
-      </button>
+      )}
 
-      {/* ── 3. GROUP 1: HỒ SƠ & CÁ NHÂN HÓA ── */}
-      <AppleGroupSection title={nom("Hồ sơ & Danh tính")}>
-        <AppleRowItem
-          icon={User}
-          iconColor="bg-blue-500/10 text-blue-500"
-          title={t("memberPortal.accountProfile.manageProfile", nom("Quản lý hồ sơ chi tiết"))}
-          subtitle={t("memberPortal.accountProfile.manageProfileDetail", nom("Cập nhật avatar, số điện thoại và thông tin liên hệ"))}
-          onClick={() => openSheet("personal")}
-        />
-        <AppleRowItem
-          icon={Sparkles}
-          iconColor="bg-indigo-500/10 text-indigo-500"
-          title={t("memberPortal.accountProfile.personalBioPage", nom("Trang cá nhân Hugo Bio"))}
-          subtitle={t("memberPortal.accountProfile.personalBioPageDetail", nom("Trang cá nhân công khai độc bản"))}
-          onClick={() => openUtility("bio")}
-        />
-        {publicLink && (
-          <AppleRowItem
-            icon={Share2}
-            iconColor="bg-sky-500/10 text-sky-500"
-            title={t("memberPortal.accountProfile.publicWebBio", nom("Xem trang Bio trên Web"))}
-            subtitle={t("memberPortal.accountProfile.publicWebBioDetail", nom("Mở liên kết bio cá nhân trong trình duyệt"))}
-            href={publicLink}
-          />
-        )}
-      </AppleGroupSection>
-
-      {/* ── 4. GROUP 2: TÙY BIẾN & HỆ THỐNG (INLINE TOGGLES) ── */}
-      <AppleGroupSection title={nom("Tùy biến & Tiết kiệm năng lượng")}>
-        <AppleRowItem
-          icon={Palette}
-          iconColor="bg-violet-500/10 text-violet-500"
-          title={t("memberPortal.accountProfile.personalTheme", nom("Nền & Theme Aura"))}
-          value={t(auraThemeTranslationKey(resolveActivePortalTheme(bio), "Name"), nom("Mặc định"))}
-          onClick={() => openSheet("themes")}
-        />
-        <AppleRowItem
-          icon={Globe}
-          iconColor="bg-teal-500/10 text-teal-500"
-          title={t("memberPortal.accountProfile.systemLanguage", nom("Ngôn ngữ hệ thống"))}
-          value={languageLabel(currentLang)}
-          onClick={() => openSheet("language")}
-        />
-        {/* Inline Toggle: Thông báo đẩy */}
-        <AppleRowItem
-          icon={Bell}
-          iconColor="bg-amber-500/10 text-amber-500"
-          title={t("memberPortal.settings.appNotifications", nom("Thông báo ứng dụng"))}
-          subtitle={t("memberPortal.settings.appNotificationsDesc", nom("Nhận tin tức bảo mật và biến động số dư"))}
-          trailing={
-            <ToggleSwitch
-              checked={pushEnabled}
-              onChange={handleTogglePush}
-              disabled={pushBusy}
-              label={t("memberPortal.settings.enableNotifications", nom("Bật thông báo"))}
-            />
-          }
-        />
-        <AppleRowItem
-          icon={Bell}
-          iconColor="bg-sky-500/10 text-sky-500"
-          title={nom("Email cập nhật Hugo Studio")}
-          subtitle={nom("Mẹo thành viên, lời mời quay lại và tư vấn website; có thể tắt bất cứ lúc nào")}
-          trailing={
-            <ToggleSwitch
-              checked={marketingEnabled}
-              onChange={handleToggleMarketing}
-              disabled={marketingBusy}
-              label={nom("Bật email cập nhật")}
-            />
-          }
-        />
-        {/* Inline Toggle: Chế độ tiết kiệm năng lượng Eco */}
-        <div className="px-4 py-2.5">
-          <EcoToggle />
-        </div>
-      </AppleGroupSection>
-
-      {/* ── 5. GROUP 3: BẢO MẬT & QUYỀN TRUY CẬP ── */}
-      <AppleGroupSection title={nom("Bảo mật & Quyền riêng tư")}>
-        <AppleRowItem
-          icon={Lock}
-          iconColor="bg-rose-500/10 text-rose-500"
-          title={t("memberPortal.accountProfile.security", nom("Bảo mật sinh trắc học & PIN"))}
-          subtitle={t("memberPortal.accountProfile.biometricsDetail", nom("Xác thực FaceID, TouchID và WebAuthn"))}
-          onClick={() => openSheet("security")}
-        />
-        <AppleRowItem
-          icon={Zap}
-          iconColor="bg-orange-500/10 text-orange-500"
-          title={t("memberPortal.accountProfile.devicePermissions", nom("Quyền truy cập thiết bị"))}
-          subtitle={t("memberPortal.accountProfile.devicePermissionsDetail", nom("Kiểm tra camera, microphone và thông báo"))}
-          onClick={() => {
-            hapticSelect();
-            window.dispatchEvent(new Event("hugo:show-permission-primer"));
+      {/* ─────────────────────────────────────────────────────────────
+          2. SETTING VIEW (MÀN HÌNH CÀI ĐẶT CHI TIẾT)
+         ───────────────────────────────────────────────────────────── */}
+      {currentView === "setting" && (
+        <div
+          className="w-full flex-1 flex flex-col relative overflow-hidden animate-in fade-in duration-200 transition-colors"
+          style={{
+            background: `radial-gradient(ellipse 110% 70% at 50% 12%, ${palette[0]}40 0%, ${palette[1]}20 45%, #08090e 100%), #08090e`,
           }}
-        />
-      </AppleGroupSection>
-
-      {/* ── 6. GROUP 4: 2 BẢN VĂN BẢN QUY CHUẨN DUY NHẤT ── */}
-      <AppleGroupSection title={nom("Văn bản pháp lý & Quy ước hệ thống")}>
-        <AppleRowItem
-          icon={STANDARDIZED_DOCS["terms-manifest"].icon}
-          iconColor={STANDARDIZED_DOCS["terms-manifest"].color}
-          title={t(STANDARDIZED_DOCS["terms-manifest"].titleKey, STANDARDIZED_DOCS["terms-manifest"].defaultTitle)}
-          subtitle={STANDARDIZED_DOCS["terms-manifest"].subtitle}
-          badge={STANDARDIZED_DOCS["terms-manifest"].badge}
-          onClick={() => navigate("/member/account/terms-manifest")}
-        />
-        <AppleRowItem
-          icon={STANDARDIZED_DOCS["database-policy"].icon}
-          iconColor={STANDARDIZED_DOCS["database-policy"].color}
-          title={t(STANDARDIZED_DOCS["database-policy"].titleKey, STANDARDIZED_DOCS["database-policy"].defaultTitle)}
-          subtitle={STANDARDIZED_DOCS["database-policy"].subtitle}
-          badge={STANDARDIZED_DOCS["database-policy"].badge}
-          onClick={() => navigate("/member/account/database-policy")}
-        />
-        <AppleRowItem
-          icon={BookOpen}
-          iconColor="bg-muted text-muted-foreground"
-          title="Cẩm nang quy ước toàn diện"
-          subtitle={nom("Xem hướng dẫn kiến trúc bảo mật & sơ đồ hệ sinh thái trên web")}
-          href="/terms-and-guide"
-        />
-      </AppleGroupSection>
-
-      {/* ── 7. GROUP 5: ĐĂNG XUẤT ── */}
-      <div className="overflow-hidden rounded-2xl border border-border/50 bg-card/85 dark:bg-card/45 shadow-xs">
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="flex min-h-[48px] w-full items-center justify-center gap-2 text-[14px] font-semibold text-rose-500 hover:bg-rose-500/10 active:bg-rose-500/20 transition-colors"
         >
-          <LogOut className="size-4" />
-          <span>{t("memberPortal.accountProfile.logout", nom("Đăng xuất tài khoản"))}</span>
-        </button>
-      </div>
+          {/* Ambient Glow Orbs */}
+          <div
+            className="absolute -top-12 -left-12 size-72 rounded-full blur-3xl opacity-40 pointer-events-none"
+            style={{ background: palette[0] }}
+          />
+          <div
+            className="absolute top-1/2 -right-16 size-80 rounded-full blur-3xl opacity-25 pointer-events-none"
+            style={{ background: palette[1] }}
+          />
 
-      {/* ── 8. GROUP 6: VÙNG NGUY HIỂM ──
-          Chuyển ra khỏi hộp thoại "Quản lý hồ sơ" (2026-09-24): xoá dữ liệu Bio
-          và xoá tài khoản là hành động cấp TÀI KHOẢN, không phải một cài đặt
-          của riêng trang Bio — nên nó thuộc về Cài đặt tài khoản chung, không
-          phải màn cài đặt Bio (nơi giờ chỉ còn gói đang sở hữu + đường dẫn).
-          Trước đây nút "Sao chép link" trong hộp thoại cũ vô tình gọi thẳng
-          hàm xoá Bio (`handleCopyLink={handleDeleteBio}`) — bản dựng lại này
-          không còn đường tắt sai đó: xoá dữ liệu chỉ gọi từ ĐÚNG nút của nó. */}
-      <div className="space-y-1 px-1 pt-1">
-        <h3 className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-rose-500/80">
-          <AlertTriangle className="size-3.5" />
-          {t("memberPortal.accountProfile.dangerZoneTitle", nom("Vùng nguy hiểm"))}
-        </h3>
-      </div>
-      <div className="overflow-hidden rounded-2xl border border-rose-500/20 bg-rose-500/[0.04] dark:bg-rose-500/[0.06] divide-y divide-rose-500/10 shadow-xs">
-        {bio?._id && (
-          <button
-            type="button"
-            onClick={handleDeleteBio}
-            disabled={saving}
-            className="flex min-h-[52px] w-full items-center gap-3 px-4 text-left disabled:opacity-50"
+          {/* Thanh điều hướng cố định */}
+          <div
+            className="sticky top-0 z-20 w-full bg-white/70 dark:bg-black/35 backdrop-blur-2xl border-b border-zinc-200/50 dark:border-white/[0.1] px-4 pb-3"
+            style={{
+              paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)",
+            }}
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
-              <Trash2 className="size-4" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-semibold text-rose-500">
-                {t("memberTabs.manage.removeBioTitle", nom("Gỡ bỏ dịch vụ Bio"))}
-              </span>
-              <span className="block truncate text-[11px] text-muted-foreground">
-                {t("memberTabs.manage.removeBioDesc", nom("Gỡ bỏ hoàn toàn dữ liệu Bio, không thể phục hồi."))}
-              </span>
-            </span>
-            <ChevronRight className="size-4 shrink-0 text-rose-500/60" />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => openUtility("handle")}
-          className="flex min-h-[52px] w-full items-center gap-3 px-4 text-left"
-        >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-500">
-            <UserX className="size-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-rose-500">
-              {t("memberPortal.accountProfile.deleteAccountTitle", nom("Xoá tài khoản"))}
-            </span>
-            <span className="block truncate text-[11px] text-muted-foreground">
-              {t("memberPortal.accountProfile.deleteAccountDesc", nom("Gửi yêu cầu để Hugo Studio xử lý trực tiếp, không thể hoàn tác."))}
-            </span>
-          </span>
-          <ChevronRight className="size-4 shrink-0 text-rose-500/60" />
-        </button>
-      </div>
+            <div className="w-full max-w-xl mx-auto flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => navigate("/member/account")}
+                className="size-9 rounded-full bg-zinc-200/70 dark:bg-white/10 hover:bg-zinc-300 dark:hover:bg-white/20 active:scale-95 text-foreground flex items-center justify-center transition-all"
+                aria-label="Back"
+              >
+                <ChevronLeft className="size-4.5" />
+              </button>
+              <h1 className="text-[15px] font-bold text-foreground tracking-wide">
+                Cài đặt & Tùy biến
+              </h1>
+              <button
+                type="button"
+                onClick={() => navigate("/member/activity")}
+                className="size-9 rounded-full bg-zinc-200/70 dark:bg-white/10 hover:bg-zinc-300 dark:hover:bg-white/20 active:scale-95 text-foreground flex items-center justify-center transition-all"
+                aria-label="Notifications"
+              >
+                <Bell className="size-4" />
+              </button>
+            </div>
+          </div>
 
-      {/* ── SHEET MODALS ── */}
+          <div className="w-full max-w-xl mx-auto p-3.5 sm:p-4 pb-40 space-y-4 relative z-10">
+            
+            {/* Nhóm 1: Giao diện, Theme Aura & Ngôn ngữ */}
+            <LiquidGlassCard>
+              <LiquidRow
+                icon={Palette}
+                gradient="from-fuchsia-400 via-purple-500 to-indigo-500"
+                shadow="shadow-md shadow-fuchsia-500/25"
+                title="Nền & Theme Aura"
+                subtitle="Tùy biến hiệu ứng Liquid Glass & màu sắc"
+                value={themeConfig?.name || "Mặc định"}
+                onClick={() => openSheet("themes")}
+              />
+              <LiquidRow
+                icon={Globe}
+                gradient="from-teal-400 via-emerald-500 to-cyan-500"
+                shadow="shadow-md shadow-teal-500/25"
+                title="Ngôn ngữ hệ thống"
+                subtitle="Đổi tiếng Việt, English hoặc 中文"
+                value={languageLabel(currentLang)}
+                onClick={() => openSheet("language")}
+              />
+              <div className="p-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-3.5">
+                  <CuteGlassIcon
+                    icon={Zap}
+                    gradient="from-lime-400 via-emerald-500 to-teal-500"
+                    shadow="shadow-md shadow-lime-500/25"
+                  />
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">Tiết kiệm năng lượng</p>
+                    <p className="text-[12px] text-muted-foreground">Tối ưu pin & GPU trên thiết bị di động</p>
+                  </div>
+                </div>
+                <EcoToggle />
+              </div>
+            </LiquidGlassCard>
+
+            {/* Nhóm 2: Bảo mật Zero-Trust & Sinh trắc học */}
+            <LiquidGlassCard>
+              <LiquidRow
+                icon={ShieldCheck}
+                gradient="from-emerald-400 via-teal-500 to-green-600"
+                shadow="shadow-md shadow-emerald-500/25"
+                title="Bảo mật sinh trắc học & PIN"
+                subtitle="Xác thực FaceID, TouchID & bảo vệ ví"
+                value={biometricSupported ? "Đã bảo vệ" : "Chưa bật PIN"}
+                onClick={() => openSheet("security")}
+              />
+              <LiquidRow
+                icon={Lock}
+                gradient="from-rose-400 via-pink-500 to-purple-500"
+                shadow="shadow-md shadow-rose-500/25"
+                title="Quyền truy cập thiết bị"
+                subtitle="Kiểm tra quyền Camera, Micro & Thông báo"
+                onClick={() => {
+                  hapticSelect();
+                  window.dispatchEvent(new Event("hugo:show-permission-primer"));
+                }}
+              />
+            </LiquidGlassCard>
+
+            {/* Nhóm 3: Thông báo & Kết nối */}
+            <LiquidGlassCard>
+              <div className="flex items-center justify-between px-4 py-3.5 w-full">
+                <div className="flex items-center gap-3.5">
+                  <CuteGlassIcon
+                    icon={Bell}
+                    gradient="from-orange-400 via-amber-500 to-yellow-500"
+                    shadow="shadow-md shadow-orange-500/25"
+                  />
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">Thông báo ứng dụng</p>
+                    <p className="text-[12px] text-muted-foreground">Nhận tin tức bảo mật & biến động số dư</p>
+                  </div>
+                </div>
+                <ToggleSwitch
+                  checked={pushEnabled}
+                  onChange={handleTogglePush}
+                  disabled={pushBusy}
+                  label="Thông báo ứng dụng"
+                />
+              </div>
+
+              <div className="flex items-center justify-between px-4 py-3.5 w-full">
+                <div className="flex items-center gap-3.5">
+                  <CuteGlassIcon
+                    icon={Bell}
+                    gradient="from-sky-400 via-blue-500 to-indigo-500"
+                    shadow="shadow-md shadow-sky-500/25"
+                  />
+                  <div>
+                    <p className="text-[14px] font-semibold text-foreground">Email cập nhật Hugo</p>
+                    <p className="text-[12px] text-muted-foreground">Mẹo thành viên & tư vấn website</p>
+                  </div>
+                </div>
+                <ToggleSwitch
+                  checked={marketingEnabled}
+                  onChange={handleToggleMarketing}
+                  disabled={marketingBusy}
+                  label="Email cập nhật"
+                />
+              </div>
+            </LiquidGlassCard>
+
+            {/* Nhóm 4: Văn bản pháp lý & Quy ước */}
+            <LiquidGlassCard>
+              <LiquidRow
+                icon={FileCheck2}
+                gradient="from-blue-500 via-indigo-600 to-purple-600"
+                shadow="shadow-md shadow-blue-500/25"
+                title={STANDARDIZED_DOCS["terms-manifest"].defaultTitle}
+                subtitle={STANDARDIZED_DOCS["terms-manifest"].subtitle}
+                badge={STANDARDIZED_DOCS["terms-manifest"].badge}
+                onClick={() => navigate("/member/account/terms-manifest")}
+              />
+              <LiquidRow
+                icon={ShieldCheck}
+                gradient="from-emerald-400 via-teal-500 to-green-600"
+                shadow="shadow-md shadow-emerald-500/25"
+                title={STANDARDIZED_DOCS["database-policy"].defaultTitle}
+                subtitle={STANDARDIZED_DOCS["database-policy"].subtitle}
+                badge={STANDARDIZED_DOCS["database-policy"].badge}
+                onClick={() => navigate("/member/account/database-policy")}
+              />
+              <LiquidRow
+                icon={BookOpen}
+                gradient="from-slate-500 via-zinc-600 to-neutral-700"
+                shadow="shadow-md shadow-slate-500/25"
+                title="Cẩm nang quy ước toàn diện"
+                subtitle="Xem hướng dẫn kiến trúc & sơ đồ hệ sinh thái"
+                href="/terms-and-guide"
+              />
+            </LiquidGlassCard>
+
+            {/* Nhóm 5: Vùng nhạy cảm & Xoá Bio */}
+            {bio?._id && (
+              <LiquidGlassCard>
+                <LiquidRow
+                  icon={Trash2}
+                  gradient="from-rose-500 via-red-600 to-pink-600"
+                  shadow="shadow-md shadow-rose-500/25"
+                  title="Gỡ bỏ dịch vụ Bio"
+                  subtitle="Gỡ bỏ hoàn toàn dữ liệu Bio cá nhân"
+                  isDestructive
+                  onClick={handleDeleteBio}
+                />
+              </LiquidGlassCard>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. SHEET MODALS & DIALOGS
+         ───────────────────────────────────────────────────────────── */}
       {activeSheet === "personal" && (
         <React.Suspense fallback={<SheetFallback />}>
           <AccountSheet

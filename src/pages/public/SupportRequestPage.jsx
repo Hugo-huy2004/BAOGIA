@@ -321,6 +321,18 @@ const SupportRequestPage = () => {
                   )}
                 </button>
               </div>
+
+              <div className="pt-2 text-center">
+                <p className="text-[11px] text-muted-foreground">
+                  Cần gửi ảnh chụp lỗi hoặc đính kèm chứng từ? Gửi thư trực tiếp tới{" "}
+                  <a
+                    href="mailto:support@hugowishpax.studio?subject=%5BH%E1%BB%97%20tr%E1%BB%A3%20k%E1%BB%B9%20thu%E1%BA%ADt%5D%20Y%C3%AAu%20c%E1%BA%A7u%20h%E1%BB%97%20tr%E1%BB%A3%20tr%E1%BB%B1c%20ti%E1%BA%BFp"
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    support@hugowishpax.studio
+                  </a>
+                </p>
+              </div>
             </form>
           </div>
         )}

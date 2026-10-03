@@ -425,17 +425,6 @@
 @keyframes hw-spell-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(224 51 95 / .55) } 50% { box-shadow: 0 0 0 .4rem rgb(224 51 95 / 0) } }
 @media (prefers-reduced-motion: reduce) { .hw-spell-dot { animation: none !important } }
 
-/* Ô lấp chỗ trống ở hàng cuối lưới thẻ (trang chi tiết gói).
-   Số cột còn thiếu khác nhau giữa 2 cột và 3 cột, mà Tailwind không sinh được
-   lớp động, nên bề rộng đi qua biến CSS do React tính rồi truyền vào.
-   `--fill-*` = 0 nghĩa là hàng cuối đã đủ thẻ, ô này biến mất. */
-.card-filler { display: none; }
-@media (min-width: 640px) {
-  .card-filler { display: var(--fill-sm-display, none); grid-column: span var(--fill-sm, 1); }
-}
-@media (min-width: 1024px) {
-  .card-filler { display: var(--fill-lg-display, none); grid-column: span var(--fill-lg, 1); }
-}
 #services .hg-glass {
   background:
     linear-gradient(135deg, rgb(255 255 255 / .62), transparent 42%, rgb(76 181 231 / .12)),

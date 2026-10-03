@@ -79,6 +79,18 @@ i18n
 // Đăng ký sau init vì bộ định dạng chỉ tồn tại khi i18next đã dựng xong service.
 registerJoyFormat(i18n);
 
+/** Phủ `own` lên `base`: khoá nào `own` thiếu thì lấy của `base` (mảng ghép theo chỉ số). */
+function fillMissing(base, own) {
+  if (own === undefined || own === null) return base;
+  if (Array.isArray(base) && Array.isArray(own)) return base.map((item, i) => fillMissing(item, own[i]));
+  if (base && typeof base === 'object' && own && typeof own === 'object' && !Array.isArray(base)) {
+    const out = { ...base };
+    for (const key of Object.keys(own)) out[key] = fillMissing(base[key], own[key]);
+    return out;
+  }
+  return own;
+}
+
 const inFlight = new Map();
 
 /**
@@ -101,26 +113,31 @@ export function ensureTranslations(language = i18n.language) {
       ? Promise.resolve()
       : ensureTranslations('en');
     const p = fallbackReady
-      .then(() => FULL_LOCALES[load]())
-      .then((mod) => {
+      // Bản Nôm đánh rơi chuỗi không dịch được (giá, số, tên riêng). t() thường
+      // tự rơi về quốc ngữ, nhưng t(..., { returnObjects: true }) trả NGUYÊN đối
+      // tượng Nôm, thiếu khoá là trang gọi .map() lên undefined và sập. Nên lấp
+      // chỗ trống bằng bản quốc ngữ ngay lúc nạp.
+      .then(() => Promise.all([FULL_LOCALES[load](), load === 'nom' ? FULL_LOCALES.vi() : null]))
+      .then(([mod, viMod]) => {
+        const own = viMod ? fillMissing(viMod.default, mod.default) : mod.default;
         const appCopy = MEMBER_APP_TRANSLATIONS[load];
         const todayCopy = MEMBER_TODAY_TRANSLATIONS[load];
         const dictionary = {
-          ...mod.default,
+          ...own,
           ...(appCopy ? {
             utilities: {
-              ...(mod.default.utilities || {}),
+              ...(own.utilities || {}),
               categories: appCopy.categories,
               badges: appCopy.badges,
               catalog: {
-                ...(mod.default.utilities?.catalog || {}),
+                ...(own.utilities?.catalog || {}),
                 ...appCopy.catalog,
               },
             },
           } : {}),
           ...(todayCopy ? {
             memberPortal: {
-              ...(mod.default.memberPortal || {}),
+              ...(own.memberPortal || {}),
               today: todayCopy,
             },
           } : {}),

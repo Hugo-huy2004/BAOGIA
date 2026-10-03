@@ -312,8 +312,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    // Link cũ dạng /login?portalCode=… vẫn mở được; link mới là /customer-portal/<mã>.
     const code = params.get("portalCode");
-    if (code && code.length === 6) {
+    if (code && code.length >= 6) {
       setActiveMode("customer");
       setCustomerCode(code);
       autoLoginCustomer(code);
@@ -448,7 +449,7 @@ export default function LoginPage() {
                   <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1 text-center">{t("loginPage.customerForm.codeLabel")}</label>
                   <input
                     type="text"
-                    maxLength={6}
+                    maxLength={12}
                     value={customerCode}
                     onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
                     placeholder={t("loginPage.customerForm.codePlaceholder")}

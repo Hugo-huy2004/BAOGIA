@@ -33,6 +33,57 @@ const HistoryEntrySchema = new mongoose.Schema({
   changes: { type: mongoose.Schema.Types.Mixed, default: null },
 }, { _id: false });
 
+/**
+ * Sổ chi phí. MỌI khoản tiền của dự án đều là một dòng ở đây — gói chính, gói
+ * lẻ, lần chỉnh tính phí, giảm giá, phí duy trì, và cả tiền khách đã trả. Hợp
+ * đồng cộng thẳng trên sổ này, nên không có con số nào "ngoài sổ".
+ *
+ * Không bao giờ XOÁ dòng: sai thì `voided` kèm lý do, để lịch sử tiền luôn đọc
+ * lại được. `amount` là giá niêm yết của khoản đó, `discount` là số được giảm,
+ * `free` = miễn phí hẳn. Tiền thật tính = free ? 0 : amount − discount.
+ */
+const LedgerEntrySchema = new mongoose.Schema({
+  kind: { type: String, enum: ['package', 'addon', 'unit', 'revision', 'adjustment', 'maintenance', 'payment'], required: true },
+  itemId: { type: String, default: '' },
+  title: { type: String, required: true },
+  // Nội dung yêu cầu của khách cho lần chỉnh / việc thêm — bắt buộc với khoản tính phí.
+  detail: { type: String, default: '' },
+  quantity: { type: Number, default: 1, min: 1 },
+  amount: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 },
+  free: { type: Boolean, default: false },
+  // Khách tự chọn ở cổng thì chờ admin xác nhận trước khi tính vào tổng.
+  pending: { type: Boolean, default: false },
+  period: { type: String, default: '' },
+  at: { type: Date, default: Date.now },
+  by: { type: String, default: '' },
+  voided: { type: Boolean, default: false },
+  voidReason: { type: String, default: '' },
+});
+
+/** Nhật ký thực hiện theo giai đoạn — nội dung chi tiết cho từng bước. */
+const WorklogEntrySchema = new mongoose.Schema({
+  phase: { type: String, enum: ['implementation', 'addition', 'testing', 'revision', 'handover', 'note'], required: true },
+  title: { type: String, required: true },
+  detail: { type: String, default: '' },
+  at: { type: Date, default: Date.now },
+  by: { type: String, default: '' },
+  visibleToCustomer: { type: Boolean, default: true },
+});
+
+/** Một lần yêu cầu bảo hành — ghi như phiếu bảo hành: ngày giờ, nội dung, kết quả. */
+const WarrantyClaimSchema = new mongoose.Schema({
+  code: { type: String, required: true },
+  reportedAt: { type: Date, default: Date.now },
+  reportedBy: { type: String, enum: ['customer', 'admin'], required: true },
+  description: { type: String, required: true },
+  status: { type: String, enum: ['open', 'fixed', 'rejected'], default: 'open' },
+  covered: { type: Boolean, default: null },
+  resolution: { type: String, default: '' },
+  resolvedAt: { type: Date, default: null },
+  by: { type: String, default: '' },
+});
+
 const CustomerProjectSchema = new mongoose.Schema(
   {
     projectId: {
@@ -123,6 +174,64 @@ const CustomerProjectSchema = new mongoose.Schema(
       submittedAt: { type: Date, default: null },
       answers: { type: mongoose.Schema.Types.Mixed, default: {} },
       overall: { type: Number, default: null },
+    },
+
+    /** Trong nước (VNĐ, hợp đồng gốc tiếng Việt) hay quốc tế (USD, bản gốc tiếng Anh). Chọn lúc tạo, không đổi. */
+    market: { type: String, enum: ['domestic', 'international'], default: 'domestic' },
+
+    /** Ô tích tay của các điều kiện giai đoạn (shared/projectPhases.js): { id: { done, at, by } }. */
+    checklist: { type: mongoose.Schema.Types.Mixed, default: {} },
+
+    /**
+     * Bản phạm vi công việc (shared/projectScope.js) — Phụ lục A. `contractVersion`
+     * là phiên bản hợp đồng lúc lưu: khách phải xác nhận từ phiên bản đó trở lên.
+     */
+    scope: { type: mongoose.Schema.Types.Mixed, default: null },
+
+    ledger: { type: [LedgerEntrySchema], default: [] },
+    worklog: { type: [WorklogEntrySchema], default: [] },
+
+    /**
+     * Bảo hành bắt đầu lúc bàn giao. `checksum` của bản ZIP chụp lại tại đó là
+     * căn cứ đối chiếu: mã bị sửa so với bản này thì bảo hành chấm dứt.
+     */
+    warranty: {
+      startsAt: { type: Date, default: null },
+      checksum: { type: String, default: '' },
+      claims: { type: [WarrantyClaimSchema], default: [] },
+    },
+
+    /** Gói duy trì hằng tháng — chỉ gia hạn khi admin xác nhận đã nhận phí. */
+    maintenance: {
+      active: { type: Boolean, default: false },
+      planId: { type: String, default: '' },
+      monthlyFee: { type: Number, default: 0 },
+      startedAt: { type: Date, default: null },
+      paidThrough: { type: Date, default: null },
+      endedAt: { type: Date, default: null },
+    },
+
+    /**
+     * Hợp đồng được DỰNG từ dữ liệu dự án (shared/projectContract.js), không lưu
+     * bản văn. Mỗi thay đổi ảnh hưởng hợp đồng tăng `version`; khách xác nhận
+     * phiên bản nào thì ghi lại đúng phiên bản đó, kèm thời điểm, IP, trình duyệt.
+     */
+    contract: {
+      version: { type: Number, default: 0 },
+      updatedAt: { type: Date, default: null },
+      changes: { type: [{ version: Number, at: Date, reason: String }], default: [] },
+      acceptedVersion: { type: Number, default: 0 },
+      acceptedAt: { type: Date, default: null },
+      acceptedName: { type: String, default: '' },
+      acceptedIp: { type: String, default: '' },
+      acceptedUserAgent: { type: String, default: '' },
+    },
+
+    termination: {
+      at: { type: Date, default: null },
+      clause: { type: String, default: '' },
+      reason: { type: String, default: '' },
+      by: { type: String, default: '' },
     },
 
     history: { type: [HistoryEntrySchema], default: [] },

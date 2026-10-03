@@ -98,4 +98,74 @@ router.post("/support", async (req, res) => {
   }
 });
 
+/**
+ * POST /api/email/education
+ * Send education & curriculum inquiry email
+ */
+router.post("/education", async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    if (!email || !subject || !message) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const educationEmail = process.env.EMAIL_EDUCATION || "education@hugowishpax.studio";
+    const result = await sendContactForm(
+      name || "Student/Learner",
+      email,
+      `[Education] ${subject}`,
+      message,
+      educationEmail
+    );
+
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+
+    res.json({
+      success: true,
+      message: "Education inquiry sent successfully"
+    });
+  } catch (error) {
+    console.error("POST education error:", error);
+    res.status(500).json({ error: error.message || "Failed to send email" });
+  }
+});
+
+/**
+ * POST /api/email/adv
+ * Send advertising & sponsorship inquiry email
+ */
+router.post("/adv", async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+
+    if (!email || !subject || !message) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const advEmail = process.env.EMAIL_ADV || "adv@hugowishpax.studio";
+    const result = await sendContactForm(
+      name || "Sponsor/Partner",
+      email,
+      `[Adv & Media] ${subject}`,
+      message,
+      advEmail
+    );
+
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
+
+    res.json({
+      success: true,
+      message: "Advertising inquiry sent successfully"
+    });
+  } catch (error) {
+    console.error("POST adv error:", error);
+    res.status(500).json({ error: error.message || "Failed to send email" });
+  }
+});
+
 export default router;

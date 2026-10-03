@@ -47,7 +47,11 @@ export default function RouteSeoPolicy() {
     setMeta("robots", robots);
     setMeta("googlebot", robots);
 
-    const canonicalUrl = `${ORIGIN}${pathname === "/" ? "/introduction" : pathname}`;
+    // `useLocation()` is relative to BrowserRouter.basename. On `/en/services`
+    // it reports `/services`; use the browser URL so the English and Chinese
+    // static editions keep their own canonical after React hydrates.
+    const currentPath = window.location.pathname;
+    const canonicalUrl = `${ORIGIN}${currentPath === "/" ? "/introduction" : currentPath}`;
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");

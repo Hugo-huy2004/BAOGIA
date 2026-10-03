@@ -1,4 +1,4 @@
-import { useEffect, useReducer, Suspense, lazy } from "react";
+import { useEffect, useReducer, useState, Suspense, lazy } from "react";
 import i18n from "./i18n/config";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
@@ -53,6 +53,7 @@ const ProjectsPage = lazyRoute(() => import("./pages/public/ProjectsPage"));
 const ProjectDetailPage = lazyRoute(() => import("./pages/public/ProjectDetailPage"));
 const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
 const ServiceDetailPage = lazyRoute(() => import("./pages/public/ServiceDetailPage"));
+const ServiceAddonPage = lazyRoute(() => import("./pages/public/ServiceAddonPage"));
 const BookingContactPage = lazyRoute(() => import("./pages/public/BookingContactPage"));
 const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
@@ -173,17 +174,26 @@ function AppContent() {
   // của Hugo Studio — kể cả khi đã đăng nhập.
   const isLearningRoute = /^\/(?:study|hugoso)(?:\/|$)/.test(location.pathname);
 
-  // Trên điện thoại, khu vực thành viên chỉ chạy trong app đã cài: trình duyệt
-  // di động bị khoá và thay bằng hướng dẫn cài đặt bám theo đúng thiết bị.
-  // Miễn trừ ?embed=true (portal tự nhúng app của nó bằng iframe) — đó không
-  // phải người dùng đang duyệt web.
+  const [bypassMobileGate, setBypassMobileGate] = useState(() => {
+    try {
+      return sessionStorage.getItem("pwa_gate_dismissed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  // Trên điện thoại, khu vực thành viên ưu tiên chạy trong app đã cài:
+  // Nếu chưa cài và chưa bấm tiếp tục trên web, hiện màn hướng dẫn SwiftUI.
+  // Miễn trừ ?embed=true, ?preview=true hoặc khi người dùng đã bấm tiếp tục trên web.
   if (
     location.pathname.startsWith("/member") &&
     detectInstallTarget().isMobile &&
     !isPWA &&
-    new URLSearchParams(location.search).get("embed") !== "true"
+    !bypassMobileGate &&
+    new URLSearchParams(location.search).get("embed") !== "true" &&
+    new URLSearchParams(location.search).get("preview") !== "true"
   ) {
-    return <MobileInstallGate />;
+    return <MobileInstallGate onBypass={() => setBypassMobileGate(true)} />;
   }
 
   if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
@@ -215,6 +225,7 @@ function AppContent() {
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
+          <Route path="/customer-portal/:code" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
           {/* Liên kết phòng cũ vẫn mở đúng ván trong Arcade của thành viên. Bản
@@ -280,6 +291,7 @@ function AppContent() {
             } />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/:slug" element={<ServiceDetailPage />} />
+            <Route path="/services/add-ons/:slug" element={<ServiceAddonPage />} />
             <Route path="/project" element={<ProjectsPage />} />
             <Route path="/project/:slug" element={<ProjectDetailPage />} />
             {/* Ví JOY không còn là app riêng — số dư, ưu đãi và mọi thao tác

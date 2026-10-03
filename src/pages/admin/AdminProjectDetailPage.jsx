@@ -1,733 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import { estimateDelivery, getPackageFacts, warrantyUntil } from "../../../shared/projectPackages";
-import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate } from 'react-router-dom';
-// react-quill (Quill 1) có lỗ XSS chưa vá và không còn được bảo trì.
-// react-quill-new là bản fork dùng Quill 2, API giữ nguyên — chỉ đổi đường dẫn.
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { HugoNoticeToast } from '../../components/shared/HugoNotice';
-import { API_BASE } from '../../config/apiBase';
-import AdminProjectBoard from '../../components/admin/AdminProjectBoard';
+import { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { API_BASE } from "../../config/apiBase";
+import { notify } from "../../lib/notify";
+import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
+import { getPackageFacts, marketOf } from "../../../shared/projectPackages";
+import { phaseOf } from "../../../shared/projectPhases";
+import { MoneySummary, MoneyTab, WorklogTab, HandoverTab, CareTab, ContractTab, TerminateTab, btn } from "../../components/admin/AdminProjectContractPanel";
+import { PhaseStepper, PhaseWork, BriefView, HistoryList, ProjectChat } from "../../components/admin/AdminProjectWorkspace";
+
+/**
+ * Một dự án, một trục: ĐANG Ở ĐÂU → CẦN LÀM GÌ → TIỀN THẾ NÀO.
+ *
+ *   1. Đầu trang: khách, mã, gói, thị trường, giai đoạn.
+ *   2. Tiền: tổng / đã thu / còn phải thu — luôn thấy, bấm vào là tới bảng tính.
+ *   3. Thanh 7 giai đoạn (Waterfall).
+ *   4. Thẻ "Việc giai đoạn này" là mặc định: điều kiện của bước hiện tại, nút
+ *      sang bước sau (khoá tới khi đủ điều kiện), bảng Scrum khi đang phát triển.
+ *      Các thẻ còn lại là chỗ làm những điều kiện đó (tiền, nhật ký, bàn giao…).
+ *
+ * Địa chỉ ghi nhớ thẻ đang mở (?tab=money) để tải lại trang không bị về đầu.
+ */
+
+const TABS = [
+  ["work", "Việc giai đoạn này", "flag"],
+  ["brief", "Yêu cầu & phạm vi", "assignment"],
+  ["money", "Tiền & phát sinh", "payments"],
+  ["log", "Nhật ký", "history_edu"],
+  ["handover", "Bàn giao & bảo hành", "folder_zip"],
+  ["care", "Duy trì", "event_repeat"],
+  ["chat", "Trao đổi", "forum"],
+  ["contract", "Hợp đồng", "contract"],
+  ["terminate", "Chấm dứt", "gavel"],
+];
 
 export default function AdminProjectDetailPage() {
-  const { t } = useTranslation();
   const { projectId } = useParams();
   const navigate = useNavigate();
-
+  const [params, setParams] = useSearchParams();
+  const tab = TABS.some(([id]) => id === params.get("tab")) ? params.get("tab") : "work";
+  const go = useCallback((id) => { setParams(id === "work" ? {} : { tab: id }, { replace: true }); }, [setParams]);
   const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [unread, setUnread] = useState(0);
 
-  // Status and Note
-  const [statusUpdate, setStatusUpdate] = useState('');
-  const [noteUpdate, setNoteUpdate] = useState('');
-  const [finalNoteUpdate, setFinalNoteUpdate] = useState('');
-
-  const [startDateStr, setStartDateStr] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return d.toISOString().split('T')[0];
-  });
-  const [endDateStr, setEndDateStr] = useState(() => new Date().toISOString().split('T')[0]);
-  const [warrantyDays, setWarrantyDays] = useState(30);
-  const [developerName, setDeveloperName] = useState('');
-
-  // Status Modal State
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [modalStep, setModalStep] = useState(1);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-
-  // Messages
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-
-  // Notifications
-  const [toastMsg, setToastMsg] = useState('');
-  const [toastType, setToastType] = useState('success');
-
-  const showNotification = React.useCallback((msg, type = 'success') => {
-    setToastMsg(msg);
-    setToastType(type);
-    setTimeout(() => setToastMsg(''), 3000);
-  }, []);
-
-  const lastGeneratedTemplateRef = React.useRef('');
-  const prevStatusRef = React.useRef('');
-
-  const regenerateTemplate = (start, end, warranty, devName, force = false) => {
-    if (!project) return;
-    
-    const startDateObj = new Date(start);
-    const endDateObj = new Date(end);
-    
-    const diffTime = Math.max(0, endDateObj.getTime() - startDateObj.getTime());
-    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 0;
-    const totalHours = totalDays * 8; // 8 working hours/day
-    
-    const formatDate = (dateObj) => {
-      if (isNaN(dateObj.getTime())) return '......';
-      const dd = String(dateObj.getDate()).padStart(2, '0');
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const yyyy = dateObj.getFullYear();
-      return `${dd}/${mm}/${yyyy}`;
-    };
-    
-    const startFormatted = formatDate(startDateObj);
-    const endFormatted = formatDate(endDateObj);
-    
-    const warrantyEndDateObj = new Date(endDateObj);
-    if (!isNaN(warrantyEndDateObj.getTime())) {
-      warrantyEndDateObj.setDate(warrantyEndDateObj.getDate() + Number(warranty));
-    }
-    const warrantyEndFormatted = formatDate(warrantyEndDateObj);
-    
-    const handler = devName || project.handlerName || 'Nguyễn Văn A';
-    const pkg = project.servicePackage || 'Chưa chọn gói';  // gói cũ đã bỏ, đừng để tên chết làm mặc định
-    
-    const logoHtml = `<span style="font-size: 18px; font-family: sans-serif; font-weight: 900; letter-spacing: -0.5px; white-space: nowrap;"><strong style="color: #EF4444;">H</strong><strong style="color: #F97316;">u</strong><strong style="color: #EAB308;">g</strong><strong style="color: #22C55E;">o</strong> <strong style="color: #3B82F6;">S</strong><strong style="color: #6366F1;">t</strong><strong style="color: #A855F7;">u</strong><strong style="color: #EC4899;">d</strong><strong style="color: #06B6D4;">i</strong><strong style="color: #0ea5e9;">o</strong></span>`;
-
-    const template = `<h3><strong>TỔNG KẾT DỰ ÁN</strong></h3>
-<p>Dự án <strong>${project.fullName}</strong> được triển khai từ <strong>${startFormatted}</strong> đến <strong>${endFormatted}</strong> với tổng thời gian <strong>${totalHours} giờ (${totalDays} ngày)</strong> do hỗ trợ/lập trình viên <strong>${handler}</strong> đã thực hiện dự án <strong>${project.fullName}</strong> theo yêu cầu.</p>
-<br>
-<h3><strong>BẢO TRÌ VÀ HỖ TRỢ</strong></h3>
-<h4><strong>1. THÔNG TIN BẢO TRÌ:</strong></h4>
-<ul>
-  <li>Tên gói: <strong>${pkg}</strong></li>
-  <li>Thời gian hoàn tất: <strong>${endFormatted}</strong></li>
-  <li>Thời gian bảo trì: <strong>${warranty}</strong> ngày từ <strong>${endFormatted}</strong> đến <strong>${warrantyEndFormatted}</strong></li>
-  <li>Gồm:
-    <ul>
-      <li>Sửa lỗi phát sinh trong quá trình vận hành</li>
-      <li>Tối ưu hóa hiệu năng và tốc độ tải trang</li>
-      <li>Cập nhật bảo mật hệ thống</li>
-    </ul>
-  </li>
-</ul>
-<br>
-<h4><strong>2. CÁC TRƯỜNG HỢP KHÔNG ĐƯỢC HỖ TRỢ TRONG GÓI</strong></h4>
-<ul>
-  <li>Tự ý chỉnh sửa mã nguồn cốt lõi làm hỏng cấu trúc hệ thống</li>
-  <li>Các yêu cầu thay đổi thiết kế hoặc tính năng mới ngoài thỏa thuận</li>
-  <li>Lỗi do máy chủ hoặc nhà cung cấp dịch vụ thứ ba của khách hàng</li>
-  <li>Mất dữ liệu do lỗi từ phía người dùng</li>
-</ul>
-<br>
-<h4><strong>3. CÁC MỤC THÊM</strong></h4>
-<ul>
-  <li>Hỗ trợ hướng dẫn quản trị trực tuyến 1-1</li>
-</ul>
-<br>
-<h4><strong>4. GHI CHÚ VỀ VIỆC HỖ TRỢ VÀ BẢO HÀNH</strong></h4>
-<p>Mọi yêu cầu hỗ trợ vui lòng gửi qua phần Yêu Cầu của trang thành viên để được xử lý nhanh nhất.</p>
-<br>
-<p><strong>Đại Diện Phụ Trách</strong></p>
-<p>${logoHtml}</p>
-<p><strong>${handler}</strong></p>`;
-
-    if (force || !finalNoteUpdate || finalNoteUpdate === '<p><br></p>' || finalNoteUpdate.trim() === '' || finalNoteUpdate === lastGeneratedTemplateRef.current) {
-      setFinalNoteUpdate(template);
-      lastGeneratedTemplateRef.current = template;
-      localStorage.setItem(`draft_final_note_${project._id}`, template);
-    }
-  };
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/customer-projects/${projectId}`, { credentials: "include" });
+      if (!res.ok) { notify.error("Không tìm thấy dự án"); navigate("/admin/projects"); return; }
+      setProject(await res.json());
+    } catch { notify.error("Không tải được dự án"); }
+  }, [projectId, navigate]);
+  useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    if (!project) return;
-
-    if (statusUpdate === 'Hoàn tất' && prevStatusRef.current !== 'Hoàn tất' && prevStatusRef.current !== '') {
-      regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, true);
-    }
-    else if (statusUpdate === 'Hoàn tất' && prevStatusRef.current === 'Hoàn tất') {
-      regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, false);
-    }
-
-    if (statusUpdate) {
-      prevStatusRef.current = statusUpdate;
-    }
-  }, [statusUpdate, project, startDateStr, endDateStr, warrantyDays, developerName]);
-
-  const markMessagesAsRead = React.useCallback(async () => {
     if (!project?._id) return;
-    try {
-      await fetch(`${API_BASE}/customer-projects/${project._id}/messages/read`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ role: 'admin' })
-      });
-    } catch (err) {
-      console.error(err);
-    }
+    fetch(`${API_BASE}/customer-projects/${project._id}/messages/unread-count`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { count: 0 })).then((d) => setUnread(d.count || 0)).catch(() => {});
   }, [project?._id]);
 
-  const fetchProjectDetail = React.useCallback(async () => {
-    try {
-      // Địa chỉ mang mã người-đọc (HG-2609-007); endpoint nhận cả mã lẫn _id.
-      const res = await fetch(`${API_BASE}/customer-projects/${projectId}`, {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        showNotification(t("adminProjectDetail.notFound"), 'error');
-        setTimeout(() => navigate('/admin/projects'), 1500);
-        return;
-      }
-      const p = await res.json();
-      setProject(p);
-      setStatusUpdate(p.status);
-      setNoteUpdate(localStorage.getItem(`draft_note_${p._id}`) || '');
-      setDeveloperName(p.handlerName || '');
-    } catch (err) {
-      console.error(err);
-      showNotification(t("adminProjectDetail.fetchError"), 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId, navigate, t, showNotification]);
+  if (!project) return <div className="grid min-h-[50vh] place-items-center text-sm text-muted-foreground">Đang tải dự án…</div>;
 
-  /** Đổi trạng thái qua máy trạng thái. Lỗi 409 là lỗi CÓ NGHĨA — hiện nguyên văn. */
-  const transitionProject = React.useCallback(async (_id, status, note) => {
-    const res = await fetch(`${API_BASE}/customer-projects/${project?._id || _id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ status, note }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Không đổi được trạng thái');
-    setProject(data);
-    return data;
-  }, [project?._id]);
-
-  const fetchMessages = React.useCallback(async () => {
-    if (!project?._id) return;
+  const pkg = getPackageFacts(project.packageId);
+  const status = PROJECT_STATUSES[project.status];
+  const phase = phaseOf(project.status);
+  const showCare = pkg?.id === "hugo-flow-plus" || project.maintenance?.active;
+  const tabs = TABS.filter(([id]) => id !== "care" || showCare);
+  const copyLink = async () => {
     try {
-      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
-      });
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/share`, { credentials: "include" });
       const data = await res.json();
-      setMessages(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [project?._id]);
-
-   
-  useEffect(() => {
-    fetchProjectDetail();
-    fetchMessages();
-    markMessagesAsRead();
-  }, [fetchProjectDetail, fetchMessages, markMessagesAsRead]);
-
-  const handleNoteChange = (content) => {
-    setNoteUpdate(content);
-    if (project) localStorage.setItem(`draft_note_${project._id}`, content);
+      if (!res.ok) throw new Error(data.error);
+      await navigator.clipboard.writeText(`${window.location.origin}${data.path}`);
+      notify.success("Đã sao chép link cổng dự án cho khách");
+    } catch (err) { notify.error(err.message); }
   };
-
-  const handleFinalNoteChange = (content) => {
-    setFinalNoteUpdate(content);
-    if (project) localStorage.setItem(`draft_final_note_${project._id}`, content);
-  };
-
-  const handleOpenStatusModal = (e) => {
-    e.preventDefault();
-    if (statusUpdate === project?.status && !noteUpdate && !finalNoteUpdate) {
-      showNotification(t("adminProjectDetail.missingUpdate"), 'error');
-      return;
-    }
-    setModalStep(1);
-    setPasswordError('');
-    setAdminPassword('');
-    setShowStatusModal(true);
-  };
-
-  const handleConfirmStatus = async () => {
-    setIsVerifying(true);
-    setPasswordError('');
-    try {
-      const verifyRes = await fetch(`${API_BASE}/admin/verify-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password: adminPassword })
-      });
-      
-      if (!verifyRes.ok) {
-        setPasswordError(t("adminProjectDetail.wrongPassword"));
-        setIsVerifying(false);
-        return;
-      }
-
-      const res = await fetch(`${API_BASE}/customer-projects/${project._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          status: statusUpdate, 
-          note: noteUpdate,
-          finalNote: finalNoteUpdate 
-        })
-      });
-
-      if (res.ok) {
-        setModalStep(5);
-        fetchProjectDetail(); 
-        setNoteUpdate('');
-        localStorage.removeItem(`draft_note_${project._id}`);
-        setTimeout(() => {
-          setShowStatusModal(false);
-          showNotification(t("adminProjectDetail.updateSuccess"));
-        }, 3000);
-      } else {
-        setPasswordError(t("adminProjectDetail.updateError"));
-      }
-    } catch {
-      setPasswordError(t("adminProjectDetail.connError"));
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
-    try {
-      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ sender: 'admin', message: newMessage })
-      });
-      if (res.ok) {
-        setNewMessage('');
-        fetchMessages();
-      }
-    } catch {
-      showNotification(t("adminProjectDetail.msgError"), 'error');
-    }
-  };
-
-  const getShareLink = (code) => {
-    return `${window.location.origin}/login?portalCode=${code}`;
-  };
-
-  const handleCopyLink = () => {
-    if (project) {
-      navigator.clipboard.writeText(getShareLink(project.loginCode));
-      showNotification(t("adminProjectDetail.copySuccess"));
-    }
-  };
-
-  // Custom CSS for Quill content in global index.css or inline
-  const quillModules = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['clean']
-    ],
-  };
-
-  const getHtmlContent = (text) => {
-    if (!text) return '';
-    if (!/<[a-z][\s\S]*>/i.test(text)) {
-      return text.replace(/\n/g, '<br />');
-    }
-    return text;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!project) return null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-8 animate-fadeIn">
-      <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} />
+    <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 text-foreground sm:px-6">
+      {/* 1 — Đầu trang */}
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <Link to="/admin/projects" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <span aria-hidden className="material-symbols-outlined text-[18px]">arrow_back</span>Tất cả dự án
+          </Link>
+          <h1 className="mt-1 truncate text-2xl font-semibold tracking-[-.02em]">{project.customer?.fullName || project.name}</h1>
+          <div className="mt-1.5 flex flex-wrap gap-1.5 text-xs">
+            <span className="rounded-full bg-muted px-2.5 py-1 font-mono font-semibold">{project.projectId}</span>
+            <span className="rounded-full bg-muted px-2.5 py-1">{pkg?.label || project.packageId || "Chưa chọn gói"}</span>
+            <span className="rounded-full bg-muted px-2.5 py-1">{marketOf(project.market).label} · {marketOf(project.market).currency.toUpperCase()}</span>
+            <span className={`rounded-full px-2.5 py-1 font-semibold ${["cancelled", "terminated"].includes(project.status) ? "bg-destructive/10 text-destructive" : "bg-hue-blue/10 text-hue-blue"}`}>
+              {phase ? `Giai đoạn ${phase.no} · ` : ""}{status?.adminLabel || project.status}
+            </span>
+          </div>
+        </div>
+        <button type="button" onClick={copyLink} className={`${btn} border border-border`}>
+          <span aria-hidden className="material-symbols-outlined text-[18px]">link</span>Link cho khách
+        </button>
+      </header>
 
-      {/* Header */}
-      <div className="max-w-4xl mx-auto mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/admin/projects')}
-            className="w-10 h-10 flex items-center justify-center rounded-md bg-white dark:bg-background border border-border dark:border-border text-muted-foreground hover:text-primary transition-colors shadow-sm"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
+      {/* 2 — Tiền */}
+      <MoneySummary project={project} onGo={go} />
+
+      {/* 3 — Giai đoạn */}
+      <div className="rounded-2xl border border-border bg-card p-4">
+        <PhaseStepper project={project} />
+      </div>
+
+      {/* 4 — Thẻ */}
+      <nav className="-mx-4 flex gap-1 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+        {tabs.map(([id, label, icon]) => (
+          <button key={id} type="button" onClick={() => go(id)}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium ${tab === id ? "bg-foreground text-background" : id === "terminate" ? "text-muted-foreground hover:text-destructive" : "text-muted-foreground hover:bg-muted"}`}>
+            <span aria-hidden className="material-symbols-outlined text-[18px]">{icon}</span>{label}
+            {id === "chat" && unread > 0 ? <span className="rounded-full bg-destructive px-1.5 text-[11px] font-semibold text-white">{unread}</span> : null}
           </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-primary/20 dark:border-primary/20">
-                Chi Tiết Dự Án
-              </span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-black text-foreground mt-1 leading-tight">{project.fullName}</h1>
-            <div className="text-[11px] text-muted-foreground flex flex-wrap items-center gap-2 mt-1.5">
-              <span className="material-symbols-outlined text-sm">vpn_key</span>
-              <span className="hidden sm:inline">{t("adminProjectDetail.accessCodeFull")}</span>
-              <span className="sm:hidden">{t("adminProjectDetail.accessCodeShort")}</span>
-              <span className="font-mono font-bold text-warning bg-warning/10 dark:bg-warning/15 px-2 py-0.5 rounded-md border border-warning/20 dark:border-warning/20 flex items-center">
-                {project.loginCode}
-              </span>
-              <button 
-                onClick={handleCopyLink}
-                className="p-1 rounded bg-muted hover:bg-muted/80 dark:bg-card dark:hover:bg-card/80 text-muted-foreground transition-colors flex items-center justify-center"
-                title={t("adminProjectDetail.copyTooltip")}
-              >
-                <span className="material-symbols-outlined text-[14px]">content_copy</span>
-              </button>
-            </div>
+        ))}
+      </nav>
+
+      <main>
+        {tab === "work" && <PhaseWork project={project} onChange={setProject} onGo={go} onTransitioned={load} />}
+        {tab === "brief" && <BriefView project={project} onChange={setProject} />}
+        {tab === "money" && <MoneyTab project={project} onChange={setProject} />}
+        {tab === "log" && (
+          <div className="space-y-4">
+            <WorklogTab project={project} onChange={setProject} defaultPhase={phase?.id === "test" ? "testing" : phase?.id === "handover" ? "handover" : "implementation"} />
+            <HistoryList project={project} />
           </div>
-        </div>
-      </div>
-
-      {/* Content - 2 Column Layout */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Column (Status Updater & History) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Hồ sơ khách hàng — trước đây trang này chỉ hiện tên và mã truy cập,
-              admin phải mở lại danh sách mới biết khách mua gói gì, liên lạc ra
-              sao. Ngày bàn giao và hạn bảo hành suy ra từ gói, không gõ tay. */}
-          {(() => {
-            const facts = getPackageFacts(project.servicePackage);
-            const firstNote = [...(project.progressNotes || [])].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0];
-            const startedAt = firstNote?.createdAt || project.createdAt;
-            const eta = estimateDelivery(project.servicePackage, startedAt);
-            const doneNote = (project.progressNotes || []).find(n => n.status === 'Hoàn tất' || n.status === 'Hỗ trợ và bảo trì');
-            const wEnd = warrantyUntil(project.servicePackage, doneNote?.createdAt);
-            const daysLeft = wEnd ? Math.ceil((wEnd - new Date()) / 86400000) : null;
-            const fmt = (d) => d ? new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
-            const Row = ({ label, value, mono }) => (
-              <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-2.5 last:border-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-                <span className={`text-right text-xs font-semibold text-foreground ${mono ? 'font-mono' : ''}`}>{value || '—'}</span>
-              </div>
-            );
-            return (
-              <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm">
-                <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Hồ sơ khách hàng</h4>
-                <div className="mt-4">
-                  <Row label="Gói dịch vụ" value={project.servicePackage} />
-                  <Row label="Trạng thái" value={project.status} />
-                  <Row label="Điện thoại" value={project.phone} mono />
-                  <Row label="Email" value={project.customerProfile?.email} />
-                  <Row label="Địa chỉ" value={project.customerProfile?.address} />
-                  <Row label="Người phụ trách" value={project.handlerName} />
-                  <Row label="Mở dự án" value={fmt(startedAt)} mono />
-                  {eta && !doneNote && <Row label="Dự kiến bàn giao" value={`${fmt(eta.from)} – ${fmt(eta.to)}`} mono />}
-                  {doneNote && <Row label="Đã bàn giao" value={fmt(doneNote.createdAt)} mono />}
-                  {wEnd && <Row label="Bảo hành" value={daysLeft > 0 ? `Còn ${daysLeft} ngày · đến ${fmt(wEnd)}` : `Hết hạn ${fmt(wEnd)}`} />}
-                  {facts?.payments && <Row label="Đợt thanh toán" value={`${facts.payments.join('/')}%`} mono />}
-                </div>
-                {!facts && (
-                  <p className="mt-3 text-[10px] leading-4 text-amber-600">
-                    Gói này không còn trong danh mục, nên không suy ra được ngày bàn giao và hạn bảo hành.
-                  </p>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* Status Updater */}
-          {/* Ô chọn trạng thái cũ đã bỏ: nó liệt kê 5 trạng thái tiếng Việt
-              không còn tồn tại, và cho phép nhảy bất kỳ đâu — kể cả những bước
-              nhảy mà máy trạng thái cấm. AdminProjectBoard chỉ hiện đúng các
-              bước đi được từ trạng thái hiện tại. */}
-          <AdminProjectBoard
-            project={project}
-            onTransition={transitionProject}
-            onRefresh={fetchProjectDetail}
-          />
-
-        {/* History Notes */}
-        <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm space-y-4">
-          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider border-b border-border dark:border-white/5 pb-2">{t("adminProjectDetail.historyTitle")}</h4>
-          <div className="space-y-4 pl-2 max-h-[300px] overflow-y-auto">
-            {project.progressNotes && project.progressNotes.length > 0 ? (
-              [...project.progressNotes].reverse().map((note, idx) => (
-                <div key={idx} className="relative pl-6 border-l-2 border-border dark:border-border pb-2 last:pb-0">
-                  <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-primary" />
-                  <div className="text-[10px] text-muted-foreground font-mono mb-1">
-                    {new Date(note.createdAt).toLocaleString('vi-VN')}
-                  </div>
-                  <div className={`text-xs font-bold mb-0.5 ${note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'text-warning dark:text-warning' : 'text-foreground'}`}>
-                    [{note.status === 'Hoàn tất' || note.status === 'Hỗ trợ và bảo trì' ? 'HỖ TRỢ VÀ BẢO TRÌ' : note.status}]
-                  </div>
-                  <div className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: getHtmlContent(note.note) }} />
-                </div>
-              ))
-            ) : (
-              <div className="text-[11px] text-muted-foreground italic">{t("adminProjectDetail.emptyHistory")}</div>
-            )}
-          </div>
-        </div>
-        </div>
-
-        {/* Right Column (Chat) */}
-        <div className="lg:col-span-7">
-          {/* Chat/Messages */}
-          <div className="bg-white dark:bg-background rounded-md p-6 border border-border dark:border-border/80 shadow-sm flex flex-col h-[600px]">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-4 shrink-0">
-            <span className="material-symbols-outlined text-primary text-base">forum</span>
-              {t("adminProjectDetail.msgTitle")}
-            </h3>
-          
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2 bg-muted dark:bg-black/20 p-4 rounded-md border border-border dark:border-white/5">
-            {messages.length === 0 ? (
-              <div className="text-center text-xs text-muted-foreground italic py-10">{t("adminProjectDetail.emptyMsg")}</div>
-            ) : (
-              messages.map((msg, i) => {
-                const isAdmin = msg.sender === 'admin';
-                return (
-                  <div key={i} className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-md text-xs ${isAdmin ? 'bg-primary text-white rounded-br-none' : 'bg-white dark:bg-card text-foreground border border-border dark:border-border rounded-bl-none'}`}>
-                      <div className="whitespace-pre-wrap">{msg.message}</div>
-                      <div className={`text-[9px] mt-1 text-right ${isAdmin ? 'text-primary/30' : 'text-muted-foreground'}`}>
-                        {new Date(msg.createdAt).toLocaleString('vi-VN')}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          <form onSubmit={handleSendMessage} className="mt-4 flex gap-2 shrink-0">
-            <input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder={project.status === 'Hoàn tất' ? t("adminProjectDetail.msgPlaceholderCompleted") : t("adminProjectDetail.msgPlaceholderNormal")} className="flex-1 px-4 py-3 rounded-md border border-border/50 bg-muted dark:bg-card text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary" />
-            <button type="submit" disabled={!newMessage.trim()} className="px-5 bg-primary hover:bg-primary/90 disabled:bg-muted-foreground/40 text-white font-bold rounded-md transition-all">{t("adminProjectDetail.sendBtn")}</button>
-          </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Multi-step Status Modal */}
-      {showStatusModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-background border border-border dark:border-border rounded-md w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-border dark:border-border flex items-center justify-between bg-muted dark:bg-black/20 shrink-0">
-              <h3 className="font-bold text-foreground flex items-center gap-2 text-sm">
-                <span className="material-symbols-outlined text-primary text-[20px]">security_update_good</span>
-                  {t("adminProjectDetail.modal.title")}
-                </h3>
-              {modalStep !== 5 && (
-                <button onClick={() => setShowStatusModal(false)} className="text-muted-foreground hover:text-muted-foreground dark:hover:text-foreground">
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              )}
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto">
-              {modalStep === 1 && (
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="p-4 bg-warning/10 dark:bg-warning/10 border border-warning/20 dark:border-warning/20 rounded-md">
-                    <h4 className="font-bold text-warning dark:text-warning mb-2 flex items-center gap-1 text-sm">
-                      <span className="material-symbols-outlined text-[18px]">warning</span>
-                      {t("adminProjectDetail.modal.noticeTitle")}
-                    </h4>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {project.status === statusUpdate ? (
-                        <>{t("adminProjectDetail.modal.keepStatus")} <strong>{t("adminProjectDetail.modal.keepStatusStrong")}</strong> {project.fullName} {t("adminProjectDetail.modal.keepStatusAnd")}</>
-                      ) : (
-                        <>{t("adminProjectDetail.modal.changeStatusFrom")} <strong>{project.fullName}</strong> {t("adminProjectDetail.modal.changeStatusTo")} <strong className="text-destructive">{project.status}</strong> {t("adminProjectDetail.modal.changeStatusInto")} <strong className="text-success">{statusUpdate}</strong>.</>
-                      )}
-                    </p>
-                    <p className="text-sm text-foreground leading-relaxed mt-2">
-                      {t("adminProjectDetail.modal.confirmPrompt")}
-                    </p>
-                  </div>
-                  <div className="flex justify-end gap-3 pt-2">
-                    <button onClick={() => setShowStatusModal(false)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted dark:hover:bg-card/80 rounded-md">{t("adminProjectDetail.modal.cancelBtn")}</button>
-                    <button onClick={() => setModalStep(2)} className="px-4 py-2 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-md shadow-md">{t("adminProjectDetail.modal.confirmBtn")}</button>
-                  </div>
-                </div>
-              )}
-
-              {modalStep === 2 && (
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("adminProjectDetail.modal.noteLabel")}</label>
-                    <p className="text-xs text-muted-foreground mb-2">{t("adminProjectDetail.modal.noteDesc")}</p>
-                    <div className="bg-white dark:bg-card rounded-md overflow-hidden border border-border dark:border-border [&_.ql-editor]:min-h-[120px]">
-                      <ReactQuill theme="snow" value={noteUpdate} onChange={handleNoteChange} modules={quillModules} placeholder={t("adminProjectDetail.modal.notePlaceholder")} className="quill-editor" />
-                    </div>
-                  </div>
-                  
-                  {statusUpdate === 'Hoàn tất' && (
-                    <div className="space-y-2 mt-4">
-                      <label className="block text-xs font-bold text-success uppercase tracking-wider">{t("adminProjectDetail.modal.finalNoteLabel")}</label>
-                      
-                      {/* Configuration Panel for Automation */}
-                      <div className="bg-muted dark:bg-card p-4 rounded-xl border border-border dark:border-border/80 space-y-3 mb-3">
-                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Cấu Hình Thông Tin Mẫu Bảo Hành & Tổng Kết</div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Triển khai từ ngày</label>
-                            <input 
-                              type="date" 
-                              value={startDateStr} 
-                              onChange={e => setStartDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-border dark:border-border bg-white dark:bg-background text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Đến ngày (Hoàn tất)</label>
-                            <input 
-                              type="date" 
-                              value={endDateStr} 
-                              onChange={e => setEndDateStr(e.target.value)} 
-                              className="w-full rounded-lg border border-border dark:border-border bg-white dark:bg-background text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <label className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Số ngày bảo trì</label>
-                            <input 
-                              type="number" 
-                              min="1"
-                              value={warrantyDays} 
-                              onChange={e => setWarrantyDays(Number(e.target.value))} 
-                              className="w-full rounded-lg border border-border dark:border-border bg-white dark:bg-background text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="block text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Lập trình viên phụ trách</label>
-                            <input 
-                              type="text" 
-                              value={developerName} 
-                              onChange={e => setDeveloperName(e.target.value)} 
-                              className="w-full rounded-lg border border-border dark:border-border bg-white dark:bg-background text-xs p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
-                              placeholder="Tên lập trình viên"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center pt-1 border-t border-border/50 dark:border-border/50">
-                          <span className="text-[9px] text-primary dark:text-primary font-bold">★ Thay đổi các trường trên sẽ tự động tính toán lại mẫu văn bản bên dưới.</span>
-                          <button 
-                            type="button"
-                            onClick={() => regenerateTemplate(startDateStr, endDateStr, warrantyDays, developerName, true)} 
-                            className="text-[9.5px] font-black text-white bg-primary hover:bg-primary/90 px-3 py-1 rounded-lg transition-all active:scale-95 shadow-sm"
-                          >
-                            Tạo lại mẫu
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="bg-success/10 dark:bg-success/10 rounded-md overflow-hidden border border-success/20 dark:border-success/20 [&_.ql-editor]:min-h-[120px]">
-                        <ReactQuill theme="snow" value={finalNoteUpdate} onChange={handleFinalNoteChange} modules={quillModules} placeholder={t("adminProjectDetail.modal.finalNotePlaceholder")} className="quill-editor" />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-3 pt-4 border-t border-border dark:border-border/50">
-                    <button onClick={() => setModalStep(1)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted dark:hover:bg-card/80 rounded-md">{t("adminProjectDetail.modal.backBtn")}</button>
-                    <button onClick={() => setModalStep(3)} className="px-4 py-2 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-md shadow-md">{t("adminProjectDetail.modal.checkInfoBtn")}</button>
-                  </div>
-                </div>
-              )}
-
-              {modalStep === 3 && (
-                <div className="space-y-4 animate-fadeIn">
-                  <h4 className="font-bold text-foreground border-b border-border dark:border-border pb-2">{t("adminProjectDetail.modal.confirmInfoTitle")}</h4>
-                  <div className="space-y-4">
-                    <div className="py-3 px-4 bg-muted dark:bg-card rounded-md border border-border dark:border-border">
-                      <span className="text-muted-foreground block text-[10px] font-bold uppercase tracking-wider mb-1.5">{t("adminProjectDetail.modal.projectStatusLabel")}</span>
-                      {project.status === statusUpdate ? (
-                        <span className="text-foreground text-sm font-medium">{t("adminProjectDetail.modal.keepSame")} <strong className="text-primary">{project.status}</strong></span>
-                      ) : (
-                        <span className="text-foreground text-sm font-medium flex items-center gap-2">
-                          <strong className="text-destructive">{project.status}</strong>
-                          <span className="material-symbols-outlined text-[16px] text-muted-foreground">arrow_forward</span>
-                          <strong className="text-success">{statusUpdate}</strong>
-                        </span>
-                      )}
-                    </div>
-                    <div className="py-3 px-4 bg-muted dark:bg-card rounded-md border border-border dark:border-border">
-                      <span className="text-muted-foreground block text-[10px] font-bold uppercase tracking-wider mb-2">{t("adminProjectDetail.modal.attachedNoteLabel")}</span>
-                      {noteUpdate && noteUpdate !== '<p><br></p>' ? (
-                        <div className="text-sm prose prose-sm dark:prose-invert max-w-none text-foreground bg-white dark:bg-black/20 p-3 rounded border border-border dark:border-white/5" dangerouslySetInnerHTML={{ __html: getHtmlContent(noteUpdate) }} />
-                      ) : (
-                        <span className="text-muted-foreground italic text-sm">{t("adminProjectDetail.modal.noNote")}</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end gap-3 pt-4 border-t border-border dark:border-border/50">
-                    <button onClick={() => setModalStep(2)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted dark:hover:bg-card/80 rounded-md">{t("adminProjectDetail.modal.editBtn")}</button>
-                    <button onClick={() => setModalStep(4)} className="px-4 py-2 text-sm font-bold bg-success hover:bg-success/90 text-white rounded-md shadow-md flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                      {t("adminProjectDetail.modal.confirmCorrectBtn")}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {modalStep === 4 && (
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="text-center mb-6">
-                    <div className="w-16 h-16 bg-primary/10 dark:bg-primary/15 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20 dark:border-primary/20">
-                      <span className="material-symbols-outlined text-3xl text-primary dark:text-primary">admin_panel_settings</span>
-                    </div>
-                    <h4 className="font-bold text-foreground">{t("adminProjectDetail.modal.securityTitle")}</h4>
-                    <p className="text-xs text-muted-foreground mt-1">{t("adminProjectDetail.modal.securityDesc")}</p>
-                  </div>
-                  
-                  <div className="space-y-2 max-w-xs mx-auto">
-                    <input 
-                      type="password" 
-                      value={adminPassword}
-                      onChange={e => {setAdminPassword(e.target.value); setPasswordError('');}}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && adminPassword && !isVerifying) {
-                          e.preventDefault();
-                          handleConfirmStatus();
-                        }
-                      }}
-                      placeholder={t("adminProjectDetail.modal.passwordPlaceholder")} 
-                      className="w-full px-4 py-3 rounded-md border border-border dark:border-border bg-white dark:bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-center tracking-widest"
-                      autoFocus
-                    />
-                    {passwordError && <p className="text-destructive text-xs font-bold text-center mt-1">{passwordError}</p>}
-                  </div>
-
-                  <div className="flex justify-center gap-3 pt-4">
-                    <button onClick={() => setModalStep(3)} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted dark:hover:bg-card/80 rounded-md" disabled={isVerifying}>{t("adminProjectDetail.modal.backBtn")}</button>
-                    <button onClick={handleConfirmStatus} disabled={!adminPassword || isVerifying} className="px-6 py-2 text-sm font-bold bg-primary hover:bg-primary/90 disabled:bg-muted-foreground/40 text-white rounded-md shadow-md flex items-center gap-2">
-                      {isVerifying ? (
-                        <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                      ) : (
-                        <span className="material-symbols-outlined text-[18px]">lock_open</span>
-                      )}
-                      {t("admin.texts.txt_224")}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {modalStep === 5 && (
-                <div className="space-y-4 text-center py-8 animate-fadeIn">
-                  <div className="w-20 h-20 bg-success/10 dark:bg-success/15 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce border border-success/20 dark:border-success/20">
-                    <span className="material-symbols-outlined text-4xl text-success dark:text-success">task_alt</span>
-                  </div>
-                  <h4 className="text-xl font-bold text-foreground">{t("adminProjectDetail.modal.successTitle")}</h4>
-                  <p className="text-sm text-muted-foreground">{t("adminProjectDetail.modal.successDesc")}</p>
-                  <p className="text-xs text-muted-foreground mt-4 italic">{t("adminProjectDetail.modal.autoClose")}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+        {tab === "handover" && <HandoverTab project={project} onChange={setProject} />}
+        {tab === "care" && <CareTab project={project} onChange={setProject} />}
+        {tab === "chat" && <ProjectChat project={project} onUnread={setUnread} />}
+        {tab === "contract" && <ContractTab project={project} />}
+        {tab === "terminate" && <TerminateTab project={project} onChange={setProject} />}
+      </main>
     </div>
   );
 }

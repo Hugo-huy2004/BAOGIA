@@ -37,6 +37,16 @@ export default function SecurityCenter() {
   if (err) return <p className="text-[13px] text-muted-foreground">{t("memberPortal.security.loadError", "Không tải được trạng thái an ninh.")}</p>;
   if (!data) return <div className="h-24 animate-pulse rounded-2xl bg-muted/50" />;
 
+  const handleActivate = (protectionId) => {
+    const actions = {
+      pin: () => window.dispatchEvent(new CustomEvent("hugo:navigate-tab", { detail: { tab: "account", section: "security-pin" } })),
+      money2fa: () => window.dispatchEvent(new CustomEvent("hugo:navigate-tab", { detail: { tab: "account", section: "security-2fa" } })),
+      hold: () => {}, // auto-enabled, no user action needed
+      wallet: () => window.dispatchEvent(new CustomEvent("hugo:navigate-tab", { detail: { tab: "account", section: "wallet" } })),
+    };
+    actions[protectionId]?.();
+  };
+
   return (
     <div className="space-y-4">
       {/* Điểm bảo vệ — tín hiệu tin tưởng tức thì */}
@@ -61,15 +71,25 @@ export default function SecurityCenter() {
           const state = p.on ? "on" : p.partial ? "partial" : "off";
           const color = state === "on" ? "text-emerald-600" : state === "partial" ? "text-amber-500" : "text-slate-400";
           const badge = state === "on" ? "check_circle" : state === "partial" ? "error" : "cancel";
+          const isActionable = state !== "on";
+          const Wrapper = isActionable ? "button" : "div";
           return (
-            <div key={p.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
+            <Wrapper
+              key={p.id}
+              {...(isActionable ? { type: "button", onClick: () => handleActivate(p.id) } : {})}
+              className={`flex items-center gap-3 rounded-2xl border border-border bg-card p-3 w-full text-left ${isActionable ? "cursor-pointer hover:bg-accent/50 active:scale-[0.98] transition-all" : ""}`}
+            >
               <span className="material-symbols-outlined text-xl text-muted-foreground">{row.icon}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-[13.5px] font-bold text-foreground truncate">{t(`memberPortal.security.row.${p.id}`, row.vi)}</p>
-                <p className="text-[11.5px] text-muted-foreground truncate">{t(`memberPortal.security.rowDesc.${p.id}`, row.desc)}</p>
+                <p className="text-[11.5px] text-muted-foreground truncate">
+                  {isActionable
+                    ? t(`memberPortal.security.rowAction.${p.id}`, "Nhấn để thiết lập ngay")
+                    : t(`memberPortal.security.rowDesc.${p.id}`, row.desc)}
+                </p>
               </div>
               <span className={`material-symbols-outlined text-xl ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>{badge}</span>
-            </div>
+            </Wrapper>
           );
         })}
       </div>

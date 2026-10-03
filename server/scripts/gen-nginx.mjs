@@ -26,9 +26,9 @@ const { SERVICES, WS_CHANNELS, CORE_UPSTREAM, prefixRoutingTable, processService
 const slug = (id) => id.replace(/-/g, "_");
 
 const upstreams = [
-  `upstream ${CORE_UPSTREAM.id} {\n    server ${CORE_UPSTREAM.host}:${CORE_UPSTREAM.port};\n    keepalive 32;\n}`,
+  `upstream ${CORE_UPSTREAM.id} {\n    least_conn;\n    server ${CORE_UPSTREAM.host}:${CORE_UPSTREAM.port} max_fails=3 fail_timeout=10s;\n    keepalive 64;\n}`,
   ...processServices().map((service) =>
-    `upstream svc_${slug(service.id)} {\n    server ${service.host || "127.0.0.1"}:${service.port};\n    keepalive 16;\n}`),
+    `upstream svc_${slug(service.id)} {\n    least_conn;\n    server ${service.host || "127.0.0.1"}:${service.port} max_fails=3 fail_timeout=10s;\n    keepalive 32;\n}`),
 ];
 
 const upstreamOf = (service) =>

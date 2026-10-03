@@ -463,7 +463,7 @@ export default function JoyWalletApp({
                       <span className="material-symbols-outlined text-xl">barcode_scanner</span>
                     </div>
                     <span className="text-[13px] font-bold">{nom("Chuyển JOY")}</span>
-                    <span className="text-[11px] text-muted-foreground">{nom("Quét thẻ")}</span>
+                    <span className="text-[13px] text-muted-foreground">{nom("Quét thẻ")}</span>
                   </button>
                 </section>
 

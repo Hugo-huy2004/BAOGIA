@@ -1,0 +1,31 @@
+/* Hình minh hoạ động cho trang gói lẻ (/services/add-ons/:slug).
+   Mọi chuyển động là vòng lặp 6 giây; mỗi phần tử lệch pha bằng animation-delay.
+   Trạng thái gốc (không animation) luôn là trạng thái ĐÃ HIỆN ĐỦ, nên khi người
+   xem bật "giảm chuyển động" hình vẫn đọc được trọn vẹn. */
+
+@keyframes ai-appear {
+  0%, 8% { opacity: 0; transform: translateY(8px) scale(.96); }
+  18%, 88% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: none; }
+}
+@keyframes ai-type {
+  0%, 5% { max-width: 0; }
+  35%, 88% { max-width: 100%; }
+  100% { max-width: 0; }
+}
+@keyframes ai-blink { 50% { opacity: 0; } }
+@keyframes ai-dash { to { stroke-dashoffset: -24; } }
+@keyframes ai-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.ai-appear { animation: ai-appear 6s ease-out infinite both; }
+.ai-type { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: ai-type 6s steps(24, end) infinite both; }
+.ai-caret { animation: ai-blink 1s step-end infinite; }
+.ai-dash { stroke-dasharray: 6 6; animation: ai-dash 1.2s linear infinite; }
+.ai-bounce { animation: ai-bounce 1.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .addon-illo * { animation: none !important; }
+}

@@ -40,7 +40,7 @@
 .member-portal-shell[data-portal-area="apps"] { --portal-glass-tint: 175 82 222; }
 .member-portal-shell[data-portal-area="activity"] { --portal-glass-tint: 255 55 95; }
 .member-portal-shell[data-portal-area="account"] { --portal-glass-tint: 48 209 88; }
-.member-portal-shell[data-portal-area="account"] .portal-chromatic-field { opacity: 1; }
+.member-portal-shell[data-portal-area="account"] .portal-chromatic-field { opacity: 0 !important; display: none !important; }
 
 .dark .member-portal-shell {
   --portal-glass: hsl(240 18% 9% / 0.62);
@@ -577,18 +577,26 @@
 .apps-smart-search,
 .apps-library-search,
 .apps-spotlight-search {
-  border: 1px solid hsl(var(--border) / .58);
-  border-radius: 16px;
-  background: hsl(var(--muted) / .68);
-  box-shadow: inset 0 1px hsl(0 0% 100% / .34);
+  border: 0.5px solid rgb(255 255 255 / .25);
+  border-radius: 18px;
+  background: hsl(var(--card) / .65);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  box-shadow:
+    0 4px 18px hsl(var(--shadow) / .08),
+    inset 0 1px 0 rgb(255 255 255 / .35),
+    inset 0 -1px 0 rgb(0 0 0 / .08);
 }
 .apps-smart-search { max-width: 460px; }
 .apps-smart-search:hover,
 .apps-library-search:focus-within,
 .apps-spotlight-search:focus-within {
-  border-color: hsl(var(--border) / .8);
-  background: hsl(var(--card) / .9);
-  box-shadow: inset 0 1px hsl(0 0% 100% / .42), 0 0 0 3px hsl(var(--primary) / .08);
+  border-color: rgb(255 255 255 / .42);
+  background: hsl(var(--card) / .82);
+  box-shadow:
+    0 8px 30px hsl(var(--primary) / .15),
+    inset 0 1px 0 rgb(255 255 255 / .5),
+    0 0 0 3px hsl(var(--primary) / .14);
 }
 .apps-search-clear {
   position: absolute;
@@ -625,7 +633,14 @@
 }
 .dark .apps-smart-search,
 .dark .apps-library-search,
-.dark .apps-spotlight-search { background: rgb(255 255 255 / .07); border-color: rgb(255 255 255 / .09); }
+.dark .apps-spotlight-search {
+  background: rgb(255 255 255 / .08);
+  border-color: rgb(255 255 255 / .15);
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / .35),
+    inset 0 1px 0 rgb(255 255 255 / .25),
+    inset 0 -1px 0 rgb(0 0 0 / .2);
+}
 
 .apps-spectrum-hero {
   border: 1px solid rgb(255 255 255 / .3);

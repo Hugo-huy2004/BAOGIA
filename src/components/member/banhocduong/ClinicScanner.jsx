@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ImageGeneration } from "img-fx";
 
 const AI_URL = `${import.meta.env.VITE_API_URL || "/api"}/ai`;
 const MAX_REPORT_BYTES = 10 * 1024 * 1024;
@@ -312,7 +313,15 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                 File đã chọn: {scanFile.name}
               </div>
               {scanFilePreview && (
-                <img src={scanFilePreview} className="w-16 h-16 object-cover rounded mx-auto border" alt="Preview" />
+                <div className="flex justify-center my-2">
+                  <ImageGeneration
+                    preset="pixels-organic"
+                    images={[scanFilePreview]}
+                    autoReveal
+                  >
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden border border-border shadow-sm bg-muted/20" />
+                  </ImageGeneration>
+                </div>
               )}
               <div className="flex gap-2 justify-center flex-wrap">
                 <button

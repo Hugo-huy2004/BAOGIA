@@ -57,8 +57,8 @@ class MemberPartnerTab extends Component {
     );
 
     return (
-      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-0 animate-fadeIn">
-        <div className="bg-white dark:bg-card rounded-xl p-4 sm:p-6 md:p-8 border border-border/50 shadow-xl flex flex-col justify-between min-h-[500px]">
+      <div className="max-w-4xl mx-auto space-y-3 sm:space-y-6 px-1 sm:px-0 animate-fadeIn">
+        <div className="backdrop-blur-2xl bg-white/50 dark:bg-card/40 sm:bg-white sm:dark:bg-card rounded-2xl sm:rounded-xl p-3 sm:p-6 md:p-8 border border-white/50 dark:border-white/10 sm:border-border/50 shadow-none sm:shadow-xl flex flex-col justify-between min-h-[440px] sm:min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-border/50 pb-4 shrink-0">
             <div>
               <h3 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">{t("memberTabs.partner.title")}</h3>
