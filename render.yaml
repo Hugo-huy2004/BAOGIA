@@ -46,6 +46,14 @@ services:
       - key: AI_SERVER_URL
         sync: false
 
+      # HugoPSY — bộ não đám mây của nhân vật đồng hành (Cloudflare Workers AI,
+      # gói miễn phí). Token RIÊNG chỉ quyền "Workers AI – Read" + "Edit".
+      # Thiếu thì thành viên vẫn chat được bằng bộ câu soạn sẵn.
+      - key: CF_AI_ACCOUNT_ID
+        sync: false
+      - key: CF_AI_TOKEN
+        sync: false
+
       # OAuth client web — server từ chối khởi động ở production nếu thiếu.
       - key: GOOGLE_CLIENT_ID
         sync: false
