@@ -1,935 +1,1218 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import confetti from "canvas-confetti";
-import { useGesture } from "@use-gesture/react";
-import { playGameMerge, playGameLose, playGameSelect } from "../../../utils/audio";
+import * as THREE from "three";
+import { playGameMerge, playGameLose } from "../../../utils/audio";
 import { hapticMerge, hapticLose, hapticMove } from "../../../utils/haptics";
-import { readGamePalette, withAlpha, shade } from "./arcadePalette";
-import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
-import { createFrameScaler, decay } from "./arcadeLoop";
-import { queueTurn, nextTurn, pickReachableCell } from "./snakeRules";
+import { createCombo } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
 
-// Snake 3D Pro is a chapter-based endless run. Every six pickups the arena
-// changes its visual world and introduces a new rule (mines, portals, golden
-// hunts or hyper speed), while the shared arcade level curve keeps increasing
-// the base difficulty.
-const GRID = 18;
-const GAME_ID = "snake";
-const STAGE_GOAL = 6;
-
-const DIR = {
-  up:    { x: 0,  y: -1 },
-  down:  { x: 0,  y:  1 },
-  left:  { x: -1, y:  0 },
-  right: { x: 1,  y:  0 },
-};
-
-const FOOD_CORE = "#ff6b75";
-const FOOD_EDGE = "#d94461";
-const GOLD = "#ffc73a";
-const GOLD_EDGE = "#e08c00";
-const MINE = "#ff3b30";
-
-const GOLDEN_EVERY = 5;      // cứ 5 mồi thường thì tới lượt mồi vàng
-const GOLDEN_TICKS = 380;    // ~6.3s ở 60fps trước khi mồi vàng biến mất
-
-// Mỗi chặng chỉ còn khoá dịch + tham số hình ảnh. Tên/nhiệm vụ/gợi ý nằm ở
-// arcadeGame.snakeStage*, nên chặng nói đúng ngôn ngữ người chơi.
+// ── 5 Thế giới 3D & Chặng thi đấu ──────────────────────────────────────────
 const STAGES = [
   {
     key: "snakeStage1",
-    accent: "#a78bfa",
-    accent2: "#22d3ee",
-    bg: "#090619",
+    nameVi: "Vườn Neon",
+    nameEn: "Neon Nexus",
+    accent: 0x22d3ee,       // Cyan
+    accentHex: "#22d3ee",
+    accent2: 0xa78bfa,      // Purple
+    accent2Hex: "#a78bfa",
+    bg: 0x050414,
+    fog: 0x060517,
+    gridColor: 0x38bdf8,
     mines: 0,
-    speed: 1,
+    speed: 10.5,            // Mượt mà, dễ điều khiển trên điện thoại
   },
   {
     key: "snakeStage2",
-    accent: "#fb7185",
-    accent2: "#f97316",
-    bg: "#18070d",
+    nameVi: "Vùng Nhiệt Hạch",
+    nameEn: "Crimson Core",
+    accent: 0xfb7185,       // Rose
+    accentHex: "#fb7185",
+    accent2: 0xf97316,      // Orange
+    accent2Hex: "#f97316",
+    bg: 0x130308,
+    fog: 0x17040a,
+    gridColor: 0xf43f5e,
     mines: 2,
-    speed: 0.96,
+    speed: 12.0,
   },
   {
     key: "snakeStage3",
-    accent: "#22d3ee",
-    accent2: "#818cf8",
-    bg: "#04141c",
-    mines: 1,
+    nameVi: "Vực Lượng Tử",
+    nameEn: "Quantum Rift",
+    accent: 0x818cf8,       // Indigo
+    accentHex: "#818cf8",
+    accent2: 0x06b6d4,      // Teal
+    accent2Hex: "#06b6d4",
+    bg: 0x030d1a,
+    fog: 0x041122,
+    gridColor: 0x6366f1,
+    mines: 2,
     portals: true,
-    speed: 0.92,
+    speed: 13.5,
   },
   {
     key: "snakeStage4",
-    accent: "#fbbf24",
-    accent2: "#fb7185",
-    bg: "#181006",
-    mines: 2,
+    nameVi: "Điện Thần Kim Cương",
+    nameEn: "Golden Citadel",
+    accent: 0xfbbf24,       // Amber Gold
+    accentHex: "#fbbf24",
+    accent2: 0xf43f5e,      // Rose
+    accent2Hex: "#f43f5e",
+    bg: 0x150d03,
+    fog: 0x1a1004,
+    gridColor: 0xeab308,
+    mines: 3,
     goldenEvery: 3,
-    speed: 0.88,
+    speed: 15.0,
   },
   {
     key: "snakeStage5",
-    accent: "#34d399",
-    accent2: "#a3e635",
-    bg: "#04150f",
-    mines: 3,
+    nameVi: "Cõi Ma Trận",
+    nameEn: "Matrix Nexus",
+    accent: 0x34d399,       // Emerald
+    accentHex: "#34d399",
+    accent2: 0xa3e635,      // Lime
+    accent2Hex: "#a3e635",
+    bg: 0x02130b,
+    fog: 0x03180e,
+    gridColor: 0x10b981,
+    mines: 4,
     portals: true,
     goldenEvery: 3,
-    speed: 0.8,
+    speed: 16.5,
   },
 ];
 
-const stageNumberFor = (eaten) => Math.floor(eaten / STAGE_GOAL) + 1;
-const stageThemeFor = (stageNumber) => STAGES[(stageNumber - 1) % STAGES.length];
-const stageProgressFor = (eaten) => eaten % STAGE_GOAL;
+const STAGE_GOAL = 6;
+const ARENA_RADIUS = 28; // Tường biên ở [-28, +28]
+const SEGMENT_SPACING = 0.95;
 
-const sameCell = (a, b) => a.x === b.x && a.y === b.y;
+// Shared Geometries (Zero-GC Optimization)
+const sharedSegGeo = new THREE.IcosahedronGeometry(0.58, 1);
+const sharedRingGeo = new THREE.TorusGeometry(0.72, 0.05, 8, 16);
 
-function randomCell(occupied) {
-  let cell;
-  let guard = 0;
-  do {
-    cell = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
-    guard++;
-  } while (occupied.some((c) => sameCell(c, cell)) && guard < 500);
-  return cell;
-}
+function createGridTexture(gridColorHex, bgColorHex) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
 
-// Mìn phải ở xa đầu rắn, nếu không người chơi chết oan ngay khi vừa lên cấp.
-function placeMines(count, snake, food, head, extraAvoid = []) {
-  const mines = [];
-  const taken = () => [...snake, ...mines, food, ...extraAvoid].filter(Boolean);
-  for (let i = 0; i < count; i++) {
-    let cell;
-    let guard = 0;
-    do {
-      cell = randomCell(taken());
-      guard++;
-    } while (guard < 60 && Math.abs(cell.x - head.x) + Math.abs(cell.y - head.y) < 6);
-    mines.push(cell);
-  }
-  return mines;
-}
+  ctx.fillStyle = bgColorHex;
+  ctx.fillRect(0, 0, 512, 512);
 
-function placePortals(snake, food, mines, golden) {
-  const occupied = [...snake, food, golden, ...mines].filter(Boolean);
-  const first = randomCell(occupied);
-  let second = randomCell([...occupied, first]);
-  let guard = 0;
-  while (guard < 80 && Math.abs(first.x - second.x) + Math.abs(first.y - second.y) < 10) {
-    second = randomCell([...occupied, first]);
-    guard += 1;
-  }
-  return [first, second];
-}
-
-// Ô sinh vật phẩm: ưu tiên vùng đầu rắn CÒN TỚI ĐƯỢC (xem snakeRules.js). Hai
-// khúc đuôi cuối không tính là tường vì lúc đầu rắn tới thì chúng đã bò đi rồi.
-function spawnCell(state) {
-  const body = state.snake.slice(0, Math.max(1, state.snake.length - 2));
-  const reachable = pickReachableCell({
-    grid: GRID,
-    head: state.snake[0],
-    blocked: [...body, ...state.mines],
-    portals: state.portals,
-    avoid: [...state.portals, state.food, state.golden].filter(Boolean),
-  });
-  // Bí đường thật (rắn tự quây kín mình) thì cứ rơi ngẫu nhiên — ván đó sắp hết.
-  return reachable || randomCell([...state.snake, ...state.mines, ...state.portals]);
-}
-
-// ── Particle helpers ──────────────────────────────────────────────
-function spawnBurst(particles, x, y, color, count = 12, speed = 4) {
-  for (let i = 0; i < count; i++) {
-    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
-    const v = speed * (0.5 + Math.random() * 0.8);
-    particles.push({
-      x, y,
-      vx: Math.cos(angle) * v,
-      vy: Math.sin(angle) * v,
-      life: 1,
-      decay: 0.02 + Math.random() * 0.02,
-      size: 2 + Math.random() * 3,
-      color,
-    });
-  }
-}
-
-function spawnTrail(particles, x, y, color) {
-  particles.push({
-    x: x + (Math.random() - 0.5) * 4,
-    y: y + (Math.random() - 0.5) * 4,
-    vx: (Math.random() - 0.5) * 0.5,
-    vy: (Math.random() - 0.5) * 0.5,
-    life: 1,
-    decay: 0.04 + Math.random() * 0.02,
-    size: 1.5 + Math.random() * 2,
-    color,
-  });
-}
-
-// `f` = số nhịp 60Hz đã trôi qua kể từ khung trước (xem arcadeLoop.js). Không
-// có nó thì trên màn 120Hz hạt lửa tắt nhanh gấp đôi.
-function updateParticles(particles, f = 1) {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += p.vx * f;
-    p.y += p.vy * f;
-    p.vx *= decay(0.96, f);
-    p.vy *= decay(0.96, f);
-    p.life -= p.decay * f;
-    if (p.life <= 0) particles.splice(i, 1);
-  }
-}
-
-function drawParticles(ctx, particles) {
-  for (const p of particles) {
-    ctx.globalAlpha = p.life * 0.8;
-    ctx.fillStyle = p.color;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur = 6;
+  // Lưới Cyber neon
+  ctx.strokeStyle = gridColorHex;
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = 0.22;
+  const step = 32;
+  for (let x = 0; x <= 512; x += step) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 512);
+    ctx.stroke();
   }
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
+  for (let y = 0; y <= 512; y += step) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+  }
+
+  // Chấm giao điểm neon
+  ctx.globalAlpha = 0.6;
+  ctx.fillStyle = gridColorHex;
+  for (let x = 0; x <= 512; x += step) {
+    for (let y = 0; y <= 512; y += step) {
+      ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(16, 16);
+  return texture;
 }
 
 export default function GameSnake({ paused = false, onGameOver }) {
-  const { t } = useTranslation();
-  // Vòng lặp game nằm ngoài chu kỳ render của React; đọc `t` qua ref để thông
-  // báo trong ván luôn theo ngôn ngữ hiện tại mà không phải dựng lại vòng lặp.
-  const tRef = useRef(t);
-  useEffect(() => { tRef.current = t; }, [t]);
-  const canvasRef   = useRef(null);
+  const { t, i18n } = useTranslation();
+  const isVi = (i18n.resolvedLanguage || i18n.language || "vi").startsWith("vi");
+
   const containerRef = useRef(null);
+  const canvasRef = useRef(null);
+
   const [countdown, setCountdown] = useState(3);
-  const [playing, setPlaying]     = useState(false);
-  const [layoutRevision, setLayoutRevision] = useState(0);
+  const [playing, setPlaying] = useState(false);
   const [stageBanner, setStageBanner] = useState(null);
   const bannerTimerRef = useRef(null);
+  const [boostLevel, setBoostLevel] = useState(100);
+  const [isBoostingUI, setIsBoostingUI] = useState(false);
+
   const [hud, setHud] = useState({
-    score: 0, eaten: 0, mines: 0, combo: 0, mult: 1, notice: "",
-    stage: 1, stageProgress: 0,
+    score: 0,
+    eaten: 0,
+    mines: 0,
+    combo: 0,
+    mult: 1,
+    notice: "",
+    stage: 1,
+    stageName: STAGES[0].nameVi,
   });
+
   const reportedRef = useRef(false);
 
-  const state = useRef({
-    snake:   [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }],
-    dir:     DIR.right,
-    dirQueue: [],   // tối đa 2 cú rẽ chờ — xem snakeRules.js
-    food:    { x: 12, y: 9 },
-    golden:  null,          // { x, y, ttl }
-    mines:   [],
-    portals: [],
-    score:   0,
-    eaten:   0,
-    level:   1,
-    stage:   1,
-    lastTick: 0,
-    speed: 150,
-    prevSnake: null,
-    combo: createCombo({ windowMs: 2600, step: 0.25, max: 3 }),
-    particles: [],
-    popups: [],
-    foodPulse: 0,
-    shakeX: 0,
-    shakeY: 0,
-    shakeMag: 0,
-    flash: 0,
-    stagePauseUntil: 0,
-    trailTimer: 0,
-    frameFactor: 1,   // hệ số nhịp của khung đang vẽ
+  // State game chạy trong requestAnimationFrame độc lập
+  const gameRef = useRef({
+    // Vị trí và hướng của Linh Thú
+    head: { x: 0, y: 0.8, z: 0 },
+    heading: 0, // radian
+    steerInput: 0,
+    isBoosting: false,
+    boostEnergy: 100,
+
+    // Chuỗi mắt xích thân rắn 3D
+    segments: [], // [{ x, y, z, mesh, ringMesh }]
+    segmentCount: 16,
+
+    // Điểm số và trạng thái
+    score: 0,
+    eaten: 0,
+    stage: 1,
     dead: false,
+    combo: createCombo({ windowMs: 2800, step: 0.25, max: 3 }),
+
+    // Reusable Vectors (Zero Allocations in Game Loop)
+    tempCamTarget: new THREE.Vector3(),
+    tempLookTarget: new THREE.Vector3(),
+
+    // Vật phẩm và chướng ngại vật
+    foodPos: { x: 0, y: 0.8, z: 10 },
+    goldenPos: null, // { x, y, z, ttl }
+    mines: [],       // [{ x, y, z, mesh }]
+    portals: [],     // [portalA, portalB]
+    portalCooldown: 0,
+
+    // Three.js instances
+    scene: null,
+    camera: null,
+    renderer: null,
+    headGroup: null,
+    headLight: null,
+    foodMesh: null,
+    goldenMesh: null,
+    portalMeshes: [],
+    groundMesh: null,
+    wallGroup: null,
+    particleSystem: null,
+
+    // Pools & Particles
+    particles: [], // [{ x, y, z, vx, vy, vz, life, maxLife, color, size }]
   });
 
-  const announceStage = useCallback((stageNumber) => {
-    const theme = stageThemeFor(stageNumber);
-    setStageBanner({ ...theme, number: stageNumber });
-    window.clearTimeout(bannerTimerRef.current);
-    bannerTimerRef.current = window.setTimeout(() => setStageBanner(null), 2300);
-  }, []);
-
-  // Đẩy state ref ra HUD React — gom một chỗ để không rải setState khắp vòng lặp.
-  const syncHud = useCallback((notice) => {
-    const s = state.current;
-    setHud((prev) => ({
-      score: s.score,
-      eaten: s.eaten,
-      mines: s.mines.length,
-      combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
-      mult: s.combo.mult,
-      stage: s.stage,
-      stageProgress: stageProgressFor(s.eaten),
-      notice: notice !== undefined ? notice : prev.notice,
-    }));
-  }, []);
-
-  useEffect(() => () => window.clearTimeout(bannerTimerRef.current), []);
-
+  // ── Countdown mở đầu ──────────────────────────────────────────────────────
   useEffect(() => {
-    let timer;
-    const onResize = () => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setLayoutRevision((revision) => revision + 1), 160);
-    };
-    window.addEventListener("resize", onResize);
-    return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
-  // ── RAF game loop ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!playing || paused) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx    = canvas.getContext("2d");
-    const s      = state.current;
-    s.lastTick   = 0;
-
-    const pal = readGamePalette(canvas);
-    const glow = (color, blur) => {
-      ctx.shadowColor = color;
-      ctx.shadowBlur = blur;
-    };
-
-    const size = Math.max(280, Math.round(canvas.getBoundingClientRect().width));
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width  = Math.round(size * pixelRatio);
-    canvas.height = Math.round(size * pixelRatio);
-    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    const cell    = size / GRID;
-    const px = (c) => (c.x + 0.5) * cell;
-    const py = (c) => (c.y + 0.5) * cell;
-
-    const drawOrb = (x, y, r, core, edge, ring) => {
-      ctx.strokeStyle = withAlpha(ring, 0.15 + Math.sin(s.foodPulse * 2) * 0.1);
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(x, y, r * (1.6 + Math.sin(s.foodPulse * 2) * 0.3), 0, Math.PI * 2);
-      ctx.stroke();
-
-      glow(core, 22);
-      const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
-      grad.addColorStop(0, "#ffffff");
-      grad.addColorStop(0.3, core);
-      grad.addColorStop(0.8, edge);
-      grad.addColorStop(1, "rgba(0,0,0,0.3)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      if (pal.isLight) {
-        ctx.strokeStyle = edge;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    };
-
-    const drawPortal = (portal, color, index) => {
-      const x = px(portal);
-      const y = py(portal);
-      const spin = s.foodPulse * (index ? -1.2 : 1.2);
-      const radius = cell * 0.42;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(spin);
-      glow(color, 24);
-      for (let ring = 0; ring < 3; ring++) {
-        ctx.strokeStyle = withAlpha(ring === 1 ? "#ffffff" : color, 0.9 - ring * 0.22);
-        ctx.lineWidth = Math.max(1.5, cell * (0.12 - ring * 0.025));
-        ctx.beginPath();
-        ctx.ellipse(0, 0, radius * (1 + ring * 0.28), radius * (0.48 + ring * 0.12), 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.fillStyle = withAlpha(color, 0.22);
-      ctx.beginPath();
-      ctx.arc(0, 0, radius * 0.62, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-      ctx.shadowBlur = 0;
-    };
-
-    const draw = (now = performance.now()) => {
-      const theme = stageThemeFor(s.stage);
-      const headColor = theme.accent;
-      const bodyDeep = shade(headColor, -0.28);
-      s.foodPulse = (s.foodPulse + 0.04 * s.frameFactor) % (Math.PI * 2);
-      const pulseScale = 1 + Math.sin(s.foodPulse) * 0.12;
-      s.combo.tick();
-
-      if (s.shakeMag > 0.1) {
-        s.shakeX = (Math.random() - 0.5) * s.shakeMag;
-        s.shakeY = (Math.random() - 0.5) * s.shakeMag;
-        s.shakeMag *= decay(0.88, s.frameFactor);
-      } else {
-        s.shakeX = 0; s.shakeY = 0; s.shakeMag = 0;
-      }
-
-      ctx.save();
-      ctx.translate(s.shakeX, s.shakeY);
-
-      const world = ctx.createLinearGradient(0, 0, size, size);
-      world.addColorStop(0, theme.bg);
-      world.addColorStop(0.54, shade(theme.bg, 0.12));
-      world.addColorStop(1, shade(theme.bg, -0.18));
-      ctx.fillStyle = world;
-      ctx.fillRect(-10, -10, size + 20, size + 20);
-
-      const atmosphere = ctx.createRadialGradient(size * 0.2, size * 0.12, 0, size * 0.2, size * 0.12, size * 0.72);
-      atmosphere.addColorStop(0, withAlpha(theme.accent, 0.2));
-      atmosphere.addColorStop(0.52, withAlpha(theme.accent2, 0.06));
-      atmosphere.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = atmosphere;
-      ctx.fillRect(0, 0, size, size);
-
-      const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.25, size / 2, size / 2, size * 0.7);
-      vignette.addColorStop(0, "rgba(0,0,0,0)");
-      vignette.addColorStop(1, "rgba(0,0,0,0.48)");
-      ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, size, size);
-
-      // Layered grid and offset highlights give the flat collision board a
-      // beveled, holographic-floor depth without requiring a WebGL bundle.
-      ctx.strokeStyle = withAlpha(theme.accent2, 0.23);
-      ctx.lineWidth = 1;
-      ctx.globalAlpha = 0.7;
-      for (let i = 0; i <= GRID; i++) {
-        ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
-      }
-      ctx.translate(0, 1.5);
-      ctx.strokeStyle = "rgba(255,255,255,.045)";
-      for (let i = 0; i <= GRID; i++) {
-        ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
-      }
-      ctx.translate(0, -1.5);
-      ctx.globalAlpha = 1;
-
-      if (s.portals.length === 2) {
-        drawPortal(s.portals[0], theme.accent, 0);
-        drawPortal(s.portals[1], theme.accent2, 1);
-      }
-
-      // ── Mìn: hình lục giác gai, nhấp nháy để không lẫn với mồi ──
-      for (const m of s.mines) {
-        const mx = px(m);
-        const my = py(m);
-        const r = cell * 0.34 * (1 + Math.sin(s.foodPulse * 3) * 0.06);
-        ctx.save();
-        ctx.translate(mx, my);
-        ctx.rotate(s.foodPulse * 0.7);
-        glow(MINE, 18);
-        const mineGrad = ctx.createRadialGradient(-r * 0.25, -r * 0.3, 0, 0, 0, r);
-        mineGrad.addColorStop(0, "#ffffff");
-        mineGrad.addColorStop(0.2, "#ff8a80");
-        mineGrad.addColorStop(0.62, MINE);
-        mineGrad.addColorStop(1, "#5c0610");
-        ctx.fillStyle = mineGrad;
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const a = (Math.PI / 3) * i - Math.PI / 2;
-          const pxx = Math.cos(a) * r;
-          const pyy = Math.sin(a) * r;
-          if (i === 0) ctx.moveTo(pxx, pyy); else ctx.lineTo(pxx, pyy);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = "rgba(255,255,255,.7)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(-r * 0.35, 0); ctx.lineTo(r * 0.35, 0);
-        ctx.moveTo(0, -r * 0.35); ctx.lineTo(0, r * 0.35);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // ── Mồi thường ──
-      drawOrb(px(s.food), py(s.food), cell * 0.42 * pulseScale, FOOD_CORE, FOOD_EDGE, FOOD_CORE);
-
-      // ── Mồi vàng + vòng đếm ngược ──
-      if (s.golden) {
-        const gx = px(s.golden);
-        const gy = py(s.golden);
-        const gr = cell * 0.46 * pulseScale;
-        drawOrb(gx, gy, gr, GOLD, GOLD_EDGE, GOLD);
-        const left = s.golden.ttl / GOLDEN_TICKS;
-        ctx.strokeStyle = left > 0.3 ? GOLD : MINE;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(gx, gy, gr * 1.75, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * left);
-        ctx.stroke();
-      }
-
-      s.trailTimer++;
-      if (!s.dead && s.trailTimer % 3 === 0 && s.snake.length > 0) {
-        spawnTrail(s.particles, px(s.snake[0]), py(s.snake[0]), withAlpha(theme.accent, 0.62));
-      }
-
-      updateParticles(s.particles, s.frameFactor);
-      drawParticles(ctx, s.particles);
-
-      // Render Snake
-      const tween = s.dead ? 1 : Math.min(1, Math.max(0, (now - s.lastTick) / s.speed));
-      const displaySnake = s.snake.map((seg, index) => {
-        const previous = s.prevSnake?.[index] || s.prevSnake?.[s.prevSnake.length - 1] || seg;
-        return {
-          x: previous.x + (seg.x - previous.x) * tween,
-          y: previous.y + (seg.y - previous.y) * tween,
-        };
-      });
-      const totalSegs = displaySnake.length;
-      for (let i = totalSegs - 1; i >= 0; i--) {
-        const seg = displaySnake[i];
-        const cx = px(seg);
-        const cy = py(seg);
-        const isHead = i === 0;
-        const isTail = i === totalSegs - 1;
-
-        ctx.save();
-
-        if (isHead) {
-          const angle = Math.atan2(s.dir.y, s.dir.x);
-          ctx.translate(cx, cy);
-          ctx.rotate(angle);
-
-          const r = cell * 0.48;
-
-          glow(headColor, 24);
-          ctx.strokeStyle = withAlpha(headColor, 0.2);
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(0, 0, r * 1.3, 0, Math.PI * 2);
-          ctx.stroke();
-
-          glow(headColor, 18);
-          const headGrad = ctx.createLinearGradient(-r, 0, r, 0);
-          headGrad.addColorStop(0, shade(headColor, -0.15));
-          headGrad.addColorStop(0.5, headColor);
-          headGrad.addColorStop(1, shade(headColor, 0.25));
-
-          ctx.fillStyle = headGrad;
-          ctx.beginPath();
-          ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, false);
-          ctx.lineTo(r * 0.6, -r * 0.7);
-          ctx.quadraticCurveTo(r * 1.25, 0, r * 0.6, r * 0.7);
-          ctx.closePath();
-          ctx.fill();
-          ctx.shadowBlur = 0;
-          if (pal.isLight) {
-            ctx.strokeStyle = bodyDeep;
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-          }
-
-          ctx.fillStyle = "#ffffff";
-          ctx.shadowColor = "#ffffff";
-          ctx.shadowBlur = 4;
-          ctx.beginPath();
-          ctx.arc(r * 0.3, -r * 0.38, r * 0.22, 0, Math.PI * 2);
-          ctx.arc(r * 0.3, r * 0.38, r * 0.22, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0;
-
-          ctx.fillStyle = "#0a0a0f";
-          ctx.beginPath();
-          ctx.arc(r * 0.38, -r * 0.38, r * 0.1, 0, Math.PI * 2);
-          ctx.arc(r * 0.38, r * 0.38, r * 0.1, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.strokeStyle = FOOD_CORE;
-          ctx.shadowColor = FOOD_CORE;
-          ctx.shadowBlur = 6;
-          ctx.lineWidth = 2.5;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(r * 1.1, 0);
-          ctx.lineTo(r * 1.5, 0);
-          ctx.lineTo(r * 1.75, -r * 0.22);
-          ctx.moveTo(r * 1.5, 0);
-          ctx.lineTo(r * 1.75, r * 0.22);
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-        } else {
-          const prevSeg = displaySnake[i - 1];
-          const pxs = px(prevSeg);
-          const pys = py(prevSeg);
-
-          const progress = i / totalSegs;
-          const r = cell * (isTail ? 0.28 : (0.44 - progress * 0.14));
-          // Thân rắn "nóng" dần theo combo: chuỗi càng dài càng sáng.
-          const heat = Math.min(1, s.combo.chain / 8);
-          const color = shade(theme.accent, 0.22 + heat * 0.25 - progress * 0.5);
-
-          glow(color, 10 + heat * 14);
-
-          // Dark under-stroke + lit capsule + radial segment cap create a
-          // continuous tube with visible depth even on small phones.
-          ctx.strokeStyle = "rgba(0,0,0,.38)";
-          ctx.lineWidth = r * 2.35;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(cx + r * 0.12, cy + r * 0.28);
-          ctx.lineTo(pxs + r * 0.12, pys + r * 0.28);
-          ctx.stroke();
-
-          ctx.strokeStyle = color;
-          ctx.lineWidth = r * 1.95;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(pxs, pys);
-          ctx.stroke();
-
-          const segmentGrad = ctx.createRadialGradient(cx - r * 0.34, cy - r * 0.42, r * 0.05, cx, cy, r);
-          segmentGrad.addColorStop(0, "#ffffff");
-          segmentGrad.addColorStop(0.2, shade(color, 0.34));
-          segmentGrad.addColorStop(0.7, color);
-          segmentGrad.addColorStop(1, bodyDeep);
-          ctx.fillStyle = segmentGrad;
-          ctx.beginPath();
-          ctx.arc(cx, cy, r * 0.86, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.restore();
-      }
-
-      updatePopups(s.popups);
-      drawPopups(ctx, s.popups);
-
-      ctx.restore(); // end shake transform
-
-      // Chớp sáng khi lên cấp — báo "độ khó vừa tăng" mà không cần chữ.
-      if (s.flash > 0.01) {
-        ctx.fillStyle = withAlpha(theme.accent, s.flash);
-        ctx.fillRect(0, 0, size, size);
-        s.flash *= decay(0.9, s.frameFactor);
-      }
-    };
-
-    let stopped = false;
-
-    const die = () => {
-      if (reportedRef.current) return;
-      reportedRef.current = true;
-      s.dead = true;
-      const deathColor = stageThemeFor(s.stage).accent;
-      spawnBurst(s.particles, px(s.snake[0]), py(s.snake[0]), deathColor, 24, 6);
-      spawnBurst(s.particles, px(s.snake[0]), py(s.snake[0]), "#ffffff", 8, 3);
-      s.shakeMag = 12;
-      playGameLose(); hapticLose();
-      setTimeout(() => onGameOver?.(s.score, "lose"), 800);
-    };
-
-    const scaler = createFrameScaler();
-
-    const step = (ts) => {
-      if (stopped) return;
-      s.frameFactor = scaler.factor(ts);
-      if (s.lastTick === 0) s.lastTick = ts;
-
-      if (s.stagePauseUntil > ts) {
-        s.lastTick = ts;
-        draw(ts);
-        rafId = requestAnimationFrame(step);
-        return;
-      }
-
-      if (s.golden) {
-        s.golden.ttl -= s.frameFactor;
-        if (s.golden.ttl <= 0) s.golden = null;
-      }
-
-      if (ts - s.lastTick >= s.speed) {
-        s.prevSnake = s.snake.map((segment) => ({ ...segment }));
-        s.lastTick = ts;
-
-        s.dir = nextTurn(s.dirQueue, s.dir);
-
-        const head = s.snake[0];
-        const rawNext = { x: head.x + s.dir.x, y: head.y + s.dir.y };
-        let next = rawNext;
-
-        const portalIndex = s.portals.findIndex((portal) => sameCell(portal, rawNext));
-        if (portalIndex >= 0 && s.portals.length === 2) {
-          const exit = s.portals[portalIndex === 0 ? 1 : 0];
-          next = { x: exit.x + s.dir.x, y: exit.y + s.dir.y };
-          if (next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID) {
-            next = { ...exit };
-          }
-          const portalTheme = stageThemeFor(s.stage);
-          spawnBurst(s.particles, px(rawNext), py(rawNext), portalTheme.accent, 18, 4);
-          spawnBurst(s.particles, px(exit), py(exit), portalTheme.accent2, 18, 4);
-          s.flash = 0.16;
-          s.shakeMag = 4;
-          hapticMove?.();
-        }
-
-        const hitWall = next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID;
-        const hitSelf = s.snake.some((seg) => sameCell(seg, next));
-        const hitMine = s.mines.some((m) => sameCell(m, next));
-
-        if (hitWall || hitSelf || hitMine) {
-          if (hitMine) s.flash = 0.5;
-          die();
-          draw();
-          if (s.particles.length > 0) rafId = requestAnimationFrame(step);
-          return;
-        }
-
-        s.snake.unshift(next);
-
-        const ateGolden = s.golden && sameCell(s.golden, next);
-        const ateFood = sameCell(s.food, next);
-
-        if (ateGolden || ateFood) {
-          const mult = s.combo.hit(ts);
-          const base = ateGolden ? 10 : 2;
-          const gained = Math.round(base * mult);
-          s.score += gained;
-          s.eaten += 1;
-
-          const fx = px(next);
-          const fy = py(next);
-          spawnBurst(s.particles, fx, fy, ateGolden ? GOLD : FOOD_CORE, ateGolden ? 26 : 16, ateGolden ? 6 : 5);
-          spawnBurst(s.particles, fx, fy, "#ffffff", 6, 3);
-          pushPopup(s.popups, fx, fy - cell * 0.5, `+${gained}`, ateGolden ? GOLD : "#ffffff", ateGolden ? 19 : 15);
-          if (s.combo.chain >= 1) {
-            pushPopup(s.popups, fx, fy - cell * 1.4, `x${s.combo.mult.toFixed(2).replace(/\.?0+$/, "")}`, pal.accent, 13);
-          }
-          s.shakeMag = ateGolden ? 8 : 4;
-
-          if (ateGolden) {
-            s.golden = null;
-            playGameSelect();
-          } else {
-            s.food = spawnCell(s);
-            playGameMerge();
-          }
-          hapticMerge();
-
-          const activeTheme = stageThemeFor(s.stage);
-          const goldenEvery = activeTheme.goldenEvery || GOLDEN_EVERY;
-          if (!s.golden && s.eaten % goldenEvery === 0) {
-            s.golden = { ...spawnCell(s), ttl: GOLDEN_TICKS };
-          }
-
-          // ── Chapter + automatic difficulty ──
-          const nextStage = stageNumberFor(s.eaten);
-          const level = levelFor(GAME_ID, s.score);
-          const stageChanged = nextStage !== s.stage;
-          const levelChanged = level !== s.level;
-          s.level = level;
-
-          if (stageChanged) {
-            s.stage = nextStage;
-            try {
-              confetti({ particleCount: 75, spread: 70, origin: { y: 0.5 } });
-            } catch {}
-            const nextTheme = stageThemeFor(nextStage);
-            const endlessBonus = Math.floor((nextStage - 1) / STAGES.length);
-            const wanted = nextTheme.mines + endlessBonus;
-            s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
-            s.portals = nextTheme.portals ? placePortals(s.snake, s.food, s.mines, s.golden) : [];
-            if (s.portals.length) {
-              s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
-            }
-            if (nextTheme.goldenEvery && !s.golden) {
-              s.golden = { ...spawnCell(s), ttl: GOLDEN_TICKS };
-            }
-            s.flash = 0.32;
-            s.shakeMag = 9;
-            s.stagePauseUntil = ts + 1650;
-            announceStage(nextStage);
-            syncHud(tRef.current("arcadeGame.snakeNewStage", { stage: tRef.current(`arcadeGame.${nextTheme.key}`) }));
-            setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
-          }
-
-          const currentTheme = stageThemeFor(s.stage);
-          s.speed = ramp(GAME_ID, level, 150, 62) * currentTheme.speed;
-
-          if (levelChanged && !stageChanged) {
-            const endlessBonus = Math.floor((s.stage - 1) / STAGES.length);
-            const wanted = currentTheme.mines + endlessBonus + Math.max(0, Math.floor((level - 1) / 4));
-            if (wanted > s.mines.length) {
-              s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
-            }
-            s.flash = 0.22;
-            syncHud(tRef.current("arcadeGame.snakeLevelUp", { level }));
-            setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
-          } else if (!stageChanged) {
-            syncHud();
-          }
-        } else {
-          s.snake.pop();
-        }
-      }
-
-      draw();
-      rafId = requestAnimationFrame(step);
-    };
-
-    let rafId = requestAnimationFrame(step);
-    return () => { stopped = true; cancelAnimationFrame(rafId); };
-  }, [playing, paused, onGameOver, syncHud, announceStage, layoutRevision]);
-
-  // Combo rơi theo thời gian thực nên HUD phải nhịp riêng, không chờ lần ăn kế.
-  useEffect(() => {
-    if (!playing || paused) return undefined;
-    const id = setInterval(() => syncHud(), 200);
-    return () => clearInterval(id);
-  }, [playing, paused, syncHud]);
-
-  // ── Keyboard controls ──────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!playing || paused) return;
-    const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
-    const onKey = (e) => {
-      const dir = map[e.key];
-      if (dir) {
-        e.preventDefault();
-        const s = state.current;
-        queueTurn(s.dirQueue, DIR[dir], s.dir);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [playing, paused]);
-
-  // ── Touch gestures ────────────────────────────────────────────────────────
-  const gestureState = useRef({ startX: 0, startY: 0, fired: false });
-  const bind = useGesture({
-    onDragStart: ({ xy: [x, y] }) => {
-      gestureState.current = { startX: x, startY: y, fired: false };
-    },
-    onDrag: ({ xy: [x, y] }) => {
-      const g = gestureState.current;
-      if (g.fired) return;
-      const dx = x - g.startX, dy = y - g.startY;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
-      g.fired = true;
-      const s = state.current;
-      const swiped = Math.abs(dx) > Math.abs(dy)
-        ? DIR[dx > 0 ? "right" : "left"]
-        : DIR[dy > 0 ? "down" : "up"];
-      queueTurn(s.dirQueue, swiped, s.dir);
-      hapticMove?.();
-    },
-  }, { drag: { filterTaps: true } });
-
-  // ── Countdown ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (countdown > 0) {
-      const t = setTimeout(() => setCountdown(c => c - 1), 1000);
-      return () => clearTimeout(t);
+    if (countdown <= 0) {
+      setPlaying(true);
+      return;
     }
-    setPlaying(true);
+    const timer = setTimeout(() => {
+      setCountdown((c) => c - 1);
+    }, 850);
+    return () => clearTimeout(timer);
   }, [countdown]);
 
-  const activeStage = stageThemeFor(hud.stage);
-  const stagePercent = Math.round((hud.stageProgress / STAGE_GOAL) * 100);
+  // Thông báo chặng chuyển tiếp
+  const showStageBanner = useCallback((stageIndex) => {
+    const s = STAGES[(stageIndex - 1) % STAGES.length];
+    setStageBanner(s);
+    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    bannerTimerRef.current = setTimeout(() => setStageBanner(null), 2500);
+  }, []);
+
+  // ── Khởi tạo Three.js và Vòng Lặp Trò Chơi ────────────────────────────────
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const g = gameRef.current;
+    const curStage = STAGES[(g.stage - 1) % STAGES.length];
+    const width = container.clientWidth || 600;
+    const height = container.clientHeight || 600;
+    const isMobile = window.innerWidth < 768;
+
+    // 1. Khởi tạo Renderer tối ưu 60fps cho điện thoại
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: !isMobile,
+      powerPreference: "high-performance",
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.75));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    g.renderer = renderer;
+
+    // 2. Khởi tạo Scene & Fog
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(curStage.bg);
+    scene.fog = new THREE.FogExp2(curStage.fog, 0.016);
+    g.scene = scene;
+
+    // 3. Khởi tạo Camera Góc Nhìn Thứ 3 (Chase Cam) Adaptive cho Mobile
+    const fov = isMobile ? 62 : 56;
+    const camera = new THREE.PerspectiveCamera(fov, width / height, 0.2, 400);
+    camera.position.set(0, isMobile ? 7.2 : 5.0, isMobile ? -11.5 : -8.0);
+    g.camera = camera;
+
+    // 4. Ánh sáng môi trường
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
+    dirLight.position.set(20, 40, 20);
+    scene.add(dirLight);
+
+    // 5. Mặt sàn Cyber Arena
+    const gridTexture = createGridTexture(curStage.accentHex, "#060515");
+    const groundGeo = new THREE.PlaneGeometry(ARENA_RADIUS * 2 + 8, ARENA_RADIUS * 2 + 8);
+    const groundMat = new THREE.MeshStandardMaterial({
+      map: gridTexture,
+      roughness: 0.06,
+      metalness: 0.9,
+      color: 0xffffff,
+    });
+    const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+    groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.y = 0;
+    scene.add(groundMesh);
+    g.groundMesh = groundMesh;
+
+    // 6. Tường biên phát sáng (4 bức tường giới hạn)
+    const wallGroup = new THREE.Group();
+    const railMat = new THREE.MeshBasicMaterial({ color: curStage.accent, transparent: true, opacity: 0.85 });
+    const wallHeight = 2.5;
+
+    // Tường Bắc/Nam/Đông/Tây
+    const bGeoX = new THREE.BoxGeometry(ARENA_RADIUS * 2, wallHeight, 0.3);
+    const bGeoZ = new THREE.BoxGeometry(0.3, wallHeight, ARENA_RADIUS * 2);
+
+    const wallN = new THREE.Mesh(bGeoX, railMat);
+    wallN.position.set(0, wallHeight / 2, ARENA_RADIUS);
+    const wallS = new THREE.Mesh(bGeoX, railMat);
+    wallS.position.set(0, wallHeight / 2, -ARENA_RADIUS);
+    const wallE = new THREE.Mesh(bGeoZ, railMat);
+    wallE.position.set(ARENA_RADIUS, wallHeight / 2, 0);
+    const wallW = new THREE.Mesh(bGeoZ, railMat);
+    wallW.position.set(-ARENA_RADIUS, wallHeight / 2, 0);
+
+    wallGroup.add(wallN, wallS, wallE, wallW);
+    scene.add(wallGroup);
+    g.wallGroup = wallGroup;
+
+    // 7. Bụi sao không gian nền (Starfield)
+    const starCount = 450;
+    const starGeo = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      starPositions[i * 3] = (Math.random() - 0.5) * 220;
+      starPositions[i * 3 + 1] = Math.random() * 80 + 5;
+      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 220;
+    }
+    starGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({
+      color: 0x93c5fd,
+      size: 0.7,
+      transparent: true,
+      opacity: 0.8,
+    });
+    const starPoints = new THREE.Points(starGeo, starMat);
+    scene.add(starPoints);
+
+    // 8. TẠO ĐẦU LINH THÚ CYBER SERPENT 3D (AVATAR)
+    const headGroup = new THREE.Group();
+
+    // Sọ chính (Chassis hình khối vát khí động học)
+    const skullGeo = new THREE.ConeGeometry(0.85, 2.2, 5);
+    const skullMat = new THREE.MeshStandardMaterial({
+      color: 0x1e1b4b,
+      metalness: 0.9,
+      roughness: 0.15,
+      emissive: curStage.accent,
+      emissiveIntensity: 0.35,
+    });
+    const skullMesh = new THREE.Mesh(skullGeo, skullMat);
+    skullMesh.rotation.x = Math.PI / 2;
+    headGroup.add(skullMesh);
+
+    // Mắt thần Neon / Cyber Visor kép
+    const eyeGeo = new THREE.SphereGeometry(0.2, 12, 12);
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeL.position.set(0.38, 0.25, 0.4);
+    const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+    eyeR.position.set(-0.38, 0.25, 0.4);
+    headGroup.add(eyeL, eyeR);
+
+    // Cánh fin / vây sừng hai bên
+    const finGeo = new THREE.BoxGeometry(0.1, 0.4, 1.2);
+    const finMat = new THREE.MeshStandardMaterial({
+      color: curStage.accent,
+      metalness: 0.8,
+      roughness: 0.2,
+      emissive: curStage.accent,
+      emissiveIntensity: 0.6,
+    });
+    const finL = new THREE.Mesh(finGeo, finMat);
+    finL.position.set(0.7, 0.2, -0.2);
+    finL.rotation.z = -0.3;
+    const finR = new THREE.Mesh(finGeo, finMat);
+    finR.position.set(-0.7, 0.2, -0.2);
+    finR.rotation.z = 0.3;
+    headGroup.add(finL, finR);
+
+    // Đèn pha trước đầu rọi đường
+    const headLight = new THREE.SpotLight(curStage.accent, 3.5, 28, Math.PI / 3.8, 0.5, 1.2);
+    headLight.position.set(0, 0.4, 0.5);
+    headLight.target.position.set(0, 0, 10);
+    headGroup.add(headLight);
+    headGroup.add(headLight.target);
+
+    scene.add(headGroup);
+    g.headGroup = headGroup;
+    g.headLight = headLight;
+
+    // 9. Khởi tạo Thân Rắn 3D (Segments Chain với Shared Geometries)
+    g.segments = [];
+    for (let i = 0; i < g.segmentCount; i++) {
+      const segMat = new THREE.MeshStandardMaterial({
+        color: curStage.accent,
+        metalness: 0.85,
+        roughness: 0.2,
+        emissive: curStage.accent2,
+        emissiveIntensity: Math.max(0.15, 0.5 - i * 0.015),
+      });
+      const segMesh = new THREE.Mesh(sharedSegGeo, segMat);
+
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: curStage.accent,
+        transparent: true,
+        opacity: 0.75,
+      });
+      const ringMesh = new THREE.Mesh(sharedRingGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+
+      const segGroup = new THREE.Group();
+      segGroup.add(segMesh);
+      segGroup.add(ringMesh);
+
+      const initZ = -((i + 1) * SEGMENT_SPACING);
+      segGroup.position.set(0, 0.8, initZ);
+      scene.add(segGroup);
+
+      g.segments.push({
+        x: 0,
+        y: 0.8,
+        z: initZ,
+        group: segGroup,
+        segMesh,
+        ringMesh,
+      });
+    }
+
+    // 10. Lõi Năng Lượng 3D (Food Orb)
+    const foodGroup = new THREE.Group();
+    const foodGeo = new THREE.OctahedronGeometry(0.75, 0);
+    const foodMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xff007f,
+      emissiveIntensity: 2.2,
+      roughness: 0.1,
+      metalness: 0.9,
+    });
+    const foodCore = new THREE.Mesh(foodGeo, foodMat);
+    foodGroup.add(foodCore);
+
+    const fRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
+    const fRing1 = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.04, 8, 24), fRingMat);
+    const fRing2 = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.04, 8, 24), fRingMat);
+    fRing2.rotation.x = Math.PI / 2;
+    foodGroup.add(fRing1, fRing2);
+
+    const foodLight = new THREE.PointLight(0xff007f, 3.0, 10);
+    foodGroup.add(foodLight);
+
+    foodGroup.position.set(g.foodPos.x, g.foodPos.y, g.foodPos.z);
+    scene.add(foodGroup);
+    g.foodMesh = foodGroup;
+
+    // 11. Cổng Dịch Chuyển Không Gian 3D (Portals)
+    const createPortalMesh = (color) => {
+      const pGroup = new THREE.Group();
+      const pTorusMat = new THREE.MeshStandardMaterial({
+        color,
+        emissive: color,
+        emissiveIntensity: 1.8,
+        metalness: 0.9,
+      });
+      const pTorus = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.22, 16, 32), pTorusMat);
+      pGroup.add(pTorus);
+
+      const pVortexMat = new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide,
+      });
+      const pVortex = new THREE.Mesh(new THREE.CircleGeometry(2.2, 32), pVortexMat);
+      pGroup.add(pVortex);
+
+      const pLight = new THREE.PointLight(color, 2.0, 12);
+      pGroup.add(pLight);
+      return pGroup;
+    };
+
+    g.portalMeshes = [createPortalMesh(0x38bdf8), createPortalMesh(0xa855f7)];
+    g.portalMeshes.forEach((p) => {
+      p.visible = false;
+      scene.add(p);
+    });
+
+    // 12. Hệ Thống Hạt Hào Quang 3D (Particle Pool)
+    const maxParticles = 200;
+    const partGeo = new THREE.BufferGeometry();
+    const partPositions = new Float32Array(maxParticles * 3);
+    const partColors = new Float32Array(maxParticles * 3);
+    partGeo.setAttribute("position", new THREE.BufferAttribute(partPositions, 3));
+    partGeo.setAttribute("color", new THREE.BufferAttribute(partColors, 3));
+
+    const partMat = new THREE.PointsMaterial({
+      size: 0.8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+    });
+    const particleSystem = new THREE.Points(partGeo, partMat);
+    scene.add(particleSystem);
+    g.particleSystem = particleSystem;
+
+    // Xử lý Resize Màn Hình
+    const handleResize = () => {
+      if (!container || !renderer || !camera) return;
+      const w = container.clientWidth || 600;
+      const h = container.clientHeight || 600;
+      const mob = window.innerWidth < 768;
+      camera.fov = mob ? 62 : 56;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      renderer.dispose();
+      starGeo.dispose();
+      groundGeo.dispose();
+      partGeo.dispose();
+    };
+  }, []);
+
+  // ── Spawn Items Helpers ──────────────────────────────────────────────────
+  const spawnFood = useCallback(() => {
+    const g = gameRef.current;
+    const margin = 5;
+    g.foodPos = {
+      x: (Math.random() - 0.5) * (ARENA_RADIUS * 2 - margin * 2),
+      y: 0.8,
+      z: (Math.random() - 0.5) * (ARENA_RADIUS * 2 - margin * 2),
+    };
+    if (g.foodMesh) {
+      g.foodMesh.position.set(g.foodPos.x, g.foodPos.y, g.foodPos.z);
+    }
+  }, []);
+
+  const spawnGolden = useCallback(() => {
+    const g = gameRef.current;
+    const margin = 6;
+    g.goldenPos = {
+      x: (Math.random() - 0.5) * (ARENA_RADIUS * 2 - margin * 2),
+      y: 1.0,
+      z: (Math.random() - 0.5) * (ARENA_RADIUS * 2 - margin * 2),
+      ttl: 420, // ~7 giây
+    };
+
+    if (!g.goldenMesh && g.scene) {
+      const goldGroup = new THREE.Group();
+      const goldGeo = new THREE.DodecahedronGeometry(0.9, 0);
+      const goldMat = new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        emissive: 0xffaa00,
+        emissiveIntensity: 2.0,
+        metalness: 0.95,
+        roughness: 0.1,
+      });
+      const goldMesh = new THREE.Mesh(goldGeo, goldMat);
+      goldGroup.add(goldMesh);
+
+      const halo = new THREE.Mesh(
+        new THREE.TorusGeometry(1.4, 0.05, 8, 24),
+        new THREE.MeshBasicMaterial({ color: 0xffe600 })
+      );
+      halo.rotation.x = Math.PI / 2;
+      goldGroup.add(halo);
+
+      const pLight = new THREE.PointLight(0xffcc00, 3.0, 12);
+      goldGroup.add(pLight);
+
+      g.scene.add(goldGroup);
+      g.goldenMesh = goldGroup;
+    }
+
+    if (g.goldenMesh) {
+      g.goldenMesh.position.set(g.goldenPos.x, g.goldenPos.y, g.goldenPos.z);
+      g.goldenMesh.visible = true;
+    }
+  }, []);
+
+  const updateStageEnvironment = useCallback((stageNum) => {
+    const g = gameRef.current;
+    const stage = STAGES[(stageNum - 1) % STAGES.length];
+    if (!g.scene) return;
+
+    g.scene.background.set(stage.bg);
+    g.scene.fog.color.set(stage.fog);
+
+    if (g.headLight) g.headLight.color.set(stage.accent);
+    if (g.wallGroup) {
+      g.wallGroup.children.forEach((w) => {
+        w.material.color.set(stage.accent);
+      });
+    }
+
+    // Cập nhật mìn (Mines)
+    if (g.minesMeshGroup) {
+      g.scene.remove(g.minesMeshGroup);
+    }
+    const minesGroup = new THREE.Group();
+    g.mines = [];
+
+    if (stage.mines > 0) {
+      const mineGeo = new THREE.IcosahedronGeometry(0.75, 0);
+      const spikeGeo = new THREE.ConeGeometry(0.18, 0.7, 5);
+
+      for (let i = 0; i < stage.mines; i++) {
+        const mx = (Math.random() - 0.5) * (ARENA_RADIUS * 1.5);
+        const mz = (Math.random() - 0.5) * (ARENA_RADIUS * 1.5);
+
+        const mSingle = new THREE.Group();
+        const core = new THREE.Mesh(
+          mineGeo,
+          new THREE.MeshStandardMaterial({
+            color: 0x1f2937,
+            metalness: 0.9,
+            emissive: 0xef4444,
+            emissiveIntensity: 0.9,
+          })
+        );
+        mSingle.add(core);
+
+        // Gai nhọn chĩa 4 phía
+        for (let sp = 0; sp < 6; sp++) {
+          const spike = new THREE.Mesh(spikeGeo, new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+          if (sp === 0) spike.position.y = 0.8;
+          if (sp === 1) { spike.position.y = -0.8; spike.rotation.x = Math.PI; }
+          if (sp === 2) { spike.position.x = 0.8; spike.rotation.z = -Math.PI / 2; }
+          if (sp === 3) { spike.position.x = -0.8; spike.rotation.z = Math.PI / 2; }
+          if (sp === 4) { spike.position.z = 0.8; spike.rotation.x = Math.PI / 2; }
+          if (sp === 5) { spike.position.z = -0.8; spike.rotation.x = -Math.PI / 2; }
+          mSingle.add(spike);
+        }
+
+        mSingle.position.set(mx, 0.8, mz);
+        minesGroup.add(mSingle);
+        g.mines.push({ x: mx, y: 0.8, z: mz, group: mSingle });
+      }
+      g.scene.add(minesGroup);
+      g.minesMeshGroup = minesGroup;
+    }
+
+    // Cập nhật Cổng Dịch Chuyển (Portals)
+    if (stage.portals && g.portalMeshes.length === 2) {
+      g.portals = [
+        { x: -16, y: 1.2, z: 12 },
+        { x: 16, y: 1.2, z: -12 },
+      ];
+      g.portalMeshes[0].position.set(g.portals[0].x, g.portals[0].y, g.portals[0].z);
+      g.portalMeshes[0].visible = true;
+      g.portalMeshes[1].position.set(g.portals[1].x, g.portals[1].y, g.portals[1].z);
+      g.portalMeshes[1].visible = true;
+    } else if (g.portalMeshes.length === 2) {
+      g.portals = [];
+      g.portalMeshes[0].visible = false;
+      g.portalMeshes[1].visible = false;
+    }
+
+    showStageBanner(stageNum);
+  }, [showStageBanner]);
+
+  // Sinh hạt nổ 3D
+  const spawnBurst3D = useCallback((x, y, z, colorHex, count = 18) => {
+    const g = gameRef.current;
+    const color = new THREE.Color(colorHex);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 3.5 + Math.random() * 4.5;
+      g.particles.push({
+        x,
+        y: y + 0.2,
+        z,
+        vx: Math.cos(angle) * speed,
+        vy: 2.0 + Math.random() * 3.5,
+        vz: Math.sin(angle) * speed,
+        life: 1.0,
+        maxLife: 1.0,
+        decay: 0.025 + Math.random() * 0.02,
+        color,
+      });
+    }
+  }, []);
+
+  // Cập nhật Hạt 3D
+  const updateParticles3D = useCallback((dt) => {
+    const g = gameRef.current;
+    if (!g.particleSystem) return;
+
+    const posAttr = g.particleSystem.geometry.attributes.position;
+    const colAttr = g.particleSystem.geometry.attributes.color;
+
+    for (let i = g.particles.length - 1; i >= 0; i--) {
+      const p = g.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      p.vy -= 9.8 * dt;
+      p.life -= p.decay;
+
+      if (p.life <= 0 || p.y < 0) {
+        g.particles.splice(i, 1);
+      }
+    }
+
+    const maxParts = 200;
+    for (let i = 0; i < maxParts; i++) {
+      if (i < g.particles.length) {
+        const p = g.particles[i];
+        posAttr.setXYZ(i, p.x, p.y, p.z);
+        colAttr.setXYZ(i, p.color.r * p.life, p.color.g * p.life, p.color.b * p.life);
+      } else {
+        posAttr.setXYZ(i, 0, -999, 0);
+      }
+    }
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+  }, []);
+
+  // Nối thêm mắt xích thân rắn 3D (Reuses shared geometries)
+  const addSnakeSegments = useCallback((count) => {
+    const g = gameRef.current;
+    const curStage = STAGES[(g.stage - 1) % STAGES.length];
+    const lastSeg = g.segments[g.segments.length - 1] || g.head;
+
+    for (let k = 0; k < count; k++) {
+      const segMat = new THREE.MeshStandardMaterial({
+        color: curStage.accent,
+        metalness: 0.85,
+        roughness: 0.2,
+        emissive: curStage.accent2,
+        emissiveIntensity: 0.2,
+      });
+      const segMesh = new THREE.Mesh(sharedSegGeo, segMat);
+      const ringMat = new THREE.MeshBasicMaterial({ color: curStage.accent, transparent: true, opacity: 0.7 });
+      const ringMesh = new THREE.Mesh(sharedRingGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+
+      const segGroup = new THREE.Group();
+      segGroup.add(segMesh);
+      segGroup.add(ringMesh);
+
+      segGroup.position.set(lastSeg.x, 0.8, lastSeg.z);
+      g.scene.add(segGroup);
+
+      g.segments.push({
+        x: lastSeg.x,
+        y: 0.8,
+        z: lastSeg.z,
+        group: segGroup,
+        segMesh,
+        ringMesh,
+      });
+    }
+  }, []);
+
+  // Đồng bộ HUD
+  const syncHud = useCallback((notice) => {
+    const g = gameRef.current;
+    const curStage = STAGES[(g.stage - 1) % STAGES.length];
+    setHud((prev) => ({
+      score: g.score,
+      eaten: g.eaten,
+      mines: g.mines.length,
+      combo: g.combo.chain + (g.combo.chain > 0 ? 1 : 0),
+      mult: g.combo.mult,
+      stage: g.stage,
+      stageName: isVi ? curStage.nameVi : curStage.nameEn,
+      notice: notice !== undefined ? notice : prev.notice,
+    }));
+  }, [isVi]);
+
+  // Xử lý Thua Cuộc
+  const handleDeath = useCallback(() => {
+    const g = gameRef.current;
+    if (g.dead) return;
+    g.dead = true;
+
+    playGameLose();
+    hapticLose();
+    spawnBurst3D(g.head.x, g.head.y, g.head.z, 0xff3b30, 40);
+
+    setTimeout(() => {
+      if (onGameOver && !reportedRef.current) {
+        reportedRef.current = true;
+        onGameOver(g.score, g.score >= 1200 ? "win" : "lose");
+      }
+    }, 1100);
+  }, [onGameOver, spawnBurst3D]);
+
+  // ── Vòng Lặp Chính (Game Loop với Zero-Allocation Cam Lerp) ───────────────
+  useEffect(() => {
+    if (!playing || paused) return;
+
+    let animId;
+    let lastTime = performance.now();
+    const g = gameRef.current;
+
+    const tick = (now) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.08);
+      lastTime = now;
+
+      if (!g.dead) {
+        const curStage = STAGES[(g.stage - 1) % STAGES.length];
+        const isMobile = window.innerWidth < 768;
+
+        // 1. Quản lý Boost Stamina
+        if (g.isBoosting && g.boostEnergy > 2) {
+          g.boostEnergy = Math.max(0, g.boostEnergy - 32 * dt);
+        } else {
+          g.isBoosting = false;
+          g.boostEnergy = Math.min(100, g.boostEnergy + 20 * dt);
+        }
+        setBoostLevel(Math.round(g.boostEnergy));
+        setIsBoostingUI(g.isBoosting);
+
+        // 2. Vận tốc và Đổi hướng mượt mà
+        const baseSpeed = curStage.speed;
+        const currentSpeed = g.isBoosting ? baseSpeed * 1.55 : baseSpeed;
+        const turnSpeed = g.isBoosting ? 3.2 : 3.8;
+
+        g.heading += g.steerInput * turnSpeed * dt;
+
+        // Tiến bước đầu rắn
+        g.head.x += Math.sin(g.heading) * currentSpeed * dt;
+        g.head.z += Math.cos(g.heading) * currentSpeed * dt;
+
+        // Cập nhật Mesh đầu
+        if (g.headGroup) {
+          g.headGroup.position.set(g.head.x, g.head.y, g.head.z);
+          g.headGroup.rotation.y = g.heading;
+          g.headGroup.rotation.z = -g.steerInput * 0.35;
+        }
+
+        // 3. Chuỗi Mắt Xích Thân Rắn 3D (Distance-Constraint Trail)
+        let prevPos = { x: g.head.x, y: g.head.y, z: g.head.z };
+        const timeSec = now * 0.001;
+
+        for (let i = 0; i < g.segments.length; i++) {
+          const seg = g.segments[i];
+          const dx = prevPos.x - seg.x;
+          const dz = prevPos.z - seg.z;
+          const dist = Math.hypot(dx, dz);
+
+          if (dist > SEGMENT_SPACING) {
+            const ratio = (dist - SEGMENT_SPACING) / dist;
+            seg.x += dx * ratio;
+            seg.z += dz * ratio;
+          }
+
+          // Hiệu ứng uốn lượn hình sin (Sinuous undulation)
+          const wavePhase = timeSec * (g.isBoosting ? 10 : 7) + i * 0.45;
+          const undulationY = 0.8 + Math.sin(wavePhase) * (g.isBoosting ? 0.28 : 0.16);
+          const lateralWiggle = Math.cos(wavePhase) * (g.isBoosting ? 0.18 : 0.12);
+
+          seg.group.position.set(
+            seg.x + Math.cos(g.heading) * lateralWiggle,
+            undulationY,
+            seg.z - Math.sin(g.heading) * lateralWiggle
+          );
+
+          // Xoay hướng theo mắt xích trước
+          const segAngle = Math.atan2(dx, dz);
+          seg.group.rotation.y = segAngle;
+
+          prevPos = { x: seg.x, y: seg.y, z: seg.z };
+        }
+
+        // 4. Camera Thứ 3 (Chase Camera Nâng Cao Góc Nhìn Toàn Cảnh Trên Mobile)
+        if (g.camera) {
+          const camDist = isMobile ? (g.isBoosting ? 12.8 : 11.2) : (g.isBoosting ? 9.8 : 8.2);
+          const camHeight = isMobile ? (g.isBoosting ? 6.2 : 7.2) : (g.isBoosting ? 4.2 : 4.8);
+          const lookDist = isMobile ? 6.5 : 4.5;
+
+          const targetCamX = g.head.x - Math.sin(g.heading) * camDist;
+          const targetCamY = g.head.y + camHeight;
+          const targetCamZ = g.head.z - Math.cos(g.heading) * camDist;
+
+          // Zero-GC Camera Lerp
+          g.tempCamTarget.set(targetCamX, targetCamY, targetCamZ);
+          g.camera.position.lerp(g.tempCamTarget, 0.14);
+
+          const lookTargetX = g.head.x + Math.sin(g.heading) * lookDist;
+          const lookTargetY = g.head.y + 0.6;
+          const lookTargetZ = g.head.z + Math.cos(g.heading) * lookDist;
+
+          g.tempLookTarget.set(lookTargetX, lookTargetY, lookTargetZ);
+          g.camera.lookAt(g.tempLookTarget);
+
+          g.camera.rotation.z = -g.steerInput * 0.08;
+          const targetFov = isMobile ? (g.isBoosting ? 70 : 62) : (g.isBoosting ? 68 : 56);
+          g.camera.fov = THREE.MathUtils.lerp(g.camera.fov, targetFov, 0.1);
+          g.camera.updateProjectionMatrix();
+        }
+
+        // 5. Va chạm Tường Biên (Arena Walls)
+        if (
+          Math.abs(g.head.x) >= ARENA_RADIUS - 0.5 ||
+          Math.abs(g.head.z) >= ARENA_RADIUS - 0.5
+        ) {
+          handleDeath();
+        }
+
+        // 6. Tự cắn đuôi (Self collision sau mắt xích thứ 6)
+        for (let i = 6; i < g.segments.length; i++) {
+          const s = g.segments[i];
+          if (Math.hypot(g.head.x - s.x, g.head.z - s.z) < 0.72) {
+            handleDeath();
+            break;
+          }
+        }
+
+        // 7. Va chạm Mìn (Mines)
+        for (let i = 0; i < g.mines.length; i++) {
+          const m = g.mines[i];
+          if (Math.hypot(g.head.x - m.x, g.head.z - m.z) < 1.4) {
+            spawnBurst3D(m.x, m.y, m.z, 0xff3b30, 35);
+            handleDeath();
+            break;
+          }
+          if (m.group) {
+            m.group.rotation.y += dt * 1.5;
+          }
+        }
+
+        // 8. Cổng Dịch Chuyển (Portals)
+        if (g.portalCooldown > 0) {
+          g.portalCooldown -= dt;
+        } else if (g.portals.length === 2) {
+          const pA = g.portals[0];
+          const pB = g.portals[1];
+          if (Math.hypot(g.head.x - pA.x, g.head.z - pA.z) < 2.0) {
+            g.head.x = pB.x + Math.sin(g.heading) * 3.5;
+            g.head.z = pB.z + Math.cos(g.heading) * 3.5;
+            g.portalCooldown = 2.0;
+            spawnBurst3D(pA.x, pA.y, pA.z, 0x38bdf8, 25);
+            spawnBurst3D(pB.x, pB.y, pB.z, 0xa855f7, 25);
+            hapticMove();
+          } else if (Math.hypot(g.head.x - pB.x, g.head.z - pB.z) < 2.0) {
+            g.head.x = pA.x + Math.sin(g.heading) * 3.5;
+            g.head.z = pA.z + Math.cos(g.heading) * 3.5;
+            g.portalCooldown = 2.0;
+            spawnBurst3D(pB.x, pB.y, pB.z, 0xa855f7, 25);
+            spawnBurst3D(pA.x, pA.y, pA.z, 0x38bdf8, 25);
+            hapticMove();
+          }
+        }
+
+        // 9. Ăn Lõi Năng Lượng Thường (Food Orb)
+        if (Math.hypot(g.head.x - g.foodPos.x, g.head.z - g.foodPos.z) < 1.85) {
+          g.eaten += 1;
+          const comboMult = g.combo.hit();
+          const boostBonus = g.isBoosting ? 1.5 : 1.0;
+          const pts = Math.round(100 * comboMult * boostBonus);
+          g.score += pts;
+
+          playGameMerge();
+          hapticMerge();
+          spawnBurst3D(g.foodPos.x, g.foodPos.y, g.foodPos.z, curStage.accentHex, 24);
+
+          addSnakeSegments(2);
+
+          const goldenFreq = curStage.goldenEvery || 5;
+          if (g.eaten % goldenFreq === 0) {
+            spawnGolden();
+          }
+
+          const nextStageNum = Math.floor(g.eaten / STAGE_GOAL) + 1;
+          if (nextStageNum > g.stage) {
+            g.stage = nextStageNum;
+            updateStageEnvironment(nextStageNum);
+          }
+
+          spawnFood();
+          syncHud();
+        }
+
+        // 10. Ăn Mồi Vàng (Golden Relic)
+        if (g.goldenPos) {
+          g.goldenPos.ttl -= 1;
+          if (g.goldenPos.ttl <= 0) {
+            g.goldenPos = null;
+            if (g.goldenMesh) g.goldenMesh.visible = false;
+          } else if (Math.hypot(g.head.x - g.goldenPos.x, g.head.z - g.goldenPos.z) < 2.0) {
+            const goldPts = Math.round(350 * g.combo.mult);
+            g.score += goldPts;
+            playGameMerge();
+            hapticMerge();
+            spawnBurst3D(g.goldenPos.x, g.goldenPos.y, g.goldenPos.z, 0xffd700, 35);
+            g.goldenPos = null;
+            if (g.goldenMesh) g.goldenMesh.visible = false;
+            syncHud(t("arcadeGame.g2048Triple", "LÕI VÀNG +350"));
+          }
+        }
+
+        // Xoay vật phẩm 3D
+        if (g.foodMesh) {
+          g.foodMesh.rotation.y += dt * 2.2;
+          g.foodMesh.children[0].rotation.x += dt * 1.5;
+          g.foodMesh.position.y = 0.8 + Math.sin(timeSec * 3) * 0.2;
+        }
+        if (g.goldenMesh && g.goldenPos) {
+          g.goldenMesh.rotation.y += dt * 3.0;
+          g.goldenMesh.position.y = 1.0 + Math.sin(timeSec * 4) * 0.25;
+        }
+      }
+
+      // 11. Cập nhật Hạt Hào Quang 3D
+      updateParticles3D(dt);
+
+      // 12. Render khung hình Three.js
+      if (g.renderer && g.scene && g.camera) {
+        g.renderer.render(g.scene, g.camera);
+      }
+
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [playing, paused, spawnFood, spawnGolden, updateStageEnvironment, t, addSnakeSegments, handleDeath, syncHud, updateParticles3D, spawnBurst3D]);
+
+  // ── Điều Khiển Bàn Phím (Desktop Keyboard) ───────────────────────────────
+  useEffect(() => {
+    const g = gameRef.current;
+
+    const onKeyDown = (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") {
+        g.steerInput = -1;
+      } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+        g.steerInput = 1;
+      } else if (e.code === "ArrowUp" || e.code === "KeyW" || e.code === "Space" || e.code === "ShiftLeft") {
+        g.isBoosting = true;
+      }
+    };
+
+    const onKeyUp = (e) => {
+      if (
+        (e.code === "ArrowLeft" || e.code === "KeyA") && g.steerInput < 0 ||
+        (e.code === "ArrowRight" || e.code === "KeyD") && g.steerInput > 0
+      ) {
+        g.steerInput = 0;
+      } else if (e.code === "ArrowUp" || e.code === "KeyW" || e.code === "Space" || e.code === "ShiftLeft") {
+        g.isBoosting = false;
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
+  // ── Điều Khiển Cảm Ứng (Touch Drag & Dual-Thumb Virtual Controls) ────────
+  const touchStartRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchMove = (e) => {
+    if (!touchStartRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+
+    if (Math.abs(dx) > 10) {
+      gameRef.current.steerInput = Math.max(-1, Math.min(1, dx / 40));
+    } else {
+      gameRef.current.steerInput = 0;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartRef.current = null;
+    gameRef.current.steerInput = 0;
+  };
+
+  const triggerBoost = (active) => {
+    gameRef.current.isBoosting = active;
+    if (active) hapticMove();
+  };
+
+  const setSteer = (val) => {
+    gameRef.current.steerInput = val;
+    if (val !== 0) hapticMove();
+  };
+
+  const curStage = STAGES[(hud.stage - 1) % STAGES.length];
 
   return (
     <div
       ref={containerRef}
-      className="snake-game select-none"
-      style={{ "--snake-stage": activeStage.accent, "--snake-stage-2": activeStage.accent2 }}
+      className="relative w-full h-full flex flex-col items-center justify-between overflow-hidden select-none bg-[#050611] touch-none"
+      style={{ "--snake-stage": curStage.accentHex, "--snake-stage-2": curStage.accent2Hex }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
-      <div className="snake-ambient" aria-hidden="true">
-        <i /><i /><i /><i /><i /><i />
-      </div>
-
-      <section className="snake-main">
+      {/* HUD Trên Cùng */}
+      <div className="relative z-20 w-full max-w-4xl px-4 pt-3 flex flex-col gap-1.5 pointer-events-none">
         <ArcadeHud
-          gameId={GAME_ID}
+          gameId="snake"
           score={hud.score}
           combo={hud.combo}
           multiplier={hud.mult}
+          stats={[
+            { label: isVi ? "LÕI" : "CORES", value: hud.eaten },
+            { label: isVi ? "CHẶNG" : "STAGE", value: hud.stage },
+            { label: isVi ? "MÌN" : "MINES", value: hud.mines },
+          ]}
           notice={hud.notice}
-          stats={[{ label: t("arcadeGame.snakeFood"), value: hud.eaten }, { label: t("arcadeGame.snakeStageLabel"), value: hud.stage }]}
         />
 
-        <div
-          className="gpanel snake-board-3d relative w-full aspect-square overflow-hidden touch-none"
-          {...(playing ? bind() : {})}
-        >
-          <div className="snake-board-shine" aria-hidden="true" />
-          {!playing && countdown > 0 && (
-            <div className="snake-countdown absolute inset-0 flex items-center justify-center z-10">
-              <div>
-                <small>{t("arcadeGame.ready")}</small>
-                <span>{countdown}</span>
-              </div>
-            </div>
-          )}
-          <canvas ref={canvasRef} className="w-full h-full cursor-crosshair touch-none" />
-          <div className="snake-scanline" aria-hidden="true" />
-        </div>
-      </section>
-
-      <aside className="snake-mission" aria-label={t("arcadeGame.snakeStageOf", { index: hud.stage, name: t(`arcadeGame.${activeStage.key}`) })}>
-        <div className="snake-mission__top">
-          <span className="snake-mission__number">{String(hud.stage).padStart(2, "0")}</span>
-          <div>
-            <small>{t(`arcadeGame.${activeStage.key}Kicker`)}</small>
-            <h3>{t(`arcadeGame.${activeStage.key}`)}</h3>
+        {/* Thanh Năng Lượng Lướt Nhanh (Boost Stamina Gauge) */}
+        <div className="w-full max-w-md mx-auto flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 border border-white/10 backdrop-blur-md">
+          <span className="material-symbols-outlined text-[16px] text-cyan-400" aria-hidden="true">
+            speed
+          </span>
+          <div className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-75"
+              style={{
+                width: `${boostLevel}%`,
+                background: isBoostingUI
+                  ? "linear-gradient(90deg, #f59e0b, #ef4444)"
+                  : "linear-gradient(90deg, #22d3ee, #818cf8)",
+                boxShadow: isBoostingUI ? "0 0 12px #ef4444" : "0 0 8px #22d3ee",
+              }}
+            />
           </div>
+          <span className="text-[13px] font-mono font-bold text-white/90">
+            {isBoostingUI ? (isVi ? "TĂNG TỐC" : "HYPER") : `${boostLevel}%`}
+          </span>
         </div>
+      </div>
 
-        <div className="snake-mission__challenge">
-          <span className="material-symbols-outlined">flag</span>
-          <div>
-            <small>{t("arcadeGame.snakeCurrentMission")}</small>
-            <strong>{t(`arcadeGame.${activeStage.key}Goal`)}</strong>
-          </div>
-        </div>
+      {/* Canvas 3D WebGL */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block z-0" />
 
-        <div className="snake-mission__progress">
-          <div>
-            <span>{t("arcadeGame.snakeStageProgress")}</span>
-            <b>{hud.stageProgress}/{STAGE_GOAL}</b>
-          </div>
-          <div className="snake-mission__rail"><span style={{ width: `${stagePercent}%` }} /></div>
-        </div>
-
-        <p className="snake-mission__hint">
-          <span className="material-symbols-outlined">tips_and_updates</span>
-          {activeStage.hint}
-        </p>
-
-        <div className="snake-mission__legend">
-          <span><i className="is-food" />{t("arcadeGame.snakeCoreNormal")}</span>
-          <span><i className="is-gold" />{t("arcadeGame.snakeCoreGold")}</span>
-          <span><i className="is-mine" />{t("arcadeGame.snakeMine")}</span>
-          {activeStage.portals && <span><i className="is-portal" />{t("arcadeGame.snakePortal")}</span>}
-        </div>
-
-        <p className="game-control-hint snake-controls">
-          Vuốt hoặc dùng phím WASD / mũi tên
-        </p>
-      </aside>
-
+      {/* Banner Chặng Thông Báo */}
       {stageBanner && (
-        <div className="snake-stage-banner" role="status">
-          <div className="snake-stage-banner__rings" aria-hidden="true" />
-          <small>CHẶNG {String(stageBanner.number).padStart(2, "0")}</small>
-          <h2>{stageBanner.name}</h2>
-          <p>{stageBanner.mission}</p>
+        <div className="absolute top-24 z-30 flex flex-col items-center justify-center pointer-events-none animate-bounce">
+          <div className="px-6 py-2 rounded-full border border-white/20 bg-black/75 backdrop-blur-xl shadow-2xl flex items-center gap-3">
+            <span
+              className="w-3.5 h-3.5 rounded-full"
+              style={{ background: stageBanner.accentHex, boxShadow: `0 0 14px ${stageBanner.accentHex}` }}
+            />
+            <span className="text-[16px] font-black tracking-wider uppercase text-white">
+              {isVi ? `CHẶNG ${hud.stage}: ${stageBanner.nameVi}` : `STAGE ${hud.stage}: ${stageBanner.nameEn}`}
+            </span>
+          </div>
         </div>
       )}
+
+      {/* Countdown Khởi Động */}
+      {countdown > 0 && (
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/75 backdrop-blur-md">
+          <div className="w-32 h-32 rounded-full border-2 border-cyan-400/80 bg-cyan-950/40 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(34,211,238,0.5)] animate-pulse">
+            <small className="text-[13px] font-bold tracking-widest text-cyan-200">READY</small>
+            <span className="text-[64px] font-black leading-none text-white">{countdown}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Nút Điều Khiển Dưới Cùng (Dual-Thumb Ergonomic Mobile Controls) */}
+      <div className="relative z-20 w-full max-w-lg px-4 pb-4 flex items-center justify-between pointer-events-auto">
+        {/* Cụm Phím Lái Trái / Phải Cho Ngón Cái Trái */}
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            className="w-16 h-16 rounded-2xl bg-black/60 active:bg-cyan-500/30 border border-white/20 active:border-cyan-400 flex items-center justify-center text-white backdrop-blur-md active:scale-95 transition-all shadow-lg"
+            onPointerDown={() => setSteer(-1)}
+            onPointerUp={() => setSteer(0)}
+            onPointerLeave={() => setSteer(0)}
+            aria-label="Rẽ Trái"
+          >
+            <span className="material-symbols-outlined text-[32px] text-cyan-300">arrow_left</span>
+          </button>
+          <button
+            type="button"
+            className="w-16 h-16 rounded-2xl bg-black/60 active:bg-cyan-500/30 border border-white/20 active:border-cyan-400 flex items-center justify-center text-white backdrop-blur-md active:scale-95 transition-all shadow-lg"
+            onPointerDown={() => setSteer(1)}
+            onPointerUp={() => setSteer(0)}
+            onPointerLeave={() => setSteer(0)}
+            aria-label="Rẽ Phải"
+          >
+            <span className="material-symbols-outlined text-[32px] text-cyan-300">arrow_right</span>
+          </button>
+        </div>
+
+        {/* Nút LƯỚT / BOOST Cực Lớn Cho Ngón Cái Phải */}
+        <button
+          type="button"
+          className={`h-16 px-6 rounded-2xl flex items-center gap-2 text-white font-black tracking-wide border shadow-xl backdrop-blur-md transition-all active:scale-95 ${
+            isBoostingUI
+              ? "bg-gradient-to-r from-amber-500 to-rose-600 border-rose-300 shadow-[0_0_24px_rgba(244,63,94,0.6)]"
+              : "bg-gradient-to-r from-cyan-600 via-sky-600 to-indigo-600 border-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.4)]"
+          }`}
+          onPointerDown={() => triggerBoost(true)}
+          onPointerUp={() => triggerBoost(false)}
+          onPointerLeave={() => triggerBoost(false)}
+          aria-label="Lướt Tăng Tốc"
+        >
+          <span className="material-symbols-outlined text-[26px]">bolt</span>
+          <span className="text-[15px]">{isVi ? "LƯỚT (BOOST)" : "BOOST"}</span>
+        </button>
+      </div>
+
+      {/* Hướng dẫn bàn phím cho Desktop */}
+      <div className="relative z-20 pb-2 text-center text-white/50 text-[13px] hidden md:block">
+        {isVi
+          ? "Phím A / D hoặc ◀ / ▶ để bẻ lái · Giữ Space hoặc W để LƯỚT TĂNG TỐC"
+          : "Use A / D or ◀ / ▶ to steer · Hold Space or W to BOOST"}
+      </div>
     </div>
   );
 }

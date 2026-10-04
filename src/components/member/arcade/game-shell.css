@@ -26,9 +26,13 @@
 
   position: fixed;
   z-index: 9999;
-  display: block;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   animation: gshellFade .25s ease;
   color: var(--intro-ink);
   background: var(--intro-bg);

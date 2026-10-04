@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
 import AppFrame from "./os/AppFrame";
-import BackButton from "./shared/BackButton";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/api/core/authSession";
 import { API_BASE } from "../../config/apiBase";
@@ -487,7 +486,7 @@ export default function HugoTeamTab({ onBack }) {
       {/* Contact */}
       <div className="border-t border-border pt-8 text-center space-y-2">
         <p className="text-sm text-muted-foreground">{t("memberPortal.team.contactTitle")}</p>
-        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-[13px] font-semibold">
           <a href="mailto:education@hugowishpax.studio?subject=%5BHugo%20Team%5D%20Th%E1%BA%AFc%20m%E1%BA%AFc%20%C4%90%C3%A0o%20t%E1%BA%A1o%20%26%20Tuy%E1%BB%83n%20d%E1%BB%A5ng" className="text-primary hover:underline flex items-center gap-1">
             <span className="material-symbols-outlined text-[15px]">school</span>
             Đào tạo & Ứng tuyển: education@hugowishpax.studio

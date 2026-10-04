@@ -19,10 +19,11 @@ const router = express.Router();
 // Đây cũng là danh sách trắng game duy nhất của server: 3 game gỡ khỏi hệ thống
 // (tetris/flappy/wordguess) không còn ở đây nên điểm mới bị từ chối. Điểm CŨ
 // trong DB vẫn đọc được bình thường — không xoá dữ liệu người chơi đã đạt.
-const SCORE_CEILINGS = { '2048': 1000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000, pinball: 500000 };
+const SCORE_CEILINGS = { '2048': 2000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000, pinball: 500000 };
 
 const RESULTS = ['win', 'lose', 'draw'];
-const ARCADE_DAILY_JOY_CAP = 150;
+// Hạn mức bình ổn ngày thuộc quản trị server / admin theo dõi, không chặn phần thưởng của người chơi
+const ARCADE_DAILY_JOY_CAP = 3000;
 const scoreLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: process.env.NODE_ENV === 'production' ? 40 : 1000,
@@ -44,9 +45,8 @@ async function reserveDailyArcadeJoy(email, amount) {
   if (!bio) return null;
 
   const currentToday = bio.arcadeJoyToday || 0;
-  const available = Math.max(0, ARCADE_DAILY_JOY_CAP - currentToday);
-  const grantAmount = Math.min(amount, available);
-  if (grantAmount <= 0) return null;
+  // Người chơi luôn nhận đủ phần thưởng JOY xứng đáng; server ghi nhận tổng ngày cho quản trị
+  const grantAmount = amount;
 
   const updated = await Bio.findOneAndUpdate(
     { _id: bio._id },
@@ -89,7 +89,12 @@ const JOY_TIERS = {
     [0,     1,  0.00150],  [600,   2,  0.00100],  [3000,  5,  0.00050],  [9000,  8,  0.00030],
   ],
   '2048': [
-    [0,     5.5,  0.0055],  [1000,  11,   0.0055],  [2000,  16.5, 0.0055],  [4000,  27.5, 0.0055],
+    [0,     2,  0.003],
+    [1000,  5,  0.002],
+    [3000,  9,  0.0015],
+    [8000,  16, 0.0006],
+    [20000, 23, 0.0002],
+    [50000, 29, 0.0001],
   ],
   caro: [
     [0,   2,  0.40],   [15,  8,  0.25],   [50, 17,  0.20],   [120,31,  0.12],
@@ -406,6 +411,144 @@ router.get('/me', requireMember, async (req, res) => {
     res.json({ bestScore: doc?.bestScore || 0, gamesPlayed: doc?.gamesPlayed || 0 });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── 2048 MUA BÚA & KHO NHÂN VẬT SƯU TẦM ──────────────────────────────────
+const HAMMER_COST_JOY = 50;
+const JELLY_UNLOCK_BONUSES = {
+  1: 5,   2: 10,  3: 15,  4: 20,  5: 30,  6: 40,  7: 50,  8: 75,
+  9: 100, 10: 150, 11: 250, 12: 350, 13: 500, 14: 750,
+  15: 1000, 16: 1500, 17: 2000, 18: 3000, 19: 4000, 20: 5000,
+};
+
+// POST /api/arcade/2048/buy-hammer
+router.post('/2048/buy-hammer', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    try {
+      const { balance } = await awardJoy(
+        email,
+        -HAMMER_COST_JOY,
+        'arcade_hammer',
+        'Mua 1 lượt búa phá ô game 2048 (-50 JOY)',
+        { refId: '2048', rawAmount: true }
+      );
+      return res.json({ success: true, balance, cost: HAMMER_COST_JOY, hammersAdded: 1 });
+    } catch (e) {
+      if (e.message === 'INSUFFICIENT_JOY') {
+        return res.status(400).json({
+          error: 'INSUFFICIENT_JOY',
+          message: 'Bạn không đủ 50 JOY để mua lượt búa phá ô.'
+        });
+      }
+      throw e;
+    }
+  } catch (error) {
+    console.error('[2048 buy hammer]', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/arcade/2048/unlock-character — body: { level }
+router.post('/2048/unlock-character', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const level = Number(req.body?.level);
+    if (!email) return res.status(400).json({ error: 'email is required' });
+    if (!Number.isInteger(level) || level < 1 || level > 20) {
+      return res.status(400).json({ error: 'invalid character level' });
+    }
+
+    let doc = await ArcadeScore.findOne({ email, game: '2048' });
+    if (!doc) {
+      doc = await ArcadeScore.create({
+        email,
+        game: '2048',
+        unlockedCharacters: [1, 2],
+      });
+    }
+
+    const currentUnlocked = new Set((doc.unlockedCharacters || []).map(Number));
+    if (currentUnlocked.has(level)) {
+      return res.json({
+        success: true,
+        isNew: false,
+        bonusJoy: 0,
+        unlockedCharacters: Array.from(currentUnlocked).sort((a, b) => a - b),
+      });
+    }
+
+    currentUnlocked.add(level);
+    const sortedUnlocked = Array.from(currentUnlocked).sort((a, b) => a - b);
+    doc.unlockedCharacters = sortedUnlocked;
+    await doc.save();
+
+    const bonusJoy = JELLY_UNLOCK_BONUSES[level] || 10;
+    try {
+      await awardJoy(
+        email,
+        bonusJoy,
+        'arcade_character_unlock',
+        `Mở khóa nhân vật Jelly mới Cấp ${level} trong 2048 (+${bonusJoy} JOY)`,
+        { refId: `2048_c_${level}`, rawAmount: true }
+      );
+    } catch (e) {
+      console.error('[2048 unlock joy award error]', e.message);
+    }
+
+    return res.json({
+      success: true,
+      isNew: true,
+      bonusJoy,
+      level,
+      unlockedCharacters: sortedUnlocked,
+    });
+  } catch (error) {
+    console.error('[2048 unlock character]', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/arcade/2048/collection
+router.get('/2048/collection', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    const doc = await ArcadeScore.findOne({ email, game: '2048' }).lean();
+    const unlocked = Array.from(new Set(doc?.unlockedCharacters?.length ? doc.unlockedCharacters : [1, 2])).sort((a, b) => a - b);
+    res.json({ unlockedCharacters: unlocked, totalCharacters: 20 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/arcade/2048/collection-leaderboard
+router.get('/2048/collection-leaderboard', async (req, res) => {
+  try {
+    const docs = await ArcadeScore.find({ game: '2048' })
+      .select('email displayName avatar unlockedCharacters bestScore')
+      .lean();
+
+    const leaderboard = docs
+      .map((d) => ({
+        email: d.email,
+        displayName: cleanDisplayName(d.displayName || d.email),
+        avatarUrl: d.avatar || '',
+        collectionCount: (d.unlockedCharacters || []).length || 2,
+        bestScore: d.bestScore || 0,
+      }))
+      .sort((a, b) => b.collectionCount - a.collectionCount || b.bestScore - a.bestScore)
+      .slice(0, 30);
+
+    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    res.json({ leaderboard });
+  } catch (error) {
+    console.error('[2048 collection leaderboard]', error);
+    res.json({ leaderboard: [] });
   }
 });
 

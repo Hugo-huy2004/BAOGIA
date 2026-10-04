@@ -106,6 +106,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
           joyAwarded: res.joyAwarded ?? false,
           multiplier: res.multiplier ?? 1,
           event: res.event ?? null,
+          dailyCapReached: res.dailyCapReached ?? false,
         }));
       }
     } catch {
@@ -227,6 +228,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
               paused={paused}
               onGameOver={handleGameOver}
               sound={sound}
+              bio={bio}
             />
           </Suspense>
         </div>
@@ -299,6 +301,8 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
               {t("arcadeGame.shellFormula", { score: (resultData.score || 0).toLocaleString(locale), joy: signedJoy })}
               {joyPending && ` ${t("arcadeGame.pendingWallet")}`}
             </p>
+
+
 
             {/* Ván vừa rồi đứng ở đâu so với chính mình. Ba trường hợp, ba câu
                 khác nhau — "thua" mà không có mốc so sánh thì chỉ là ngõ cụt. */}

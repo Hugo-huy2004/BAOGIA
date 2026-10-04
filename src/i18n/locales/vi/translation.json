@@ -6414,10 +6414,10 @@
     "reward": "Phần thưởng",
     "games": {
       "2048": {
-        "eyebrow": "Phòng thí nghiệm con số",
-        "title": "Ghép nhỏ. Nghĩ lớn.",
-        "description": "Trượt các khối số 3D, tạo chuỗi hợp nhất, vượt chướng ngại và đưa bàn chơi chạm đến 2048.",
-        "hint": "Giữ ô lớn nhất ở một góc; Quý thành viên có ba lượt hoàn tác chiến thuật."
+        "eyebrow": "Vũ Trụ Jelly 2048",
+        "title": "Gộp Khối Jelly",
+        "description": "Vũ trụ khối Jelly ngộ nghĩnh kẹo ngọt đa sắc. Vuốt để hợp thể các khối Jelly, giải cứu ô băng lạnh và mở khóa cấp độ Tối Thượng!",
+        "hint": ""
       },
       "chess": {
         "eyebrow": "Bàn cờ 3D ngoại tuyến",
@@ -6438,10 +6438,10 @@
         "hint": "Tạo hai đòn cùng lúc (hai đầu đều mở) thì đối thủ chỉ chặn được một."
       },
       "snake": {
-        "eyebrow": "Hành trình Neon",
-        "title": "Năm thế giới. Một đường chạy.",
-        "description": "Snake 3D Pro trở lại với sân chơi toàn màn hình, chuyển động mượt, cổng dịch chuyển và thử thách mới sau mỗi chặng.",
-        "hint": "Giữ một lối thoát, săn lõi vàng và sẵn sàng khi môi trường đổi luật."
+        "eyebrow": "Thần Xà Cyber 3D",
+        "title": "Góc nhìn thứ 3. Lướt gió săn mồi.",
+        "description": "Hóa thân thành Linh thú Cyber Serpent 3D trong không gian neon, uốn lượn mượt mà với camera bám sau lưng, kích hoạt Lướt nhanh (Boost), săn lõi năng lượng và xuyên không qua Cổng dịch chuyển.",
+        "hint": "Nhấn nút Lướt để tăng tốc và nhân đôi điểm combo; né mìn và tận dụng cổng dịch chuyển khi kẹt đường."
       },
       "pinball": {
         "eyebrow": "Pinball 3D Retro Classic",

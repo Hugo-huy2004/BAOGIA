@@ -9,19 +9,21 @@
   --intro-soft: rgba(97, 87, 232, .14);
 }
 
-.arcade-game--2048 { --intro-bg: #aeb4ed; --intro-ink: #222348; --intro-muted: #555b86; --intro-accent: #5b50d6; --intro-soft: rgba(255,255,255,.42); }
+.arcade-game--2048 { --intro-bg: #ff6e5d; --intro-ink: #ffffff; --intro-muted: #ffe8e4; --intro-accent: #ffdf59; --intro-soft: rgba(255, 255, 255, .25); }
 .arcade-game--snake { --intro-bg: #e8c8ff; --intro-ink: #46235c; --intro-muted: #76578b; --intro-accent: #8b3ed0; --intro-soft: rgba(255,255,255,.5); }
 .arcade-game--chess { --intro-bg: #eee9df; --intro-ink: #1b1b1b; --intro-muted: #69645d; --intro-accent: #7d5a3b; --intro-soft: rgba(125,90,59,.12); }
 .arcade-game--survivor { --intro-bg: #050818; --intro-ink: #f4f7ff; --intro-muted: #98a4c6; --intro-accent: #4cd6ff; --intro-soft: rgba(76,214,255,.12); }
 .arcade-game--caro { --intro-bg: #fff3e7; --intro-ink: #3d2926; --intro-muted: #806763; --intro-accent: #f04f55; --intro-soft: rgba(240,79,85,.12); }
 
 .arcade-intro {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 4;
   display: flex;
-  flex: 1;
-  min-height: 0;
   flex-direction: column;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   overflow: hidden;
   color: var(--intro-ink);
   background: var(--intro-bg);
@@ -69,10 +71,11 @@
 
 .arcade-intro__body {
   display: grid;
-  grid-template-rows: auto minmax(235px, 1fr) auto;
+  grid-template-rows: auto minmax(200px, 1fr) auto;
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px 20px max(22px, env(safe-area-inset-bottom));
 }
 
@@ -157,21 +160,148 @@
   font-variation-settings: "FILL" 1;
 }
 
-/* 2048 — floating pastel devices */
-.intro-art--2048 { overflow: visible; perspective: 900px; }
-.fusion-phone { position: absolute; width: 160px; height: 250px; padding: 15px; border: 5px solid rgba(255,255,255,.74); border-radius: 32px; background: rgba(255,255,255,.78); box-shadow: 0 24px 45px rgba(44,45,105,.22), inset 0 1px 8px #fff; }
-.fusion-phone--front { left: 8%; top: 10px; transform: rotate(-7deg); animation: phoneFloat 4.8s ease-in-out infinite alternate; }
-.fusion-phone--rear { right: 8%; top: 20px; transform: rotate(8deg); animation: phoneFloat 5.2s ease-in-out .4s infinite alternate-reverse; }
-.fusion-logo { display: block; margin: 12px 0 30px; color: #4e48aa; font-size: 27px; font-weight: 950; text-align: center; }
-.fusion-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.fusion-menu i { height: 51px; border-radius: 12px; background: linear-gradient(135deg, #f2d3f4, #bcebe1); }
-.fusion-menu i:nth-child(2), .fusion-menu i:nth-child(3) { background: linear-gradient(135deg, #ffe9b3, #d8d3ff); }
-.fusion-score { display: flex; justify-content: space-between; margin: 13px 3px; color: #474a63; font-size: 10px; }
-.fusion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-.fusion-grid i { display: grid; aspect-ratio: 1; place-items: center; color: #fff; border-radius: 7px; background: #dcdde6; font-size: 9px; font-style: normal; font-weight: 900; }
-.fusion-grid i[data-level="3"], .fusion-grid i[data-level="6"] { background: #81c9b3; }
-.fusion-grid i[data-level="4"], .fusion-grid i[data-level="7"] { background: #f0bd40; }
-.fusion-grid i[data-level="5"], .fusion-grid i[data-level="8"] { background: #5b50d6; }
+/* ── 2048 — Warm Jelly Monster Theme ── */
+.arcade-intro--2048 {
+  background: radial-gradient(circle at 50% 25%, #ff8f7e 0%, #ff6e5d 50%, #e04b3a 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle warm pastel checkerboard pattern in the background (identical to reference image) */
+.arcade-intro--2048::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.05) 75%);
+  background-size: 44px 44px;
+  background-position: 0 0, 0 22px, 22px -22px, -22px 0px;
+  pointer-events: none;
+  opacity: 0.65;
+  z-index: 0;
+}
+
+.arcade-intro--2048 .arcade-intro__aurora {
+  display: block !important;
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.28), transparent 40%),
+    radial-gradient(circle at 75% 70%, rgba(255, 230, 150, 0.22), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(255, 110, 160, 0.25), transparent 50%);
+  filter: blur(40px);
+  animation: jellyAuroraDrift 10s ease-in-out infinite alternate;
+}
+
+@keyframes jellyAuroraDrift {
+  0% { transform: scale(1) translateY(0); opacity: 0.7; }
+  100% { transform: scale(1.06) translateY(-12px); opacity: 0.95; }
+}
+
+.arcade-intro--2048 .arcade-intro__header .arcade-intro__brand {
+  color: #ffffff;
+  font-weight: 900;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.arcade-intro--2048 .arcade-intro__edition {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.arcade-intro--2048 .arcade-intro__back {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12), inset 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.arcade-intro--2048 .arcade-intro__eyebrow {
+  color: #ffdf59;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.arcade-intro--2048 .arcade-intro__copy h1 {
+  color: #ffffff;
+  text-shadow: 0 3px 12px rgba(180, 40, 20, 0.35);
+}
+
+.arcade-intro--2048 .arcade-intro__copy p {
+  color: #fff1ee;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Jelly Monster Cluster Stage ── */
+.intro-art--2048 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  position: relative;
+  overflow: visible;
+  padding: 6px 0;
+  z-index: 2;
+}
+
+.jelly-pile-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.jelly-pile-svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22));
+  animation: jellyPileBreathe 5s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.jelly-pile-svg:active {
+  transform: scale(0.96) translateY(2px);
+}
+
+@keyframes jellyPileBreathe {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.015); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Facts & Play Button */
+.arcade-intro--2048 .arcade-intro__facts span {
+  background: rgba(255, 255, 255, 0.24);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  color: #fff3f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.arcade-intro--2048 .arcade-intro__facts b {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.arcade-intro--2048 .arcade-intro__play-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.45), 0 0 30px rgba(244, 114, 182, 0.3);
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
 
 /* Snake — playful toy board */
 .intro-art--snake { display: grid; place-items: center; }
@@ -222,13 +352,11 @@
   .arcade-intro__copy { align-self: end; padding-bottom: 24px; }
   .intro-art { grid-column: 2; grid-row: 1 / span 2; min-height: 520px; margin: 0; }
   .arcade-intro__footer { align-self: start; }
-  .fusion-phone { width: 220px; height: 360px; }
 }
 
 @media (max-height: 700px) {
   .arcade-intro__copy h1 { font-size: 36px; }
   .intro-art { min-height: 190px; }
-  .fusion-phone { width: 132px; height: 205px; }
   .arcade-intro__hint { display: none; }
   .arcade-intro__mode-heading { margin-top: 8px; }
   .arcade-intro__mode { min-height: 58px; }

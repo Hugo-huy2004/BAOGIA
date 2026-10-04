@@ -149,3 +149,71 @@ export async function fetchProfile(email) {
     return EMPTY_PROFILE();
   }
 }
+
+// ─── 2048 Specific: Hammer Purchase & Collection Vault ───────────────────────
+const authHeaders = () => {
+  let token = null;
+  try {
+    const raw = localStorage.getItem("price-doc-member-session") || sessionStorage.getItem("price-doc-member-session");
+    if (raw) token = JSON.parse(raw)?.token;
+  } catch { /* ignore */ }
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+export async function buyHammer2048() {
+  try {
+    const res = await fetch(`${getApiUrl()}/arcade/2048/buy-hammer`, {
+      method: "POST",
+      headers: authHeaders(),
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || data.error || "Giao dịch không thành công");
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function unlockCharacter2048(level) {
+  try {
+    const res = await fetch(`${getApiUrl()}/arcade/2048/unlock-character`, {
+      method: "POST",
+      headers: authHeaders(),
+      credentials: "include",
+      body: JSON.stringify({ level }),
+    });
+    if (!res.ok) return { success: false };
+    return await res.json();
+  } catch {
+    return { success: false };
+  }
+}
+
+export async function fetchCollection2048() {
+  try {
+    const res = await fetch(`${getApiUrl()}/arcade/2048/collection`, {
+      headers: authHeaders(),
+      credentials: "include",
+    });
+    if (!res.ok) return { unlockedCharacters: [1, 2], totalCharacters: 20 };
+    return await res.json();
+  } catch {
+    return { unlockedCharacters: [1, 2], totalCharacters: 20 };
+  }
+}
+
+export async function fetchCollectionLeaderboard2048() {
+  try {
+    const res = await fetch(`${getApiUrl()}/arcade/2048/collection-leaderboard`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.leaderboard || [];
+  } catch {
+    return [];
+  }
+}
+

@@ -70,6 +70,9 @@ export const JOY_SOURCES = {
   // `admin_adjustment`: một đợt thu hồi phải tra ra được trong sổ bằng một câu
   // truy vấn, tách hẳn khỏi các lần admin cộng/trừ lẻ.
   joy_recall: 'Thu hồi theo chính sách bình ổn JOY',
+  // HugoArcade 2048: Mua búa đập ô và thưởng mở khóa nhân vật sưu tầm lần đầu
+  arcade_hammer: 'Mua búa phá ô game 2048',
+  arcade_character_unlock: 'Mở khóa nhân vật Jelly 2048',
 };
 
 /**
@@ -89,6 +92,8 @@ export const JOY_SOURCE_APP = {
 
   // HugoArcade (gồm cả cờ vua — cùng một app)
   arcade_score: 'arcade',
+  arcade_hammer: 'arcade',
+  arcade_character_unlock: 'arcade',
   chess_win: 'arcade',
   chess_match: 'arcade',
 

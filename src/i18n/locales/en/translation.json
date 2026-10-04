@@ -6372,10 +6372,10 @@
     "reward": "Reward",
     "games": {
       "2048": {
-        "eyebrow": "Number laboratory",
-        "title": "Merge small. Think big.",
-        "description": "Slide dimensional number blocks, build fusion chains, clear obstacles, and reach 2048.",
-        "hint": "Keep the largest tile in one corner; you have three tactical undo charges."
+        "eyebrow": "Jelly Monster 2048",
+        "title": "Jelly Merge Party",
+        "description": "Cute and colorful jelly monster universe. Swipe to merge jelly cubes, melt frozen tiles, and conquer the Ultimate Tier!",
+        "hint": ""
       },
       "chess": {
         "eyebrow": "Offline 3D chess table",
@@ -6396,10 +6396,10 @@
         "hint": "Build two open threats at once — the opponent can only block one."
       },
       "snake": {
-        "eyebrow": "Neon journey",
-        "title": "Five worlds. One endless run.",
-        "description": "Snake 3D Pro returns with a full-screen arena, fluid motion, quantum portals, and a fresh challenge in every chapter.",
-        "hint": "Keep an escape route, hunt golden cores, and adapt when the arena changes its rules."
+        "eyebrow": "Cyber Serpent 3D",
+        "title": "3rd-Person Chase Cam. High-Speed Hunt.",
+        "description": "Embody the legendary Cyber Serpent 3D in a vibrant neon cosmos. Slither with cinematic third-person follow cam, engage Hyper Boost, devour energy cores, and warp through quantum wormholes.",
+        "hint": "Use Boost to rush ahead and double combo multipliers; evade mines and make tactical portal jumps."
       },
       "pinball": {
         "eyebrow": "Pinball 3D Retro Classic",

@@ -24,6 +24,8 @@ const ArcadeScoreSchema = new mongoose.Schema({
   // not a count — see ARCADE_DAILY_NET_JOY_CAP in arcadeRoutes.js.
   joyAwardedDate: { type: String, default: '' },
   joyAwardedToday: { type: Number, default: 0 },
+  // Kho nhân vật sưu tầm (danh sách các cấp độ đã mở khóa ví dụ [1, 2, 3...])
+  unlockedCharacters: { type: [Number], default: [] },
 });
 
 ArcadeScoreSchema.index({ email: 1, game: 1 }, { unique: true });
