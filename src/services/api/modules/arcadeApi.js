@@ -164,18 +164,14 @@ const authHeaders = () => {
 };
 
 export async function buyHammer2048() {
-  try {
-    const res = await fetch(`${getApiUrl()}/arcade/2048/buy-hammer`, {
-      method: "POST",
-      headers: authHeaders(),
-      credentials: "include",
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || data.error || "Giao dịch không thành công");
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const res = await fetch(`${getApiUrl()}/arcade/2048/buy-hammer`, {
+    method: "POST",
+    headers: authHeaders(),
+    credentials: "include",
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || data.error || "Giao dịch không thành công");
+  return data;
 }
 
 export async function unlockCharacter2048(level) {
