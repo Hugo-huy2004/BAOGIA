@@ -633,29 +633,8 @@ export default function AdminDashboard({
           }
         }
 
-        let resLink;
-        if (resolvedEmail.toLowerCase() === "all") {
-          const result = await apiPost(`${VITE_API}/payos/create`, { amount: Number(amount), reason: msg });
-          resLink = result.data?.checkoutUrl;
-        } else {
-          const result = await apiPost(`${VITE_API}/payos/request-payment`, { email: resolvedEmail, amount: Number(amount), reason: msg });
-          resLink = result.data?.checkoutUrl;
-        }
-
-        if (resLink) {
-          addLog(`[SUCCESS] Link thanh toán QR PayOS đã được khởi tạo:`, "success");
-          addLog(`  URL: ${resLink}`);
-          addLog("", "output", (
-            <button 
-              onClick={() => handleCopyText(resLink)}
-              className="mt-1 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded font-mono text-[10px] hover:bg-emerald-500/20 active:scale-95 transition-all"
-            >
-              [SAO CHÉP LINK THANH TOÁN]
-            </button>
-          ));
-        } else {
-          throw new Error("Không lấy được checkoutUrl từ PayOS.");
-        }
+        addLog(`[GLOBAL PATRON] Cổng thanh toán PayOS đã được gỡ bỏ để tuân thủ mô hình quốc tế.`, "info");
+        addLog(`Vui lòng hướng dẫn thành viên ủng hộ qua Buy Me a Coffee: https://buymeacoffee.com/hugowishpax`, "success");
         return;
       }
 

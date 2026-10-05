@@ -470,20 +470,20 @@ export const COMM_DIAGRAMS_ZH = {
     }
   },
   "payos": {
-    "badge": "Napas 24/7 / PayOS Webhook Protocol",
-    "title": "通信时序图：VietQR 即时结算与电子合同自动履约",
-    "desc": "直连国家 Napas 24/7 跨行清算网络，分厘级精准对账，通过 HMAC-SHA256 签名 Webhook 实现秒级资金确认与交付履约。",
+    "badge": "Global Webhook Protocol",
+    "title": "通信时序图：全球资助通道与开源赞助网络",
+    "desc": "支持全球 Buy Me a Coffee 与 GitHub Sponsors 赞助确认，通过 HMAC-SHA256 签名 Webhook 实现即时响应与资助者致谢。",
     "nodes": [
       {
         "id": "client",
-        "label": "客户",
-        "sub": "手机银行 App",
+        "label": "全球赞助者",
+        "sub": "Buy Me a Coffee",
         "icon": "person"
       },
       {
         "id": "payos",
-        "label": "PayOS 支付清算通道",
-        "sub": "Napas 24/7 跨行网关",
+        "label": "全球资助通道",
+        "sub": "Global Patron Gateway",
         "icon": "qr_code_scanner",
         "highlight": true
       },

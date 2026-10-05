@@ -10,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export default function AdminServicesTab({ showNotification, triggerConfirm }) {
   const { t } = useTranslation();
-  const [activeSegment, setActiveSegment] = useState('payos'); // 'payos' | 'joy' | 'packages'
+  const [activeSegment, setActiveSegment] = useState('packages'); // 'packages' | 'joy'
   
   // PayOS States
   const [links, setLinks] = useState([]);
@@ -346,12 +346,12 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         
         <div className="flex bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl w-fit overflow-x-auto">
           <button
-            onClick={() => setActiveSegment('payos')}
-            className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeSegment === 'payos' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+            onClick={() => setActiveSegment('packages')}
+            className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeSegment === 'packages' ? 'bg-white dark:bg-slate-700 shadow-sm text-emerald-500' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
           >
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">qr_code_scanner</span>
-              PayOS
+              <span className="material-symbols-outlined text-[16px]">package_2</span>
+              Gói Dịch Vụ
             </div>
           </button>
           <button
@@ -361,15 +361,6 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]">redeem</span>
               Voucher JOY
-            </div>
-          </button>
-          <button
-            onClick={() => setActiveSegment('packages')}
-            className={`px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${activeSegment === 'packages' ? 'bg-white dark:bg-slate-700 shadow-sm text-emerald-500' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">package_2</span>
-              Gói Dịch Vụ
             </div>
           </button>
         </div>
