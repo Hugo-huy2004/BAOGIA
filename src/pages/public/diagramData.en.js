@@ -471,18 +471,18 @@ export const COMM_DIAGRAMS_EN = {
   },
   "payos": {
     "badge": "Napas 24/7 / PayOS Webhook Protocol",
-    "title": "Communication Sequence: VietQR Payment & Automated Contract Provisioning",
-    "desc": "Penny-accurate settlement pipeline via national Napas 24/7 banking rail, confirmed in real time using HMAC-SHA256 cryptographically signed webhooks.",
+    "title": "Communication Sequence: VietQR Contribution & Automated Webhook Dispatch",
+    "desc": "Voluntary donation pipeline via Napas 24/7 banking rail, confirmed in real time using HMAC-SHA256 cryptographically signed webhooks.",
     "nodes": [
       {
         "id": "client",
-        "label": "Client",
+        "label": "Supporter",
         "sub": "Banking Mobile App",
         "icon": "person"
       },
       {
         "id": "payos",
-        "label": "PayOS Payment Rail",
+        "label": "PayOS Donation Rail",
         "sub": "Napas 24/7 Gateway",
         "icon": "qr_code_scanner",
         "highlight": true

@@ -366,12 +366,12 @@ export const COMM_DIAGRAMS_VI = {
 
   payos: {
     badge: "Napas 24/7 / PayOS Webhook Protocol",
-    title: "Sơ đồ giao tiếp: Thanh toán VietQR & Kích hoạt hợp đồng tự động",
-    desc: "Quy trình thanh toán chính xác đến từng đồng thông qua cổng thanh toán quốc gia Napas 24/7, xác nhận tức thời qua Webhook có chữ ký số HMAC-SHA256.",
+    title: "Sơ đồ giao tiếp: Ủng hộ VietQR & Cổng Donate Tự động",
+    desc: "Quy trình ủng hộ tự nguyện thông qua cổng Napas 24/7, xác nhận tức thời qua Webhook có chữ ký số HMAC-SHA256.",
     nodes: [
-      { id: "client", label: "Khách hàng", sub: "App Ngân hàng", icon: "person" },
-      { id: "payos", label: "Cổng thanh toán PayOS", sub: "Napas 24/7 Gateway", icon: "qr_code_scanner", highlight: true },
-      { id: "server", label: "Máy chủ Hugo Studio", sub: "Order Management", icon: "dns" },
+      { id: "client", label: "Người ủng hộ", sub: "App Ngân hàng", icon: "person" },
+      { id: "payos", label: "Cổng Ủng Hộ PayOS", sub: "Napas 24/7 Gateway", icon: "qr_code_scanner", highlight: true },
+      { id: "server", label: "Máy chủ Hugo Studio", sub: "Patron Management", icon: "dns" },
     ],
     steps: [
       {

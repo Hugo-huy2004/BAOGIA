@@ -7,10 +7,13 @@ import { API_BASE } from "../config/apiBase";
 import { isVietnameseLanguage } from "../i18n/languages";
 import { EMAIL_CHANNELS, createMailtoUrl } from "../../shared/emailChannels";
 
+import { DONATION_CONFIG } from "../config/donationConfig";
+
 const linkClass = "inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnClass = `${btnBase} border-border text-foreground hover:bg-muted`;
 const btnPrimaryClass = `${btnBase} border-foreground bg-foreground text-background hover:opacity-90`;
+const btnBmcClass = "inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-bold bg-[#FFDD00] text-slate-950 hover:bg-[#FFDD00]/90 transition-all shadow-sm active:scale-95";
 const colTitleClass = "text-xs font-bold uppercase tracking-[0.12em] text-foreground";
 
 const trustContent = {
@@ -153,6 +156,12 @@ export default function Footer() {
               <Link to="/booking" className={btnPrimaryClass}>
                 {t("footer.booking", "Đặt lịch trao đổi")}
               </Link>
+              <a href={DONATION_CONFIG.buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer" className={btnBmcClass}>
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-black" aria-hidden="true">
+                  <path d="M20.216 6.415l-.132-.666c-.119-.597-.387-1.127-.775-1.536-.39-.41-1.002-.638-1.771-.645H4.629c-.77.007-1.382.235-1.77.645-.39.41-.657.94-.776 1.536l-.132.666C1.38 7.026 1 8.243 1 9.531c0 2.228 1.107 4.197 2.805 5.372.482 1.488 1.624 2.668 3.12 3.151L6.16 20.5h11.68l-.765-2.446c1.496-.483 2.638-1.663 3.12-3.151 1.698-1.175 2.805-3.144 2.805-5.372 0-1.288-.38-2.505-.784-3.116zm-2.68 5.742c0 1.947-1.42 3.535-3.23 3.738l.635 2.03h-5.88l.635-2.03c-1.81-.203-3.23-1.79-3.23-3.738V6.075h11.07v6.082z"/>
+                </svg>
+                <span>Buy Me a Coffee</span>
+              </a>
               <a href={`mailto:${email}`} className={btnClass}>
                 <span className="material-symbols-outlined text-[18px]" aria-hidden="true">mail</span>
                 Email
@@ -180,8 +189,13 @@ export default function Footer() {
               <li><Link to="/login" className={linkClass}>{t("navbar.login", "Đăng nhập")}</Link></li>
               <li>
                 <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))} className={linkClass}>
-                  {t("footer.supportServer", "Ủng hộ máy chủ")}
+                  {t("footer.supportServer", "Ủng hộ máy chủ")} ☕
                 </button>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.githubSponsorsUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  GitHub Sponsors 💖
+                </a>
               </li>
               <li><Link to="/terms-and-guide" className={linkClass}>{t("footer.termsAndGuide", "Điều khoản và hướng dẫn sử dụng")}</Link></li>
             </ul>
