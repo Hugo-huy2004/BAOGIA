@@ -1,37 +1,22 @@
-import { useEffect } from 'react';
+import React from 'react';
+import TrustBadgePill from './TrustBadgePill';
 
 const DMCABadge = () => {
-  useEffect(() => {
-    // Dynamically load the DMCA helper script when component mounts
-    const script = document.createElement('script');
-    script.src = "https://images.dmca.com/Badges/DMCABadgeHelper.min.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, []);
-
   return (
-    <a 
-      href="https://www.dmca.com/Protection/Status.aspx?ID=aba9f9ae-db80-4fb1-ae26-dd34c9b352e8" 
+    <TrustBadgePill
+      href="https://www.dmca.com/Protection/Status.aspx?ID=aba9f9ae-db80-4fb1-ae26-dd34c9b352e8"
       title="Check the current DMCA.com status"
-      aria-label="Check the current DMCA.com status in a new tab"
-      className="dmca-badge hover:scale-105 transition-transform inline-block"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <img 
-        src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=aba9f9ae-db80-4fb1-ae26-dd34c9b352e8"  
-        alt="Check DMCA.com status"
-        loading="lazy"
-        decoding="async"
-        className="h-8 w-auto object-contain drop-shadow-sm"
-      />
-    </a>
+      ariaLabel="Check the current DMCA.com status in a new tab"
+      icon={
+        <div className="flex items-center gap-1">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-blue-600 dark:fill-blue-400" aria-hidden="true">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v2h-2V7zm0 4h2v6h-2v-6z"/>
+          </svg>
+        </div>
+      }
+      badgeTitle="DMCA"
+      badgeSubtitle="Protected"
+    />
   );
 };
 

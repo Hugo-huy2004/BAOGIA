@@ -1,17 +1,20 @@
+import React from 'react';
+import TrustBadgePill from './TrustBadgePill';
 
 const GreenWebBadge = () => {
   return (
-    <a 
+    <TrustBadgePill
       href="https://www.thegreenwebfoundation.org/green-web-check/?url=https%3A%2F%2Fwww.hugowishpax.studio%2F"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50 hover:scale-105 transition-transform"
       title="Check the current hosting status with Green Web Foundation"
-      aria-label="Check the current hosting status with Green Web Foundation in a new tab"
-    >
-      <span className="material-symbols-outlined text-[16px] text-green-600 dark:text-green-400" aria-hidden="true">energy_savings_leaf</span>
-      <span className="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Green Web Check</span>
-    </a>
+      ariaLabel="Check the current hosting status with Green Web Foundation in a new tab"
+      icon={
+        <span className="material-symbols-outlined text-[16px] text-emerald-600 dark:text-emerald-400" aria-hidden="true">
+          energy_savings_leaf
+        </span>
+      }
+      badgeTitle="Green Web"
+      badgeSubtitle="Eco-Friendly"
+    />
   );
 };
 
