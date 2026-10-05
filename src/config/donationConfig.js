@@ -5,6 +5,6 @@
 export const DONATION_CONFIG = {
   buyMeACoffeeUrl: import.meta.env.VITE_BUY_ME_A_COFFEE_URL || "https://buymeacoffee.com/hugowishpax",
   githubSponsorsUrl: import.meta.env.VITE_GITHUB_SPONSORS_URL || "https://github.com/sponsors/Hugo-huy2004",
-  paypalUrl: import.meta.env.VITE_PAYPAL_DONATE_URL || "https://paypal.me/hugowishpax",
+  paypalUrl: import.meta.env.VITE_PAYPAL_DONATE_URL || "https://www.paypal.com/ncp/payment/LS8MTC5AGLJMY",
   kofiUrl: import.meta.env.VITE_KOFI_URL || "https://ko-fi.com/V8Z52887XW",
 };

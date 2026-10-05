@@ -1,5 +1,6 @@
 import SSLBadge from './SSLBadge';
 import WebAuthnBadge from './WebAuthnBadge';
+import PayPalBadge from './PayPalBadge';
 import BuyMeACoffeeBadge from './BuyMeACoffeeBadge';
 import KoFiBadge from './KoFiBadge';
 import GitHubSponsorsBadge from './GitHubSponsorsBadge';
@@ -18,6 +19,7 @@ import VietnamBadge from './VietnamBadge';
 const logos = [
   SSLBadge,
   WebAuthnBadge,
+  PayPalBadge,
   BuyMeACoffeeBadge,
   KoFiBadge,
   GitHubSponsorsBadge,

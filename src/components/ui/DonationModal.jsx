@@ -173,25 +173,26 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
                 </span>
               </a>
 
-              {/* PayPal / International Card */}
+              {/* PayPal Hosted Checkout Action Card */}
               {DONATION_CONFIG.paypalUrl && (
                 <a
                   href={DONATION_CONFIG.paypalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between p-3.5 rounded-2xl bg-muted/60 hover:bg-muted border border-border text-foreground font-bold hover:scale-[1.01] active:scale-[0.98] transition-all"
+                  className="group flex items-center justify-between p-3.5 rounded-2xl bg-[#003087]/10 hover:bg-[#003087]/20 border border-[#003087]/30 text-foreground font-bold hover:scale-[1.01] active:scale-[0.98] transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 font-black text-sm">
-                      P
+                    <div className="w-10 h-10 rounded-xl bg-[#003087] text-white flex items-center justify-center shrink-0 shadow-sm font-black text-sm">
+                      <span className="text-[#0079C1] font-extrabold italic mr-[-1px]">P</span>
+                      <span className="text-white font-extrabold italic">P</span>
                     </div>
                     <div>
-                      <span className="block text-xs font-black">PayPal Global</span>
-                      <span className="block text-[10px] text-muted-foreground font-normal">Chuyển tiền tài trợ trực tiếp qua PayPal</span>
+                      <span className="block text-xs font-black text-[#003087] dark:text-[#5c9dff]">PayPal Checkout</span>
+                      <span className="block text-[10px] text-muted-foreground font-normal">Thẻ quốc tế (Visa, Mastercard) hoặc ví PayPal</span>
                     </div>
                   </div>
-                  <span className="material-symbols-outlined text-base text-muted-foreground group-hover:translate-x-1 transition-transform">
-                    open_in_new
+                  <span className="material-symbols-outlined text-base text-[#0079C1] group-hover:translate-x-1 transition-transform">
+                    arrow_forward
                   </span>
                 </a>
               )}

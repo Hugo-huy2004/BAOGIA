@@ -189,8 +189,18 @@ export default function Footer() {
               <li><Link to="/login" className={linkClass}>{t("navbar.login", "Đăng nhập")}</Link></li>
               <li>
                 <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))} className={linkClass}>
-                  {t("footer.supportServer", "Ủng hộ máy chủ")} ☕
+                  {t("footer.supportServer", "Ủng hộ máy chủ")}
                 </button>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.paypalUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  PayPal Checkout 💳
+                </a>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.kofiUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  Ko-fi Support ☕
+                </a>
               </li>
               <li>
                 <a href={DONATION_CONFIG.githubSponsorsUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
