@@ -129,6 +129,26 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
                   arrow_forward
                 </span>
               </a>
+              {/* Ko-fi Action Card */}
+              <a
+                href={DONATION_CONFIG.kofiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-between p-3.5 rounded-2xl bg-[#72a4f2]/10 hover:bg-[#72a4f2]/20 border border-[#72a4f2]/30 text-foreground font-bold hover:scale-[1.01] active:scale-[0.98] transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#72a4f2] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <span className="material-symbols-outlined text-lg">local_cafe</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-black text-[#2e69bf] dark:text-[#9bc2ff]">Ko-fi Patron (0% Phí)</span>
+                    <span className="block text-[10px] text-muted-foreground font-normal">Ủng hộ qua Ko-fi trực tiếp · Visa, Mastercard, PayPal</span>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-base text-[#72a4f2] group-hover:translate-x-1 transition-transform">
+                  open_in_new
+                </span>
+              </a>
 
               {/* GitHub Sponsors Action Card */}
               <a
