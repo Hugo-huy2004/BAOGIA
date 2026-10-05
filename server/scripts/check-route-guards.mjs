@@ -82,6 +82,8 @@ const PUBLIC_ROUTES = {
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",
   "payosRoutes.js GET /info/:customLinkId": "trang thanh toán mở bằng liên kết bí mật",
   "arcadeRoutes.js GET /leaderboard": "bảng xếp hạng công khai",
+  "arcadeRoutes.js GET /2048/collection-leaderboard": "bảng xếp hạng bộ sưu tập 2048 công khai — đã lọc bỏ email khỏi payload",
+  "dataRoutes.js GET /bootstrap": "metadata khởi động công khai cho web và mobile app (danh mục app, CDN, cấu hình hiển thị)",
   "chessRoutes.js GET /leaderboard": "bảng xếp hạng công khai — đã lọc bỏ email khỏi payload",
   "notificationRoutes.js GET /vapid-public-key": "khoá CÔNG KHAI của web push, bản chất là để phát",
   "otaRoutes.js GET /check": "bản build ở store gọi trước khi có ai đăng nhập",

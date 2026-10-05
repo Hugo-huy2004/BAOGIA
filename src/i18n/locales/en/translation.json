@@ -1,4 +1,14 @@
 {
+  "apiErrors": {
+    "UNAUTHORIZED": "Session expired. Please log in again.",
+    "FORBIDDEN": "You do not have permission to perform this action.",
+    "NOT_FOUND": "The requested resource was not found.",
+    "RATE_LIMITED": "Too many requests. Please wait a moment and try again.",
+    "SERVICE_DEGRADED": "Service is temporarily degraded or under maintenance. Please try again later.",
+    "SERVER_ERROR": "A server error occurred. Our technical team is investigating.",
+    "NETWORK_ERROR": "Cannot connect to server. Please check your network connection.",
+    "VALIDATION_ERROR": "Invalid data submitted. Please check and try again."
+  },
   "aura": {
     "title": "HugoAura Focus & Lofi Lounge",
     "pomodoroDesk": "Pomodoro Workspace",
@@ -6384,10 +6394,10 @@
         "hint": "Local mode keeps the board fixed; Black plays from the top end of the phone."
       },
       "survivor": {
-        "eyebrow": "3D boss fleet",
-        "title": "Break the siege. Defeat every fleet.",
-        "description": "Fight full-screen through 3D enemy waves and face four multi-phase boss classes with distinct arsenals.",
-        "hint": "Graze incoming fire to charge Overdrive, upgrade your weapons, and adapt to every boss."
+        "eyebrow": "Space Wars 3D",
+        "title": "Defend cosmic peace and galactic security.",
+        "description": "Engage in vast 3D deep-space combat across uncharted star maps. Battle evil forces warping across space and time: Imperial TIE Interceptors, Twin-Pod Plasma Skimmers, and colossal Hyperspace Ring Dreadnoughts. Mount advanced laser cannons from Dual Pulse to Quantum Overdrive Super Lasers!",
+        "hint": "Steer through heavy laser barrages, collect Laser Cores to mount advanced cannons, and unleash Overdrive Super Lasers to defend the galaxy!"
       },
       "caro": {
         "eyebrow": "Five in a row",
@@ -6396,10 +6406,10 @@
         "hint": "Build two open threats at once — the opponent can only block one."
       },
       "snake": {
-        "eyebrow": "Cyber Serpent 3D",
-        "title": "3rd-Person Chase Cam. High-Speed Hunt.",
-        "description": "Embody the legendary Cyber Serpent 3D in a vibrant neon cosmos. Slither with cinematic third-person follow cam, engage Hyper Boost, devour energy cores, and warp through quantum wormholes.",
-        "hint": "Use Boost to rush ahead and double combo multipliers; evade mines and make tactical portal jumps."
+        "eyebrow": "Cute 3D Cartoon",
+        "title": "Baby Snake 3D. Fruit Kingdom Adventure.",
+        "description": "Vibrant cartoon 3D graphics with smooth third-person chase camera. Journey through 5 story chapters, savor juicy Kiwis, Magnetic Strawberries, Giant Donuts, and unleash Invincible Fever Mode!",
+        "hint": "Use Joystick or steer buttons to collect fruits; hold Boost to surge ahead; snatch Golden Star Fruits to become invincible and smash candy bombs!"
       },
       "pinball": {
         "eyebrow": "Pinball 3D Retro Classic",

@@ -139,6 +139,47 @@ const initialData = {
   }
 };
 
+// GET: Lightweight Metadata & Bootstrap for Web + Mobile Apps (Cached via Redis & Edge CDN)
+router.get('/bootstrap', async (req, res) => {
+  try {
+    const bootstrapData = await fetchWithCache("app_bootstrap_metadata", 60000, async () => {
+      const data = await Data.findOne({ userId: 'default' }, 'systemSettings');
+      const { APP_REGISTRY, FULLSCREEN_APP_IDS } = await import('../../shared/appRegistry.js');
+      return {
+        success: true,
+        serverTime: new Date().toISOString(),
+        systemSettings: data?.systemSettings || {},
+        activeApps: APP_REGISTRY.map((app) => ({
+          id: app.id,
+          icon: app.icon,
+          tint: app.tint,
+          category: app.category,
+          badge: app.badge,
+          version: app.version,
+          storageMb: app.storageMb,
+          fullscreen: FULLSCREEN_APP_IDS.includes(app.id),
+        })),
+        cdn: {
+          images: "https://res.cloudinary.com",
+          edgeCached: true,
+        },
+      };
+    });
+
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    res.json(bootstrapData);
+  } catch (error) {
+    console.error('[bootstrap metadata]', error.message);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'METADATA_ERROR',
+        message: 'Không thể tải metadata khởi động hệ thống.',
+      },
+    });
+  }
+});
+
 // GET: Fetch all data
 router.get('/', async (req, res) => {
   try {

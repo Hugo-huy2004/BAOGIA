@@ -57,47 +57,8 @@ html.standalone-pwa .desktop-apple-layout {
 .member-portal-shell .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
-  padding-bottom: 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px) !important;
 }
-
-.mobile-portal-nav {
-  z-index: 30;
-  flex: 0 0 auto;
-  box-sizing: border-box;
-  padding:
-    4px
-    max(10px, env(safe-area-inset-right, 0px))
-    min(6px, max(4px, env(safe-area-inset-bottom, 0px)))
-    max(10px, env(safe-area-inset-left, 0px));
-}
-
-.mobile-portal-nav__track {
-  display: flex;
-  width: min(100%, 460px);
-  height: 44px;
-  align-items: center;
-  gap: 4px;
-  margin-inline: auto;
-}
-
-.mobile-portal-nav button {
-  position: relative;
-  display: flex;
-  height: 44px;
-  min-width: 44px;
-  flex: 1 1 0;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  padding: 3px 5px;
-  border: 0;
-  border-radius: 16px;
-  background: transparent;
-  color: hsl(var(--muted-foreground) / .72);
-  transition: background-color .22s ease, color .22s ease;
-}
-
 
 .mobile-portal-nav__icon {
   position: relative;
@@ -108,17 +69,6 @@ html.standalone-pwa .desktop-apple-layout {
 
 .mobile-portal-nav__icon > .material-symbols-outlined {
   font-size: 23px;
-}
-
-.mobile-portal-nav__label {
-  overflow: hidden;
-  max-width: 100%;
-  font-size: 9.5px;
-  font-weight: 760;
-  line-height: 1.1;
-  letter-spacing: -.01em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .mobile-portal-nav__badge {
@@ -180,6 +130,7 @@ html.standalone-pwa .desktop-apple-layout {
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 100 !important;
   /* Dải trong suốt hai bên thanh không được nuốt cú chạm/vuốt của danh sách
      bên dưới. */
   pointer-events: none;
@@ -203,45 +154,48 @@ html.standalone-pwa .desktop-apple-layout {
 .mobile-portal-nav__track {
   height: 56px;
   padding: 4px 6px;
-  /* Không kéo hết chiều ngang: thanh tab iOS là một vật thể nổi giữa màn, thấy
-     được nền hai bên. Nhưng bề rộng phải CỐ ĐỊNH, không theo nội dung —
-     `fit-content` làm cả thanh phình/co mỗi lần đổi ngôn ngữ ("계정" vs
-     "Tài khoản" vs "Aujourd'hui"), nút nhảy chỗ nên bấm hụt. */
+  /* Thanh tab iOS là một vật thể nổi giữa màn, thấy được nền hai bên.
+     Chiều rộng tối ưu 390px giúp 4 nhãn tiếng Việt ("Hôm nay", "Ứng dụng", "Hoạt động", "Tài khoản")
+     hiển thị trọn vẹn, không bị co giật hay cắt cụt bằng dấu chấm lửng (...). */
   position: relative;
-  width: min(100%, 320px);
+  width: min(calc(100% - 20px), 390px);
+  margin-inline: auto;
   border-radius: 28px;
   pointer-events: auto;
-  border: .5px solid rgb(255 255 255 / .45);
-  background: transparent;
-  /* Hai đường inset trên/dưới giả mép cong bắt sáng — thứ khiến mắt đọc ra
-     "khối kính có độ dày" thay vì "một mảng mờ phẳng". */
+  /* Kính lỏng Apple Liquid Glass trong suốt quang học cao — chuẩn Hình 2 */
+  background: rgba(215, 235, 255, 0.35) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow:
-    0 10px 34px hsl(var(--shadow) / .18),
-    inset 0 1px 0 rgb(255 255 255 / .75),
-    inset 0 -1px 0 rgb(255 255 255 / .22);
+    0 12px 36px -4px rgba(30, 90, 220, 0.18),
+    0 4px 12px -2px rgba(0, 0, 0, 0.04),
+    inset 0 1.5px 2.5px 0 #ffffff,
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.35) !important;
+  transform: translateZ(0);
 }
 
-/* Kính nằm ở lớp riêng chứ không đặt thẳng lên __track: WebKit bỏ qua
-   backdrop-filter khi phần tử vừa có filter vừa có con vẽ đè lên — kết quả là
-   nền vẫn trong veo, chữ bài báo phía sau đọc rõ mồn một và nhãn tab thì
-   không đọc được. Tách ra ::before thì lớp lọc có backdrop riêng của nó. */
+/* Ánh phản chiếu specular nhẹ trên bề mặt kính lỏng */
 .mobile-portal-nav__track::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* Kính trong suốt 100%: không còn lớp nền đặc nào, chỉ blur + saturate lọc
-     thứ nằm sau. Blur nâng lên 32px để nhãn tab vẫn đọc được khi bên dưới là
-     ảnh/chữ dày đặc — đó là thứ thay cho lớp nền .62 trước đây. */
-  background: transparent;
-  -webkit-backdrop-filter: saturate(190%) blur(32px);
-  backdrop-filter: saturate(190%) blur(32px);
-  /* Ép lớp này lên một composited layer riêng. Không có nó, WebKit vẽ kính
-     bằng đường raster thường và bỏ qua luôn phần lọc backdrop khi thứ nằm sau
-     là một vùng cuộn có layer riêng (.mobile-portal-content) — triệu chứng là
-     nền mờ trắng hiện ra đúng nhưng chữ phía sau vẫn sắc nét. */
-  transform: translateZ(0);
-  will-change: backdrop-filter;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(190, 225, 255, 0.25) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Shader canvas từ @ybouane/liquidglass hòa trộn quang học, không bao giờ che đục nền kính */
+.mobile-portal-nav__track canvas {
+  pointer-events: none !important;
+  mix-blend-mode: overlay;
+  opacity: 0.65;
 }
 
 /* ---------------------------------------------------------------------------
@@ -249,11 +203,9 @@ html.standalone-pwa .desktop-apple-layout {
  * Dùng chung công thức kính với tab bar: nền ở lớp ::before + translateZ.
  * ------------------------------------------------------------------------- */
 .radio-mini {
-  /* Neo cùng hệ quy chiếu với .mobile-portal-nav, nếu không hai thanh trôi
-     lệch nhau ngay khi ô trung gian đổi chiều cao. */
   position: fixed;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
   left: 0;
   z-index: 31;
   display: flex;
@@ -263,10 +215,27 @@ html.standalone-pwa .desktop-apple-layout {
   gap: 4px;
   margin-inline: auto;
   padding: 6px 8px;
-  border: .5px solid hsl(var(--border) / .5);
-  border-radius: 22px;
-  background: hsl(var(--background) / .92);
-  box-shadow: 0 8px 26px hsl(var(--shadow) / .16);
+  border: 1px solid rgb(255 255 255 / .45);
+  border-radius: 24px;
+  background: transparent;
+  pointer-events: auto;
+  box-shadow:
+    0 10px 34px hsl(var(--shadow) / .18),
+    inset 0 1px 0 rgb(255 255 255 / .75),
+    inset 0 -1px 0 rgb(255 255 255 / .22);
+}
+
+.radio-mini::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+  -webkit-backdrop-filter: saturate(190%) blur(32px);
+  backdrop-filter: saturate(190%) blur(32px);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
 }
 
 .radio-mini__open {
@@ -323,36 +292,6 @@ html.standalone-pwa .desktop-apple-layout {
   place-items: center;
 }
 
-/* Bản iOS: cùng chất kính với tab bar, và nhấc lên vừa đủ để hai viên kính
-   xếp chồng chứ không dính vào nhau. */
-.radio-mini {
-  /* Vẫn tuyệt đối, không đưa vào dòng chảy flex: nav cũng đang đè lên vùng
-     cuộn, hai viên kính phải xếp chồng trên cùng một mặt phẳng nổi.
-     72px = chiều cao thanh tab (56) + đệm trên (6) + đệm dưới (10). */
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
-  border-color: rgb(255 255 255 / .45);
-  background: transparent;
-  border-radius: 24px;
-  pointer-events: auto;
-  box-shadow:
-    0 10px 34px hsl(var(--shadow) / .18),
-    inset 0 1px 0 rgb(255 255 255 / .75),
-    inset 0 -1px 0 rgb(255 255 255 / .22);
-}
-
-.radio-mini::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: inherit;
-  background: transparent;
-  -webkit-backdrop-filter: saturate(190%) blur(32px);
-  backdrop-filter: saturate(190%) blur(32px);
-  transform: translateZ(0);
-  will-change: backdrop-filter;
-}
-
 /* Có thanh now-playing thì nội dung phải chừa thêm chiều cao của nó. */
 .portal-mobile-main:has(.radio-mini) .mobile-portal-content {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 142px);
@@ -365,65 +304,76 @@ html.standalone-pwa .desktop-apple-layout {
   transform: translateZ(0);
 }
 
-/* Icon/nhãn phải nằm TRÊN lớp kính. */
+#glass-tab-indicator {
+  position: absolute !important;
+  top: 4px !important;
+  bottom: 4px !important;
+  height: calc(100% - 8px) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* Icon/nhãn nằm TRÊN viên kính lỏng */
 .mobile-portal-nav button {
   position: relative;
   z-index: 1;
-}
-
-.mobile-portal-nav button {
-  /* Chia đều thanh: mỗi nút một cột bằng nhau, KHÔNG theo bề rộng nhãn — nhờ
-     vậy 4 nút luôn nằm đúng một chỗ ở mọi ngôn ngữ. Nhãn dài thì cắt bằng
-     ellipsis (.mobile-portal-nav__label), thanh không phình ra.
-     min-width giữ vùng chạm 44px theo HIG. */
-  flex: 1 1 0;
-  min-width: 44px;
-  height: 48px;
-  padding-inline: 4px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
   border-radius: 22px;
+  background: transparent;
+  color: hsl(var(--muted-foreground) / 0.8);
+  transition: color 0.18s ease, transform 0.15s ease;
 }
 
 .mobile-portal-nav button.is-active {
-  /* Tab đang chọn là một "thấu kính" nổi trên mặt kính, không phải mảng màu
-     phẳng — đây là cách iOS 26 đánh dấu mục đang mở. */
   color: hsl(var(--foreground));
-  background: rgb(255 255 255 / .34);
-  box-shadow:
-    0 2px 8px hsl(var(--shadow) / .12),
-    inset 0 1px 0 rgb(255 255 255 / .7);
+  font-weight: 800;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mobile-portal-nav__label {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .dark .mobile-portal-nav__track {
-  border-color: rgb(255 255 255 / .12);
+  background: rgba(18, 20, 30, 0.45);
+  border-color: rgba(255, 255, 255, 0.16);
   box-shadow:
-    0 8px 30px rgb(0 0 0 / .38),
-    inset 0 1px 0 rgb(255 255 255 / .14);
+    0 14px 40px -4px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.35),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.dark .mobile-portal-nav__track::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(28, 34, 52, 0.25) 100%
+  );
 }
 
 .dark .mobile-portal-nav button.is-active {
-  background: rgb(255 255 255 / .12);
-  box-shadow:
-    0 2px 8px rgb(0 0 0 / .3),
-    inset 0 1px 0 rgb(255 255 255 / .18);
+  background: transparent;
+  box-shadow: none;
 }
 
-/* Nav giờ đè lên vùng cuộn nên nó không còn chiếm chỗ: nội dung phải tự chừa
-   đúng chiều cao thanh + safe-area, nếu không hàng cuối danh sách sẽ vĩnh viễn
-   nằm khuất dưới kính và không cuộn tới được. */
+/* Chừa đủ khoảng cách dưới đáy để nội dung cuối danh sách không bị tab bar che khuất */
 .mobile-portal-content,
 .mobile-portal-content--app {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
-}
-
-/* Tắt hiệu ứng trong suốt ở cấp hệ điều hành thì kính không còn nghĩa gì: trả
-   lại một thanh đặc để nhãn tab luôn đọc được. */
-@media (prefers-reduced-transparency: reduce) {
-  .mobile-portal-nav__track::before,
-  .radio-mini::before {
-    background: hsl(var(--background));
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px);
 }
 
 /* Mobile: one viewport shell, one content scroller, navigation over the content. */

@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { BorderBeam } from "border-beam";
 import { triggerHaptic } from "../../../utils/haptics";
 import { getCategoryMeta, estimateReadingMinutes } from "./categoryStyles";
 import { HugeIcon } from "../../ui/HugeIcon";
+import { useLiquidGlass } from "../../../hooks/useLiquidGlass";
 
 export default function TodayHeroSpotlight({
   article,
@@ -15,6 +15,12 @@ export default function TodayHeroSpotlight({
   isMobile = false,
 }) {
   const { t } = useTranslation();
+  const { glassRef } = useLiquidGlass({
+    cornerRadius: 24,
+    blurAmount: 0.25,
+    refraction: 0.65,
+    edgeHighlight: 0.15,
+  });
   if (!article) return null;
 
   const meta = getCategoryMeta(article.category);
@@ -56,7 +62,8 @@ export default function TodayHeroSpotlight({
 
   const cardContent = (
     <article
-      className="today-hero-spotlight today-mobile-spotlight swiftui-liquid-glass w-full max-w-full min-w-0 p-3.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl relative overflow-hidden select-none active:scale-[0.99] transition-transform box-border m-0 text-left cursor-pointer"
+      ref={glassRef}
+      className="today-hero-spotlight swiftui-liquid-glass w-full max-w-full min-w-0 p-4 sm:p-5 md:p-6 rounded-[28px] bg-white/75 dark:bg-zinc-900/60 backdrop-blur-2xl border border-white/65 dark:border-white/12 shadow-sm relative overflow-hidden select-none active:scale-[0.99] transition-transform box-border m-0 text-left cursor-pointer"
       onClick={(e) => onOpen(e, article)}
       role="button"
       tabIndex={0}
@@ -67,7 +74,6 @@ export default function TodayHeroSpotlight({
         }
       }}
     >
-      <div className="today-hero-ambient" style={{ background: meta.gradient }} />
       {/* Specular highlight lớp kính sắc nét */}
       <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/30 to-transparent pointer-events-none" />
 
@@ -182,13 +188,5 @@ export default function TodayHeroSpotlight({
     </article>
   );
 
-  if (isMobile) {
-    return cardContent;
-  }
-
-  return (
-    <BorderBeam size="md" colorVariant="colorful" strength={0.85} borderRadius={24} className="w-full max-w-full min-w-0 overflow-hidden my-3">
-      {cardContent}
-    </BorderBeam>
-  );
+  return cardContent;
 }

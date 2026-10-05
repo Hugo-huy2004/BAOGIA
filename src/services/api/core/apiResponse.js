@@ -1,16 +1,52 @@
 export class ApiError extends Error {
   constructor(response, payload) {
-    const message = (typeof payload === "string" && payload.trim())
+    const rawError = payload?.error;
+    const code = (typeof rawError === "object" && rawError?.code)
+      || payload?.code
+      || (response.status === 401 ? "UNAUTHORIZED"
+        : response.status === 403 ? "FORBIDDEN"
+        : response.status === 404 ? "NOT_FOUND"
+        : response.status === 429 ? "RATE_LIMITED"
+        : response.status === 503 ? "SERVICE_DEGRADED"
+        : response.status >= 500 ? "SERVER_ERROR"
+        : "HTTP_ERROR");
+
+    const message = (typeof rawError === "string" && rawError.trim())
+      || (typeof rawError === "object" && rawError?.message)
+      || (typeof payload === "string" && payload.trim())
       || payload?.message
-      || payload?.error
       || `HTTP ${response.status}`;
+
     super(typeof message === "string" ? message : `HTTP ${response.status}`);
     this.name = "ApiError";
     this.status = response.status;
-    this.code = payload?.code || "HTTP_ERROR";
+    this.code = code;
     this.payload = payload;
     this.retryable = response.status === 429 || response.status >= 500;
   }
+
+  /**
+   * Trả về thông điệp lỗi đã được địa phương hóa theo ngôn ngữ hiện tại của i18n
+   */
+  getLocalizedMessage(t) {
+    if (typeof t !== "function") return this.message;
+    const i18nKey = `apiErrors.${this.code}`;
+    const translated = t(i18nKey, { defaultValue: "" });
+    if (translated && translated !== i18nKey) return translated;
+    return this.message;
+  }
+}
+
+/**
+ * Format bất kỳ lỗi nào (ApiError, Error thường hoặc chuỗi) sang thông điệp hiển thị cho người dùng
+ */
+export function formatErrorMessage(err, t, fallback = "Đã xảy ra sự cố. Vui lòng thử lại sau.") {
+  if (!err) return fallback;
+  if (err instanceof ApiError && typeof t === "function") {
+    return err.getLocalizedMessage(t);
+  }
+  if (typeof err === "string") return err;
+  return err.message || fallback;
 }
 
 /** Read a response exactly once and preserve the server's status/code/message. */

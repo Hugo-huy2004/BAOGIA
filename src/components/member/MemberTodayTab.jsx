@@ -1,9 +1,6 @@
 import "./member-today.css";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { BorderBeam } from "border-beam";
-import { Liquid } from "liquid-gooey";
-
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { matchesQuery } from "../../lib/todayTopics";
@@ -384,73 +381,70 @@ export default function MemberTodayTab({
 
             {/* Khối Trợ Lý Hugo Animula Tương Tác */}
             <div className="w-full md:w-auto">
-              <BorderBeam size="md" colorVariant="colorful" strength={0.8} borderRadius={20} className="w-full md:w-auto">
-                <div className="flex items-center gap-3 p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-white/[0.06] border border-white/80 dark:border-white/10 shadow-sm backdrop-blur-xl w-full">
-                  <div
-                    className="relative cursor-pointer transition-transform hover:scale-105 active:scale-95 shrink-0"
-                    onClick={() => {
-                      if (leadArticle || shown[0]) {
-                        handleOpenSummary(leadArticle || shown[0]);
-                      } else {
-                        cycleCompanionType();
-                      }
-                    }}
-                    title="Nhấn để Animula phóng to và đúc kết tin tức!"
-                  >
-                    <AnimulaAvatar
-                      size={46}
-                      type={companionType}
-                      state="default"
-                      face="mouth"
-                      shading="fabric"
-                      interactive={true}
-                    />
-                    <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-[#13131c] shadow-sm flex items-center justify-center text-[7px] text-white font-bold">
-                      ✓
+              <div className="flex items-center gap-3 p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/70 dark:bg-white/[0.06] border border-white/70 dark:border-white/10 shadow-sm backdrop-blur-xl w-full">
+                <div
+                  className="relative cursor-pointer transition-transform hover:scale-105 active:scale-95 shrink-0"
+                  onClick={() => {
+                    if (leadArticle || shown[0]) {
+                      handleOpenSummary(leadArticle || shown[0]);
+                    } else {
+                      cycleCompanionType();
+                    }
+                  }}
+                  title="Nhấn để Animula phóng to và đúc kết tin tức!"
+                >
+                  <AnimulaAvatar
+                    size={46}
+                    type={companionType}
+                    state="default"
+                    face="mouth"
+                    shading="fabric"
+                    interactive={true}
+                  />
+                  <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white dark:border-[#13131c] shadow-sm flex items-center justify-center text-[7px] text-white font-bold">
+                    ✓
+                  </span>
+                </div>
+
+                <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs sm:text-sm font-black text-foreground tracking-tight whitespace-nowrap">
+                      Hugo Animula
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 whitespace-nowrap">
+                      AI Companion
                     </span>
                   </div>
 
-                  <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs sm:text-sm font-black text-foreground tracking-tight whitespace-nowrap">
-                        Hugo Animula
-                      </span>
-                      <span className="px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 whitespace-nowrap">
-                        AI Companion
-                      </span>
-                    </div>
+                  <p className="text-[11px] sm:text-[12px] text-muted-foreground font-medium truncate">
+                    Linh vật đúc kết tri thức
+                  </p>
 
-                    <p className="text-[11px] sm:text-[12px] text-muted-foreground font-medium truncate">
-                      Linh vật đúc kết tri thức
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const target = leadArticle || shown[0];
-                        if (target) handleOpenSummary(target);
-                      }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-blue-600 hover:bg-blue-500 active:scale-95 text-white shadow-sm transition-all"
-                    >
-                      <HugeIcon name="bolt" size={13} className="inline-block" />
-                      <span>Tóm tắt hôm nay</span>
-                    </button>
-                  </div>
-
-                  <div className="hidden sm:block pl-2 border-l border-zinc-200 dark:border-zinc-800 shrink-0">
-                    <EditionMark language={language} />
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = leadArticle || shown[0];
+                      if (target) handleOpenSummary(target);
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-blue-600 hover:bg-blue-500 active:scale-95 text-white shadow-sm transition-all"
+                  >
+                    <HugeIcon name="bolt" size={13} className="inline-block" />
+                    <span>Tóm tắt hôm nay</span>
+                  </button>
                 </div>
-              </BorderBeam>
+
+                <div className="hidden sm:block pl-2 border-l border-zinc-200 dark:border-zinc-800 shrink-0">
+                  <EditionMark language={language} />
+                </div>
+              </div>
             </div>
           </div>
         </header>
       )}
 
-      {/* ── 2. BỘ ĐIỀU HƯỚNG LIQUID GLASS UNIFIED (CHUYÊN MỤC + CHỦ ĐỀ + TÌM KIẾM) VỚI BORDER-BEAM ── */}
+      {/* ── 2. BỘ ĐIỀU HƯỚNG LIQUID GLASS UNIFIED (CHUYÊN MỤC + CHỦ ĐỀ + TÌM KIẾM) ── */}
       <div className="sticky top-2 z-20 w-full max-w-full min-w-0 box-border px-0.5 sm:px-0">
-        <BorderBeam size="md" colorVariant="colorful" strength={0.8} borderRadius={24} className="w-full">
-          <div className="relative overflow-hidden rounded-[24px] backdrop-blur-3xl bg-white/70 dark:bg-white/[0.06] border border-white/70 dark:border-white/12 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)] p-1 sm:p-1.5 transition-all">
+        <div className="relative overflow-hidden rounded-[24px] backdrop-blur-3xl bg-white/70 dark:bg-white/[0.06] border border-white/70 dark:border-white/12 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)] p-1 sm:p-1.5 transition-all">
             {/* Specular highlight lớp kính trên cùng */}
             <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent pointer-events-none" />
 
@@ -538,45 +532,42 @@ export default function MemberTodayTab({
                         })}
                       </div>
                     ) : (
-                      <Liquid blur={4} contrast={14} fill="rgba(255, 255, 255, 0.05)">
-                        <div className="flex items-center gap-1.5 min-w-max">
-                          {CATEGORIES.map((cat) => {
-                            const active = category === cat;
-                            const icon = CATEGORY_ICONS[cat] || "tag";
-                            const label = CATEGORY_LABELS[cat] || cat;
-                            const isSaved = cat === "saved";
+                      <div className="flex items-center gap-1.5 min-w-max">
+                        {CATEGORIES.map((cat) => {
+                          const active = category === cat;
+                          const icon = CATEGORY_ICONS[cat] || "tag";
+                          const label = CATEGORY_LABELS[cat] || cat;
+                          const isSaved = cat === "saved";
 
-                            return (
-                              <Liquid.Item key={cat} transition="bouncy">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    sensory.tap();
-                                    setCategory(cat);
-                                  }}
-                                  className={`px-3 py-1.5 rounded-full text-[13px] font-extrabold transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap shadow-sm ${
-                                    active
-                                      ? "bg-foreground text-background shadow-md"
-                                      : "bg-zinc-100/80 dark:bg-white/[0.06] text-muted-foreground hover:text-foreground hover:bg-zinc-200/70 dark:hover:bg-white/[0.1]"
+                          return (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => {
+                                sensory.tap();
+                                setCategory(cat);
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-[13px] font-extrabold transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap shadow-sm ${
+                                active
+                                  ? "bg-foreground text-background shadow-md"
+                                  : "bg-zinc-100/80 dark:bg-white/[0.06] text-muted-foreground hover:text-foreground hover:bg-zinc-200/70 dark:hover:bg-white/[0.1]"
+                              }`}
+                            >
+                              <HugeIcon name={icon} size={15} className="inline-block" />
+                              <span>{label}</span>
+                              {isSaved && bookmarkedIds.length > 0 && (
+                                <span
+                                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                                    active ? "bg-background text-foreground" : "bg-foreground/15 text-foreground"
                                   }`}
                                 >
-                                  <HugeIcon name={icon} size={15} className="inline-block" />
-                                  <span>{label}</span>
-                                  {isSaved && bookmarkedIds.length > 0 && (
-                                    <span
-                                      className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-                                        active ? "bg-background text-foreground" : "bg-foreground/15 text-foreground"
-                                      }`}
-                                    >
-                                      {bookmarkedIds.length}
-                                    </span>
-                                  )}
-                                </button>
-                              </Liquid.Item>
-                            );
-                          })}
-                        </div>
-                      </Liquid>
+                                  {bookmarkedIds.length}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
 
@@ -599,7 +590,6 @@ export default function MemberTodayTab({
                 </div>
             )}
           </div>
-        </BorderBeam>
       </div>
 
       {/* ── 3. NỘI DUNG FEED: TIÊU ĐIỂM + LƯỚI BENTO THÍCH ỨNG ── */}

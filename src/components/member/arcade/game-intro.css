@@ -10,7 +10,7 @@
 }
 
 .arcade-game--2048 { --intro-bg: #ff6e5d; --intro-ink: #ffffff; --intro-muted: #ffe8e4; --intro-accent: #ffdf59; --intro-soft: rgba(255, 255, 255, .25); }
-.arcade-game--snake { --intro-bg: #e8c8ff; --intro-ink: #46235c; --intro-muted: #76578b; --intro-accent: #8b3ed0; --intro-soft: rgba(255,255,255,.5); }
+.arcade-game--snake { --intro-bg: #fef08a; --intro-ink: #713f12; --intro-muted: #a16207; --intro-accent: #f59e0b; --intro-soft: rgba(255,255,255,.65); }
 .arcade-game--chess { --intro-bg: #eee9df; --intro-ink: #1b1b1b; --intro-muted: #69645d; --intro-accent: #7d5a3b; --intro-soft: rgba(125,90,59,.12); }
 .arcade-game--survivor { --intro-bg: #050818; --intro-ink: #f4f7ff; --intro-muted: #98a4c6; --intro-accent: #4cd6ff; --intro-soft: rgba(76,214,255,.12); }
 .arcade-game--caro { --intro-bg: #fff3e7; --intro-ink: #3d2926; --intro-muted: #806763; --intro-accent: #f04f55; --intro-soft: rgba(240,79,85,.12); }

@@ -3,13 +3,10 @@ import { nom } from "../../lib/nomText";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Camera, Check, HugeIcon, Wallet } from "../ui/HugeIcon";
-import { BorderBeam } from "border-beam";
-import { Liquid } from "liquid-gooey";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { sensory } from "../../lib/sensory";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { pushService } from "../../services/pushService";
-import { webauthnHelper } from "../../utils/webauthnHelper";
 import { hapticSelect } from "../../utils/haptics";
 import { getAuraTheme, resolveActivePortalTheme } from "../../data/auraThemes";
 import { SUPPORTED_LANGUAGES, languageCode, languageLabel } from "../../i18n/languages";
@@ -18,11 +15,11 @@ import { useJoyStore } from "../../stores/joyStore";
 import { useJoy } from "../../lib/joyDisplay";
 import { fetchJoyPerks, fetchChallengeStatus } from "../../services/api/modules/joyApi";
 import { isVoucherActive } from "./joy/voucherStatus";
-import BiometricLoginCard from "./BiometricLoginCard";
-import SecurityCenter from "./account/SecurityCenter";
 import EcoToggle from "../../Save_E/EcoToggle";
 import { getMemberToken } from "../../services/api/core/authSession";
 
+const BiometricLoginCard = React.lazy(() => import("./BiometricLoginCard"));
+const SecurityCenter = React.lazy(() => import("./account/SecurityCenter"));
 const AccountSheet = React.lazy(() => import("./account/AccountSheet"));
 const AccountThemeSheet = React.lazy(() => import("./account/AccountThemeSheet"));
 const PersonalInfoSubTab = React.lazy(() => import("./PersonalInfoSubTab"));
@@ -71,14 +68,14 @@ const LEGACY_DOC_MAPPING = {
 // sáng/tối, BorderBeam ở khối nổi bật + thanh điều hướng dính, liquid-gooey cho
 // chip trên desktop, HugeIcon đơn sắc. Bản cũ tự dựng nền tối cố định #0c0d12,
 // 4 quầng sáng mờ, mỗi dòng một ô gradient màu khác nhau và chữ 11–12px.
-const GLASS = "relative overflow-hidden rounded-[24px] backdrop-blur-2xl bg-white/80 dark:bg-white/[0.06] border border-white/70 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.3)]";
+const GLASS = "swiftui-liquid-glass relative overflow-hidden rounded-[24px] divide-y divide-zinc-200/40 dark:divide-white/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]";
 const SHEEN = <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent" />;
 
 function Section({ title, footer, children }) {
   return (
     <section className="min-w-0 space-y-2">
       {title && <h2 className="px-1 text-[13px] font-black uppercase tracking-wider text-muted-foreground">{title}</h2>}
-      <div className={`${GLASS} divide-y divide-zinc-200/60 dark:divide-white/[0.08]`}>
+      <div className={GLASS}>
         {SHEEN}
         {children}
       </div>
@@ -93,9 +90,9 @@ function Row({ icon, title, subtitle, value, trailing, onClick, danger = false, 
     <Tag
       type={onClick ? "button" : undefined}
       onClick={onClick ? () => { sensory.tap(); onClick(); } : undefined}
-      className={`group flex min-h-[56px] w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${onClick ? "hover:bg-white/50 active:bg-zinc-100/80 dark:hover:bg-white/[0.04] dark:active:bg-white/[0.08]" : ""}`}
+      className={`group flex min-h-[56px] w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${onClick ? "hover:bg-white/30 active:bg-zinc-100/40 dark:hover:bg-white/[0.04] dark:active:bg-white/[0.08]" : ""}`}
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${danger ? "bg-rose-500/10 text-rose-500" : "bg-zinc-100/90 text-foreground dark:bg-white/[0.08]"}`}>
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${danger ? "bg-rose-500/10 text-rose-500" : "bg-zinc-100/70 text-foreground dark:bg-white/[0.08]"}`}>
         <HugeIcon name={icon} size={19} />
       </span>
       <span className="min-w-0 flex-1">
@@ -168,7 +165,7 @@ export default function MemberSettingsTab({
 
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
-    setBiometricSupported(webauthnHelper.isSupported());
+    setBiometricSupported(typeof window !== "undefined" && typeof window.PublicKeyCredential === "function");
     const token = getMemberToken();
     if (!token) return;
     fetch(`${apiBase}/profile/me/marketing`, {
@@ -308,92 +305,121 @@ export default function MemberSettingsTab({
       {/* Ẩn file input phục vụ đổi ảnh đại diện */}
       <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
-      {/* ── 1. ĐẦU TRANG — cùng khuôn header của Today ───────────────────── */}
-      <header className={`${GLASS} rounded-[26px] bg-gradient-to-br from-white/95 via-white/80 to-blue-50/60 p-4 dark:from-[#13131c]/95 dark:via-[#13131c]/80 dark:to-[#1a1926]/60 sm:rounded-[30px] sm:p-6`}>
+      {/* ── 1. ĐẦU TRANG — Chuẩn Apple Liquid Glass (Nhỏ gọn, thông minh, chống tràn tên dài) ── */}
+      <header className="swiftui-liquid-glass relative overflow-hidden rounded-[24px] p-3.5 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
         {SHEEN}
-        <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
+        <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          {/* Vùng hồ sơ chính: Avatar + Tên + Badge + Email */}
+          <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
             <button
               type="button"
               onClick={() => avatarInputRef?.current?.click()}
               aria-label={nom("Đổi ảnh đại diện")}
-              className="relative shrink-0 transition-transform active:scale-95"
+              className="group relative shrink-0 transition-transform active:scale-95"
             >
-              <span className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-blue-600 text-[28px] font-black text-white ring-4 ring-white/80 shadow-lg dark:ring-white/10 sm:h-20 sm:w-20">
+              <span className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-xl sm:text-2xl font-black text-white ring-2 ring-white/90 shadow-md transition-all group-hover:ring-blue-400 dark:ring-white/15">
                 {formData?.avatarUrl
                   ? <img className="h-full w-full object-cover" src={formData.avatarUrl} alt={displayName} />
                   : displayName[0]?.toUpperCase()}
               </span>
-              <span className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-foreground text-background shadow-sm dark:border-[#13131c]">
-                <Camera className="size-3.5" strokeWidth={2} />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full border border-white bg-foreground text-background shadow-xs transition-transform group-hover:scale-110 dark:border-[#13131c]">
+                <Camera className="size-2.5 sm:size-3" strokeWidth={2.2} />
               </span>
             </button>
-            <div className="min-w-0 space-y-1">
-              <p className="flex flex-wrap items-center gap-1.5 text-[13px] font-bold text-muted-foreground">
-                <span className="font-black text-foreground">{t("memberPortal.navigation.account", nom("Tài khoản"))}</span>
-                <span className="opacity-40">·</span>
-                <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[13px] font-black text-blue-600 dark:text-blue-400">
-                  {bio?.isEduVerified ? nom("HSSV đã xác minh") : nom("Thành viên")}
+
+            <div
+              className="min-w-0 flex-1 space-y-0.5 cursor-pointer select-none"
+              onClick={() => openSheet("personal")}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openSheet("personal"); }}
+              aria-label={nom("Xem và sửa thông tin cá nhân")}
+            >
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                  <Check className="size-3" strokeWidth={2.5} />
+                  <span>{bio?.isEduVerified ? nom("HSSV đã xác minh") : nom("Thành viên chính thức")}</span>
                 </span>
+              </div>
+              <h1
+                id="account-title"
+                className="break-words text-[17px] sm:text-[20px] font-black leading-snug tracking-tight text-foreground line-clamp-2"
+                title={displayName}
+              >
+                {displayName}
+              </h1>
+              <p className="truncate text-[12px] font-medium text-muted-foreground" title={email}>
+                {email}
               </p>
-              <h1 id="account-title" className="truncate text-[22px] font-black leading-tight tracking-tight text-foreground sm:text-3xl">{displayName}</h1>
-              <p className="truncate text-[13px] font-medium text-muted-foreground">{email}</p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => openSheet("personal")}
+              aria-label={nom("Chỉnh sửa thông tin cá nhân")}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/40 text-muted-foreground transition-all hover:bg-white hover:text-foreground active:scale-95 dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.15]"
+              title={nom("Chỉnh sửa hồ sơ")}
+            >
+              <HugeIcon name="edit" size={15} />
+            </button>
           </div>
 
-          {/* Khối Ví JOY — vị trí và hiệu ứng y khối Animula của Today */}
-          <div className="w-full md:w-auto">
-            <BorderBeam size="md" colorVariant="colorful" strength={0.8} borderRadius={20} className="w-full md:w-auto">
-              <button
-                type="button"
-                onClick={() => openUtility("joy_wallet")}
-                className="flex w-full items-center gap-3 rounded-[20px] border border-white/80 bg-white/80 p-3 text-left shadow-sm backdrop-blur-xl transition-transform active:scale-[0.98] dark:border-white/10 dark:bg-white/[0.06] sm:p-4"
-              >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
-                  <Wallet className="size-5" strokeWidth={1.8} />
+          {/* Khối Ví JOY — Dải kính siêu gọn (Sleek Apple Wallet Capsule) */}
+          <div className="w-full md:w-auto md:shrink-0">
+            <button
+              type="button"
+              onClick={() => openUtility("joy_wallet")}
+              className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/45 px-3 py-2 text-left shadow-2xs backdrop-blur-xl transition-all hover:bg-white/70 active:scale-[0.99] dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/[0.09] md:min-w-[270px] sm:px-3.5 sm:py-2.5"
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xs shadow-blue-500/20">
+                  <Wallet className="size-4" strokeWidth={2} />
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[13px] font-bold text-muted-foreground">{nom("Ví JOY")}</span>
-                  <span className="block text-[20px] font-black tabular-nums tracking-tight text-foreground">{joy.number(joyBalance || 0)} {joy.code}</span>
-                  <span className="block text-[13px] text-muted-foreground">
-                    {activeVoucherCount} {nom("voucher")} · {challengesLoaded ? `${completedMissionsCount}/${challenges.length} ${nom("nhiệm vụ")}` : nom("đang đồng bộ nhiệm vụ")}
-                  </span>
-                </span>
-                <HugeIcon name="chevron_right" size={18} className="shrink-0 text-muted-foreground" />
-              </button>
-            </BorderBeam>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Ví JOY</span>
+                    <span className="text-[14px] sm:text-[15px] font-black tabular-nums tracking-tight text-foreground">
+                      {joy.number(joyBalance || 0)} {joy.code}
+                    </span>
+                  </div>
+                  <div className="truncate text-[11px] sm:text-[11.5px] text-muted-foreground">
+                    {activeVoucherCount} {nom("voucher")} · {challengesLoaded ? `${completedMissionsCount}/${challenges.length} ${nom("nhiệm vụ")}` : nom("đang đồng bộ")}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1 text-[11.5px] font-semibold text-muted-foreground/80">
+                <HugeIcon name="chevron_right" size={16} className="text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </button>
           </div>
         </div>
       </header>
 
       {/* ── 2. THANH ĐIỀU HƯỚNG DÍNH — cùng khuôn thanh chuyên mục của Today ── */}
       <div className="sticky top-2 z-20 w-full min-w-0">
-        <BorderBeam size="md" colorVariant="colorful" strength={0.8} borderRadius={24} className="w-full">
-          <div className="relative flex items-center justify-between gap-1.5 overflow-hidden rounded-[24px] border border-white/70 bg-white/70 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-3xl dark:border-white/12 dark:bg-white/[0.06] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-            {SHEEN}
-            <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
-              {isMobile ? (
-                <div className="flex w-max items-center gap-1">{views.map((v) => <div key={v.id}>{chip(v)}</div>)}</div>
-              ) : (
-                <Liquid blur={4} contrast={14} fill="rgba(255, 255, 255, 0.05)">
-                  <div className="flex min-w-max items-center gap-1.5">
-                    {views.map((v) => <Liquid.Item key={v.id} transition="bouncy">{chip(v)}</Liquid.Item>)}
-                  </div>
-                </Liquid>
-              )}
-            </div>
-            <div className="flex shrink-0 items-center border-l border-zinc-200/60 pl-1.5 dark:border-white/10">
-              <button
-                type="button"
-                onClick={() => { sensory.tap(); navigate("/member/activity"); }}
-                aria-label={nom("Thông báo")}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-zinc-100/90 text-muted-foreground shadow-xs transition-all hover:bg-white hover:text-foreground active:scale-90 dark:border-white/12 dark:bg-white/[0.08] dark:hover:bg-white/[0.18]"
-              >
-                <HugeIcon name="notifications" size={17} />
-              </button>
+        <div className="relative flex items-center justify-between gap-1.5 overflow-hidden rounded-[24px] border border-white/70 bg-white/70 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-3xl dark:border-white/12 dark:bg-white/[0.06] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+          {SHEEN}
+          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
+            <div className="flex min-w-max items-center gap-1.5">
+              {views.map((v) => (
+                <div key={v.id} className="transition-transform duration-200 active:scale-95">
+                  {chip(v)}
+                </div>
+              ))}
             </div>
           </div>
-        </BorderBeam>
+          <div className="flex shrink-0 items-center border-l border-zinc-200/60 pl-1.5 dark:border-white/10">
+            <button
+              type="button"
+              onClick={() => { sensory.tap(); navigate("/member/activity"); }}
+              aria-label={nom("Thông báo")}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-zinc-100/90 text-muted-foreground shadow-xs transition-all hover:bg-white hover:text-foreground active:scale-90 dark:border-white/12 dark:bg-white/[0.08] dark:hover:bg-white/[0.18]"
+            >
+              <HugeIcon name="notifications" size={17} />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── 3. NỘI DUNG ──────────────────────────────────────────────────── */}
@@ -521,23 +547,25 @@ export default function MemberSettingsTab({
       )}
 
       {activeSheet === "security" && (
-        <AccountSheet
-          title={t("memberPortal.accountProfile.security", nom("Bảo mật tài khoản"))}
-          onClose={closeSheet}
-        >
-          <div className="space-y-5">
-            <SecurityCenter />
-            <div className="border-t border-border pt-4">
-              {biometricSupported && email ? (
-                <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
-              ) : (
-                <p className="text-[13px] text-muted-foreground">
-                  {t("memberPortal.settings.biometricNotSupported", nom("Thiết bị không hỗ trợ đăng nhập sinh trắc học"))}
-                </p>
-              )}
+        <React.Suspense fallback={<SheetFallback />}>
+          <AccountSheet
+            title={t("memberPortal.accountProfile.security", nom("Bảo mật tài khoản"))}
+            onClose={closeSheet}
+          >
+            <div className="space-y-5">
+              <SecurityCenter />
+              <div className="border-t border-border pt-4">
+                {biometricSupported && email ? (
+                  <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+                ) : (
+                  <p className="text-[13px] text-muted-foreground">
+                    {t("memberPortal.settings.biometricNotSupported", nom("Thiết bị không hỗ trợ đăng nhập sinh trắc học"))}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        </AccountSheet>
+          </AccountSheet>
+        </React.Suspense>
       )}
 
       {activeSheet === "language" && (

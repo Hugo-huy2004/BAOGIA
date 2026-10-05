@@ -8,10 +8,10 @@
 
 const GAME_THEMES = {
   chess:     { name: "HugoChess Table 3D" },
-  survivor:  { name: "Space Survivor" },
+  survivor:  { name: "Space Wars: Chiến Tranh Vũ Trụ 3D" },
   "2048":    { name: "2048 Mega Fusion" },
   caro:      { name: "Caro 5 Arena" },
-  snake:     { name: "Snake 3D Pro" },
+  snake:     { name: "Snake 3D: Vương Quốc Trái Cây" },
 };
 
 export default GAME_THEMES;

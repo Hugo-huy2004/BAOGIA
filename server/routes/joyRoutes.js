@@ -35,7 +35,7 @@ import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToke
 import bcrypt from 'bcryptjs';
 import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
-import NodeCache from 'node-cache';
+import { acquireIdempotencyLock, releaseIdempotencyLock } from '../services/idempotencyService.js';
 import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
 import { denomKey, transferBreakdown } from '../../shared/joyCurrency.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
@@ -48,8 +48,6 @@ import {
   getCoderStageCompletion,
   getCoderStageGate,
 } from '../../shared/coderProgression.js';
-
-const idempotencyCache = new NodeCache({ stdTTL: 300 });
 
 const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 const COMPRESS_CHARGE = 50;
@@ -1790,19 +1788,18 @@ router.post('/transfer', requireMember, async (req, res) => {
       });
     }
 
-    // 1. Chống gửi lặp request (Idempotency)
-    if (idempotencyKey) {
-      const cacheKey = `idempotency:${fromEmail}:${idempotencyKey}`;
-      if (idempotencyCache.has(cacheKey)) {
+    // 1. Chống gửi lặp request (Idempotency phân tán qua Redis + RAM fallback)
+    const idempotencyLockKey = idempotencyKey ? `idempotency:${fromEmail}:${idempotencyKey}` : null;
+    if (idempotencyLockKey) {
+      const locked = await acquireIdempotencyLock(idempotencyLockKey, 300);
+      if (!locked) {
         return res.status(409).json({ error: 'Giao dịch đang được xử lý hoặc đã gửi trước đó.' });
       }
-      idempotencyCache.set(cacheKey, true);
     }
 
-    const rejectRequest = (status, errorMsg, code) => {
-      if (idempotencyKey) {
-        const cacheKey = `idempotency:${fromEmail}:${idempotencyKey}`;
-        idempotencyCache.del(cacheKey);
+    const rejectRequest = async (status, errorMsg, code) => {
+      if (idempotencyLockKey) {
+        await releaseIdempotencyLock(idempotencyLockKey);
       }
       return res.status(status).json({ error: errorMsg, ...(code ? { code } : {}) });
     };
@@ -1948,19 +1945,22 @@ router.post('/transfer', requireMember, async (req, res) => {
     // Câu mô tả chỉ nói việc gì đã xảy ra. Số tiền, mã GD và số dư nay là field
     // riêng trên notification (amount/refCode/balanceAfter) — đừng nhét lại vào
     // câu, client sẽ hiện hai lần.
-    const [senderResult] = await Promise.all([
-      awardJoy(
-        sender.email, -totalDeducted, 'joy_gift_sent',
-        `Gửi ${numAmount} JOY cho ${recipientName}, phí sáng tạo ${feeAmount} JOY${
-          conversionFee ? `, phí đổi ${bill.fromCode} → ${bill.toCode} ${conversionFee} JOY` : ''
-        }.${customMsg}`,
-        {
-          refId: txCode,
-          bioDoc: sender,
-          counterparty: recipientName
-        }
-      ),
-      awardJoy(
+    // 1. Trừ tiền người gửi trước (Atomic CAS đảm bảo số dư người gửi đủ)
+    const senderResult = await awardJoy(
+      sender.email, -totalDeducted, 'joy_gift_sent',
+      `Gửi ${numAmount} JOY cho ${recipientName}, phí sáng tạo ${feeAmount} JOY${
+        conversionFee ? `, phí đổi ${bill.fromCode} → ${bill.toCode} ${conversionFee} JOY` : ''
+      }.${customMsg}`,
+      {
+        refId: txCode,
+        bioDoc: sender,
+        counterparty: recipientName
+      }
+    );
+
+    // 2. Thử cộng tiền cho người nhận; nếu thất bại tự động hoàn lại tiền cho người gửi
+    try {
+      await awardJoy(
         recipient.email, numAmount, 'joy_gift_received',
         `${senderName} đã chuyển JOY cho bạn.${customMsg}`,
         {
@@ -1970,8 +1970,18 @@ router.post('/transfer', requireMember, async (req, res) => {
           pushNotify: true,
           actionUrl: '/member/account'
         }
-      )
-    ]);
+      );
+    } catch (recipientError) {
+      console.error('[TRANSFER ROLLBACK] Lỗi cộng tiền người nhận, tự động hoàn trả người gửi:', recipientError.message);
+      await awardJoy(
+        sender.email, totalDeducted, 'admin_adjustment',
+        `Hoàn lại ${totalDeducted} JOY do giao dịch ${txCode} tới ${recipientName} không thể hoàn tất.`,
+        { refId: `${txCode}_REV`, rawAmount: true }
+      ).catch((refundErr) => {
+        console.error('[CRITICAL TRANSFER ERROR] Lỗi hoàn tiền tự động cho sender:', refundErr.message);
+      });
+      return await rejectRequest(500, 'Không thể chuyển tiền cho người nhận lúc này. Số dư đã được hoàn lại đầy đủ vào ví của bạn.');
+    }
 
     res.json({
       success: true,
@@ -1994,7 +2004,7 @@ router.post('/transfer', requireMember, async (req, res) => {
     if (req.body && req.body.idempotencyKey) {
       const fromEmail = req.memberEmail;
       const cacheKey = `idempotency:${fromEmail}:${req.body.idempotencyKey}`;
-      idempotencyCache.del(cacheKey);
+      await releaseIdempotencyLock(cacheKey);
     }
     res.status(400).json({ error: error.message });
   }

@@ -167,47 +167,68 @@ export function prefixRoutingTable() {
   return [...table.values()];
 }
 
+const serviceHealthRegistry = new Map();
+
+/**
+ * Trả về báo cáo trạng thái từng service phục vụ giám sát và /health
+ */
+export function getServicesHealth() {
+  return Object.fromEntries(serviceHealthRegistry);
+}
+
 /**
  * Mount mọi service `inline` vào một app Express, theo đúng thứ tự khai báo.
  *
- * Router nạp bằng `import()` động nên chính tệp này vẫn là dữ liệu thuần khi
- * chỉ đọc để sinh cấu hình — không có router nào bị nạp trừ khi hàm này chạy.
- * `guards` do server.js truyền vào cùng lý do: middleware kéo theo model, model
- * kéo theo mongoose.
- *
- * Service `mode: "process"` bị bỏ qua ở đây — nginx trỏ thẳng prefix của nó
- * sang cổng riêng, request không bao giờ chạm vào process này.
+ * Tích hợp cơ chế Circuit Breaker tự phục hồi: nếu một service gặp lỗi file,
+ * lỗi cú pháp hoặc bị xoá folder, hệ thống ghi nhận trạng thái 'degraded' và
+ * cung cấp fallback 503 thay vì làm sập toàn bộ tiến trình Express Node.js.
  */
 export async function mountServices(app, guards = {}) {
+  const { createFeatureIsolation } = await import('./middleware/featureCircuitBreaker.js');
   const mounted = [];
   for (const service of SERVICES) {
     if (service.mode === "process") continue;
 
-    const module = await import(service.module);
-    const router = module.default;
-    if (typeof router !== "function") {
-      throw new Error(`[gateway] ${service.id}: ${service.module} không export default một Router.`);
-    }
+    const isolation = createFeatureIsolation(service.id, service.id);
 
-    if (service.guard) {
-      const guard = guards[service.guard];
-      // Đừng mount trần khi thiếu guard: `/api/ai` mất requireAdultMember là mở
-      // toang proxy Gemini. Thà chết lúc khởi động còn hơn rò lúc chạy.
-      //
-      // Guard có thể là MỘT hàm hoặc một MẢNG middleware — `requireAdultMember`
-      // là mảng (requireMember rồi mới kiểm tuổi). Express nhận cả hai, nên chỉ
-      // kiểm `typeof === "function"` là chặn nhầm một guard hợp lệ và chết cả
-      // máy chủ lúc khởi động.
-      const ok = typeof guard === "function"
-        || (Array.isArray(guard) && guard.length > 0 && guard.every((item) => typeof item === "function"));
-      if (!ok) {
-        throw new Error(`[gateway] ${service.id}: không tìm thấy guard "${service.guard}".`);
+    try {
+      const module = await import(service.module);
+      const router = module.default;
+      if (typeof router !== "function") {
+        throw new Error(`[gateway] ${service.id}: ${service.module} không export default một Router.`);
       }
-      app.use(service.prefix, guard, router);
-    } else {
-      app.use(service.prefix, router);
+
+      if (service.guard) {
+        const guard = guards[service.guard];
+        const ok = typeof guard === "function"
+          || (Array.isArray(guard) && guard.length > 0 && guard.every((item) => typeof item === "function"));
+        if (!ok) {
+          throw new Error(`[gateway] ${service.id}: không tìm thấy guard "${service.guard}".`);
+        }
+        app.use(service.prefix, isolation, guard, router);
+      } else {
+        app.use(service.prefix, isolation, router);
+      }
+      serviceHealthRegistry.set(service.id, { status: "healthy", prefix: service.prefix });
+      mounted.push(service.id);
+    } catch (err) {
+      console.warn(`⚠️ [CircuitBreaker] Service "${service.id}" (${service.prefix}) gặp sự cố: ${err.message}. Đã kích hoạt cơ chế cách ly tự phục hồi (503).`);
+      serviceHealthRegistry.set(service.id, { status: "degraded", prefix: service.prefix, error: err.message });
+
+      // Circuit Breaker Fallback Handler: ngắt an toàn, không làm chết máy chủ
+      const fallbackRouter = (_req, res) => {
+        res.status(503).json({
+          success: false,
+          error: {
+            code: "SERVICE_DEGRADED",
+            message: `Dịch vụ '${service.id}' tạm thời không khả dụng hoặc đang cập nhật.`,
+            serviceId: service.id,
+            timestamp: new Date().toISOString()
+          }
+        });
+      };
+      app.use(service.prefix, fallbackRouter);
     }
-    mounted.push(service.id);
   }
   return mounted;
 }

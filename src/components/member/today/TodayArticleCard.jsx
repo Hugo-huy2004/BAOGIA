@@ -1,5 +1,4 @@
 import { triggerHaptic } from "../../../utils/haptics";
-import { BorderBeam } from "border-beam";
 import { getCategoryMeta, estimateReadingMinutes } from "./categoryStyles";
 import { HugeIcon } from "../../ui/HugeIcon";
 
@@ -133,8 +132,7 @@ export default function TodayArticleCard({
   }
 
   return (
-    <BorderBeam size="md" colorVariant="ocean" strength={0.65} borderRadius={24} className="h-full">
-      <article
+    <article
         className="today-bento-card swiftui-liquid-glass h-full m-0"
         data-category={article.category}
         onPointerDown={onPressStart}
@@ -228,6 +226,5 @@ export default function TodayArticleCard({
           )}
         </div>
       </article>
-    </BorderBeam>
   );
 }

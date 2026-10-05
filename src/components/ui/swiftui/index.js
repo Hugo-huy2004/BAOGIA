@@ -9,3 +9,6 @@ export { default as SwiftUIButton } from './SwiftUIButton.jsx';
 export { default as SwiftUIToggle } from './SwiftUIToggle.jsx';
 export { default as SwiftUISegmentedControl } from './SwiftUISegmentedControl.jsx';
 export { default as DeferredMount } from '../DeferredMount.jsx';
+export { default as LiquidGlassCard, LiquidGlassContainer } from '../LiquidGlassCard.jsx';
+export { default as useLiquidGlass } from '../../../hooks/useLiquidGlass';
+

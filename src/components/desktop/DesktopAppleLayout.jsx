@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useViewTransitionNavigate } from "../../utils/viewTransitions";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationBell from "../member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
@@ -28,7 +29,8 @@ export default function DesktopAppleLayout({
   isGuestMode = false,
 }) {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
+  const rawNavigate = useNavigate();
+  const navigate = useViewTransitionNavigate(rawNavigate);
   const location = useLocation();
   const joyBalance = useJoyStore((s) => s.balance);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(

@@ -153,6 +153,7 @@ export default function MobileDrawer() {
             <Link
               key={idx}
               to={item.path}
+              viewTransition
               onClick={() => setIsOpen(false)}
               className={`flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition-colors ${
                 location.pathname === item.path
@@ -171,6 +172,7 @@ export default function MobileDrawer() {
 
           <Link
             to={accountPath}
+            viewTransition
             onClick={() => setIsOpen(false)}
             className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] bg-primary px-3 text-xs font-semibold text-white shadow-[0_8px_20px_hsl(var(--primary)/0.2)]"
           >

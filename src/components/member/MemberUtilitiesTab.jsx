@@ -24,6 +24,7 @@ const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
 const FriendsApp = lazy(() => import("./FriendsApp"));
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
+import LazyBoundary from "./os/LazyBoundary";
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -102,10 +103,12 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       </div>
 
-      {/* HugoKit — QR/NFC, chữ ký email, link bảo mật và xử lý tệp gộp làm một.
-          Id cũ "helpdesk" vẫn mở app này để bookmark và icon đã cài không hỏng. */}
-      {["handle", "helpdesk"].includes(selectedUtility) && (
-        <HugoKitApp
+      {selectedUtility !== null && (
+        <LazyBoundary resetKey={selectedUtility} onBack={() => onSelectUtility(null)}>
+          {/* HugoKit — QR/NFC, chữ ký email, link bảo mật và xử lý tệp gộp làm một.
+              Id cũ "helpdesk" vẫn mở app này để bookmark và icon đã cài không hỏng. */}
+          {["handle", "helpdesk"].includes(selectedUtility) && (
+            <HugoKitApp
           bio={bio}
           publicLink={publicLink}
           showToast={showToast}
@@ -236,6 +239,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           onRouteChange={onAppRouteChange}
           onOpenUtility={onSelectUtility}
         />
+      )}
+        </LazyBoundary>
       )}
       </Suspense>
 

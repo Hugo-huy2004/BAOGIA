@@ -11,7 +11,7 @@ import compression from 'compression';
 import { cachePolicy } from './middleware/cachePolicy.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
-import { mountServices } from './services.manifest.js';
+import { mountServices, getServicesHealth } from './services.manifest.js';
 import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
   requestThreatGuard,
@@ -170,6 +170,7 @@ const healthHandler = (_req, res) => {
     uptime: Math.floor(process.uptime()),
     database: { status: dbStatus, name: mongoose.connection.name || 'hugostudio' },
     redis: redisInfo,
+    services: getServicesHealth(),
     memory: {
       rssMb: Math.round(mem.rss / 1024 / 1024),
       heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),

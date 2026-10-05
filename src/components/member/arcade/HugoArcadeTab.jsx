@@ -3,6 +3,7 @@ import LazyBoundary from "../os/LazyBoundary";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { startViewTransition } from "../../../utils/viewTransitions";
 
 import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket, Disc } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
@@ -10,7 +11,7 @@ import ArcadeLeaderboard from "./ArcadeLeaderboard";
 // vốn đã lazy nó; import tĩnh ở đây bắt mọi thành viên chỉ mở tab Arcade phải
 // tải hết dù chưa bấm chơi. Chỗ dùng nằm sau điều kiện nên lazy được.
 const StandaloneGameShell = lazy(() => import("./StandaloneGameShell"));
-import BackButton from "../shared/BackButton";
+
 
 import { fetchProfile } from "../../../services/api/modules/arcadeApi";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -38,8 +39,8 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const GAMES = [
   { id: "pinball",  name: "Hugo CyberPinball 3D", Icon: Disc, studio: true },
   { id: "chess",    name: "HugoChess Table 3D",  Icon: Castle, studio: true },
-  { id: "survivor", name: "Hugo Space Survivor", Icon: Rocket, studio: true },
-  { id: "snake",    name: "Hugo Snake 3D Pro",   Icon: InfinityIcon, studio: true },
+  { id: "survivor", name: "Space Wars: Chiến Tranh Vũ Trụ 3D", Icon: Rocket, studio: true },
+  { id: "snake",    name: "Snake 3D: Vương Quốc Trái Cây", Icon: InfinityIcon, studio: true },
   { id: "caro",     name: "Caro 5 Arena",        Icon: Swords, studio: true },
   { id: "2048",     name: "2048 Mega Fusion",    Icon: Blocks, creditKey: "arcadeGame.credit2048" },
 ];
@@ -143,8 +144,7 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
  * đã gặp ở AppFrame, SubUtilityHeader và StudyTopBar.
  */
 export default function HugoArcadeTab({ bio, onBioUpdate, showToast }) {
-  const { t, i18n } = useTranslation();
-  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -180,22 +180,32 @@ export default function HugoArcadeTab({ bio, onBioUpdate, showToast }) {
 
   const { playBeep } = useArcadeSound();
 
-  const setTab = React.useCallback((t) => setSearchParams(p => { p.set("tab", t); return p; }, { replace: true }), [setSearchParams]);
+  const setTab = React.useCallback((t) => {
+    startViewTransition(() => {
+      setSearchParams(p => { p.set("tab", t); return p; }, { replace: true });
+    });
+  }, [setSearchParams]);
+
   const openGame = React.useCallback((id) => {
     playBeep();
-    setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
+    startViewTransition(() => {
+      setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
+    });
   }, [playBeep, setSearchParams]);
+
   const closeGame = React.useCallback(() => {
-    if (isFromUtilities) {
-      navigate("/member/utilities", { replace: true });
-    } else {
-      setSearchParams(p => {
-        p.delete("game");
-        p.delete("room");
-        p.delete("from");
-        return p;
-      }, { replace: true });
-    }
+    startViewTransition(() => {
+      if (isFromUtilities) {
+        navigate("/member/utilities", { replace: true });
+      } else {
+        setSearchParams(p => {
+          p.delete("game");
+          p.delete("room");
+          p.delete("from");
+          return p;
+        }, { replace: true });
+      }
+    });
   }, [isFromUtilities, navigate, setSearchParams]);
 
   const handleConfirmCharge = React.useCallback(async () => {

@@ -499,6 +499,11 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
           </div>
           <div className="text-xl font-black text-amber-400 font-mono flex items-center gap-2">
             <span>{score.toLocaleString()} PTS</span>
+            {multiplier > 1 && (
+              <span className="text-[13px] font-black text-amber-300 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/40">
+                {multiplier}X
+              </span>
+            )}
             <span className="text-[13px] font-extrabold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
               +{earnedJoy} JOY 🎉
             </span>

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useViewTransitionNavigate } from "../../utils/viewTransitions";
 import { getMemberSession, logoutAuth } from "../../services/api/core/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
@@ -93,43 +94,122 @@ function MobilePortalNav({
   navigationLabel,
   onTabClick,
 }) {
+  const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeArea));
+  const navRef = useRef(null);
+  const trackRef = useRef(null);
+  const indicatorRef = useRef(null);
+
+  useEffect(() => {
+    let instance = null;
+    let isCancelled = false;
+
+    async function initGlass() {
+      if (typeof window === "undefined" || !navRef.current || !trackRef.current) return;
+      if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+
+      try {
+        const { LiquidGlass } = await import("@ybouane/liquidglass");
+        if (isCancelled || !navRef.current || !trackRef.current) return;
+
+        trackRef.current.dataset.config = JSON.stringify({
+          blurAmount: 0.2,
+          refraction: 0.45,
+          chromAberration: 0.05,
+          edgeHighlight: 0.35,
+          specular: 0.2,
+          fresnel: 0.85,
+          opacity: 0.6,
+          cornerRadius: 28,
+          zRadius: 20,
+        });
+
+        instance = await LiquidGlass.init({
+          root: navRef.current,
+          glassElements: [trackRef.current],
+          defaults: {
+            cornerRadius: 28,
+            zRadius: 20,
+            blurAmount: 0.2,
+            edgeHighlight: 0.35,
+            refraction: 0.45,
+            opacity: 0.6,
+          },
+        });
+      } catch (err) {
+        console.warn("ℹ️ [MobilePortalNav] LiquidGlass fallback to CSS backdrop-filter:", err?.message || err);
+      }
+    }
+
+    const timer = setTimeout(initGlass, 60);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+      try {
+        instance?.destroy();
+      } catch {}
+    };
+  }, []);
+
   return (
     <nav
+      ref={navRef}
       id="mobile-primary-navigation"
       className="mobile-portal-nav"
       aria-label={navigationLabel}
     >
-      <div className="mobile-portal-nav__track">
-        {tabs.map((tab) => {
-          const isActive = activeArea === tab.id;
-          return (
-            <button
-              id={`portal-tab-${tab.id}-mobile`}
-              key={tab.id}
-              type="button"
-              data-section={tab.id}
-              aria-current={isActive ? "page" : undefined}
-              aria-label={tab.label}
-              className={isActive ? "is-active" : ""}
-              onClick={() => onTabClick(tab)}
-            >
-              <span className="mobile-portal-nav__icon">
-                <HugeIcon
-                  name={tab.icon}
-                  size={22}
-                  strokeWidth={isActive ? 2 : 1.5}
-                />
-                {tab.id === "activity" && unreadCount > 0 && (
-                  <span className="mobile-portal-nav__badge">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-                {tab.alert && <span className="mobile-portal-nav__alert" />}
-              </span>
-              <span className="mobile-portal-nav__label">{tab.label}</span>
-            </button>
-          );
-        })}
+      <div
+        ref={trackRef}
+        className="mobile-portal-nav__track relative overflow-hidden"
+      >
+        {/* Tab indicator glass — trượt mượt mà theo tab đang chọn y hệt demo @ybouane/liquidglass */}
+        <div
+          id="glass-tab-indicator"
+          ref={indicatorRef}
+          className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/18 backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"
+          style={{
+            width: `calc((100% - 8px) / ${tabs.length || 1})`,
+            left: "4px",
+            transform: `translateX(calc(${activeIndex} * 100%))`,
+          }}
+        />
+        {/* Lưới 4 cột cố định: Đảm bảo 4 nút chia đều 25% track, không bị indicator chiếm chỗ hay đẩy lệch */}
+        <div className="relative z-10 grid grid-cols-4 w-full h-full items-center">
+          {tabs.map((tab) => {
+            const isActive = activeArea === tab.id;
+            return (
+              <button
+                id={`portal-tab-${tab.id}-mobile`}
+                key={tab.id}
+                type="button"
+                data-section={tab.id}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={tab.label}
+                className={`relative flex flex-col items-center justify-center h-full w-full py-0.5 text-center select-none transition-colors ${
+                  isActive ? "is-active text-foreground font-black" : "text-slate-600 dark:text-zinc-400 hover:text-foreground font-semibold"
+                }`}
+                onClick={() => onTabClick(tab)}
+              >
+                <span className="mobile-portal-nav__icon relative flex items-center justify-center">
+                  <HugeIcon
+                    name={tab.icon}
+                    size={22}
+                    strokeWidth={isActive ? 2.2 : 1.6}
+                  />
+                  {tab.id === "activity" && unreadCount > 0 && (
+                    <span className="mobile-portal-nav__badge">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                  {tab.alert && <span className="mobile-portal-nav__alert" />}
+                </span>
+                <span className="mobile-portal-nav__label text-[10.5px] leading-tight mt-0.5 tracking-tight truncate max-w-full px-1">
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
@@ -228,7 +308,8 @@ function MemberPortalPage() {
 
   // ── Tab state derived from URL ──────────────────────────────────────────────
   const { tab, subTab, psychTab, deepTab } = useParams();
-  const navigate = useNavigate();
+  const rawNavigate = useNavigate();
+  const navigate = useViewTransitionNavigate(rawNavigate);
   const isEmbedded = useMemo(
     () => window.self !== window.top || new URLSearchParams(window.location.search).get("embed") === "true",
     []
