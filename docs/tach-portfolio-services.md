@@ -11,17 +11,21 @@ Portfolio không khởi động portal, đăng nhập, ví, quảng cáo hoặc 
 
 ## Triển khai
 
-Giữ Vercel project hiện tại cho `www`, dùng `vercel.json`. Tạo một Vercel project riêng cho portfolio. Từ gốc repo, triển khai bằng CLI với cấu hình riêng:
+Website dịch vụ dùng Vercel project **`baogia`** trong team **`hugo-huy2004s-projects`**, kết nối nhánh `main` của repo `BAOGIA` và tự triển khai khi push.
+
+Portfolio dùng project riêng **`hugo-portfolio`**, với tên miền `portfolio.hugowishpax.studio`. Từ gốc repo:
 
 ```sh
-vercel --local-config deploy/portfolio.vercel.json
+npm run deploy:portfolio
 ```
 
-Chọn **project portfolio**, không chọn project dịch vụ. Cấu hình đặt build command và output directory riêng. Gắn `portfolio.hugowishpax.studio` vào project portfolio và cập nhật DNS theo giá trị Vercel cung cấp. Với CI, dùng project ID của portfolio và cùng `--local-config`; chỉ đổi build command trong dashboard chưa đủ vì phải áp dụng redirects, rewrites và headers riêng.
+Lệnh kiểm tra CV, build portfolio, kiểm tra SEO, rồi tải **chỉ bản website đã build** lên project portfolio. Cấu hình redirects, rewrites và headers lấy từ `deploy/portfolio.vercel.json`; API và file môi trường của website dịch vụ không được gửi lên project portfolio. Cần Vercel CLI đã đăng nhập đúng team. Khi sửa CV, vẫn phải xuất PDF trước khi triển khai.
+
+DNS nằm ở Cloudflare: CNAME `portfolio` trỏ đến đích được Vercel đề xuất (`cname.vercel-dns.com` cũng được chấp nhận), chế độ DNS only. `www` giữ cấu hình hiện có.
 
 Website dịch vụ chuyển `/introduction`, `/en/introduction`, `/zh/introduction` sang portfolio; `/services` và hai bản ngôn ngữ chuyển về trang chủ tương ứng. Đường dẫn chi tiết dịch vụ giữ nguyên. Cả hai website có sitemap và canonical riêng.
 
-Thay đổi trong repo chưa tự tạo Vercel project hoặc đổi DNS.
+Project portfolio và tên miền đã được tạo trên Vercel. Việc cập nhật DNS cần quyền Cloudflare hoặc chủ tài khoản thêm CNAME.
 
 ## CV và nhận xét
 

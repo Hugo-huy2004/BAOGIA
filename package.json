@@ -72,14 +72,15 @@
     "dev:portfolio": "vite --config vite.portfolio.config.js",
     "build:portfolio": "vite build --config vite.portfolio.config.js && node scripts/generate-portfolio-seo.mjs",
     "preview:portfolio": "vite preview --config vite.portfolio.config.js",
-    "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs"
+    "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs",
+    "deploy:portfolio": "node scripts/deploy-portfolio.mjs"
   },
   "dependencies": {
-    "@capacitor/android": "8.4.2",
+    "@capacitor/android": "8.4.3",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "8.4.2",
     "@capacitor/haptics": "^8.0.2",
-    "@capacitor/ios": "8.4.2",
+    "@capacitor/ios": "8.4.3",
     "@capacitor/keyboard": "^8.0.5",
     "@capacitor/push-notifications": "8.1.2",
     "@capacitor/splash-screen": "^8.0.2",
