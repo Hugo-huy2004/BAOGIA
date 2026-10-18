@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { languageCode, languageLabel, localeForLanguage } from "../i18n/languages";
 
-const SITE_ORIGIN = "https://www.hugowishpax.studio";
+import { SITE_ORIGIN } from "../config/publicSites";
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/og-image.png`;
 const INDEX_ROBOTS =
   "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";

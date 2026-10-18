@@ -41,3 +41,6 @@ server/uploads/
 
 # Tệp người dùng tải lên khi chạy máy cục bộ — không thuộc mã nguồn.
 uploads/
+
+# Standalone portfolio output
+dist-portfolio/

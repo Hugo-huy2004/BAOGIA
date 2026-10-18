@@ -146,7 +146,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.2fr_1fr_1fr] md:gap-8">
           <div className="col-span-2 max-w-sm md:col-span-1">
-            <Link to="/introduction" className="inline-flex min-h-11 items-center text-lg font-extrabold tracking-[-0.03em] text-foreground">
+            <Link to="https://portfolio.hugowishpax.studio/" className="inline-flex min-h-11 items-center text-lg font-extrabold tracking-[-0.03em] text-foreground">
               Hugo Studio
             </Link>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -176,9 +176,9 @@ export default function Footer() {
           <nav aria-label={t("footer.links", "Khám phá")}>
             <p className={colTitleClass}>{t("footer.links", "Khám phá")}</p>
             <ul className="mt-2 flex flex-col">
-              <li><Link to="/introduction" className={linkClass}>{t("footer.introduction", "Giới thiệu")}</Link></li>
+              <li><Link to="https://portfolio.hugowishpax.studio/" className={linkClass}>{t("footer.introduction", "Giới thiệu")}</Link></li>
               <li><Link to="/student-pricing" className={linkClass}>{t("navbar.benefits", "Quyền lợi HSSV")}</Link></li>
-              <li><Link to="/services" className={linkClass}>{t("footer.services", "Dịch vụ")}</Link></li>
+              <li><Link to="/" className={linkClass}>{t("footer.services", "Dịch vụ")}</Link></li>
               <li><Link to="/faq" className={linkClass}>{t("navbar.faq", "Hỏi đáp")}</Link></li>
             </ul>
           </nav>

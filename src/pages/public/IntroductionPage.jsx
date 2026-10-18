@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { FileText, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useScroll, useMotionValueEvent } from "motion/react";
+import { cvPdf } from "../../config/publicSites";
 import { useData } from "../../context/DataContext";
 import { featuredProjects, shotUrl } from "../../data/projects";
 import Aura from "../../components/public/hwagfu/Aura";
@@ -9,8 +10,7 @@ import FloatingOrbs from "../../components/public/hwagfu/FloatingOrbs";
 import HeroScrollFx from "../../components/public/hwagfu/HeroScrollFx";
 import RainbowText from "../../components/public/hwagfu/RainbowText";
 import WorkStory from "../../components/public/hwagfu/WorkStory";
-import ServicesStory from "../../components/public/hwagfu/ServicesStory";
-import ProfileStory from "../../components/public/hwagfu/ProfileStory";
+import ProfileSummary from "../../components/public/ProfileSummary";
 import CinematicAtmosphere from "../../components/public/cine/CinematicAtmosphere";
 import { syncScrollFilmBeat, playHapticTick } from "../../utils/CinematicSoundEngine";
 import "../../components/public/hwagfu/hwagfu.css";
@@ -24,7 +24,7 @@ import "../../components/public/hwagfu/hwagfu.css";
 // Trên điện thoại, nội dung hero chỉ cao ~540px giữa màn 852px nên phía dưới
 // hở ra một mảng trống bằng nửa màn hình. Cho section cao tối thiểu bằng màn
 // rồi căn giữa: nền và bong bóng lấp trọn khung đầu tiên.
-function Hero({ name, t }) {
+function Hero({ name, t, language }) {
   return (
     <section
       data-anchor="hero"
@@ -69,7 +69,7 @@ function Hero({ name, t }) {
             {t("intro.story.hero.ctaStart")}
           </a>
           <a
-            href="/cv/index.html"
+            href={cvPdf(language)} target="_blank" rel="noopener noreferrer"
             onClick={() => playHapticTick()}
             className="btn-secondary"
             aria-label={t("intro.story.hero.ctaCvAria", { name })}
@@ -131,7 +131,7 @@ function Contact({ email, t }) {
 }
 
 export default function IntroductionPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data } = useData();
   const name = data?.profile?.fullName || "Hugo Wishpax";
   const email = data?.profile?.emailAddress || "contact@hugowishpax.studio";
@@ -152,16 +152,6 @@ export default function IntroductionPage() {
         title: project.title,
         tagline: t(`projectsPage.items.${project.id}.tagline`, project.tagline),
         image: { src: shotUrl(project.id, project.cover || project.shots[0].src), alt: project.title },
-      })),
-    [t],
-  );
-
-  const serviceChapters = useMemo(
-    () =>
-      ["chapter1", "chapter2", "chapter3"].map((key) => ({
-        eyebrow: t(`intro.story.services.${key}.eyebrow`),
-        title: t(`intro.story.services.${key}.title`),
-        description: t(`intro.story.services.${key}.description`),
       })),
     [t],
   );
@@ -188,15 +178,6 @@ export default function IntroductionPage() {
     [t],
   );
 
-  const promises = useMemo(
-    () =>
-      ["promise1", "promise2", "promise3"].map((key) => ({
-        title: t(`intro.story.profile.${key}.title`),
-        desc: t(`intro.story.profile.${key}.desc`),
-      })),
-    [t],
-  );
-
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll();
 
@@ -207,7 +188,8 @@ export default function IntroductionPage() {
   return (
     <div ref={containerRef} className="hwagfu-copy relative">
       <CinematicAtmosphere />
-      <Hero name={name} t={t} />
+      <Hero name={name} t={t} language={i18n.language} />
+      <div id="projects" className="scroll-mt-24" />
       <WorkStory
         label={t("intro.story.work.label")}
         heading={t("intro.story.work.heading")}
@@ -215,40 +197,7 @@ export default function IntroductionPage() {
         viewAll={t("intro.story.work.viewAll")}
         projects={projects}
       />
-      <ServicesStory
-        label={t("intro.story.services.label")}
-        heading={t("intro.story.services.heading")}
-        chapters={serviceChapters}
-        progressLabels={[
-          t("intro.story.services.progress1"),
-          t("intro.story.services.progress2"),
-          t("intro.story.services.progress3"),
-        ]}
-        speedUnit={t("intro.story.services.speedUnit")}
-        mergeLabel={t("intro.story.services.mergeLabel")}
-        seoBurst={[t("intro.story.services.seoBurst1"), t("intro.story.services.seoBurst2")]}
-        cta={t("intro.story.services.cta")}
-      />
-      <ProfileStory
-        kicker={t("intro.story.profile.kicker")}
-        heading={t("intro.story.profile.heading")}
-        summary={t("intro.story.profile.summary")}
-        educationHeading={t("intro.story.profile.educationHeading")}
-        education={education}
-        milestones={["2023", "2027", t("intro.story.profile.milestoneNow")]}
-        techHeading={t("intro.story.profile.techHeading")}
-        techNote={t("intro.story.profile.techNote")}
-        categories={{
-          frontend: t("intro.story.profile.catFrontend"),
-          backend: t("intro.story.profile.catBackend"),
-          database: t("intro.story.profile.catDatabase"),
-          devops: t("intro.story.profile.catDevops"),
-        }}
-        promiseLabel={t("intro.story.profile.promiseLabel")}
-        promiseHeading={t("intro.story.profile.promiseHeading")}
-        promises={promises}
-        cvLabel={t("intro.story.profile.cvLabel")}
-      />
+      <ProfileSummary education={education} />
       <Contact email={email} t={t} />
     </div>
   );

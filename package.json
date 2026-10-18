@@ -68,7 +68,11 @@
     "check:nom": "node scripts/checks/check-nom.mjs",
     "check:joy-stability": "node server/scripts/check-joy-stability.mjs",
     "joy:recall": "node server/scripts/joy-recall.mjs",
-    "joy:report": "node -e \"import('./server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\""
+    "joy:report": "node -e \"import('./server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\"",
+    "dev:portfolio": "vite --config vite.portfolio.config.js",
+    "build:portfolio": "vite build --config vite.portfolio.config.js && node scripts/generate-portfolio-seo.mjs",
+    "preview:portfolio": "vite preview --config vite.portfolio.config.js",
+    "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",

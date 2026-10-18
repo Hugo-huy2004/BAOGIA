@@ -136,29 +136,31 @@
     "terms": "條款使用"
   },
   "donationUI": {
-    "title": "擁護 Hugo Studio",
-    "description": "入款貴成員㦖寄. 各墨邊𠁑只羅𢭮意𨘱.",
-    "open": "𨷑榜擁護",
-    "hide": "隱鈕擁護浮",
+    "title": "請咖啡 & 保助 Hugo",
+    "subTitle": "Global Patron & Open-Source Studio",
+    "open": "請咖啡 & 擁護 Studio",
+    "hide": "隱鈕擁護",
     "close": "𢫝榜擁護",
-    "creating": "當造清算 PayOS…",
-    "error": "渚體造清算. 𢝙𢚸試吏.",
-    "securePayOS": "交面 Hugo Studio · 與料清算自 API PayOS",
-    "suggestions": "墨擁護𢭮意",
-    "amountLabel": "數錢貴成員㦖擁護",
-    "nameLabel": "𠸜𧵑貴成員",
-    "emailLabel": "Email 認書感恩",
-    "identityError": "𢝙𢚸入𠸜吧 email 合例.",
-    "recognitionNotice": "擁護成功 󰑼𠸜貴成員𠱊𨄾𠓨角感恩𡮈𠰮𧵑 Hugo Studio.",
-    "terms": "欺接俗, 貴成員確認低羅款擁護自願, 空𧷸咍𨷑鎖性能吧𥆾終空還吏, 除交易重, 𤻳技術或場合法律規定恪.",
-    "termsError": "𢝙𢚸確認條款款擁護.",
-    "packs": {
-      "tea": "茶𥒥",
-      "breakfast": "𣇜𤎜",
-      "coffee": "璃咖啡",
-      "server": "維持 server",
-      "supporter": "𠊚同行"
-    }
+    "intro": "Hugo Wishpax Studio 運行如一房研究公藝獨立. 事同行自願𧵑各位助 Studio 維持各工具碼源隘有益朱社區.",
+    "quickTreats": "揀𨘱禮物寄 Hugo",
+    "channelsTitle": "港保助全局",
+    "treats": {
+      "coffee": "珈琲 ($3)",
+      "boba": "珍珠奶茶 ($5)",
+      "pastry": "點心 ($10)",
+      "server": "維持 Server ($25)"
+    },
+    "bmacTitle": "Buy Me a Coffee",
+    "bmacDesc": "請珈琲 $3, $5, $10 · Visa, Mastercard, Apple Pay",
+    "kofiTitle": "Ko-fi Patron (0% 費)",
+    "kofiDesc": "財助直接 · Visa, Mastercard, PayPal",
+    "githubTitle": "GitHub Sponsors",
+    "githubDesc": "保助正式朱立程員碼源隘",
+    "paypalTitle": "PayPal Checkout",
+    "paypalDesc": "清算安全國際過 Card 或 PayPal",
+    "sponsorBtn": "財助",
+    "secureNotice": "結合直接 256-bit SSL · 空留貯 Card · 100% 保密",
+    "disclaimer": "每款財助完全自願爲維持下層技術. 空適用商業電子在越南."
   },
   "intro": {
     "nav": {

@@ -4760,32 +4760,31 @@
     "terms": "使用条款"
   },
   "donationUI": {
-    "title": ":support_hugo_studio: 支持 Hugo Studio",
-    "description": "为你的贡献命名；下面的数字仅为参考。",
-    "open": ":open_contribution_panel:",
-    "hide": ":hide_floating_contribution_button:",
-    "close": "Close the contribution panel",
-    "creating": "准备您的PayOS结账…",
-    "error": "结账无法准备，请重新尝试。",
-    "continuePayOS": "创建贡献 · {{amount}}₫",
-    "securePayOS": "Hugo Studio界面 · 由PayOS API提供支付数据",
-    "suggestions": "建议的捐赠",
-    "amountLabel": "您选择的金额",
-    "minimum": "最低 5,000 VND",
-    "minimumError": "最低捐款为 5,000 VND。",
-    "nameLabel": "您的姓名",
-    "emailLabel": "Email for your thank-you note",
-    "identityError": "Please provide a valid name and email address.",
-    "recognitionNotice": "Once your contribution lands safely, your name will pop into Hugo Studio’s little roll of thanks.",
-    "terms": "By proceeding, you acknowledge that this voluntary contribution purchases no feature or access and is ordinarily non-refundable, save for duplicates, technical errors, or where applicable law stipulates otherwise.",
-    "termsError": "请确认贡献条款。",
-    "packs": {
-      "tea": "A glass of iced tea",
-      "breakfast": "Breakfast",
-      "coffee": "A cup of coffee",
-      "server": ":server-upkeep",
-      "supporter": ":studio-patron"
-    }
+    "title": "请 Hugo 喝杯咖啡 & 赞助",
+    "subTitle": "Global Patron & Open-Source Studio",
+    "open": "请喝咖啡 & 赞助工作室",
+    "hide": "隐藏赞助浮窗",
+    "close": "关闭赞助面板",
+    "intro": "Hugo Wishpax Studio 是一个独立的开源技术实验室。您的慷慨赞助帮助我们持续维护免费的社区工具与开放创新。",
+    "quickTreats": "选择一份心意礼物",
+    "channelsTitle": "全球赞助通道",
+    "treats": {
+      "coffee": "晨间美式 ($3)",
+      "boba": "珍珠奶茶 ($5)",
+      "pastry": "元气可颂 ($10)",
+      "server": "月度云服务器 ($25)"
+    },
+    "bmacTitle": "Buy Me a Coffee",
+    "bmacDesc": "请杯咖啡 $3, $5, $10 · Visa, Mastercard, Apple Pay",
+    "kofiTitle": "Ko-fi Patron (平台0%手续费)",
+    "kofiDesc": "创作者直接支持 · Visa, Mastercard, PayPal",
+    "githubTitle": "GitHub Sponsors",
+    "githubDesc": "为开源开发者提供官方月度或单次赞助",
+    "paypalTitle": "PayPal Checkout",
+    "paypalDesc": "通过国际信用卡或 PayPal 余额安全付款",
+    "sponsorBtn": "赞助支持",
+    "secureNotice": "256位 SSL 直接加密连接 · 不留存银行卡信息 · 100% 安全",
+    "disclaimer": "所有赞助均属于自愿赠予，用于服务器运营和技术研究。在越南境内不涉及任何电子商务交易。"
   },
   "intro": {
     "nav": {
@@ -7109,7 +7108,7 @@
           "hugo-edu-plus": "免费"
         },
         "live": {
-          "hugo-one": "交付 .ZIP 源代码。请我上线：连接套餐 ₫1,270,000（约 $49）",
+          "hugo-one": "交付 .ZIP 源代码。请我上线：连接套餐 ₫350,000（约 $14）",
           "hugo-story": "已包含：制作中完成接入，交付已上线链接",
           "hugo-flow-plus": "已包含：制作中完成接入，交付已上线链接",
           "hugo-edu-plus": "使用 Hugo Studio 的公共域名"
@@ -7117,7 +7116,7 @@
         "monthly": {
           "hugo-one": "不需要每月付给我。只有付给服务商的域名、主机费用",
           "hugo-story": "不需要每月付给我。只有付给服务商的域名、主机费用",
-          "hugo-flow-plus": "可选维护套餐 ₫750,000（约 $29）/月，另加服务商费用",
+          "hugo-flow-plus": "可选维护套餐 ₫490,000（约 $19）/月，另加服务商费用",
           "hugo-edu-plus": "免费"
         }
       }
@@ -7240,8 +7239,8 @@
         ],
         "policyExtra": [],
         "price": {
-          "from": "₫5,690,000（约 $219）",
-          "note": "一口价，适用于最多 7 个部分、文案与图片已备好的页面。交付可直接上线的源代码；需要我放到你的域名上，可加购连接套餐 ₫1,270,000（约 $49）。",
+          "from": "₫1,290,000（约 $50）",
+          "note": "一口价，适用于最多 7 个部分、文案与图片已备好的页面。交付可直接上线的源代码；需要我放到你的域名上，可加购连接套餐 ₫350,000（约 $14）。",
           "factors": []
         },
         "faq": [
@@ -7266,8 +7265,8 @@
           "终身免费修复"
         ],
         "seo": {
-          "title": "落地页设计 ₫569万 起，无需定金 | Hugo One",
-          "description": "手写代码、加载快速的单页落地页，适合广告投放、新品发布与作品集。一口价 ₫569万（约 $219），无需定金，7–10 天交付，终身免费修复错误。",
+          "title": "落地页设计 ₫129万 起，无需定金 | Hugo One",
+          "description": "手写代码、加载快速的单页落地页，适合广告投放、新品发布与作品集。一口价 ₫129万（约 $50），无需定金，7–10 天交付，终身免费修复错误。",
           "keywords": "落地页设计, 单页网站, 广告落地页, 落地页制作价格, 自由职业网页设计, Hugo One"
         }
       },
@@ -7317,8 +7316,8 @@
         ],
         "policyExtra": [],
         "price": {
-          "from": "₫11,670,000（约 $449）",
-          "note": "4 页一口价，文案与图片已备好，含上线到你的域名。每多一页 ₫1,530,000（约 $59），最多 6 页。",
+          "from": "₫2,990,000（约 $115）",
+          "note": "4 页一口价，文案与图片已备好，含上线到你的域名。每多一页 ₫390,000（约 $15），最多 6 页。",
           "factors": []
         },
         "faq": [
@@ -7344,8 +7343,8 @@
           "终身免费修复"
         ],
         "seo": {
-          "title": "小企业网站设计，4 页 ₫1167万 | Hugo Story",
-          "description": "为店铺、咖啡馆和小企业打造的 4 页网站：菜单、地图、电话与聊天按钮，每页都能上 Google。₫1167万（约 $449），含上线到你的域名，2–3 周交付。",
+          "title": "小企业网站设计，4 页 ₫299万 | Hugo Story",
+          "description": "为店铺、咖啡馆和小企业打造的 4 页网站：菜单、地图、电话与聊天按钮，每页都能上 Google。₫299万（约 $115），含上线到你的域名，2–3 周交付。",
           "keywords": "小企业网站设计, 企业官网建设, 咖啡馆网站, 店铺网站, 网站设计价格, Hugo Story"
         }
       },
@@ -7400,7 +7399,7 @@
           }
         ],
         "price": {
-          "from": "₫19,470,000（约 $749）起",
+          "from": "₫4,990,000（约 $192）起",
           "note": "4 页网站加一个功能和管理后台的起步价。第二个功能、自动收款或多商品购物车，沟通后再报价。",
           "factors": [
             "你选择的功能：预约最简单，商品很多的目录最费工。",
@@ -7592,7 +7591,7 @@
       "heroLine1": "网站与落地页",
       "heroLine2": "设计与开发，",
       "heroLine3": "每一行都手写。",
-      "heroLede": "落地页 ₫5,690,000（约 $219），无需定金。4 页网站 ₫11,670,000（约 $449），含上线到你的域名。100% 线上合作，源代码交付给你。",
+      "heroLede": "落地页 ₫1,290,000（约 $50），无需定金。4 页网站 ₫2,990,000（约 $115），含上线到你的域名。100% 线上合作，源代码交付给你。",
       "heroCta": "获取报价",
       "heroCtaAlt": "查看已完成项目",
       "scrollHint": "向下滚动，逐个了解套餐",
@@ -7671,15 +7670,15 @@
       "units": [
         {
           "title": "多加一页（Story、Flow+，最多 6 页）",
-          "price": "₫1,530,000（约 $59） / 页"
+          "price": "₫390,000（约 $15） / 页"
         },
         {
           "title": "Hugo One 页面多加一部分（如价格表、客户评价）",
-          "price": "₫650,000（约 $25） / 部分"
+          "price": "₫150,000（约 $6） / 部分"
         },
         {
           "title": "第三次起修改设计（前两次免费）",
-          "price": "₫750,000（约 $29） / 次"
+          "price": "₫200,000（约 $8） / 次"
         }
       ]
     },
@@ -7780,7 +7779,7 @@
       "link": {
         "name": "连接套餐",
         "when": "用你自己的账户，把网站上线到你的域名。",
-        "price": "₫1,270,000（约 $49）",
+        "price": "₫350,000（约 $14）",
         "priceNote": "一次性，适用 Hugo One。Hugo Story 与 Flow+ 在制作过程中已包含。",
         "for": "Hugo One",
         "items": [
@@ -7865,14 +7864,14 @@
         ],
         "seo": {
           "title": "域名与主机接入服务 | Hugo Studio",
-          "description": "以你的名义购买域名、主机和邮箱，我在 30 分钟通话中把一切接入你的网站。一次性 ₫127万（约 $49），设置保修 30 天。",
+          "description": "以你的名义购买域名、主机和邮箱，我在 30 分钟通话中把一切接入你的网站。一次性 ₫350,000（约 $14），设置保修 30 天。",
           "keywords": "域名解析服务, 网站接入域名, 主机设置, 域名邮箱设置, 网站上线服务"
         }
       },
       "support": {
         "name": "单次支持",
         "when": "交付后需要改内容，或网站被他人改过且已不在保修内。",
-        "price": "₫1,170,000（约 $45）起 / 次",
+        "price": "₫300,000（约 $12）起 / 次",
         "priceNote": "无需按月订阅。价格已含修改前重新阅读代码的工作。",
         "for": "所有套餐",
         "items": [
@@ -7925,15 +7924,15 @@
         "priceRows": [
           {
             "title": "改文字、换图片，一次最多 10 处",
-            "price": "₫1,170,000（约 $45） / 次"
+            "price": "₫300,000（约 $12） / 次"
           },
           {
             "title": "修复问题或加一个小板块",
-            "price": "₫1,950,000 – ₫3,870,000（约 $75 – $149）"
+            "price": "₫500,000 – ₫1,000,000（约 $19 – $38）"
           },
           {
             "title": "检查被他人改动过的网站",
-            "price": "₫1,950,000（约 $75），如继续修复则抵扣"
+            "price": "₫500,000（约 $19），如继续修复则抵扣"
           }
         ],
         "extras": [
@@ -7961,20 +7960,20 @@
         ],
         "illo": [
           "帮我把营业时间改成 8:00",
-          "₫1,170,000（约 $45） · 2 天完成",
+          "₫300,000（约 $12） · 2 天完成",
           "已完成"
         ],
         "seo": {
           "title": "网站修改与内容更新，按次收费 | Hugo Studio",
-          "description": "为 Hugo Studio 交付的网站按次修改：改文字、换图片、修复小问题、检查被改动的网站。₫117万（约 $45）起，动工前先报价。",
+          "description": "为 Hugo Studio 交付的网站按次修改：改文字、换图片、修复小问题、检查被改动的网站。₫300,000（约 $12）起，动工前先报价。",
           "keywords": "网站修改, 网站内容更新, 按次网站支持, 网站小改动, 网站维修"
         }
       },
       "seo": {
         "name": "SEO 套餐",
         "when": "让 Google 读懂你的网站，客户搜索你卖的东西时能找到你。",
-        "price": "₫9,850,000（约 $379）起",
-        "priceNote": "Hugo One ₫9,850,000（约 $379） · Hugo Story、Flow+ ₫17,390,000（约 $669）。一次性，适用已上线的网站。",
+        "price": "₫990,000（约 $38）起",
+        "priceNote": "Hugo One ₫990,000（约 $38） · Hugo Story、Flow+ ₫1,790,000（约 $69）。一次性，适用已上线的网站。",
         "for": "所有套餐",
         "items": [
           "挑选客户真正会搜的关键词",
@@ -8057,24 +8056,24 @@
         "priceRows": [
           {
             "title": "Hugo One：一页",
-            "price": "₫9,850,000（约 $379）"
+            "price": "₫990,000（约 $38）"
           },
           {
             "title": "Hugo Story、Hugo Flow+：最多 6 页",
-            "price": "₫17,390,000（约 $669）"
+            "price": "₫1,790,000（约 $69）"
           }
         ],
         "seo": {
           "title": "一次性 SEO 设置与 Google 地图资料 | Hugo Studio",
-          "description": "一次性 SEO 基础设置：关键词、每页标题与描述、Google Search Console、结构化数据与 Google 地图商家资料。₫985万（约 $379）起。",
+          "description": "一次性 SEO 基础设置：关键词、每页标题与描述、Google Search Console、结构化数据与 Google 地图商家资料。₫990,000（约 $38）起。",
           "keywords": "一次性SEO设置, 站内SEO服务, Google商家资料设置, 本地SEO, Google Search Console设置"
         }
       },
       "maintain": {
         "name": "Flow+ 维护套餐",
         "when": "有订单、有资金流动的网站需要有人照看。我每月帮你照看。",
-        "price": "₫750,000（约 $29） / 月",
-        "priceNote": "按年付 ₫7,540,000（约 $290），相当于 10 个月。可选，提前一个月通知即可随时停止。",
+        "price": "₫490,000（约 $19） / 月",
+        "priceNote": "按年付 ₫4,900,000（约 $188），相当于 10 个月。可选，提前一个月通知即可随时停止。",
         "for": "Hugo Flow+",
         "items": [
           "每周备份订单数据",
@@ -8126,7 +8125,7 @@
         "extras": [
           {
             "title": "套餐外的工作：单次支持",
-            "price": "₫1,170,000（约 $45）起 / 次"
+            "price": "₫300,000（约 $12）起 / 次"
           }
         ],
         "time": "交付后立即开始",
@@ -8153,8 +8152,8 @@
           "安全更新"
         ],
         "seo": {
-          "title": "网站每月维护套餐 ₫75万/月 | Hugo Studio",
-          "description": "预约与接单网站的每月维护：每周备份、在线监控、安全补丁、每月测试订单。₫75万（约 $29）/月，可随时停止。",
+          "title": "网站每月维护套餐 ₫49万/月 | Hugo Studio",
+          "description": "预约与接单网站的每月维护：每周备份、在线监控、安全补丁、每月测试订单。₫49万（约 $19）/月，可随时停止。",
           "keywords": "网站维护套餐, 网站每月维护, 网站备份服务, 网站安全更新, 网站在线监控"
         }
       }

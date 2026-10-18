@@ -18,8 +18,7 @@ export default function Navbar() {
   const isAt = (path) => location.pathname === path;
 
   const navItems = [
-    { to: "/introduction", label: t("navbar.home", "Giới thiệu") },
-    { to: "/services", label: t("navbar.services", "Dịch vụ") },
+    { to: "/", label: t("navbar.services", "Dịch vụ") },
     { to: "/faq", label: t("navbar.faq", "Hỏi đáp") },
     ...(allowBooking ? [{ to: "/booking", label: t("navbar.booking", "Đặt lịch") }] : []),
   ];
@@ -44,7 +43,7 @@ export default function Navbar() {
           <div className="w-full flex items-center justify-between gap-3">
             {/* Brand */}
             <Link
-              to="/introduction"
+              to="/"
               viewTransition
               className="flex h-10 flex-shrink-0 items-center gap-2.5 text-sm font-extrabold tracking-[-0.02em] text-foreground transition-transform hover:scale-[1.03] active:scale-95 px-1"
               aria-label="Hugo Studio Home"

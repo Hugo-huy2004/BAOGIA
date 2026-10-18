@@ -27,10 +27,12 @@ import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
 import { priceCurrency, servicePackages } from "../src/data/servicePackages.js";
 import { SERVICE_ADDONS, addonPath } from "../src/data/serviceAddons.js";
 import { projects } from "../src/data/projects.js";
+import { profileSkills, skillsCopy } from "../src/data/profileSkills.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DIST = path.join(ROOT, "dist");
-const ORIGIN = "https://www.hugowishpax.studio";
+const isPortfolio = process.env.SITE_TARGET === "portfolio";
+const DIST = path.join(ROOT, isPortfolio ? "dist-portfolio" : "dist");
+const ORIGIN = isPortfolio ? "https://portfolio.hugowishpax.studio" : "https://www.hugowishpax.studio";
 
 /** Bốn gói kèm giá, đọc từ cùng nguồn với trang thật. Gói báo giá riêng không
  *  có mức trần nên chỉ in một con số. */
@@ -84,7 +86,10 @@ const xDefault = (p) => ((publishedLocalePaths.get(p) || LOCALES).some((l) => l.
 // not published, so it must not appear in any hreflang cluster either.
 let publishedLocalePaths = new Map();
 
-const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+const sourceTemplate = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+const template = isPortfolio
+  ? sourceTemplate.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "")
+  : sourceTemplate;
 
 function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   const t = JSON.parse(
@@ -131,7 +136,10 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         `<h1>${esc(t.intro.cine.heroTitle1)} ${esc(t.intro.cine.heroTitle2)}</h1>` +
         `<p>${esc(t.intro.cine.heroDesc)}</p>` +
         `<h2>${esc(t.intro.cine.work.title)}</h2><p>${esc(t.intro.cine.work.desc)}</p>` +
-        `<p><a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="${prefix}/services">${esc(h1of(t.servicesPage.meta.title))}</a></p>`,
+        `<h2>${esc(skillsCopy[lang].heading)}</h2>` + profileSkills.map((group) =>
+          `<h3>${esc(group.title[lang])}</h3><p>${esc(group.lines.join(" · "))}</p><p>${esc(group.note[lang])}</p>`,
+        ).join("") +
+        `<p><a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="/cv/index.html">CV</a></p>`,
     },
     {
       path: "/services",
@@ -152,7 +160,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
             "@type": "ProfessionalService",
             "@id": `${ORIGIN}/#studio`,
             name: "Hugo Studio",
-            url: `${ORIGIN}/services`,
+            url: `${ORIGIN}/`,
             image: `${ORIGIN}/og-image.png`,
             description: t.servicesPage.meta.description,
             // Mọi bản đều niêm yết VNĐ; en/zh kèm "≈ $…" tham khảo cho khách nước ngoài.
@@ -164,7 +172,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Hugo Studio", item: `${ORIGIN}/introduction` },
+              { "@type": "ListItem", position: 1, name: "Hugo Studio", item: `${ORIGIN}/` },
               { "@type": "ListItem", position: 2, name: "Dịch vụ & báo giá", item: `${ORIGIN}/services` },
             ],
           },
@@ -476,7 +484,9 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
     en: ["About", "Services & pricing", "FAQ", "Start a conversation", "Student benefits", "User guide"],
     zh: ["介绍", "服务与价格", "常见问题", "开始沟通", "学生权益", "使用指南"],
   }[lang];
-  const NAV = `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="${prefix}/introduction">${navLabels[0]}</a><a href="${prefix}/services">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/booking">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
+  const NAV = isPortfolio
+    ? `<nav><a href="${prefix}/">Hugo Wishpax</a> · <a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="/cv/index.html">CV</a> · <a href="https://www.hugowishpax.studio/">${navLabels[1]}</a></nav>`
+    : `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="https://portfolio.hugowishpax.studio${prefix}/">${navLabels[0]}</a><a href="${prefix}/">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/booking">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
 
   // Scoped so it cannot leak into the React tree that replaces this block.
   const BLOCK_CSS =
@@ -494,7 +504,12 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
     return html.replace(re, next);
   };
 
-  for (const r of (emit ? routes : []).filter((r) => !only || only.has(r.path))) {
+  const siteRoutes = routes
+    .filter((r) => isPortfolio
+      ? r.path === "/introduction" || r.path === "/project" || r.path.startsWith("/project/")
+      : r.path !== "/introduction")
+    .map((r) => ({ ...r, path: r.path === (isPortfolio ? "/introduction" : "/services") ? "/" : r.path }));
+  for (const r of (emit ? siteRoutes : []).filter((r) => !only || only.has(r.path))) {
     const url = ORIGIN + prefix + r.path;
     let html = template.replace(/<html lang="[^"]*"/, `<html lang="${lang}"`);
 
@@ -559,7 +574,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
           description: r.description,
           inLanguage: lang,
           isPartOf: { "@id": `${ORIGIN}/#website` },
-          about: { "@id": `${ORIGIN}/#organization` },
+          about: { "@id": `${ORIGIN}/#${isPortfolio ? "hugo" : "organization"}` },
           author: {
             "@type": "Person",
             "@id": `${ORIGIN}/#hugo`,
@@ -574,9 +589,9 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
               "@type": "ListItem",
               position: 1,
               name: "Hugo Studio",
-              item: `${ORIGIN}${prefix}/introduction`,
+              item: `${ORIGIN}${prefix}/`,
             },
-            ...(r.path === "/introduction"
+            ...(r.path === "/"
               ? []
               : [
                   {
@@ -620,7 +635,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
     fs.writeFileSync(path.join(out, "index.html"), html);
   }
 
-  return routes;
+  return siteRoutes;
 }
 
 // ── sitemap.xml ───────────────────────────────────────────────────────────────
@@ -700,7 +715,7 @@ fs.writeFileSync(
   path.join(DIST, "llms.txt"),
   `# Hugo Wishpax / Hugo Studio\n\n` +
     `> Hugo Wishpax is a software engineer and product builder. Hugo Studio is the product lab and portfolio behind the work. He is open to software engineering internships, junior roles and freelance web projects.\n\n` +
-    `## Start here\n\n- [Portfolio and CV](${ORIGIN}/en/introduction)\n- [English freelance services](${ORIGIN}/en/services)\n- [Selected projects](${ORIGIN}/en/project)\n\n` +
+    `## Start here\n\n- [Portfolio and CV](https://portfolio.hugowishpax.studio/en/)\n- [English freelance services](${ORIGIN}/en/services)\n- [Selected projects](${ORIGIN}/en/project)\n\n` +
     `## Hugo Studio services\n\n> ${tVI.servicesPage.meta.description}\n\n` +
     enPricing +
     `## Bảng giá\n\n${plans.map((p) => `- ${p.name}: ${p.price}${p.scope ? ` — ${p.scope}` : ""}`).join("\n")}\n\n` +
@@ -717,10 +732,10 @@ fs.writeFileSync(
 // Trước đây phải thêm tay, nên thêm một dự án là quên một rewrite và trang mới
 // rơi vào bản SPA rỗng (Google đọc được đúng cái khung). Giờ danh sách này sinh
 // ra từ chính các trang vừa dựng; những rewrite khác (/api, /pay…) giữ nguyên.
-const vercelPath = path.join(ROOT, "vercel.json");
+const vercelPath = path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json");
 const vercel = JSON.parse(fs.readFileSync(vercelPath, "utf8"));
 const generated = perLocale.flatMap(({ prefix, routes: list }) =>
-  list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path}/index.html` })),
+  list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path === "/" ? "" : r.path}/index.html` })),
 );
 const generatedSources = new Set(generated.map((r) => r.source));
 // Bỏ các quy tắc trang tĩnh do CHÍNH script này sinh ra ở lần chạy trước — nhận
@@ -730,7 +745,7 @@ const generatedSources = new Set(generated.map((r) => r.source));
 // "/index.html", nên nó nuốt luôn quy tắc DỰ PHÒNG SPA (`→ /index.html`). Mỗi
 // lần build là quy tắc đó biến mất, và mọi đường dẫn phía client — /admin/…,
 // /member/… — mở trực tiếp hoặc tải lại trang sẽ không khớp quy tắc nào.
-const isGeneratedPageRule = (r) => r.destination === `${r.source}/index.html`;
+const isGeneratedPageRule = (r) => r.destination === `${r.source === "/" ? "" : r.source.replace(/\/$/, "")}/index.html`;
 const kept = vercel.rewrites.filter(
   (r) => !generatedSources.has(r.source) && !isGeneratedPageRule(r),
 );
@@ -763,4 +778,15 @@ if (stale.length) {
       `but servicePkg.items.*.price has ${plans.map((p) => p.price).join(", ")}. ` +
       `Update the meta description in index.html.`,
   );
+}
+
+// Each deployment advertises only its own sitemap and purpose.
+fs.writeFileSync(path.join(DIST, "robots.txt"),
+  fs.readFileSync(path.join(ROOT, "public/robots.txt"), "utf8")
+    .replace(/Sitemap: .*/g, `Sitemap: ${ORIGIN}/sitemap.xml`));
+if (isPortfolio) {
+  fs.writeFileSync(path.join(DIST, "llms.txt"),
+    `# Hugo Wishpax — Portfolio\n\n${tVI.intro.cine.meta.description}\n\n` +
+    `- [Portfolio](${ORIGIN}/)\n- [Projects](${ORIGIN}/project)\n- [CV](${ORIGIN}/cv/index.html)\n` +
+    `- [Services](https://www.hugowishpax.studio/)\n`);
 }

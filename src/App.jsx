@@ -48,7 +48,7 @@ import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 const lazyRoute = (loader) =>
   lazy(() => Promise.all([loader(), ensureTranslations()]).then(([mod]) => mod));
 
-const IntroductionPage = lazyRoute(() => import("./pages/public/IntroductionPage"));
+const PortfolioRedirect = lazyRoute(() => import("./components/PortfolioRedirect"));
 const ProjectsPage = lazyRoute(() => import("./pages/public/ProjectsPage"));
 const ProjectDetailPage = lazyRoute(() => import("./pages/public/ProjectDetailPage"));
 const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
@@ -99,7 +99,7 @@ function AppContent() {
     };
   }, []);
   const { data } = useData();
-  const isIntroductionRoute = location.pathname === "/introduction" || location.pathname === "/";
+  const isIntroductionRoute = location.pathname === "/introduction";
 
   useEffect(() => {
     const disposeBackgroundSync = BackgroundSyncEngine.initListener();
@@ -282,12 +282,12 @@ function AppContent() {
             <Route path="/" element={
               isPWA
                 ? (isAuthenticated ? <Navigate to="/member" replace /> : <Navigate to="/login" replace />)
-                : <Navigate to="/introduction" replace />
+                : <ServicesPage />
             } />
             <Route path="/introduction" element={
               isPWA && !isAuthenticated
                 ? <Navigate to="/login" replace />
-                : <IntroductionPage />
+                : <PortfolioRedirect />
             } />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/services/:slug" element={<ServiceDetailPage />} />
@@ -361,16 +361,16 @@ function AppContent() {
             <Route path="/support-request" element={<SupportRequestPage />} />
             
             {/* Dynamic Public Utility Route */}
-            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
             {/* Đường thứ hai bên trong một app công khai — ví dụ /study/lesson7.
                 Không có nhánh này thì mở app rồi tải lại trang là văng ra
                 /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
-            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
             {/* Đường thứ ba — /study/<khoá>/<bài>. Khoá nằm trong địa chỉ nên
                 không phải suy bài thuộc khoá nào. */}
-            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
             
-            <Route path="*" element={<Navigate to="/introduction" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </main>

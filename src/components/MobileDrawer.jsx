@@ -24,8 +24,7 @@ export default function MobileDrawer() {
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const mainMenuItems = [
-    { label: t("navbar.home", "Giới Thiệu"), path: "/introduction" },
-    { label: t("navbar.services", "Dịch Vụ"), path: "/services" },
+    { label: t("navbar.services", "Dịch Vụ"), path: "/" },
     { label: t("navbar.faq", "Hỏi Đáp"), path: "/faq" },
     ...(allowBooking ? [{ label: t("navbar.booking", "Đặt Lịch & Liên Hệ"), path: "/booking" }] : [])
   ];

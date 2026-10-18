@@ -150,32 +150,31 @@
     "terms": "Điều khoản sử dụng"
   },
   "donationUI": {
-    "title": "Ủng hộ Hugo Studio",
-    "description": "Nhập khoản Quý thành viên muốn gửi. Các mức bên dưới chỉ là gợi ý nhanh.",
-    "open": "Mở bảng ủng hộ",
-    "hide": "Ẩn nút ủng hộ nổi",
+    "title": "Mời Cà Phê & Bảo Trợ Hugo",
+    "subTitle": "Global Patron & Open-Source Studio",
+    "open": "Mời cà phê & ủng hộ studio",
+    "hide": "Ẩn nút ủng hộ",
     "close": "Đóng bảng ủng hộ",
-    "creating": "Đang tạo thanh toán PayOS…",
-    "error": "Chưa thể tạo thanh toán. Vui lòng thử lại.",
-    "continuePayOS": "Tạo mã ủng hộ · {{amount}}đ",
-    "securePayOS": "Giao diện Hugo Studio · Dữ liệu thanh toán từ API PayOS",
-    "suggestions": "Mức ủng hộ gợi ý",
-    "amountLabel": "Số tiền Quý thành viên muốn ủng hộ",
-    "minimum": "Tối thiểu 5.000 VNĐ",
-    "minimumError": "Số tiền ủng hộ tối thiểu là 5.000 VNĐ.",
-    "nameLabel": "Tên của Quý thành viên",
-    "emailLabel": "Email nhận thư cảm ơn",
-    "identityError": "Vui lòng nhập tên và email hợp lệ.",
-    "recognitionNotice": "Ủng hộ thành công là tên Quý thành viên sẽ ghé vào góc cảm ơn nhỏ xinh của Hugo Studio.",
-    "terms": "Khi tiếp tục, Quý thành viên xác nhận đây là khoản ủng hộ tự nguyện, không mua hay mở khóa tính năng và nhìn chung không hoàn lại, trừ giao dịch trùng, lỗi kỹ thuật hoặc trường hợp pháp luật quy định khác.",
-    "termsError": "Vui lòng xác nhận điều khoản khoản ủng hộ.",
-    "packs": {
-      "tea": "Trà đá",
-      "breakfast": "Bữa sáng",
-      "coffee": "Ly cà phê",
-      "server": "Duy trì server",
-      "supporter": "Người đồng hành"
-    }
+    "intro": "Hugo Wishpax Studio hoạt động như một phòng nghiên cứu công nghệ độc lập. Sự đồng hành tự nguyện của Quý vị giúp studio duy trì các công cụ mã nguồn mở hữu ích cho cộng đồng.",
+    "quickTreats": "Chọn nhanh tặng phẩm gửi Hugo",
+    "channelsTitle": "Cổng bảo trợ toàn cầu",
+    "treats": {
+      "coffee": "Ly Cà Phê ($3)",
+      "boba": "Trà Sữa Topping ($5)",
+      "pastry": "Bánh Ngọt Sáng ($10)",
+      "server": "Nuôi Server Tháng ($25)"
+    },
+    "bmacTitle": "Buy Me a Coffee",
+    "bmacDesc": "Mời ly cà phê $3, $5, $10 · Visa, Mastercard, Apple Pay",
+    "kofiTitle": "Ko-fi Patron (0% Phí sàn)",
+    "kofiDesc": "Tài trợ trực tiếp · Visa, Mastercard, PayPal",
+    "githubTitle": "GitHub Sponsors",
+    "githubDesc": "Bảo trợ chính thức cho lập trình viên mã nguồn mở",
+    "paypalTitle": "PayPal Checkout",
+    "paypalDesc": "Thanh toán an toàn quốc tế qua thẻ hoặc tài khoản PayPal",
+    "sponsorBtn": "Tài trợ",
+    "secureNotice": "Kết nối trực tiếp 256-bit SSL · Không lưu trữ thẻ · 100% bảo mật",
+    "disclaimer": "Mọi khoản tài trợ hoàn toàn tự nguyện nhằm duy trì hạ tầng kỹ thuật và lan tỏa tri thức. Không áp dụng mua bán hàng hoá thương mại điện tử tại Việt Nam."
   },
   "intro": {
     "nav": {

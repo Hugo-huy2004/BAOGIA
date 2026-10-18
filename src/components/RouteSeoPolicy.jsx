@@ -41,7 +41,7 @@ export default function RouteSeoPolicy() {
 
   useEffect(() => {
     const isPublicBio = pathname.startsWith("/bio/");
-    const isPublic = pathname === "/" || PUBLIC_PATHS.has(pathname) || isPublicBio;
+    const isPublic = pathname === "/" || PUBLIC_PATHS.has(pathname) || pathname.startsWith("/project") || isPublicBio;
     const robots = isPublic ? INDEX_ROBOTS : PRIVATE_ROBOTS;
 
     setMeta("robots", robots);
@@ -51,7 +51,7 @@ export default function RouteSeoPolicy() {
     // it reports `/services`; use the browser URL so the English and Chinese
     // static editions keep their own canonical after React hydrates.
     const currentPath = window.location.pathname;
-    const canonicalUrl = `${ORIGIN}${currentPath === "/" ? "/introduction" : currentPath}`;
+    const canonicalUrl = `${ORIGIN}${currentPath}`;
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");

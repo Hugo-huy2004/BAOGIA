@@ -11,6 +11,9 @@ npm run dev:frontend     # chỉ Vite, port 3000
 npm run dev:backend      # chỉ Node backend, port 8099 (needs MongoDB running)
 npm run lint             # ESLint over src/ + server/ + scripts/ + workers/
 npm run build            # production build (dist/ KHÔNG commit — .gitignore chặn)
+npm run dev:portfolio    # portfolio độc lập, port 3001, không cần backend
+npm run build:portfolio  # portfolio build riêng → dist-portfolio/ (không commit)
+npm run check:cv         # ba CV chính phải đúng 1 trang A4; kiểm chữ bản Anh
 npm run build:analyze    # build + bundle treemap at dist/stats.html
 
 npm run check:all        # lint + import check + build + SEO + performance budget
@@ -43,6 +46,7 @@ Never add a dev-proxy rule that points the browser straight at Python: it
 bypasses `requireMember` and needs an internal key the client must not hold.
 
 - `src/` — React 18 + Vite SPA. Tailwind, Zustand (`src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next with `en`/`vi` locales in `src/i18n/locales/`.
+- `src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `vite.portfolio.config.js` và `deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại ba PDF trong `public/` bằng `npm run cv:pdf` trước build khi sửa CV.
 - `server/` — Express + Mongoose + WebSocket (port 8099). Routes in `server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`.
 - `python-ai-server/` — FastAPI (port 8000). Reached only through Node: `server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
 - `api/` — Vercel serverless (only `/pay` redirect).

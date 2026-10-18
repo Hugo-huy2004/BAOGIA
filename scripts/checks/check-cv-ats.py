@@ -2,7 +2,9 @@
 """Soát bản ATS theo những thứ hệ thống lọc hồ sơ thật sự làm."""
 import os, re, subprocess, sys
 
-PDFS = (("public/cv-le-gia-huy-ats.pdf", "vi"), ("public/cv-le-gia-huy-ats-en.pdf", "en"))
+PDFS = (("public/hugo-wishpax-cv-en.pdf", "en"),)
+PRIMARY_PDFS = ("public/hugo-wishpax-cv.pdf", "public/hugo-wishpax-cv-en.pdf", "public/hugo-wishpax-cv-zh.pdf")
+failed = False
 
 def text(path, layout=True):
     cmd = ["pdftotext"] + (["-layout"] if layout else []) + [path, "-"]
@@ -10,11 +12,18 @@ def text(path, layout=True):
 
 # Các bản PDF là SẢN PHẨM DỰNG, không commit vào repo (xem docs/cv-noi-dung.md).
 # Thiếu tệp thì nói thẳng ra, đừng để pdftotext trả chuỗi rỗng rồi vỡ ở max().
-missing = [p for p, _ in PDFS if not os.path.exists(p)]
+missing = [p for p in PRIMARY_PDFS if not os.path.exists(p)]
 if missing:
     print("Chưa có bản PDF để soát: " + ", ".join(missing))
     print("Dựng lại bằng: npm run cv:pdf")
     sys.exit(1)
+
+for path in PRIMARY_PDFS:
+    info = subprocess.run(["pdfinfo", path], capture_output=True, text=True, check=True).stdout
+    pages = re.search(r"^Pages:\s+(\d+)", info, re.M)
+    ok = bool(pages and pages.group(1) == "1")
+    print(f"{'✓' if ok else '✗'} {path}: {pages.group(1) if pages else '?'} trang (yêu cầu 1)")
+    failed = failed or not ok
 
 for path, lang in PDFS:
     t = text(path)
@@ -38,3 +47,6 @@ for path, lang in PDFS:
 
     for name, ok, detail in checks:
         print(f"  {'✓' if ok else '✗'} {name.ljust(38)} {detail}")
+        failed = failed or not ok
+
+sys.exit(1 if failed else 0)

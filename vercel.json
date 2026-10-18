@@ -10,6 +10,36 @@
       ],
       "destination": "https://www.hugowishpax.studio/:path*",
       "permanent": true
+    },
+    {
+      "source": "/introduction",
+      "destination": "https://portfolio.hugowishpax.studio/",
+      "permanent": true
+    },
+    {
+      "source": "/en/introduction",
+      "destination": "https://portfolio.hugowishpax.studio/en/",
+      "permanent": true
+    },
+    {
+      "source": "/zh/introduction",
+      "destination": "https://portfolio.hugowishpax.studio/zh/",
+      "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en/services",
+      "destination": "/en/",
+      "permanent": true
+    },
+    {
+      "source": "/zh/services",
+      "destination": "/zh/",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -26,12 +56,8 @@
       "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
     {
-      "source": "/introduction",
-      "destination": "/introduction/index.html"
-    },
-    {
-      "source": "/services",
-      "destination": "/services/index.html"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
       "source": "/faq",
@@ -162,12 +188,8 @@
       "destination": "/survivor/index.html"
     },
     {
-      "source": "/en/introduction",
-      "destination": "/en/introduction/index.html"
-    },
-    {
-      "source": "/en/services",
-      "destination": "/en/services/index.html"
+      "source": "/en/",
+      "destination": "/en/index.html"
     },
     {
       "source": "/en/faq",
@@ -238,12 +260,8 @@
       "destination": "/en/services/add-ons/support/index.html"
     },
     {
-      "source": "/zh/introduction",
-      "destination": "/zh/introduction/index.html"
-    },
-    {
-      "source": "/zh/services",
-      "destination": "/zh/services/index.html"
+      "source": "/zh/",
+      "destination": "/zh/index.html"
     },
     {
       "source": "/zh/faq",

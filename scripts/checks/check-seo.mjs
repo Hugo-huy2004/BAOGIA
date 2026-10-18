@@ -3,8 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const DIST = path.join(ROOT, "dist");
-const ORIGIN = "https://www.hugowishpax.studio";
+const isPortfolio = process.env.SITE_TARGET === "portfolio";
+const DIST = path.join(ROOT, isPortfolio ? "dist-portfolio" : "dist");
+const ORIGIN = isPortfolio ? "https://portfolio.hugowishpax.studio" : "https://www.hugowishpax.studio";
 const errors = [];
 
 const read = (file) => fs.readFileSync(file, "utf8");
@@ -18,9 +19,7 @@ if (!urls.length) errors.push("Sitemap không có URL.");
 if (urls.some((url) => !url.startsWith(ORIGIN))) {
   errors.push("Sitemap chứa URL ngoài tên miền chính.");
 }
-if (urls.includes(`${ORIGIN}/`)) {
-  errors.push("Không đưa URL / chuyển hướng vào sitemap; dùng /introduction.");
-}
+if (!urls.includes(`${ORIGIN}/`)) errors.push("Sitemap thiếu trang chủ.");
 
 for (const url of urls) {
   const pathname = new URL(url).pathname;
@@ -110,13 +109,13 @@ if (
   errors.push("robots.txt phải khai báo đúng một sitemap trên tên miền www.");
 }
 
-const vercel = JSON.parse(read(path.join(ROOT, "vercel.json")));
+const vercel = JSON.parse(read(path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json")));
 const rewrites = new Map(
   (vercel.rewrites || []).map(({ source, destination }) => [source, destination]),
 );
 for (const url of urls) {
   const pathname = new URL(url).pathname;
-  if (rewrites.get(pathname) !== `${pathname}/index.html`) {
+  if (rewrites.get(pathname) !== `${pathname.replace(/\/$/, "")}/index.html`) {
     errors.push(`${pathname}: thiếu rewrite Vercel tới HTML tĩnh.`);
   }
 }

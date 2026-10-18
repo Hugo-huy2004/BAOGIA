@@ -150,32 +150,31 @@
     "terms": "Terms of Use"
   },
   "donationUI": {
-    "title": "Support Hugo Studio",
-    "description": "Name your contribution; the figures below are merely handy benchmarks.",
-    "open": "Open the contribution panel",
-    "hide": "Hide the floating contribution button",
-    "close": "Close the contribution panel",
-    "creating": "Preparing your PayOS checkout…",
-    "error": "The checkout could not be prepared. Please try again.",
-    "continuePayOS": "Create contribution · {{amount}}₫",
-    "securePayOS": "Hugo Studio interface · Payment data furnished by the PayOS API",
-    "suggestions": "Suggested contributions",
-    "amountLabel": "Your chosen amount",
-    "minimum": "Minimum 5,000 VND",
-    "minimumError": "The minimum contribution is 5,000 VND.",
-    "nameLabel": "Your name",
-    "emailLabel": "Email for your thank-you note",
-    "identityError": "Please provide a valid name and email address.",
-    "recognitionNotice": "Once your contribution lands safely, your name will pop into Hugo Studio’s little roll of thanks.",
-    "terms": "By proceeding, you acknowledge that this voluntary contribution purchases no feature or access and is ordinarily non-refundable, save for duplicates, technical errors, or where applicable law stipulates otherwise.",
-    "termsError": "Please acknowledge the contribution terms.",
-    "packs": {
-      "tea": "A glass of iced tea",
-      "breakfast": "Breakfast",
-      "coffee": "A cup of coffee",
-      "server": "Server upkeep",
-      "supporter": "Studio patron"
-    }
+    "title": "Buy Hugo a Coffee & Sponsor",
+    "subTitle": "Global Patron & Open-Source Studio",
+    "open": "Buy a coffee & sponsor studio",
+    "hide": "Hide donation button",
+    "close": "Close donation panel",
+    "intro": "Hugo Wishpax Studio operates as an independent open-source laboratory. Your generous patronage helps us sustain free developer tools and public web innovations.",
+    "quickTreats": "Pick a sweet treat for Hugo",
+    "channelsTitle": "Global Patron Channels",
+    "treats": {
+      "coffee": "Morning Coffee ($3)",
+      "boba": "Boba Milk Tea ($5)",
+      "pastry": "Sweet Pastry ($10)",
+      "server": "Cloud Server Month ($25)"
+    },
+    "bmacTitle": "Buy Me a Coffee",
+    "bmacDesc": "Treat a coffee $3, $5, $10 · Visa, Mastercard, Apple Pay",
+    "kofiTitle": "Ko-fi Patron (0% Platform Fee)",
+    "kofiDesc": "Direct creator donation · Visa, Mastercard, PayPal",
+    "githubTitle": "GitHub Sponsors",
+    "githubDesc": "Official monthly or one-off open-source sponsorship",
+    "paypalTitle": "PayPal Checkout",
+    "paypalDesc": "Instant worldwide payment via credit card or PayPal balance",
+    "sponsorBtn": "Sponsor",
+    "secureNotice": "256-bit SSL Direct Connection · Zero Card Storage · 100% Secure",
+    "disclaimer": "All contributions are voluntary gifts to sustain server operations and research. No commercial e-commerce goods or services are sold in Vietnam."
   },
   "intro": {
     "nav": {
@@ -6914,7 +6913,7 @@
           "hugo-edu-plus": "Free"
         },
         "live": {
-          "hugo-one": "Source code .ZIP. Have me put it live: Link bundle ₫1,270,000 (≈ $49)",
+          "hugo-one": "Source code .ZIP. Have me put it live: Link bundle ₫350,000 (≈ $14)",
           "hugo-story": "Included: connected during the build, live link delivered",
           "hugo-flow-plus": "Included: connected during the build, live link delivered",
           "hugo-edu-plus": "On Hugo Studio's shared domain"
@@ -6922,7 +6921,7 @@
         "monthly": {
           "hugo-one": "Nothing monthly to me. Only domain and hosting fees to providers",
           "hugo-story": "Nothing monthly to me. Only domain and hosting fees to providers",
-          "hugo-flow-plus": "Optional care plan at ₫750,000 (≈ $29)/month, plus provider fees",
+          "hugo-flow-plus": "Optional care plan at ₫490,000 (≈ $19)/month, plus provider fees",
           "hugo-edu-plus": "Free"
         }
       }
@@ -7045,8 +7044,8 @@
         ],
         "policyExtra": [],
         "price": {
-          "from": "₫5,690,000 (≈ $219)",
-          "note": "One all-in price for a page of up to 7 sections, using text and images you already have. You get source code ready to go live; to have me put it on your domain, add the Link bundle for ₫1,270,000 (≈ $49).",
+          "from": "₫1,290,000 (≈ $50)",
+          "note": "One all-in price for a page of up to 7 sections, using text and images you already have. You get source code ready to go live; to have me put it on your domain, add the Link bundle for ₫350,000 (≈ $14).",
           "factors": []
         },
         "faq": [
@@ -7071,8 +7070,8 @@
           "Lifetime bug fixes"
         ],
         "seo": {
-          "title": "Landing Page Design from ₫5.69M, No Deposit | Hugo One",
-          "description": "A hand-coded, fast one-page landing page for ads, launches and portfolios. ₫5.69M (≈ $219) all in, no deposit, delivered in 7–10 days, with lifetime bug fixes.",
+          "title": "Landing Page Design from ₫1.29M, No Deposit | Hugo One",
+          "description": "A hand-coded, fast one-page landing page for ads, launches and portfolios. ₫1.29M (≈ $50) all in, no deposit, delivered in 7–10 days, with lifetime bug fixes.",
           "keywords": "landing page design, affordable landing page, landing page for ads, freelance landing page designer, one page website, Hugo One"
         }
       },
@@ -7122,8 +7121,8 @@
         ],
         "policyExtra": [],
         "price": {
-          "from": "₫11,670,000 (≈ $449)",
-          "note": "All in for 4 pages using text and images you already have, including going live on your domain. Extra pages are ₫1,530,000 (≈ $59) each, up to 6 pages.",
+          "from": "₫2,990,000 (≈ $115)",
+          "note": "All in for 4 pages using text and images you already have, including going live on your domain. Extra pages are ₫390,000 (≈ $15) each, up to 6 pages.",
           "factors": []
         },
         "faq": [
@@ -7149,8 +7148,8 @@
           "Lifetime bug fixes"
         ],
         "seo": {
-          "title": "Small Business Website Design, 4 Pages ₫11.67M | Hugo Story",
-          "description": "A 4-page website for shops, cafés and small businesses: menus, map, call and chat buttons, every page on Google. ₫11.67M (≈ $449), live on your domain in 2–3 weeks.",
+          "title": "Small Business Website Design, 4 Pages ₫2.99M | Hugo Story",
+          "description": "A 4-page website for shops, cafés and small businesses: menus, map, call and chat buttons, every page on Google. ₫2.99M (≈ $115), live on your domain in 2–3 weeks.",
           "keywords": "small business website design, affordable website design, website for cafe, website for shop, freelance web designer, Hugo Story"
         }
       },
@@ -7205,7 +7204,7 @@
           }
         ],
         "price": {
-          "from": "From ₫19,470,000 (≈ $749)",
+          "from": "From ₫4,990,000 (≈ $192)",
           "note": "The starting price for a 4-page site plus one feature and an admin panel. A second feature, automatic payments or a multi-product cart are quoted after we talk.",
           "factors": [
             "Which feature you pick: bookings are the simplest, a large product list takes the most work.",
@@ -7397,7 +7396,7 @@
       "heroLine1": "Website and",
       "heroLine2": "landing page design,",
       "heroLine3": "written by hand.",
-      "heroLede": "Landing pages ₫5,690,000 (≈ $219), no deposit. Four-page websites ₫11,670,000 (≈ $449), live on your domain. Fully online, and the code is yours.",
+      "heroLede": "Landing pages ₫1,290,000 (≈ $50), no deposit. Four-page websites ₫2,990,000 (≈ $115), live on your domain. Fully online, and the code is yours.",
       "heroCta": "Get a quote",
       "heroCtaAlt": "See the work",
       "scrollHint": "Scroll through the packages",
@@ -7476,15 +7475,15 @@
       "units": [
         {
           "title": "One more page (Story, Flow+, up to 6 pages)",
-          "price": "₫1,530,000 (≈ $59) / page"
+          "price": "₫390,000 (≈ $15) / page"
         },
         {
           "title": "One more section on a Hugo One page (e.g. prices, reviews)",
-          "price": "₫650,000 (≈ $25) / section"
+          "price": "₫150,000 (≈ $6) / section"
         },
         {
           "title": "Design changes from the third round (first two free)",
-          "price": "₫750,000 (≈ $29) / round"
+          "price": "₫200,000 (≈ $8) / round"
         }
       ]
     },
@@ -7585,7 +7584,7 @@
       "link": {
         "name": "Link bundle",
         "when": "Your site live on your domain, through your own accounts.",
-        "price": "₫1,270,000 (≈ $49)",
+        "price": "₫350,000 (≈ $14)",
         "priceNote": "One-off, for Hugo One. Hugo Story and Flow+ include it during the build.",
         "for": "Hugo One",
         "items": [
@@ -7670,14 +7669,14 @@
         ],
         "seo": {
           "title": "Domain & Hosting Setup for Your Website | Hugo Studio",
-          "description": "Buy your domain, hosting and email in your own name while I connect everything to your site on a 30-minute call. ₫1.27M (≈ $49) one-off, 30-day setup warranty.",
+          "description": "Buy your domain, hosting and email in your own name while I connect everything to your site on a 30-minute call. ₫350,000 (≈ $14) one-off, 30-day setup warranty.",
           "keywords": "domain setup service, connect domain to website, website hosting setup, custom domain email setup, website go-live service"
         }
       },
       "support": {
         "name": "One-off support",
         "when": "Need content changed after handover, or your site was edited by someone else and the warranty ended.",
-        "price": "From ₫1,170,000 (≈ $45) / request",
+        "price": "From ₫300,000 (≈ $12) / request",
         "priceNote": "No monthly plan. The price includes re-reading the code before any change.",
         "for": "All packages",
         "items": [
@@ -7730,15 +7729,15 @@
         "priceRows": [
           {
             "title": "Text or photo changes, one batch of up to 10 spots",
-            "price": "₫1,170,000 (≈ $45) / request"
+            "price": "₫300,000 (≈ $12) / request"
           },
           {
             "title": "Bug fix or small new section",
-            "price": "₫1,950,000 – ₫3,870,000 (≈ $75 – $149)"
+            "price": "₫500,000 – ₫1,000,000 (≈ $19 – $38)"
           },
           {
             "title": "Check a site someone else edited",
-            "price": "₫1,950,000 (≈ $75), deducted if I do the fix"
+            "price": "₫500,000 (≈ $19), deducted if I do the fix"
           }
         ],
         "extras": [
@@ -7766,20 +7765,20 @@
         ],
         "illo": [
           "Could you change opening time to 8:00?",
-          "₫1,170,000 (≈ $45) · done in 2 days",
+          "₫300,000 (≈ $12) · done in 2 days",
           "Done"
         ],
         "seo": {
           "title": "Website Fixes & Content Updates, Pay per Job | Hugo Studio",
-          "description": "Pay-per-job edits for sites Hugo Studio built: text and photo updates, small fixes, checks after third-party edits. From ₫1.17M (≈ $45), priced before any work.",
+          "description": "Pay-per-job edits for sites Hugo Studio built: text and photo updates, small fixes, checks after third-party edits. From ₫300,000 (≈ $12), priced before any work.",
           "keywords": "website fixes, website content updates, pay per job web support, website edits, small website changes"
         }
       },
       "seo": {
         "name": "SEO bundle",
         "when": "So Google understands your site, and customers find you when they search for what you sell.",
-        "price": "From ₫9,850,000 (≈ $379)",
-        "priceNote": "Hugo One ₫9,850,000 (≈ $379) · Hugo Story, Flow+ ₫17,390,000 (≈ $669). One-off, for a live website.",
+        "price": "From ₫990,000 (≈ $38)",
+        "priceNote": "Hugo One ₫990,000 (≈ $38) · Hugo Story, Flow+ ₫1,790,000 (≈ $69). One-off, for a live website.",
         "for": "All packages",
         "items": [
           "Keywords your customers actually search",
@@ -7862,24 +7861,24 @@
         "priceRows": [
           {
             "title": "Hugo One: one page",
-            "price": "₫9,850,000 (≈ $379)"
+            "price": "₫990,000 (≈ $38)"
           },
           {
             "title": "Hugo Story, Hugo Flow+: up to 6 pages",
-            "price": "₫17,390,000 (≈ $669)"
+            "price": "₫1,790,000 (≈ $69)"
           }
         ],
         "seo": {
           "title": "One-Time SEO Setup & Google Maps Profile | Hugo Studio",
-          "description": "One-time SEO groundwork: keyword research, page titles and descriptions, Google Search Console, structured data and a Google Maps profile. From ₫9.85M (≈ $379).",
+          "description": "One-time SEO groundwork: keyword research, page titles and descriptions, Google Search Console, structured data and a Google Maps profile. From ₫990,000 (≈ $38).",
           "keywords": "one-time seo setup, on-page seo service, google business profile setup, local seo setup, google search console setup"
         }
       },
       "maintain": {
         "name": "Flow+ care plan",
         "when": "A site with orders and money flowing through needs someone watching. I watch it every month.",
-        "price": "₫750,000 (≈ $29) / month",
-        "priceNote": "Yearly ₫7,540,000 (≈ $290), the price of 10 months. Optional, cancel any time with one month's notice.",
+        "price": "₫490,000 (≈ $19) / month",
+        "priceNote": "Yearly ₫4,900,000 (≈ $188), the price of 10 months. Optional, cancel any time with one month's notice.",
         "for": "Hugo Flow+",
         "items": [
           "Weekly backups of your order data",
@@ -7931,7 +7930,7 @@
         "extras": [
           {
             "title": "Work outside the plan: one-off support",
-            "price": "From ₫1,170,000 (≈ $45) / request"
+            "price": "From ₫300,000 (≈ $12) / request"
           }
         ],
         "time": "Starts right after handover",
@@ -7958,8 +7957,8 @@
           "Security update"
         ],
         "seo": {
-          "title": "Website Maintenance Plan ₫750K/Month | Hugo Studio",
-          "description": "Monthly care for booking and order websites: weekly backups, uptime monitoring, security patches and a monthly test order. ₫750K (≈ $29)/month, cancel anytime.",
+          "title": "Website Maintenance Plan ₫490K/Month | Hugo Studio",
+          "description": "Monthly care for booking and order websites: weekly backups, uptime monitoring, security patches and a monthly test order. ₫490K (≈ $19)/month, cancel anytime.",
           "keywords": "website maintenance plan, monthly website care, website backup service, website security updates, uptime monitoring"
         }
       }

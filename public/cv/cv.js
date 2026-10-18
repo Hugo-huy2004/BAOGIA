@@ -14,9 +14,9 @@ document.querySelectorAll(".page").forEach((page) => {
 
 document.documentElement.lang = language;
 const TITLE = {
-  vi: "Hugo Wishpax · Kỹ sư phần mềm & Người xây sản phẩm | CV",
-  en: "Hugo Wishpax · Software Engineer & Product Builder | CV",
-  zh: "Hugo Wishpax · 软件工程师与产品构建者 | CV",
+  vi: "Hugo Wishpax · Sinh viên CNTT · Thực tập lập trình web | CV",
+  en: "Hugo Wishpax · IT Student · Web Development Internship | CV",
+  zh: "Hugo Wishpax · 信息技术学生 · Web 开发实习 | CV",
 };
 document.title = TITLE[language];
 
@@ -34,3 +34,7 @@ for (const link of document.querySelectorAll("[data-langs] a")) {
 const downloadLink = document.querySelector("[data-download-link]");
 downloadLink.href = PDF[language];
 downloadLink.textContent = DOWNLOAD[language];
+
+const viewLink = document.querySelector("[data-view-link]");
+viewLink.href = PDF[language];
+viewLink.textContent = { vi: "Xem PDF", en: "View PDF", zh: "查看 PDF" }[language];
