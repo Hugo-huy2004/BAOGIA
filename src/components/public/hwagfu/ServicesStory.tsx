@@ -95,7 +95,7 @@ export default function ServicesStory({
   // than it starts at must pin that value at 1, or it fades back in.
   const introOpacity = useTransform(
     scrollYProgress,
-    standalone ? [0, 0.07, 0.105] : [0, 0.035, 0.105, 0.135],
+    standalone ? [0, 0.045, 0.07] : [0, 0.035, 0.105, 0.135],
     standalone ? [1, 1, 0] : [0, 1, 1, 0],
   );
   const macOpacity = useTransform(
@@ -133,15 +133,15 @@ export default function ServicesStory({
         <div className="mx-auto max-w-lg">
           <p className="kicker text-[var(--hw-hue-blue)]">{label}</p>
           <h2 className="headline-section mt-2">{heading}</h2>
+          {standalone && studioIntro ? (
+            <div className="mt-5">
+              <p className="text-sm leading-6 text-muted-foreground">{studioIntro}</p>
+              {socialLabels ? <SocialLinks labels={socialLabels} /> : null}
+            </div>
+          ) : null}
           <ol className="mt-10 border-t border-border">
             {chapters.slice(0, storyChapterCount).map((chapter, index) => (
               <li key={chapter.title} className="border-b border-border py-7">
-                {standalone && index === 0 && studioIntro ? (
-                  <div className="mb-5">
-                    <p className="text-sm leading-6 text-muted-foreground">{studioIntro}</p>
-                    {socialLabels ? <SocialLinks labels={socialLabels} /> : null}
-                  </div>
-                ) : null}
                 <p className="font-mono text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
                   {standalone && index === 2 ? <>03 · Hugo <span className="bg-linear-to-r from-[#17EAD9] via-[#4CB5E7] to-[#6078EA] bg-clip-text text-transparent">Flow+</span></> : chapter.eyebrow}
                 </p>
@@ -194,6 +194,12 @@ export default function ServicesStory({
             <h2 className="mx-auto mt-2 max-w-4xl text-[clamp(1.85rem,1.2rem+2.7vw,4rem)] leading-[1.04] font-bold tracking-[-0.04em] text-foreground">
               {heading}
             </h2>
+            {standalone && studioIntro ? (
+              <div className="mx-auto mt-3 max-w-2xl">
+                <p className="text-xs leading-5 text-foreground/70 sm:text-sm sm:leading-6">{studioIntro}</p>
+                {socialLabels ? <SocialLinks labels={socialLabels} compact /> : null}
+              </div>
+            ) : null}
           </motion.header>
 
           <div
@@ -275,8 +281,6 @@ export default function ServicesStory({
                 progress={scrollYProgress}
                 early={standalone}
                 total={storyChapterCount}
-                studioIntro={studioIntro}
-                socialLabels={socialLabels}
               />
             ))}
           </div>
@@ -1052,16 +1056,12 @@ function ChapterCopy({
   progress,
   early,
   total,
-  studioIntro,
-  socialLabels,
 }: {
   chapter: Chapter;
   index: number;
   progress: MotionValue<number>;
   early: boolean;
   total: number;
-  studioIntro?: string;
-  socialLabels?: SocialLabels;
 }) {
   const ranges = early && total === 4 ? [
     [0.07, 0.105, 0.205, 0.245],
@@ -1081,11 +1081,6 @@ function ChapterCopy({
 
   return (
     <motion.div style={{ opacity, y, pointerEvents }} className={`absolute inset-0 ${early ? "flex flex-col justify-center" : ""}`}>
-      {early && index === 0 && studioIntro ? (
-        <p className="mb-2 max-w-md text-[0.72rem] leading-5 text-foreground/65 sm:mb-3 sm:text-sm sm:leading-6">
-          {studioIntro}
-        </p>
-      ) : null}
       <p className="font-mono text-[0.66rem] font-medium tracking-[0.16em] text-foreground/50 uppercase sm:text-xs">
         {early && index === 2 ? <>03 · Hugo <span className="bg-linear-to-r from-[#17EAD9] via-[#4CB5E7] to-[#6078EA] bg-clip-text text-transparent">Flow+</span></> : chapter.eyebrow}
       </p>
@@ -1117,7 +1112,6 @@ function ChapterCopy({
           {chapter.demoHref ? <Link href={chapter.demoHref} className="hg-glass rounded-full px-3.5 py-2 text-[0.68rem] font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground">{chapter.demoLabel || "Mở Bio của bạn"}</Link> : null}
         </div>
       ) : null}
-      {early && index < 3 && socialLabels ? <SocialLinks labels={socialLabels} compact /> : null}
     </motion.div>
   );
 }
