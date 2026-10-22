@@ -291,6 +291,14 @@ export default function ServicesPage() {
         label={t("servicePkg.page.filmLabel")}
         heading={t("servicePkg.page.filmHeading")}
         chapters={chapters}
+        studioIntro={t("servicePkg.page.studioIntro")}
+        socialLabels={{
+          tiktok: t("servicePkg.page.socialTikTok"),
+          groupChat: t("servicePkg.page.socialGroupChat"),
+          instagram: t("servicePkg.page.socialInstagram"),
+          facebook: t("servicePkg.page.socialFacebook"),
+          socialLinks: t("servicePkg.page.socialLinks"),
+        }}
         progressLabels={["Hugo One", "Hugo Story", "Hugo Flow+", "Hugo Edu+"]}
         speedUnit={t("intro.story.services.speedUnit")}
         mergeLabel="Hugo Story"
