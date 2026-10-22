@@ -11,7 +11,6 @@ function Game2048Header({
   isHammerMode,
   hammers,
   notice,
-  paused,
   onCancelHammer,
 }) {
   return (
@@ -70,7 +69,7 @@ function Game2048Header({
                 headphones={highestBot.headphones}
                 bowTie={highestBot.bowTie}
                 size={40}
-                paused={paused}
+                paused
               />
             </div>
           </div>
@@ -93,7 +92,7 @@ function Game2048Header({
                 headphones={recordBot.headphones}
                 bowTie={recordBot.bowTie}
                 size={38}
-                paused={paused}
+                paused
               />
             </div>
           </div>

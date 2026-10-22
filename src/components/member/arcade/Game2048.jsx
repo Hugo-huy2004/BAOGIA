@@ -677,7 +677,6 @@ export default function Game2048({ paused = false, onGameOver, bio }) {
         isHammerMode={isHammerMode}
         hammers={hammers}
         notice={notice}
-        paused={paused}
         onCancelHammer={() => setIsHammerMode(false)}
       />
 
@@ -706,7 +705,6 @@ export default function Game2048({ paused = false, onGameOver, bio }) {
                 isHammerMode={isHammerMode}
                 isSliding={isSliding}
                 lastMoveDir={lastMoveDir}
-                paused={paused}
                 onCellClick={handleCellClick}
               />
             );

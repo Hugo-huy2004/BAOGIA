@@ -72,7 +72,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const [isAutoFire, setIsAutoFire] = useState(true);
   const isAutoFireRef = useRef(isAutoFire);
   isAutoFireRef.current = isAutoFire;
-  const [joystickUI, setJoystickUI] = useState({ active: false, x: 0, y: 0, dx: 0, dy: 0 });
+  const [joystickActive, setJoystickActive] = useState(false);
 
   // Game internal state ref (hoạt động độc lập trong requestAnimationFrame)
   const gameRef = useRef({
@@ -897,7 +897,11 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const handleTouchStart = (e) => {
     const tTouch = e.touches[0];
     touchStartRef.current = { x: tTouch.clientX, y: tTouch.clientY };
-    setJoystickUI({ active: true, x: tTouch.clientX, y: tTouch.clientY, dx: 0, dy: 0 });
+    containerRef.current?.style.setProperty("--survivor-touch-x", `${tTouch.clientX}px`);
+    containerRef.current?.style.setProperty("--survivor-touch-y", `${tTouch.clientY}px`);
+    containerRef.current?.style.setProperty("--survivor-stick-x", "0px");
+    containerRef.current?.style.setProperty("--survivor-stick-y", "0px");
+    setJoystickActive(true);
   };
 
   const handleTouchMove = (e) => {
@@ -914,17 +918,14 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     const steerY = -(Math.sin(angle) * clampDist) / maxRadius;
     gameRef.current.touchSteer = { x: steerX, y: steerY };
 
-    setJoystickUI((prev) => ({
-      ...prev,
-      dx: Math.cos(angle) * clampDist,
-      dy: Math.sin(angle) * clampDist,
-    }));
+    containerRef.current?.style.setProperty("--survivor-stick-x", `${Math.cos(angle) * clampDist}px`);
+    containerRef.current?.style.setProperty("--survivor-stick-y", `${Math.sin(angle) * clampDist}px`);
   };
 
   const handleTouchEnd = () => {
     touchStartRef.current = null;
     gameRef.current.touchSteer = { x: 0, y: 0 };
-    setJoystickUI({ active: false, x: 0, y: 0, dx: 0, dy: 0 });
+    setJoystickActive(false);
   };
 
   return (
@@ -961,7 +962,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         isAutoFire={isAutoFire}
         onToggleAutoFire={() => setIsAutoFire((prev) => !prev)}
         onTriggerOverdrive={triggerOverdrive}
-        joystickUI={joystickUI}
+        joystickActive={joystickActive}
       />
     </div>
   );

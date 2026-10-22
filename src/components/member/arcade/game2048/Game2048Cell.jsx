@@ -11,7 +11,6 @@ function Game2048Cell({
   isHammerMode,
   isSliding,
   lastMoveDir,
-  paused,
   onCellClick,
 }) {
   const tier = tile ? BOT_TIERS[tile.level] || BOT_TIERS[1] : null;
@@ -137,7 +136,7 @@ function Game2048Cell({
               headphones={tier.headphones}
               bowTie={tier.bowTie}
               size={76}
-              paused={paused}
+              paused
             />
           </div>
 

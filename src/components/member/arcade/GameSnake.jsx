@@ -88,7 +88,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
     currentX: 0,
     currentY: 0,
   });
-  const [swipeUI, setSwipeUI] = useState({ active: false, currX: 0, currY: 0 });
+  const [swipeActive, setSwipeActive] = useState(false);
 
   // Game Core State inside requestAnimationFrame
   const gameRef = useRef({
@@ -1002,7 +1002,9 @@ export default function GameSnake({ paused = false, onGameOver }) {
     t.currentX = touch.clientX;
     t.currentY = touch.clientY;
 
-    setSwipeUI({ active: true, currX: touch.clientX, currY: touch.clientY });
+    containerRef.current?.style.setProperty("--snake-touch-x", `${touch.clientX}px`);
+    containerRef.current?.style.setProperty("--snake-touch-y", `${touch.clientY}px`);
+    setSwipeActive(true);
   };
 
   const handleTouchMove = (e) => {
@@ -1033,7 +1035,8 @@ export default function GameSnake({ paused = false, onGameOver }) {
       }
     }
 
-    setSwipeUI({ active: true, currX: touch.clientX, currY: touch.clientY });
+    containerRef.current?.style.setProperty("--snake-touch-x", `${touch.clientX}px`);
+    containerRef.current?.style.setProperty("--snake-touch-y", `${touch.clientY}px`);
   };
 
   const handleTouchEnd = () => {
@@ -1050,7 +1053,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
     }
 
     // Bé rắn tiếp tục bò theo hướng vừa vuốt, không dừng lại
-    setSwipeUI((prev) => ({ ...prev, active: false }));
+    setSwipeActive(false);
   };
 
   const curStage = STORY_STAGES[(hud.stage - 1) % STORY_STAGES.length];
@@ -1098,7 +1101,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
       <SnakeControls
         isBoostingUI={isBoostingUI}
         onTriggerBoost={triggerBoost}
-        swipeUI={swipeUI}
+        swipeActive={swipeActive}
         isVi={isVi}
       />
     </div>

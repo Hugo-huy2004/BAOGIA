@@ -370,6 +370,10 @@ export default function UtilityPublicPage() {
     </Suspense>
   );
 
+  // Standalone games already provide their own full-screen shell. Mounting the
+  // marketing hero behind that fixed layer keeps its blur effects composited.
+  if (toolConfig?.game) return renderToolContent();
+
   return (
     <div className={`relative min-h-screen overflow-hidden bg-gradient-to-b ${visual.page} pt-24 pb-20 px-4 md:px-8`}>
       <div className={`pointer-events-none absolute -left-24 top-8 h-80 w-80 rounded-full ${visual.glowA} blur-[110px]`} />

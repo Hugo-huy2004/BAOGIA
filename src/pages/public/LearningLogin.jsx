@@ -54,10 +54,13 @@ export default function LearningLogin({ onSignedIn, reason = null }) {
     setBusy(true);
     setError("");
     try {
-      // Máy chủ mới là nơi xác minh: client chỉ chuyển tiếp credential.
-      const result = await loginMemberWithGoogle(response.credential);
-      if (!result?.email) throw new Error("Máy chủ không trả về phiên đăng nhập.");
-      onSignedIn?.(result);
+      const { session, error } = await loginMemberWithGoogle(response.credential);
+      if (!session) {
+        setError(error || "Đăng nhập chưa thành công. Hãy thử lại.");
+        setBusy(false);
+        return;
+      }
+      onSignedIn?.(session);
     } catch (err) {
       setError(err?.message || "Đăng nhập chưa thành công. Hãy thử lại.");
       setBusy(false);

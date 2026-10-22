@@ -166,5 +166,11 @@ export function isPublicToolPath(pathname) {
   return PUBLIC_TOOL_SLUGS.includes(slug);
 }
 
+/** Public game pages own the whole viewport; site chrome only wastes frames. */
+export function isPublicGamePath(pathname) {
+  const [slug] = String(pathname).replace(/^\/+|\/+$/g, "").split("/");
+  return Boolean(resolvePublicTool(slug)?.game);
+}
+
 // ponytail: a plain object beats a schema here — the list changes when a tool
 // ships, which is rare, and every consumer already validates its own slug.

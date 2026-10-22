@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState, Suspense, lazy } from "react";
 import i18n from "./i18n/config";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
-import { isPublicToolPath } from "./config/publicTools";
+import { isPublicGamePath, isPublicToolPath } from "./config/publicTools";
 import { detectInstallTarget, isStandalone, subscribeDisplayMode } from "./config/platform";
 import { useStandalone } from "./hooks/usePWA";
 import { ensureTranslations } from "./i18n/config";
@@ -138,6 +138,7 @@ function AppContent() {
   const isBioRoute = location.pathname.startsWith('/bio/') || location.pathname.startsWith('/b/') || isCustomDomainHost;
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
+  const isPublicGameRoute = isPublicGamePath(location.pathname);
   const showFooter =
     !isIntroductionRoute &&
     !isBioRoute &&
@@ -145,6 +146,7 @@ function AppContent() {
     !isPreviewRoute &&
     !location.pathname.startsWith("/member") &&
     !location.pathname.startsWith("/admin") &&
+    !isPublicGameRoute &&
     // Login is a focused, form-only screen (esp. as an installed PWA) — the full
     // marketing footer below it is noise, like every major sign-in page.
     !location.pathname.startsWith("/login") &&
@@ -238,12 +240,13 @@ function AppContent() {
   }
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
-  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade");
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade") || isPublicGameRoute;
   // In standalone PWA mode without an active session, show only the login screen —
   // no marketing navbar, no HBot, no footer. The native build is always in this
   // mode: the store app is the member app, never the marketing site.
   const showCustomCursor =
     !isPWA &&
+    !isFullscreenUtility &&
     !location.pathname.startsWith("/member") &&
     window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches;
   const isAuthenticated = isMemberAuthenticated();

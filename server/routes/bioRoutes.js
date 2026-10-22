@@ -1191,7 +1191,7 @@ router.delete('/me/custom-domain', requireMember, async (req, res) => {
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
 
     const oldDomain = bio.customDomain;
-    bio.customDomain = null;
+    bio.customDomain = undefined;
     bio.customDomainStatus = 'none';
     await bio.save();
 

@@ -26,8 +26,7 @@ const BioSchema = new mongoose.Schema(
       sparse: true,
       trim: true,
       lowercase: true,
-      index: true,
-      default: null
+      index: true
     },
     customDomainStatus: {
       type: String,

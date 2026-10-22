@@ -5,6 +5,7 @@
 import mongoose from 'mongoose';
 import { redisSlugService } from '../services/redisSlugService.js';
 import Admin from '../models/Admin.js';
+import Bio from '../models/Bio.js';
 
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
@@ -16,6 +17,15 @@ export async function connectDatabase() {
       socketTimeoutMS: 45000,
     });
     console.log('✅ MongoDB connected successfully');
+
+    const bioCollection = mongoose.connection.db.collection(Bio.collection.collectionName);
+    const { modifiedCount } = await bioCollection.updateMany(
+      { customDomain: { $type: 10 } },
+      { $unset: { customDomain: '' } }
+    );
+    if (modifiedCount > 0) {
+      console.log(`🧹 Removed empty custom-domain values from ${modifiedCount} bio records`);
+    }
 
     // In-memory valid-slug set: O(1) rejection of bogus /bio/:slug hits before
     // they reach MongoDB. Kept in sync by bioRoutes on create/rename/delete.

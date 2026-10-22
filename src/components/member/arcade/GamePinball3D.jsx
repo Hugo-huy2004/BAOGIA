@@ -1,24 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useArcadeSound } from '../../../hooks/useArcadeSound';
-import { submitScore } from '../../../services/api/modules/arcadeApi';
 import { triggerHaptic } from '../../../utils/haptics';
 
-export default function GamePinball3D({ onScoreSubmit, onClose }) {
+export default function GamePinball3D({ paused = false, onGameOver, sound }) {
   const { t } = useTranslation();
-  const sound = useArcadeSound();
   const canvasRef = useRef(null);
 
   const [score, setScore] = useState(0);
-  const [earnedJoy, setEarnedJoy] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
   const [ballsLeft, setBallsLeft] = useState(3);
-  const [gameOver, setGameOver] = useState(false);
   const [chargingPower, setChargingPower] = useState(0);
   const [isCharging, setIsCharging] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   const chargeIntervalRef = useRef(null);
+  const chargeRef = useRef({ active: false, power: 0 });
+  const pausedRef = useRef(paused);
+  const onGameOverRef = useRef(onGameOver);
+  pausedRef.current = paused;
+  onGameOverRef.current = onGameOver;
 
   // Clean Physics Engine State
   const stateRef = useRef({
@@ -47,25 +46,25 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
   });
 
   // Plunger Charge Handler
-  const startCharging = () => {
-    if (stateRef.current.ball.active || stateRef.current.ballsLeft <= 0 || isCharging) return;
+  const startCharging = useCallback(() => {
+    if (pausedRef.current || stateRef.current.ball.active || stateRef.current.ballsLeft <= 0 || chargeRef.current.active) return;
+    chargeRef.current = { active: true, power: 0 };
     setIsCharging(true);
     triggerHaptic('light');
 
-    let p = 0;
     chargeIntervalRef.current = setInterval(() => {
-      p += 5;
-      if (p > 100) p = 100;
-      setChargingPower(p);
-    }, 20);
-  };
+      chargeRef.current.power = Math.min(100, chargeRef.current.power + 10);
+      setChargingPower(chargeRef.current.power);
+    }, 40);
+  }, []);
 
-  const releaseAndLaunch = () => {
-    if (!isCharging) return;
+  const releaseAndLaunch = useCallback(() => {
+    if (!chargeRef.current.active) return;
     clearInterval(chargeIntervalRef.current);
+    chargeRef.current.active = false;
     setIsCharging(false);
 
-    const powerRatio = Math.max(0.2, chargingPower / 100);
+    const powerRatio = Math.max(0.2, chargeRef.current.power / 100);
     const launchVy = -(16 + powerRatio * 22); // Fast launch velocity from -16 to -38
     const launchVx = (Math.random() - 0.5) * 2;
 
@@ -81,24 +80,33 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
       active: true,
       speed: Math.hypot(launchVx, launchVy)
     };
+    chargeRef.current.power = 0;
     setChargingPower(0);
-  };
+  }, [sound]);
 
-  const setLeftFlipper = (down) => {
+  const setLeftFlipper = useCallback((down) => {
     stateRef.current.flippers.leftTarget = down ? -0.45 : 0.3;
     if (down) {
       sound.playClick?.();
       triggerHaptic('light');
     }
-  };
+  }, [sound]);
 
-  const setRightFlipper = (down) => {
+  const setRightFlipper = useCallback((down) => {
     stateRef.current.flippers.rightTarget = down ? 0.45 : -0.3;
     if (down) {
       sound.playClick?.();
       triggerHaptic('light');
     }
-  };
+  }, [sound]);
+
+  useEffect(() => {
+    if (!paused) return;
+    clearInterval(chargeIntervalRef.current);
+    chargeRef.current = { active: false, power: 0 };
+    setIsCharging(false);
+    setChargingPower(0);
+  }, [paused]);
 
   // Keyboard Event Listeners
   useEffect(() => {
@@ -130,7 +138,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
       window.removeEventListener('keyup', handleKeyUp);
       clearInterval(chargeIntervalRef.current);
     };
-  }, [isCharging, chargingPower]);
+  }, [releaseAndLaunch, setLeftFlipper, setRightFlipper, startCharging]);
 
   // Main 60FPS Clean Physics Engine Loop
   useEffect(() => {
@@ -158,6 +166,10 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
     };
 
     const gameLoop = () => {
+      if (pausedRef.current) {
+        animId = requestAnimationFrame(gameLoop);
+        return;
+      }
       const state = stateRef.current;
       const b = state.ball;
       const f = state.flippers;
@@ -210,7 +222,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
             const dx = b.x - bmp.x;
             const dy = b.y - bmp.y;
             const dist = Math.hypot(dx, dy);
-            if (dist < b.radius + bmp.r) {
+            if (dist < b.radius + bmp.r && bmp.hitTimer <= 0) {
               const angle = Math.atan2(dy, dx);
               const kick = 15; // Fast active spring reflection
               b.vx = Math.cos(angle) * kick;
@@ -220,7 +232,6 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
               const addPts = bmp.pts * state.mult;
               state.score += addPts;
               setScore(state.score);
-              setEarnedJoy(Math.floor(state.score / 50));
 
               spawnImpactEffects(bmp.x, bmp.y, bmp.color);
               sound.playBonus?.();
@@ -230,7 +241,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
 
           // Side Drop Target Collisions
           state.targets.forEach((tgt) => {
-            if (b.x + b.radius > tgt.x && b.x - b.radius < tgt.x + tgt.w &&
+            if (!tgt.hit && b.x + b.radius > tgt.x && b.x - b.radius < tgt.x + tgt.w &&
                 b.y + b.radius > tgt.y && b.y - b.radius < tgt.y + tgt.h) {
               b.vx = -b.vx * 1.1;
               tgt.hit = true;
@@ -280,7 +291,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
             triggerHaptic('warning');
 
             if (state.ballsLeft <= 0) {
-              setGameOver(true);
+              onGameOverRef.current?.(state.score, 'lose');
             }
             break;
           }
@@ -445,48 +456,7 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
 
     animId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animId);
-  }, []);
-
-  const handleRestart = () => {
-    stateRef.current = {
-      ball: { x: 325, y: 470, vx: 0, vy: 0, radius: 9, active: false, speed: 0 },
-      flippers: { leftAngle: 0.3, rightAngle: -0.3, leftTarget: 0.3, rightTarget: -0.3, leftVel: 0, rightVel: 0 },
-      bumpers: [
-        { x: 135, y: 140, r: 24, pts: 100, color: '#ec4899', hitTimer: 0 },
-        { x: 205, y: 110, r: 26, pts: 250, color: '#06b6d4', hitTimer: 0 },
-        { x: 100, y: 220, r: 22, pts: 150, color: '#f59e0b', hitTimer: 0 }
-      ],
-      targets: [
-        { x: 45, y: 170, w: 10, h: 30, hit: false, color: '#a855f7' },
-        { x: 275, y: 170, w: 10, h: 30, hit: false, color: '#a855f7' }
-      ],
-      particles: [],
-      shockwaves: [],
-      score: 0,
-      mult: 1,
-      ballsLeft: 3
-    };
-    setScore(0);
-    setEarnedJoy(0);
-    setMultiplier(1);
-    setBallsLeft(3);
-    setGameOver(false);
-    setChargingPower(0);
-  };
-
-  const handleScoreSubmit = async () => {
-    if (submitting || score <= 0) return;
-    setSubmitting(true);
-    try {
-      await submitScore('pinball', score);
-      sound.playWin?.();
-      if (onScoreSubmit) onScoreSubmit(score);
-    } catch (err) {
-      console.error('Error submitting score:', err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  }, [sound]);
 
   return (
     <div className="relative w-full max-w-sm mx-auto p-4 sm:p-5 rounded-[36px] bg-slate-950/95 border border-slate-800 shadow-2xl backdrop-blur-3xl text-white select-none space-y-3.5">
@@ -504,9 +474,6 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
                 {multiplier}X
               </span>
             )}
-            <span className="text-[13px] font-extrabold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-              +{earnedJoy} JOY 🎉
-            </span>
           </div>
         </div>
 
@@ -523,14 +490,6 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
               </span>
             ))}
           </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="w-7 h-7 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95"
-            >
-              <span className="material-symbols-outlined text-sm">close</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -552,39 +511,6 @@ export default function GamePinball3D({ onScoreSubmit, onClose }) {
       <div className="relative flex justify-center rounded-3xl overflow-hidden border border-slate-800 shadow-xl bg-black">
         <canvas ref={canvasRef} width={330} height={520} className="w-full max-w-[330px] h-[480px]" />
 
-        {/* Game Over Screen */}
-        {gameOver && (
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-fadeIn space-y-4">
-            <span className="material-symbols-outlined text-4xl text-amber-400">workspace_premium</span>
-            <div>
-              <h3 className="text-xl font-black text-white">{t('arcadeGame.gameOver', 'KẾT THÚC BÀN ĐẤU!')}</h3>
-              <p className="text-[13px] text-slate-400 mt-1">{t('arcadeGame.totalScoreAchieved', 'Tổng điểm và JOY đạt được trong trận Pinball')}</p>
-            </div>
-
-            <div className="space-y-0.5">
-              <div className="text-2xl font-black text-amber-400 font-mono">{score.toLocaleString()} PTS</div>
-              <div className="text-[13px] font-bold text-emerald-400">Nhận ngay +{earnedJoy} JOY vào ví!</div>
-            </div>
-
-            <div className="flex flex-col gap-2 w-full max-w-xs pt-2">
-              <button
-                onClick={handleScoreSubmit}
-                disabled={submitting}
-                className="w-full py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-black text-[13px] transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {submitting && <span className="material-symbols-outlined animate-spin text-sm">sync</span>}
-                <span>{submitting ? t('arcadeGame.submittingScore', 'Đang gửi điểm...') : t('arcadeGame.submitScoreForJoy', 'Nộp điểm nhận JOY thưởng')}</span>
-              </button>
-
-              <button
-                onClick={handleRestart}
-                className="w-full py-3 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-bold text-[13px] transition-all active:scale-95"
-              >
-                {t('arcadeGame.playAgain', 'Chơi bàn mới')}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Tactile Capsule Touch Controls */}

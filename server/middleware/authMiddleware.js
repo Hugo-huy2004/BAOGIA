@@ -25,6 +25,7 @@ const sendAuthFailure = (res, error, authRole = 'member') => {
 // luôn mọi '/api/bios/me/*' (sửa hồ sơ, đổi giao diện…) — rộng hơn hẳn mức cần.
 const PROFILE_SETUP_ROUTES = [
   '/api/bios/me',              // portal nạp hồ sơ → biết còn thiếu gì
+  '/api/bios/me/bootstrap',    // portal nạp hồ sơ thiếu để mở onboarding
   '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
   '/api/bios/me/onboarding',   // nơi ghi lựa chọn
   '/api/bios/me/profile-options/ethnicities',

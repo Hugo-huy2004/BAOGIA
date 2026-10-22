@@ -7,22 +7,20 @@ function SurvivorControls({
   isAutoFire = true,
   onToggleAutoFire,
   onTriggerOverdrive,
-  joystickUI,
+  joystickActive,
 }) {
   return (
     <>
       {/* ── VIRTUAL JOYSTICK KHI CHẠM VUỐT ─────────────────────────────────── */}
-      {joystickUI?.active && (
+      {joystickActive && (
         <div
           className="absolute z-30 pointer-events-none -translate-x-1/2 -translate-y-1/2"
-          style={{ left: joystickUI.x, top: joystickUI.y }}
+          style={{ left: "var(--survivor-touch-x)", top: "var(--survivor-touch-y)" }}
         >
           <div className="w-24 h-24 rounded-full border-2 border-cyan-400/60 bg-slate-950/40 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)]">
             <div
               className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-sky-300 border-2 border-white shadow-md"
-              style={{
-                transform: `translate(${joystickUI.dx}px, ${joystickUI.dy}px)`,
-              }}
+              style={{ transform: "translate(var(--survivor-stick-x), var(--survivor-stick-y))" }}
             />
           </div>
         </div>

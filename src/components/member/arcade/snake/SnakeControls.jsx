@@ -3,16 +3,16 @@ import { memo } from "react";
 function SnakeControls({
   isBoostingUI,
   onTriggerBoost,
-  swipeUI,
+  swipeActive,
   isVi,
 }) {
   return (
     <>
       {/* ── HIỆU ỨNG VÒNG TRÒN CẢM ỨNG KHI VUỐT TRÊN MÀN HÌNH ────────────────── */}
-      {swipeUI?.active && (
+      {swipeActive && (
         <div
           className="absolute z-30 pointer-events-none -translate-x-1/2 -translate-y-1/2 transition-opacity duration-100"
-          style={{ left: swipeUI.currX, top: swipeUI.currY }}
+          style={{ left: "var(--snake-touch-x)", top: "var(--snake-touch-y)" }}
         >
           <div className="w-14 h-14 rounded-full border-2 border-amber-400/80 bg-amber-400/20 backdrop-blur-xs flex items-center justify-center shadow-[0_0_15px_rgba(251,191,36,0.5)]">
             <div className="w-4 h-4 rounded-full bg-amber-300 shadow-md animate-ping" />
