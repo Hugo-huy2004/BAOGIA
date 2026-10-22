@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { changeAppLanguage } from "../i18n/config";
-import { SUPPORTED_LANGUAGES, languageCode } from "../i18n/languages";
+import { SELECTABLE_LANGUAGES, languageCode } from "../i18n/languages";
 
 export default function LanguageSelect({ compact = false, className = "", onChange }) {
   const { t, i18n } = useTranslation();
@@ -38,7 +38,7 @@ export default function LanguageSelect({ compact = false, className = "", onChan
           : "min-h-11 w-full cursor-pointer appearance-none rounded-[1rem] border border-border/60 bg-card/75 py-2 pl-10 pr-8 text-xs font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
         }
       >
-        {SUPPORTED_LANGUAGES.map((language) => (
+        {SELECTABLE_LANGUAGES.map((language) => (
           <option key={language.code} value={language.code}>
             {compact ? language.code.toUpperCase() : language.label}
           </option>

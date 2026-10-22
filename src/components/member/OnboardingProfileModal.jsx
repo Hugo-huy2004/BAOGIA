@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { JOY_DENOMS, denomKey } from "../../../shared/joyCurrency";
-import { languageLabel, persistAppLanguage } from "../../i18n/languages";
+import { languageLabel, persistAppLanguage, SELECTABLE_LANGUAGES } from "../../i18n/languages";
 import { countryDisplayName, formatFullAddress, RELIGION_LABELS } from "../../lib/profileDisplay";
 import { getCachedGeolocation } from "../../utils/geoCache";
 
@@ -10,7 +10,6 @@ const apiBase = import.meta.env.VITE_API_URL || "/api";
 // Quà khi nhập mã người giới thiệu — khớp với phần server cộng vào.
 const REFERRAL_BONUS = 10;
 const REFERRAL_BIO_DAYS = 15;
-
 const thisYear = new Date().getFullYear();
 const range = (length, map) => Array.from({ length }, (_, index) => map(index));
 
@@ -106,6 +105,9 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
   const countryName = (code) => {
     return countryDisplayName(code, i18n.resolvedLanguage || "en");
   };
+  const choiceOptions = step?.key === "language"
+    ? SELECTABLE_LANGUAGES.map(({ code }) => ({ value: code }))
+    : step?.options || [];
 
   // Chọn ngôn ngữ là đổi giao diện NGAY (thấy liền kết quả, không phải đoán), và
   // gợi ý luôn đơn vị JOY của nước đó — vẫn đổi được, chỉ là mặc định hợp lý.
@@ -244,7 +246,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
 
           {/* ── Nội dung của đúng bước này ── */}
           <div className="mt-5 min-h-0 flex-1 space-y-2.5 overflow-y-auto">
-            {step.type === "choice" && (step.options || []).map((option) => {
+            {step.type === "choice" && choiceOptions.map((option) => {
               const active = values[step.key] === option.value;
               return (
                 <button

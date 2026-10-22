@@ -6,7 +6,6 @@ import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
 import LanguageSelect from "./LanguageSelect";
 import HugoLogo from "./HugoLogo";
-import LiquidGlassCard from "./ui/LiquidGlassCard";
 
 export default function Navbar() {
   const location = useLocation();
@@ -26,20 +25,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full pt-[calc(0.75rem+env(safe-area-inset-top,0px))] px-3 sm:px-6 pointer-events-none transition-all">
       <div className="mx-auto max-w-5xl pointer-events-auto">
-        <LiquidGlassCard
-          containerClassName="w-full"
-          config={{
-            cornerRadius: 36,
-            zRadius: 28,
-            refraction: 0.72,
-            blurAmount: 0.22,
-            edgeHighlight: 0.2,
-            specular: 0.3,
-            shadowOpacity: 0.25,
-            shadowSpread: 14,
-          }}
-          className="w-full rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 border border-white/60 dark:border-white/15 shadow-[0_12px_36px_rgba(0,0,0,0.1)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.4)] backdrop-blur-2xl"
-        >
+        <div className="swiftui-liquid-glass relative z-10 w-full rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 border border-white/60 dark:border-white/15 shadow-[0_12px_36px_rgba(0,0,0,0.1)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
           <div className="w-full flex items-center justify-between gap-3">
             {/* Brand */}
             <Link
@@ -111,7 +97,7 @@ export default function Navbar() {
               <MobileDrawer />
             </div>
           </div>
-        </LiquidGlassCard>
+        </div>
       </div>
     </header>
   );

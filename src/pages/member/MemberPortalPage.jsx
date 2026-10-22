@@ -96,48 +96,67 @@ function MobilePortalNav({
 }) {
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeArea));
   const navRef = useRef(null);
-  const trackRef = useRef(null);
-  const indicatorRef = useRef(null);
 
   useEffect(() => {
     let instance = null;
     let isCancelled = false;
+    let scrollTimer = null;
+    let scrollTarget = null;
 
     async function initGlass() {
-      if (typeof window === "undefined" || !navRef.current || !trackRef.current) return;
+      const glassElement = navRef.current;
+      const root = glassElement?.parentElement;
+      if (typeof window === "undefined" || !glassElement || !root) return;
       if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
 
       try {
         const { LiquidGlass } = await import("@ybouane/liquidglass");
-        if (isCancelled || !navRef.current || !trackRef.current) return;
+        if (isCancelled || !glassElement.isConnected || glassElement.parentElement !== root) return;
 
-        trackRef.current.dataset.config = JSON.stringify({
-          blurAmount: 0.2,
-          refraction: 0.45,
-          chromAberration: 0.05,
-          edgeHighlight: 0.35,
-          specular: 0.2,
-          fresnel: 0.85,
-          opacity: 0.6,
+        glassElement.dataset.config = JSON.stringify({
+          blurAmount: 0.18,
+          refraction: 0.48,
+          chromAberration: 0.025,
+          edgeHighlight: 0.3,
+          specular: 0.22,
+          fresnel: 0.72,
+          opacity: 0.48,
           cornerRadius: 28,
-          zRadius: 20,
+          zRadius: 16,
+          saturation: 0.12,
+          shadowOpacity: 0.2,
         });
 
-        instance = await LiquidGlass.init({
-          root: navRef.current,
-          glassElements: [trackRef.current],
+        const glassInstance = await LiquidGlass.init({
+          root,
+          glassElements: [glassElement],
           defaults: {
             cornerRadius: 28,
-            zRadius: 20,
-            blurAmount: 0.2,
-            edgeHighlight: 0.35,
-            refraction: 0.45,
-            opacity: 0.6,
+            zRadius: 16,
+            blurAmount: 0.18,
+            edgeHighlight: 0.3,
+            refraction: 0.48,
+            opacity: 0.48,
           },
         });
+        if (isCancelled) {
+          glassInstance.destroy();
+          return;
+        }
+        instance = glassInstance;
+
+        scrollTarget = root.querySelector(".mobile-portal-content");
+        scrollTarget?.addEventListener("scroll", handleContentScroll, { passive: true });
       } catch (err) {
         console.warn("ℹ️ [MobilePortalNav] LiquidGlass fallback to CSS backdrop-filter:", err?.message || err);
       }
+    }
+
+    function handleContentScroll() {
+      window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        if (scrollTarget && instance) instance.markChanged(scrollTarget);
+      }, 120);
     }
 
     const timer = setTimeout(initGlass, 60);
@@ -145,6 +164,8 @@ function MobilePortalNav({
     return () => {
       isCancelled = true;
       clearTimeout(timer);
+      window.clearTimeout(scrollTimer);
+      scrollTarget?.removeEventListener("scroll", handleContentScroll);
       try {
         instance?.destroy();
       } catch {}
@@ -155,61 +176,55 @@ function MobilePortalNav({
     <nav
       ref={navRef}
       id="mobile-primary-navigation"
-      className="mobile-portal-nav"
+      className="mobile-portal-nav mobile-portal-nav__track"
       aria-label={navigationLabel}
     >
+      {/* LiquidGlass samples the scrolling content from the nav's parent and
+          paints the shader behind these controls, as required by the library. */}
       <div
-        ref={trackRef}
-        className="mobile-portal-nav__track relative overflow-hidden"
-      >
-        {/* Tab indicator glass — trượt mượt mà theo tab đang chọn y hệt demo @ybouane/liquidglass */}
-        <div
-          id="glass-tab-indicator"
-          ref={indicatorRef}
-          className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/18 backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"
-          style={{
-            width: `calc((100% - 8px) / ${tabs.length || 1})`,
-            left: "4px",
-            transform: `translateX(calc(${activeIndex} * 100%))`,
-          }}
-        />
-        {/* Lưới 4 cột cố định: Đảm bảo 4 nút chia đều 25% track, không bị indicator chiếm chỗ hay đẩy lệch */}
-        <div className="relative z-10 grid grid-cols-4 w-full h-full items-center">
-          {tabs.map((tab) => {
-            const isActive = activeArea === tab.id;
-            return (
-              <button
-                id={`portal-tab-${tab.id}-mobile`}
-                key={tab.id}
-                type="button"
-                data-section={tab.id}
-                aria-current={isActive ? "page" : undefined}
-                aria-label={tab.label}
-                className={`relative flex flex-col items-center justify-center h-full w-full py-0.5 text-center select-none transition-colors ${
-                  isActive ? "is-active text-foreground font-black" : "text-slate-600 dark:text-zinc-400 hover:text-foreground font-semibold"
-                }`}
-                onClick={() => onTabClick(tab)}
-              >
-                <span className="mobile-portal-nav__icon relative flex items-center justify-center">
-                  <HugeIcon
-                    name={tab.icon}
-                    size={22}
-                    strokeWidth={isActive ? 2.2 : 1.6}
-                  />
-                  {tab.id === "activity" && unreadCount > 0 && (
-                    <span className="mobile-portal-nav__badge">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                  {tab.alert && <span className="mobile-portal-nav__alert" />}
-                </span>
-                <span className="mobile-portal-nav__label text-[10.5px] leading-tight mt-0.5 tracking-tight truncate max-w-full px-1">
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        id="glass-tab-indicator"
+        className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/18 backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"
+        style={{
+          width: `calc((100% - 8px) / ${tabs.length || 1})`,
+          left: "4px",
+          transform: `translateX(calc(${activeIndex} * 100%))`,
+        }}
+      />
+      <div className="relative z-10 grid grid-cols-4 w-full h-full items-center">
+        {tabs.map((tab) => {
+          const isActive = activeArea === tab.id;
+          return (
+            <button
+              id={`portal-tab-${tab.id}-mobile`}
+              key={tab.id}
+              type="button"
+              data-section={tab.id}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={tab.label}
+              className={`relative flex flex-col items-center justify-center h-full w-full py-0.5 text-center select-none transition-colors ${
+                isActive ? "is-active text-foreground font-black" : "text-slate-600 dark:text-zinc-400 hover:text-foreground font-semibold"
+              }`}
+              onClick={() => onTabClick(tab)}
+            >
+              <span className="mobile-portal-nav__icon relative flex items-center justify-center">
+                <HugeIcon
+                  name={tab.icon}
+                  size={22}
+                  strokeWidth={isActive ? 2.2 : 1.6}
+                />
+                {tab.id === "activity" && unreadCount > 0 && (
+                  <span className="mobile-portal-nav__badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+                {tab.alert && <span className="mobile-portal-nav__alert" />}
+              </span>
+              <span className="mobile-portal-nav__label text-[10.5px] leading-tight mt-0.5 tracking-tight truncate max-w-full px-1">
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

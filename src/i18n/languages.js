@@ -14,6 +14,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", locale: "en-US" },
   { code: "zh", label: "简体中文", locale: "zh-CN" },
 ];
+export const SELECTABLE_LANGUAGES = SUPPORTED_LANGUAGES.filter(({ code }) => code !== "nom");
 
 // One app-owned key is the source of truth. `i18nextLng` and `ui-store` are
 // kept as migration targets because older releases wrote the preference there.

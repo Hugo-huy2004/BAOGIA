@@ -600,26 +600,26 @@ function ServiceWebsiteScreen({ index, mobile = false, progress }: { index: numb
           </div>
         </div>
       ) : index === 1 ? (
-        <div className={`h-[89%] ${mobile ? "px-[7%] pt-[24px]" : "px-[6%] pt-[5%]"}`}>
+        <div className={`h-[89%] ${mobile ? "px-[7%] pt-[16px]" : "px-[6%] pt-[5%]"}`}>
           <div className={mobile ? "" : "grid grid-cols-[.82fr_1.18fr] items-center gap-[7%]"}>
             <div>
               <p className={`${mobile ? "text-[11px]" : "text-[0.52rem]"} font-bold tracking-[0.16em] text-[#596fd7] uppercase`}>Website nhiều trang</p>
-              <p className={`${mobile ? "mt-[12px] text-[28px]" : "mt-[4%] text-[1.7rem]"} leading-[1.04] font-bold tracking-[-0.055em]`}>Kể trọn câu chuyện thương hiệu.</p>
-              <p className={`${mobile ? "mt-[14px] text-[13px] leading-[1.55]" : "mt-[5%] text-[0.56rem] leading-relaxed"} text-[#667085]`}>Mỗi trang đảm nhận một vai trò, cùng dẫn khách đến quyết định.</p>
+              <p className={`${mobile ? "mt-[8px] text-[22px]" : "mt-[4%] text-[1.7rem]"} leading-[1.04] font-bold tracking-[-0.055em]`}>Kể trọn câu chuyện thương hiệu.</p>
+              <p className={`${mobile ? "mt-[8px] text-[11px] leading-[1.4]" : "mt-[5%] text-[0.56rem] leading-relaxed"} text-[#667085]`}>Mỗi trang đảm nhận một vai trò, cùng dẫn khách đến quyết định.</p>
             </div>
-            <div className={`${mobile ? "mt-[20px] h-[140px] rounded-2xl p-[18px]" : "h-48 rounded-xl p-[6%]"} relative overflow-hidden bg-linear-to-br from-[#d9fbf7] via-[#ddecff] to-[#cfd5ff]`}>
+            <div className={`${mobile ? "mt-[12px] h-[88px] rounded-2xl p-[12px]" : "h-48 rounded-xl p-[6%]"} relative overflow-hidden bg-linear-to-br from-[#d9fbf7] via-[#ddecff] to-[#cfd5ff]`}>
               <span className="absolute -right-[8%] -bottom-[35%] size-[70%] rounded-full bg-[#6078EA]/75" />
               <span className="absolute right-[20%] top-[12%] size-[38%] rounded-full bg-[#17EAD9]/80" />
-              <div className={`${mobile ? "inset-x-[7%] bottom-[12px] rounded-xl p-[14px]" : "inset-x-[8%] bottom-[10%] rounded-lg p-[6%]"} absolute bg-white/90 shadow-lg`}>
-                <span className={`${mobile ? "h-[6px] w-[38%]" : "h-1.5 w-[36%]"} block rounded-full bg-[#101828]`} /><span className={`${mobile ? "mt-[8px] h-[4px] w-[70%]" : "mt-[5%] h-1 w-[72%]"} block rounded-full bg-[#b8c4d0]`} />
+              <div className={`${mobile ? "inset-x-[7%] bottom-[8px] rounded-xl p-[10px]" : "inset-x-[8%] bottom-[10%] rounded-lg p-[6%]"} absolute bg-white/90 shadow-lg`}>
+                <span className={`${mobile ? "h-[5px] w-[38%]" : "h-1.5 w-[36%]"} block rounded-full bg-[#101828]`} /><span className={`${mobile ? "mt-[6px] h-[3px] w-[70%]" : "mt-[5%] h-1 w-[72%]"} block rounded-full bg-[#b8c4d0]`} />
               </div>
             </div>
           </div>
-          <div className={`${mobile ? "mt-[20px] grid-cols-2 gap-[10px]" : "mt-[5%] grid-cols-4 gap-[3%]"} grid`}>
+          <div className={`${mobile ? "mt-[12px] grid-cols-2 gap-[6px]" : "mt-[5%] grid-cols-4 gap-[3%]"} grid`}>
             {["Giới thiệu", "Dịch vụ", "Dự án", "Liên hệ"].map((item) => (
-              <div key={item} className={`${mobile ? "rounded-2xl p-[12px]" : "rounded-lg p-[8%]"} border border-[#dce8f2] bg-white shadow-sm`}>
-                <span className="block aspect-[2/1] rounded-md bg-linear-to-br from-[#17EAD9]/50 to-[#6078EA]/55" />
-                <span className={`${mobile ? "mt-[10px] text-[12px]" : "mt-[7%] text-[0.45rem]"} block font-semibold`}>{item}</span>
+              <div key={item} className={`${mobile ? "rounded-xl p-[8px]" : "rounded-lg p-[8%]"} border border-[#dce8f2] bg-white shadow-sm`}>
+                <span className={`${mobile ? "aspect-[3/1]" : "aspect-[2/1]"} block rounded-md bg-linear-to-br from-[#17EAD9]/50 to-[#6078EA]/55`} />
+                <span className={`${mobile ? "mt-[6px] text-[10px]" : "mt-[7%] text-[0.45rem]"} block font-semibold`}>{item}</span>
               </div>
             ))}
           </div>

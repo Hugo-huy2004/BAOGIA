@@ -9,7 +9,7 @@ import ToggleSwitch from "../common/ToggleSwitch";
 import { pushService } from "../../services/pushService";
 import { hapticSelect } from "../../utils/haptics";
 import { getAuraTheme, resolveActivePortalTheme } from "../../data/auraThemes";
-import { SUPPORTED_LANGUAGES, languageCode, languageLabel } from "../../i18n/languages";
+import { SELECTABLE_LANGUAGES, languageCode, languageLabel } from "../../i18n/languages";
 import { changeAppLanguage } from "../../i18n/config";
 import { useJoyStore } from "../../stores/joyStore";
 import { useJoy } from "../../lib/joyDisplay";
@@ -574,7 +574,7 @@ export default function MemberSettingsTab({
           onClose={closeSheet}
         >
           <div className="space-y-2">
-            {SUPPORTED_LANGUAGES.map((lng) => {
+            {SELECTABLE_LANGUAGES.map((lng) => {
               const active = currentLang === lng.code;
               return (
                 <button
