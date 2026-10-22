@@ -43,6 +43,7 @@
     "check:csp": "node scripts/checks/check-csp.mjs",
     "check:admin-auth": "node server/scripts/check-admin-auth.mjs",
     "check:telegram": "node server/scripts/check-telegram-bot.mjs",
+    "migrate:bio-expiry-index": "node server/scripts/migrate-bio-expiry-index.mjs",
     "check:money": "node server/scripts/check-money-stepup.mjs",
     "cv:pdf:zh": "node scripts/export-cv-pdfs.mjs zh",
     "cv:pdf:ats-en": "node scripts/export-cv-pdfs.mjs ats-en",

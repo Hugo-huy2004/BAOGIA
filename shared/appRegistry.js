@@ -41,7 +41,6 @@ const manifest = ({
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
   manifest({ id: "profile", icon: "verified_user", tint: "indigo", category: "edu", badge: "new", store: true, storeOrder: 0 }),
-  manifest({ id: "friends", icon: "group", tint: "blue", category: "tools", badge: "new", storageMb: 2.0, version: "1.1.0", store: true, storeOrder: 2 }),
   manifest({ id: "study", icon: "school", tint: "purple", category: "edu", badge: "new", storageMb: 8.1 }),
   manifest({ id: "team", icon: "groups", tint: "teal", category: "edu", badge: "join", storageMb: 1.6, version: "1.4.0", store: true, storeOrder: 6 }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
@@ -81,7 +80,6 @@ export const REQUIRED_APP_IDS = Object.freeze([
   // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
   // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
   "nom",
-  "friends",
   "team",
   "psychology",
   "radio",
@@ -102,6 +100,7 @@ export const RETIRED_APP_IDS = Object.freeze([
   "supporter",
   "support",
   "info",
+  "friends",
 ]);
 
 /**
@@ -134,7 +133,6 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "study",
   "arcade",
   "store",
-  "friends",
   "handle",
   "team",
   "radio",

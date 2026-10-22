@@ -1,4 +1,5 @@
 import VerificationForm from "./VerificationForm";
+import { useTranslation } from "react-i18next";
 
 // The "Sinh viên chưa xác minh" entry used to navigate into its own tab —
 // now it opens this popup instead, so submitting/checking status doesn't
@@ -10,10 +11,15 @@ export default function VerificationModal({
   verificationForm,
   setVerificationForm,
   handleVerificationSubmit,
+  handleVerificationAppeal,
   handleLogout,
-  verifying
+  verifying,
+  appealSubmitting,
+  appealSent,
 }) {
+  const { t } = useTranslation();
   if (!open) return null;
+  const isExpired = bio?.expiresAt && new Date(bio.expiresAt).getTime() <= Date.now();
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
@@ -26,7 +32,20 @@ export default function VerificationModal({
           <span className="material-symbols-outlined text-base">close</span>
         </button>
 
-        {bio?.isEduVerified ? (
+        {bio?.isEduVerified && isExpired ? (
+          <div className="py-6 px-4 animate-fadeIn">
+            <div className="bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/50 p-6 sm:p-8 rounded-xl shadow-xl text-center space-y-4 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-warning to-yellow-400" />
+              <span className="material-symbols-outlined text-3xl text-warning">schedule</span>
+              <h2 className="font-display text-lg font-black text-warning uppercase tracking-tight">
+                Đã hết thời hạn sử dụng
+              </h2>
+              <p className="text-xs text-muted-foreground leading-relaxed px-2">
+                Thời hạn 365 ngày của tài khoản đã kết thúc. Vui lòng liên hệ quản trị viên để được hỗ trợ gia hạn.
+              </p>
+            </div>
+          </div>
+        ) : bio?.isEduVerified ? (
           <div className="py-6 px-4 animate-fadeIn">
             <div className="bg-white/95 dark:bg-card/95 backdrop-blur-md border border-border/50 p-6 sm:p-8 rounded-xl shadow-xl text-center space-y-4 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-success to-teal-400" />
@@ -37,7 +56,7 @@ export default function VerificationModal({
                 Đã Xác Minh
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed px-2">
-                Thông tin của bạn đã được xác minh và cố định. Tài khoản đã có đầy đủ 365 ngày sử dụng kể từ ngày đăng ký.
+                Thông tin của bạn đã được xác minh. Tài khoản được cấp 365 ngày sử dụng kể từ ngày duyệt.
               </p>
             </div>
           </div>
@@ -52,17 +71,21 @@ export default function VerificationModal({
                 Đang Chờ Phê Duyệt
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed px-2">
-                Yêu cầu xác minh sinh viên của bạn đã được gửi đến Admin. Bạn vẫn dùng được toàn bộ tính năng trong thời gian dùng thử — khi được duyệt, hạn dùng của bạn sẽ tự động nâng lên đủ 365 ngày kể từ ngày đăng ký, không cần làm gì thêm.
+                {t("memberPortal.verify.pendingReviewText")}
               </p>
             </div>
           </div>
         ) : (
           <VerificationForm
+            bio={bio}
             verificationForm={verificationForm}
             setVerificationForm={setVerificationForm}
             handleVerificationSubmit={handleVerificationSubmit}
+            handleVerificationAppeal={handleVerificationAppeal}
             handleLogout={handleLogout}
             verifying={verifying}
+            appealSubmitting={appealSubmitting}
+            appealSent={appealSent}
           />
         )}
       </div>

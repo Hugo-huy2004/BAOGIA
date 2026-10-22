@@ -37,15 +37,18 @@ export function parseBirthInput(value) {
   const nums = String(value || '').match(/\d+/g);
   if (!nums || nums.length < 3) return null;
   const parts = nums.map(Number);
-  // Năm là số 4 chữ số ở đầu hoặc cuối; còn lại theo thứ tự ngày, tháng.
+  // Năm đứng đầu là định dạng ISO YYYY-MM-DD; năm đứng cuối theo ngày/tháng/năm.
   const yearIdx = parts.findIndex((n) => n > 1900);
   if (yearIdx === -1) return null;
   const year = parts[yearIdx];
   const rest = parts.filter((_, i) => i !== yearIdx);
   const [a, b] = rest;
-  // Số > 12 chắc chắn là ngày; còn lại giữ quy ước ngày/tháng của người Việt.
-  const day = a > 12 ? a : (b > 12 ? b : a);
-  const month = a > 12 ? b : (b > 12 ? a : b);
+  const day = yearIdx === 0
+    ? b
+    : a > 12 ? a : (b > 12 ? b : a);
+  const month = yearIdx === 0
+    ? a
+    : a > 12 ? b : (b > 12 ? a : b);
   if (!(month >= 1 && month <= 12) || !(day >= 1 && day <= 31)) return null;
   return { year, month, day };
 }

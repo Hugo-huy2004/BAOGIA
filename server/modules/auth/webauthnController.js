@@ -13,6 +13,7 @@ import Bio from '../../models/Bio.js';
 import WebAuthnCredential from '../../models/WebAuthnCredential.js';
 import { saveChallenge, consumeChallenge } from '../../utils/webauthnChallengeStore.js';
 import { signMemberToken, invalidateMemberGate } from '../../middleware/authMiddleware.js';
+import { isDeletedMemberAccount } from '../../utils/deletedMemberAccount.js';
 
 export const RP_NAME = 'Hugo Studio';
 
@@ -156,6 +157,9 @@ export async function verifyLogin(req, res) {
 
     const cred = await WebAuthnCredential.findOne({ email, credentialID: response.id });
     if (!cred) return res.status(404).json({ error: 'Credential not found' });
+    if (await isDeletedMemberAccount(email)) {
+      return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
+    }
 
     const { expectedOrigin, rpID } = getDynamicOriginAndRPID(req);
 

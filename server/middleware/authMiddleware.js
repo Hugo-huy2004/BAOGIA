@@ -4,6 +4,8 @@ import Admin from '../models/Admin.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
+import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
+import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
@@ -29,6 +31,7 @@ const PROFILE_SETUP_ROUTES = [
   '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
   '/api/bios/me/onboarding',   // nơi ghi lựa chọn
   '/api/bios/me/profile-options/ethnicities',
+  '/api/bios/me/verification',
 ];
 // Riêng đăng nhập/đăng xuất thì theo tiền tố: người dùng phải thoát ra được.
 export const isProfileSetupRoute = (url = '') => {
@@ -85,13 +88,23 @@ async function readMemberGate(email) {
   const Bio = (await import('../models/Bio.js')).default;
   // Một truy vấn cho mọi cổng chặn — chỉ cần biết các trường có giá trị hay chưa,
   // không giải mã nội dung nhạy cảm ở middleware.
-  const bio = await Bio.findOne({ email }, 'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity').lean();
-  const value = bio ? {
-    locationAnomaly: !!bio.locationAnomaly,
-    profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
-      || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
-      || !bio.religion || !bio.ethnicity,
-  } : null;
+  const [bio, deletedAccount] = await Promise.all([
+    Bio.findOne(
+    { email },
+      'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity isEduVerified trialExpiresAt expiresAt',
+    ).select('+deletionStartedAt').lean(),
+    isDeletedMemberAccount(email),
+  ]);
+  const value = deletedAccount
+    ? { deletedAccount: true }
+    : bio ? {
+      locationAnomaly: !!bio.locationAnomaly,
+      isEduVerified: !!bio.isEduVerified,
+      accessExpiresAt: bio.isEduVerified || !bio.trialExpiresAt ? bio.expiresAt : bio.trialExpiresAt,
+      profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
+        || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
+        || !bio.religion || !bio.ethnicity,
+    } : null;
 
   if (gateCache.size >= GATE_CACHE_MAX) {
     const oldest = gateCache.keys().next().value;
@@ -272,7 +285,53 @@ export const requireMember = async (req, res, next) => {
       if (!isBypass) {
         const mongoose = (await import('mongoose')).default;
         if (mongoose.connection.readyState === 1) {
-          const bio = await readMemberGate(decoded.email);
+          let bio = await readMemberGate(decoded.email);
+          if (bio?.deletedAccount) {
+            return res.status(410).json({
+              code: 'ACCOUNT_DELETED',
+              error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
+            });
+          }
+          if (bio?.accessExpiresAt && new Date(bio.accessExpiresAt).getTime() <= Date.now()) {
+            if (!bio.isEduVerified) {
+              let deleted = false;
+              try {
+                deleted = await deleteExpiredMemberAccount(decoded.email);
+                invalidateMemberGate(decoded.email);
+              } catch (error) {
+                console.error('[member account expiry deletion]', error.message);
+                return res.status(503).json({
+                  code: 'ACCOUNT_CLEANUP_UNAVAILABLE',
+                  error: 'Chưa thể hoàn tất việc xử lý tài khoản. Vui lòng thử lại.',
+                });
+              }
+              if (deleted) {
+                return res.status(410).json({
+                  code: 'ACCOUNT_DELETED',
+                  error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
+                });
+              }
+              bio = await readMemberGate(decoded.email);
+              if (!bio || bio.deletedAccount) {
+                return res.status(410).json({
+                  code: 'ACCOUNT_DELETED',
+                  error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
+                });
+              }
+              if (!bio.isEduVerified && bio.accessExpiresAt && new Date(bio.accessExpiresAt).getTime() <= Date.now()) {
+                return res.status(410).json({
+                  code: 'ACCOUNT_DELETED',
+                  error: 'Tài khoản đã hết thời gian dùng thử.',
+                });
+              }
+            }
+            if (!isProfileSetupRoute(req.originalUrl)) {
+              return res.status(403).json({
+                code: 'ACCOUNT_EXPIRED',
+                error: 'Thời hạn sử dụng tài khoản đã kết thúc.',
+              });
+            }
+          }
           if (bio && bio.locationAnomaly) {
             return res.status(403).json({
               error: 'PHAT_HIEN_VI_TRI_BAT_THUONG',
@@ -286,7 +345,7 @@ export const requireMember = async (req, res, next) => {
           // trên MỌI route member — và onboarding không bao giờ hỏi để thoát ra.
           //
           // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chặn.
-          if (bio && bio.profileIncomplete && !isProfileSetupRoute(req.originalUrl)) {
+          if (bio?.isEduVerified && bio.profileIncomplete && !isProfileSetupRoute(req.originalUrl)) {
             return res.status(403).json({
               error: 'PROFILE_INCOMPLETE',
               message: 'Bạn cần hoàn tất thông tin hồ sơ bắt buộc trước khi dùng Hugo Studio.'

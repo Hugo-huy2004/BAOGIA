@@ -13,9 +13,7 @@ function realtimeUrl() {
   const apiUrl = new URL(apiBase, window.location.origin);
   const protocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
   const basePath = apiUrl.pathname.replace(/\/api\/?$/, '').replace(/\/$/, '');
-  // token is the member JWT — the server derives the email from it after
-  // verifying; sending a bare email would let anyone subscribe to any wallet.
-  return `${protocol}//${apiUrl.host}${basePath}/ws?token=${encodeURIComponent(getMemberToken() || '')}`;
+  return `${protocol}//${apiUrl.host}${basePath}/ws`;
 }
 
 export default function PWARealtimeBridge() {
@@ -51,22 +49,24 @@ export default function PWARealtimeBridge() {
       window.clearTimeout(retryTimer.current);
       if (socket && socket.readyState <= WebSocket.OPEN) return;
       if (navigator.onLine === false || !getMemberToken()) return;
+      let connection;
       try {
-        socket = new WebSocket(realtimeUrl());
-      } catch (e) {
-        console.warn("WebSocket initialization error:", e);
-        retryTimer.current = window.setTimeout(connect, 30000);
+        connection = new WebSocket(realtimeUrl());
+        socket = connection;
+      } catch (error) {
+        console.warn("WebSocket initialization error:", error);
+        scheduleReconnect();
         return;
       }
 
-      socket.addEventListener('open', () => {
-        if (disposed) { socket.close(); return; }
+      connection.addEventListener('open', () => {
+        if (disposed || socket !== connection) { connection.close(); return; }
         stableTimer = window.setTimeout(() => { retryCount.current = 0; }, 4000);
         if (!firstConnection) sync();
         firstConnection = false;
       });
-      socket.addEventListener('message', (event) => {
-        if (disposed) return;
+      connection.addEventListener('message', (event) => {
+        if (disposed || socket !== connection) return;
         try {
           const data = JSON.parse(event.data);
 
@@ -79,6 +79,10 @@ export default function PWARealtimeBridge() {
             return;
           }
 
+          if (data.type === 'member_account_deleted') {
+            window.dispatchEvent(new CustomEvent('hugo:member-account-deleted'));
+            return;
+          }
 
           if (data.type !== 'joy_update') return;
           useJoyStore.getState().setBalance(Number(data.balance) || 0);
@@ -95,20 +99,25 @@ export default function PWARealtimeBridge() {
           }
         } catch {}
       });
-      socket.addEventListener('error', () => {
+      connection.addEventListener('error', () => {
         // Suppress console spam on server 503 / network downtime
       });
-      socket.addEventListener('close', (event) => {
+      connection.addEventListener('close', (event) => {
         if (stableTimer) { window.clearTimeout(stableTimer); stableTimer = null; }
-        if (disposed) return;
+        if (disposed || socket !== connection) return;
+        socket = null;
         if (event.code === 4001) {
           if (getMemberToken() === token) clearMemberSession();
           return;
         }
-        // Cap backoff at 60s when server returns 503
-        const delay = Math.min(60000, Math.max(5000, 1000 * (2 ** Math.min(6, retryCount.current++))));
-        retryTimer.current = window.setTimeout(connect, delay);
+        scheduleReconnect();
       });
+    };
+
+    const scheduleReconnect = () => {
+      window.clearTimeout(retryTimer.current);
+      const ceiling = Math.min(60000, 1000 * (2 ** Math.min(6, retryCount.current++)));
+      retryTimer.current = window.setTimeout(connect, Math.random() * ceiling);
     };
 
     connect();
@@ -148,14 +157,12 @@ export default function PWARealtimeBridge() {
       window.clearTimeout(retryTimer.current);
       if (stableTimer) window.clearTimeout(stableTimer);
       window.removeEventListener('hugo:realtime-send', handleRealtimeSend);
-      // Only close if past CONNECTING (readyState 0) to avoid the
-      // "WebSocket is closed before the connection is established" warning
-      // that React StrictMode triggers by double-invoking effects.
-      if (socket && socket.readyState !== WebSocket.CONNECTING) {
-        socket.close();
-      } else if (socket) {
-        socket.addEventListener('open', () => socket.close(), { once: true });
-      }
+      // Let a pending handshake finish, then close it. Calling close() while
+      // CONNECTING can produce a browser warning during StrictMode remounts.
+      if (socket && socket.readyState === WebSocket.CONNECTING) {
+        const pending = socket;
+        pending.addEventListener('open', () => pending.close(), { once: true });
+      } else if (socket) socket.close();
       document.removeEventListener('visibilitychange', handleResume);
       window.removeEventListener('focus', sync);
       window.removeEventListener('online', handleOnline);

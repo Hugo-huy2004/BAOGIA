@@ -273,10 +273,25 @@ export const dataApi = {
   // Submit verification request for non-edu members
   async submitVerification(email, verificationData) {
     try {
+      const body = new FormData();
+      body.append('email', email);
+      for (const [key, value] of Object.entries(verificationData)) {
+        if (key === 'evidenceFiles' && Array.isArray(value)) {
+          value.forEach((file) => body.append('evidence', file));
+          continue;
+        }
+        if (value !== undefined && value !== null && typeof value !== 'boolean') {
+          body.append(key, value);
+        } else if (typeof value === 'boolean') {
+          body.append(key, String(value));
+        }
+      }
+      const headers = getAuthHeaders();
+      delete headers['Content-Type'];
       const response = await safeFetch(`${API_BASE_URL}/bios/me/verification`, {
         method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ email, ...verificationData })
+        headers,
+        body
       });
 
       const data = await response.json();
@@ -288,6 +303,34 @@ export const dataApi = {
       console.error('Error submitting verification request:', error);
       throw error;
     }
+  },
+
+  async submitVerificationAppeal(contact, message) {
+    const response = await safeFetch(`${API_BASE_URL}/bios/me/verification/appeal`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ contact, message }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error || 'Unable to send verification support request');
+    }
+    return data;
+  },
+
+  async getVerificationEvidence(bioId, kind) {
+    if (!['schedule', 'selfie', '0', '1'].includes(String(kind))) {
+      throw new Error('Invalid verification evidence type');
+    }
+    const response = await safeFetch(
+      `${API_BASE_URL}/bios/${encodeURIComponent(bioId)}/verification-evidence/${encodeURIComponent(kind)}`,
+      { headers: getAuthHeaders() },
+    );
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || 'Không thể tải ảnh xác minh.');
+    }
+    return response.blob();
   },
 
   async reviewStudentReward(type, file) {

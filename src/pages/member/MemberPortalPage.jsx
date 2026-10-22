@@ -301,8 +301,40 @@ function MemberPortalPage() {
   const [verificationForm, setVerificationForm] = useState({
     fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
     schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
+    evidenceFiles: [], supportContact: "", supportMessage: "",
   });
   const [verifying, setVerifying] = useState(false);
+  const [appealSubmitting, setAppealSubmitting] = useState(false);
+  const [appealSent, setAppealSent] = useState(false);
+  useEffect(() => {
+    if (!bio?._id) return;
+    const request = bio.verificationRequest || {};
+    setVerificationForm((current) => ({
+      ...current,
+      fullName: current.fullName || request.fullName || bio.displayName || memberSession?.displayName || "",
+      birthday: current.birthday || request.birthday || bio.birthday || "",
+      schoolLevel: current.schoolLevel || request.schoolLevel || "",
+      schoolName: current.schoolName || request.schoolName || "",
+      schoolIdCode: current.schoolIdCode || request.schoolIdCode || "",
+      phoneZalo: current.phoneZalo || request.phoneZalo || bio.phone || "",
+      supportContact: current.supportContact || request.supportContact || "",
+      supportMessage: current.supportMessage || request.supportMessage || "",
+    }));
+  }, [
+    bio?._id,
+    bio?.verificationRequest?.fullName,
+    bio?.verificationRequest?.birthday,
+    bio?.verificationRequest?.schoolLevel,
+    bio?.verificationRequest?.schoolName,
+    bio?.verificationRequest?.schoolIdCode,
+    bio?.verificationRequest?.phoneZalo,
+    bio?.verificationRequest?.supportContact,
+    bio?.verificationRequest?.supportMessage,
+    bio?.displayName,
+    bio?.birthday,
+    bio?.phone,
+    memberSession?.displayName,
+  ]);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
   const triggerConfirm = (message, onConfirm) => setConfirmModal({ isOpen: true, message, onConfirm });
 
@@ -681,8 +713,29 @@ function MemberPortalPage() {
   // instantly without the member needing to reload.
   useEffect(() => {
     const handleBioUpdate = (e) => {
-      const { status, isEduVerified, expiresAt } = e.detail || {};
-      setBio(prev => prev ? { ...prev, status, isEduVerified, expiresAt, verificationRequest: { ...prev.verificationRequest, submitted: isEduVerified ? prev.verificationRequest?.submitted : false } } : prev);
+      const { status, isEduVerified, expiresAt, trialExpiresAt, verificationStatus, verificationSubmissionCount } = e.detail || {};
+      setBio(prev => prev ? {
+        ...prev,
+        status,
+        isEduVerified,
+        expiresAt,
+        trialExpiresAt,
+        verificationRequest: {
+          ...prev.verificationRequest,
+          submitted: false,
+          notifiedStatus: verificationStatus || prev.verificationRequest?.notifiedStatus,
+          submissionCount: verificationSubmissionCount ?? prev.verificationRequest?.submissionCount,
+        },
+      } : prev);
+      if (verificationStatus === "rejected") {
+        setShowVerifyModal(true);
+        sendNotification({
+          category: "verification",
+          type: "error",
+          title: t("memberPortal.toast.verifyRejectedTitle"),
+          message: t("memberPortal.toast.verifyRejectedMsg"),
+        });
+      }
     };
     window.addEventListener('hugo:bio-update', handleBioUpdate);
     return () => window.removeEventListener('hugo:bio-update', handleBioUpdate);
@@ -717,20 +770,70 @@ function MemberPortalPage() {
   // ── Handlers ──────────────────────────────────────────────────────────────────
   const handleLogout = () => { if (memberSession?.email) clearCachedBio(memberSession.email); logoutAuth(); window.location.assign("/login"); };
 
+  useEffect(() => {
+    const handleAccountDeletion = () => {
+      if (memberSession?.email) clearCachedBio(memberSession.email);
+      logoutAuth()
+        .catch((error) => console.error("Failed to clear deleted member session:", error))
+        .finally(() => window.location.replace("/login"));
+    };
+    window.addEventListener("hugo:member-account-deleted", handleAccountDeletion);
+    return () => window.removeEventListener("hugo:member-account-deleted", handleAccountDeletion);
+  }, [memberSession?.email]);
+
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
     if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast(t("memberPortal.toast.acceptTermsWarning"), "error"); return; }
     // Mã học sinh: nhiều trường không cấp nên chỉ điền nếu có.
     if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
+    const evidenceFiles = (verificationForm.evidenceFiles || []).filter(Boolean);
+    if (!evidenceFiles.length || evidenceFiles.length > 2) {
+      showToast(t("memberPortal.verify.evidenceRequired"), "error");
+      return;
+    }
     setVerifying(true);
     try {
-      const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, schoolIdCode: verificationForm.schoolIdCode, phoneZalo: verificationForm.phoneZalo });
+      const res = await memberService.submitVerification(memberSession.email, {
+        fullName: verificationForm.fullName,
+        birthday: verificationForm.birthday,
+        schoolLevel: verificationForm.schoolLevel,
+        schoolName: verificationForm.schoolName,
+        schoolIdCode: verificationForm.schoolIdCode,
+        phoneZalo: verificationForm.phoneZalo,
+        acceptTerms: verificationForm.acceptTerms,
+        acceptContact: verificationForm.acceptContact,
+        evidenceFiles,
+      });
       if (res.success) {
         showToast(res.bio?.isEduVerified ? t("memberPortal.toast.eduVerified") : t("memberPortal.toast.submitSuccess"), "success");
         setBio(res.bio);
+        setVerificationForm((current) => ({ ...current, evidenceFiles: [], acceptTerms: false, acceptContact: false }));
+        setAppealSent(false);
       }
     } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
     finally { setVerifying(false); }
+  };
+
+  const handleVerificationAppeal = async (e) => {
+    e.preventDefault();
+    if (!verificationForm.supportContact.trim()) {
+      showToast(t("memberPortal.verify.supportContactRequired"), "error");
+      return;
+    }
+    setAppealSubmitting(true);
+    try {
+      const result = await memberService.submitVerificationAppeal(
+        verificationForm.supportContact,
+        verificationForm.supportMessage,
+      );
+      setBio(result.bio);
+      setAppealSent(true);
+      showToast(t("memberPortal.verify.supportSent"), "success");
+    } catch (error) {
+      showToast(error.message || t("memberPortal.verify.supportError"), "error");
+    } finally {
+      setAppealSubmitting(false);
+    }
   };
 
   const processFile = (file) => {
@@ -905,6 +1008,35 @@ function MemberPortalPage() {
   );
 
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const hasBio = Boolean(bio);
+  const verificationSubmitted = Boolean(bio?.verificationRequest?.submitted);
+  const isVerificationRejection = bio?.verificationRequest?.notifiedStatus === "rejected" && !bio?.isEduVerified;
+  const isHardRejected = bio?.status === "rejected" && !isVerificationRejection;
+  const accountExpiresAt = bio?.isEduVerified ? bio?.expiresAt : (bio?.trialExpiresAt || bio?.expiresAt);
+  const expiryTimestamp = accountExpiresAt ? new Date(accountExpiresAt).getTime() : NaN;
+  const trialDaysRemaining = Number.isFinite(expiryTimestamp)
+    ? Math.max(0, Math.ceil((expiryTimestamp - Date.now()) / 86400000))
+    : 7;
+  const memberEmail = memberSession?.email;
+
+  useEffect(() => {
+    if (!hasBio || isGuestMode || !memberEmail || bio?.isEduVerified || verificationSubmitted || showVerifyModal) return undefined;
+    const reminderKey = `hugo_edu_verification_reminder_${memberEmail.toLowerCase()}`;
+    const lastReminderAt = Number(localStorage.getItem(reminderKey)) || 0;
+    const reminderIntervalMs = 24 * 60 * 60 * 1000;
+    const delay = Math.max(0, reminderIntervalMs - (Date.now() - lastReminderAt));
+    const timer = setTimeout(() => {
+      localStorage.setItem(reminderKey, String(Date.now()));
+      setShowVerifyModal(true);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [accountExpiresAt, bio?.isEduVerified, hasBio, isGuestMode, memberEmail, showVerifyModal, verificationSubmitted]);
+
+  useEffect(() => {
+    if (showVerifyModal && memberEmail) {
+      localStorage.setItem(`hugo_edu_verification_reminder_${memberEmail.toLowerCase()}`, String(Date.now()));
+    }
+  }, [memberEmail, showVerifyModal]);
 
   // Verification is a modal now (opened from the tab click), so /member/verify
   // has no inline content and rendered blank on direct navigation/bookmark.
@@ -1020,6 +1152,23 @@ function MemberPortalPage() {
           onClose={() => setToast({ message: "", type: "" })}
           zIndex={300}
         />
+        {bio && !isGuestMode && !bio.isEduVerified && (
+          <button
+            type="button"
+            onClick={() => navigate("/member/verify")}
+            className="flex w-full items-center justify-between gap-3 border-b border-primary/20 bg-primary/5 px-4 py-2 text-left text-xs text-foreground"
+          >
+            <span>{t(
+              bio.verificationRequest?.notifiedStatus === "rejected"
+                ? "memberPortal.verify.reminderRejected"
+                : bio.verificationRequest?.submitted
+                  ? "memberPortal.verify.reminderPending"
+                  : "memberPortal.verify.reminderText",
+              { days: trialDaysRemaining },
+            )}</span>
+            <span className="shrink-0 font-bold text-primary">{t("memberPortal.verify.reminderAction")}</span>
+          </button>
+        )}
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
@@ -1075,6 +1224,22 @@ function MemberPortalPage() {
         data-portal-area={portalArea}
         data-aura-theme={activePortalTheme}
       >
+        {bio && !isGuestMode && !bio.isEduVerified && (
+          <div role="status" className="relative z-30 flex flex-wrap items-center justify-between gap-3 border-b border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
+            <p className="min-w-0 flex-1 text-foreground/90">
+              {bio.verificationRequest?.notifiedStatus === "rejected"
+                ? t("memberPortal.verify.reminderRejected")
+                : verificationSubmitted
+                  ? t("memberPortal.verify.reminderPending")
+                  : t("memberPortal.verify.reminderText", {
+                    days: trialDaysRemaining,
+                  })}
+            </p>
+            <button type="button" onClick={() => setShowVerifyModal(true)} className="shrink-0 font-bold text-primary underline underline-offset-2">
+              {t("memberPortal.verify.reminderAction")}
+            </button>
+          </div>
+        )}
         {/* Tài khoản từng bị loại khỏi nền theme vì nó tự vẽ nền tối riêng; từ khi
             dựng lại theo khuôn Today, nó dùng chung nền theme như mọi tab. */}
         <AuraBackground theme={activePortalTheme} area={portalArea} />
@@ -1106,10 +1271,10 @@ function MemberPortalPage() {
                 <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
               </div>
             }>
-              {bio?.status === 'rejected' ? (
+              {isHardRejected ? (
                 <RejectedVerification handleLogout={handleLogout} />
-              ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
-                <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
+              ) : (bio?.status === 'pending' && !bio?.verificationRequest?.submitted) || (bio?.status === 'rejected' && isVerificationRejection) ? (
+                <VerificationForm bio={bio} verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleVerificationAppeal={handleVerificationAppeal} handleLogout={handleLogout} verifying={verifying} appealSubmitting={appealSubmitting} appealSent={appealSent} />
               ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
                 <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
               ) : (
@@ -1194,10 +1359,10 @@ function MemberPortalPage() {
                 <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
               </div>
             }>
-              {bio?.status === 'rejected' ? (
+              {isHardRejected ? (
                 <RejectedVerification handleLogout={handleLogout} />
-              ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
-                <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
+              ) : (bio?.status === 'pending' && !bio?.verificationRequest?.submitted) || (bio?.status === 'rejected' && isVerificationRejection) ? (
+                <VerificationForm bio={bio} verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleVerificationAppeal={handleVerificationAppeal} handleLogout={handleLogout} verifying={verifying} appealSubmitting={appealSubmitting} appealSent={appealSent} />
               ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
                 <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
               ) : (
@@ -1288,8 +1453,11 @@ function MemberPortalPage() {
           verificationForm={verificationForm}
           setVerificationForm={setVerificationForm}
           handleVerificationSubmit={handleVerificationSubmit}
+          handleVerificationAppeal={handleVerificationAppeal}
           handleLogout={handleLogout}
           verifying={verifying}
+          appealSubmitting={appealSubmitting}
+          appealSent={appealSent}
         />
 
         <PaymentRequestModal

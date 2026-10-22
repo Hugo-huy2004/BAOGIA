@@ -14,7 +14,6 @@ import crypto from 'node:crypto';
  *   · `JoyDefaultRecord` khoá theo `emailHash` (SHA-256) — sổ đen cố ý không
  *     lưu email thô
  *   · `PendingTransfer` có `fromEmail`/`toEmail`, phải tra cả hai chiều
- *   · `Friendship` có `requesterEmail`/`recipientEmail`
  *   · `LearningEvidence` khoá theo `ownerMemberId`, KHÔNG phải email
  * Tra nhầm khoá thì truy vấn trả về rỗng mà không báo lỗi — admin tưởng người
  * dùng sạch sẽ trong khi thật ra là mình hỏi sai câu.
@@ -65,7 +64,6 @@ export async function buildUserOverview(email, memberId) {
     NativePushDevice, NotificationSubscription, InAppNotification,
     SurveyResponse, SleepLog, ReadingSession, LessonFeedback, LearningEvidence,
     StockPosition, StockTrade, ArcadeScore, ChessRating, CheckinRecord,
-    Friendship, UserProfile, SocialProfile,
   ] = await Promise.all([
     'JoyLedger', 'JoyCreditProfile', 'JoyDefaultRecord', 'PendingTransfer', 'JoyGiftCard',
     'Booking', 'SupportTicket', 'CustomerProject', 'UtilityOrder',
@@ -73,7 +71,6 @@ export async function buildUserOverview(email, memberId) {
     'NativePushDevice', 'NotificationSubscription', 'InAppNotification',
     'SurveyResponse', 'SleepLog', 'ReadingSession', 'LessonFeedback', 'LearningEvidence',
     'StockPosition', 'StockTrade', 'ArcadeScore', 'ChessRating', 'CheckinRecord',
-    'Friendship', 'UserProfile', 'SocialProfile',
   ].map(loadModel));
 
   const sections = await Promise.all([
@@ -134,15 +131,6 @@ export async function buildUserOverview(email, memberId) {
       checkins: await recent(CheckinRecord, byEmail, 10),
     })),
 
-    // ── Xã hội ───────────────────────────────────────────────────────────
-    section('social', async () => ({
-      friends: Friendship
-        ? await Friendship.find({ $or: [{ requesterEmail: email }, { recipientEmail: email }] })
-            .sort({ createdAt: -1 }).limit(30).lean()
-        : [],
-      interests: UserProfile ? await UserProfile.findOne(byEmail).lean() : null,
-      socialProfile: SocialProfile ? await SocialProfile.findOne(byEmail).lean() : null,
-    })),
   ]);
 
   const overview = {};

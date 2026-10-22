@@ -4,6 +4,26 @@ import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
 
 export function initCronJobs() {
+  // Permanently remove non-EDU accounts after their seven-day trial.
+  // The request middleware also checks the deadline so cron delay cannot grant extra access.
+  cron.schedule('*/15 * * * *', async () => {
+    try {
+      const { purgeExpiredUnverifiedMembers, purgeOrphanedVerificationEvidence } = await import('../services/memberAccountLifecycle.js');
+      const [result, evidenceRemoved] = await Promise.all([
+        purgeExpiredUnverifiedMembers({ limit: 20 }),
+        purgeOrphanedVerificationEvidence({ limit: 100 }),
+      ]);
+      if (result.deleted) {
+        console.log(`[CRON] Permanently deleted ${result.deleted} of ${result.scanned} expired unverified member accounts.`);
+      }
+      if (evidenceRemoved) {
+        console.log(`[CRON] Removed ${evidenceRemoved} orphaned verification evidence files.`);
+      }
+    } catch (error) {
+      console.error('[CRON] Expired member account cleanup:', error.message);
+    }
+  });
+
   // Báo cáo bình ổn JOY — 09:00 thứ Hai giờ VN (02:00 UTC).
   //
   // Gửi vào đầu tuần và báo về TUẦN TRƯỚC (tuần đã khép), không phải tuần đang

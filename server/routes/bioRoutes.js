@@ -13,6 +13,11 @@ import { unsealField } from '../utils/dbSealingCipher.js';
 
 function sanitizeBioOutput(bioObj) {
   if (!bioObj || typeof bioObj !== 'object') return bioObj;
+  if (bioObj.verificationRequest) {
+    delete bioObj.verificationRequest.evidenceFileIds;
+    delete bioObj.verificationRequest.scheduleFileId;
+    delete bioObj.verificationRequest.selfieFileId;
+  }
   for (const [key, val] of Object.entries(bioObj)) {
     if (typeof val === 'string' && val) {
       if (val.startsWith('$enc$a256gcm$v1$')) {
@@ -37,8 +42,11 @@ import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import redisSlugService from '../services/redisSlugService.js';
 import LearningEvidence from '../models/LearningEvidence.js';
+import VerificationEvidence from '../models/VerificationEvidence.js';
+import { deleteMemberAccountPermanently } from '../services/memberAccountLifecycle.js';
 import { generateRaw } from '../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../utils/studentRewards.js';
+import { fetchTelegramFile } from '../services/telegramService.js';
 
 const checkLocationLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
@@ -81,6 +89,36 @@ const studentRewardUpload = multer({
   limits: { files: 1, fileSize: 8 * 1024 * 1024 },
 });
 
+const studentVerificationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
+  message: { error: 'Bạn đã gửi yêu cầu xác minh quá nhiều lần. Vui lòng thử lại sau.' },
+});
+
+const verificationAppealLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
+  message: { error: 'Bạn đã gửi yêu cầu hỗ trợ quá nhiều lần. Vui lòng thử lại sau.' },
+});
+
+const studentVerificationUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { files: 2, fileSize: 4 * 1024 * 1024, fields: 12, fieldSize: 16 * 1024 },
+});
+
+const receiveStudentVerification = (req, res, next) => {
+  studentVerificationUpload.array('evidence', 2)(req, res, (error) => {
+    if (!error) return next();
+    return res.status(400).json({
+      error: error.code === 'LIMIT_FILE_SIZE'
+        ? 'Mỗi ảnh tối đa 4 MB.'
+        : 'Chỉ được gửi tối đa hai ảnh bằng chứng.',
+    });
+  });
+};
+
 const receiveStudentReward = (req, res, next) => {
   studentRewardUpload.single('evidence')(req, res, (error) => {
     if (!error) return next();
@@ -116,6 +154,7 @@ const clearPublicBioCache = (bio) => Promise.all([
 ]);
 
 const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 async function rejectBlacklistedPhone(res, phone) {
   if (!phone || !String(phone).trim()) return false;
@@ -190,17 +229,8 @@ const createUniqueSlug = async (baseSlug, ignoreId = null) => {
   }
 };
 
-const removeExpiredBioIfNeeded = async (bio) => {
-  if (bio && bio.expiresAt && new Date(bio.expiresAt).getTime() <= Date.now()) {
-    // `existing` là tên của biến ở hàm gọi, không tồn tại trong phạm vi này —
-    // nhánh xoá Bio hết hạn ném ReferenceError thay vì dọn dữ liệu.
-    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
-    await Bio.deleteOne({ _id: bio._id });
-    return null;
-  }
-
-  return bio;
-};
+const getUnexpiredPublicBio = (bio) =>
+  bio && bio.expiresAt && new Date(bio.expiresAt).getTime() <= Date.now() ? null : bio;
 
 const processSecretLinks = async (newLinks, existingLinks = []) => {
   if (!newLinks || !Array.isArray(newLinks)) return [];
@@ -229,48 +259,6 @@ const processSecretLinks = async (newLinks, existingLinks = []) => {
   }
   return result;
 };
-
-// POST: Bulk approve all pending bios
-router.post('/bulk-approve-pending', requireAdmin, async (req, res) => {
-  try {
-    const pendingBios = await Bio.find({ status: 'pending' });
-    let count = 0;
-
-    for (const bio of pendingBios) {
-      if (bio.verificationRequest && bio.verificationRequest.submitted) {
-        bio.displayName = bio.verificationRequest.fullName || bio.displayName;
-        bio.birthday = bio.verificationRequest.birthday || bio.birthday;
-        bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
-        if (bio.verificationRequest.schoolName) {
-          bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
-        }
-        bio.verificationRequest.notifiedStatus = 'approved';
-      }
-
-      bio.status = 'active';
-      bio.isEduVerified = true;
-      // Extend so the member gets a full 365 days counted from their original
-      // signup date, replacing whatever trial/expiry they had before.
-      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
-      pushHistory(bio, {
-        type: 'profile_updated',
-        icon: 'verified',
-        title: 'Tài khoản đã được duyệt tự động! 🎉',
-        detail: 'Quản trị viên đã duyệt hàng loạt tài khoản của bạn lên trạng thái hoạt động.'
-      });
-
-      await bio.save();
-      await removeDuplicateIdentityAccounts(bio);
-      await clearPublicBioCache(bio);
-      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
-      count++;
-    }
-
-    res.json({ success: true, count });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // GET: Fetch all bios (for Admin Panel) with search, filter, pagination, and stats
 router.get('/', requireAdmin, async (req, res) => {
@@ -370,7 +358,10 @@ async function removeDuplicateIdentityAccounts(bio) {
   if (schoolIdCode) identityFilters.push({ 'verificationRequest.schoolIdCode': schoolIdCode });
   if (!identityFilters.length) return;
 
-  await Bio.deleteMany({ _id: { $ne: bio._id }, $or: identityFilters });
+  const duplicates = await Bio.find({ _id: { $ne: bio._id }, $or: identityFilters }).select('_id');
+  for (const duplicate of duplicates) {
+    await deleteMemberAccountPermanently(duplicate._id);
+  }
 }
 
 // PATCH: gắn/gỡ hạng danh dự Star-VIP. Star-14 và Star-18 suy ra từ ngày sinh
@@ -388,6 +379,41 @@ router.patch('/:id/vip', requireAdmin, async (req, res) => {
   }
 });
 
+router.get('/:id/verification-evidence/:kind', requireAdmin, async (req, res) => {
+  try {
+    const evidenceIndex = /^\d+$/.test(req.params.kind) ? Number(req.params.kind) : -1;
+    const fileField = req.params.kind === 'schedule'
+      ? 'verificationRequest.scheduleFileId'
+      : req.params.kind === 'selfie'
+        ? 'verificationRequest.selfieFileId'
+        : evidenceIndex >= 0 && evidenceIndex < 2
+          ? `verificationRequest.evidenceFileIds.${evidenceIndex}`
+        : null;
+    if (!fileField) return res.status(404).json({ error: 'Không tìm thấy ảnh xác minh.' });
+
+    const bio = await Bio.findById(req.params.id).select(fileField).lean();
+    const fileId = fileField.split('.').reduce((value, key) => value?.[key], bio);
+    if (!fileId) return res.status(404).json({ error: 'Yêu cầu này chưa có ảnh xác minh.' });
+
+    const storedEvidence = /^[a-f\d]{24}$/i.test(String(fileId))
+      ? await VerificationEvidence.findOne({ _id: fileId, memberId: bio._id }).lean()
+      : null;
+    if (storedEvidence) {
+      res.set('Cache-Control', 'private, no-store');
+      return res.type(storedEvidence.mime).send(storedEvidence.data);
+    }
+
+    const file = await fetchTelegramFile(fileId, 4 * 1024 * 1024);
+    if (!file) return res.status(502).json({ error: 'Không thể tải ảnh xác minh từ Telegram.' });
+
+    res.set('Cache-Control', 'private, no-store');
+    res.type(file.mime).send(Buffer.from(file.base64, 'base64'));
+  } catch (error) {
+    console.error('GET verification evidence error:', error.message || error);
+    res.status(500).json({ error: 'Không thể tải ảnh xác minh.' });
+  }
+});
+
 // PATCH: Lock/Unlock/Approve/Reject bio
 router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
@@ -402,13 +428,21 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     if (!bio) {
       return res.status(404).json({ error: 'Bio not found' });
     }
+    const reviewedEvidenceIds = [...(bio.verificationRequest?.evidenceFileIds || [])];
 
     // Auto-fill profile fields + extend to a full year when approving a
     // submitted verification request — covers both the legacy pending→active
     // gate and the new flow where non-edu trial members are already 'active'
     // and just need their submitted request approved.
     const isApprovingVerification = status === 'active' && bio.verificationRequest?.submitted && !bio.isEduVerified;
+    const isRejectingVerification = status === 'rejected' && bio.verificationRequest?.submitted;
     if (isApprovingVerification) {
+      const hasEvidence = bio.verificationRequest.evidenceFileIds?.length
+        || (bio.verificationRequest.scheduleFileId && bio.verificationRequest.selfieFileId);
+      if (!hasEvidence) {
+        return res.status(422).json({ error: 'Hồ sơ xác minh chưa có ảnh bằng chứng.' });
+      }
+      bio.verificationRequest.submitted = false;
       bio.displayName = bio.verificationRequest.fullName || bio.displayName;
       bio.birthday = bio.verificationRequest.birthday || bio.birthday;
       bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
@@ -417,31 +451,49 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
       }
       bio.verificationRequest.notifiedStatus = 'approved';
       bio.isEduVerified = true;
-      // Extend so the member gets a full 365 days counted from their original
-      // signup date, replacing whatever trial/expiry they had before.
-      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
+      // A manual review grants a full year from the approval date.
+      bio.expiresAt = new Date(Date.now() + TWELVE_MONTHS_MS);
+      bio.trialExpiresAt = null;
+      bio.verificationRequest.evidenceFileIds = [];
+      bio.verificationRequest.scheduleFileId = '';
+      bio.verificationRequest.selfieFileId = '';
     } else if (status === 'rejected') {
       if (bio.verificationRequest) {
         bio.verificationRequest.notifiedStatus = 'rejected';
+        bio.verificationRequest.submitted = false;
+        bio.verificationRequest.evidenceFileIds = [];
+        bio.verificationRequest.scheduleFileId = '';
+        bio.verificationRequest.selfieFileId = '';
       }
     }
 
-    // Rejecting an already-active trial member's verification just declines
-    // the edu upgrade — it must NOT lock them out of their running 30-day
-    // trial. Only a legacy 'pending'-gated account actually moves to the
-    // hard 'rejected' (no-access) state.
-    if (status === 'rejected' && bio.status === 'active') {
-      bio.verificationRequest.submitted = false;
+    // A verification rejection declines only the upgrade. The member keeps
+    // normal access until the existing trial deadline and may submit once more.
+    if (isRejectingVerification) {
+      bio.status = 'active';
+      if (!bio.isEduVerified && bio.trialExpiresAt) bio.expiresAt = bio.trialExpiresAt;
     } else {
       bio.status = status;
     }
     await bio.save();
+    invalidateMemberGate(bio.email);
+    if (reviewedEvidenceIds.length && (isApprovingVerification || isRejectingVerification)) {
+      await VerificationEvidence.deleteMany({ memberId: bio._id, _id: { $in: reviewedEvidenceIds } });
+    }
     if (isApprovingVerification) await removeDuplicateIdentityAccounts(bio);
 
     // Invalidate origin cache; CDN copies expire according to their HTTP TTL
     await clearPublicBioCache(bio);
     if (isApprovingVerification || status === 'rejected') {
-      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: bio.isEduVerified, expiresAt: bio.expiresAt });
+      broadcastToEmail(bio.email, {
+        type: 'bio_status_update',
+        status: bio.status,
+        isEduVerified: bio.isEduVerified,
+        expiresAt: bio.expiresAt,
+        trialExpiresAt: bio.trialExpiresAt,
+        verificationStatus: bio.verificationRequest?.notifiedStatus,
+        verificationSubmissionCount: bio.verificationRequest?.submissionCount || 0,
+      });
     }
 
     res.json({ bio });
@@ -459,26 +511,10 @@ router.delete('/:id', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
     }
 
-    const userEmail = bio.email;
-    const userDisplayName = bio.displayName;
-
-    // 1. Xóa hồ sơ Bio
-    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
-    await Bio.deleteOne({ _id: id });
-
-    // 2. Xóa toàn bộ điểm Arcade liên quan (xoá triệt để khỏi Bảng xếp hạng)
-    const scoreFilters = [];
-    if (userEmail) scoreFilters.push({ email: userEmail });
-    if (userDisplayName) scoreFilters.push({ displayName: userDisplayName });
-
-    if (scoreFilters.length > 0) {
-      await ArcadeScore.deleteMany({ $or: scoreFilters });
-    }
-
-    // 3. Clear public cache
-    await clearPublicBioCache(bio);
-
-    res.json({ success: true, message: `Đã xóa vĩnh viễn tài khoản của ${userDisplayName || userEmail}` });
+    const deleted = await deleteMemberAccountPermanently(id);
+    if (!deleted) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    invalidateMemberGate(bio.email);
+    return res.json({ success: true, message: `Đã xóa vĩnh viễn tài khoản của ${bio.displayName || bio.email}` });
   } catch (error) {
     console.error('Delete user error:', error);
     res.status(500).json({ error: error.message });
@@ -498,7 +534,7 @@ router.get('/me', requireMember, async (req, res) => {
     if (!doc) {
       doc = await Bio.findOne({ contactEmail: email });
     }
-    let bioDoc = await removeExpiredBioIfNeeded(doc);
+    let bioDoc = doc;
 
     // Auto-create a placeholder Bio document if it doesn't exist and we have the Google displayName
     if (!bioDoc && displayName) {
@@ -506,14 +542,12 @@ router.get('/me', requireMember, async (req, res) => {
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
 
-      // Edu emails get full 1-year access immediately and are considered
-      // verified outright — no form, no admin step. Everyone else gets a
-      // 30-day trial with full portal access right away (no blocking
-      // "pending" gate) and can submit verification any time from the
-      // "Sinh viên chưa xác minh" tab to extend to a full year on approval.
-      const expiresAt = new Date();
-      if (isEdu) expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-      else expiresAt.setDate(expiresAt.getDate() + 30);
+      // EDU email is verified immediately. Other members get seven days of
+      // access to submit evidence; the review request can remain queued after
+      // access expires.
+      const createdAt = new Date();
+      const expiresAt = new Date(createdAt.getTime() + (isEdu ? TWELVE_MONTHS_MS : SEVEN_DAYS_MS));
+      const trialExpiresAt = isEdu ? null : expiresAt;
 
       const welcomeHistory = [
         {
@@ -532,9 +566,10 @@ router.get('/me', requireMember, async (req, res) => {
         slug: newSlug,
         status: 'active',
         isEduVerified: isEdu,
+        trialExpiresAt,
         expiresAt,
         history: welcomeHistory,
-        createdAt: new Date()
+        createdAt
       });
       
       await bioDoc.save();
@@ -550,8 +585,10 @@ router.get('/me', requireMember, async (req, res) => {
     // portal load instead of needing a one-off migration script.
     if (bioDoc && bioDoc.status === 'active' && !bioDoc.isEduVerified && (await isEduEmail(bioDoc.email))) {
       bioDoc.isEduVerified = true;
-      bioDoc.expiresAt = new Date(new Date(bioDoc.createdAt).getTime() + TWELVE_MONTHS_MS);
+      bioDoc.expiresAt = new Date(Date.now() + TWELVE_MONTHS_MS);
+      bioDoc.trialExpiresAt = null;
       await bioDoc.save();
+      invalidateMemberGate(bioDoc.email);
     }
 
     if (bioDoc) {
@@ -686,56 +723,187 @@ function stripSchoolLevelPrefix(name) {
   return String(name || '').trim().replace(SCHOOL_LEVEL_PREFIX, '').trim();
 }
 
-// POST /me/verification - Submit the mandatory profile/verification form.
-// Edu emails self-approve immediately (no admin wait); everyone else still
-// queues for admin review (see PATCH /:id/status). Phone is just a plain
-// field here — no SMS OTP requirement, since members change numbers often
-// and forcing OTP just to submit this form was too much friction.
-router.post('/me/verification', requireMember, async (req, res) => {
+// Non-EDU reviews require one or two clear evidence images.
+router.post('/me/verification/appeal', requireMember, verificationAppealLimiter, async (req, res) => {
+  try {
+    const bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    if (bio.isEduVerified || bio.verificationRequest?.notifiedStatus !== 'rejected') {
+      return res.status(409).json({ error: 'Chỉ có thể gửi yêu cầu hỗ trợ sau khi hồ sơ bị từ chối.' });
+    }
+
+    const contact = String(req.body?.contact || '').trim();
+    const message = String(req.body?.message || '').trim();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
+    const validPhone = /^[+\d().\s-]{7,25}$/.test(contact);
+    if ((!validEmail && !validPhone) || contact.length > 200) {
+      return res.status(400).json({ error: 'Vui lòng nhập email hoặc số điện thoại hợp lệ để được hỗ trợ.' });
+    }
+    if (message.length > 1000) {
+      return res.status(400).json({ error: 'Nội dung yêu cầu tối đa 1.000 ký tự.' });
+    }
+
+    bio.verificationRequest.supportContact = contact;
+    bio.verificationRequest.supportMessage = message;
+    bio.verificationRequest.supportSubmittedAt = new Date();
+    await bio.save();
+    return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
+  } catch (error) {
+    console.error('POST /me/verification/appeal error:', error);
+    return res.status(500).json({ error: 'Không thể gửi yêu cầu hỗ trợ lúc này. Vui lòng thử lại.' });
+  }
+});
+
+router.post('/me/verification', requireMember, studentVerificationLimiter, receiveStudentVerification, async (req, res) => {
+  let createdEvidenceIds = [];
+  let submissionClaim = null;
+  let memberBioId = null;
   try {
     const { fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
     const email = req.memberEmail;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
-    }
+    if (!email) return res.status(400).json({ error: 'Missing email' });
     if (await rejectBlacklistedPhone(res, phoneZalo)) return;
 
     const bio = await Bio.findOne({ email });
-    if (!bio) {
-      return res.status(404).json({ error: 'Bio not found' });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    memberBioId = bio._id;
+
+    const isEdu = await isEduEmail(email);
+    if (isEdu) {
+      bio.displayName = fullName || bio.displayName;
+      bio.birthday = birthday || bio.birthday;
+      bio.phone = phoneZalo || bio.phone;
+      bio.verificationRequest.notifiedStatus = 'approved';
+      bio.verificationRequest.submitted = false;
+      bio.isEduVerified = true;
+      bio.trialExpiresAt = null;
+      bio.expiresAt = new Date((bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now()) + TWELVE_MONTHS_MS);
+      await bio.save();
+      invalidateMemberGate(email);
+      await clearPublicBioCache(bio);
+      await removeDuplicateIdentityAccounts(bio);
+      broadcastToEmail(email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
+      return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
     }
 
-    bio.verificationRequest = {
-      fullName: fullName || '',
-      birthday: birthday || '',
-      schoolLevel: schoolLevel || '',
-      schoolName: stripSchoolLevelPrefix(schoolName),
-      schoolIdCode: schoolIdCode || '',
-      phoneZalo: phoneZalo || '',
-      avatarUrl: avatarUrl || '',
-      submitted: true,
-      notifiedStatus: 'none'
-    };
-    if (phoneZalo) bio.phone = phoneZalo;
-    if (fullName) bio.displayName = fullName;
+    if (bio.isEduVerified) {
+      return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
+    }
 
-    if (birthday) {
-      bio.birthday = birthday;
-      const parts = String(birthday).trim().split(/[-/]/);
-      if (parts.length === 3) {
-        if (parts[0].length === 4) {
-          bio.birthYear = parseInt(parts[0], 10) || bio.birthYear || 0;
-          bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
-          bio.birthDay = parseInt(parts[2], 10) || bio.birthDay || 0;
-        } else if (parts[2].length === 4) {
-          bio.birthDay = parseInt(parts[0], 10) || bio.birthDay || 0;
-          bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
-          bio.birthYear = parseInt(parts[2], 10) || bio.birthYear || 0;
-        }
+    const evidenceFiles = req.files || [];
+    if (evidenceFiles.length < 1 || evidenceFiles.length > 2) {
+      return res.status(400).json({ error: 'Vui lòng gửi một hoặc hai ảnh tài liệu xác minh.' });
+    }
+    const evidence = evidenceFiles.map((file) => ({
+      file,
+      mime: detectedEvidenceMime(file.buffer),
+    }));
+    if (evidence.some(({ mime }) => !mime?.startsWith('image/'))) {
+      return res.status(400).json({ error: 'Chỉ chấp nhận ảnh JPG, PNG hoặc WebP hợp lệ.' });
+    }
+    if (!fullName || !birthday || !schoolLevel || !schoolName || !phoneZalo) {
+      return res.status(400).json({ error: 'Vui lòng điền họ tên, ngày sinh, trường học và số liên hệ.' });
+    }
+    if (!['true', true].includes(req.body.acceptTerms) || !['true', true].includes(req.body.acceptContact)) {
+      return res.status(400).json({ error: 'Vui lòng xác nhận điều khoản và đồng ý liên hệ xét duyệt.' });
+    }
+    if (bio.verificationRequest?.submitted && bio.verificationRequest?.notifiedStatus !== 'rejected') {
+      return res.status(409).json({ error: 'Yêu cầu HSSV của bạn đang chờ xét duyệt.' });
+    }
+    const request = bio.verificationRequest || {};
+    const claimIsStale = request.submissionStartedAt
+      && new Date(request.submissionStartedAt).getTime() <= Date.now() - 15 * 60 * 1000;
+    const previousSubmissionCount = Math.max(
+      0,
+      (Number(request.submissionCount) || 0) - (claimIsStale ? 1 : 0),
+      request.submitted || request.notifiedStatus === 'rejected' ? 1 : 0,
+    );
+    if (previousSubmissionCount >= 2) {
+      return res.status(409).json({ error: 'Bạn đã sử dụng đủ hai lần gửi hồ sơ. Hãy liên hệ hỗ trợ để được xem xét.' });
+    }
+
+    const storedEvidence = await VerificationEvidence.create(evidence.map(({ file, mime }) => ({
+      memberId: bio._id,
+      mime,
+      data: file.buffer,
+    })));
+    createdEvidenceIds = storedEvidence.map((item) => item._id);
+
+    const claimStartedAt = new Date();
+    const reservation = await Bio.updateOne({
+      _id: bio._id,
+      isEduVerified: { $ne: true },
+      'verificationRequest.submitted': { $ne: true },
+      $and: [
+        {
+          $or: [
+            { 'verificationRequest.submissionCount': { $lt: 2 } },
+            { 'verificationRequest.submissionCount': null },
+          ],
+        },
+        {
+          $or: [
+            { 'verificationRequest.submissionStartedAt': null },
+            { 'verificationRequest.submissionStartedAt': { $exists: false } },
+            { 'verificationRequest.submissionStartedAt': { $lte: new Date(Date.now() - 15 * 60 * 1000) } },
+          ],
+        },
+      ],
+    }, {
+      $set: {
+        'verificationRequest.submissionCount': previousSubmissionCount + 1,
+        'verificationRequest.submissionStartedAt': claimStartedAt,
+      },
+    });
+    if (!reservation.modifiedCount) {
+      await VerificationEvidence.deleteMany({ _id: { $in: createdEvidenceIds } });
+      createdEvidenceIds = [];
+      return res.status(409).json({ error: 'Yêu cầu đang được gửi hoặc bạn đã dùng đủ hai lần nộp hồ sơ.' });
+    }
+    submissionClaim = {
+      startedAt: claimStartedAt,
+      previousCount: previousSubmissionCount,
+      previousStatus: request.notifiedStatus || 'none',
+    };
+
+    const normalizedSchoolName = stripSchoolLevelPrefix(schoolName);
+    bio.verificationRequest = {
+      fullName,
+      birthday,
+      schoolLevel,
+      schoolName: normalizedSchoolName,
+      schoolIdCode: schoolIdCode || '',
+      phoneZalo,
+      avatarUrl: avatarUrl || '',
+      evidenceFileIds: createdEvidenceIds.map(String),
+      scheduleFileId: '',
+      selfieFileId: '',
+      submitted: true,
+      notifiedStatus: 'pending',
+      submissionCount: previousSubmissionCount + 1,
+      submissionStartedAt: null,
+      supportContact: bio.verificationRequest?.supportContact || '',
+      supportMessage: bio.verificationRequest?.supportMessage || '',
+      supportSubmittedAt: bio.verificationRequest?.supportSubmittedAt || null,
+    };
+    if (bio.status === 'rejected') bio.status = 'active';
+    bio.trialExpiresAt = bio.trialExpiresAt || bio.expiresAt || new Date(Date.now() + SEVEN_DAYS_MS);
+    bio.phone = phoneZalo;
+    bio.displayName = fullName;
+    bio.birthday = birthday;
+    bio.education = `${schoolLevel} - ${normalizedSchoolName}`.trim().replace(/^- /, '');
+    const parts = String(birthday).trim().split(/[-/]/);
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        bio.birthYear = parseInt(parts[0], 10) || bio.birthYear || 0;
+        bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
+        bio.birthDay = parseInt(parts[2], 10) || bio.birthDay || 0;
+      } else if (parts[2].length === 4) {
+        bio.birthDay = parseInt(parts[0], 10) || bio.birthDay || 0;
+        bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
+        bio.birthYear = parseInt(parts[2], 10) || bio.birthYear || 0;
       }
     }
-
     if (!bio.slug) {
       const baseSlug = (bio.displayName || email.split('@')[0])
         .toLowerCase()
@@ -744,34 +912,37 @@ router.post('/me/verification', requireMember, async (req, res) => {
         .replace(/^-|-$/g, '') || `user-${Date.now()}`;
       bio.slug = `${baseSlug}-${createHash('md5').update(email).digest('hex').slice(0, 6)}`;
     }
-    if (!bio.expiresAt) {
-      const createdTime = bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now();
-      bio.expiresAt = new Date(createdTime + TWELVE_MONTHS_MS);
-    }
-
-    const isEdu = await isEduEmail(email);
-    if (isEdu) {
-      // Edu identity is already proven by the email domain + a verified phone
-      // — no human needs to review this, approve it on the spot.
-      bio.displayName = bio.verificationRequest.fullName || bio.displayName;
-      bio.birthday = bio.verificationRequest.birthday || bio.birthday;
-      if (bio.verificationRequest.schoolName) {
-        bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
-      }
-      bio.verificationRequest.notifiedStatus = 'approved';
-      bio.isEduVerified = true;
-      bio.expiresAt = new Date((bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now()) + TWELVE_MONTHS_MS);
-    }
-
     await bio.save();
-    if (isEdu) await removeDuplicateIdentityAccounts(bio);
+    submissionClaim = null;
+    createdEvidenceIds = [];
     await clearPublicBioCache(bio);
-    if (isEdu) {
-      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
-    }
-
-    res.json({ success: true, bio });
+    invalidateMemberGate(email);
+    return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
   } catch (error) {
+    if (submissionClaim) {
+      try {
+        await Bio.updateOne(
+          { _id: memberBioId, 'verificationRequest.submissionStartedAt': submissionClaim.startedAt },
+          {
+            $set: {
+              'verificationRequest.submissionCount': submissionClaim.previousCount,
+              'verificationRequest.submissionStartedAt': null,
+              'verificationRequest.submitted': false,
+              'verificationRequest.notifiedStatus': submissionClaim.previousStatus,
+            },
+          },
+        );
+      } catch (cleanupError) {
+        console.error('Verification submission claim rollback failed:', cleanupError);
+      }
+    }
+    if (createdEvidenceIds.length) {
+      try {
+        await VerificationEvidence.deleteMany({ _id: { $in: createdEvidenceIds } });
+      } catch (cleanupError) {
+        console.error('Verification evidence rollback failed:', cleanupError);
+      }
+    }
     console.error('POST /me/verification error:', error);
     res.status(500).json({ error: error.message });
   }
@@ -1287,7 +1458,7 @@ router.get('/slug/:slug', async (req, res) => {
     // Kích hoạt Single-flight & Stale-while-revalidate (giữ fresh trong 60 giây)
     const bio = await fetchWithCache(cacheKey, 60000, async () => {
       const found = await Bio.findOne({ slug });
-      const bioDoc = await removeExpiredBioIfNeeded(found);
+      const bioDoc = getUnexpiredPublicBio(found);
       if (bioDoc) {
         const doc = bioDoc.toObject();
         // Remove sensitive info for public view
@@ -1330,7 +1501,7 @@ router.get('/by-domain/:domain', async (req, res) => {
     const cacheKey = `bio_domain_${domain}`;
     const bio = await fetchWithCache(cacheKey, 60000, async () => {
       const found = await Bio.findOne({ customDomain: domain });
-      const bioDoc = await removeExpiredBioIfNeeded(found);
+      const bioDoc = getUnexpiredPublicBio(found);
       if (bioDoc) {
         const doc = bioDoc.toObject();
         if (doc.secretLinks && Array.isArray(doc.secretLinks)) {
@@ -1766,19 +1937,10 @@ router.delete('/:id', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Bio not found' });
     }
 
-    if (existing.avatarUrl) {
-      await deleteAvatar(existing.avatarUrl);
-    }
-    // Biến ở đây tên `existing`; `bio` không tồn tại nên nhánh xoá của admin
-    // ném ReferenceError TRƯỚC khi kịp xoá, để lại minh chứng học tập mồ côi.
-    await LearningEvidence.deleteMany({ ownerMemberId: existing._id });
-    await Bio.findByIdAndDelete(req.params.id);
-    
-    // Xóa khỏi Cache và Bloom Filter
-    await clearPublicBioCache(existing);
-    redisSlugService.deleteSlug(existing.slug);
-
-    res.json({ message: 'Bio deleted successfully' });
+    const deleted = await deleteMemberAccountPermanently(existing._id);
+    if (!deleted) return res.status(404).json({ error: 'Bio not found' });
+    invalidateMemberGate(existing.email);
+    return res.json({ success: true, message: 'Bio deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

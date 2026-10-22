@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import IoTDevice from '../models/IoTDevice.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { broadcastToEmail } from '../utils/realtime.js';
 
 const router = express.Router();
 
@@ -123,20 +124,12 @@ router.post('/vitals', async (req, res) => {
       }
     });
 
-    // Broadcast to WebSocket clients with same email if WS server is available
-    if (global.wsClients && global.wsClients[device.email]) {
-      const payload = JSON.stringify({
-        type: 'vitals',
-        deviceId: device.deviceId,
-        deviceName: device.deviceName,
-        data: vitalEntry
-      });
-      for (const ws of global.wsClients[device.email]) {
-        if (ws.readyState === 1 /* OPEN */) {
-          ws.send(payload);
-        }
-      }
-    }
+    broadcastToEmail(device.email, {
+      type: 'vitals',
+      deviceId: device.deviceId,
+      deviceName: device.deviceName,
+      data: vitalEntry
+    });
 
     res.json({ success: true, message: 'Vitals recorded' });
   } catch (error) {

@@ -55,6 +55,10 @@ class MemberService {
     }
   }
 
+  async submitVerificationAppeal(contact, message) {
+    return this.api.submitVerificationAppeal(contact, message);
+  }
+
   async reviewStudentReward(type, file) {
     return this.api.reviewStudentReward(type, file);
   }

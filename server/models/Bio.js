@@ -345,8 +345,16 @@ const BioSchema = new mongoose.Schema(
       schoolIdCode: { type: String, default: '' },
       phoneZalo: { type: String, default: '' },
       avatarUrl: { type: String, default: '' },
+      evidenceFileIds: { type: [String], default: [] },
+      scheduleFileId: { type: String, default: '' },
+      selfieFileId: { type: String, default: '' },
       submitted: { type: Boolean, default: false },
-      notifiedStatus: { type: String, default: 'none' }
+      notifiedStatus: { type: String, default: 'none' },
+      submissionCount: { type: Number, default: 0, min: 0, max: 2 },
+      submissionStartedAt: { type: Date, default: null },
+      supportContact: { type: String, default: '', maxlength: 200 },
+      supportMessage: { type: String, default: '', maxlength: 1000 },
+      supportSubmittedAt: { type: Date, default: null }
     },
     studentRewards: {
       type: [{
@@ -357,17 +365,27 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
-    // True for academic-email signups (instant 1-year access). False means the
-    // member is on the 30-day non-edu trial until an admin approves their
-    // submitted verificationRequest — see POST /bios/:id/status.
+    // True for academic-email signups (instant 1-year access). Non-EDU members
+    // have a seven-day access window until their verification request is approved.
     isEduVerified: {
       type: Boolean,
       default: false
     },
+    // Access deadline for a non-EDU trial. Kept separately so a submitted
+    // review can remain in the admin queue after the 7-day access period.
+    trialExpiresAt: {
+      type: Date,
+      default: null
+    },
     expiresAt: {
       type: Date,
       default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      index: { expires: 0 }
+      index: true
+    },
+    deletionStartedAt: {
+      type: Date,
+      default: null,
+      select: false,
     },
     joyBalance: {
       type: Number,
@@ -840,7 +858,9 @@ const SENSITIVE_VERIFICATION_FIELDS = [
   'schoolLevel',
   'schoolName',
   'schoolIdCode',
-  'phoneZalo'
+  'phoneZalo',
+  'supportContact',
+  'supportMessage',
 ];
 
 BioSchema.pre('save', function (next) {

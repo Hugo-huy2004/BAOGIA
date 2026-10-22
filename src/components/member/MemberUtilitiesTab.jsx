@@ -7,7 +7,6 @@ import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import { trackOpen } from "./os/appUsage";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
-import { readInstalledApps } from "../../hooks/useAppInstall";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
@@ -22,7 +21,6 @@ const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
-const FriendsApp = lazy(() => import("./FriendsApp"));
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 import LazyBoundary from "./os/LazyBoundary";
 
@@ -45,6 +43,10 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     }
   }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast, t]);
 
+  useEffect(() => {
+    if (selectedUtility === "friends") onSelectUtility(null);
+  }, [selectedUtility, onSelectUtility]);
+
   // Ghi nhật ký "vừa mở" ở đây — chỗ duy nhất mọi đường vào đều đi qua (icon
   // Home, Thư viện, Spotlight, Hugo Store, URL dán tay). Ghi ở từng nút bấm thì
   // thiếu một chỗ là Spotlight xếp sai thứ tự.
@@ -53,8 +55,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   }, [selectedUtility]);
 
   const fallback = <TabFallbackSkeleton />;
-  const friendsInstalled = readInstalledApps(bio).includes("friends");
-
   const isMobile = useIsMobile();
   // Cùng một nguồn với MemberPortalPage (shared/appRegistry.js). HugoPSY & Bio thêm
   // vào đây vì trên điện thoại nó cũng dựng vỏ toàn màn hình.
@@ -182,17 +182,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Học Từ Vựng — tiếng Trung theo thẻ, có test xếp lớp + test đầu ra */}
 
-      {selectedUtility === "friends" && friendsInstalled && (
-        <FriendsApp route={appRoute} onRouteChange={onAppRouteChange} />
-      )}
-
-      {selectedUtility === "friends" && !friendsInstalled && (
-        <FriendsInstallNotice
-          onBack={() => onSelectUtility(null)}
-          onOpenStore={() => onSelectUtility("store")}
-        />
-      )}
-
       {/* Hugo Team — Recruitment */}
       {selectedUtility === "team" && (
         <HugoTeamTab onBack={() => onSelectUtility(null)} />
@@ -244,23 +233,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
       </Suspense>
 
-    </div>
-  );
-}
-
-function FriendsInstallNotice({ onBack, onOpenStore }) {
-  const { t } = useTranslation();
-  return (
-    <div className="mx-auto grid min-h-[60dvh] max-w-md place-items-center px-4 py-12 text-center">
-      <div>
-        <span className="material-symbols-outlined text-[56px] text-primary" aria-hidden="true">download_for_offline</span>
-        <h1 className="mt-4 text-xl font-black text-foreground">{t("friends.installRequiredTitle")}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("friends.installRequiredBody")}</p>
-        <div className="mt-6 flex justify-center gap-2">
-          <button type="button" onClick={onBack} className="min-h-11 rounded-xl border border-border px-4 text-sm font-bold text-foreground hover:bg-muted">{t("friends.back")}</button>
-          <button type="button" onClick={onOpenStore} className="min-h-11 rounded-xl bg-foreground px-4 text-sm font-black text-background hover:opacity-90">{t("friends.openStore")}</button>
-        </div>
-      </div>
     </div>
   );
 }

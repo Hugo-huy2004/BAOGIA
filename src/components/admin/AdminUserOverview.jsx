@@ -283,8 +283,8 @@ export default function AdminUserOverview({ userId, onClose }) {
         </div>
       </Group>
 
-      <Group icon="sports_esports" title="Trò chơi, sàn ảo và xã hội"
-             badge={`${count(play?.stockPositions)} vị thế · ${count(play?.arcadeScores)} điểm · ${count(social?.friends)} quan hệ bạn bè`}>
+      <Group icon="sports_esports" title="Trò chơi và sàn ảo"
+             badge={`${count(play?.stockPositions)} vị thế · ${count(play?.arcadeScores)} điểm`}>
         <div className="space-y-5">
           <MiniTable rows={play?.stockPositions} empty="Không giữ vị thế nào."
             columns={[["symbol", "Mã"], ["quantity", "Số lượng"], ["avgPrice", "Giá vốn"]]} />

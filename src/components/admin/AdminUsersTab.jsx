@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import UserDetailModal from './UserDetailModal';
 import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
 import { toDenom } from '../../../shared/joyCurrency';
+import dataApi from '../../services/api/modules/dataApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -40,7 +41,49 @@ const AdminUsersTab = ({
 }) => {
   const { t } = useTranslation();
   const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
+  const [verificationEvidence, setVerificationEvidence] = useState({});
+  const [verificationEvidenceError, setVerificationEvidenceError] = useState('');
   const [inspectingUser, setInspectingUser] = useState(null);
+
+  useEffect(() => {
+    if (!selectedVerificationUser?._id) {
+      setVerificationEvidence({});
+      setVerificationEvidenceError('');
+      return undefined;
+    }
+
+    let cancelled = false;
+    const objectUrls = [];
+    setVerificationEvidence({});
+    setVerificationEvidenceError('');
+    const evidence = selectedVerificationUser.verificationRequest || {};
+    const evidenceItems = evidence.evidenceFileIds?.length
+      ? evidence.evidenceFileIds.map((fileId, index) => [String(index), fileId])
+      : [['schedule', evidence.scheduleFileId], ['selfie', evidence.selfieFileId]];
+
+    Promise.all(
+      evidenceItems
+        .filter(([, fileId]) => fileId)
+        .map(async ([kind]) => {
+          const blob = await dataApi.getVerificationEvidence(selectedVerificationUser._id, kind);
+          return [kind, URL.createObjectURL(blob)];
+        }),
+    ).then((entries) => {
+      if (cancelled) {
+        entries.forEach(([, url]) => URL.revokeObjectURL(url));
+        return;
+      }
+      objectUrls.push(...entries.map(([, url]) => url));
+      setVerificationEvidence(Object.fromEntries(entries));
+    }).catch((error) => {
+      if (!cancelled) setVerificationEvidenceError(error.message || 'Không thể tải ảnh xác minh.');
+    });
+
+    return () => {
+      cancelled = true;
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [selectedVerificationUser]);
 
   // Mở từ hàng đợi việc chờ duyệt: chỉ có _id, modal tự nạp phần còn lại.
   useEffect(() => {
@@ -310,7 +353,12 @@ const AdminUsersTab = ({
                           {formatExpiration(user.expiresAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {user.status === 'locked' ? (
+                          {user.verificationRequest?.supportSubmittedAt ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-[10px] font-extrabold text-violet-500">
+                              <span className="material-symbols-outlined text-xs">support_agent</span>
+                              Yêu cầu hỗ trợ
+                            </span>
+                          ) : user.status === 'locked' ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                               {t("admin.texts.txt_48")}
@@ -328,7 +376,7 @@ const AdminUsersTab = ({
                           ) : user.verificationRequest?.submitted && !user.isEduVerified ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              Thử 30 ngày · Chờ duyệt
+                              Dùng thử 7 ngày · Chờ duyệt
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
@@ -347,14 +395,16 @@ const AdminUsersTab = ({
                               <span className="material-symbols-outlined text-[14px]">visibility</span>
                               <span>Soi chi tiết</span>
                             </button>
-                            {user.verificationRequest?.submitted && (
+                            {(user.verificationRequest?.submitted || user.verificationRequest?.supportSubmittedAt) && (
                               <button
                                 onClick={() => setSelectedVerificationUser(user)}
                                 className="px-3.5 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white shadow-[0_4px_16px_rgba(168,85,247,0.35)] hover:shadow-[0_6px_22px_rgba(168,85,247,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                                title="Xem hồ sơ yêu cầu xác minh sinh viên"
+                                title={user.verificationRequest?.supportSubmittedAt
+                                  ? "Xem yêu cầu hỗ trợ / hồ sơ xác minh"
+                                  : "Xem hồ sơ yêu cầu xác minh sinh viên"}
                               >
                                 <span className="material-symbols-outlined text-[14px]">school</span>
-                                <span>Hồ sơ</span>
+                                <span>{user.verificationRequest?.supportSubmittedAt ? "Hỗ trợ" : "Hồ sơ"}</span>
                               </button>
                             )}
                             {user.status === 'locked' || user.status === 'rejected' ? (
@@ -659,10 +709,53 @@ const AdminUsersTab = ({
                       ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
                       : 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30'
                   }`}>
-                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified) ? 'Đang thử 30 ngày · Chờ duyệt' : 'Đã duyệt'}
+                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified) ? 'Dùng thử 7 ngày · Chờ duyệt' : 'Đã duyệt'}
                   </span>
                 </span>
               </div>
+              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
+                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Số lần gửi</span>
+                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
+                  {selectedVerificationUser.verificationRequest?.submissionCount || 1}/2
+                </span>
+              </div>
+              {selectedVerificationUser.verificationRequest?.supportContact && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs dark:border-amber-900/40 dark:bg-amber-950/20">
+                  <p className="font-bold text-amber-800 dark:text-amber-300">Yêu cầu hỗ trợ / kháng nghị</p>
+                  <a
+                    href={selectedVerificationUser.verificationRequest.supportContact.includes('@')
+                      ? `mailto:${selectedVerificationUser.verificationRequest.supportContact}`
+                      : `tel:${selectedVerificationUser.verificationRequest.supportContact}`}
+                    className="mt-1 block font-semibold text-primary underline"
+                  >
+                    {selectedVerificationUser.verificationRequest.supportContact}
+                  </a>
+                  {selectedVerificationUser.verificationRequest.supportMessage && (
+                    <p className="mt-2 whitespace-pre-wrap text-slate-700 dark:text-slate-200">
+                      {selectedVerificationUser.verificationRequest.supportMessage}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {(selectedVerificationUser.verificationRequest?.evidenceFileIds?.length
+                ? selectedVerificationUser.verificationRequest.evidenceFileIds.map((_, index) => [String(index), `Ảnh bằng chứng ${index + 1}`])
+                : [['schedule', 'Ảnh thời khóa biểu'], ['selfie', 'Ảnh khuôn mặt']]).map(([kind, label]) => (
+                <div key={kind} className="space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
+                  {verificationEvidence[kind] ? (
+                    <a href={verificationEvidence[kind]} target="_blank" rel="noreferrer">
+                      <img src={verificationEvidence[kind]} alt={label} className="h-40 w-full rounded-lg border border-slate-200 object-contain dark:border-slate-700" />
+                    </a>
+                  ) : (
+                    <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-slate-300 text-[10px] text-slate-400 dark:border-slate-700">
+                      {verificationEvidenceError || 'Chưa có ảnh'}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -673,7 +766,8 @@ const AdminUsersTab = ({
                 Đóng
               </button>
 
-              {(selectedVerificationUser.status === 'pending' || (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)) && (
+              {selectedVerificationUser.verificationRequest?.submitted
+                && (selectedVerificationUser.status === 'pending' || (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)) && (
                 <>
                   <button
                     onClick={() => {

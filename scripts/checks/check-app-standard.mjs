@@ -24,7 +24,6 @@ const MEMBER = path.join(ROOT, "src/components/member");
  * sau ai làm hỏng một tiêu chí là bộ này đỏ.
  */
 const CERTIFIED = {
-  friends: "20/09/2026 — 4 màn có địa chỉ thật (bản cũ chỉ đọc ?view= một lần lúc khởi tạo nên back của máy nhảy ra khỏi app), chữ lên sàn 13px ở cả JSX lẫn CSS, mr-10 đoán tay → CLOSE_BUTTON_RESERVE. Giữ hình thái bản đồ toàn màn (ngoại lệ có lý do)",
   study: "20/09/2026 — gỡ StudyTopBar tự dựng (nó nhận onBack mà KHÔNG khai trong signature nên nút quay lại chưa bao giờ vẽ — lần thứ ba cùng lỗi); tiêu đề+%tiến độ vào khung, giữ hệ màu cineKit qua paletteVars; 2 khối Suspense nay có LazyBoundary. Bọc khung CHỈ khi !embedded vì /study và trang tiện ích công khai đã tự có chrome",
   team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
@@ -56,18 +55,9 @@ const EXCEPTIONS = {
   // /member/utilities/<id>. Bắt chúng dựng router chỉ để bộ kiểm xanh là thêm
   // code không ai dùng.
   "address@profile": "hồ sơ là một màn đọc, không có màn con",
-  // App BẢN ĐỒ toàn màn: bản đồ phải tràn viền và nằm DƯỚI mọi thứ, điều hướng là
-  // topbar nổi + bottom sheet + dock nổi — đúng khuôn Apple dùng cho Find My và
-  // Maps. Nhét vào AppFrame (nav kính + cột giữa + tab bar) là phá chính thiết kế
-  // đó. Đây là ngoại lệ về HÌNH THÁI, không phải chỗ chưa muốn sửa: friends vẫn
-  // phải đạt 9 tiêu chí còn lại, và nó có trong FULLSCREEN_APP_IDS.
-  "frame@friends": "app bản đồ toàn màn (Find My / Maps pattern) — nav nổi trên bản đồ, không dùng nav kính của khung",
-  "responsive@friends": "bản đồ tự lấp mọi bề ngang; bottom sheet và dock đã là bố cục nổi, không cần cột giữa",
-
   // GAME: mỗi game chiếm trọn màn (`fixed inset-0`) và cần tỷ lệ khung cố định —
   // canvas game không co giãn theo cột đọc. Chrome kính iOS đè lên game là sai
-  // hình thái, giống hệt lý do bản đồ của `friends` không dùng khung. Ngoại lệ về
-  // HÌNH THÁI: arcade vẫn phải đạt 8 tiêu chí còn lại.
+  // hình thái. Ngoại lệ về HÌNH THÁI: arcade vẫn phải đạt 8 tiêu chí còn lại.
   "frame@arcade": "sảnh + game toàn màn, tỷ lệ khung cố định; chrome kính đè lên game là sai hình thái",
   "responsive@arcade": "canvas game giữ tỷ lệ cố định, không có cột đọc để bó",
 
@@ -103,7 +93,6 @@ const APPS = {
   team: { entry: "HugoTeamTab.jsx" },
   aura: { entry: "MemberAuraTab.jsx" },
   bio: { entry: "BioPreviewTab.jsx" },
-  friends: { entry: "FriendsApp.jsx" },
 };
 
 async function walk(dir, out = []) {

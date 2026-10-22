@@ -3,6 +3,7 @@ import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
 import ChessRating from '../models/ChessRating.js';
 import { notifyMember } from './notifyMember.js';
+import { broadcastToEmail } from './realtime.js';
 import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
 
 import { JOY_REWARD_SOURCES, JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
@@ -161,17 +162,15 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
 
   // Update every open device immediately. Web Push below covers devices where
   // the PWA is in the background or has been closed.
-  const realtimeEvent = JSON.stringify({
+  const realtimeEvent = {
     type: 'joy_update',
     balance: bio.joyBalance,
     amount: numAmount,
     source,
     notification,
     createdAt: new Date().toISOString()
-  });
-  for (const client of global.wsClients?.[bio.email] || []) {
-    if (client.readyState === 1) client.send(realtimeEvent);
-  }
+  };
+  broadcastToEmail(bio.email, realtimeEvent);
 
   // ── JOYlater: trả nợ tự động ─────────────────────────────────────
   // Đặt ở ĐÂY vì awardJoy là cửa duy nhất mọi biến động JOY đi qua — không có

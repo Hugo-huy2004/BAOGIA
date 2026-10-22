@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import { monitorEventLoopDelay } from 'node:perf_hooks';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
@@ -27,7 +28,7 @@ import {
   globalLimiter,
   getRedisStatus,
 } from './config/index.js';
-import { setupWebSocketServers } from './services/websocketServer.js';
+import { getWebSocketStats, setupWebSocketServers } from './services/websocketServer.js';
 
 dotenv.config();
 
@@ -42,6 +43,8 @@ app.set('trust proxy', 1);
 // án React Native nào là mất cổng — và Metro trả HTML kèm status 200 cho mọi
 // đường dẫn, nên `/api/*` "thành công" với một trang web thay vì JSON.
 const PORT = process.env.PORT || 8099;
+const eventLoopDelay = monitorEventLoopDelay({ resolution: 20 });
+eventLoopDelay.enable();
 
 // CORS — cấu hình tập trung trong config/cors.js (Quy tắc 4)
 app.use('/api/oauth', cors(oauthCorsOptions));
@@ -171,6 +174,13 @@ const healthHandler = (_req, res) => {
     database: { status: dbStatus, name: mongoose.connection.name || 'hugostudio' },
     redis: redisInfo,
     services: getServicesHealth(),
+    realtime: {
+      websocket: getWebSocketStats(),
+      eventLoopDelayMs: {
+        p95: Number((eventLoopDelay.percentile(95) / 1e6).toFixed(1)),
+        p99: Number((eventLoopDelay.percentile(99) / 1e6).toFixed(1)),
+      },
+    },
     memory: {
       rssMb: Math.round(mem.rss / 1024 / 1024),
       heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),
@@ -336,4 +346,3 @@ const gracefulShutdown = (signal) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-

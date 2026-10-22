@@ -6,6 +6,41 @@
 - **Vercel account** (where frontend is deployed)
 - **GitHub repository** connected to both Render and Vercel
 
+## Student verification expiry migration
+
+`Bio.expiresAt` previously had a MongoDB TTL index, which could delete a profile
+without cleaning up the member's related records. The application now removes
+expired, unverified accounts through the shared account-lifecycle service. A
+request checks the deadline immediately, and a scheduled sweep retries cleanup
+every 15 minutes. Deleted email addresses are retained only as keyed hashes so
+the old account cannot be recreated by a later login.
+
+Before deploying this change, back up the database and run the migration with
+the production `MONGODB_URI` set in `server/.env`:
+
+```bash
+npm run migrate:bio-expiry-index
+```
+
+The script drops only a TTL index whose sole key is `expiresAt`, ensures a
+regular index exists, then caps each existing unverified account's trial at
+seven days from the migration run. Earlier deadlines are preserved, and
+`expiresAt` is synchronized with the effective trial deadline. Verified
+education-email accounts are not changed. The normalization is idempotent.
+Confirm the backup and target database before running it; this migration has
+not been run against production by the development workflow.
+
+Verification evidence for new submissions is stored in the application
+database, is available only to admins while under review, and is removed when
+the request is approved or rejected. Members can submit up to two requests;
+after the second rejection they can still contact support for a manual review.
+The account cleanup removes member-owned profile, notification, credential,
+learning, companion, arcade, chess, JOY ledger, stock, device, support, and
+verification records. A keyed email hash is retained to prevent the same
+expired account from being recreated. Separate customer bookings/projects and
+hashed security or debt-enforcement records are not removed merely because
+they share an email; those have independent operational/security purposes.
+
 ---
 
 ## 1. Render Deployment (Backend + AI Server)
@@ -57,6 +92,20 @@ After redeployment, check:
 ```bash
 curl -i https://api.hugowishpax.studio/health
 ```
+
+The health response includes per-process WebSocket counts (`activeConnections`,
+`acceptedConnections`, `closedConnections`, `staleConnectionsTerminated`) and
+event-loop delay percentiles since process start. Connection counters also
+reset when the process restarts. These are operational signals, not a capacity
+guarantee: measure them alongside request latency, error rate, CPU/RAM, and
+MongoDB connection usage during a staged load test. Do not use production as a
+load-test target.
+
+Keep MongoDB `MAX_DB_POOL` aligned with both observed query concurrency and the
+database's connection limit. With multiple app instances, the configured pool
+is per instance; verify the total possible connections before scaling out.
+WebSocket fanout between instances requires `REDIS_URL`, and every event path
+must use the shared realtime broadcaster before enabling multiple instances.
 
 ---
 

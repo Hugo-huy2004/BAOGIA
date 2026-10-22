@@ -2,8 +2,8 @@
  * memberAuthController.js
  * Controller tập trung toàn bộ logic nghiệp vụ xác thực thành viên (Google OAuth, OTP Email, Dev Login).
  */
-import rateLimit from 'express-rate-limit';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 import { signMemberToken, invalidateMemberGate } from '../../middleware/authMiddleware.js';
 import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../../services/securityEnforcement.js';
@@ -11,9 +11,18 @@ import { isEduEmail } from '../../utils/eduEmail.js';
 import Bio from '../../models/Bio.js';
 import { issueEmailOtp, verifyEmailOtp } from '../../utils/emailOtp.js';
 import { sendMagicLinkOtp } from '../../services/emailService.js';
+import { isDeletedMemberAccount } from '../../utils/deletedMemberAccount.js';
 
 export const isProduction = process.env.NODE_ENV === 'production';
 export const MEMBER_COOKIE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+const googleAuthClient = new OAuth2Client();
+const TRANSIENT_GOOGLE_ERRORS = new Set([
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'ECONNREFUSED',
+]);
 
 export const setMemberCookie = (res, token) => {
   res.cookie('member_jwt', token, {
@@ -34,25 +43,29 @@ export async function loginWithGoogle(req, res) {
       return res.status(400).json({ error: 'Thiếu Google credential.' });
     }
 
-    const verifyRes = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (verifyRes.status === 429 || verifyRes.status >= 500) {
-      return res.status(503).json({ error: 'Google tạm thời không phản hồi. Vui lòng thử lại.' });
-    }
-    if (!verifyRes.ok) {
-      return res.status(401).json({ error: 'Google credential không hợp lệ hoặc đã hết hạn.' });
-    }
-    const claims = await verifyRes.json();
-
     const allowedAud = [GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID].filter(Boolean);
-    if (allowedAud.length && !allowedAud.includes(claims.aud)) {
-      return res.status(401).json({ error: 'Google credential không thuộc ứng dụng này.' });
-    }
     if (!GOOGLE_CLIENT_ID && isProduction) {
       console.error('GOOGLE_CLIENT_ID is not configured — rejecting member login.');
       return res.status(500).json({ error: 'Máy chủ chưa cấu hình đăng nhập Google.' });
+    }
+    let claims;
+    try {
+      const ticket = await googleAuthClient.verifyIdToken({
+        idToken: credential,
+        audience: allowedAud.length ? allowedAud : undefined,
+      });
+      claims = ticket.getPayload();
+    } catch (error) {
+      const status = error.response?.status || error.status;
+      const code = error.code || error.cause?.code;
+      if (status === 429 || status >= 500 || TRANSIENT_GOOGLE_ERRORS.has(code)) {
+        console.error('Google ID token verification unavailable:', error.message || error);
+        return res.status(503).json({ error: 'Google tạm thời không phản hồi. Vui lòng thử lại.' });
+      }
+      return res.status(401).json({ error: 'Google credential không hợp lệ hoặc đã hết hạn.' });
+    }
+    if (!claims) {
+      return res.status(401).json({ error: 'Google credential không hợp lệ hoặc đã hết hạn.' });
     }
     if (claims.email_verified !== 'true' && claims.email_verified !== true) {
       return res.status(401).json({ error: 'Email Google chưa được xác minh.' });
@@ -60,8 +73,12 @@ export async function loginWithGoogle(req, res) {
 
     const email = String(claims.email || '').toLowerCase();
     if (!email) return res.status(401).json({ error: 'Không đọc được email từ Google.' });
+    if (await isDeletedMemberAccount(email)) {
+      return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
+    }
     const isStudent = await isEduEmail(email);
-    const accessDays = isStudent ? 365 : 30;
+    const accessDays = isStudent ? 365 : 7;
+    const expiresAt = new Date(Date.now() + accessDays * 24 * 60 * 60 * 1000);
 
     const securityBlock = await findActiveSecurityBlock({ email });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
@@ -89,8 +106,9 @@ export async function loginWithGoogle(req, res) {
           provider: 'google',
           status: 'active',
           isEduVerified: isStudent,
+          trialExpiresAt: isStudent ? null : expiresAt,
           joyBalance: 1000,
-          expiresAt: new Date(Date.now() + accessDays * 24 * 60 * 60 * 1000),
+          expiresAt,
         },
       },
       { upsert: true }
@@ -128,6 +146,9 @@ export async function requestMemberOtp(req, res) {
       return res.status(400).json({ error: 'Vui lòng nhập địa chỉ email.' });
     }
     const cleanEmail = email.trim().toLowerCase();
+    if (await isDeletedMemberAccount(cleanEmail)) {
+      return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
+    }
     const code = issueEmailOtp(cleanEmail, 'login');
     await sendMagicLinkOtp(cleanEmail, code);
 
@@ -148,6 +169,9 @@ export async function verifyMemberOtp(req, res) {
       return res.status(400).json({ error: 'Thiếu email hoặc mã OTP.' });
     }
     const cleanEmail = String(email).trim().toLowerCase();
+    if (await isDeletedMemberAccount(cleanEmail)) {
+      return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
+    }
     const check = verifyEmailOtp(cleanEmail, code, 'login');
 
     if (!check.ok) {
@@ -197,6 +221,9 @@ export async function devLogin(req, res) {
 
   const email = String(req.body.email || 'dev.member@hugowishpax.studio').toLowerCase();
   const name = String(req.body.name || 'Dev Member');
+  if (await isDeletedMemberAccount(email)) {
+    return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
+  }
 
   const token = signMemberToken(email, req);
   setMemberCookie(res, token);

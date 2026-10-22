@@ -134,12 +134,13 @@ export const PROFILE_FIELDS = [
     },
   },
   {
+    // Location and sensitive identity details must not block account creation.
     key: 'countryCode',
     type: 'country',
     label: 'Quốc gia / vùng lãnh thổ',
     hint: 'Chọn nơi bạn đang sinh sống để Hugo Studio chuẩn bị trải nghiệm phù hợp theo khu vực.',
     options: COUNTRY_CODES.map((value) => ({ value })),
-    required: true,
+    required: false,
     isMissing: (bio) => !COUNTRY_CODES.includes(String(bio.countryCode || '').toUpperCase()),
     apply(bio, value) {
       const code = String(value || '').toUpperCase();
@@ -152,7 +153,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Tỉnh / Thành phố / Bang',
     hint: 'Nhập đơn vị hành chính cấp tỉnh, thành phố hoặc bang theo quốc gia đã chọn.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.adminArea || '').trim(),
     apply(bio, value) {
       bio.adminArea = sensitiveAnswer(value, 120);
@@ -163,7 +164,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Phường / Xã / Khu vực',
     hint: 'Nhập đơn vị hành chính địa phương tương ứng nơi bạn đang ở.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.locality || '').trim(),
     apply(bio, value) {
       bio.locality = sensitiveAnswer(value, 120);
@@ -174,7 +175,7 @@ export const PROFILE_FIELDS = [
     type: 'addressDetail',
     label: 'Địa chỉ chi tiết',
     hint: 'Chỉ ghi phần còn lại như số nhà, tên đường, toà nhà. Quốc gia và đơn vị hành chính đã được lưu ở các bước trước.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.exactAddress || '').trim(),
     apply(bio, value) {
       const address = sensitiveAnswer(value, 500);
@@ -187,7 +188,7 @@ export const PROFILE_FIELDS = [
     type: 'locationVerification',
     label: 'Xác minh vị trí trên bản đồ',
     hint: 'Cho phép định vị, kiểm tra điểm ghim rồi xác nhận đây là vị trí đúng. Toạ độ được mã hoá và không hiển thị công khai.',
-    required: true,
+    required: false,
     isMissing: (bio) => !bio.locationVerifiedAt || !bio.verifiedLatitude || !bio.verifiedLongitude,
     apply(bio, value) {
       const latitude = Number(value?.verifiedLatitude);
@@ -205,7 +206,7 @@ export const PROFILE_FIELDS = [
     type: 'ethnicity',
     label: 'Dân tộc / bản sắc sắc tộc',
     hint: 'Bạn có thể tự mô tả theo cách phù hợp với quốc gia của mình hoặc chọn “Không muốn tiết lộ”.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.ethnicity || '').trim(),
     apply(bio, value) {
       bio.ethnicity = sensitiveAnswer(value, 120);
@@ -217,7 +218,7 @@ export const PROFILE_FIELDS = [
     label: 'Tôn giáo / tín ngưỡng',
     hint: 'Chọn đúng truyền thống/hệ phái. Nếu chưa có trong danh sách, hãy tự ghi tên đầy đủ; bạn cũng có thể chọn “Không muốn tiết lộ”.',
     options: RELIGION_CODES.map((value) => ({ value })),
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.religion || '').trim(),
     apply(bio, value) {
       const answer = sensitiveAnswer(value, 160);
