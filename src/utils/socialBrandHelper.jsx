@@ -1,4 +1,5 @@
 import { Globe, ShoppingBag } from "lucide-react";
+import { siInstagram } from "simple-icons";
 
 /**
  * BRAND COLOR CODES CHUẨN XÁC THEO NHẬN DIỆN THƯƠNG HIỆU
@@ -33,19 +34,8 @@ export function SocialBrandIcon({ platform, className = "size-4.5" }) {
 
     case "instagram":
       return (
-        <svg viewBox="0 0 24 24" className={className} aria-label="Instagram">
-          <defs>
-            <radialGradient id="bio-ig-gradient" cx="20%" cy="105%" r="115%">
-              <stop offset="0%" stopColor="#fdf497" />
-              <stop offset="10%" stopColor="#fdf497" />
-              <stop offset="50%" stopColor="#fd5949" />
-              <stop offset="68%" stopColor="#d6249f" />
-              <stop offset="100%" stopColor="#285AEB" />
-            </radialGradient>
-          </defs>
-          <rect width="20" height="20" x="2" y="2" rx="5" ry="5" fill="none" stroke="url(#bio-ig-gradient)" strokeWidth="2.2" />
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="url(#bio-ig-gradient)" strokeWidth="2.2" />
-          <circle cx="17.5" cy="6.5" r="1.2" fill="url(#bio-ig-gradient)" />
+        <svg viewBox="0 0 24 24" className={className} aria-label="Instagram" role="img">
+          <path fill="#E4405F" d={siInstagram.path} />
         </svg>
       );
 

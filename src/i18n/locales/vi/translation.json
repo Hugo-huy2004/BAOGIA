@@ -8069,6 +8069,7 @@
   },
   "projectsPage": {
     "backLink": "Về trang giới thiệu",
+    "backToSource": "Quay lại trang trước",
     "kicker": "Dự án",
     "title": "Tất cả dự án.",
     "lede": "Xếp theo dòng thời gian, từ dự án đầu tiên tới nay. Mỗi mốc là một trang riêng: bối cảnh, những quyết định đã ra và ảnh chụp từ bản đang chạy.",

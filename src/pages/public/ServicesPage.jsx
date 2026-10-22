@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useScroll, useMotionValueEvent } from "motion/react";
@@ -64,6 +64,7 @@ function Kicker({ children, className = "" }) {
 
 function Hero() {
   const { t } = useTranslation();
+  const location = useLocation();
   return (
     <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden px-5 py-24 sm:px-8 sm:py-32">
       <Aura />
@@ -89,6 +90,7 @@ function Hero() {
           </Link>
           <Link
             to="/project"
+            state={{ from: `${location.pathname}${location.search}${location.hash}` }}
             onClick={() => playHapticTick()}
             className="btn-secondary"
           >
@@ -217,6 +219,7 @@ function Process() {
 
 function Closing() {
   const { t } = useTranslation();
+  const location = useLocation();
   return (
     <section className="relative isolate overflow-hidden bg-background px-5 py-28 text-center sm:px-8 sm:py-40 border-t border-border/40">
       <Aura />
@@ -239,6 +242,7 @@ function Closing() {
           </Link>
           <Link
             to="/project"
+            state={{ from: `${location.pathname}${location.search}${location.hash}` }}
             onClick={() => playHapticTick()}
             className="btn-secondary"
           >
@@ -292,13 +296,6 @@ export default function ServicesPage() {
         heading={t("servicePkg.page.filmHeading")}
         chapters={chapters}
         studioIntro={t("servicePkg.page.studioIntro")}
-        socialLabels={{
-          tiktok: t("servicePkg.page.socialTikTok"),
-          groupChat: t("servicePkg.page.socialGroupChat"),
-          instagram: t("servicePkg.page.socialInstagram"),
-          facebook: t("servicePkg.page.socialFacebook"),
-          socialLinks: t("servicePkg.page.socialLinks"),
-        }}
         progressLabels={["Hugo One", "Hugo Story", "Hugo Flow+", "Hugo Edu+"]}
         speedUnit={t("intro.story.services.speedUnit")}
         mergeLabel="Hugo Story"

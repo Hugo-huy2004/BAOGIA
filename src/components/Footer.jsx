@@ -8,6 +8,7 @@ import { isVietnameseLanguage } from "../i18n/languages";
 import { EMAIL_CHANNELS, createMailtoUrl } from "../../shared/emailChannels";
 
 import { DONATION_CONFIG } from "../config/donationConfig";
+import { SocialBrandIcon } from "../utils/socialBrandHelper";
 
 const linkClass = "inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -152,6 +153,29 @@ export default function Footer() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {t("footer.tagline", "Một góc số dành cho người học, cá nhân và những cửa hàng nhỏ cần hiện diện chỉn chu trên internet.")}
             </p>
+            <nav aria-label={t("servicePkg.page.socialLinks", "Hugo Studio social links")} className="mt-4 flex flex-wrap gap-2">
+              {[
+                ["socialTikTok", "TikTok", "https://www.tiktok.com/@hugo.studiotiktok", "tiktok"],
+                ["socialGroupChat", "Group chat", "https://tiktok.me/group/ZSbw65bM7/", "tiktok"],
+                ["socialInstagram", "Instagram", "https://www.instagram.com/hugostudio.vn?exln=MTJvYjM3ZXJjMmx2NA%3D%3D&utm_source=qr", "instagram"],
+                ["socialFacebook", "Facebook", "https://www.facebook.com/share/1B8UdufQj4/?mibextid=wwXIfr", "facebook"],
+              ].map(([labelKey, fallbackLabel, href, platform]) => {
+                const label = t(`servicePkg.page.${labelKey}`, { defaultValue: fallbackLabel });
+                return (
+                  <a
+                    key={labelKey}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-card/60 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+                  >
+                    <SocialBrandIcon platform={platform} className="size-5" />
+                  </a>
+                );
+              })}
+            </nav>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link to="/booking" className={btnPrimaryClass}>
                 {t("footer.booking", "Đặt lịch trao đổi")}

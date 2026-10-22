@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { profileSkills, skillsCopy } from "../../data/profileSkills";
 import { findProject } from "../../data/projects";
 import { cvPdf } from "../../config/publicSites";
 
 export default function ProfileSummary({ education }) {
+  const location = useLocation();
   const { t, i18n } = useTranslation();
   const language = i18n.language.split("-")[0];
   const code = skillsCopy[language] ? language : "vi";
@@ -32,7 +33,7 @@ export default function ProfileSummary({ education }) {
                 </p>
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-sm">
                   {group.projects.map((id) => (
-                    <Link key={id} to={`/project/${id}`} className="underline underline-offset-4">{findProject(id).title}</Link>
+                    <Link key={id} to={`/project/${id}`} state={{ from: `${location.pathname}${location.search}${location.hash}` }} className="underline underline-offset-4">{findProject(id).title}</Link>
                   ))}
                 </div>
               </article>

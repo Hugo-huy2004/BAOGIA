@@ -8027,6 +8027,7 @@
   },
   "projectsPage": {
     "backLink": "Back to the introduction",
+    "backToSource": "Back to previous page",
     "kicker": "Work",
     "title": "Every project.",
     "lede": "Laid out along a timeline, from the first project to now. Each stop has a page of its own: the context, the decisions made, and screenshots from the running build.",

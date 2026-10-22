@@ -16,7 +16,6 @@ import { Link } from "./RouterLink";
 import { useFilm } from "./useFilm";
 import { playHapticTick } from "../../../utils/CinematicSoundEngine";
 import { studentBioDemo } from "../../../data/studentBioDemo";
-import { SocialBrandIcon } from "../../../utils/socialBrandHelper";
 
 type Chapter = {
   eyebrow: string;
@@ -32,20 +31,11 @@ type Chapter = {
   actionLabel?: string;
 };
 
-type SocialLabels = {
-  tiktok: string;
-  groupChat: string;
-  instagram: string;
-  facebook: string;
-  socialLinks: string;
-};
-
 type ServicesStoryProps = {
   label: string;
   heading: string;
   chapters: Chapter[];
   studioIntro?: string;
-  socialLabels?: SocialLabels;
   progressLabels: string[];
   speedUnit: string;
   mergeLabel: string;
@@ -68,7 +58,6 @@ export default function ServicesStory({
   heading,
   chapters,
   studioIntro,
-  socialLabels,
   progressLabels,
   speedUnit,
   mergeLabel,
@@ -136,7 +125,6 @@ export default function ServicesStory({
           {standalone && studioIntro ? (
             <div className="mt-5">
               <p className="text-sm leading-6 text-muted-foreground">{studioIntro}</p>
-              {socialLabels ? <SocialLinks labels={socialLabels} /> : null}
             </div>
           ) : null}
           <ol className="mt-10 border-t border-border">
@@ -197,7 +185,6 @@ export default function ServicesStory({
             {standalone && studioIntro ? (
               <div className="mx-auto mt-3 max-w-2xl">
                 <p className="text-xs leading-5 text-foreground/70 sm:text-sm sm:leading-6">{studioIntro}</p>
-                {socialLabels ? <SocialLinks labels={socialLabels} compact /> : null}
               </div>
             ) : null}
           </motion.header>
@@ -1113,34 +1100,6 @@ function ChapterCopy({
         </div>
       ) : null}
     </motion.div>
-  );
-}
-
-function SocialLinks({ labels, compact = false }: { labels: SocialLabels; compact?: boolean }) {
-  const links = [
-    { label: labels.tiktok, href: "https://www.tiktok.com/@hugo.studiotiktok", platform: "tiktok" },
-    { label: labels.groupChat, href: "https://tiktok.me/group/ZSbw65bM7/", platform: "tiktok" },
-    { label: labels.instagram, href: "https://www.instagram.com/hugostudio.vn?exln=MTJvYjM3ZXJjMmx2NA%3D%3D&utm_source=qr", platform: "instagram" },
-    { label: labels.facebook, href: "https://www.facebook.com/share/1B8UdufQj4/?mibextid=wwXIfr", platform: "facebook" },
-  ] as const;
-
-  return (
-    <nav aria-label={labels.socialLinks} className={`${compact ? "mt-3 sm:mt-4" : "mt-4"} flex flex-wrap gap-2`}>
-      {links.map(({ label, href, platform }) => (
-        <a
-          key={label}
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={label}
-          title={label}
-          className="hg-glass inline-flex min-h-9 items-center gap-2 rounded-full px-2.5 text-xs font-medium text-foreground transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
-        >
-          <SocialBrandIcon platform={platform} className="size-4 shrink-0" />
-          <span className="hidden sm:inline">{label}</span>
-        </a>
-      ))}
-    </nav>
   );
 }
 

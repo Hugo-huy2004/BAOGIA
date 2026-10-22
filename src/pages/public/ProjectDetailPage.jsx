@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowUpRight, Info } from "lucide-react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { findProject, projects, shotUrl } from "../../data/projects";
 import "../../components/public/hwagfu/hwagfu.css";
@@ -21,8 +21,13 @@ import TechLogo from "../../components/public/TechLogo";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams();
+  const location = useLocation();
   const { t } = useTranslation();
   const project = findProject(slug);
+  const returnTo = location.state?.from;
+  const backTo = typeof returnTo === "string" && returnTo.startsWith("/") && !returnTo.startsWith("//")
+    ? returnTo
+    : "/project";
 
   useHeadMeta({
     title: project ? `${project.title} — ${t("projectsPage.kicker")} · Hugo Studio` : t("projectsPage.metaTitle"),
@@ -48,8 +53,8 @@ export default function ProjectDetailPage() {
   return (
     <div className="hwagfu-copy pj-page">
       <div className="pj-wrap pj-wrap--narrow">
-        <Link to="/project" className="link-more pj-back">
-          <ArrowLeft size={16} /> {t("projectsPage.allProjects")}
+        <Link to={backTo} className="link-more pj-back">
+          <ArrowLeft size={16} /> {t("projectsPage.backToSource")}
         </Link>
 
         {/* ── Giới thiệu ────────────────────────────────────── */}
@@ -141,7 +146,7 @@ export default function ProjectDetailPage() {
           </div>
         </section>
 
-        <Link to={`/project/${next.id}`} className="pj-next">
+        <Link to={`/project/${next.id}`} state={{ from: backTo }} className="pj-next">
           <span>
             <small>{t("projectsPage.nextProject")}</small>
             <b className="headline-card">{next.title}</b>

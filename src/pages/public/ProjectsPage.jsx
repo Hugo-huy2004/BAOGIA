@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { projects, shotUrl } from "../../data/projects";
 import "../../components/public/hwagfu/hwagfu.css";
@@ -19,6 +19,12 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
+  const location = useLocation();
+  const currentPath = `${location.pathname}${location.search}${location.hash}`;
+  const returnTo = location.state?.from;
+  const backTo = typeof returnTo === "string" && returnTo.startsWith("/") && !returnTo.startsWith("//")
+    ? returnTo
+    : "/introduction";
 
   useHeadMeta({ title: t("projectsPage.metaTitle"), canonicalUrl: "https://www.hugowishpax.studio/project" });
 
@@ -29,8 +35,8 @@ export default function ProjectsPage() {
   return (
     <div className="hwagfu-copy pj-page">
       <div className="pj-wrap">
-        <Link to="/introduction" className="link-more pj-back">
-          <ArrowLeft size={16} /> {t("projectsPage.backLink")}
+        <Link to={backTo} className="link-more pj-back">
+          <ArrowLeft size={16} /> {t("projectsPage.backToSource")}
         </Link>
 
         <header className="pj-head">
@@ -52,7 +58,7 @@ export default function ProjectsPage() {
                     bên trong thì chấm bị cắt mất. */}
                 <div className="pj-entry-body">
                   <span className="pj-node" aria-hidden />
-                  <Link to={`/project/${project.id}`} className="pj-entry-link">
+                  <Link to={`/project/${project.id}`} state={{ from: currentPath }} className="pj-entry-link">
                   <div className="pj-entry-text">
                     <div className="pj-tags">
                       <span className="pj-chip">{t(`projectsPage.kinds.${project.kind}`, project.kind)}</span>

@@ -5,6 +5,7 @@ import Image from "./Image";
 import { motion, easeIn, easeInOut, easeOut, useInView, useMotionValueEvent, useSpring, useTransform, type MotionStyle, type MotionValue } from "motion/react";
 import { ChevronRight } from "lucide-react";
 import { Link } from "./RouterLink";
+import { useLocation } from "react-router-dom";
 import { DropletBody, dropletPalettes } from "./FloatingOrbs";
 import { useFilm } from "./useFilm";
 import { useScrub } from "./useScrub";
@@ -91,6 +92,8 @@ function orbit(angle: number, radius: number, t: number, turns: number) {
  * motion the section is a plain heading and grid.
  */
 export default function WorkStory({ label, heading, subtitle, viewAll, projects }: WorkStoryProps) {
+  const location = useLocation();
+  const currentPath = `${location.pathname}${location.search}${location.hash}`;
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "0px 0px -16px 0px" });
   const [spellOn, setSpellOn] = useState(false);
@@ -139,14 +142,14 @@ export default function WorkStory({ label, heading, subtitle, viewAll, projects 
           <div className="absolute top-[56svh] left-1/2 z-30 w-[min(72rem,calc(100vw-2.5rem),150svh)] -translate-x-1/2 -translate-y-1/2 [--cw:calc((min(72rem,100vw-2.5rem,150svh)-3rem)/3)] motion-reduce:static motion-reduce:mx-auto motion-reduce:mt-12 motion-reduce:translate-x-0 motion-reduce:translate-y-0">
             <ul className="grid gap-3 sm:grid-cols-3 sm:gap-6">
               {projects.map((project, index) => (
-                <TileSlot key={project.id} progress={progress} project={project} index={index} onFocus={revealTiles} />
+                <TileSlot key={project.id} progress={progress} project={project} index={index} onFocus={revealTiles} from={currentPath} />
               ))}
             </ul>
             <motion.div
               style={{ opacity: linkOpacity, pointerEvents: linkPointer }}
               className="scroll-fx absolute top-full left-0 mt-6 w-full text-center motion-reduce:static motion-reduce:mt-10"
             >
-              <Link href="/project" onFocus={revealTiles} className="link-more text-lg">
+              <Link href="/project" state={{ from: currentPath }} onFocus={revealTiles} className="link-more text-lg">
                 {viewAll}
                 <ChevronRight className="h-4 w-4" aria-hidden />
               </Link>
@@ -330,11 +333,13 @@ function TileSlot({
   project,
   index,
   onFocus,
+  from,
 }: {
   progress: MotionValue<number>;
   project: FeaturedProject;
   index: number;
   onFocus: () => void;
+  from: string;
 }) {
   const burst = T.burst + index * 0.006;
   const shatter = T.shatter + index * 0.012;
@@ -381,6 +386,7 @@ function TileSlot({
       <motion.div style={{ scale: tileScale, opacity: tileOpacity, y: float, x: shake, pointerEvents }} className="scroll-fx relative h-full">
         <Link
           href={`/project/${project.id}`}
+          state={{ from }}
           onFocus={onFocus}
           className="group flex h-full gap-3 rounded-[1.4rem] bg-band p-2 shadow-[0_24px_60px_-24px_rgb(0_0_0/0.35)] ring-1 ring-foreground/5 transition-shadow focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground sm:block sm:rounded-[1.75rem] sm:p-2.5"
         >
