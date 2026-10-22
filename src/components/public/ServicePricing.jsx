@@ -32,6 +32,7 @@ export function PackagePriceCards({ currentId }) {
     <div className={`${RAIL} lg:grid-cols-3`}>
       {PAID.map((pkg) => {
         const base = `servicePkg.items.${pkg.id}`;
+        const price = t(`${base}.price`, OBJ);
         const facts = [
           [stats.time, cells.time?.[pkg.id]],
           [stats.pages, cells.pages?.[pkg.id]],
@@ -50,9 +51,13 @@ export function PackagePriceCards({ currentId }) {
               ) : null}
             </div>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{t(`${base}.title`)}</p>
-            <p className="mt-5 text-[2rem] leading-none font-semibold tracking-[-.045em]">
-              {priceOf(t(`${base}.price`, OBJ))}
+            <p className="mt-5 text-xs font-medium text-muted-foreground">
+              {t(price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
             </p>
+            <p className="mt-1 text-[2rem] leading-none font-semibold tracking-[-.045em]">
+              {priceOf(price)}
+            </p>
+            {price.note ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{price.note}</p> : null}
             <dl className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">
               {facts.map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-4">

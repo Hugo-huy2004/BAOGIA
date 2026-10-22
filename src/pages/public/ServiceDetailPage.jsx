@@ -73,18 +73,31 @@ function CompareTable({ copy, currentId }) {
     );
   };
 
-  const priceOf = (pkgId) => priceRange(t(`servicePkg.items.${pkgId}.price`, { returnObjects: true }));
+  const priceInfo = (pkgId) => t(`servicePkg.items.${pkgId}.price`, { returnObjects: true });
+  const priceOf = (pkgId) => priceRange(priceInfo(pkgId));
 
   const cell = (row, pkgId) => {
     const flag = row.marks?.[pkgId];
     let text = copy.cells?.[row.id]?.[pkgId];
     // Hàng chi phí không có chữ riêng thì lấy thẳng số từ gói.
-    if (!text && row.price) text = priceOf(pkgId);
+    const price = row.price ? priceInfo(pkgId) : null;
+    if (!text && row.price) text = priceRange(price);
     if (flag === undefined && !text) return mark(false);
     return (
       <span className="flex gap-2">
         {flag === undefined ? null : mark(flag)}
-        {text ? <span className="text-[0.82rem] leading-6 text-foreground/80">{text}</span> : null}
+        {text ? (
+          <span className="text-[0.82rem] leading-6 text-foreground/80">
+            {row.price ? (
+              <>
+                <span className="mb-1 block text-[0.7rem] font-medium text-muted-foreground">
+                  {t(price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
+                </span>
+                {text}
+              </>
+            ) : text}
+          </span>
+        ) : null}
       </span>
     );
   };
@@ -256,8 +269,11 @@ export default function ServiceDetailPage() {
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">{pkg.lede}</p>
 
             <div className="mt-7 max-w-xl rounded-[1.5rem] border border-border bg-card/90 p-5 backdrop-blur-md sm:p-6">
-              <p className="text-xs text-muted-foreground">{c("priceLabel")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t(pkg.price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
+              </p>
               <p className="mt-1 text-[clamp(2rem,1.6rem+1.6vw,2.8rem)] leading-none font-semibold tracking-[-.05em]">{priceRange(pkg.price)}</p>
+              {pkg.price.note ? <p className="mt-3 text-sm leading-6 text-muted-foreground">{pkg.price.note}</p> : null}
               {pkg.noDeposit ? (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold">
                   <span aria-hidden className="material-symbols-outlined text-[16px]">verified</span>
@@ -401,7 +417,6 @@ export default function ServiceDetailPage() {
       <Section id="add-ons" kicker={c("priceKicker")} title={c("priceTitle")} lede={addons.lede} muted>
         {pkg.price.factors?.length ? (
           <div className="mb-8 rounded-[1.25rem] border border-border bg-card p-5 sm:p-6">
-            <p className="text-sm leading-6 text-muted-foreground">{pkg.price.note}</p>
             <p className="mt-4 text-sm font-semibold">{c("priceFactors")}</p>
             <ul className="mt-2 space-y-1.5">
               {pkg.price.factors.map((factor) => (
