@@ -144,7 +144,7 @@ export default function Footer() {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <LogoMarquee trust={trust} />
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.2fr_1fr_1fr] md:gap-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.2fr_1fr_1fr_1fr] md:gap-8">
           <div className="col-span-2 max-w-sm md:col-span-1">
             <Link to="https://portfolio.hugowishpax.studio/" className="inline-flex min-h-11 items-center text-lg font-extrabold tracking-[-0.03em] text-foreground">
               Hugo Studio
@@ -208,6 +208,23 @@ export default function Footer() {
                 </a>
               </li>
               <li><Link to="/terms-and-guide" className={linkClass}>{t("footer.termsAndGuide", "Điều khoản và hướng dẫn sử dụng")}</Link></li>
+            </ul>
+          </nav>
+
+          <nav aria-label={t("footer.partner", "Đối tác")}>
+            <p className={colTitleClass}>{t("footer.partner", "Đối tác")}</p>
+            <ul className="mt-2 flex flex-col">
+              <li>
+                <a
+                  href="https://hwagfu.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                >
+                  HWAGFU.dev
+                  <span className="material-symbols-outlined ml-1 text-[15px]" aria-hidden="true">north_east</span>
+                </a>
+              </li>
             </ul>
           </nav>
         </div>
