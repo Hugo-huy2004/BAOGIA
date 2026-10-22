@@ -9,6 +9,7 @@ import { AddonTile, ServiceAddons } from "../../components/public/ServicePricing
 import { IconList, Section } from "../../components/public/ServiceBlocks";
 import { SERVICE_ADDONS, findAddon } from "../../data/serviceAddons";
 import { SHARED_ICONS } from "../../data/serviceIcons";
+import { formatServicePrice } from "../../utils/servicePrice";
 import PackageName from "../../components/brand/PackageName";
 import Aura from "../../components/public/hwagfu/Aura";
 import { PackageStill } from "../../components/public/hwagfu/ServicesStory";
@@ -55,7 +56,7 @@ const NAV = [
  * không emoji, không icon màu.
  */
 function CompareTable({ copy, currentId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Ba trạng thái, ba ký hiệu: đã có · tính thêm · không có.
   const MARKS = {
@@ -74,14 +75,18 @@ function CompareTable({ copy, currentId }) {
   };
 
   const priceInfo = (pkgId) => t(`servicePkg.items.${pkgId}.price`, { returnObjects: true });
-  const priceOf = (pkgId) => priceRange(priceInfo(pkgId));
+  const priceOf = (pkgId) => formatServicePrice(priceInfo(pkgId), i18n.resolvedLanguage);
+  const priceLabelOf = (pkgId) => {
+    if (servicePackages.find((pkg) => pkg.id === pkgId)?.freeTier) return "";
+    return t(priceInfo(pkgId).factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel");
+  };
 
   const cell = (row, pkgId) => {
     const flag = row.marks?.[pkgId];
     let text = copy.cells?.[row.id]?.[pkgId];
     // Hàng chi phí không có chữ riêng thì lấy thẳng số từ gói.
     const price = row.price ? priceInfo(pkgId) : null;
-    if (!text && row.price) text = priceRange(price);
+    if (!text && row.price) text = formatServicePrice(price, i18n.resolvedLanguage);
     if (flag === undefined && !text) return mark(false);
     return (
       <span className="flex gap-2">
@@ -90,9 +95,9 @@ function CompareTable({ copy, currentId }) {
           <span className="text-[0.82rem] leading-6 text-foreground/80">
             {row.price ? (
               <>
-                <span className="mb-1 block text-[0.7rem] font-medium text-muted-foreground">
-                  {t(price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
-                </span>
+                {priceLabelOf(pkgId) ? (
+                  <span className="mb-1 block text-[0.7rem] font-medium text-muted-foreground">{priceLabelOf(pkgId)}</span>
+                ) : null}
                 {text}
               </>
             ) : text}
@@ -129,7 +134,10 @@ function CompareTable({ copy, currentId }) {
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 [&::-webkit-details-marker]:hidden">
               <span className="min-w-0">
                 <PackageName id={p.id} size="sm" dot={false} />
-                <span className="mt-1 block text-[0.82rem] text-muted-foreground">{priceOf(p.id)}</span>
+                <span className="mt-1 block text-[0.72rem] text-muted-foreground">
+                  {priceLabelOf(p.id) ? <span className="block">{priceLabelOf(p.id)}</span> : null}
+                  <span className="mt-0.5 block text-[0.82rem]">{priceOf(p.id)}</span>
+                </span>
               </span>
               <span aria-hidden className="material-symbols-outlined shrink-0 text-[22px] text-muted-foreground transition-transform group-open:rotate-180">
                 expand_more
@@ -272,7 +280,7 @@ export default function ServiceDetailPage() {
               <p className="text-xs text-muted-foreground">
                 {t(pkg.price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
               </p>
-              <p className="mt-1 text-[clamp(2rem,1.6rem+1.6vw,2.8rem)] leading-none font-semibold tracking-[-.05em]">{priceRange(pkg.price)}</p>
+              <p className="mt-1 text-[clamp(2rem,1.6rem+1.6vw,2.8rem)] leading-none font-semibold tracking-[-.05em]">              {formatServicePrice(pkg.price, i18n.resolvedLanguage)}</p>
               {pkg.price.note ? <p className="mt-3 text-sm leading-6 text-muted-foreground">{pkg.price.note}</p> : null}
               {pkg.noDeposit ? (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold">

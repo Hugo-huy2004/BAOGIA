@@ -4,6 +4,7 @@ import { ArrowRight, Check } from "lucide-react";
 import PackageName from "../brand/PackageName";
 import { servicePackages } from "../../data/servicePackages";
 import { ADDON_GROUPS, SERVICE_ADDONS, addonPath } from "../../data/serviceAddons";
+import { formatServicePrice } from "../../utils/servicePrice";
 
 /**
  * Bảng giá dùng chung cho /services và trang từng gói.
@@ -15,8 +16,6 @@ import { ADDON_GROUPS, SERVICE_ADDONS, addonPath } from "../../data/serviceAddon
 
 const OBJ = { returnObjects: true };
 const PAID = servicePackages.filter((p) => !p.freeTier);
-const priceOf = (price) => (price.to ? `${price.from} – ${price.to}` : price.from);
-
 // Hàng thẻ: vuốt ngang trên điện thoại, lưới từ lg.
 const RAIL =
   "-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:grid lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden";
@@ -24,7 +23,7 @@ const CARD = "flex w-[84%] shrink-0 snap-center flex-col rounded-[1.5rem] border
 
 /** Ba gói trả phí cạnh nhau: giá, ba con số chính, nút xem gói. */
 export function PackagePriceCards({ currentId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const cells = t("servicePkg.compare.cells", OBJ);
   const stats = t("servicePkg.stats", OBJ);
 
@@ -55,7 +54,7 @@ export function PackagePriceCards({ currentId }) {
               {t(price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
             </p>
             <p className="mt-1 text-[2rem] leading-none font-semibold tracking-[-.045em]">
-              {priceOf(price)}
+              {formatServicePrice(price, i18n.resolvedLanguage)}
             </p>
             {price.note ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{price.note}</p> : null}
             <dl className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">

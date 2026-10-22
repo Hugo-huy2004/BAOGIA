@@ -17,6 +17,7 @@ import { PUBLIC_TOOLS } from "../../config/publicTools";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { PackagePriceCards, ServiceAddons } from "../../components/public/ServicePricing";
+import { formatServicePrice } from "../../utils/servicePrice";
 
 /**
  * Chữ nghĩa của cả trang nằm trong `servicePkg.page.*` và `servicePkg.items.*`
@@ -24,7 +25,7 @@ import { PackagePriceCards, ServiceAddons } from "../../components/public/Servic
  * không phải sửa JSX.
  */
 function useChapters() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   return servicePackages.map((pkg) => ({
     eyebrow: pkg.eyebrow,
     title: t(`servicePkg.items.${pkg.id}.title`),
@@ -34,7 +35,12 @@ function useChapters() {
     actionLabel: t("servicePkg.page.detailCta"),
     price: (() => {
       const p = t(`servicePkg.items.${pkg.id}.price`, { returnObjects: true });
-      return p.to ? `${p.from} – ${p.to}` : p.from;
+      return formatServicePrice(p, i18n.resolvedLanguage);
+    })(),
+    priceLabel: (() => {
+      if (pkg.freeTier) return "";
+      const p = t(`servicePkg.items.${pkg.id}.price`, { returnObjects: true });
+      return t(p.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel");
     })(),
     ...(pkg.freeTier
       ? { demoHref: "/member", demoLabel: t("servicePkg.page.demoCta"), actionLabel: t("servicePkg.page.eduAction") }

@@ -127,7 +127,7 @@ export default function ServicesStory({
                   {standalone && index === 2 ? <>03 · Hugo <span className="bg-linear-to-r from-[#17EAD9] via-[#4CB5E7] to-[#6078EA] bg-clip-text text-transparent">Flow+</span></> : chapter.eyebrow}
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.035em]">{chapter.title}</h3>
-                {chapter.price ? <p className="mt-2 text-base font-semibold tracking-[-0.02em]">{chapter.price}</p> : null}
+                {chapter.price ? <p className="mt-2 text-base font-semibold tracking-[-0.02em]">{chapter.priceLabel ? <span className="mr-2 text-xs font-medium text-muted-foreground">{chapter.priceLabel}</span> : null}{chapter.price}</p> : null}
                 <p className="mt-3 text-[0.95rem] leading-7 text-muted-foreground">{chapter.description}</p>
                 {standalone ? (
                   <div aria-hidden className="mt-8 flex justify-center py-2">
@@ -272,7 +272,7 @@ export default function ServicesStory({
               {chapters.slice(0, storyChapterCount).map((chapter) => (
                 <li key={chapter.eyebrow}>
                   <h3>{chapter.title}</h3>
-                  {chapter.price ? <p>{chapter.price}</p> : null}
+                  {chapter.price ? <p>{chapter.priceLabel ? `${chapter.priceLabel} ` : ""}{chapter.price}</p> : null}
                   <p>{chapter.description}</p>
                   {chapter.features?.length ? <p>Bao gồm: {chapter.features.join(", ")}.</p> : null}
                 </li>
@@ -1056,7 +1056,10 @@ function ChapterCopy({
         {chapter.title}
       </h3>
       {chapter.price ? (
-        <p className={`${early ? "mt-3 text-lg" : "mt-1.5 text-sm"} font-semibold tracking-[-0.02em] text-foreground`}>{chapter.price}</p>
+        <p className={`${early ? "mt-3 text-lg" : "mt-1.5 text-sm"} font-semibold tracking-[-0.02em] text-foreground`}>
+          {chapter.priceLabel ? <span className="mb-0.5 block text-[0.62rem] font-medium text-muted-foreground">{chapter.priceLabel}</span> : null}
+          {chapter.price}
+        </p>
       ) : null}
       <p className={`${early ? "mt-4 max-w-md text-base leading-7" : "mx-auto mt-1.5 max-w-xl text-sm leading-relaxed"} hidden text-foreground/60 sm:block`}>
         {chapter.description}
