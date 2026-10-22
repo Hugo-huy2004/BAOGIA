@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/api/core/authSession";
 import { useData } from "../context/DataContext";
@@ -107,91 +108,96 @@ export default function MobileDrawer() {
         <span className="material-symbols-outlined text-[19px] leading-none">{isOpen ? "close" : "menu"}</span>
       </button>
 
-      {isOpen && (
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 z-[200] bg-black/25 backdrop-blur-[2px] lg:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      <aside
-        ref={drawerRef}
-        id="mobile-main-menu"
-        role="dialog"
-        aria-modal="true"
-        aria-label={t("navbar.mainMenu", "Menu chính")}
-        aria-hidden={!isOpen}
-        inert={isOpen ? undefined : ""}
-        className={`fixed inset-x-2 bottom-2 z-[210] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[2rem] border border-white/50 bg-background/90 px-3 pb-3 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-3xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 lg:hidden ${
-          isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[110%] opacity-0"
-        }`}
-        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
-      >
-        <div className="flex justify-center py-2" aria-hidden="true">
-          <span className="h-1.5 w-10 rounded-full bg-muted-foreground/20" />
-        </div>
-
-        <div className="flex items-center justify-between px-3 pb-3 pt-1">
-          <div>
-            <h2 className="text-foreground"><HugoLogo className="h-7 w-7" /></h2>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{t("navbar.hello", "Xin chào")}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-foreground"
-            aria-label={t("navbar.closeMenu")}
-          >
-            <span className="material-symbols-outlined text-[18px]">close</span>
-          </button>
-        </div>
-
-        <nav className="space-y-1 rounded-[1.4rem] bg-muted/55 p-1.5">
-          {mainMenuItems.map((item, idx) => (
-            <Link
-              key={idx}
-              to={item.path}
-              viewTransition
+      {createPortal(
+        <>
+          {isOpen && (
+            <div
+              aria-hidden="true"
+              className="fixed inset-0 z-[200] bg-black/25 backdrop-blur-[2px] lg:hidden"
               onClick={() => setIsOpen(false)}
-              className={`flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition-colors ${
-                location.pathname === item.path
-                  ? "bg-card text-primary shadow-sm"
-                  : "text-foreground hover:bg-card/70"
-              }`}
-            >
-              <span>{item.label}</span>
-              <span className="material-symbols-outlined text-[17px] text-muted-foreground">chevron_right</span>
-            </Link>
-          ))}
-        </nav>
+            />
+          )}
 
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <LanguageSelect className="w-full" />
-
-          <Link
-            to={accountPath}
-            viewTransition
-            onClick={() => setIsOpen(false)}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] bg-primary px-3 text-xs font-semibold text-white shadow-[0_8px_20px_hsl(var(--primary)/0.2)]"
+          <aside
+            ref={drawerRef}
+            id="mobile-main-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("navbar.mainMenu", "Menu chính")}
+            aria-hidden={!isOpen}
+            inert={isOpen ? undefined : ""}
+            className={`fixed inset-x-2 bottom-2 z-[210] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[2rem] border border-white/50 bg-background/90 px-3 pb-3 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-3xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 lg:hidden ${
+              isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[110%] opacity-0"
+            }`}
+            style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
           >
-            <span className="material-symbols-outlined text-base">{accountIcon}</span>
-            {accountLabel}
-          </Link>
-        </div>
+            <div className="flex justify-center py-2" aria-hidden="true">
+              <span className="h-1.5 w-10 rounded-full bg-muted-foreground/20" />
+            </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setIsOpen(false);
-            window.dispatchEvent(new CustomEvent("open-donation"));
-          }}
-          className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border border-primary/25 bg-primary/10 px-4 text-xs font-bold text-primary"
-        >
-          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
-          {t("footer.supportServer", "Ủng hộ Hugo Studio")}
-        </button>
-      </aside>
+            <div className="flex items-center justify-between px-3 pb-3 pt-1">
+              <div>
+                <h2 className="text-foreground"><HugoLogo className="h-7 w-7" /></h2>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">{t("navbar.hello", "Xin chào")}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-foreground"
+                aria-label={t("navbar.closeMenu")}
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            <nav className="space-y-1 rounded-[1.4rem] bg-muted/55 p-1.5">
+              {mainMenuItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.path}
+                  viewTransition
+                  onClick={() => setIsOpen(false)}
+                  className={`flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition-colors ${
+                    location.pathname === item.path
+                      ? "bg-card text-primary shadow-sm"
+                      : "text-foreground hover:bg-card/70"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  <span className="material-symbols-outlined text-[17px] text-muted-foreground">chevron_right</span>
+                </Link>
+              ))}
+            </nav>
+
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <LanguageSelect className="w-full" />
+
+              <Link
+                to={accountPath}
+                viewTransition
+                onClick={() => setIsOpen(false)}
+                className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] bg-primary px-3 text-xs font-semibold text-white shadow-[0_8px_20px_hsl(var(--primary)/0.2)]"
+              >
+                <span className="material-symbols-outlined text-base">{accountIcon}</span>
+                {accountLabel}
+              </Link>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                window.dispatchEvent(new CustomEvent("open-donation"));
+              }}
+              className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border border-primary/25 bg-primary/10 px-4 text-xs font-bold text-primary"
+            >
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
+              {t("footer.supportServer", "Ủng hộ Hugo Studio")}
+            </button>
+          </aside>
+        </>,
+        document.body,
+      )}
     </>
   );
 }
