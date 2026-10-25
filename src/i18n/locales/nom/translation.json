@@ -1558,8 +1558,6 @@
       "adSave": "留 Link",
       "logout": "登出財款 Admin",
       "supremeTitle": "權限最高 Admin",
-      "autoApprove": "自動閲成員買",
-      "autoApproveDesc": "補戈𨀈 admin 察閲, 激活財款𣦍欺登記",
       "autoLock": "自動封鎖財款空活動",
       "autoLockDesc": "鎖財款歇限或空登入𥪝時間𨱽",
       "crisisAlert": "警報恐慌心理",
@@ -4948,7 +4946,7 @@
         "toastReadError": "固磊仕𦋦欺處理 file ZIP"
       },
       "compress": {
-        "label": "撰形影 / Video (最多 50MB)",
+        "label": "撰 Video (最多 50MB)",
         "levelSection": "𣞪度𢬧",
         "levels": {
           "light": "珥 (守涅)",
@@ -4957,7 +4955,7 @@
         },
         "btnSubmit": "𢬧 & 載𧗱",
         "privacyNote": "每 file 載𨖲調特處理吧自動𪷮塊系統, 空留貯底保衛權𥢆西𧵑貴成員.",
-        "toastSelectFile": "𢝙𢚸撰 file 影/Video",
+        "toastSelectFile": "𢝙𢚸撰 file Video",
         "toastSuccess": "𢬧和載𧗱成功.",
         "toastError": "𤻳欺𢬧 file. 㤥擔保定樣得互助 (jpg, png, webp, mp4)."
       }
@@ -5376,8 +5374,6 @@
       "settingsTitle": "𢭮達自動化",
       "alertCrisisLabel": "警報恐慌心理",
       "alertCrisisDesc": "自動認 alert 欺發願現危機高",
-      "autoApproveLabel": "自動閲財款 edu 買",
-      "autoApproveDesc": "埃確明 email edu 吧自閲",
       "autoLockLabel": "課財款空活動 90 𣈜",
       "autoLockDesc": "自動𡢐 90 𣈗空登入",
       "settingsError": "纇及日𢭮達:"

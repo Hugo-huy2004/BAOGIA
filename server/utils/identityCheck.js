@@ -12,15 +12,17 @@
 import { revokeMemberSession } from './memberSession.js';
 
 // Đúng một lần thì lần sau hỏi thưa hơn: người đã chứng minh nhiều lần không
-// đáng bị làm phiền như người vừa vào. Chạm mốc cuối thì giữ nguyên ~6 tháng.
-export const SCHEDULE_DAYS = [7, 14, 30, 90, 180];
+// đáng bị làm phiền như người vừa vào. Chạm mốc cuối thì giữ nguyên ~1 năm.
+// Nới 25/10/2026 (từng là 7/14/30/90/180): người mới vào thử bị hỏi ngay tuần
+// đầu là quá nặng cho app học tập, còn chuyển JOY đã có 2FA PIN+OTP riêng.
+export const SCHEDULE_DAYS = [30, 90, 180, 365];
 
 // Xoay vòng câu hỏi. 'email' là bước nặng nhất (phải mở hòm thư) nên xếp cuối.
 export const FIELD_ROTATION = ['phone', 'birthday', 'email'];
 
-// Sai lần đầu coi như gõ nhầm — số điện thoại và ngày sinh gõ sai rất dễ. Sai
-// lần thứ hai trong CÙNG một đợt mới là khai man.
-export const MAX_ATTEMPTS = 2;
+// Sai vài lần coi như gõ nhầm — số điện thoại và ngày sinh gõ sai rất dễ. Sai
+// lần thứ ba trong CÙNG một đợt mới là khai man.
+export const MAX_ATTEMPTS = 3;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -84,7 +86,8 @@ export function isDue(bio, now = Date.now()) {
 
 /** Hẹn mốc kế tiếp. `advance` = vừa trả lời đúng nên được giãn ra xa hơn. */
 export function scheduleNext(bio, { advance = true, now = Date.now() } = {}) {
-  const current = bio.identityCheck?.tier ?? 0;
+  // Kẹp lại: hồ sơ xếp theo lịch cũ 5 mốc có thể đang giữ tier 4.
+  const current = Math.min(bio.identityCheck?.tier ?? 0, SCHEDULE_DAYS.length - 1);
   const tier = advance ? Math.min(current + 1, SCHEDULE_DAYS.length - 1) : current;
   bio.identityCheck = {
     ...(bio.identityCheck?.toObject?.() || bio.identityCheck || {}),

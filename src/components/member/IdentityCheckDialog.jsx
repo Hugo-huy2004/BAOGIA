@@ -19,7 +19,7 @@ export default function IdentityCheckDialog({ field, attemptsLeft: initialAttemp
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [attemptsLeft, setAttemptsLeft] = useState(initialAttempts ?? 2);
+  const [attemptsLeft, setAttemptsLeft] = useState(initialAttempts ?? 3);
   const [otpSent, setOtpSent] = useState(false);
   const meta = FIELD_META[field] || FIELD_META.phone;
 

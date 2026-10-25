@@ -56,9 +56,10 @@ export const APP_REGISTRY = Object.freeze([
   }),
   manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
-  manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0" }),
+  manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0", store: true, storeOrder: 9 }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
+  manifest({ id: "arcade_pinball", icon: "disc_full", tint: "purple", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 10 }),
   manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),
   manifest({ id: "arcade_2048", icon: "casino", tint: "orange", category: "arcade", badge: "game", store: true, game: true, storePlanId: null, storeOrder: 15 }),
   manifest({ id: "arcade_caro", icon: "swords", tint: "blue", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 14 }),
@@ -79,8 +80,7 @@ export const REQUIRED_APP_IDS = Object.freeze([
   // "vocab" (Hoa Ngữ) đã gỡ 21/09/2026 — nếu để lại đây thì `normalizeInstalled`
   // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
   // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
-  "nom",
-  "team",
+  // "nom" và "team" thôi cài sẵn 25/10/2026: kén người dùng, giờ tải trong Cửa Hàng.
   "psychology",
   "radio",
   "handle",

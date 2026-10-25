@@ -1,254 +1,95 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, CalendarCheck, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useScroll, useMotionValueEvent } from "motion/react";
-import Aura from "../../components/public/hwagfu/Aura";
-import FloatingOrbs from "../../components/public/hwagfu/FloatingOrbs";
-import HeroScrollFx from "../../components/public/hwagfu/HeroScrollFx";
-import RainbowText from "../../components/public/hwagfu/RainbowText";
+import PackageName from "../../components/brand/PackageName";
 import ServicesStory from "../../components/public/hwagfu/ServicesStory";
-import CinematicAtmosphere from "../../components/public/cine/CinematicAtmosphere";
-import { syncScrollFilmBeat, playHapticTick } from "../../utils/CinematicSoundEngine";
-import "../../components/public/hwagfu/hwagfu.css";
 import { servicePackages } from "../../data/servicePackages";
 import { projects } from "../../data/projects";
 import { PUBLIC_TOOLS } from "../../config/publicTools";
+import { STUDIO_SOCIAL_LINKS } from "../../config/studioSocialLinks";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
-import { PackagePriceCards, ServiceAddons } from "../../components/public/ServicePricing";
 import { formatServicePrice } from "../../utils/servicePrice";
+import "../../components/public/hwagfu/hwagfu.css";
+import "./services-editorial.css";
 
-/**
- * Chữ nghĩa của cả trang nằm trong `servicePkg.page.*` và `servicePkg.items.*`
- * (vi/en/zh). Trang này chỉ dựng hình — thêm ngôn ngữ là thêm một tệp locale,
- * không phải sửa JSX.
- */
-function useChapters() {
+const OBJ = { returnObjects: true };
+
+function useServices() {
   const { t, i18n } = useTranslation();
-  return servicePackages.map((pkg) => ({
-    eyebrow: pkg.eyebrow,
-    title: t(`servicePkg.items.${pkg.id}.title`),
-    description: t(`servicePkg.items.${pkg.id}.lede`),
-    features: t(`servicePkg.items.${pkg.id}.features`, { returnObjects: true }),
-    href: pkg.freeTier ? "/student-pricing" : `/services/${pkg.slug}`,
-    actionLabel: t("servicePkg.page.detailCta"),
-    price: (() => {
-      const p = t(`servicePkg.items.${pkg.id}.price`, { returnObjects: true });
-      return formatServicePrice(p, i18n.resolvedLanguage);
-    })(),
-    priceLabel: (() => {
-      if (pkg.freeTier) return "";
-      const p = t(`servicePkg.items.${pkg.id}.price`, { returnObjects: true });
-      return t(p.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel");
-    })(),
-    ...(pkg.freeTier
-      ? { demoHref: "/member", demoLabel: t("servicePkg.page.demoCta"), actionLabel: t("servicePkg.page.eduAction") }
-      : {}),
-  }));
-}
-
-/**
- * Nhãn nhỏ đầu mỗi phần. Chữ lấy từ i18n — trang bán hàng không dán nhãn hậu
- * trường kiểu số hiệu cảnh quay: khách không đọc thứ đó, và chữ cứng tiếng
- * Anh thì chín ngôn ngữ còn lại không dịch được.
- */
-function Kicker({ children, className = "" }) {
-  return (
-    <div className={`inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-[0.72rem] font-semibold tracking-[0.14em] text-[#00f0ff] backdrop-blur-md dark:bg-black/30 ${className}`}>
-      <span className="size-1.5 rounded-full bg-[#00f0ff]" />
-      <span>{children}</span>
-    </div>
-  );
-}
-
-function Hero() {
-  const { t } = useTranslation();
-  const location = useLocation();
-  return (
-    <section className="relative isolate min-h-[calc(100svh-4rem)] overflow-hidden px-5 py-24 sm:px-8 sm:py-32">
-      <Aura />
-      <FloatingOrbs />
-      <HeroScrollFx className="relative z-10 mx-auto flex max-w-6xl flex-col items-center text-center">
-        <Kicker className="animate-rise mb-6">{t("servicePkg.page.heroKicker")}</Kicker>
-
-        <h1 className="headline-hero text-foreground">
-          <span className="animate-rise block">{t("servicePkg.page.heroLine1")}</span>
-          <span className="animate-rise block" style={{ animationDelay: "110ms" }}>{t("servicePkg.page.heroLine2")}</span>
-          <span className="animate-rise block" style={{ animationDelay: "220ms" }}><RainbowText>{t("servicePkg.page.heroLine3")}</RainbowText></span>
-        </h1>
-        <p className="animate-rise lede mt-7 max-w-3xl" style={{ animationDelay: "360ms" }}>
-          {t("servicePkg.page.heroLede")}
-        </p>
-        <div className="animate-rise mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animationDelay: "470ms" }}>
-          <Link
-            to="/booking"
-            onClick={() => playHapticTick()}
-            className="btn-primary"
-          >
-            {t("servicePkg.page.heroCta")} <CalendarCheck size={17} />
-          </Link>
-          <Link
-            to="/project"
-            state={{ from: `${location.pathname}${location.search}${location.hash}` }}
-            onClick={() => playHapticTick()}
-            className="btn-secondary"
-          >
-            {t("servicePkg.page.heroCtaAlt")} <ArrowRight size={17} className="text-[#00f0ff]" />
-          </Link>
-        </div>
-        <span className="animate-rise mt-14 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[.18em] text-muted-foreground/70" style={{ animationDelay: "580ms" }}>
-          {t("servicePkg.page.scrollHint")} <span className="material-symbols-outlined text-base text-[#00f0ff]">south</span>
-        </span>
-      </HeroScrollFx>
-    </section>
-  );
-}
-
-/**
- * Dải bằng chứng, đặt ngay dưới màn hình đầu.
- *
- * Hai con số ĐẾM TỪ MÃ NGUỒN (`projects`, `PUBLIC_TOOLS`) chứ không gõ tay:
- * thêm một dự án là trang tự cập nhật, và không bao giờ có chuyện quảng cáo
- * một con số không còn đúng. Đây là toàn bộ bằng chứng thật đang có — không
- * bịa lời chứng thực, không bịa số khách hàng.
- */
-const PROOF_ICONS = ["folder_open", "apps", "code_blocks"];
-
-function Proof() {
-  const { t } = useTranslation();
-  const items = t("servicePkg.page.proof", {
-    returnObjects: true,
-    projects: projects.length,
-    tools: Object.keys(PUBLIC_TOOLS).length,
+  return servicePackages.map((pkg) => {
+    const price = t(`servicePkg.items.${pkg.id}.price`, OBJ);
+    return {
+      ...pkg,
+      title: t(`servicePkg.items.${pkg.id}.title`),
+      description: t(`servicePkg.items.${pkg.id}.lede`),
+      features: t(`servicePkg.items.${pkg.id}.features`, OBJ),
+      price: formatServicePrice(price, i18n.resolvedLanguage),
+      priceLabel: pkg.freeTier ? "" : t("servicePkg.page.startingPriceLabel"),
+      href: pkg.freeTier ? "/student-pricing" : `/services/${pkg.slug}`,
+      actionLabel: pkg.freeTier ? t("servicePkg.page.eduAction") : t("servicePkg.page.detailCta"),
+      ...(pkg.freeTier ? { demoHref: "/member", demoLabel: t("servicePkg.page.demoCta") } : {}),
+    };
   });
+}
 
+function SectionMarker({ number, children, light = false }) {
   return (
-    <section className="relative isolate bg-band px-5 py-16 sm:px-8 sm:py-20 border-t border-border/40">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="sr-only">{t("servicePkg.page.proofTitle")}</h2>
-        <dl className="grid gap-px overflow-hidden rounded-[1.5rem] border border-border bg-border sm:grid-cols-3">
-          {items.map((item, i) => (
-            <div key={item.value} className="bg-card p-6 sm:p-7">
-              <span aria-hidden className="material-symbols-outlined grid size-11 place-items-center rounded-full bg-muted text-[22px] text-foreground">
-                {PROOF_ICONS[i]}
-              </span>
-              <dt className="mt-4 text-[clamp(1.15rem,.9rem+.8vw,1.6rem)] leading-tight font-semibold tracking-[-.03em]">{item.value}</dt>
-              <dd className="mt-2 text-sm leading-6 text-muted-foreground">{item.label}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
+    <p className={`services-marker${light ? " services-marker--light" : ""}`}>
+      <span>{number}</span>
+      {children}
+    </p>
   );
 }
 
-/**
- * Hai "slide" giá ngay sau phim gói: phim kể từng gói, còn ở đây khách thấy
- * cả bảng giá và phần tính thêm trong một cái nhìn trước khi bấm đi đâu.
- */
-function PriceSlide({ id, kicker, title, lede, children, band = false }) {
-  return (
-    <section id={id} className={`relative isolate scroll-mt-20 border-t border-border/40 px-5 py-16 sm:px-8 sm:py-24 ${band ? "bg-band" : "bg-background"}`}>
-      <div className="mx-auto max-w-6xl">
-        <Kicker className="mb-4">{kicker}</Kicker>
-        <h2 className="headline-section mt-3 max-w-3xl">{title}</h2>
-        <p className="lede mt-4 max-w-2xl">{lede}</p>
-        <div className="mt-10">{children}</div>
-      </div>
-    </section>
-  );
-}
-
-function LandingFocus() {
+function ServiceCard({ service, index }) {
   const { t } = useTranslation();
-  const points = t("servicePkg.page.landingPoints", { returnObjects: true });
-
   return (
-    <section className="relative isolate bg-background px-5 py-24 sm:px-8 sm:py-36 border-t border-border/40">
-      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
-        <div>
-          <Kicker className="mb-4">{t("servicePkg.page.landingKicker")}</Kicker>
-          <h2 className="headline-section mt-3 max-w-4xl">
-            {t("servicePkg.page.landingTitle1")}
-            <span className="headline-quiet block mt-1">{t("servicePkg.page.landingTitle2")}</span>
-          </h2>
-          <p className="lede mt-7 max-w-2xl">
-            {t("servicePkg.page.landingLede")}
-          </p>
-        </div>
-        <ul className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-lg p-6 shadow-xl space-y-2">
-          {points.map((point) => (
-            <li key={point} className="flex items-start gap-3 py-3 text-sm leading-6 text-foreground/80 border-b border-border/40 last:border-b-0">
-              <Check className="mt-1 size-4 shrink-0 text-[#00f0ff]" />
-              <span>{point}</span>
-            </li>
+    <article className="services-package">
+      <div className="services-package__number" aria-hidden="true">
+        {String(index + 1).padStart(2, "0")}
+      </div>
+      <div className="services-package__body">
+        <PackageName id={service.id} size="lg" dot={false} />
+        <h3>{service.title}</h3>
+        <p>{service.description}</p>
+        <ul aria-label={t("servicePkg.page.catalogIncludes")}>
+          {service.features.slice(0, 3).map((feature) => (
+            <li key={feature}><Check aria-hidden="true" />{feature}</li>
           ))}
         </ul>
       </div>
-    </section>
-  );
-}
-
-function Process() {
-  const { t } = useTranslation();
-  const steps = t("servicePkg.page.process", { returnObjects: true });
-  return (
-    <section className="relative isolate bg-band px-5 py-24 sm:px-8 sm:py-36 border-t border-border/40">
-      <div className="mx-auto max-w-6xl">
-        <Kicker className="mb-4">{t("servicePkg.page.processKicker")}</Kicker>
-        <h2 className="headline-section mt-3 max-w-3xl">{t("servicePkg.page.processTitle")}</h2>
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
-          {steps.map(({ title, body }, i) => (
-            <div
-              key={title}
-              className="group relative rounded-2xl border border-border/60 bg-card/40 p-7 backdrop-blur-md transition-all duration-300 hover:border-[#00f0ff]/40 hover:shadow-[0_0_30px_rgba(0,240,255,0.08)]"
-            >
-              <span className="text-xs font-bold tracking-[0.16em] text-[#00f0ff]">
-                {t("servicePkg.page.stepLabel", { n: i + 1 })}
-              </span>
-              <h3 className="mt-4 text-xl font-bold tracking-tight text-foreground">{title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
-            </div>
-          ))}
-        </div>
+      <div className="services-package__action">
+        <p className="services-package__price-label">
+          {service.freeTier ? t("servicePkg.page.eduAction") : t("servicePkg.page.startingPriceLabel")}
+        </p>
+        <p className="services-package__price">{service.price}</p>
+        <Link to={service.href}>
+          {t("servicePkg.page.detailCta")} <ArrowRight aria-hidden="true" />
+        </Link>
       </div>
-    </section>
+    </article>
   );
 }
 
-function Closing() {
+function SocialSection() {
   const { t } = useTranslation();
-  const location = useLocation();
   return (
-    <section className="relative isolate overflow-hidden bg-background px-5 py-28 text-center sm:px-8 sm:py-40 border-t border-border/40">
-      <Aura />
-      <div className="relative z-10 mx-auto max-w-5xl">
-        <Kicker className="mb-6">{t("servicePkg.page.closingKicker")}</Kicker>
-        <h2 className="headline-hero mt-3">
-          {t("servicePkg.page.closingTitle1")}
-          <span className="block text-[#00f0ff] [text-shadow:0_0_24px_rgba(0,240,255,0.45)]">
-            {t("servicePkg.page.closingTitle2")}
-          </span>
-        </h2>
-        <p className="lede mx-auto mt-7 max-w-2xl">{t("servicePkg.page.closingLede")}</p>
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            to="/booking"
-            onClick={() => playHapticTick()}
-            className="btn-primary"
-          >
-            {t("servicePkg.page.closingCta")} <ArrowRight size={17} />
-          </Link>
-          <Link
-            to="/project"
-            state={{ from: `${location.pathname}${location.search}${location.hash}` }}
-            onClick={() => playHapticTick()}
-            className="btn-secondary"
-          >
-            {t("servicePkg.page.closingCtaAlt")}
-          </Link>
+    <section className="services-social" aria-labelledby="services-social-title">
+      <div className="services-shell services-social__inner">
+        <div>
+          <SectionMarker number="04" light>{t("servicePkg.page.socialLinks")}</SectionMarker>
+          <h2 id="services-social-title">{t("servicePkg.page.socialTitle1")}<br />{t("servicePkg.page.socialTitle2")}</h2>
         </div>
+        <nav aria-label={t("servicePkg.page.socialLinks")} className="services-social__links">
+          {STUDIO_SOCIAL_LINKS.map(({ labelKey, fallbackLabel, href }) => (
+            <a key={labelKey} href={href} target="_blank" rel="noopener noreferrer">
+              <span>{t(`servicePkg.page.${labelKey}`, fallbackLabel)}</span>
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
       </div>
     </section>
   );
@@ -256,15 +97,16 @@ function Closing() {
 
 export default function ServicesPage() {
   const { t, i18n } = useTranslation();
-  const chapters = useChapters();
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll();
+  const location = useLocation();
+  const services = useServices();
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    syncScrollFilmBeat(latest, [0.15, 0.45, 0.72, 0.9]);
+  useHeadMeta({
+    title: t("servicesPage.meta.title"),
+    description: t("servicesPage.meta.description"),
+    keywords: t("servicesPage.meta.keywords"),
+    canonicalUrl: "https://www.hugowishpax.studio/services",
   });
 
-  useHeadMeta({ title: t("servicesPage.meta.title"), description: t("servicesPage.meta.description"), keywords: t("servicesPage.meta.keywords"), canonicalUrl: "https://www.hugowishpax.studio/services" });
   useJsonLd("services-schema", useMemo(() => ({
     "@context": "https://schema.org",
     "@type": "Service",
@@ -277,24 +119,49 @@ export default function ServicesPage() {
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: t("servicePkg.page.catalogName"),
-      itemListElement: chapters.map((chapter) => ({
+      itemListElement: services.map((service) => ({
         "@type": "Offer",
-        name: chapter.title,
-        description: `${chapter.description} ${t("servicePkg.page.catalogIncludes")}: ${chapter.features.join(", ")}.`,
+        name: service.name,
+        description: service.description,
       })),
     },
-  }), [chapters, i18n.language, t]));
+  }), [i18n.language, services, t]));
 
   return (
-    <div ref={containerRef} className="hwagfu-copy relative">
-      <CinematicAtmosphere />
-      <Hero />
-      <Proof />
+    <div className="hwagfu-copy services-editorial">
+      <section className="services-hero" aria-labelledby="services-title">
+        <div className="services-shell services-hero__inner">
+          <p className="services-hero__eyebrow">{t("servicePkg.page.heroEyebrow")}</p>
+          <h1 id="services-title"><span>Hugo</span><span>Studio.</span></h1>
+          <div className="services-hero__footer">
+            <p>{t("servicePkg.page.heroLede")}</p>
+            <a href="#services-list" className="services-text-link">
+              {t("servicePkg.page.scrollHint")} <ArrowRight aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="services-about" aria-labelledby="services-about-title">
+        <div className="services-shell services-about__grid">
+          <SectionMarker number="01">Hugo Studio</SectionMarker>
+          <div>
+            <h2 id="services-about-title">{t("servicePkg.page.aboutTitle1")}<br /><em>{t("servicePkg.page.aboutTitle2")}</em></h2>
+            <p>{t("servicePkg.page.studioIntro")}</p>
+            <dl className="services-proof">
+              <div><dt>{projects.length}</dt><dd>{t("servicePkg.page.proof.0.label")}</dd></div>
+              <div><dt>{Object.keys(PUBLIC_TOOLS).length}</dt><dd>{t("servicePkg.page.proof.1.label")}</dd></div>
+              <div><dt>100%</dt><dd>{t("servicePkg.page.proof.2.label")}</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
       <ServicesStory
         standalone
         label={t("servicePkg.page.filmLabel")}
         heading={t("servicePkg.page.filmHeading")}
-        chapters={chapters}
+        chapters={services}
         studioIntro={t("servicePkg.page.studioIntro")}
         progressLabels={["Hugo One", "Hugo Story", "Hugo Flow+", "Hugo Edu+"]}
         speedUnit={t("intro.story.services.speedUnit")}
@@ -303,15 +170,39 @@ export default function ServicesPage() {
         cta={t("servicePkg.page.filmCta")}
         ctaHref="/booking"
       />
-      <PriceSlide id="pricing" kicker={t("servicePkg.page.pricingKicker")} title={t("servicePkg.page.pricingTitle")} lede={t("servicePkg.page.pricingLede")}>
-        <PackagePriceCards />
-      </PriceSlide>
-      <PriceSlide id="add-ons" kicker={t("servicePkg.page.addonsKicker")} title={t("servicePkg.page.addonsTitle")} lede={t("servicePkg.page.addonsLede")} band>
-        <ServiceAddons />
-      </PriceSlide>
-      <LandingFocus />
-      <Process />
-      <Closing />
+
+      <section id="services-list" className="services-list" aria-labelledby="services-list-title">
+        <div className="services-shell">
+          <div className="services-list__heading">
+            <SectionMarker number="03">{t("servicePkg.page.pricingKicker")}</SectionMarker>
+            <h2 id="services-list-title">{t("servicePkg.page.pricingTitle")}</h2>
+            <p>{t("servicePkg.page.pricingLede")}</p>
+          </div>
+          <div className="services-packages">
+            {services.map((service, index) => <ServiceCard key={service.id} service={service} index={index} />)}
+          </div>
+        </div>
+      </section>
+
+      <SocialSection />
+
+      <section className="services-closing" aria-labelledby="services-closing-title">
+        <div className="services-shell services-closing__inner">
+          <SectionMarker number="05">{t("servicePkg.page.closingKicker")}</SectionMarker>
+          <h2 id="services-closing-title">
+            {t("servicePkg.page.closingTitle1")}<br /><em>{t("servicePkg.page.closingTitle2")}</em>
+          </h2>
+          <p>{t("servicePkg.page.closingLede")}</p>
+          <div className="services-closing__actions">
+            <Link to="/booking" className="services-button services-button--dark">
+              {t("servicePkg.page.closingCta")} <ArrowRight aria-hidden="true" />
+            </Link>
+            <Link to="/project" state={{ from: `${location.pathname}${location.search}${location.hash}` }} className="services-text-link">
+              {t("servicePkg.page.closingCtaAlt")} <ArrowUpRight aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

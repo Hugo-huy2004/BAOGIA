@@ -2163,7 +2163,7 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
         success: true,
         correct: false,
         attemptsLeft: result.attemptsLeft,
-        error: 'Thông tin không khớp với hồ sơ. Bạn còn 1 lần thử.',
+        error: `Thông tin không khớp với hồ sơ. Bạn còn ${result.attemptsLeft} lần thử.`,
       });
     }
 

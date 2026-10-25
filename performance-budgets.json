@@ -58,11 +58,6 @@
       "name": "ban-hoc-duong",
       "pattern": "^BanhocduongTab-.*\\.js$",
       "maxBytes": 50000
-    },
-    {
-      "name": "member-lesson-view",
-      "pattern": "^LessonView-.*\\.js$",
-      "maxBytes": 410000
     }
   ],
   "forbiddenAssets": [

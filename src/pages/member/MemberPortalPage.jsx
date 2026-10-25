@@ -248,9 +248,8 @@ import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
 // Lazy-loaded main tabs
 const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
-const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
-const MemberSettingsTab  = React.lazy(() => import("../../components/member/remade/MemberSettingsTab"));
+const MemberSettingsTab  = React.lazy(() => import("../../components/member/MemberSettingsTab"));
 const MemberTodayTab     = React.lazy(() => import("../../components/member/MemberTodayTab"));
 const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
 const TodayArticleSummary = React.lazy(() => import("../../components/member/today/TodayArticleSummary"));
@@ -389,7 +388,7 @@ function MemberPortalPage() {
   const activeTab = tab || (isGuestMode ? "apps" : "today");
   const portalArea = useMemo(() => {
     if (activeTab === "today") return "today";
-    if (["apps", "utilities", "partner"].includes(activeTab)) return "apps";
+    if (["apps", "utilities"].includes(activeTab)) return "apps";
     if (["activity", "history"].includes(activeTab)) return "activity";
     return "account";
   }, [activeTab]);
@@ -1321,11 +1320,6 @@ function MemberPortalPage() {
                       </>
                     )
                   )}
-                  {activeTab === "partner" && (
-                    <div>
-                      <MemberPartnerTab />
-                    </div>
-                  )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
                       <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
@@ -1404,11 +1398,6 @@ function MemberPortalPage() {
                           showToast={showToast}
                         />
                       )}
-                    </div>
-                  )}
-                  {activeTab === "partner" && (
-                    <div style={{ padding: "0 12px"  }}>
-                      <MemberPartnerTab />
                     </div>
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (

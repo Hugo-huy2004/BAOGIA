@@ -1674,8 +1674,6 @@
       "adSave": "Lưu Link",
       "logout": "Đăng Xuất Tài Khoản Admin",
       "supremeTitle": "Quyền Hạn Tối Cao Admin",
-      "autoApprove": "Tự động duyệt thành viên mới",
-      "autoApproveDesc": "Bỏ qua bước admin xét duyệt, kích hoạt tài khoản ngay khi đăng ký",
       "autoLock": "Tự động phong toả tài khoản không hoạt động",
       "autoLockDesc": "Khoá tài khoản hết hạn hoặc không đăng nhập trong thời gian dài",
       "crisisAlert": "Cảnh báo khủng hoảng tâm lý",
@@ -5210,7 +5208,7 @@
         "toastReadError": "Có lỗi xảy ra khi xử lý file ZIP"
       },
       "compress": {
-        "label": "Chọn Hình Ảnh / Video (Tối đa 50MB)",
+        "label": "Chọn Video (Tối đa 50MB)",
         "levelSection": "Mức độ nén",
         "levels": {
           "light": "Nhẹ (Giữ nét)",
@@ -5219,7 +5217,7 @@
         },
         "btnSubmit": "Nén & Tải Về",
         "privacyNote": "Mọi file tải lên đều được xử lý và tự động xóa khỏi hệ thống, không lưu trữ để bảo vệ quyền riêng tư của Quý thành viên.",
-        "toastSelectFile": "Vui lòng chọn file Ảnh/Video",
+        "toastSelectFile": "Vui lòng chọn file video",
         "toastSuccess": "Nén và tải về thành công.",
         "toastError": "Lỗi khi nén file. Hãy đảm bảo định dạng được hỗ trợ (jpg, png, webp, mp4)."
       }
@@ -5640,8 +5638,6 @@
       "settingsTitle": "Cài đặt Tự động hóa",
       "alertCrisisLabel": "Cảnh báo khủng hoảng tâm lý",
       "alertCrisisDesc": "Tự động nhận alert khi AI phát hiện nguy cơ cao",
-      "autoApproveLabel": "Tự động duyệt tài khoản edu mới",
-      "autoApproveDesc": "AI xác minh email edu và tự duyệt",
       "autoLockLabel": "Khóa tài khoản không hoạt động 90 ngày",
       "autoLockDesc": "Tự động sau 90 ngày không đăng nhập",
       "settingsError": "Lỗi cập nhật cài đặt:"
@@ -7375,6 +7371,11 @@
     },
     "page": {
       "heroKicker": "Dịch vụ · Hugo Studio",
+      "heroEyebrow": "Xưởng thiết kế số độc lập · Sài Gòn",
+      "aboutTitle1": "Thiết kế có chủ đích.",
+      "aboutTitle2": "Viết mã đến nơi.",
+      "socialTitle1": "Hugo Studio",
+      "socialTitle2": "trên mạng xã hội.",
       "heroLine1": "Thiết kế website",
       "heroLine2": "và landing page",
       "heroLine3": "viết tay từng dòng.",

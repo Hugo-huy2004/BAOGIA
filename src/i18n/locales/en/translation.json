@@ -1674,8 +1674,6 @@
       "adSave": "Save Link",
       "logout": "Logout Admin Account",
       "supremeTitle": "Supreme Admin Authority",
-      "autoApprove": "Auto-approve new members",
-      "autoApproveDesc": "Skip manual review and activate accounts immediately on registration",
       "autoLock": "Auto-lock inactive accounts",
       "autoLockDesc": "Lock accounts that have expired or have not logged in for a long time",
       "crisisAlert": "Mental health crisis alerts",
@@ -5168,7 +5166,7 @@
         "toastReadError": "Error occurred while reading ZIP file"
       },
       "compress": {
-        "label": "Select Image / Video (Max 50MB)",
+        "label": "Select Video (Max 50MB)",
         "levelSection": "Compression Level",
         "levels": {
           "light": "Light (Keep details)",
@@ -5177,7 +5175,7 @@
         },
         "btnSubmit": "Compress & Download",
         "privacyNote": "All uploaded files are processed and automatically deleted from the server, with no storage to protect your privacy.",
-        "toastSelectFile": "Please select an Image or Video file first.",
+        "toastSelectFile": "Please select a video file first.",
         "toastSuccess": "Compression and download successful!",
         "toastError": "Compression error. Ensure format is supported (jpg, png, webp, mp4)."
       }
@@ -5598,8 +5596,6 @@
       "settingsTitle": "Automation Settings",
       "alertCrisisLabel": "Psychological crisis alert",
       "alertCrisisDesc": "Automatically receive alerts when AI detects high risk",
-      "autoApproveLabel": "Auto-approve new edu accounts",
-      "autoApproveDesc": "AI verifies edu email and auto-approves",
       "autoLockLabel": "Lock accounts inactive for 90 days",
       "autoLockDesc": "Automatic after 90 days without login",
       "settingsError": "Error updating settings:"
@@ -7333,6 +7329,11 @@
     },
     "page": {
       "heroKicker": "Independent freelance web development",
+      "heroEyebrow": "Independent digital studio · Saigon",
+      "aboutTitle1": "Designed with intent.",
+      "aboutTitle2": "Coded all the way through.",
+      "socialTitle1": "Hugo Studio",
+      "socialTitle2": "on social media.",
       "heroLine1": "Website and",
       "heroLine2": "landing page design,",
       "heroLine3": "written by hand.",

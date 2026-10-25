@@ -820,6 +820,21 @@ router.post('/claim-info-read-bonus', requireMember, async (req, res) => {
   }
 });
 
+// POST /api/joy/focus-start — stamps the start of a focus block.
+router.post('/focus-start', requireMember, async (req, res) => {
+  try {
+    const updated = await Bio.findOneAndUpdate(
+      { $or: [{ email: req.memberEmail }, { contactEmail: req.memberEmail }] },
+      { $set: { focusStartedAt: new Date() } },
+      { projection: { _id: 1 } },
+    );
+    if (!updated) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // POST /api/joy/award-focus
 router.post('/award-focus', requireMember, async (req, res) => {
   try {
@@ -841,6 +856,17 @@ router.post('/award-focus', requireMember, async (req, res) => {
     else if (numMinutes >= 25) joyAmount = 15;
 
     if (joyAmount <= 0) {
+      return res.status(400).json({ error: 'Thời gian tập trung chưa đủ để nhận thưởng JOY.' });
+    }
+
+    // Consume the server-stamped start; 30s slack covers network latency.
+    const startedBy = new Date(Date.now() - numMinutes * 60 * 1000 + 30 * 1000);
+    const started = await Bio.findOneAndUpdate(
+      { _id: bio._id, focusStartedAt: { $ne: null, $lte: startedBy } },
+      { $set: { focusStartedAt: null } },
+      { projection: { _id: 1 } },
+    );
+    if (!started) {
       return res.status(400).json({ error: 'Thời gian tập trung chưa đủ để nhận thưởng JOY.' });
     }
 

@@ -305,22 +305,6 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 border-t border-white/10 pt-5">
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-bold text-sm text-white">{t("adminTabs.settings.autoApprove")}</span>
-              <p className="text-xs text-slate-400 mt-1">{t("adminTabs.settings.autoApproveDesc")}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => updateSystemSettings({ autoApproveNew: !data?.systemSettings?.autoApproveNew })}
-              className={`relative inline-flex items-center w-[48px] min-w-[48px] h-[26px] shrink-0 cursor-pointer rounded-full border border-white/10 transition-all duration-300 ${
-                data?.systemSettings?.autoApproveNew ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-slate-800"
-              }`}
-            >
-              <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-md transition-transform duration-300 ${data?.systemSettings?.autoApproveNew ? "translate-x-6" : "translate-x-1"}`} />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
               <span className="font-bold text-sm text-white">{t("adminTabs.settings.autoLock")}</span>
               <p className="text-xs text-slate-400 mt-1">{t("adminTabs.settings.autoLockDesc")}</p>
             </div>

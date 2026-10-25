@@ -49,10 +49,6 @@ function historyForClient(doc) {
   return obj;
 }
 
-// JOY cap: 180 JOY/day = 3600 awarded-seconds/day (30 JOY per 600s interval, base x3)
-const COMPANION_JOY_CAP_SECONDS = 3600;
-const HEARTBEAT_INTERVAL_SECONDS = 30;
-
 // Therapy sub-features that require a one-time 150 JOY unlock per account.
 // All therapy methods are JOY-gated now — only the "basic" clinical-gated
 // methods (earn-via-engagement, not listed here) stay outside this paywall.
@@ -75,7 +71,7 @@ const UNLOCKABLE_FEATURES = {
 // để không bỏ sót; hai route thử thách JOY bên dưới KHÔNG thuộc HugoPSY nên
 // vẫn mở cho mọi lứa tuổi.
 router.use(
-  ['/unlock-feature', '/heartbeat', '/history', '/crisis-alert', '/crisis/resolve', '/report/weekly'],
+  ['/unlock-feature', '/history', '/crisis-alert', '/crisis/resolve', '/report/weekly'],
   requireAdultMember,
 );
 
@@ -132,66 +128,8 @@ router.post('/unlock-feature', requireMember, async (req, res) => {
   }
 });
 
-// POST: Active-session heartbeat — awards +30 JOY per confirmed 10 minutes
-// of active companion usage, capped at 180 JOY/day.
-router.post('/heartbeat', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-
-    // Atomic operators only below — no fetch-mutate-save — so concurrent
-    // heartbeats (fired every 30s, possibly from multiple tabs) can never
-    // collide into a Mongoose VersionError on this hot, frequently-concurrent path.
-    await CompanionHistory.findOneAndUpdate(
-      { email },
-      { $setOnInsert: { email, healingActive: false, healingDuration: 30, historyLogs: [], chatMessages: [] } },
-      { upsert: true }
-    );
-
-    const today = getVietnamDateString();
-    await CompanionHistory.updateOne(
-      { email, activeSecondsDate: { $ne: today } },
-      { $set: { activeSecondsDate: today, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
-    );
-
-    let doc = await CompanionHistory.findOneAndUpdate(
-      { email },
-      { $inc: { activeSecondsToday: HEARTBEAT_INTERVAL_SECONDS } },
-      { new: true }
-    );
-
-    while (
-      !doc.dailyJoyCapReached &&
-      doc.activeSecondsToday - doc.joyAwardedSecondsToday >= 600
-    ) {
-      // CAS-style claim: only succeeds if no other concurrent request has
-      // already claimed this 600s block — prevents double-awarding JOY.
-      const claimed = await CompanionHistory.findOneAndUpdate(
-        { email, joyAwardedSecondsToday: doc.joyAwardedSecondsToday },
-        { $inc: { joyAwardedSecondsToday: 600 } },
-        { new: true }
-      );
-      if (!claimed) break;
-      doc = claimed;
-      try {
-        await awardJoy(email, 30, 'companion', 'Hoàn thành 10 phút trị liệu tâm lý (+30 JOY)');
-      } catch (e) {
-        console.error('[companion joy award]', e.message);
-      }
-      if (doc.joyAwardedSecondsToday >= COMPANION_JOY_CAP_SECONDS && !doc.dailyJoyCapReached) {
-        await CompanionHistory.updateOne({ email }, { $set: { dailyJoyCapReached: true } });
-        doc.dailyJoyCapReached = true;
-      }
-    }
-
-    res.json({
-      activeSecondsToday: doc.activeSecondsToday,
-      dailyCapReached: doc.dailyJoyCapReached
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Thưởng JOY theo phút trò chuyện đã bỏ 25/10/2026: trả điểm cho thời gian
+// ngồi trong buồng trị liệu khiến người ta mở app để cày chứ không để được giúp.
 
 // GET: Fetch or initialize companion history for a specific email
 router.get('/history', requireMember, async (req, res) => {
@@ -221,16 +159,13 @@ router.get('/history', requireMember, async (req, res) => {
 
     const todayStr = getVietnamDateString();
     if (historyDoc.activeSecondsDate !== todayStr) {
-      // Atomic update — avoids racing with a concurrent heartbeat save on
+      // Atomic update — avoids racing with a concurrent save on
       // the same document (which would throw a Mongoose VersionError here).
       await CompanionHistory.updateOne(
         { email, activeSecondsDate: { $ne: todayStr } },
-        { $set: { activeSecondsDate: todayStr, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+        { $set: { activeSecondsDate: todayStr, claimedChallengesToday: [] } }
       );
       historyDoc.activeSecondsDate = todayStr;
-      historyDoc.activeSecondsToday = 0;
-      historyDoc.joyAwardedSecondsToday = 0;
-      historyDoc.dailyJoyCapReached = false;
       historyDoc.claimedChallengesToday = [];
     }
 
@@ -347,12 +282,9 @@ router.post('/history', requireMember, async (req, res) => {
       // VersionError if a concurrent heartbeat bumped the version meanwhile.
       await CompanionHistory.updateOne(
         { email, activeSecondsDate: { $ne: todayStr } },
-        { $set: { activeSecondsDate: todayStr, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
+        { $set: { activeSecondsDate: todayStr, claimedChallengesToday: [] } }
       );
       historyDoc.activeSecondsDate = todayStr;
-      historyDoc.activeSecondsToday = 0;
-      historyDoc.joyAwardedSecondsToday = 0;
-      historyDoc.dailyJoyCapReached = false;
       historyDoc.claimedChallengesToday = [];
     }
 

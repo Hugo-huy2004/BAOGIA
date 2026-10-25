@@ -107,7 +107,6 @@ const DataSchema = new mongoose.Schema(
       allowBooking: { type: Boolean, default: true },
       primaryColor: { type: String, default: '#3B82F6' },
       alertCrisis: { type: Boolean, default: true },
-      autoApproveNew: { type: Boolean, default: false },
       autoLockInactive: { type: Boolean, default: false },
       // Cổng quản trị cho email lifecycle. Thành viên vẫn phải tự opt-in ở
       // cài đặt tài khoản của họ; cờ này chỉ dừng/bật lịch gửi toàn hệ thống.

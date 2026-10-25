@@ -129,7 +129,6 @@ const initialData = {
     enableHBot: true,
     vacationMode: false,
     alertCrisis: true,
-    autoApproveNew: false,
     autoLockInactive: false,
     globalSeo: {
       title: "Hugo Studio - Professional Bio & Booking Platform",

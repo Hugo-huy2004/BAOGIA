@@ -181,6 +181,12 @@ const BioSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    // Set by /joy/focus-start, consumed by /joy/award-focus: the server's own
+    // clock decides how long the member focused, never the client's number.
+    focusStartedAt: {
+      type: Date,
+      default: null
+    },
     hobbies: {
       type: String,
       default: ''

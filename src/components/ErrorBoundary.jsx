@@ -4,6 +4,9 @@ import { captureClientException } from '../utils/sentryMonitoring';
 
 const CHUNK_ERROR_PATTERN = /failed to fetch dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
 const RELOAD_FLAG = 'chunk_reload_attempted';
+// componentDidMount can't clear the guard: the boundary mounts (Suspense
+// fallback) before the lazy chunk fails, so a cleared flag meant reload loops.
+const RELOAD_COOLDOWN_MS = 60_000;
 
 function isChunkLoadError(error) {
   return CHUNK_ERROR_PATTERN.test(error?.message || '');
@@ -25,6 +28,22 @@ export class ErrorBoundary extends React.Component {
     // trong console không cho biết component nào ném lỗi, còn componentStack
     // thì có — dán một ảnh chụp màn hình là đủ để chẩn đoán.
     if (import.meta.env.DEV) this.setState({ componentStack: errorInfo?.componentStack || '' });
+
+    // A new deploy replaced the hashed JS chunk files, but this tab is still
+    // running an older index.html that references the old filenames. A single
+    // hard reload fetches the current index.html + matching chunks. Guarded
+    // by a timestamp so a genuinely broken deploy doesn't reload forever — and
+    // only that case is worth reporting; a stale tab after deploy is expected.
+    if (isChunkLoadError(error)) {
+      const last = Number(sessionStorage.getItem(RELOAD_FLAG) || 0);
+      if (Date.now() - last > RELOAD_COOLDOWN_MS) {
+        sessionStorage.setItem(RELOAD_FLAG, String(Date.now()));
+        this.setState({ autoReloading: true });
+        window.location.reload();
+        return;
+      }
+    }
+
     reportClientEvent({
       type: 'react-error-boundary',
       name: error?.name || 'ReactError',
@@ -35,22 +54,6 @@ export class ErrorBoundary extends React.Component {
       source: 'react-error-boundary',
       componentStack: errorInfo?.componentStack,
     });
-
-    // A new deploy replaced the hashed JS chunk files, but this tab is still
-    // running an older index.html that references the old filenames. A single
-    // hard reload fetches the current index.html + matching chunks. Guarded
-    // by sessionStorage so a genuinely broken deploy doesn't reload forever.
-    if (isChunkLoadError(error) && !sessionStorage.getItem(RELOAD_FLAG)) {
-      sessionStorage.setItem(RELOAD_FLAG, '1');
-      this.setState({ autoReloading: true });
-      window.location.reload();
-    }
-  }
-
-  componentDidMount() {
-    // Reached a successful render — clear the guard so a future real chunk
-    // error gets its one automatic retry again.
-    sessionStorage.removeItem(RELOAD_FLAG);
   }
 
   render() {

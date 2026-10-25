@@ -117,6 +117,10 @@ không làm mất tính nghiêm túc nào — nó nghiêm hơn.
 
 Ngân sách: `member-ide-shell` 389.8 kB → `member-lesson-view` **313.3 kB**.
 
+> Cập nhật 25/10/2026: Study đã dựng màn bài học riêng nên `LessonView.jsx` không
+> còn nơi nào render (chỉ còn mục prefetch `ide`). Đã xoá file, bộ chạy SQL/PHP
+> giả lập `mockRunner.js` và ngân sách `member-lesson-view`.
+
 Id `ide` **vẫn giữ** trong `FULLSCREEN_APP_IDS` và nhánh mở app: bookmark cũ
 `/member/utilities/ide/lesson12` phải tiếp tục mở đúng bài trong Study. Nghỉ hưu
 một id không có nghĩa là làm gãy link đã chia sẻ. Đã gỡ: trang công khai `/ide`,

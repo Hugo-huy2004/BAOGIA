@@ -42,9 +42,8 @@ const REWARD_TABLE = [150, 240, 240, 240, 240, 240, 450];
 
 /**
  * Claims today's check-in reward for email. Throws a user-facing Vietnamese
- * Error on: already claimed today, or locked due to a missed day this week.
- * A missed day locks the whole feature until the next weekly reset — the
- * gap-detecting claim itself is rejected (no reward), per product spec.
+ * Error when already claimed today. A missed day only restarts the streak
+ * (and its 14/30-day milestones); it no longer locks the rest of the week.
  */
 export async function claimCheckin(email) {
   let record = await CheckinRecord.findOne({ email });
@@ -65,24 +64,20 @@ export async function claimCheckin(email) {
     throw new Error('Bạn đã điểm danh hôm nay rồi.');
   }
 
-  if (record.weekLocked) {
-    throw new Error('Bạn đã bỏ lỡ điểm danh và bị khoá đến tuần sau.');
-  }
-
   const isFirstEver = !record.lastCheckinDate;
   const isConsecutive = record.lastCheckinDate === yesterdayStr(today);
-  const isNewWeekStart = record.claimedDaysThisWeek.length === 0;
+  const previous = {
+    lastCheckinDate: record.lastCheckinDate,
+    consecutiveDays: record.consecutiveDays,
+    milestone14Awarded: record.milestone14Awarded,
+    milestone30Awarded: record.milestone30Awarded,
+  };
 
-  if (!isFirstEver && !isConsecutive && !isNewWeekStart) {
-    // Gap detected within the already started week — lock the rest of this week and reject this claim.
-    record.weekLocked = true;
-    record.consecutiveDays = 0;
+  record.weekLocked = false;
+  if (!isFirstEver && !isConsecutive) {
     record.milestone14Awarded = false;
     record.milestone30Awarded = false;
-    await record.save();
-    throw new Error('Bạn đã bỏ lỡ điểm danh, chuỗi bị reset và bị khoá đến tuần sau.');
   }
-
   record.consecutiveDays = isConsecutive ? record.consecutiveDays + 1 : 1;
   record.lastCheckinDate = today;
 
@@ -121,14 +116,9 @@ export async function claimCheckin(email) {
       newBalance: balance
     };
   } catch (error) {
-    // Rollback the checkin record lastCheckinDate in case awardJoy fails
-    record.lastCheckinDate = isFirstEver ? '' : yesterdayStr(today);
-    record.consecutiveDays = isFirstEver ? 0 : record.consecutiveDays - 1;
-    if (record.claimedDaysThisWeek.includes(dayOfWeek)) {
-      record.claimedDaysThisWeek = record.claimedDaysThisWeek.filter(d => d !== dayOfWeek);
-    }
-    if (record.consecutiveDays === 13 && record.milestone14Awarded) record.milestone14Awarded = false;
-    if (record.consecutiveDays === 29 && record.milestone30Awarded) record.milestone30Awarded = false;
+    // Rollback the checkin record in case awardJoy fails
+    Object.assign(record, previous);
+    record.claimedDaysThisWeek = record.claimedDaysThisWeek.filter(d => d !== dayOfWeek);
     await record.save();
     throw error;
   }
@@ -141,16 +131,15 @@ export async function getCheckinStatus(email) {
   const sameWeek = record?.weekStartDate === currentWeekStart;
 
   const claimedDaysThisWeek = sameWeek ? (record.claimedDaysThisWeek || []) : [];
-  const weekLocked = sameWeek ? !!record?.weekLocked : false;
   const alreadyClaimedToday = record?.lastCheckinDate === today;
 
   return {
     todayDayOfWeek: getDayOfWeek(today),
     rewardTable: REWARD_TABLE,
     claimedDaysThisWeek,
-    weekLocked,
+    weekLocked: false,
     alreadyClaimedToday,
-    canClaimToday: !alreadyClaimedToday && !weekLocked,
+    canClaimToday: !alreadyClaimedToday,
     consecutiveDays: record?.consecutiveDays || 0,
     milestone14Awarded: record?.milestone14Awarded || false,
     milestone30Awarded: record?.milestone30Awarded || false

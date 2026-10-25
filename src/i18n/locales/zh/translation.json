@@ -3530,7 +3530,7 @@
         "toastReadError": "读取 ZIP 文件时发生错误"
       },
       "compress": {
-        "label": "选择图片/视频（最大 50MB）",
+        "label": "选择视频（最大 50MB）",
         "levelSection": "压缩级别",
         "levels": {
           "light": "轻（保留细节）",
@@ -3539,7 +3539,7 @@
         },
         "btnSubmit": "压缩并下载",
         "privacyNote": "请先选择一张图片或视频文件。",
-        "toastSelectFile": "所有上传的文件已处理并自动从服务器删除，以保护您的隐私。",
+        "toastSelectFile": "请先选择视频文件。",
         "toastSuccess": "压缩错误。确保格式支持（jpg, png, webp, mp4）。",
         "toastError": "Compression error. Ensure format is supported (jpg, png, webp, mp4)."
       }
@@ -6307,9 +6307,7 @@
       "adBanner": "弹出广告横幅管理",
       "adSave": "保存链接",
       "crisisAlertDesc": "当人工智能检测到会员发出的危机信号时收到通知",
-      "autoApproveDesc": "跳过人工审核，注册后立即激活账户",
       "supremeTitle": "最高行政权力",
-      "autoApprove": "自动批准新成员",
       "logout": "注销管理员帐户",
       "primaryColor": "系统主题颜色",
       "autoLockDesc": "锁定过期或长时间未登录的账户",
@@ -6818,12 +6816,10 @@
       "actionsTitle": "自动化操作",
       "sendWellnessNudge": "发送健康提示",
       "settingsTitle": "自动化设置",
-      "autoApproveDesc": "AI 验证 edu 电子邮件并自动批准",
       "autoLockDesc": "90天无登录后自动",
       "autoLockLabel": "锁定处于非活动状态的帐户 90 天",
       "alertCrisisLabel": "心理危机警报",
       "alertCrisisDesc": "当AI检测到高风险时自动接收警报",
-      "autoApproveLabel": "自动批准新的 edu 帐户",
       "settingsError": "更新设置时出错："
     },
     "actionLog": {
@@ -7528,6 +7524,11 @@
     },
     "page": {
       "heroKicker": "服务 · Hugo Studio",
+      "heroEyebrow": "独立数字设计工作室 · 西贡",
+      "aboutTitle1": "有目的的设计。",
+      "aboutTitle2": "代码贯彻到底。",
+      "socialTitle1": "Hugo Studio",
+      "socialTitle2": "社交媒体。",
       "heroLine1": "网站与落地页",
       "heroLine2": "设计与开发，",
       "heroLine3": "每一行都手写。",

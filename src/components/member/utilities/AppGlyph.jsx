@@ -360,6 +360,18 @@ const SCENES = {
     </>
   ),
 
+  // Bắn Bi — bàn nghiêng, cọc nảy, viên bi và hai cần gạt
+  arcade_pinball: (f) => (
+    <>
+      <Slab x={11} y={8} w={26} h={32} r={6} fill={f} />
+      <circle cx="18.4" cy="17" r="3.2" fill="#a855f7" />
+      <circle cx="29.6" cy="17" r="3.2" fill="#38bdf8" />
+      <circle cx="24" cy="23.4" r="3.2" fill="#f43f5e" />
+      <circle cx="26.6" cy="29" r="2.2" fill="#0f172a" opacity="0.7" />
+      <path d="m15 33.6 6 2.4m12-2.4-6 2.4" stroke="#0f172a" strokeOpacity="0.55" strokeWidth="2.2" strokeLinecap="round" />
+    </>
+  ),
+
   // Sinh Tồn — phi thuyền, hành tinh có vành
   arcade_survivor: (f) => (
     <>

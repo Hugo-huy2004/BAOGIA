@@ -28,6 +28,9 @@ function escapeHtml(value) {
 function normalizeForFingerprint(value) {
   return clean(value, 500)
     .toLowerCase()
+    // Vite chunk hashes (e.g. PWARealtimeBridge-BqvXVC-O.js) change every
+    // deploy; without this each deploy opened a "new" incident.
+    .replace(/-[\w-]{8}\.(js|css)\b/g, '-:hash.$1')
     .replace(/\b[0-9a-f]{8,}\b/gi, ':id')
     .replace(/\b\d+\b/g, ':n');
 }

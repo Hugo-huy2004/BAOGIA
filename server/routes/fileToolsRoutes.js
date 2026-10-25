@@ -4,7 +4,6 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import AdmZip from 'adm-zip';
-import sharp from 'sharp';
 import ffmpeg from 'fluent-ffmpeg';
 import { fileURLToPath } from 'url';
 import Bio from '../models/Bio.js';
@@ -242,26 +241,9 @@ router.post('/compress', memberOrDemo(true), upload.single('file'), async (req, 
       await awardJoy(email, -total, 'file_compression', `Nén file mức ${level === 'strong' ? 'Mạnh' : 'Vừa'} qua HugoTractare (gồm ${tax} JOY thuế giao dịch)`);
     };
 
-    // IMAGE COMPRESSION
-    if (['.jpg', '.jpeg', '.png', '.webp'].includes(originalExt)) {
-      let quality = 65; // Vừa (Medium): giảm dung lượng xuống 50-70% (chất lượng ~65)
-      if (level === 'light') quality = 85; // Nhẹ (Light): giảm dung lượng xuống 70-90% (chất lượng ~85)
-      if (level === 'strong') quality = 40; // Mạnh (Strong): giảm dung lượng xuống 30-50% (chất lượng ~40)
-
-      await sharp(inputPath)
-        .jpeg({ quality, force: false })
-        .png({ quality, force: false })
-        .webp({ quality, force: false })
-        .toFile(outputFilePath);
-
-      await chargeIfNeeded();
-      res.download(outputFilePath, `compressed_${req.file.originalname}`, (err) => {
-        cleanupFile(inputPath);
-        cleanupFile(outputFilePath);
-      });
-
-    // VIDEO COMPRESSION
-    } else if (['.mp4', '.mov', '.avi', '.mkv'].includes(originalExt)) {
+    // Ảnh không còn nén ở đây từ 25/10/2026: mục Ảnh của HugoKit nén ngay trên
+    // máy, miễn phí, nên thu JOY và tốn băng thông Render cho việc đó là vô lý.
+    if (['.mp4', '.mov', '.avi', '.mkv'].includes(originalExt)) {
       let crf = 32; // Vừa (Medium)
       if (level === 'light') crf = 26; // Nhẹ (Light)
       if (level === 'strong') crf = 38; // Mạnh (Strong)
@@ -294,7 +276,7 @@ router.post('/compress', memberOrDemo(true), upload.single('file'), async (req, 
 
     } else {
       cleanupFile(inputPath);
-      return res.status(400).json({ error: 'Định dạng file không được hỗ trợ để nén.' });
+      return res.status(400).json({ error: 'Chỉ nén được video. Ảnh hãy dùng mục Ảnh (nén ngay trên máy, miễn phí).' });
     }
 
   } catch (error) {

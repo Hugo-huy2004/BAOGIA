@@ -183,7 +183,7 @@ export default function FilesTool({ bio, showToast }) {
           <input
             ref={mediaInput}
             type="file"
-            accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
+            accept="video/mp4,video/quicktime"
             hidden
             onChange={(e) => setMediaFile(e.target.files[0] || null)}
           />

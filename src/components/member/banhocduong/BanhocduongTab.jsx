@@ -5,7 +5,6 @@ import { BorderBeam } from "border-beam";
 import dataApi from "../../../services/api/modules/dataApi";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
-import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { notify } from "../../../lib/notify";
 import { sensory } from "../../../lib/sensory";
@@ -469,7 +468,6 @@ function Dialog({ icon, tone, title, subtitle, children, actions }) {
 // ── Main BanhocduongTab ────────────────────────────────────────────────────────
 export default function BanhocduongTab({ onBack, route: routeProp, onRouteChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect, isGuestMode = false, requireAccount }) {
   const { t } = useTranslation();
-  useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
 
   const [internalTab, setInternalTab] = useState(routeProp || "chat");
   const requestedTab = routeProp || internalTab;

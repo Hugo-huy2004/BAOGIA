@@ -315,7 +315,12 @@ export default function MemberAuraTab({
 
   const handleToggleTimer = () => {
     if (!timerActive) {
-      // Starting
+      // Starting — a fresh focus block (not a resume) lets the server stamp
+      // the start, since /award-focus checks elapsed time on its own clock.
+      if (timerMode === "focus" && timeLeft === selectedMinutes * 60) {
+        const apiBase = import.meta.env.VITE_API_URL || "/api";
+        fetch(`${apiBase}/joy/focus-start`, { method: "POST" }).catch(() => {});
+      }
       setTargetTime(Date.now() + timeLeft * 1000);
       setTimerActive(true);
     } else {
