@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/api/core/authSession";
-import { useData } from "../context/DataContext";
 import { useTranslation } from "react-i18next";
 import LanguageSelect from "./LanguageSelect";
 import HugoLogo from "./HugoLogo";
@@ -21,13 +20,10 @@ export default function MobileDrawer() {
   const accountLabel = isLoggedIn ? t("navbar.account", "Tài Khoản") : t("navbar.login", "Đăng Nhập");
   const accountIcon = isLoggedIn ? "account_circle" : "login";
 
-  const { data } = useData();
-  const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const mainMenuItems = [
     { label: t("navbar.services", "Dịch Vụ"), path: "/" },
     { label: t("navbar.faq", "Hỏi Đáp"), path: "/faq" },
-    ...(allowBooking ? [{ label: t("navbar.booking", "Đặt Lịch & Liên Hệ"), path: "/booking" }] : [])
   ];
 
   useEffect(() => {

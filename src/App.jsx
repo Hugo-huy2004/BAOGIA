@@ -54,7 +54,6 @@ const ProjectDetailPage = lazyRoute(() => import("./pages/public/ProjectDetailPa
 const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
 const ServiceDetailPage = lazyRoute(() => import("./pages/public/ServiceDetailPage"));
 const ServiceAddonPage = lazyRoute(() => import("./pages/public/ServiceAddonPage"));
-const BookingContactPage = lazyRoute(() => import("./pages/public/BookingContactPage"));
 const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
@@ -85,6 +84,11 @@ const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
 );
 
+
+function BookingRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/services${search}#dat-lich`} replace />;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -306,7 +310,9 @@ function AppContent() {
             <Route path="/student-pricing" element={<StudentPricingPage />} />
             <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
             <Route path="/faq" element={<FAQPage />} />
-            <Route path="/booking" element={<BookingContactPage />} />
+            {/* Form đặt lịch đã gộp vào cuối trang Dịch vụ (25/10/2026). Giữ
+                đường cũ để mọi nút "Đặt lịch" và ?type=student vẫn chạy. */}
+            <Route path="/booking" element={<BookingRedirect />} />
             {/* Installed PWA (standalone) gets the app-style, member-only Google
                 login; the web keeps the full 3-tab LoginPage. */}
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />

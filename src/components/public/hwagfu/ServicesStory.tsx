@@ -473,17 +473,19 @@ export function PhoneFrame({ label, children, compact = true }: { label: string;
  *
  * Màn hình nhỏ chỉ hiện điện thoại: thu nhỏ cả cái máy tính xuống bề ngang
  * điện thoại thì không ai nhìn ra cái gì.
+ *
+ * `interactive`: trang Dịch vụ (khung phim) cho máy nghiêng theo chuột.
  */
-export function PackageStill({ index, label }: { index: number; label: string }) {
+export function PackageStill({ index, label, interactive = false }: { index: number; label: string; interactive?: boolean }) {
   return (
     <div className="relative aspect-[3/4] w-full [perspective:1600px] sm:aspect-[16/11]">
       <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 scale-[.5] sm:block lg:scale-[.58]">
-        <MacBookProM4 still label={label}>
+        <MacBookProM4 still={!interactive} label={label}>
           <ServiceWebsiteScreen index={index} />
         </MacBookProM4>
       </div>
       <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 scale-[.92] sm:left-[79%] sm:scale-[.68] lg:scale-[.76]">
-        <IPhone15 compact still showLabel={false} label={label}>
+        <IPhone15 compact still={!interactive} showLabel={false} label={label}>
           <ServiceWebsiteScreen index={index} mobile />
         </IPhone15>
       </div>

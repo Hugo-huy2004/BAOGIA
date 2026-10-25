@@ -11,7 +11,6 @@ const PUBLIC_PATHS = new Set([
   "/services",
   "/student-pricing",
   "/faq",
-  "/booking",
   "/privacy-policy",
   "/terms",
   "/user-guide",

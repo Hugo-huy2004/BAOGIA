@@ -115,6 +115,7 @@
     "jsbarcode": "^3.12.3",
     "liquid-gooey": "^0.2.2",
     "lucide-react": "^1.23.0",
+    "matter-js": "0.20.0",
     "metal-fx": "^2.0.11",
     "motion": "^12.43.0",
     "p-limit": "^7.3.0",

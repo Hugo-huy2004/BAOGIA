@@ -1,5 +1,8 @@
 {
   "redirects": [
+    { "source": "/booking", "destination": "/services#dat-lich", "permanent": true },
+    { "source": "/en/booking", "destination": "/en/services#dat-lich", "permanent": true },
+    { "source": "/zh/booking", "destination": "/zh/services#dat-lich", "permanent": true },
     {
       "source": "/:path*",
       "has": [
@@ -62,10 +65,6 @@
     {
       "source": "/faq",
       "destination": "/faq/index.html"
-    },
-    {
-      "source": "/booking",
-      "destination": "/booking/index.html"
     },
     {
       "source": "/student-pricing",
@@ -196,10 +195,6 @@
       "destination": "/en/faq/index.html"
     },
     {
-      "source": "/en/booking",
-      "destination": "/en/booking/index.html"
-    },
-    {
       "source": "/en/student-pricing",
       "destination": "/en/student-pricing/index.html"
     },
@@ -266,10 +261,6 @@
     {
       "source": "/zh/faq",
       "destination": "/zh/faq/index.html"
-    },
-    {
-      "source": "/zh/booking",
-      "destination": "/zh/booking/index.html"
     },
     {
       "source": "/zh/student-pricing",

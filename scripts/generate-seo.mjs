@@ -223,13 +223,6 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
       }),
     },
     {
-      path: "/booking",
-      title: t.bookingPage.meta.title,
-      description: t.bookingPage.meta.description,
-      body: () =>
-        `<h1>${esc(t.bookingPage.header.title)}</h1><p>${esc(t.bookingPage.header.desc)}</p>`,
-    },
-    {
       // Quyền lợi HSSV (/student-benefits cũ) đã gộp vào trang này.
       path: "/student-pricing",
       title: t.studentBenefitsPage.metaTitle,
@@ -385,7 +378,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         `<h2>${esc(t.servicePkg.feedback.title)}</h2>` +
         `<ul>${t.servicePkg.feedback.rules.map((r) => `<li><strong>${esc(r.title)}</strong> ${esc(r.body)}</li>`).join("")}</ul>` +
         (it.faq || []).map((f) => `<h2>${esc(f.question)}</h2><p>${esc(f.answer)}</p>`).join("") +
-        `<p><a href="${prefix}/booking">${esc(t.servicePkg.detail.closingCta)}</a> · <a href="${prefix}/services">${esc(t.servicePkg.detail.backToAll)}</a></p>`,
+        `<p><a href="${prefix}/services#dat-lich">${esc(t.servicePkg.detail.closingCta)}</a> · <a href="${prefix}/services">${esc(t.servicePkg.detail.backToAll)}</a></p>`,
       schema: () => ({
         "@context": "https://schema.org",
         "@type": "Service",
@@ -438,7 +431,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         (b.extras?.length ? `<h2>${esc(pg.extrasTitle)}</h2>${li(b.extras)}` : "") +
         `<h2>${esc(pg.warrantyTitle)}</h2>${li(b.warranty.lines)}` +
         `<h2>${esc(pg.exclusionsTitle)}</h2>${li(b.exclusions)}` +
-        `<p><a href="${prefix}/booking">${esc(pg.cta)}</a> · <a href="${prefix}/services">${esc(pg.back)}</a></p>`,
+        `<p><a href="${prefix}/services#dat-lich">${esc(pg.cta)}</a> · <a href="${prefix}/services">${esc(pg.back)}</a></p>`,
       schema: () => ({
         "@context": "https://schema.org",
         "@type": "Service",
@@ -486,7 +479,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   }[lang];
   const NAV = isPortfolio
     ? `<nav><a href="${prefix}/">Hugo Wishpax</a> · <a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="/cv/index.html">CV</a> · <a href="https://www.hugowishpax.studio/">${navLabels[1]}</a></nav>`
-    : `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="https://portfolio.hugowishpax.studio${prefix}/">${navLabels[0]}</a><a href="${prefix}/">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/booking">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
+    : `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="https://portfolio.hugowishpax.studio${prefix}/">${navLabels[0]}</a><a href="${prefix}/">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/services#dat-lich">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
 
   // Scoped so it cannot leak into the React tree that replaces this block.
   const BLOCK_CSS =
