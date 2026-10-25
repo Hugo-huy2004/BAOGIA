@@ -447,7 +447,11 @@ function MemberPortalPage() {
   useEffect(() => {
     if (retiredUtility) navigate("/member/apps", { replace: true });
     if (tab === "wallet") navigate("/member/utilities/joy_wallet", { replace: true });
-  }, [retiredUtility, tab, navigate]);
+    // App "Hồ Sơ" đã gộp thành tab trong Danh Thiếp — giữ link/icon cũ chạy được.
+    if (activeTab === "utilities" && subTab === "profile") navigate("/member/utilities/bio/proof", { replace: true });
+    // Âm Thanh (radio) đã gộp thành tab "Đài" trong Chuyên Chú.
+    if (activeTab === "utilities" && subTab === "radio") navigate("/member/utilities/aura/radio", { replace: true });
+  }, [retiredUtility, tab, activeTab, subTab, navigate]);
 
   const { notifications, unreadCount: loadedUnreadCount, toast, setToast,
     showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshNotifications,

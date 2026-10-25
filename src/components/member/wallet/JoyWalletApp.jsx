@@ -355,7 +355,8 @@ export default function JoyWalletApp({
          chrome. Thanh gọn + dải phân đoạn là đủ, và thẻ lên ngay đầu màn. */
       largeTitle={false}
       onBack={sub ? () => setSub(null) : onBack}
-      tabs={sub ? undefined : TABS.map((item) => ({
+      // JOYlater ngừng mở khoản mới 25/10/2026: tab chỉ còn cho người đang nợ trả nốt.
+      tabs={sub ? undefined : TABS.filter((item) => item.id !== "later" || loan || tab === "later").map((item) => ({
         id: item.id,
         icon: item.icon,
         label: t(item.labelKey, item.fallback),

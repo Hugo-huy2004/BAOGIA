@@ -1,5 +1,7 @@
 {
   "aura": {
+    "tabTimer": "Pomodoro",
+    "tabRadio": "音聲",
     "pomodoroDesk": "盤爫役 Pomodoro",
     "presetLite": "集中珥",
     "presetDeep": "集中溇",
@@ -1878,6 +1880,7 @@
       "designLabel": "交面 & 主題",
       "linkCardsLabel": "体連結",
       "achievementsLabel": "預案 & 成績",
+      "proofLabel": "履歷",
       "editHint": "整 **交面, 連結, 成績** 於各目𠌨𨑗 — 𠊝𢷮𠱊自及日於本䀡𠓀邊𠁑.",
       "expiryLabel": "歇限:",
       "packageTitle": "張 Bio 所有",
@@ -5266,7 +5269,6 @@
       "publishTitle": "公佈𨑗張 Bio",
       "publishDesc": "弼底榜胡疏呢現𠁑張 Bio 公開𧵑貴成員. 𠊛䀡空勤登入吻檢証特.",
       "showOnBio": "現𨕭張 Bio",
-      "needPlan": "勤税或所有 Hugo Profile 𥪝商店底公佈. 䀡胡疏𧵑正貴成員時連免費.",
       "published": "㐌功布胡疏.",
       "unpublished": "㐌𫽻胡疏塊張 Bio.",
       "saveError": "空留得設立."

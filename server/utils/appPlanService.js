@@ -22,12 +22,9 @@ export const OWN_EQUIV_MONTHS = 12;
 export const OWN_DISCOUNT = 0.3;
 
 export const APP_PLANS = Object.freeze({
-  radio: { appId: 'radio', featureKey: 'hugoRadio', label: 'HugoRadio', trialDays: 7 },
   arcade: { appId: 'arcade', featureKey: 'hugoArcade', label: 'HugoArcade', trialDays: 7 },
-  aura: { appId: 'aura', featureKey: 'hugoAura', label: 'HugoAura', trialDays: 7 },
   chess: { appId: 'chess', featureKey: 'hugoChess', label: 'HugoChess', trialDays: 7 },
   // HugoCoder đã có cờ sở hữu riêng từ trước — dùng lại chứ không tạo cờ thứ hai.
-  profile: { appId: 'profile', featureKey: 'hugoProfile', label: 'Hugo Profile', trialDays: 7 },
   ide: { appId: 'ide', featureKey: 'hugoCoder', label: 'Study · Phát triển Web', trialDays: 14, ownFlag: 'hugoCoderAll7Lifetime' },
 });
 

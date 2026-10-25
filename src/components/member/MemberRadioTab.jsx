@@ -89,6 +89,10 @@ const FALLBACK_STATIONS = {
     { stationuuid: "francemusique_official", name: "France Musique", url_resolved: "https://icecast.radiofrance.fr/francemusique-midfi.mp3", url: "https://icecast.radiofrance.fr/francemusique-midfi.mp3" },
     { stationuuid: "smooth_jazz_03", name: "Smooth Jazz 247", url_resolved: "https://stream.zeno.fm/n2p984hkp2zuv", url: "https://stream.zeno.fm/n2p984hkp2zuv" },
     { stationuuid: "chillout_05", name: "Chillout Lounge", url_resolved: "https://stream.zeno.fm/80y7y0wkp2zuv", url: "https://stream.zeno.fm/80y7y0wkp2zuv" },
+    // Ba luồng của trình lofi cũ trong Chuyên Chú, chuyển sang đây khi gộp app.
+    { stationuuid: "aura_stream_africa", name: "Lofi Hip Hop Radio", url_resolved: "https://play.streamafrica.net/lofi", url: "https://play.streamafrica.net/lofi" },
+    { stationuuid: "aura_epic_lounge", name: "Workday Lounge", url_resolved: "https://stream.epic-lounge.com/workday-lounge", url: "https://stream.epic-lounge.com/workday-lounge" },
+    { stationuuid: "aura_hotmix_lofi", name: "Hotmix Lofi", url_resolved: "https://streaming.hotmixradio.com/hotmix-lofi-en-mp3", url: "https://streaming.hotmixradio.com/hotmix-lofi-en-mp3" },
   ],
 };
 
@@ -116,6 +120,8 @@ export default function MemberRadioTab({
   bio,
   isGuestMode = false,
   requireAccount,
+  // Nằm trong tab "Đài" của app Chuyên Chú: khung do Aura lo, ở đây chỉ trả nội dung.
+  embedded = false,
 }) {
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
@@ -507,15 +513,7 @@ export default function MemberRadioTab({
      *
      * `wide`: radio có lưới đài và trình phát cần cả bề ngang, không phải cột đọc.
      */
-    <AppFrame
-      appId="radio"
-      title="HugoRadio"
-      subtitle={t("utilities.radio.subtitle", "Đài phát thanh trực tuyến")}
-      largeTitle
-      onBack={onBack}
-      actions={<StandaloneInstallButton appTitle="HugoRadio" appId="radio" />}
-      wide
-    >
+    <RadioFrame embedded={embedded} onBack={onBack} t={t}>
       <div className="flex w-full flex-col gap-10 py-4">
 
         {/* ── 2. TRÌNH PHÁT (NOW PLAYING) ── */}
@@ -720,6 +718,24 @@ export default function MemberRadioTab({
           </div>
         </section>
       </div>
+    </RadioFrame>
+  );
+}
+
+// Trang công khai /radio vẫn mở Radio đứng riêng với khung của nó.
+function RadioFrame({ embedded, onBack, t, children }) {
+  if (embedded) return children;
+  return (
+    <AppFrame
+      appId="aura"
+      title="HugoRadio"
+      subtitle={t("utilities.radio.subtitle", "Đài phát thanh trực tuyến")}
+      largeTitle
+      onBack={onBack}
+      actions={<StandaloneInstallButton appTitle="HugoRadio" appId="aura" />}
+      wide
+    >
+      {children}
     </AppFrame>
   );
 }

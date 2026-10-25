@@ -1,9 +1,13 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AppFrame from "./os/AppFrame";
+import LazyBoundary from "./os/LazyBoundary";
 import { localeForLanguage } from "../../i18n/languages";
 import { getMemberSession } from "../../services/api/core/authSession";
 import "../../styles/bioStudio.css";
+
+// Hồ sơ năng lực: từng là app "Hồ Sơ" riêng, gộp vào đây 25/10/2026.
+const ProfileProofPanel = lazy(() => import("./ProfileProofPanel"));
 
 // Darkens a #rrggbb color by a percentage — used to build a two-tone gradient
 // for the membership-card look from a single package accent color.
@@ -159,6 +163,7 @@ const EDITOR_SECTIONS = Object.freeze([
   { id: "design", labelKey: "designLabel", icon: "palette" },
   { id: "links", labelKey: "linkCardsLabel", icon: "link" },
   { id: "achievements", labelKey: "achievementsLabel", icon: "workspace_premium" },
+  { id: "proof", labelKey: "proofLabel", icon: "verified_user" },
 ]);
 
 export default function BioPreviewTab({
@@ -274,10 +279,12 @@ export default function BioPreviewTab({
       <div className="bio-studio-workspace">
         <main className="bio-studio-editor">
           <section className="bio-studio-editor-content" role="tabpanel">
-            {renderAccountForm?.(activeSection)}
+            {activeSection === "proof" ? (
+              <LazyBoundary><Suspense fallback={null}><ProfileProofPanel publicLink={publicLink} /></Suspense></LazyBoundary>
+            ) : renderAccountForm?.(activeSection)}
           </section>
 
-          {handleSave ? (
+          {handleSave && activeSection !== "proof" ? (
             <button type="button" onClick={handleSave} className="bio-studio-save-button">
               <span className="material-symbols-outlined" aria-hidden="true">check</span>
               {t("memberPortal.bio.saveChanges")}

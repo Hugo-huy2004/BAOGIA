@@ -190,16 +190,6 @@ export async function verifyTransactionPin(pin) {
  * để ngỏ thì bất kỳ ai cũng dò được "mã giới thiệu → tên + ảnh", mà mã giới
  * thiệu lại có thể sinh từ sáu số cuối điện thoại.
  */
-/** Nộp hồ sơ tín dụng JOYlater. Chỉ nộp được một lần. */
-export async function applyJoyLater() {
-  const res = await fetch(`${getApiUrl()}/joy/joylater/apply`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-  });
-  return parseOrThrow(res);
-}
-
 export async function resolveMemberCode(code) {
   const res = await fetch(`${getApiUrl()}/joy/resolve-member?code=${encodeURIComponent(code)}`, {
     credentials: "include",
@@ -264,25 +254,6 @@ export async function getJoyLaterStatus() {
 /** Mọi lượt đã mở trước, mới nhất trước, kèm từng dòng đã hoàn. */
 export async function getJoyLaterHistory() {
   const res = await fetch(`${getApiUrl()}/joy/joylater/history`, { credentials: "include" });
-  return parseOrThrow(res);
-}
-
-/** Báo giá kèm bảng so sánh của MỌI mức chia đợt (`quote.options`). */
-export async function quoteJoyLater(amount, cycles = 1) {
-  const query = `amount=${encodeURIComponent(amount)}&cycles=${encodeURIComponent(cycles)}`;
-  const res = await fetch(`${getApiUrl()}/joy/joylater/quote?${query}`, {
-    credentials: "include",
-  });
-  return parseOrThrow(res);
-}
-
-export async function openJoyLater({ amount, itemLabel, itemKey, cycles }) {
-  const res = await fetch(`${getApiUrl()}/joy/joylater/open`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ amount, itemLabel, itemKey, cycles }),
-  });
   return parseOrThrow(res);
 }
 

@@ -13,7 +13,6 @@ export const MEMBER_APP_TRANSLATIONS = {
     badges: { hot: "NỔI BẬT", new: "MỚI", join: "THAM GIA", ai: "AI", lofi: "LOFI", free: "MIỄN PHÍ", utility: "TIỆN ÍCH", games: "TRÒ CHƠI", focus: "TẬP TRUNG", system: "HỆ THỐNG", store: "CỬA HÀNG", game: "TRÒ CHƠI" },
     catalog: catalog([
       ["nom", "𡨸喃", "Học chữ Nôm qua chính giao diện đang dùng"],
-      ["profile", "Hồ Sơ", "Hồ sơ năng lực đã qua kiểm chứng, đính kèm trang Bio"],
       ["bio", "Danh Thiếp", "Hồ sơ cá nhân và các liên kết trên trang Bio"],
       ["library", "Thư Viện", "Tàng thư ứng dụng trong toàn hệ sinh thái Hugo"],
       ["study", "Học Tập", "Thụ giáo cùng Hugo: Phát triển Web, năng suất số và trí tuệ nhân tạo"],
@@ -21,7 +20,6 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["hugoso", "Học Tập", "Thụ giáo cùng Hugo: bộ học năng suất số và trí tuệ nhân tạo"],
       ["team", "Đoàn Đội", "Chức phận sinh viên và các dự án hợp tác"],
       ["psychology", "Tâm Trí", "Trợ thủ trí tuệ nhân tạo cho sức khoẻ tinh thần và theo dõi giấc ngủ"],
-      ["radio", "Âm Thanh", "Tin tức và âm nhạc trợ giúp chuyên chú"],
       ["handle", "Công Cụ", "Mã QR, chữ ký thư tín, liên kết bảo mật và nén tệp"],
       ["arcade", "Du Hí", "Trò chơi thụ lĩnh ân thưởng JOY"],
       ["aura", "Chuyên Chú", "Chuyên chú theo pháp Pomodoro cùng âm thanh môi trường"],
@@ -43,7 +41,6 @@ export const MEMBER_APP_TRANSLATIONS = {
     badges: { hot: "著名", new: "新", join: "參加", ai: "AI", lofi: "LOFI", free: "免費", utility: "工具", games: "遊戲", focus: "專注", system: "系統", store: "商店", game: "遊戲" },
     catalog: catalog([
       ["nom", "𡨸喃", "學𡨸喃𠫾𠓨交面當用"],
-      ["profile", "履歷", "已經檢證之能力履歷"],
       ["bio", "名帖", "個人名帖與連結"],
       ["library", "書院", "Hugo 生態系統之應用藏書"],
       ["study", "學習", "同 Hugo 受教：網頁發展、數位生產力與人工智慧"],
@@ -51,7 +48,6 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["hugoso", "學習", "同 Hugo 受教：數位生產力與人工智慧"],
       ["team", "團隊", "學生職分與合作之計劃"],
       ["psychology", "心智", "精神健康之助手與睡眠之觀察"],
-      ["radio", "音聲", "新聞與助專注之音樂"],
       ["handle", "工具", "QR 碼、書信之署名、保密連結與壓縮"],
       ["arcade", "遊戲", "受領 JOY 恩賞之遊戲"],
       ["aura", "專注", "依 Pomodoro 之法專注"],
@@ -73,7 +69,6 @@ export const MEMBER_APP_TRANSLATIONS = {
     badges: { hot: "HOT", new: "NEW", join: "JOIN", ai: "AI", lofi: "LOFI", free: "FREE", utility: "UTILITY", games: "GAMES", focus: "FOCUS", system: "SYSTEM", store: "STORE", game: "GAME" },
     catalog: catalog([
       ["nom", "Chữ Nôm", "Learn the Nôm script through the interface you already use"],
-      ["profile", "Profile", "A verified record of your work, attached to your Bio"],
       ["bio", "Bio", "Personal profile and Bio link"],
       ["library", "Library", "The app library for the Hugo ecosystem"],
       ["study", "Learn", "Study with Hugo: Web Development, Digital Productivity, and AI"],
@@ -81,7 +76,6 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["hugoso", "Learn", "Study with Hugo: Digital Productivity and AI collection"],
       ["team", "Team", "Student roles and collaborative projects"],
       ["psychology", "Mind", "AI wellbeing and sleep tracking"],
-      ["radio", "Sound", "News and focus music"],
       ["handle", "Tools", "QR codes, email signatures, secure links, and file tools"],
       ["arcade", "Games", "Games that reward JOY"],
       ["aura", "Focus", "Pomodoro focus and ambient sound"],
@@ -104,7 +98,6 @@ export const MEMBER_APP_TRANSLATIONS = {
     badges: { hot: "热门", new: "新品", join: "加入", ai: "AI", lofi: "LOFI", free: "免费", utility: "工具", games: "游戏", focus: "专注", system: "系统", store: "商店", game: "游戏" },
     catalog: catalog([
       ["nom", "喃字", "藉所用之介面習喃字"],
-      ["profile", "履历", "可验证的能力记录，附在 Bio 页面上"],
       ["bio", "个人页", "个人资料与 Bio 链接"],
       ["library", "应用库", "Hugo 生态系统的应用库"],
       ["study", "学习", "和 Hugo 一起学习：Web 开发、数字效率与 AI"],
@@ -112,7 +105,6 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["hugoso", "学习", "和 Hugo 一起学习：数字效率与 AI 课程"],
       ["team", "团队", "学生岗位与协作项目"],
       ["psychology", "心智", "AI 身心健康与睡眠追踪"],
-      ["radio", "声音", "新闻与专注音乐"],
       ["handle", "工具", "二维码、电子邮件签名、加密链接与文件压缩"],
       ["arcade", "游戏", "可赚取 JOY 的游戏"],
       ["aura", "专注", "番茄钟专注与环境音"],

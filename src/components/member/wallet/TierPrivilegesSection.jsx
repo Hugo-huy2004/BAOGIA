@@ -17,13 +17,11 @@ import { financeFacts } from "../../../../shared/tierFinance";
  */
 function financeBenefit(tier) {
   const f = financeFacts(tier);
-  const credit = f.creditLocked
-    ? nom("Không phát sinh giao dịch nợ (khoá tính năng vay JOY Gối Đầu)")
-    : `Hạn mức vay JOYlater nhân ×${f.creditMultiplier} trên hạn mức được xét theo hồ sơ`;
+  // Vế hạn mức vay JOYlater đã bỏ 25/10/2026: JOYlater ngừng mở khoản mới.
   const fee = f.feeFree
     ? nom("miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY")
     : `phí chuyển JOY ${f.feePercent}%`;
-  return `<b>${nom("Tài chính & Giao dịch:")}</b> ${credit}, ${fee}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
+  return `<b>${nom("Tài chính & Giao dịch:")}</b> ${fee[0].toUpperCase()}${fee.slice(1)}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
 }
 
 export const TIER_PRIVILEGES_MAP = {

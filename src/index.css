@@ -514,7 +514,6 @@
   }
 
   .portal-app-icon[data-app="wallet"] { color: hsl(35 92% 44%); background: hsl(35 92% 50% / 0.12); }
-  .portal-app-icon[data-app="profile"] { color: hsl(265 64% 55%); background: hsl(265 64% 55% / 0.11); }
 
   .portal-disclosure {
     color: hsl(var(--muted-foreground) / 0.65);

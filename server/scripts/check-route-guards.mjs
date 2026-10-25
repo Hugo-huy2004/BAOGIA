@@ -77,7 +77,6 @@ const PUBLIC_ROUTES = {
   "coderLessonRoutes.js GET /:lessonId": "nội dung bài; khoá theo gói ở tầng nghiệp vụ, không ở tầng cổng",
   "coderLessonRoutes.js POST /:lessonId/verify": "chấm bài học thử; có rate limit riêng",
   "utilityStoreRoutes.js GET /products": "danh mục sản phẩm công khai",
-  "utilityStoreRoutes.js GET /radio-price": "bảng giá token radio",
   "payosRoutes.js GET /supporters": "danh sách người ủng hộ, cố ý hiện công khai",
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",
   "payosRoutes.js GET /info/:customLinkId": "trang thanh toán mở bằng liên kết bí mật",

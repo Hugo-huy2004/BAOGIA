@@ -193,11 +193,8 @@ const EXCHANGE_ITEMS = {
   hugoCoderExam: { label: 'Study · Kiểm tra Năng lực (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderExam },
   hugoCoderOptimize: { label: 'Study · Tối ưu và AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderOptimize },
   hugoCoderUltimate: { label: 'Study · Đồ án Web Nâng cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderUltimate },
-  hugoAura: { label: 'HugoAura — Lofi Focus (1 tháng)', priceJoy: FEATURE_PRICES.hugoAura },
-  hugoRadio: { label: 'HugoRadio (1 tháng)', priceJoy: FEATURE_PRICES.hugoRadio },
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
-  hugoProfile: { label: 'Hugo Profile — công bố hồ sơ (1 tháng)', priceJoy: FEATURE_PRICES.hugoProfile },
   bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   bioThemeFlat: { label: 'Giao diện Bio: Flat (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE },
@@ -1656,34 +1653,10 @@ router.get('/joylater', requireMember, async (req, res) => {
   }
 });
 
-/**
- * POST /api/joy/joylater/apply — nộp hồ sơ tín dụng. MỘT lần duy nhất.
- *
- * Từ đó hạn mức tự xét lại 17:00 thứ Bảy hằng tuần. Bị từ chối KHÔNG phải nộp
- * lại — nếu không thì người mới sẽ kẹt vĩnh viễn ở màn "chưa đủ điều kiện" mà
- * không biết phải bấm gì.
- */
-router.post('/joylater/apply', requireMember, async (req, res) => {
-  try {
-    const { apply } = await import('../services/joyCreditService.js');
-    const profile = await apply(req.memberEmail);
-    res.json({
-      ok: true,
-      status: profile.status,
-      score: profile.score,
-      limit: profile.limit,
-      reasons: profile.reasons,
-    });
-  } catch (error) {
-    const known = {
-      ALREADY_APPLIED: [409, 'Hồ sơ đã được nộp trước đó. Hạn mức tự xét lại mỗi thứ Bảy.'],
-      NOT_ELIGIBLE_TO_APPLY: [403, 'Tài khoản chưa đủ điều kiện nộp hồ sơ.'],
-      BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ thành viên.'],
-    }[error.message];
-    if (known) return res.status(known[0]).json({ error: known[1], reasons: error.reasons || [] });
-    console.error('[joylater/apply]', error);
-    res.status(500).json({ error: 'Không nộp được hồ sơ. Vui lòng thử lại.' });
-  }
+// POST /api/joy/joylater/apply — ngừng nhận hồ sơ từ 25/10/2026 (xem lendingOpen
+// trong joyCreditService). Khoản đang vay vẫn trả qua các route bên dưới.
+router.post('/joylater/apply', requireMember, (_req, res) => {
+  res.status(410).json({ error: 'JOYlater đã ngừng nhận hồ sơ mới.' });
 });
 
 /**
@@ -1748,7 +1721,7 @@ router.post('/joylater/open', requireMember, async (req, res) => {
     }));
   } catch (error) {
     const map = {
-      JOYLATER_NOT_ELIGIBLE: [403, 'Bạn chưa đủ điều kiện dùng JOYlater.'],
+      JOYLATER_NOT_ELIGIBLE: [403, 'JOYlater đã ngừng mở khoản mới.'],
       JOYLATER_OVER_LIMIT: [400, 'Số JOY muốn mở trước vượt mức tối đa của bạn.'],
       JOYLATER_ALREADY_OPEN: [409, 'Bạn đang có một lượt JOYlater chưa hoàn xong.'],
       BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ.'],

@@ -82,16 +82,6 @@ const SCENES = {
     </>
   ),
 
-  // Hồ sơ — huy hiệu và dấu kiểm
-  profile: (f) => (
-    <>
-      <path d="M24 9 36 13.4V25c0 7.6-5.4 11.8-12 14.6C17.4 36.8 12 32.6 12 25V13.4Z" fill="#000" opacity="0.18" transform="translate(1 1.4)" />
-      <path d="M24 9 36 13.4V25c0 7.6-5.4 11.8-12 14.6C17.4 36.8 12 32.6 12 25V13.4Z" fill={f} />
-      <path d="M24 9 36 13.4V25c0 3.4-1.1 6.2-2.9 8.5" fill="none" stroke="#fff" strokeOpacity="0.65" strokeWidth="1.3" />
-      <path d="m17.6 23.6 4.6 4.6L31 19.4" fill="none" stroke="#10b981" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
-    </>
-  ),
-
   // Học Cùng Hugo — mũ tốt nghiệp
   study: (f) => (
     <>
@@ -128,28 +118,6 @@ const SCENES = {
       <path d="M24 38c-9.6-6.8-13.6-11.8-13.6-17.2A7.8 7.8 0 0 1 24 15.6a7.8 7.8 0 0 1 13.6 5.2C37.6 26.2 33.6 31.2 24 38Z" fill={f} />
       <path d="M17.6 18.4a5.4 5.4 0 0 0-4.6 4.4" fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="1.6" strokeLinecap="round" />
       <path d="M13.4 24.6h4.2l2-4.4 2.8 8.6 2.2-4.6h9" fill="none" stroke="#f43f5e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-    </>
-  ),
-
-  // Âm Thanh — loa và sóng lan ra
-  radio: (f, g) => (
-    <>
-      {[9, 14, 19].map((r, i) => (
-        <path
-          key={r}
-          d={`M 33 ${24 - r * 0.7} A ${r} ${r} 0 0 1 33 ${24 + r * 0.7}`}
-          fill="none"
-          stroke="#fff"
-          strokeOpacity={0.5 - i * 0.14}
-          strokeWidth="1.9"
-          strokeLinecap="round"
-        />
-      ))}
-      <Slab x={9} y={13} w={21} h={22} r={5} fill={f} />
-      <circle cx="19.5" cy="26" r="6.6" fill="#000" opacity="0.22" />
-      <circle cx="19.5" cy="26" r="5" fill={g} />
-      <circle cx="19.5" cy="26" r="2.1" fill="#fff" opacity="0.9" />
-      <circle cx="19.5" cy="18.5" r="1.7" fill="#fff" opacity="0.6" />
     </>
   ),
 

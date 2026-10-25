@@ -136,7 +136,7 @@ export const MEMBER_DOCS = {
               ["Giới thiệu bạn bè mới", "+100 JOY / người", "Áp dụng khi người mới kích hoạt hồ sơ"],
               ["Chuyển JOY cho bạn bè", "500 JOY/ngày (Star-14) · 1.000 JOY/ngày (các hạng khác) · 8.000 JOY/tháng", "Yêu cầu xác thực mã PIN bảo vệ ngân khố"],
               ["Phí chuyển JOY", "0% (Star-VIP) · 5% (các hạng khác)", "Phí giữ hệ thống vận hành, không phải khoản thu lợi nhuận"],
-              ["JOYlater (Vay JOY)", "Hạn mức xét theo hồ sơ, nhân hệ số của hạng thẻ", "Xét lại tự động 17:00 thứ Bảy hằng tuần"],
+              ["JOYlater (Vay JOY)", "Ngừng mở khoản mới từ 25/10/2026", "Khoản đang vay vẫn trả và tính lãi như dưới đây"],
               ["Lãi JOY Gối Đầu", "Lãi trong hạn thả theo tuần · quá hạn ×1,5 · chậm trả lãi 10%/năm", "Theo giới hạn Bộ luật Dân sự 2015 điều 466"],
             ],
           },

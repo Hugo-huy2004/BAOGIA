@@ -10,6 +10,8 @@
     "VALIDATION_ERROR": "Dữ liệu gửi lên không hợp lệ. Vui lòng kiểm tra lại."
   },
   "aura": {
+    "tabTimer": "Hẹn giờ",
+    "tabRadio": "Đài",
     "title": "HugoAura Focus & Lofi Lounge",
     "pomodoroDesk": "Bàn Làm Việc Pomodoro",
     "presetLite": "Tập trung nhẹ",
@@ -2010,6 +2012,7 @@
       "designLabel": "Giao diện & Chủ đề",
       "linkCardsLabel": "Thẻ liên kết",
       "achievementsLabel": "Dự án & Thành tích",
+      "proofLabel": "Hồ sơ năng lực",
       "editHint": "Chỉnh **giao diện, liên kết, thành tích** ở các mục phía trên — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.",
       "membershipHeader": "3-Year Developer Membership",
       "expiryLabel": "Hết hạn:",
@@ -5529,7 +5532,6 @@
       "publishTitle": "Công bố lên trang Bio",
       "publishDesc": "Bật để bảng hồ sơ này hiện dưới trang Bio công khai của Quý thành viên. Người xem không cần đăng nhập vẫn kiểm chứng được.",
       "showOnBio": "Hiện trên trang Bio",
-      "needPlan": "Cần thuê hoặc sở hữu Hugo Profile trong thương điếm để công bố. Xem hồ sơ của chính Quý thành viên thì luôn miễn phí.",
       "published": "Đã công bố hồ sơ.",
       "unpublished": "Đã gỡ hồ sơ khỏi trang Bio.",
       "saveError": "Không lưu được thiết lập."

@@ -55,9 +55,6 @@ export const daysToAfford = (joy) => joy / DAILY_CASUAL_JOY;
 // ── MỞ APP / TÍNH NĂNG: 200 JOY ────────────────────────────────────
 // Một mốc duy nhất cho quyền truy cập tháng, không còn 13 mức giá lẻ.
 export const FEATURE_PRICES = {
-  hugoProfile: JOY_SINK_PRICES.feature,
-  hugoAura: JOY_SINK_PRICES.feature,
-  hugoRadio: JOY_SINK_PRICES.feature,
   hugoChess: JOY_SINK_PRICES.feature,
   hugoArcade: JOY_SINK_PRICES.feature,
   hugoCoderBasic: JOY_SINK_PRICES.feature,

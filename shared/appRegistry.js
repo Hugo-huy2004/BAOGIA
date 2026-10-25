@@ -40,11 +40,9 @@ const manifest = ({
 
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
-  manifest({ id: "profile", icon: "verified_user", tint: "indigo", category: "edu", badge: "new", store: true, storeOrder: 0 }),
   manifest({ id: "study", icon: "school", tint: "purple", category: "edu", badge: "new", storageMb: 8.1 }),
   manifest({ id: "team", icon: "groups", tint: "teal", category: "edu", badge: "join", storageMb: 1.6, version: "1.4.0", store: true, storeOrder: 6 }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
-  manifest({ id: "radio", icon: "radio", tint: "teal", category: "wellness", badge: "lofi", storageMb: 1.9, version: "2.0.0", store: true, storeOrder: 4 }),
   manifest({
     id: "handle", icon: "handyman", tint: "indigo", category: "tools", badge: "utility", storageMb: 1.6, version: "2.0.0", store: true, storeOrder: 5,
     destinations: [
@@ -59,12 +57,10 @@ export const APP_REGISTRY = Object.freeze([
   manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0", store: true, storeOrder: 9 }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
-  manifest({ id: "arcade_pinball", icon: "disc_full", tint: "purple", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 10 }),
   manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),
   manifest({ id: "arcade_2048", icon: "casino", tint: "orange", category: "arcade", badge: "game", store: true, game: true, storePlanId: null, storeOrder: 15 }),
   manifest({ id: "arcade_caro", icon: "swords", tint: "blue", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 14 }),
   manifest({ id: "arcade_snake", icon: "all_inclusive", tint: "teal", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 13 }),
-  manifest({ id: "arcade_survivor", icon: "rocket_launch", tint: "indigo", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 12 }),
 ]);
 
 export const APP_REGISTRY_BY_ID = new Map(APP_REGISTRY.map((app) => [app.id, app]));
@@ -82,7 +78,8 @@ export const REQUIRED_APP_IDS = Object.freeze([
   // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
   // "nom" và "team" thôi cài sẵn 25/10/2026: kén người dùng, giờ tải trong Cửa Hàng.
   "psychology",
-  "radio",
+  // "radio" gộp vào Chuyên Chú 25/10/2026 — Chuyên Chú cài sẵn thay chỗ nó.
+  "aura",
   "handle",
   "joy_wallet",
 ]);
@@ -101,6 +98,13 @@ export const RETIRED_APP_IDS = Object.freeze([
   "support",
   "info",
   "friends",
+  // Gộp thành tab "Hồ sơ năng lực" trong Danh Thiếp 25/10/2026.
+  "profile",
+  // Gộp thành tab "Đài" trong Chuyên Chú 25/10/2026.
+  "radio",
+  // Ẩn khỏi sảnh Arcade và Cửa Hàng 25/10/2026 — chỉ giữ 4 game hiện hành.
+  "arcade_pinball",
+  "arcade_survivor",
 ]);
 
 /**
@@ -128,14 +132,12 @@ export const RETIRED_APP_IDS = Object.freeze([
 export const FULLSCREEN_APP_IDS = Object.freeze([
   "joy_wallet",
   "aura",
-  "profile",
   "bio",
   "study",
   "arcade",
   "store",
   "handle",
   "team",
-  "radio",
   "nom",
   // HugoPSY dựng trên AppFrame (app chat toàn màn) từ 03/10.
   "psychology",

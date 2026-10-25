@@ -1,17 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { lazy, Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import AppFrame from "./os/AppFrame";
 import StandaloneInstallButton from "../ui/StandaloneInstallButton";
-import FeatureGate from "./shared/FeatureGate";
+import LazyBoundary from "./os/LazyBoundary";
 import { motion } from "framer-motion";
 import { joyText } from "../../lib/joyDisplay";
 
-const LOFI_PLAYLIST = [
-  { id: "stream_africa", title: "Lofi Hip Hop Radio", artist: "Stream Africa", url: "https://play.streamafrica.net/lofi" },
-  { id: "epic_lounge", title: "Workday Lounge", artist: "Epic Lounge", url: "https://stream.epic-lounge.com/workday-lounge" },
-  { id: "hotmix_lofi", title: "Hotmix Lofi", artist: "Hotmix Radio", url: "https://streaming.hotmixradio.com/hotmix-lofi-en-mp3" }
-];
+// Đài (từng là app "Âm Thanh" riêng) gộp vào đây 25/10/2026 thành tab thứ hai,
+// thay cho trình lofi 3 luồng phải thuê bằng JOY. Nhạc phát qua thẻ audio dùng
+// chung của radioStore nên đổi tab hẹn giờ ↔ đài không tắt nhạc.
+const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 
 // Base rewards x3.
 const FOCUS_PRESETS = [
@@ -72,9 +71,8 @@ export default function MemberAuraTab({
   onBack,
   bio,
   showToast,
-  onBioUpdate,
-  canUseAccountFeatures = true,
-  requireAccount,
+  route,
+  onRouteChange,
 }) {
   const { t } = useTranslation();
   const fetchJoyBalance = useJoyStore((s) => s.fetchBalance);
@@ -82,7 +80,10 @@ export default function MemberAuraTab({
   // Derive theme aesthetics
   // HugoAura owns only focus and audio. Portal backgrounds live in Account.
   const accent = THEME_ACCENTS.default;
-  const currentPlaylist = LOFI_PLAYLIST;
+  const [localTab, setLocalTab] = useState("focus");
+  const routed = typeof onRouteChange === "function";
+  const activeTab = (routed ? route : localTab) === "radio" ? "radio" : "focus";
+  const setActiveTab = (id) => (routed ? onRouteChange(id) : setLocalTab(id));
 
   // --- Pomodoro State ---
   const [selectedMinutes, setSelectedMinutes] = useState(25);
@@ -91,49 +92,6 @@ export default function MemberAuraTab({
   const [targetTime, setTargetTime] = useState(null);
   const [timerActive, setTimerActive] = useState(false);
   const wakeLockRef = useRef(null);
-
-  // --- Lofi Audio Player State ---
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  /*
-   * Nhạc ĐANG NẠP. `audio.play()` trả về promise chỉ resolve khi tiếng đã thật sự
-   * kêu — trên mạng di động chậm quãng đó dài vài giây, mà trước đây giao diện
-   * không đổi gì cả: người dùng bấm phát rồi tưởng nút hỏng nên bấm tiếp.
-   */
-  const [buffering, setBuffering] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(50);
-  const [visHeights, setVisHeights] = useState([12, 18, 10, 24, 15, 20, 8, 16]);
-
-  const audioRef = useRef(null);
-
-  // Sync volume of audio element
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
-
-  // Sync source and track swap
-  useEffect(() => {
-    if (!audioRef.current) return;
-    const isPlayingBefore = playing;
-    audioRef.current.src = currentPlaylist[currentTrackIndex].url;
-    audioRef.current.load();
-    if (isPlayingBefore) {
-      audioRef.current.play().catch(() => setPlaying(false));
-    }
-  }, [currentTrackIndex, currentPlaylist]);
-
-  // Visualizer bar heights animation loop
-  useEffect(() => {
-    if (!playing) return;
-    const interval = setInterval(() => {
-      setVisHeights(visHeights.map(() => Math.floor(Math.random() * 26) + 4));
-    }, 150);
-    return () => clearInterval(interval);
-  }, [playing, visHeights]);
 
   // Wake Lock management
   useEffect(() => {
@@ -171,61 +129,6 @@ export default function MemberAuraTab({
       setTargetTime(null);
     }
   }, [selectedMinutes, timerMode, timerActive]);
-
-  // --- Lofi Player Controls ---
-  const handlePlayPause = () => {
-    if (!audioRef.current) return;
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
-    } else {
-      setBuffering(true);
-      audioRef.current.play()
-        .then(() => setPlaying(true))
-        .catch((e) => {
-          console.warn("Audio play failed:", e);
-          showToast?.(t("aura.playWarning"), "info");
-        })
-        .finally(() => setBuffering(false));
-    }
-  };
-
-  const handleNext = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % currentPlaylist.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + currentPlaylist.length) % currentPlaylist.length);
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration || 0);
-    }
-  };
-
-  const handleAudioEnded = () => {
-    handleNext();
-  };
-
-  const handleAudioError = () => {
-    console.warn("Lofi stream error, skipping to next track...");
-    handleNext(); // Auto-skip broken streams
-  };
-
-  const handleProgressChange = (e) => {
-    const val = Number(e.target.value);
-    setCurrentTime(val);
-    if (audioRef.current) {
-      audioRef.current.currentTime = val;
-    }
-  };
 
   // --- Timer completion logic ---
   const completeFocusBlock = useCallback(async () => {
@@ -304,15 +207,6 @@ export default function MemberAuraTab({
     };
   }, [timerActive, targetTime, completeFocusBlock, timeLeft]);
 
-  // Clean-up loop audio on unmount
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-    };
-  }, []);
-
   const handleToggleTimer = () => {
     if (!timerActive) {
       // Starting — a fresh focus block (not a resume) lets the server stamp
@@ -359,13 +253,6 @@ export default function MemberAuraTab({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const formatAudioTime = (time) => {
-    if (isNaN(time)) return "00:00";
-    const mins = Math.floor(time / 60);
-    const secs = Math.floor(time % 60);
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
   // Dial SVG configurations
   const maxTime = timerMode === "focus" ? selectedMinutes * 60 : 5 * 60;
   const progressRatio = maxTime > 0 ? (maxTime - timeLeft) / maxTime : 0;
@@ -388,29 +275,28 @@ export default function MemberAuraTab({
       largeTitle
       onBack={onBack}
       actions={<StandaloneInstallButton appId="aura" />}
+      tabs={[
+        { id: "focus", icon: "timer", label: t("aura.tabTimer") },
+        { id: "radio", icon: "radio", label: t("aura.tabRadio") },
+      ]}
+      tab={activeTab}
+      onTabChange={setActiveTab}
+      scrollKey={activeTab}
       wide
     >
+      {activeTab === "radio" ? (
+        <LazyBoundary>
+          <Suspense fallback={<span className="material-symbols-outlined mx-auto block animate-spin py-10 text-center text-muted-foreground" aria-hidden="true">progress_activity</span>}>
+            <MemberRadioTab embedded bio={bio} showToast={showToast} />
+          </Suspense>
+        </LazyBoundary>
+      ) : (
       <div className="space-y-6">
 
-      {/* Hidden audio element */}
-      <audio
-        ref={audioRef}
-        src={currentPlaylist[currentTrackIndex].url}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleAudioEnded}
-        onError={handleAudioError}
-        // Hụt dữ liệu GIỮA CHỪNG cũng phải hiện, không chỉ lúc mới bấm phát.
-        onWaiting={() => setBuffering(true)}
-        onPlaying={() => setBuffering(false)}
-        onCanPlay={() => setBuffering(false)}
-        loop={false}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="mx-auto w-full max-w-2xl">
         
         {/* Left Column: Pomodoro Board */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-between bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
+        <div className="flex flex-col items-center justify-between bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
           <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-50`} />
           <div className="relative z-10 w-full flex flex-col items-center">
             <h3 className="text-[13px] font-black text-foreground uppercase tracking-wider mb-5 flex items-center gap-1">
@@ -538,140 +424,9 @@ export default function MemberAuraTab({
           </div>
         </div>
 
-        {/* Lofi is the only subscription feature left in HugoAura. Portal
-            backgrounds are managed independently from Account. */}
-        <div
-          className="lg:col-span-5"
-          onClickCapture={canUseAccountFeatures ? undefined : requireAccount}
-        >
-        <FeatureGate
-          bio={bio}
-          featureKey="hugoAura"
-          priceJoy={150}
-          icon="music_note"
-          title="Mở khóa Lofi Focus bằng JOY"
-          description="Pomodoro tập trung vẫn luôn miễn phí cho mọi người."
-          onBioUpdate={onBioUpdate}
-          className="h-full"
-        >
-        <div className="flex flex-col gap-6">
-
-          {/* Lofi Lounge Player Card */}
-          <div className="bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-40`} />
-            
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-[13px] font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-base">music_note</span>
-                  {t("aura.lofiStation")}
-                </h4>
-
-                {/* Simulated Equalizer Waveform */}
-                <div className="flex items-end gap-[3px] h-6 px-2">
-                  {visHeights.map((h, i) => (
-                    <div
-                      key={i}
-                      className={`w-[3px] rounded-full transition-all duration-150 ${playing ? accent.accentBg : "bg-zinc-300 dark:bg-zinc-700"}`}
-                      style={{ height: `${playing ? h : 4}px` }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Active Track Info */}
-              <div className="flex items-center gap-4 bg-card/30 p-3.5 rounded-2xl border border-border/10">
-                {/* Rotating Vinyl Record Graphic */}
-                <div
-                  className={`w-14 h-14 rounded-full bg-zinc-900 dark:bg-black flex items-center justify-center text-white ring-4 ring-border shadow-lg shrink-0 ${playing ? "animate-spin" : ""}`}
-                  style={{ animationDuration: "8s", transformOrigin: "center" }}
-                >
-                  <div className="w-4 h-4 rounded-full bg-card flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-                  </div>
-                </div>
-
-                <div className="min-w-0 flex-1 text-left leading-tight">
-                  <span className="text-[13px] font-black uppercase tracking-wider text-muted-foreground/70 block">{t("aura.lofiWaves")}</span>
-                  <span className="text-[13px] font-black text-foreground block truncate mt-1">
-                    {currentPlaylist[currentTrackIndex].title}
-                  </span>
-                  <span className="text-[13px] font-semibold text-muted-foreground block truncate mt-0.5">
-                    {currentPlaylist[currentTrackIndex].artist}
-                  </span>
-                </div>
-              </div>
-
-              {/* Slider timeline scrubbing */}
-              <div className="space-y-1">
-                <input
-                  type="range"
-                  min="0"
-                  max={duration || 100}
-                  value={currentTime}
-                  onChange={handleProgressChange}
-                  className={`w-full h-1.5 rounded-full appearance-none cursor-pointer bg-muted ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-zinc-700 dark:[&::-webkit-slider-thumb]:bg-white`}
-                  aria-label={t("aura.timelineScrub")}
-                />
-                <div className="flex justify-between text-[13px] font-mono text-muted-foreground/70">
-                  <span>{formatAudioTime(currentTime)}</span>
-                  <span>{formatAudioTime(duration)}</span>
-                </div>
-              </div>
-
-              {/* Audio Controls */}
-              <div className="flex items-center justify-between gap-4 pt-1">
-                {/* Volume slider control */}
-                <div className="flex items-center gap-2 max-w-[90px]">
-                  <span className="material-symbols-outlined text-zinc-400 text-base shrink-0">volume_down</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(Number(e.target.value))}
-                    className={`w-16 h-1 rounded-full appearance-none bg-muted ${accent.sliderAccent} [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:bg-muted-foreground`}
-                    aria-label={t("aura.volumeLabel")}
-                  />
-                </div>
-
-                {/* Navigation group */}
-                <div className="flex items-center gap-3">
-                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handlePrev} className="w-9 h-9 rounded-full flex items-center justify-center bg-card/20 text-foreground/80 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
-                    <span className="material-symbols-outlined text-base">skip_previous</span>
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handlePlayPause}
-                    aria-label={buffering
-                      ? t("aura.buffering", "Đang tải nhạc…")
-                      : playing ? t("aura.pauseBtn") : t("aura.startBtn")}
-                    aria-busy={buffering}
-                    className={`w-11 h-11 rounded-full flex items-center justify-center text-white shadow-md transition-colors ${accent.accentBg}`}
-                  >
-                    <span
-                      className={`material-symbols-outlined text-xl${buffering ? " animate-spin" : ""}`}
-                      aria-hidden="true"
-                    >
-                      {buffering ? "progress_activity" : playing ? "pause" : "play_arrow"}
-                    </span>
-                  </motion.button>
-
-                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={handleNext} className="w-9 h-9 rounded-full flex items-center justify-center bg-card/20 text-foreground/80 hover:bg-white/40 dark:hover:bg-zinc-900/50 transition-colors">
-                    <span className="material-symbols-outlined text-base">skip_next</span>
-                  </motion.button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        </FeatureGate>
-        </div>
       </div>
       </div>
+      )}
     </AppFrame>
   );
 }

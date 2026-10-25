@@ -1,5 +1,7 @@
 {
   "aura": {
+    "tabTimer": "计时",
+    "tabRadio": "电台",
     "title": "HugoAura 关注与Lo-fi lounge",
     "pomodoroDesk": "番茄工作区",
     "presetLite": "轻量级专注",
@@ -290,6 +292,7 @@
       "designLabel": "设计与主题",
       "linkCardsLabel": "链接卡片",
       "achievementsLabel": "项目与成就",
+      "proofLabel": "能力记录",
       "editHint": "编辑上方区域的**设计、链接和成就**——预览下方的内容将自动更新。",
       "membershipHeader": "三年开发者会员",
       "expiryLabel": "有效期：",
@@ -3837,7 +3840,6 @@
       "publishTitle": "在你的Bio上发布",
       "publishDesc": "打开此开关可以在公共Bio页面下显示记录。访客无需登录即可查看。",
       "showOnBio": "在Bio页面上展示",
-      "needPlan": "需在商店中租用或购买 Hugo Profile 才能公开发布。查看自己的记录始终免费。",
       "published": "发布记录。",
       "unpublished": "从您的个人资料页中移除了该记录。",
       "saveError": "无法保存设置。",

@@ -28,11 +28,9 @@ const CERTIFIED = {
   team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
-  profile: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (nút cài PWA vào khe actions), window.confirm → notify.confirm, cỡ chữ lên sàn 13px",
   arcade: "20/09/2026 — LazyBoundary cho chunk game (một game hỏng từng làm trắng CẢ portal), 🔥/⚡ trong Game2048 → Material Symbols, 29 chỗ chữ <13px ở bảng xếp hạng và pinball. Giữ hình thái game toàn màn + quân cờ Unicode (ngoại lệ có lý do)",
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
-  radio: "20/09/2026 — gộp BA header tự dựng (PWA/desktop/mobile) về AppFrame, gỡ điều hướng 5 trang chết + cặp prop radioPage của portal, cỡ chữ lên sàn 13px",
   banhocduong: "03/10/2026 — làm lại thành app chat 100% trên AppFrame: gỡ header chat tự dựng (nút X đè nút coach vì CSS !important ghi đè chỗ chừa), thẻ Lộ trình, nền aura động, 3 nút nhanh + drawer trùng TherapyTab; Thư giãn/Giấc ngủ/Đánh giá lên thanh tiêu đề; 4 nhân vật đồng hành theo đánh giá; chữ lên sàn 13px",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
 };
@@ -54,7 +52,6 @@ const EXCEPTIONS = {
   // App MỘT MÀN: không có màn con nào để đặt địa chỉ. Bản thân app đã có địa chỉ
   // /member/utilities/<id>. Bắt chúng dựng router chỉ để bộ kiểm xanh là thêm
   // code không ai dùng.
-  "address@profile": "hồ sơ là một màn đọc, không có màn con",
   // GAME: mỗi game chiếm trọn màn (`fixed inset-0`) và cần tỷ lệ khung cố định —
   // canvas game không co giãn theo cột đọc. Chrome kính iOS đè lên game là sai
   // hình thái. Ngoại lệ về HÌNH THÁI: arcade vẫn phải đạt 8 tiêu chí còn lại.
@@ -77,7 +74,6 @@ const EXCEPTIONS = {
 
   "address@team": "một màn duy nhất; nhánh hiển thị do TRẠNG THÁI TỪ SERVER (userStatus) quyết định, không phải màn người dùng tự chuyển",
 
-  "address@radio": "một trang cuộn (trình phát + đài + hẹn giờ + thông tin); bộ điều hướng 5 trang cũ là code chết và đã gỡ 20/09",
 };
 
 /** Mỗi app: file vỏ + thư mục (nếu có) để quét cả component con. */
@@ -88,8 +84,6 @@ const APPS = {
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
   arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   banhocduong: { entry: "banhocduong/BanhocduongTab.jsx", dir: "banhocduong" },
-  radio: { entry: "MemberRadioTab.jsx" },
-  profile: { entry: "HugoProfileTab.jsx" },
   team: { entry: "HugoTeamTab.jsx" },
   aura: { entry: "MemberAuraTab.jsx" },
   bio: { entry: "BioPreviewTab.jsx" },

@@ -3,7 +3,6 @@ import Bio from '../models/Bio.js';
 import HugoTeamDev from '../models/HugoTeamDev.js';
 import UserProfile from '../models/UserProfile.js';
 import { requireMember } from '../middleware/authMiddleware.js';
-import { isFeatureActive } from '../utils/featureSubscriptionService.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
 import {
   deletePrivateEvidence,
@@ -63,7 +62,7 @@ async function buildProfile(bio) {
   };
 }
 
-/** Hồ sơ của chính mình — luôn xem được, kể cả khi chưa thuê ứng dụng. */
+/** Hồ sơ của chính mình (tab "Hồ sơ năng lực" trong app Danh Thiếp). */
 router.get('/me', requireMember, async (req, res) => {
   try {
     const bio = await findMemberBio(req.memberEmail);
@@ -71,11 +70,8 @@ router.get('/me', requireMember, async (req, res) => {
 
     res.json({
       profile: await buildProfile(bio),
-      // Quyền công bố mới là thứ phải trả JOY; xem hồ sơ của chính mình thì không.
-      publishing: {
-        entitled: isFeatureActive(bio, 'hugoProfile'),
-        enabled: Boolean(bio.profilePublic),
-      },
+      // Công bố miễn phí từ 25/10/2026 (trước phải thuê gói Hugo Profile).
+      publishing: { enabled: Boolean(bio.profilePublic) },
       capabilities: {
         learningEvidence: isLearningEvidenceEnabledFor(bio),
       },
@@ -135,9 +131,6 @@ router.patch('/me/publish', requireMember, async (req, res) => {
   try {
     const bio = await findMemberBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    if (!isFeatureActive(bio, 'hugoProfile')) {
-      return res.status(402).json({ error: 'Hugo Profile subscription required' });
-    }
     bio.profilePublic = Boolean(req.body?.enabled);
     await bio.save();
     res.json({ enabled: bio.profilePublic });
@@ -165,15 +158,11 @@ router.patch('/me/marketing', requireMember, async (req, res) => {
   return res.json({ enabled: req.body.enabled });
 });
 
-/**
- * Bản công khai gắn vào trang Bio. Hai cửa phải cùng mở: thành viên còn hạn
- * dùng Hugo Profile VÀ đã tự bật công bố. Hết hạn thuê thì panel tự biến mất
- * khỏi trang Bio, không cần ai đi dọn.
- */
+/** Bản công khai gắn vào trang Bio — chỉ khi thành viên tự bật công bố. */
 router.get('/public/:slug', async (req, res) => {
   try {
     const bio = await Bio.findOne({ slug: req.params.slug });
-    if (!bio || !bio.profilePublic || !isFeatureActive(bio, 'hugoProfile')) {
+    if (!bio || !bio.profilePublic) {
       return res.json({ profile: null });
     }
     res.json({ profile: await buildProfile(bio) });

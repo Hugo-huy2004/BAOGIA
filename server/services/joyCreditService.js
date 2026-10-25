@@ -188,13 +188,10 @@ export function effectiveLimit(profile) {
 
 /** Cho vay có đang mở không (công tắc toàn hệ thống). */
 export async function lendingOpen() {
-  const JoyPolicy = (await import('../models/JoyPolicy.js')).default;
-  const policy = await JoyPolicy.current?.().catch(() => null);
-  const lending = policy?.lending;
-  if (lending && lending.enabled === false) {
-    return { open: false, reason: lending.pausedReason || 'Hugo Studio đang tạm dừng cho vay.' };
-  }
-  return { open: true };
+  // JOYlater ngừng mở khoản mới 25/10/2026 — khoá cứng ở đây chứ không qua công
+  // tắc trong JoyPolicy, để không ai lỡ tay bật lại. Khoản đang vay vẫn trả,
+  // tính phí trễ và chế tài như cũ; khi sổ nợ về 0 thì gỡ hẳn tính năng.
+  return { open: false, reason: 'JOYlater đã ngừng mở khoản mới. Khoản đang vay vẫn trả như cũ.' };
 }
 
 export async function evaluate(email, { signals = null, force = false, notify = false } = {}) {

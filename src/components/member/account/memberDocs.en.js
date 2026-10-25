@@ -134,7 +134,7 @@ export const MEMBER_DOCS_EN = {
               ["Friend Referral", "+100 JOY / verified peer", "Credited when referee completes profile setup"],
               ["Peer-to-Peer Transfer", "500 JOY/day (Star-14) · 1,000 JOY/day (other tiers) · 8,000 JOY/month", "Protected by mandatory 6-digit wallet PIN"],
               ["Transfer Fee", "0% (Star-VIP) · 5% (other tiers)", "Keeps the system running; not a profit margin"],
-              ["JOYlater (JOY Credit)", "Assessed from your profile, multiplied by your tier", "Reassessed automatically every Saturday at 17:00"],
+              ["JOYlater (JOY Credit)", "No new loans since 25 Oct 2026", "Open loans are still repaid and charged as below"],
               ["JOYlater Interest", "In-term rate floats weekly · overdue ×1.5 · late interest 10%/year", "Within the caps of Vietnam's Civil Code 2015, article 466"],
             ],
           },

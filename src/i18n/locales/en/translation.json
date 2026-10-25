@@ -10,6 +10,8 @@
     "VALIDATION_ERROR": "Invalid data submitted. Please check and try again."
   },
   "aura": {
+    "tabTimer": "Timer",
+    "tabRadio": "Radio",
     "title": "HugoAura Focus & Lofi Lounge",
     "pomodoroDesk": "Pomodoro Workspace",
     "presetLite": "Focus Lite",
@@ -2009,6 +2011,7 @@
       "designLabel": "Design & Theme",
       "linkCardsLabel": "Link Cards",
       "achievementsLabel": "Projects & Achievements",
+      "proofLabel": "Verified record",
       "editHint": "Edit **design, links, achievements** in the sections above — changes will auto-update in the preview below.",
       "membershipHeader": "3-Year Developer Membership",
       "expiryLabel": "Expires:",
@@ -5487,7 +5490,6 @@
       "publishTitle": "Publish on your Bio",
       "publishDesc": "Turn this on to show the record under your public Bio page. Visitors can check it without signing in.",
       "showOnBio": "Show on the Bio page",
-      "needPlan": "Renting or owning Hugo Profile in the Store is required to publish. Viewing your own record is always free.",
       "published": "Record published.",
       "unpublished": "Record removed from your Bio page.",
       "saveError": "Could not save the setting."

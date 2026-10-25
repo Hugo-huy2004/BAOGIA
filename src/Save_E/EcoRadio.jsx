@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRadioHeartbeat, sendRadioHeartbeat } from "../components/member/RadioTokenStatus";
 import { setMediaSession, setMediaPlaybackState } from "../services/mediaSession";
-import { getMemberSession } from "../services/api/core/authSession";
 import {
   pickRandom, orderedUrls, resolveByName, rememberFound, forgetFound, foundStations,
   recordOk, recordFail, readHealth, resetHealth, stationStatus, lastStationId,
@@ -43,51 +41,12 @@ const urlsFor = (station) => orderedUrls(station.id, [station.mp3, station.hls])
 let audio = null;
 let hls = null;
 
-/* ── Trừ giờ nghe ─────────────────────────────────────────────────────────
-   Đồng hồ bám THẲNG thẻ audio chứ không bám vòng đời component. Trước đây nó
-   nằm trong hook của EcoRadio: rời tab Ví là component tháo, đồng hồ chết,
-   nhưng tiếng vẫn phát tiếp — nghe chùa không trừ vào hạn mức 5 giờ/tuần.
-   Giờ chỉ cần thẻ audio còn phát là còn tính. */
-const BILL_EVERY_MS = 5 * 60 * 1000;
-let billTimer = null;
-let billSince = 0;
-let lastStatus = null;
-const statusListeners = new Set();
-
-export const subscribeRadioStatus = (listener) => {
-  statusListeners.add(listener);
-  return () => statusListeners.delete(listener);
-};
-
-async function bill({ final = false } = {}) {
-  if (!billSince) return;
-  const minutes = (Date.now() - billSince) / 60000;
-  billSince = final ? 0 : Date.now();
-  const data = await sendRadioHeartbeat(minutes, { keepalive: final });
-  if (!data) return;
-  lastStatus = data;
-  statusListeners.forEach((listener) => listener(data));
-  // Hết giờ giữa chừng thì dừng ngay, không đợi người dùng bấm.
-  if (!data.canListen && audio && !audio.paused) audio.pause();
-}
-
+// Nghe đài miễn phí từ 25/10/2026 — không còn đồng hồ trừ token.
 const getAudio = () => {
   if (!audio) {
     audio = new Audio();
     audio.preload = "none";
     audio.volume = 0.8;
-    audio.addEventListener("play", () => {
-      billSince = Date.now();
-      clearInterval(billTimer);
-      billTimer = setInterval(bill, BILL_EVERY_MS);
-    });
-    audio.addEventListener("pause", () => {
-      clearInterval(billTimer);
-      billTimer = null;
-      bill({ final: true });
-    });
-    // Đóng app lúc đang nghe: gửi nốt quãng dở bằng keepalive.
-    window.addEventListener("pagehide", () => { if (!audio.paused) bill({ final: true }); });
   }
   return audio;
 };
@@ -135,16 +94,6 @@ export default function EcoRadio() {
   const [stations, setStations] = useState(allStations);
   const requestRef = useRef(0);
   const triedRef = useRef([]);
-
-  // Giờ nghe vẫn trừ vào đúng hạn mức 5 giờ/tuần như chế độ thường. Việc trừ do
-  // đồng hồ ở module lo (nó bám thẻ audio), nên hook ở đây truyền `false` —
-  // chỉ dùng để lấy trạng thái lúc mở, không trừ chồng thêm một lần nữa.
-  const session = getMemberSession();
-  const { tokenStatus: fetched } = useRadioHeartbeat(session, false);
-  const [billed, setBilled] = useState(lastStatus);
-  useEffect(() => subscribeRadioStatus(setBilled), []);
-  const tokenStatus = billed || fetched;
-  const blocked = Boolean(tokenStatus && !tokenStatus.canListen);
 
   const syncHealth = () => { setHealth(readHealth()); setStations(allStations()); };
 
@@ -235,17 +184,12 @@ export default function EcoRadio() {
       if (current) setStation(current);
       return;
     }
-    if (blocked) return;
     // Tiếp tục đúng đài lần trước nếu nó chưa hỏng; chưa nghe bao giờ thì bốc ngẫu nhiên.
     const last = allStations().find((item) => item.id === lastStationId());
     play(last && stationStatus(last.id) !== "dead" ? last : pickRandom(allStations()));
     // Chỉ chạy một lần lúc mở tab.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (blocked && playing) { getAudio().pause(); dropHls(); }
-  }, [blocked, playing]);
 
   const stop = () => { getAudio().pause(); dropHls(); };
 
@@ -265,7 +209,6 @@ export default function EcoRadio() {
   };
 
   const skip = () => {
-    if (blocked) { setError("Đã hết giờ nghe radio. Nạp thêm ở mục Ví JOY của chế độ thường."); return; }
     triedRef.current = [];
     setNeedsTap(false);
     play(pickRandom(allStations(), { exclude: station ? [station.id] : [] }));
@@ -322,7 +265,7 @@ export default function EcoRadio() {
           <button
             type="button"
             className="save-e-btn"
-            disabled={busy || (blocked && !playing)}
+            disabled={busy}
             onClick={() => {
               if (playing) { stop(); return; }
               setNeedsTap(false);
@@ -346,14 +289,6 @@ export default function EcoRadio() {
 
       {healed ? <p className="save-e-note save-e-strong-green">{healed}</p> : null}
       {error ? <p className="save-e-note">{error}</p> : null}
-      {/* Cùng đơn vị với tab HugoRadio: token, 1 token = 10 phút. */}
-      {tokenStatus?.tokensLeft != null ? (
-        <p className="save-e-note">
-          Còn <span className="save-e-strong-green">{tokenStatus.tokensLeft} token</span> nghe radio
-          {` (1 token = ${tokenStatus.minutesPerToken} phút) — hạn mức miễn phí tuần này còn ${tokenStatus.freeTokensLeft}/${tokenStatus.freeTokens} token.`}
-        </p>
-      ) : null}
-
       {/* ── Tìm đài ── */}
       <form className="save-e-card" onSubmit={search}>
         <label className="save-e-field">
@@ -386,7 +321,7 @@ export default function EcoRadio() {
               <button
                 type="button"
                 className="save-e-rowmain"
-                disabled={busy || blocked}
+                disabled={busy}
                 onClick={() => { triedRef.current = []; setNeedsTap(false); play(item); }}
               >
                 <strong>

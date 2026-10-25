@@ -13,8 +13,6 @@ const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard")
 const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
-const HugoProfileTab = lazy(() => import("./HugoProfileTab"));
-const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
@@ -175,11 +173,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {/* Hugo Profile — hồ sơ năng lực có kiểm chứng, gắn vào trang Bio */}
-      {selectedUtility === "profile" && (
-        <HugoProfileTab onBack={() => onSelectUtility(null)} publicLink={publicLink} />
-      )}
-
       {/* Học Từ Vựng — tiếng Trung theo thẻ, có test xếp lớp + test đầu ra */}
 
       {/* Hugo Team — Recruitment */}
@@ -187,19 +180,9 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <HugoTeamTab onBack={() => onSelectUtility(null)} />
       )}
 
-      {/* HugoRadio */}
-      {selectedUtility === "radio" && (
-        <MemberRadioTab
-          onBack={() => onSelectUtility(null)}
-          showToast={showToast}
-          bio={bio}
-          onBioUpdate={onBioUpdate}
-        />
-      )}
-
       {/* HugoArcade */}
       {selectedUtility === "arcade" && (
-        <HugoArcadeTab bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+        <HugoArcadeTab bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} onBack={() => onSelectUtility(null)} />
       )}
 
       {/* 𡨸喃 — dạy chữ Nôm. Học liệu lấy từ chính bản dịch Nôm của hệ thống. */}
@@ -209,7 +192,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoAura Focus */}
       {selectedUtility === "aura" && (
-        <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+        <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} route={appRoute} onRouteChange={onAppRouteChange} />
       )}
 
       {/* Trang Bio — public bio preview (edit via Settings) */}

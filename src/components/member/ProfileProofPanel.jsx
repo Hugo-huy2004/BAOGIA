@@ -1,24 +1,22 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import AppFrame from "./os/AppFrame";
-import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage } from "../../i18n/languages";
 import profileEvidenceApi from "../../services/api/modules/profileEvidenceApi";
 
 /**
- * Hugo Profile — hồ sơ năng lực có kiểm chứng.
+ * Hồ sơ năng lực có kiểm chứng — một tab trong app Danh Thiếp (bio).
  *
  * Toàn bộ số liệu do server tổng hợp từ những gì hệ thống đã ghi nhận; màn này
  * không nhận một ô nhập nào. Đó chính là điểm bán: người xem tin được vì không
  * ai tự khai được vào đây.
  *
- * Xem hồ sơ của chính mình thì miễn phí. Thứ phải trả JOY là quyền CÔNG BỐ nó
- * lên trang Bio công khai — bậc thuê/sở hữu do Hugo Store lo, ở đây chỉ đọc
- * `publishing.entitled` mà server trả về.
+ * Từng là app "Hồ Sơ" riêng, phải thuê bằng JOY mới được công bố lên Bio. Gộp
+ * vào Danh Thiếp 25/10/2026 và công bố miễn phí: hai app cùng nói "tôi là ai",
+ * còn bắt trả tiền để khoe số liệu thật thì chẳng ai bật.
  */
-export default function HugoProfileTab({ onBack, publicLink }) {
+export default function ProfileProofPanel({ publicLink }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const [data, setData] = useState(null);
@@ -88,7 +86,6 @@ export default function HugoProfileTab({ onBack, publicLink }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled }),
       });
-      if (res.status === 402) throw new Error(t("utilities.profile.needPlan"));
       if (!res.ok) throw new Error(t("utilities.profile.saveError"));
       notify.success(enabled ? t("utilities.profile.published") : t("utilities.profile.unpublished"));
       load();
@@ -103,30 +100,7 @@ export default function HugoProfileTab({ onBack, publicLink }) {
   const publishing = data?.publishing;
 
   return (
-    /*
-     * Chuyển từ `SubUtilityHeader` sang khung chung `AppFrame` (20/09/2026).
-     *
-     * Vì sao: portal đang có BA bộ chrome song song — `AppFrame`, header này, và
-     * các app tự dựng. Cùng một portal mà mỗi app một kiểu nút quay lại, một cỡ
-     * chữ tiêu đề, một cách chừa safe-area; đó mới là gốc của cảm giác "UI không
-     * đồng bộ". Gộp về một khung thì sửa một chỗ là cả hệ đổi theo.
-     *
-     * Chỉ gộp CẤU TRÚC, không gộp MÀU: nền/nhấn của app vẫn do `appPalette` cấp
-     * theo tint riêng trong appRegistry, đúng chủ ý "mỗi app tự cầm màu của mình".
-     * Nội dung bên dưới giữ nguyên token portal (`bg-card`, `text-foreground`) —
-     * chúng đọc từ biến trên `:root` nên không bị `AppFrame` đè.
-     *
-     * `SubUtilityHeader` có nút cài PWA mà `AppFrame` không có, nên chuyển nó vào
-     * khe `actions` — nếu không, đổi khung là mất mất một tính năng.
-     */
-    <AppFrame
-      appId="profile"
-      title={t("utilities.catalog.profile.title")}
-      largeTitle
-      onBack={onBack}
-      actions={<StandaloneInstallButton appTitle={t("utilities.catalog.profile.title")} appId="profile" />}
-      contentMaxWidth="720px"
-    >
+    <>
       {!profile ? (
         <p className="px-1 py-10 text-center text-[15px] text-muted-foreground">{t("utilities.profile.loading")}</p>
       ) : (
@@ -258,36 +232,28 @@ export default function HugoProfileTab({ onBack, publicLink }) {
             </ProofSection>
           )}
 
-          {/* Công bố: đây là phần tính JOY. Chưa thuê thì nút mở Hugo Store. */}
+          {/* Công bố lên trang Bio công khai — miễn phí. */}
           <section className="rounded-2xl border border-border/60 bg-card p-5">
             <h3 className="text-sm font-bold text-foreground">{t("utilities.profile.publishTitle")}</h3>
             <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t("utilities.profile.publishDesc")}</p>
 
-            {publishing?.entitled ? (
-              <>
-                <label className="mt-4 flex min-h-11 items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-foreground">{t("utilities.profile.showOnBio")}</span>
-                  <input
-                    type="checkbox"
-                    checked={Boolean(publishing.enabled)}
-                    disabled={saving}
-                    onChange={(event) => togglePublish(event.target.checked)}
-                    className="h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted transition-colors checked:bg-primary disabled:opacity-50"
-                  />
-                </label>
-                {publishing.enabled && publicLink && (
-                  <p className="mt-2 break-all text-[13px] text-muted-foreground">{publicLink}</p>
-                )}
-              </>
-            ) : (
-              <p className="mt-4 rounded-xl bg-muted/60 px-3.5 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                {t("utilities.profile.needPlan")}
-              </p>
+            <label className="mt-4 flex min-h-11 items-center justify-between gap-3">
+              <span className="text-sm font-medium text-foreground">{t("utilities.profile.showOnBio")}</span>
+              <input
+                type="checkbox"
+                checked={Boolean(publishing?.enabled)}
+                disabled={saving}
+                onChange={(event) => togglePublish(event.target.checked)}
+                className="h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted transition-colors checked:bg-primary disabled:opacity-50"
+              />
+            </label>
+            {publishing?.enabled && publicLink && (
+              <p className="mt-2 break-all text-[13px] text-muted-foreground">{publicLink}</p>
             )}
           </section>
         </div>
       )}
-    </AppFrame>
+    </>
   );
 }
 
