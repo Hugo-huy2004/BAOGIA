@@ -55,7 +55,8 @@ export default function BioPublicPage() {
     };
 
     pollStatus();
-    const interval = setInterval(pollStatus, 15000);
+    // Tab ẩn thì thôi hỏi — khách để trang Bio mở cả ngày vẫn không tốn request.
+    const interval = setInterval(() => { if (!document.hidden) pollStatus(); }, 15000);
     return () => clearInterval(interval);
   }, [activeSlug, bio]);
 

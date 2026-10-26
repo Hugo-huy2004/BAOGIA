@@ -13,18 +13,12 @@ export function cachePolicy(req, res, next) {
     if (unsafe || !res.hasHeader('Cache-Control')) {
       res.setHeader('Cache-Control', 'private, no-store');
     }
+    // Public: mọi CDN tự đọc `s-maxage` của route. Đừng ép một TTL chung ở đây —
+    // bảng xếp hạng 15 giây mà bị giữ 2 phút ở edge là sai.
     if (/private|no-store/i.test(String(res.getHeader('Cache-Control')))) {
       res.setHeader('CDN-Cache-Control', 'no-store');
       res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
       res.setHeader('Cloudflare-CDN-Cache-Control', 'no-store');
-    } else {
-      // Cloudflare Edge CDN: Cache công khai tại PoP với stale-while-revalidate & stale-if-error
-      if (!res.hasHeader('Cloudflare-CDN-Cache-Control')) {
-        res.setHeader('Cloudflare-CDN-Cache-Control', 'public, max-age=120, stale-while-revalidate=300, stale-if-error=86400');
-      }
-      if (!res.hasHeader('Cache-Tag')) {
-        res.setHeader('Cache-Tag', 'hugo-portal, public-api');
-      }
     }
     return typeof statusMessage === 'string'
       ? writeHead.call(this, statusCode, statusMessage)

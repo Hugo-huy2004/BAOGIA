@@ -4140,6 +4140,12 @@
         "h24": "1 ngày",
         "h72": "3 ngày",
         "h168": "7 ngày"
+      },
+      "refresh": "Làm mới bảng tin",
+      "audience": {
+        "label": "Chọn người được xem bài",
+        "public": "Công khai",
+        "private": "Chỉ mình tôi"
       }
     }
   },

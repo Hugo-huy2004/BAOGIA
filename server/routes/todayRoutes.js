@@ -56,10 +56,10 @@ router.get('/feed', feedLimiter, async (req, res) => {
       return res.status(304).end();
     }
 
-    // `private, stale-while-revalidate` giúp trình duyệt hiển thị cache tức thì (< 5ms)
-    // trong khi server revalidate ngầm. ETag chống tải lại dữ liệu trùng.
+    // Feed giống nhau cho mọi người cùng ngôn ngữ → CDN giữ 5 phút, Node chỉ
+    // bị hỏi vài lần mỗi PoP dù có bao nhiêu thành viên. ETag chống tải lại trùng.
     res.set({
-      'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
+      'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
       'Content-Language': expectedEdition.locale,
       'X-Today-Edition': expectedEdition.country,
       ETag: etag,
@@ -169,6 +169,7 @@ async function present(posts, me) {
       replyCount: p.replyCount,
       createdAt: p.createdAt,
       editedAt: p.editedAt,
+      private: p.audience === 'private' || undefined,
       mine: Boolean(me) && p.authorEmail === me,
     };
   });
@@ -178,10 +179,20 @@ async function present(posts, me) {
 // nên bài nghìn tim vẫn nhẹ như bài không tim.
 // ($elemMatch biến phép chiếu thành dạng "chọn trường", nên phải kê đủ trường present() dùng.)
 const view = (me) => ({
-  authorEmail: 1, articleKey: 1, text: 1, poll: 1, parentKey: 1, ancestors: 1,
+  authorEmail: 1, articleKey: 1, audience: 1, text: 1, poll: 1, parentKey: 1, ancestors: 1,
   likeCount: 1, replyCount: 1, editedAt: 1, createdAt: 1,
   likes: { $elemMatch: { $eq: me } },
 });
+
+// Bài "Chỉ mình tôi" và cả nhánh hồi đáp của nó: người khác coi như không tồn tại.
+async function canSee(node, me) {
+  if (!node) return false;
+  const root = node.ancestors?.[0];
+  const top = root && isPostId(root) ? await TodayPost.findById(root, { audience: 1, authorEmail: 1 }).lean() : node;
+  return top?.audience !== 'private' || top.authorEmail === me;
+}
+
+const cleanAudience = (value) => (value === 'private' ? 'private' : undefined);
 
 // Bóng hết tim và hết bình luận thì xoá — DB chỉ giữ bóng còn có nội dung.
 const dropEmptyShadow = (key) => (isArticleKey(key)
@@ -201,7 +212,7 @@ const findNode = (key, projection) => (isArticleKey(key)
 
 router.get('/posts', feedLimiter, requireMember, async (req, res) => {
   try {
-    const filter = { parentKey: null, authorEmail: { $ne: null } };
+    const filter = { parentKey: null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' } }, { authorEmail: req.memberEmail }] };
     const before = new Date(req.query.before);
     if (!Number.isNaN(before.getTime())) filter.createdAt = { $lt: before };
     const posts = await TodayPost.find(filter, view(req.memberEmail)).sort({ createdAt: -1 }).limit(PAGE).lean();
@@ -228,7 +239,7 @@ router.get('/posts/:key', feedLimiter, requireMember, async (req, res) => {
     const { key } = req.params;
     if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
     const node = await findNode(key, view(req.memberEmail))?.lean();
-    if (!node && !isArticleKey(key)) return res.status(404).json({ error: 'This post was deleted.' });
+    if (!isArticleKey(key) && !(await canSee(node, req.memberEmail))) return res.status(404).json({ error: 'This post was deleted.' });
 
     const [replies, parent] = await Promise.all([
       TodayPost.find({ parentKey: key }, view(req.memberEmail)).sort({ createdAt: 1 }).limit(200).lean(),
@@ -260,14 +271,15 @@ router.post('/posts', writeLimiter, requireMember, async (req, res) => {
       if (isArticleKey(parentKey)) {
         await articleShadow(parentKey);
       } else {
-        const parent = isPostId(parentKey) ? await TodayPost.findById(parentKey, { ancestors: 1 }).lean() : null;
-        if (!parent) return res.status(404).json({ error: 'The post you replied to is gone.' });
+        const parent = isPostId(parentKey) ? await TodayPost.findById(parentKey, { ancestors: 1, audience: 1, authorEmail: 1 }).lean() : null;
+        if (!(await canSee(parent, req.memberEmail))) return res.status(404).json({ error: 'The post you replied to is gone.' });
         ancestors = parent.ancestors || [];
       }
       ancestors = [...ancestors, parentKey];
     }
 
-    const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, parentKey, ancestors: ancestors.length ? ancestors : undefined });
+    const audience = parentKey ? undefined : cleanAudience(req.body?.audience);
+    const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, audience, parentKey, ancestors: ancestors.length ? ancestors : undefined });
     if (parentKey) await TodayPost.updateOne(isArticleKey(parentKey) ? { articleKey: parentKey } : { _id: parentKey }, { $inc: { replyCount: 1 } });
     const [view] = await present([post.toObject()], req.memberEmail);
     return res.status(201).json({ post: view });
@@ -285,6 +297,7 @@ router.patch('/posts/:id', writeLimiter, requireMember, async (req, res) => {
   if (!post) return res.status(404).json({ error: 'Not found.' });
   if (!text && !post.poll) return res.status(400).json({ error: 'Write something first.' });
   post.text = text;
+  if (!post.parentKey && 'audience' in (req.body || {})) post.audience = cleanAudience(req.body.audience);
   post.editedAt = new Date();
   await post.save();
   const [view] = await present([post.toObject()], req.memberEmail);
@@ -309,6 +322,9 @@ router.post('/posts/:key/like', writeLimiter, requireMember, async (req, res) =>
   const me = req.memberEmail;
   if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
   if (isArticleKey(key)) await articleShadow(key);
+  else if (!(await canSee(await TodayPost.findById(key, { ancestors: 1, audience: 1, authorEmail: 1 }).lean(), me))) {
+    return res.status(404).json({ error: 'Not found.' });
+  }
   const where = isArticleKey(key) ? { articleKey: key } : { _id: key };
   const opts = { new: true, projection: { likeCount: 1 } };
   const added = await TodayPost.findOneAndUpdate({ ...where, likes: { $ne: me } }, { $push: { likes: me }, $inc: { likeCount: 1 } }, opts).lean();
@@ -324,6 +340,9 @@ router.post('/posts/:id/vote', writeLimiter, requireMember, async (req, res) => 
   const option = Number(req.body?.option);
   if (!isPostId(req.params.id) || !Number.isInteger(option) || option < 0 || option > 3) {
     return res.status(400).json({ error: 'Invalid vote.' });
+  }
+  if (!(await canSee(await TodayPost.findById(req.params.id, { audience: 1, authorEmail: 1 }).lean(), me))) {
+    return res.status(404).json({ error: 'Not found.' });
   }
   const post = await TodayPost.findOneAndUpdate(
     {

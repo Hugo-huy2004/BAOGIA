@@ -30,7 +30,7 @@ router.get("/", (req, res) => {
     };
   });
 
-  res.set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800");
+  res.set("Cache-Control", "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800");
   return res.json({
     success: true,
     data: list,
@@ -62,7 +62,7 @@ router.get("/:docId", (req, res) => {
   }
 
   res.set({
-    "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+    "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
     ETag: etag,
   });
 

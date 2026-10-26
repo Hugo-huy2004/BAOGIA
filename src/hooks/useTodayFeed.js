@@ -41,7 +41,9 @@ export function useTodayFeed(language, category = "all") {
     }),
     initialData: cached?.data,
     initialDataUpdatedAt: cached?.at,
-    staleTime: eco ? Infinity : 5 * 60 * 1000,
+    // Bảng tin chỉ làm mới khi người dùng kéo xuống (MemberTodayTab) — không tự đổi dưới tay.
+    staleTime: Infinity,
+    refetchOnMount: false,
     gcTime: 30 * 60 * 1000,
     retry: eco ? 0 : 2,
     refetchInterval: false,

@@ -20,6 +20,9 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
   const [text, setText] = useState(editing?.text || "");
   const [poll, setPoll] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Chỉ bài gốc mới chọn được ai xem; hồi đáp theo phạm vi của bài gốc.
+  const topLevel = editing ? !editing.parentKey : !parentKey;
+  const [audience, setAudience] = useState(editing?.private ? "private" : "public");
 
   useEffect(() => {
     ref.current?.focus();
@@ -87,8 +90,8 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
     setBusy(true);
     try {
       const res = editing
-        ? await todayPostsApi.edit(editing.key, text)
-        : await todayPostsApi.create({ text, parentKey, poll: poll && { options: poll.options, hours: poll.hours } });
+        ? await todayPostsApi.edit(editing.key, text, topLevel ? audience : undefined)
+        : await todayPostsApi.create({ text, parentKey, audience, poll: poll && { options: poll.options, hours: poll.hours } });
       sensory.success();
       notify.success(t(editing ? "memberPortal.threads.saved" : "memberPortal.threads.published"));
       onDone?.(res.post);
@@ -131,6 +134,18 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-semibold text-foreground">{me?.name}</p>
             {replyTo && <p className="text-[13px] text-muted-foreground">{t("memberPortal.threads.replyTo", { name: replyTo })}</p>}
+            {topLevel && (
+              <button
+                type="button"
+                onClick={() => setAudience((a) => (a === "public" ? "private" : "public"))}
+                aria-label={t("memberPortal.threads.audience.label")}
+                className="mt-1 inline-flex min-h-[32px] items-center gap-1 rounded-full bg-muted px-3 text-[13px] font-semibold text-foreground"
+              >
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">{audience === "public" ? "public" : "lock"}</span>
+                {t(`memberPortal.threads.audience.${audience}`)}
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">swap_horiz</span>
+              </button>
+            )}
             <textarea
               ref={ref}
               value={text}

@@ -26,6 +26,7 @@ export async function getChessLeaderboard(req, res) {
     );
 
     const leaderboard = players.map((p, idx) => ({ rank: idx + 1, ...p }));
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=15, stale-while-revalidate=60');
     return res.json({ success: true, leaderboard });
   } catch (error) {
     return res.status(500).json({ error: error.message });

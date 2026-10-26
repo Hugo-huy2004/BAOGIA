@@ -4099,6 +4099,12 @@
         "h24": "1 day",
         "h72": "3 days",
         "h168": "7 days"
+      },
+      "refresh": "Refresh feed",
+      "audience": {
+        "label": "Choose who can see this post",
+        "public": "Public",
+        "private": "Only me"
       }
     }
   },

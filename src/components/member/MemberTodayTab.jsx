@@ -64,11 +64,13 @@ export default function MemberTodayTab({ bio, onNavigate }) {
   const { data: feed, dataUpdatedAt } = useTodayFeed(language, "all");
   const articles = useMemo(() => feed?.items || [], [feed?.items]);
 
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["today-posts"] });
-    queryClient.invalidateQueries({ queryKey: ["today-thread"] });
-    queryClient.invalidateQueries({ queryKey: ["today-stats"] });
-  };
+  const refresh = () => Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["today-posts"] }),
+    queryClient.invalidateQueries({ queryKey: ["today-thread"] }),
+    queryClient.invalidateQueries({ queryKey: ["today-stats"] }),
+  ]);
+  // Kéo xuống ở đầu trang: tải lại cả báo lẫn bài thành viên.
+  const pullRefresh = () => Promise.all([refresh(), queryClient.invalidateQueries({ queryKey: ["today-feed"] })]);
 
   const openPost = (key) => onNavigate(`/member/today?post=${encodeURIComponent(key)}`);
   const reply = (post) => setComposer({ parentKey: post.key, replyTo: post.author?.name });
@@ -103,7 +105,7 @@ export default function MemberTodayTab({ bio, onNavigate }) {
       {postKey ? (
         <ThreadDetail postKey={postKey} language={language} articles={articles} actions={actions} onNavigate={onNavigate} />
       ) : (
-        <ThreadFeed articles={articles} fetchedAt={dataUpdatedAt} me={me} actions={actions} onCompose={() => setComposer({})} />
+        <ThreadFeed articles={articles} fetchedAt={dataUpdatedAt} me={me} actions={actions} onCompose={() => setComposer({})} onRefresh={pullRefresh} />
       )}
 
       {composer && (
@@ -118,7 +120,43 @@ export default function MemberTodayTab({ bio, onNavigate }) {
   );
 }
 
-function ThreadFeed({ articles, fetchedAt, me, actions, onCompose }) {
+// Như Facebook: bảng tin đứng yên, không tự chen bài mới vào giữa lúc đang đọc.
+// Chỉ khi kéo xuống ở đầu trang (hoặc bấm nút làm mới / tự đăng bài) mới tải lại.
+const FROZEN = { staleTime: Infinity, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false };
+const PULL_TRIGGER = 64;
+
+// Đang ở đầu trang thật sự: không khung cuộn nào phía trên còn cuộn dở.
+const atTop = (node) => {
+  if (window.scrollY > 0) return false;
+  for (let n = node; n; n = n.parentElement) if (n.scrollTop > 0) return false;
+  return true;
+};
+
+function usePullToRefresh(onRefresh) {
+  const [pull, setPull] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const start = useRef(null);
+  const run = async () => {
+    setBusy(true);
+    try { await onRefresh(); } finally { setBusy(false); setPull(0); }
+  };
+  const handlers = {
+    onTouchStart: (e) => { start.current = !busy && atTop(e.currentTarget) ? e.touches[0].clientY : null; },
+    onTouchMove: (e) => {
+      if (start.current == null) return;
+      const dy = e.touches[0].clientY - start.current;
+      setPull(dy > 0 ? Math.min(dy * 0.5, 96) : 0);
+    },
+    onTouchEnd: () => {
+      if (start.current == null) return;
+      start.current = null;
+      if (pull >= PULL_TRIGGER) run(); else setPull(0);
+    },
+  };
+  return { pull, busy, run, handlers };
+}
+
+function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh }) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
   const [visible, setVisible] = useState(PAGE);
@@ -128,7 +166,7 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose }) {
     queryFn: ({ pageParam }) => todayPostsApi.feed(pageParam),
     initialPageParam: null,
     getNextPageParam: (last) => (last.more ? last.posts.at(-1)?.createdAt : undefined),
-    staleTime: 30_000,
+    ...FROZEN,
   });
 
   const keys = useMemo(() => articles.slice(0, 100).map((a) => `a:${a.id}`), [articles]);
@@ -136,7 +174,7 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose }) {
     queryKey: ["today-stats", keys.join(",")],
     queryFn: () => todayPostsApi.stats(keys),
     enabled: keys.length > 0,
-    staleTime: 30_000,
+    ...FROZEN,
   });
 
   const items = useMemo(() => {
@@ -163,11 +201,33 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose }) {
   }, [visible, items.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const loading = posts.isLoading && !articles.length;
+  const { pull, busy, run, handlers } = usePullToRefresh(async () => {
+    await onRefresh();
+    setVisible(PAGE);
+  });
+  const shown = busy ? 48 : pull;
 
   return (
-    <>
+    <div {...handlers}>
+      <div className="flex items-end justify-center overflow-hidden transition-[height] duration-150" style={{ height: shown }} aria-hidden="true">
+        <span
+          className={`material-symbols-outlined mb-2 text-[24px] text-muted-foreground ${busy ? "animate-spin" : ""}`}
+          style={busy ? undefined : { transform: `rotate(${pull * 3}deg)`, opacity: Math.min(pull / PULL_TRIGGER, 1) }}
+        >
+          refresh
+        </span>
+      </div>
       <header className="flex items-center justify-between gap-3 px-4 pb-2 pt-2">
         <h1 id="portal-today-title" className="text-[28px] font-bold tracking-[-0.02em] text-foreground">{t("memberPortal.threads.title")}</h1>
+        <button
+          type="button"
+          onClick={run}
+          disabled={busy}
+          aria-label={t("memberPortal.threads.refresh")}
+          className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground active:bg-muted disabled:opacity-40"
+        >
+          <span className={`material-symbols-outlined text-[24px] ${busy ? "animate-spin" : ""}`} aria-hidden="true">refresh</span>
+        </button>
       </header>
 
       <div className="flex border-b border-border" role="tablist">
@@ -211,7 +271,7 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose }) {
         </div>
       )}
       <div ref={moreRef} className="h-px" />
-    </>
+    </div>
   );
 }
 

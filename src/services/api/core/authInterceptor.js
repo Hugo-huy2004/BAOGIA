@@ -16,6 +16,17 @@ import { SECURITY_BLOCK_STORAGE_KEY } from "../../../components/SecurityBlockScr
 // twice per fetch, so a single request cost four parses for a constant answer.
 let cachedTargets = null;
 
+// Route trong danh sách này phải đặt `s-maxage` và KHÔNG được đổi theo người đọc.
+const SHARED_CACHE_PATHS = [
+  "/api/today/feed",
+  "/api/arcade/leaderboard",
+  "/api/arcade/2048/collection-leaderboard",
+  "/api/chess/leaderboard",
+  "/api/presence/status-by-slug",
+  "/api/legal-docs",
+  "/api/coder-lessons",
+];
+
 const apiTargets = () => {
   if (cachedTargets) return cachedTargets;
   const browserOrigin = window.location.origin;
@@ -152,6 +163,12 @@ export function installApiAuthInterceptor() {
     if (!isApi) return originalFetch(input, requestInit);
 
     const method = (requestInit.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
+    // Dữ liệu giống nhau cho mọi người: gửi KHÔNG cookie, KHÔNG token. Request
+    // mang Authorization thì CDN bỏ qua cache và cachePolicy ép no-store — một
+    // triệu thành viên đăng nhập là một triệu lượt chạm thẳng vào Node.
+    if (method === "GET" && SHARED_CACHE_PATHS.some((p) => parseRequestUrl(url)?.pathname.startsWith(p))) {
+      return originalFetch(input, { ...requestInit, credentials: "omit" });
+    }
     const shouldTrack = !url.includes("/api/ops/client-event");
     const { headers, sentAuth, authToken } = decision;
 

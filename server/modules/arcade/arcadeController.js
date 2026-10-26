@@ -2,6 +2,7 @@
  * arcadeController.js
  * Controller tập trung toàn bộ logic nghiệp vụ trò chơi HugoArcade.
  */
+import { createHash } from 'node:crypto';
 import ArcadeScore from '../../models/ArcadeScore.js';
 import Bio from '../../models/Bio.js';
 import { awardJoy } from '../../utils/joyService.js';
@@ -313,7 +314,8 @@ export async function getLeaderboard(req, res) {
         const minor = minors.has(email);
         const name = cleanDisplayName(item.displayName || item.email);
         return {
-          email: minor ? '' : (item.email || item._id),
+          // Mã băm làm khoá dòng — bảng này cache công khai ở CDN, không được mang email.
+          _id: createHash('sha256').update(email).digest('hex').slice(0, 16),
           displayName: minor ? shortName(name) : name,
           avatarUrl: item.avatarUrl || '',
           bestScore: Number(item.bestScore) || 0,
@@ -322,7 +324,7 @@ export async function getLeaderboard(req, res) {
       })
       .slice(0, cap);
 
-    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=15, stale-while-revalidate=60');
     res.json({ leaderboard: finalList });
   } catch (error) {
     console.error('[arcade leaderboard]', error);
@@ -486,7 +488,7 @@ export async function get2048CollectionLeaderboard(req, res) {
       .sort((a, b) => b.collectionCount - a.collectionCount || b.bestScore - a.bestScore)
       .slice(0, 30);
 
-    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=15, stale-while-revalidate=60');
     res.json({ leaderboard });
   } catch (error) {
     console.error('[2048 collection leaderboard]', error);

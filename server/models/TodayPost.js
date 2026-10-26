@@ -19,6 +19,8 @@ const TodayPostSchema = new mongoose.Schema(
       }, { _id: false }),
       default: undefined,
     },
+    // Chỉ bài gốc mới có. Công khai thì để trống (không ghi gì), "Chỉ mình tôi" = 'private'.
+    audience: { type: String, enum: ['private'], default: undefined },
     parentKey: { type: String, default: null },
     // Mọi tổ tiên — xoá một bài là xoá luôn cả nhánh bình luận bên dưới.
     // Mảng rỗng/ngày trống để `undefined` cho khỏi ghi trường thừa vào mỗi bài.

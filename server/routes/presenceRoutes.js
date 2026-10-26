@@ -48,6 +48,7 @@ router.get('/status-by-slug', async (req, res) => {
     const Bio = (await import('../models/Bio.js')).default;
     const bio = await Bio.findOne({ slug }, 'email').lean();
     if (!bio?.email) return res.json({ online: false });
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=15');
     res.json({ online: await isOnline(bio.email) });
   } catch (error) {
     res.status(500).json({ error: error.message });

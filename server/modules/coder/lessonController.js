@@ -46,7 +46,7 @@ export async function getLessonList(req, res) {
   const start = (page - 1) * limit;
   const items = source.slice(start, start + limit).map(lessonSummary);
 
-  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
+  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
   return res.json({
     items,
     stages:
@@ -72,7 +72,7 @@ export async function getLessonList(req, res) {
 export async function getLessonDetail(req, res) {
   const course = WEB_COURSES.find((item) => item.id === req.params.lessonId);
   if (!course) return res.status(404).json({ error: 'Lesson not found' });
-  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
+  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
   return res.json({ lesson: publicCourse(course) });
 }
 

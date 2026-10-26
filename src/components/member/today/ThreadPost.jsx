@@ -283,6 +283,12 @@ export default function ThreadPost({ post, full = false, line = false, onOpen, o
             {relativeTime(post.createdAt, i18n.resolvedLanguage)}
             {post.editedAt && ` · ${t("memberPortal.threads.edited")}`}
           </span>
+          {post.private && (
+            <span title={t("memberPortal.threads.audience.private")} className="flex shrink-0">
+              <Icon name="lock" className="!text-[15px] text-muted-foreground" />
+              <span className="sr-only">{t("memberPortal.threads.audience.private")}</span>
+            </span>
+          )}
           <span className="ml-auto" />
           {!post.article && <Menu items={menu} />}
         </header>
