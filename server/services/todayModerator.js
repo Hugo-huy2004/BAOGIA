@@ -8,6 +8,7 @@
 // Câu có dấu hiệu khủng hoảng không bao giờ bị gỡ hay tính lỗi.
 import TodayPost from '../models/TodayPost.js';
 import SecurityEvent from '../models/SecurityEvent.js';
+import CompanionHistory from '../models/CompanionHistory.js';
 import { hasProfanity, isCrisis } from './companionGuard.js';
 import { recordSecurityViolation } from './securityEnforcement.js';
 import { complete } from './companionBrainService.js';
@@ -67,10 +68,34 @@ async function removePost(post, category, req = null) {
   return removed;
 }
 
-/** Lớp tức thì lúc đăng/sửa: chỉ danh sách từ tục, 0 AI. Trả `removed` nếu gỡ. */
+// Bài có dấu hiệu khủng hoảng: KHÔNG gỡ, mà đỡ. Gắn cờ vào cùng danh sách
+// khủng hoảng của chat (admin đã có màn gọi lại), gửi lời hỏi thăm kèm đường
+// dây nóng cho tác giả, báo Telegram. Một lần mỗi 24 giờ cho một người.
+async function careForAuthor(post, content) {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const flagged = await CompanionHistory.updateOne(
+    { email: post.authorEmail, crisisFlags: { $not: { $elemMatch: { trigger: 'today_post', detectedAt: { $gte: since } } } } },
+    { $push: { crisisFlags: { detectedAt: new Date(), severity: 'high', trigger: 'today_post', resolved: false, conversationSummary: content.slice(0, 1000) } } },
+  );
+  if (!flagged.modifiedCount) {
+    // Chưa có lịch sử chat thì tạo mới; đã có cờ trong 24 giờ thì thôi.
+    if (await CompanionHistory.exists({ email: post.authorEmail })) return;
+    await CompanionHistory.create({ email: post.authorEmail, crisisFlags: [{ detectedAt: new Date(), severity: 'high', trigger: 'today_post', resolved: false, conversationSummary: content.slice(0, 1000) }] });
+  }
+  await notifyMember({ email: post.authorEmail, key: 'event.todayCare', type: 'info', category: 'wellness', push: true }).catch(() => {});
+  import('./telegramService.js').then(({ sendTelegramAlert }) => sendTelegramAlert(
+    `🆘 <b>Today: bài có dấu hiệu khủng hoảng</b> — đã gắn cờ trong danh sách khủng hoảng, bài giữ nguyên.\n\n${escapeHtml(content.slice(0, 600))}`,
+  )).catch(() => {});
+}
+
+/** Lớp tức thì lúc đăng/sửa, 0 AI: từ tục → gỡ; khủng hoảng → đỡ. Trả `removed` nếu gỡ. */
 export async function screenOnPost(post, req) {
   const content = contentOf(post);
-  if (!hasProfanity(content) || isCrisis(content)) return null;
+  if (isCrisis(content)) {
+    await careForAuthor(post, content).catch((err) => console.warn('[todayModerator] care:', err.message));
+    return null;
+  }
+  if (!hasProfanity(content)) return null;
   return removePost(post, 'profanity', req);
 }
 
