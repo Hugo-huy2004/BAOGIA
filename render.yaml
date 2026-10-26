@@ -54,6 +54,13 @@ services:
       - key: CF_AI_TOKEN
         sync: false
 
+      # Web Push. Thiếu thì server tự tạo khoá mới MỖI lần khởi động → mọi đăng ký
+      # push chết sau mỗi lần restart. Tạo một lần: npx web-push generate-vapid-keys
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+
       # OAuth client web — server từ chối khởi động ở production nếu thiếu.
       - key: GOOGLE_CLIENT_ID
         sync: false

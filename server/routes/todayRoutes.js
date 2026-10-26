@@ -1,6 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { resolveNewsEdition, studentNewsService } from '../services/studentNewsService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import mongoose from 'mongoose';
@@ -8,8 +8,13 @@ import TodayPost from '../models/TodayPost.js';
 import Bio from '../models/Bio.js';
 
 const router = express.Router();
+// Đếm theo THÀNH VIÊN khi đã đăng nhập: sau Vercel/Cloudflare nhiều người dùng
+// chung một IP proxy, đếm theo IP là phạt lây cả người vô can.
+const byMember = (req) => req.memberEmail || ipKeyGenerator(req.ip);
+
 const feedLimiter = rateLimit({
   windowMs: 60 * 1000,
+  keyGenerator: byMember,
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
@@ -20,6 +25,7 @@ const feedLimiter = rateLimit({
 // một lượt gọi Gemini. Siết chặt hơn và chỉ mở cho thành viên đã đăng nhập.
 const readerLimiter = rateLimit({
   windowMs: 60 * 1000,
+  keyGenerator: byMember,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -72,7 +78,7 @@ router.get('/feed', feedLimiter, async (req, res) => {
 });
 
 // Trang đọc: metadata + tóm tắt; toàn văn chỉ có khi nguồn cấp quyền rõ ràng.
-router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
+router.get('/article/:id', requireMember, readerLimiter, async (req, res) => {
   try {
     const language = normalizeLanguage(req.query.lang);
     const article = await studentNewsService.findArticleById(req.params.id, {
@@ -116,11 +122,18 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
 
 const writeLimiter = rateLimit({
   windowMs: 60 * 1000,
+  keyGenerator: byMember,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many posts. Please slow down.' },
 });
+
+// Chống spam đăng bài: 5 bài/hồi đáp mỗi phút, 60 mỗi giờ cho một thành viên.
+const postLimiter = [
+  rateLimit({ windowMs: 60 * 1000, max: 5, keyGenerator: byMember, standardHeaders: true, legacyHeaders: false, message: { error: 'Posting too fast. Please wait a minute.' } }),
+  rateLimit({ windowMs: 60 * 60 * 1000, max: 60, keyGenerator: byMember, standardHeaders: true, legacyHeaders: false, message: { error: 'Hourly posting limit reached.' } }),
+];
 
 // ponytail: "dài tuỳ thích" vẫn cần một trần ở cửa vào — 20.000 ký tự ≈ 8 trang A4.
 const MAX_TEXT = 20000;
@@ -210,7 +223,7 @@ const findNode = (key, projection) => (isArticleKey(key)
   ? TodayPost.findOne({ articleKey: key }, projection)
   : isPostId(key) ? TodayPost.findById(key, projection) : null);
 
-router.get('/posts', feedLimiter, requireMember, async (req, res) => {
+router.get('/posts', requireMember, feedLimiter, async (req, res) => {
   try {
     const filter = { parentKey: null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' } }, { authorEmail: req.memberEmail }] };
     const before = new Date(req.query.before);
@@ -224,7 +237,7 @@ router.get('/posts', feedLimiter, requireMember, async (req, res) => {
 });
 
 // Số tim/bình luận cho một loạt bài báo trong feed — một lượt gọi cho cả trang.
-router.get('/posts/stats', feedLimiter, requireMember, async (req, res) => {
+router.get('/posts/stats', requireMember, feedLimiter, async (req, res) => {
   const keys = String(req.query.keys || '').split(',').filter(isArticleKey).slice(0, 100);
   const rows = await TodayPost.find({ articleKey: { $in: keys } }, view(req.memberEmail)).lean();
   const stats = {};
@@ -234,7 +247,7 @@ router.get('/posts/stats', feedLimiter, requireMember, async (req, res) => {
   return res.json({ stats });
 });
 
-router.get('/posts/:key', feedLimiter, requireMember, async (req, res) => {
+router.get('/posts/:key', requireMember, feedLimiter, async (req, res) => {
   try {
     const { key } = req.params;
     if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
@@ -257,7 +270,7 @@ router.get('/posts/:key', feedLimiter, requireMember, async (req, res) => {
   }
 });
 
-router.post('/posts', writeLimiter, requireMember, async (req, res) => {
+router.post('/posts', requireMember, postLimiter, async (req, res) => {
   try {
     const text = cleanText(req.body?.text);
     const poll = cleanPoll(req.body?.poll);
@@ -299,7 +312,7 @@ router.post('/posts', writeLimiter, requireMember, async (req, res) => {
   }
 });
 
-router.patch('/posts/:id', writeLimiter, requireMember, async (req, res) => {
+router.patch('/posts/:id', requireMember, writeLimiter, async (req, res) => {
   const text = cleanText(req.body?.text);
   if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
   if (text.length > MAX_TEXT) return res.status(400).json({ error: `Posts are limited to ${MAX_TEXT} characters.` });
@@ -314,7 +327,7 @@ router.patch('/posts/:id', writeLimiter, requireMember, async (req, res) => {
   return res.json({ post: view });
 });
 
-router.delete('/posts/:id', writeLimiter, requireMember, async (req, res) => {
+router.delete('/posts/:id', requireMember, writeLimiter, async (req, res) => {
   if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
   const post = await TodayPost.findOneAndDelete({ _id: req.params.id, authorEmail: req.memberEmail });
   if (!post) return res.status(404).json({ error: 'Not found.' });
@@ -327,7 +340,7 @@ router.delete('/posts/:id', writeLimiter, requireMember, async (req, res) => {
 });
 
 // Thả/bỏ tim — hai lệnh có điều kiện để bấm liên tục cũng không đếm lệch.
-router.post('/posts/:key/like', writeLimiter, requireMember, async (req, res) => {
+router.post('/posts/:key/like', requireMember, writeLimiter, async (req, res) => {
   const { key } = req.params;
   const me = req.memberEmail;
   if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
@@ -345,7 +358,7 @@ router.post('/posts/:key/like', writeLimiter, requireMember, async (req, res) =>
 });
 
 // Một phiếu một người, không đổi được — như Threads.
-router.post('/posts/:id/vote', writeLimiter, requireMember, async (req, res) => {
+router.post('/posts/:id/vote', requireMember, writeLimiter, async (req, res) => {
   const me = req.memberEmail;
   const option = Number(req.body?.option);
   if (!isPostId(req.params.id) || !Number.isInteger(option) || option < 0 || option > 3) {

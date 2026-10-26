@@ -157,6 +157,13 @@ router.post('/sentry-hook', telemetryLimiter, (req, res) => {
   });
 });
 
+// Chẩn đoán: proxy nào đứng trước Render và header nào mang IP thật. Rate limit
+// và hệ chặn IP đều dựa vào req.ip — sai IP là chặn nhầm cả một nút Cloudflare.
+router.get('/ip-debug', requireAdmin, (req, res) => {
+  const pick = ['x-forwarded-for', 'cf-connecting-ip', 'true-client-ip', 'x-real-ip', 'x-vercel-forwarded-for', 'cf-ipcountry', 'cf-ray', 'via'];
+  res.json({ reqIp: req.ip, ips: req.ips, headers: Object.fromEntries(pick.map((h) => [h, req.headers[h] ?? null])) });
+});
+
 router.get('/metrics/summary', requireAdmin, async (req, res) => {
   const hours = Math.min(24 * 30, Math.max(1, Number(req.query.hours) || 24));
   const since = new Date(Date.now() - hours * 60 * 60 * 1000);

@@ -26,6 +26,13 @@ let vapidKeys = {
 };
 
 if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
+  // Ổ đĩa Render bị xoá mỗi lần khởi động: khoá tự tạo ở đây sống đúng một vòng
+  // đời process. Khoá đổi là MỌI đăng ký push của MỌI thành viên chết, máy họ
+  // đăng ký lại, rác dồn thành hàng chục thiết bị/người. Production phải đặt
+  // VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY trong env.
+  if (process.env.NODE_ENV === 'production') {
+    console.error('🚨 [Push] THIẾU VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY trên production — push sẽ hỏng sau mỗi lần khởi động. Đặt trong Render → Environment.');
+  }
   console.log('⚠️  Chưa phát hiện VAPID keys trong .env. Đang tự động tạo VAPID keys...');
   const keys = webpush.generateVAPIDKeys();
   vapidKeys = {

@@ -87,6 +87,9 @@ async function denomOfMember(email) {
   }
 }
 
+const DEAD = new Set([403, 404, 410]);
+const maskEmail = (email) => String(email).replace(/^(.{2}).*(@.*)$/, '$1***$2');
+
 /** Phần chung: tìm thiết bị, gửi, dọn đăng ký chết. */
 async function deliver(email, textFor, url, extra = {}) {
   const { urgency = 'normal', ...shown } = extra;
@@ -99,7 +102,9 @@ async function deliver(email, textFor, url, extra = {}) {
       return;
     }
 
-    const sendPromises = [];
+    let sent = 0;
+    let removed = 0;
+    let failed = 0;
     // Gửi theo batch để tránh bị chặn (ví dụ Apple Push rate limit) khi user có hàng trăm thiết bị
     const BATCH_SIZE = 10;
     for (let i = 0; i < subscriptions.length; i += BATCH_SIZE) {
@@ -115,18 +120,23 @@ async function deliver(email, textFor, url, extra = {}) {
           ...shown,
         });
         return webpush.sendNotification(sub.subscription, payload, { urgency, TTL: 24 * 3600 })
+          .then(() => { sent += 1; })
           .catch(err => {
-            console.error(`[Push Notifier] Gửi thất bại cho ${email} tại endpoint: ${sub.subscription.endpoint}`, err.message);
-            // Nếu quyền bị hủy hoặc endpoint hỏng, xóa đăng ký
-            if (err.statusCode === 410 || err.statusCode === 404 || err.message.includes('unexpected response code')) {
+            // 404/410: thiết bị đã huỷ. 403: đăng ký làm với cặp khoá VAPID khác —
+            // không bao giờ gửi được nữa. 429/5xx/mạng là lỗi tạm: giữ lại, lần sau thử tiếp.
+            if (DEAD.has(err.statusCode)) {
+              removed += 1;
               return NotificationSubscription.deleteOne({ _id: sub._id }).catch(console.error);
             }
+            failed += 1;
+            console.error(`[Push Notifier] Lỗi tạm (${err.statusCode || 'mạng'}) tại ${new URL(sub.subscription.endpoint).host}:`, err.body || err.message);
           });
       });
       await Promise.all(batchPromises);
     }
     
-    console.log(`[Push Notifier] Đã gửi thông báo đến ${subscriptions.length} thiết bị của ${email}`);
+    console.log(`[Push Notifier] ${maskEmail(email)}: gửi được ${sent}/${subscriptions.length}`
+      + (removed ? `, xoá ${removed} đăng ký chết` : '') + (failed ? `, ${failed} lỗi tạm` : ''));
   } catch (error) {
     console.error('[Push Notifier] Lỗi gửi thông báo đẩy:', error);
   }
