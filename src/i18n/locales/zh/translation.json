@@ -141,7 +141,8 @@
           "title": "个人资料",
           "description": "信息与外观"
         }
-      }
+      },
+      "wallet": "JOY 钱包"
     },
     "today": {
       "description": "帮助你学习更好，负责任地连接的今天的信息、研究和机会。",

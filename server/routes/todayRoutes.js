@@ -278,6 +278,16 @@ router.post('/posts', writeLimiter, requireMember, async (req, res) => {
       ancestors = [...ancestors, parentKey];
     }
 
+    // Lưới thứ hai sau nút khoá ở client: cùng người, cùng nội dung, cùng chỗ trong
+    // 30 giây thì trả lại bài vừa đăng thay vì tạo bài trùng (mạng chập chờn gửi lại).
+    const twin = text && await TodayPost.findOne({
+      authorEmail: req.memberEmail, parentKey, text, createdAt: { $gt: new Date(Date.now() - 30_000) },
+    }).lean();
+    if (twin) {
+      const [view] = await present([twin], req.memberEmail);
+      return res.status(200).json({ post: view });
+    }
+
     const audience = parentKey ? undefined : cleanAudience(req.body?.audience);
     const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, audience, parentKey, ancestors: ancestors.length ? ancestors : undefined });
     if (parentKey) await TodayPost.updateOne(isArticleKey(parentKey) ? { articleKey: parentKey } : { _id: parentKey }, { $inc: { replyCount: 1 } });

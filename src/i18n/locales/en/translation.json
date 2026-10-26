@@ -1860,7 +1860,8 @@
           "title": "Profile",
           "description": "Information and appearance"
         }
-      }
+      },
+      "wallet": "JOY Wallet"
     },
     "today": {
       "description": "News, research, and opportunities that help you learn better and connect responsibly.",

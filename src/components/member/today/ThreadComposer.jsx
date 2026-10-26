@@ -20,6 +20,9 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
   const [text, setText] = useState(editing?.text || "");
   const [poll, setPoll] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Khoá đồng bộ: state `busy` chỉ đổi sau lần vẽ kế tiếp, mạng chậm bấm 5 lần
+  // là 5 lượt gửi lọt qua trước khi nút kịp mờ đi.
+  const sending = useRef(false);
   // Chỉ bài gốc mới chọn được ai xem; hồi đáp theo phạm vi của bài gốc.
   const topLevel = editing ? !editing.parentKey : !parentKey;
   const [audience, setAudience] = useState(editing?.private ? "private" : "public");
@@ -86,7 +89,8 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
   const canPost = !busy && (text.trim() || (poll && poll.options.filter((o) => o.trim()).length >= 2));
 
   const submit = async () => {
-    if (!canPost) return;
+    if (!canPost || sending.current) return;
+    sending.current = true;
     setBusy(true);
     try {
       const res = editing
@@ -97,6 +101,7 @@ export default function ThreadComposer({ me, parentKey = null, replyTo = "", edi
       onDone?.(res.post);
     } catch (error) {
       notify.error(error.message || t("memberPortal.threads.error"));
+      sending.current = false;
       setBusy(false);
     }
   };
