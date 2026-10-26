@@ -1,4 +1,5 @@
-// Bộ não "đám mây" của nhân vật đồng hành HugoPSY — Cloudflare Workers AI.
+// Bộ não "đám mây" của nhân vật đồng hành HugoPSY — Cloudflare Workers AI, dự
+// phòng bằng Groq; cả hai gói Free.
 //
 // Bộ não CHÍNH cho thành viên (03/10/2026). Thử thật: model 1–2B chạy trên máy
 // lặp và lạc ý qua nhiều lượt, nên mọi thành viên gọi model 30B ở đây; khách
@@ -15,16 +16,29 @@
 // CLOUDFLARE_API_TOKEN của tường lửa: lộ token chat thì không được mất luôn
 // quyền sửa firewall.
 
+import Bio from "../models/Bio.js";
+import LearningEvidence from "../models/LearningEvidence.js";
+import SleepLog from "../models/SleepLog.js";
+import CheckinRecord from "../models/CheckinRecord.js";
+
 const MODEL = "@cf/qwen/qwen3-30b-a3b-fp8";
 const PER_MEMBER_DAILY = 80;
 const GLOBAL_DAILY = 1300; // chừa biên dưới ~1.400 lượt của hạn mức miễn phí
 const TIMEOUT_MS = 15_000;
+
+// Nguồn dự phòng thứ hai khi Cloudflare hết lượt: Groq gói Free (không thẻ →
+// vượt hạn mức là lỗi 429, không tính tiền). Hạn mức tính RIÊNG theo từng nhà
+// cung cấp, nên cộng hai nguồn là gấp đôi sức chứa mà vẫn 0 đồng.
+// Free tier llama-3.3-70b-versatile: 1.000 lượt/ngày.
+const GROQ_DAILY = 900;
+const groqModel = () => (process.env.GROQ_MODELS || "llama-3.3-70b-versatile").split(",")[0].trim();
 
 // ponytail: đếm trong bộ nhớ tiến trình — Render chỉ chạy một tiến trình nên đủ;
 // khởi động lại thì đếm lại từ 0 (lệch có lợi cho người dùng, Cloudflare vẫn là
 // chốt cuối). Nếu chạy nhiều tiến trình thì chuyển sang Mongo/Redis.
 let day = "";
 let globalCount = 0;
+let groqCount = 0;
 const perMember = new Map();
 
 function utcDay() {
@@ -36,12 +50,16 @@ function roll() {
   if (today !== day) {
     day = today;
     globalCount = 0;
+    groqCount = 0;
     perMember.clear();
   }
 }
 
+const cfConfigured = () => Boolean(process.env.CF_AI_ACCOUNT_ID && process.env.CF_AI_TOKEN);
+const groqConfigured = () => Boolean(process.env.GROQ_API_KEY);
+
 export function isConfigured() {
-  return Boolean(process.env.CF_AI_ACCOUNT_ID && process.env.CF_AI_TOKEN);
+  return cfConfigured() || groqConfigured();
 }
 
 const ROLES = new Set(["system", "user", "assistant"]);
@@ -61,46 +79,152 @@ export function sanitizeMessages(messages) {
   return clean;
 }
 
-/**
- * Trả { reply } hoặc ném lỗi có `status` (429 hết lượt, 503 chưa cấu hình/lỗi).
- */
-export async function think(memberEmail, messages) {
-  if (!isConfigured()) throw Object.assign(new Error("brain_not_configured"), { status: 503 });
-  roll();
-  const used = perMember.get(memberEmail) || 0;
-  if (used >= PER_MEMBER_DAILY || globalCount >= GLOBAL_DAILY) {
-    throw Object.assign(new Error("brain_quota"), { status: 429 });
+// ── Ngữ cảnh học tập ──────────────────────────────────────────────────────────
+// Phần "thông minh" không nằm ở model mà ở chỗ nó BIẾT người đang nói chuyện:
+// học tới đâu, bỏ học mấy hôm, đêm qua ngủ ra sao. Máy chủ tự dựng từ DB —
+// client không chèn hay sửa được. Chỉ là số liệu thật; không có thì bỏ dòng đó,
+// tuyệt đối không bịa.
+const SNAPSHOT_TTL_MS = 10 * 60 * 1000;
+const snapshots = new Map();
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const daysAgo = (date) => Math.floor((Date.now() - new Date(date).getTime()) / DAY_MS);
+
+export async function learningSnapshot(memberEmail) {
+  const hit = snapshots.get(memberEmail);
+  if (hit && hit.exp > Date.now()) return hit.text;
+
+  const bio = await Bio.findOne({ email: memberEmail }, "_id completedLessons").lean();
+  const [recent, sleep, checkin] = await Promise.all([
+    bio ? LearningEvidence.find({ ownerMemberId: bio._id, status: "active" }, "title occurredAt")
+      .sort({ occurredAt: -1 }).limit(20).lean() : [],
+    SleepLog.findOne({ email: memberEmail }, "date duration quality").sort({ date: -1 }).lean(),
+    CheckinRecord.findOne({ email: memberEmail }, "consecutiveDays lastCheckinDate").lean(),
+  ]);
+
+  const facts = [];
+  const done = bio?.completedLessons?.length || 0;
+  if (done) facts.push(`đã hoàn thành ${done} bài học`);
+  if (recent.length) {
+    const last = recent[0];
+    const gap = daysAgo(last.occurredAt);
+    const week = recent.filter((e) => daysAgo(e.occurredAt) < 7).length;
+    facts.push(`bài gần nhất "${last.title}" ${gap === 0 ? "hôm nay" : `${gap} ngày trước`}`);
+    facts.push(`7 ngày qua xong ${week} bài`);
+  }
+  if (checkin?.consecutiveDays > 1) facts.push(`điểm danh liền ${checkin.consecutiveDays} ngày`);
+  if (sleep && daysAgo(sleep.date) <= 1 && sleep.duration) {
+    facts.push(`đêm qua ngủ ${Number(sleep.duration).toFixed(1)} tiếng${sleep.quality ? `, tự chấm ${sleep.quality}/5` : ""}`);
   }
 
-  // Qwen3 "nghĩ" trước khi nói nếu không tắt — chậm gấp đôi, tốn neuron.
-  const payload = messages.map((m, i) => (i === messages.length - 1 ? { ...m, content: `${m.content} /no_think` } : m));
+  const text = facts.join("; ");
+  snapshots.set(memberEmail, { text, exp: Date.now() + SNAPSHOT_TTL_MS });
+  if (snapshots.size > 2000) snapshots.delete(snapshots.keys().next().value);
+  return text;
+}
+
+// Vai trò cố định do máy chủ giữ: bạn đồng hành học tập và tinh thần, KHÔNG phải
+// máy tra cứu. Đặt ở server để client không gỡ được.
+const COACH_RULES = [
+  "Bạn là bạn đồng hành học tập và tinh thần, không phải công cụ tra cứu.",
+  "Khi được hỏi kiến thức hay nhờ làm bài: đừng giải hộ, đừng liệt kê đáp án; hỏi họ đang kẹt ở bước nào, gợi ý chia nhỏ việc và khích lệ họ tự làm.",
+].join(" ");
+// Chỉ thêm khi CÓ số liệu: không có mà vẫn bảo "nhắc tiến độ" là model tự bịa.
+const PROGRESS_RULE = "Khi hợp lúc, nhắc nhẹ tới tiến độ học thật dưới đây — khen cái họ đã làm, nếu bỏ học vài hôm thì rủ quay lại bằng một việc thật nhỏ, không trách. Không nhắc số liệu nào khác.";
+
+function withContext(messages, snapshot) {
+  const extra = snapshot ? `${COACH_RULES} ${PROGRESS_RULE}\nSố liệu thật về người này: ${snapshot}.` : COACH_RULES;
+  if (messages[0]?.role === "system") {
+    return [{ role: "system", content: `${messages[0].content}\n${extra}` }, ...messages.slice(1)];
+  }
+  return [{ role: "system", content: extra }, ...messages];
+}
+
+const fail = (message, status) => Object.assign(new Error(message), { status });
+
+async function postJson(url, headers, body) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_AI_ACCOUNT_ID}/ai/run/${MODEL}`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${process.env.CF_AI_TOKEN}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: payload, max_tokens: 120, temperature: 0.7, top_p: 0.9 }),
-        signal: controller.signal,
-      },
-    );
-    const data = await res.json().catch(() => null);
-    if (!res.ok || !data?.success) {
-      // Cloudflare báo hết hạn mức ngày → khoá đến hết ngày cho đỡ gọi vô ích.
-      if (res.status === 429) globalCount = GLOBAL_DAILY;
-      throw Object.assign(new Error(`cf_ai_${res.status}`), { status: res.status === 429 ? 429 : 503 });
-    }
-    const reply = data.result?.response ?? data.result?.choices?.[0]?.message?.content ?? "";
-    if (!reply.trim()) throw Object.assign(new Error("cf_ai_empty"), { status: 503 });
-    perMember.set(memberEmail, used + 1);
-    globalCount += 1;
-    return { reply };
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    return { res, data: await res.json().catch(() => null) };
   } catch (err) {
-    if (err.name === "AbortError") throw Object.assign(new Error("cf_ai_timeout"), { status: 503 });
+    if (err.name === "AbortError") throw fail("ai_timeout", 503);
     throw err;
   } finally {
     clearTimeout(timer);
   }
+}
+
+// Qwen3 "nghĩ" trước khi nói nếu không tắt — chậm gấp đôi, tốn neuron.
+const noThink = (messages) => messages.map((m, i) => (i === messages.length - 1 ? { ...m, content: `${m.content} /no_think` } : m));
+
+async function askCloudflare(messages) {
+  const { res, data } = await postJson(
+    `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_AI_ACCOUNT_ID}/ai/run/${MODEL}`,
+    { Authorization: `Bearer ${process.env.CF_AI_TOKEN}` },
+    { messages: noThink(messages), max_tokens: 120, temperature: 0.7, top_p: 0.9 },
+  );
+  if (!res.ok || !data?.success) {
+    // Cloudflare báo hết hạn mức ngày → khoá đến hết ngày cho đỡ gọi vô ích.
+    if (res.status === 429) globalCount = GLOBAL_DAILY;
+    throw fail(`cf_ai_${res.status}`, res.status === 429 ? 429 : 503);
+  }
+  globalCount += 1;
+  return data.result?.response ?? data.result?.choices?.[0]?.message?.content ?? "";
+}
+
+async function askGroq(messages) {
+  const { res, data } = await postJson(
+    "https://api.groq.com/openai/v1/chat/completions",
+    { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+    { model: groqModel(), messages, max_tokens: 160, temperature: 0.7, top_p: 0.9 },
+  );
+  if (!res.ok) {
+    if (res.status === 429) groqCount = GROQ_DAILY;
+    throw fail(`groq_${res.status}`, res.status === 429 ? 429 : 503);
+  }
+  groqCount += 1;
+  return data?.choices?.[0]?.message?.content ?? "";
+}
+
+// Model "suy nghĩ" đôi khi vẫn trả khối <think> dù đã tắt.
+const cleanReply = (text) => String(text || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+
+/**
+ * Trả { reply } hoặc ném lỗi có `status` (429 hết lượt, 503 chưa cấu hình/lỗi).
+ * Thử lần lượt Cloudflare → Groq; nguồn nào hết lượt hay lỗi thì sang nguồn kế.
+ */
+export async function think(memberEmail, messages) {
+  if (!isConfigured()) throw fail("brain_not_configured", 503);
+  roll();
+  const used = perMember.get(memberEmail) || 0;
+  if (used >= PER_MEMBER_DAILY) throw fail("brain_quota", 429);
+
+  const snapshot = await learningSnapshot(memberEmail).catch(() => "");
+  const prompt = withContext(messages, snapshot);
+  const providers = [
+    cfConfigured() && globalCount < GLOBAL_DAILY && askCloudflare,
+    groqConfigured() && groqCount < GROQ_DAILY && askGroq,
+  ].filter(Boolean);
+  if (!providers.length) throw fail("brain_quota", 429);
+
+  let lastErr;
+  for (const ask of providers) {
+    try {
+      const reply = cleanReply(await ask(prompt));
+      if (!reply) throw fail("ai_empty", 503);
+      perMember.set(memberEmail, used + 1);
+      return { reply };
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[companion brain] ${ask.name} failed: ${err.message}`);
+    }
+  }
+  throw lastErr;
 }
