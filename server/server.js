@@ -12,6 +12,7 @@ import { cachePolicy } from './middleware/cachePolicy.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
 import { originLock } from './middleware/originLock.js';
+import { clientIp } from './utils/clientIp.js';
 import { mountServices } from './services.manifest.js';
 import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
@@ -47,6 +48,14 @@ app.use('/api/oauth', cors(oauthCorsOptions));
 app.use(cors(appCorsOptions));
 
 app.use(cookieParser());
+
+// req.ip = IP thật cho MỌI lớp phía sau (rate limit, tự chặn, nhật ký). Không có
+// dòng này, req.ip là IP load balancer Render và mọi người đếm chung một IP.
+app.use((req, _res, next) => {
+  const ip = clientIp(req);
+  if (ip) Object.defineProperty(req, 'ip', { value: ip, configurable: true });
+  next();
+});
 
 // Request không đi qua Cloudflare (đánh thẳng *.onrender.com) bị từ chối trước mọi thứ khác.
 app.use(originLock);

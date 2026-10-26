@@ -143,7 +143,7 @@ function projectAction(fn, { customer = false } = {}) {
 router.post('/me/contract/accept', requireCustomer, customerOnly, projectAction((project, req) => {
   acceptContract(project, {
     name: req.body?.name,
-    ip: (req.headers['x-forwarded-for'] || req.ip || '').toString().split(',')[0].trim(),
+    ip: req.ip || '',
     userAgent: req.headers['user-agent'] || '',
   });
 }, { customer: true }));

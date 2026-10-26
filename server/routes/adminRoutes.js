@@ -2016,7 +2016,7 @@ async function logAdminAuditAction(req, action, targetUserId, targetUserEmail, d
       adminUsername: req.admin?.id || 'admin',
       action,
       targetEmail: targetUserEmail || '',
-      ipAddress: req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || '',
+      ipAddress: req.ip || '',
       userAgent: req.headers['user-agent'] || '',
       details: { note: details, targetUserId: targetUserId ? String(targetUserId) : undefined, ...metadata },
     });

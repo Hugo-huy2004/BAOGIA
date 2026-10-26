@@ -8,6 +8,7 @@ import { JWT_SECRET } from '../utils/secrets.js';
 import { initChessWS } from './chessWS.js';
 import { findActiveSecurityBlock } from './securityEnforcement.js';
 import { originAllowed } from '../middleware/originLock.js';
+import { clientIp as getClientIp } from '../utils/clientIp.js';
 import { allowedOrigins, isDev, localOriginRegex } from '../config/cors.js';
 import Bio from '../models/Bio.js';
 
@@ -115,8 +116,7 @@ export function setupWebSocketServers(server) {
   server.on('upgrade', async (request, socket, head) => {
     const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
     const { pathname } = requestUrl;
-    const forwarded = String(request.headers['x-forwarded-for'] || '').split(',').map((item) => item.trim()).filter(Boolean);
-    const clientIp = forwarded.at(-1) || request.socket.remoteAddress || '';
+    const clientIp = getClientIp(request, request.socket.remoteAddress || '');
     const origin = String(request.headers.origin || '');
 
     if ((!origin || (!allowedOrigins.includes(origin) && !(isDev && localOriginRegex.test(origin))))) {
