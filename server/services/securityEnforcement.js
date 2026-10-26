@@ -230,8 +230,11 @@ export async function applyActorBlock({ ip, email, phone, caseId, reasonCode, du
     return applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false, durationMs });
   }
 
+  // ponytail: req.ip trên prod là IP proxy dùng chung (xem proxy_client_ip). Biết
+  // tài khoản thì chỉ khoá tài khoản; khoá IP lúc này là khoá oan cả nút proxy.
+  // Bỏ điều kiện `!email` khi đã có clientIp(req) đáng tin.
   const [ipBlock, emailBlock] = await Promise.all([
-    applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false, durationMs }),
+    email ? null : applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false, durationMs }),
     applySubjectBlock('email', email, { caseId, reasonCode, countLock: escalate, durationMs }),
   ]);
   const accountPermanent = Boolean(emailBlock?.permanent);

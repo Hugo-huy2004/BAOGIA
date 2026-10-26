@@ -14,6 +14,8 @@ import crypto from 'crypto';
  * (REDIS_URL đã có sẵn chỗ cắm).
  */
 const OTP_TTL_MS = 10 * 60 * 1000;
+const MAX_ATTEMPTS = 5;
+const MAX_LIVE_OTPS = 10000;
 const store = new Map();
 
 const hash = (code) => crypto.createHash('sha256').update(String(code).trim()).digest('hex');
@@ -31,7 +33,13 @@ const keyOf = (email, scope) => `${scope}:${String(email).trim().toLowerCase()}`
 /** Tạo mã 6 số mới cho (email, scope). Mã cũ của cùng cặp đó bị thay thế. */
 export function issueEmailOtp(email, scope = 'login') {
   const code = String(crypto.randomInt(100000, 1000000));
-  store.set(keyOf(email, scope), { codeHash: hash(code), expiresAt: Date.now() + OTP_TTL_MS });
+  const key = keyOf(email, scope);
+  if (store.size >= MAX_LIVE_OTPS && !store.has(key)) store.delete(store.keys().next().value);
+  const entry = { codeHash: hash(code), expiresAt: Date.now() + OTP_TTL_MS, attempts: 0 };
+  store.set(key, entry);
+  setTimeout(() => {
+    if (store.get(key) === entry) store.delete(key);
+  }, OTP_TTL_MS + 1000).unref?.();
   return code;
 }
 
@@ -46,7 +54,11 @@ export function verifyEmailOtp(email, code, scope = 'login') {
     store.delete(key);
     return { ok: false, reason: 'expired' };
   }
-  if (!sameSecret(hash(code), entry.codeHash)) return { ok: false, reason: 'mismatch' };
+  if (!sameSecret(hash(code), entry.codeHash)) {
+    entry.attempts += 1;
+    if (entry.attempts >= MAX_ATTEMPTS) store.delete(key);
+    return { ok: false, reason: 'mismatch' };
+  }
   store.delete(key);
   return { ok: true };
 }

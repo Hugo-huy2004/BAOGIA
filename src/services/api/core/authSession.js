@@ -39,9 +39,9 @@ const writeSession = (key, value, persist = true) => {
 
 export const getMemberSession = () => {
   const session = readSession(MEMBER_SESSION_KEY);
-  // Sessions minted before server-side auth existed carry no token — the API
-  // would reject every call, so treat them as expired and force a clean re-login.
-  if (session && !session.token) {
+  // Cross-origin/native clients need the Bearer fallback; same-origin web
+  // sessions deliberately keep the token only in the HttpOnly cookie.
+  if (session && isCrossOriginApi && !session.token) {
     localStorage.removeItem(MEMBER_SESSION_KEY);
     sessionStorage.removeItem(MEMBER_SESSION_KEY);
     return null;
@@ -81,7 +81,9 @@ export const loginMember = (member) => {
     provider: member.provider || "google",
     avatarUrl: member.avatarUrl || "",
     isEduVerified: member.isEduVerified === true,
-    token: member.token || "",
+    // Same-origin web uses the HttpOnly cookie; only native/cross-origin
+    // clients need a JavaScript-readable Bearer fallback.
+    token: isCrossOriginApi ? (member.token || "") : "",
     loginAt: new Date().toISOString(),
     expiresAt: expiresAt.toISOString()
   };

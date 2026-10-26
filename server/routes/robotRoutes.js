@@ -5,6 +5,7 @@ import RobotConfig from '../models/RobotConfig.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
 import { encryptTriple, decryptTriple } from '../utils/tripleCrypto.js';
 import { sendTelegramAlert } from '../services/telegramService.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -108,7 +109,7 @@ export function createTelegramLinkSession() {
  * 🔗 POST /api/admin/robot/telegram-link
  * Tạo session token + URL cho deep-link từ Telegram.
  */
-router.post('/telegram-link', async (req, res) => {
+router.post('/telegram-link', requireAdmin, async (req, res) => {
   try {
     if (global.ROBOT_KILL_SWITCH) {
       return res.status(503).json({ success: false, message: 'Emergency Kill-Switch active.' });

@@ -1,6 +1,5 @@
 import express from 'express';
 import http from 'http';
-import { monitorEventLoopDelay } from 'node:perf_hooks';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
@@ -12,7 +11,8 @@ import compression from 'compression';
 import { cachePolicy } from './middleware/cachePolicy.js';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
-import { mountServices, getServicesHealth } from './services.manifest.js';
+import { originLock } from './middleware/originLock.js';
+import { mountServices } from './services.manifest.js';
 import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
   requestThreatGuard,
@@ -26,9 +26,8 @@ import {
   oauthCorsOptions,
   appCorsOptions,
   globalLimiter,
-  getRedisStatus,
 } from './config/index.js';
-import { getWebSocketStats, setupWebSocketServers } from './services/websocketServer.js';
+import { setupWebSocketServers } from './services/websocketServer.js';
 
 dotenv.config();
 
@@ -43,17 +42,20 @@ app.set('trust proxy', 1);
 // án React Native nào là mất cổng — và Metro trả HTML kèm status 200 cho mọi
 // đường dẫn, nên `/api/*` "thành công" với một trang web thay vì JSON.
 const PORT = process.env.PORT || 8099;
-const eventLoopDelay = monitorEventLoopDelay({ resolution: 20 });
-eventLoopDelay.enable();
-
 // CORS — cấu hình tập trung trong config/cors.js (Quy tắc 4)
 app.use('/api/oauth', cors(oauthCorsOptions));
 app.use(cors(appCorsOptions));
 
 app.use(cookieParser());
 
+// Request không đi qua Cloudflare (đánh thẳng *.onrender.com) bị từ chối trước mọi thứ khác.
+app.use(originLock);
+
 // Reject blocked networks before parsing or buffering their request bodies.
 app.use(securityIpGate);
+
+// Reject abusive API traffic before spending CPU and memory parsing its body.
+app.use('/api', globalLimiter);
 
 app.use(express.json({
   limit: '10mb',
@@ -118,9 +120,6 @@ app.use(mongoSanitize());
 // Response Compression (Significantly reduces payload size)
 app.use(compression());
 
-// Rate Limiting — cấu hình tập trung trong config/limiter.js (Quy tắc 4)
-app.use('/api', globalLimiter);
-
 // MongoDB Connection & Seeds — cấu hình tập trung trong config/database.js (Quy tắc 4)
 await connectDatabase();
 
@@ -165,26 +164,9 @@ app.get('/api/auth/verify-edu', async (req, res) => {
 // frontend/dev proxy can still call /api/health.
 const healthHandler = (_req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  const redisInfo = getRedisStatus();
-  const mem = process.memoryUsage();
   res.json({
     status: dbStatus === 'connected' ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
-    uptime: Math.floor(process.uptime()),
-    database: { status: dbStatus, name: mongoose.connection.name || 'hugostudio' },
-    redis: redisInfo,
-    services: getServicesHealth(),
-    realtime: {
-      websocket: getWebSocketStats(),
-      eventLoopDelayMs: {
-        p95: Number((eventLoopDelay.percentile(95) / 1e6).toFixed(1)),
-        p99: Number((eventLoopDelay.percentile(99) / 1e6).toFixed(1)),
-      },
-    },
-    memory: {
-      rssMb: Math.round(mem.rss / 1024 / 1024),
-      heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),
-    },
     version: '2.0.0',
   });
 };

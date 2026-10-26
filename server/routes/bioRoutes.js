@@ -1172,7 +1172,7 @@ router.post('/me/revoke-sessions', requireMember, async (req, res) => {
 
     await Bio.updateOne(
       { email },
-      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } }
+      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false, sessionsValidFrom: new Date() } }
     );
     // Cache cổng chặn giữ 30s — xoá ngay để lần gọi kế tiếp thấy cờ đã tắt.
     invalidateMemberGate(req.memberEmail);

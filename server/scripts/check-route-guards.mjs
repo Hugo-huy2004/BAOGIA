@@ -115,7 +115,6 @@ const PUBLIC_ROUTES = {
   "fileToolsRoutes.js DELETE /extract/cleanup/:fileId": "dọn tệp tạm của chính phiên đó",
 
   // ── Robot: cổng riêng, kiểm TRONG thân handler ───────────────────────────
-  "robotRoutes.js POST /telegram-link": "bước bắt cặp Telegram, chưa có phiên nào để kiểm",
   "robotRoutes.js POST /request-otp": "phát OTP; có rate limit riêng",
   "robotRoutes.js POST /verify-otp": "đổi OTP lấy session token của robot",
   "robotRoutes.js GET /stream-frame": "kiểm token phát sống-ngắn trong handler (ACTIVE_STREAM_TOKENS)",

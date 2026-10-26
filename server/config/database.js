@@ -10,6 +10,9 @@ import Bio from '../models/Bio.js';
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
 export async function connectDatabase() {
+  // Pool chỉ 5 kết nối: một truy vấn bị kẻ xấu ép quét cả collection mà không có
+  // trần thời gian sẽ giữ kết nối tới khi xong, vài cái như vậy là cả server đứng.
+  mongoose.set('maxTimeMS', 15000);
   try {
     await mongoose.connect(MONGODB_URI, {
       maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 5,

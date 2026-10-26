@@ -194,7 +194,7 @@ router.post("/me/messages/read", requireMember, async (req, res) => {
 });
 
 // Submit CV application.
-router.post("/apply", upload.single("cv"), requireAdultMember, async (req, res) => {
+router.post("/apply", requireAdultMember, upload.single("cv"), async (req, res) => {
   try {
     const email = req.memberEmail;
     // Get displayName from form (sent by frontend from Google auth or session)

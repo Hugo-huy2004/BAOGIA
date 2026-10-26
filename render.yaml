@@ -61,6 +61,11 @@ services:
       - key: VAPID_PRIVATE_KEY
         sync: false
 
+      # Khoá origin: phải KHỚP header x-origin-auth mà Transform Rule Cloudflare gắn
+      # trên api.hugowishpax.studio. Đặt luật Cloudflare TRƯỚC, rồi mới đặt biến này.
+      - key: ORIGIN_SHARED_SECRET
+        sync: false
+
       # OAuth client web — server từ chối khởi động ở production nếu thiếu.
       - key: GOOGLE_CLIENT_ID
         sync: false

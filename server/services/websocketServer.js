@@ -7,11 +7,19 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { initChessWS } from './chessWS.js';
 import { findActiveSecurityBlock } from './securityEnforcement.js';
+import { originAllowed } from '../middleware/originLock.js';
+import { allowedOrigins, isDev, localOriginRegex } from '../config/cors.js';
+import Bio from '../models/Bio.js';
 
 let realtimeWss = null;
 let acceptedConnections = 0;
 let closedConnections = 0;
 let staleConnectionsTerminated = 0;
+const activeConnectionsByIp = new Map();
+const upgradeWindows = new Map();
+const MAX_CONNECTIONS_PER_IP = 12;
+const MAX_CONNECTIONS_PER_MEMBER = 6;
+const MAX_UPGRADES_PER_MINUTE = 30;
 
 function getMemberToken(request, requestUrl) {
   const cookie = String(request.headers.cookie || '')
@@ -31,16 +39,43 @@ function getMemberToken(request, requestUrl) {
   return requestUrl.searchParams.get('token') || '';
 }
 
-function getMemberEmail(token) {
+async function getMemberEmail(token) {
   if (!token) return '';
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.role === 'member' && decoded.email
-      ? String(decoded.email).toLowerCase()
-      : '';
+    if (decoded.role !== 'member' || !decoded.email) return '';
+    const email = String(decoded.email).toLowerCase();
+    const bio = await Bio.findOne({ email }, 'sessionsValidFrom').lean();
+    if (bio?.sessionsValidFrom
+      && decoded.iat < Math.floor(new Date(bio.sessionsValidFrom).getTime() / 1000)) return '';
+    return email;
   } catch {
     return '';
   }
+}
+
+function rejectUpgrade(socket, status, message) {
+  socket.write(`HTTP/1.1 ${status}\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n${message}`);
+  socket.destroy();
+}
+
+function upgradeAllowed(ip) {
+  const now = Date.now();
+  const current = upgradeWindows.get(ip);
+  const window = !current || current.until <= now ? { count: 0, until: now + 60000 } : current;
+  window.count += 1;
+  if (upgradeWindows.size >= 10000) upgradeWindows.clear();
+  upgradeWindows.set(ip, window);
+  return window.count <= MAX_UPGRADES_PER_MINUTE;
+}
+
+function trackConnection(ws, ip) {
+  activeConnectionsByIp.set(ip, (activeConnectionsByIp.get(ip) || 0) + 1);
+  ws.once('close', () => {
+    const remaining = (activeConnectionsByIp.get(ip) || 1) - 1;
+    if (remaining > 0) activeConnectionsByIp.set(ip, remaining);
+    else activeConnectionsByIp.delete(ip);
+  });
 }
 
 export function getWebSocketStats() {
@@ -71,7 +106,7 @@ export function setupWebSocketServers(server) {
   heartbeat.unref();
 
   // Chess WebSocket server (path: /ws/chess)
-  const chessWss = initChessWS({ noServer: true });
+  const chessWss = initChessWS({ noServer: true, maxPayload: 64 * 1024 });
 
   // global.wsClients maps email -> Set of connected WebSocket clients
   global.wsClients = {};
@@ -80,31 +115,46 @@ export function setupWebSocketServers(server) {
   server.on('upgrade', async (request, socket, head) => {
     const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
     const { pathname } = requestUrl;
+    const forwarded = String(request.headers['x-forwarded-for'] || '').split(',').map((item) => item.trim()).filter(Boolean);
+    const clientIp = forwarded.at(-1) || request.socket.remoteAddress || '';
+    const origin = String(request.headers.origin || '');
 
+    if ((!origin || (!allowedOrigins.includes(origin) && !(isDev && localOriginRegex.test(origin))))) {
+      return rejectUpgrade(socket, '403 Forbidden', 'Origin not allowed');
+    }
+    if (!originAllowed(request)) {
+      return rejectUpgrade(socket, '403 Forbidden', 'Origin locked');
+    }
+
+    // Hạn mức theo tài khoản khi biết là ai: IP ở đây là IP proxy dùng chung,
+    // đếm theo IP thì một nút Cloudflare chứa hàng trăm người thật sẽ chạm trần.
+    let email = '';
+    let subject = '';
     try {
-      const forwarded = String(request.headers['x-forwarded-for'] || '').split(',').map((item) => item.trim()).filter(Boolean);
-      const clientIp = forwarded.at(-1) || request.socket.remoteAddress || '';
-      let email = '';
-      if (pathname === '/ws') {
-        email = getMemberEmail(getMemberToken(request, requestUrl));
-        request.memberEmail = email;
+      email = await getMemberEmail(getMemberToken(request, requestUrl));
+      request.memberEmail = email;
+      subject = email ? `m:${email}` : clientIp;
+      const cap = email ? MAX_CONNECTIONS_PER_MEMBER : MAX_CONNECTIONS_PER_IP;
+      if (!upgradeAllowed(subject) || (activeConnectionsByIp.get(subject) || 0) >= cap) {
+        return rejectUpgrade(socket, '429 Too Many Requests', 'WebSocket limit exceeded');
       }
       const block = await findActiveSecurityBlock({ ip: clientIp, email });
       if (block) {
-        socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Type: application/json\r\nCache-Control: no-store\r\n\r\n{"error":"ACCESS_BLOCKED"}');
-        socket.destroy();
-        return;
+        return rejectUpgrade(socket, '403 Forbidden', '{"error":"ACCESS_BLOCKED"}');
       }
     } catch (error) {
       console.error('[WebSocket security gate]', error.message);
+      return rejectUpgrade(socket, '503 Service Unavailable', 'Security check unavailable');
     }
 
     if (pathname === '/ws') {
       wss.handleUpgrade(request, socket, head, (ws) => {
+        trackConnection(ws, subject);
         wss.emit('connection', ws, request);
       });
     } else if (pathname === '/ws/chess') {
       chessWss.handleUpgrade(request, socket, head, (ws) => {
+        trackConnection(ws, subject);
         chessWss.emit('connection', ws, request);
       });
     } else {
@@ -127,9 +177,19 @@ export function setupWebSocketServers(server) {
     acceptedConnections += 1;
 
     ws.isAlive = true;
+    let messageCount = 0;
+    let messageWindowStartedAt = Date.now();
     ws.on('pong', () => { ws.isAlive = true; });
 
     ws.on('message', (data) => {
+      const now = Date.now();
+      if (now - messageWindowStartedAt >= 60000) {
+        messageWindowStartedAt = now;
+        messageCount = 0;
+      }
+      messageCount += 1;
+      if (messageCount > 120) return ws.close(1008, 'Message rate exceeded');
+
       try {
         const msg = JSON.parse(data.toString());
         let relay = null;

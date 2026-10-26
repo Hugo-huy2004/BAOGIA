@@ -805,6 +805,8 @@ export function initChessWS(options) {
   const wss = new WebSocketServer(options);
 
   wss.on('connection', (ws) => {
+    let messageCount = 0;
+    let messageWindowStartedAt = Date.now();
     const client = {
       ws,
       guestId: randomUUID(),
@@ -819,6 +821,14 @@ export function initChessWS(options) {
     clientMap.set(ws, client);
 
     ws.on('message', (data) => {
+      const now = Date.now();
+      if (now - messageWindowStartedAt >= 60000) {
+        messageWindowStartedAt = now;
+        messageCount = 0;
+      }
+      messageCount += 1;
+      if (messageCount > 120) return ws.close(1008, 'Message rate exceeded');
+
       let msg;
       try {
         msg = JSON.parse(data.toString());

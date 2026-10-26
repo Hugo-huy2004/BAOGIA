@@ -91,7 +91,7 @@ async function readMemberGate(email) {
   const [bio, deletedAccount] = await Promise.all([
     Bio.findOne(
     { email },
-      'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity isEduVerified trialExpiresAt expiresAt',
+      'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity isEduVerified trialExpiresAt expiresAt sessionsValidFrom',
     ).select('+deletionStartedAt').lean(),
     isDeletedMemberAccount(email),
   ]);
@@ -104,6 +104,7 @@ async function readMemberGate(email) {
       profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
         || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
         || !bio.religion || !bio.ethnicity,
+      sessionsValidFrom: bio.sessionsValidFrom || null,
     } : null;
 
   if (gateCache.size >= GATE_CACHE_MAX) {
@@ -209,6 +210,11 @@ export const requireMemberSession = async (req, res, next) => {
     }
     const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+    const memberState = await readMemberGate(decoded.email);
+    if (memberState?.sessionsValidFrom
+      && decoded.iat < Math.floor(new Date(memberState.sessionsValidFrom).getTime() / 1000)) {
+      return invalidSession(res, 'member', 'Phiên thành viên đã bị thu hồi. Vui lòng đăng nhập lại.');
+    }
     req.memberEmail = decoded.email;
     req.member = decoded;
     return next();
@@ -271,6 +277,11 @@ export const requireMember = async (req, res, next) => {
       // must stay blocked even if an old 14-day token is still valid.
       const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
       if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+      const memberState = await readMemberGate(decoded.email);
+      if (memberState?.sessionsValidFrom
+        && decoded.iat < Math.floor(new Date(memberState.sessionsValidFrom).getTime() / 1000)) {
+        return invalidSession(res, 'member', 'Phiên thành viên đã bị thu hồi. Vui lòng đăng nhập lại.');
+      }
 
       // Note: User-Agent headers fluctuate dynamically across browser reloads,
       // DevTools toggles, and SW requests. We log req.memberEmail without destroying valid sessions.
@@ -285,7 +296,7 @@ export const requireMember = async (req, res, next) => {
       if (!isBypass) {
         const mongoose = (await import('mongoose')).default;
         if (mongoose.connection.readyState === 1) {
-          let bio = await readMemberGate(decoded.email);
+          let bio = memberState;
           if (bio?.deletedAccount) {
             return res.status(410).json({
               code: 'ACCOUNT_DELETED',

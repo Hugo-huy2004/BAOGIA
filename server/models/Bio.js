@@ -807,6 +807,10 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    sessionsValidFrom: {
+      type: Date,
+      default: null
+    },
     // HugoRadio time-based token system — replaces monthly subscription.
     // Free pool resets weekly; purchased pool carries over and is consumed
     // after the free pool is exhausted.

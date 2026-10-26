@@ -12,7 +12,9 @@ async def verify_internal_key(request: Request, call_next):
         return await call_next(request)
 
     key = request.headers.get("X-Internal-Key", "")
-    if INTERNAL_API_KEY and key != INTERNAL_API_KEY:
+    # Fail closed: a missing deploy secret must never turn the public Python
+    # endpoint into an unauthenticated API.
+    if not INTERNAL_API_KEY or key != INTERNAL_API_KEY:
         # raw ASGI middleware doesn't route through FastAPI's exception
         # handlers, so raising HTTPException here surfaces as a 500 — return
         # the response directly instead.
