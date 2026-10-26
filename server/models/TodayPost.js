@@ -30,10 +30,19 @@ const TodayPostSchema = new mongoose.Schema(
     likeCount: { type: Number, default: 0 },
     replyCount: { type: Number, default: 0 },
     editedAt: { type: Date, default: undefined },
+    // Kiểm duyệt (services/todayModerator.js). Trống = chưa AI đọc; sửa bài thì
+    // xoá mốc này để lượt tuần tra sau đọc lại.
+    reviewedAt: { type: Date, default: undefined },
+    // Có mặt = đã bị gỡ: chỉ tác giả còn thấy, kèm nhãn. Không xoá để admin khôi phục được.
+    removed: {
+      type: new mongoose.Schema({ category: String, caseId: String, at: Date }, { _id: false }),
+      default: undefined,
+    },
   },
   { timestamps: true }
 );
 
 TodayPostSchema.index({ parentKey: 1, createdAt: -1 });
+TodayPostSchema.index({ reviewedAt: 1 }, { partialFilterExpression: { authorEmail: { $type: 'string' } } });
 
 export default mongoose.model('TodayPost', TodayPostSchema);

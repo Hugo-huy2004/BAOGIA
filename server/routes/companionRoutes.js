@@ -457,7 +457,9 @@ router.post('/history', requireMember, async (req, res) => {
 // Bộ não đám mây cho nhân vật đồng hành (máy không chạy được model trên máy).
 // Hồ sơ nhân vật do client dựng (brain/companionMind.js); máy chủ chỉ kiểm khuôn
 // tin nhắn và giữ hạn mức. 429/503 → client lùi về bộ câu soạn sẵn.
-router.post('/brain', requireAdultMember, async (req, res) => {
+// Mở cho cả 14–18 (26/10/2026): bộ não đã có khuôn persona, canh tục tĩu/xâm nhập
+// và luật ba lần ở server.
+router.post('/brain', requireMember, async (req, res) => {
   const messages = companionBrain.sanitizeMessages(req.body?.messages);
   if (!messages) return res.status(400).json({ error: 'invalid_messages' });
   // Chuỗi xử lý: canh cửa (tục tĩu / xâm nhập / dồn dập) → phân tích cảm xúc &

@@ -293,6 +293,15 @@ export default function ThreadPost({ post, full = false, line = false, onOpen, o
           {!post.article && <Menu items={menu} />}
         </header>
 
+        {post.removed && (
+          <p className="mt-1 flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-[14px] text-muted-foreground">
+            <Icon name="visibility_off" className="!text-[16px] shrink-0" />
+            <span>
+              {t("memberPortal.threads.removed")} · {t(`memberPortal.threads.removedReason.${post.removed}`)}
+            </span>
+          </p>
+        )}
+
         {post.text && (
           <div className="relative mt-0.5">
             <RichText

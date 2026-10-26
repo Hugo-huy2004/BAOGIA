@@ -4098,6 +4098,15 @@
       "replyTo": "Trả lời {{name}}",
       "seeMore": "Xem thêm",
       "edited": "đã sửa",
+      "removed": "Đã gỡ khỏi Today, chỉ Quý thành viên còn thấy",
+      "removedReason": {
+        "sensitive": "Nội dung nhạy cảm",
+        "provocative": "Khiêu khích, kích động",
+        "divisive": "Gây chia rẽ",
+        "sexual": "Khiêu dâm",
+        "profanity": "Ngôn từ tục tĩu",
+        "harassment": "Công kích cá nhân"
+      },
       "edit": "Sửa bài",
       "delete": "Xoá bài",
       "copyLink": "Sao chép liên kết",

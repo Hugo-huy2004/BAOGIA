@@ -19,6 +19,7 @@ const PROFANITY = new RegExp(`(?<![\\p{L}\\p{N}])(?:${words.map(escape).join('|'
 const CRISIS = /(tự\s*tử|tự\s*sát|kết\s*liễu|không\s*muốn\s*sống|muốn\s*chết|tự\s*làm\s*đau|tu\s*tu|tu\s*sat|muon\s*chet|khong\s*muon\s*song)/i;
 
 export const hasProfanity = (text) => PROFANITY.test(String(text || ''));
+export const isCrisis = (text) => CRISIS.test(String(text || ''));
 
 // Gọi dồn dập: người thật gõ không nổi 15 tin/phút. Mỗi đợt dồn chỉ tính MỘT
 // lỗi trong 10 phút, để một tab bị lỗi lặp vô hạn không tự khoá chính chủ

@@ -4057,6 +4057,15 @@
       "replyTo": "Reply to {{name}}",
       "seeMore": "More",
       "edited": "edited",
+      "removed": "Removed from Today. Only you can see it",
+      "removedReason": {
+        "sensitive": "Sensitive content",
+        "provocative": "Provocation",
+        "divisive": "Divisive",
+        "sexual": "Sexual content",
+        "profanity": "Profanity",
+        "harassment": "Harassment"
+      },
       "edit": "Edit",
       "delete": "Delete",
       "copyLink": "Copy link",

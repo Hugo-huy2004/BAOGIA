@@ -182,6 +182,17 @@ export function initCronJobs() {
     }
   });
 
+  // Tuần tra Today 8 giờ một lần (00:00, 08:00, 16:00 UTC): AI đọc bài mới/sửa, gỡ bài vi phạm.
+  cron.schedule('0 */8 * * *', async () => {
+    try {
+      const { patrolToday } = await import('../services/todayModerator.js');
+      const { checked, removed } = await patrolToday();
+      if (checked) console.log(`[CRON] Today patrol: ${checked} bài, gỡ ${removed}.`);
+    } catch (err) {
+      console.error('[CRON] Today patrol:', err.message);
+    }
+  });
+
   // Pre-warming định kỳ mỗi 10 phút cho bản tin Today:
   // Tải trước và giữ ấm cache cho 3 ấn bản chính (vi, en, zh) trên Node.js.
   // Người dùng mở tab Today sẽ luôn nhận dữ liệu tức thì (< 5ms) mà không phải đợi RSS fan-out.

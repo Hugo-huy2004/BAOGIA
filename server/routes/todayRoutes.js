@@ -6,6 +6,7 @@ import { requireMember } from '../middleware/authMiddleware.js';
 import mongoose from 'mongoose';
 import TodayPost from '../models/TodayPost.js';
 import Bio from '../models/Bio.js';
+import { screenOnPost } from '../services/todayModerator.js';
 
 const router = express.Router();
 // Đếm theo THÀNH VIÊN khi đã đăng nhập: sau Vercel/Cloudflare nhiều người dùng
@@ -183,6 +184,8 @@ async function present(posts, me) {
       createdAt: p.createdAt,
       editedAt: p.editedAt,
       private: p.audience === 'private' || undefined,
+      // Chỉ tác giả thấy bài đã gỡ, nên nhãn cũng chỉ trả cho tác giả.
+      removed: (p.removed && p.authorEmail === me && p.removed.category) || undefined,
       mine: Boolean(me) && p.authorEmail === me,
     };
   });
@@ -193,17 +196,20 @@ async function present(posts, me) {
 // ($elemMatch biến phép chiếu thành dạng "chọn trường", nên phải kê đủ trường present() dùng.)
 const view = (me) => ({
   authorEmail: 1, articleKey: 1, audience: 1, text: 1, poll: 1, parentKey: 1, ancestors: 1,
-  likeCount: 1, replyCount: 1, editedAt: 1, createdAt: 1,
+  likeCount: 1, replyCount: 1, editedAt: 1, createdAt: 1, removed: 1,
   likes: { $elemMatch: { $eq: me } },
 });
 
-// Bài "Chỉ mình tôi" và cả nhánh hồi đáp của nó: người khác coi như không tồn tại.
+// Bài "Chỉ mình tôi", bài bị gỡ, và cả nhánh hồi đáp bên dưới chúng: người khác
+// coi như không tồn tại; tác giả của chính bài đó vẫn thấy.
 async function canSee(node, me) {
   if (!node) return false;
-  const root = node.ancestors?.[0];
-  const top = root && isPostId(root) ? await TodayPost.findById(root, { audience: 1, authorEmail: 1 }).lean() : node;
-  return top?.audience !== 'private' || top.authorEmail === me;
+  const ids = (node.ancestors || []).filter(isPostId);
+  const chain = ids.length ? [node, ...await TodayPost.find({ _id: { $in: ids } }, { audience: 1, authorEmail: 1, removed: 1 }).lean()] : [node];
+  return chain.every((p) => p.authorEmail === me || (!p.removed && p.audience !== 'private'));
 }
+
+const visibleTo = (me) => ({ $or: [{ removed: null }, { authorEmail: me }] });
 
 const cleanAudience = (value) => (value === 'private' ? 'private' : undefined);
 
@@ -225,7 +231,7 @@ const findNode = (key, projection) => (isArticleKey(key)
 
 router.get('/posts', requireMember, feedLimiter, async (req, res) => {
   try {
-    const filter = { parentKey: null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' } }, { authorEmail: req.memberEmail }] };
+    const filter = { parentKey: null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' }, removed: null }, { authorEmail: req.memberEmail }] };
     const before = new Date(req.query.before);
     if (!Number.isNaN(before.getTime())) filter.createdAt = { $lt: before };
     const posts = await TodayPost.find(filter, view(req.memberEmail)).sort({ createdAt: -1 }).limit(PAGE).lean();
@@ -255,7 +261,7 @@ router.get('/posts/:key', requireMember, feedLimiter, async (req, res) => {
     if (!isArticleKey(key) && !(await canSee(node, req.memberEmail))) return res.status(404).json({ error: 'This post was deleted.' });
 
     const [replies, parent] = await Promise.all([
-      TodayPost.find({ parentKey: key }, view(req.memberEmail)).sort({ createdAt: 1 }).limit(200).lean(),
+      TodayPost.find({ parentKey: key, ...visibleTo(req.memberEmail) }, view(req.memberEmail)).sort({ createdAt: 1 }).limit(200).lean(),
       node?.parentKey && isPostId(node.parentKey) ? TodayPost.findById(node.parentKey, view(req.memberEmail)).lean() : null,
     ]);
     const [post] = node ? await present([node], req.memberEmail) : [null];
@@ -284,7 +290,7 @@ router.post('/posts', requireMember, postLimiter, async (req, res) => {
       if (isArticleKey(parentKey)) {
         await articleShadow(parentKey);
       } else {
-        const parent = isPostId(parentKey) ? await TodayPost.findById(parentKey, { ancestors: 1, audience: 1, authorEmail: 1 }).lean() : null;
+        const parent = isPostId(parentKey) ? await TodayPost.findById(parentKey, { ancestors: 1, audience: 1, authorEmail: 1, removed: 1 }).lean() : null;
         if (!(await canSee(parent, req.memberEmail))) return res.status(404).json({ error: 'The post you replied to is gone.' });
         ancestors = parent.ancestors || [];
       }
@@ -304,7 +310,8 @@ router.post('/posts', requireMember, postLimiter, async (req, res) => {
     const audience = parentKey ? undefined : cleanAudience(req.body?.audience);
     const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, audience, parentKey, ancestors: ancestors.length ? ancestors : undefined });
     if (parentKey) await TodayPost.updateOne(isArticleKey(parentKey) ? { articleKey: parentKey } : { _id: parentKey }, { $inc: { replyCount: 1 } });
-    const [view] = await present([post.toObject()], req.memberEmail);
+    const removed = await screenOnPost(post, req);
+    const [view] = await present([{ ...post.toObject(), removed }], req.memberEmail);
     return res.status(201).json({ post: view });
   } catch (error) {
     console.error('[Today post create]', error);
@@ -322,8 +329,10 @@ router.patch('/posts/:id', requireMember, writeLimiter, async (req, res) => {
   post.text = text;
   if (!post.parentKey && 'audience' in (req.body || {})) post.audience = cleanAudience(req.body.audience);
   post.editedAt = new Date();
+  post.reviewedAt = undefined; // bản sửa phải được duyệt lại
   await post.save();
-  const [view] = await present([post.toObject()], req.memberEmail);
+  const removed = post.removed ? null : await screenOnPost(post, req);
+  const [view] = await present([{ ...post.toObject(), ...(removed && { removed }) }], req.memberEmail);
   return res.json({ post: view });
 });
 

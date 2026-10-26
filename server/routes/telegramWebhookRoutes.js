@@ -504,6 +504,13 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
       return;
     }
 
+    if (cbData.startsWith('cb_today_restore:')) {
+      const { restorePost } = await import('../services/todayModerator.js');
+      const ok = await restorePost(cbData.replace('cb_today_restore:', ''));
+      await sendTelegramAlert(ok ? '↩️ <b>Đã khôi phục bài Today</b> và xoá lỗi khỏi sổ.' : 'ℹ️ Bài này đã được khôi phục hoặc đã bị xoá.');
+      return;
+    }
+
     if (cbData.startsWith('cb_sec_dismiss:')) {
       const caseId = cbData.replace('cb_sec_dismiss:', '');
       const SecurityModeration = (await import('../models/SecurityModeration.js')).default;

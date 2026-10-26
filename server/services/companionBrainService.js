@@ -32,9 +32,10 @@ const TIMEOUT_MS = 15_000;
 // Nguồn dự phòng thứ hai khi Cloudflare hết lượt: Groq gói Free (không thẻ →
 // vượt hạn mức là lỗi 429, không tính tiền). Hạn mức tính RIÊNG theo từng nhà
 // cung cấp, nên cộng hai nguồn là gấp đôi sức chứa mà vẫn 0 đồng.
-// Free tier llama-3.3-70b-versatile: 1.000 lượt/ngày.
+// Bảng hạn mức Groq Free của tài khoản (26/10/2026) không còn llama-3.3-70b;
+// gpt-oss-120b: 1.000 lượt/ngày, 8K token/phút.
 const GROQ_DAILY = 900;
-const groqModel = () => (process.env.GROQ_MODELS || "llama-3.3-70b-versatile").split(",")[0].trim();
+const groqModel = () => (process.env.GROQ_MODELS || "openai/gpt-oss-120b").split(",")[0].trim();
 
 // ponytail: đếm trong bộ nhớ tiến trình — Render chỉ chạy một tiến trình nên đủ;
 // khởi động lại thì đếm lại từ 0 (lệch có lợi cho người dùng, Cloudflare vẫn là
@@ -184,11 +185,11 @@ async function postJson(url, headers, body) {
 // Qwen3 "nghĩ" trước khi nói nếu không tắt — chậm gấp đôi, tốn neuron.
 const noThink = (messages) => messages.map((m, i) => (i === messages.length - 1 ? { ...m, content: `${m.content} /no_think` } : m));
 
-async function askCloudflare(messages) {
+async function askCloudflare(messages, opts) {
   const { res, data } = await postJson(
     `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_AI_ACCOUNT_ID}/ai/run/${MODEL}`,
     { Authorization: `Bearer ${process.env.CF_AI_TOKEN}` },
-    { messages: noThink(messages), max_tokens: 120, temperature: 0.7, top_p: 0.9 },
+    { messages: noThink(messages), max_tokens: 120, temperature: 0.7, top_p: 0.9, ...opts },
   );
   if (!res.ok || !data?.success) {
     // Cloudflare báo hết hạn mức ngày → khoá đến hết ngày cho đỡ gọi vô ích.
@@ -196,14 +197,18 @@ async function askCloudflare(messages) {
     throw fail(`cf_ai_${res.status}`, res.status === 429 ? 429 : 503);
   }
   globalCount += 1;
-  return data.result?.response ?? data.result?.choices?.[0]?.message?.content ?? "";
+  // Câu trả lời là JSON thì Cloudflare tự parse sẵn thành object trong `response`.
+  const out = data.result?.response ?? data.result?.choices?.[0]?.message?.content ?? "";
+  return typeof out === "string" ? out : JSON.stringify(out);
 }
 
-async function askGroq(messages) {
+async function askGroq(messages, opts) {
+  // gpt-oss là model suy luận: tắt phần suy nghĩ để chỉ nhận câu trả lời.
+  const reasoning = groqModel().includes("gpt-oss") ? { reasoning_effort: "low", include_reasoning: false } : {};
   const { res, data } = await postJson(
     "https://api.groq.com/openai/v1/chat/completions",
     { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
-    { model: groqModel(), messages, max_tokens: 160, temperature: 0.7, top_p: 0.9 },
+    { model: groqModel(), messages, max_tokens: 160, temperature: 0.7, top_p: 0.9, ...reasoning, ...opts },
   );
   if (!res.ok) {
     if (res.status === 429) groqCount = GROQ_DAILY;
@@ -256,6 +261,32 @@ export async function think(memberEmail, messages, { negativity } = {}) {
     } catch (err) {
       lastErr = err;
       console.warn(`[companion brain] ${ask.name} failed: ${err.message}`);
+    }
+  }
+  throw lastErr;
+}
+
+/**
+ * Gọi LLM cho việc máy (phân loại, trả JSON): cùng chuỗi Cloudflare → Groq và
+ * cùng hạn mức chung với chat, không tính vào lượt của thành viên nào.
+ * Trả chữ thô sau </think>; nguồn nào lỗi thì sang nguồn kế.
+ */
+export async function complete(messages, opts = {}) {
+  roll();
+  const providers = [
+    cfConfigured() && globalCount < GLOBAL_DAILY && askCloudflare,
+    groqConfigured() && groqCount < GROQ_DAILY && askGroq,
+  ].filter(Boolean);
+  if (!providers.length) throw fail("brain_quota", 429);
+  let lastErr;
+  for (const ask of providers) {
+    try {
+      const text = String(await ask(messages, opts) || "");
+      const close = text.lastIndexOf("</think>");
+      return (close === -1 ? text : text.slice(close + "</think>".length)).trim();
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[brain complete] ${ask.name} failed: ${err.message}`);
     }
   }
   throw lastErr;

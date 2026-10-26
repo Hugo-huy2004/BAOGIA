@@ -2840,6 +2840,15 @@
       "replyTo": "回复 {{name}}",
       "seeMore": "展开",
       "edited": "已编辑",
+      "removed": "已从 Today 移除，仅阁下可见",
+      "removedReason": {
+        "sensitive": "敏感内容",
+        "provocative": "挑衅煽动",
+        "divisive": "分化群体",
+        "sexual": "色情内容",
+        "profanity": "粗俗用语",
+        "harassment": "人身攻击"
+      },
       "edit": "编辑",
       "delete": "删除",
       "copyLink": "复制链接",
