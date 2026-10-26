@@ -428,7 +428,9 @@ html.standalone-pwa .desktop-apple-layout {
 }
 
 @media (hover: none), (pointer: coarse) {
-  .member-portal-shell button,
+  /* Trừ công tắc: rãnh 51×31 bị kéo cao 44px thành hình gần vuông (26/10).
+     51×31 là kích thước công tắc chuẩn của iOS. */
+  .member-portal-shell button:not(:where([role="switch"])),
   .member-portal-shell a[role="button"] {
     min-height: 44px;
   }

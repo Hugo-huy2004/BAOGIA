@@ -19,6 +19,12 @@ const ScheduledPushSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  // Push đã soạn xong, chỉ chờ khung giờ vàng (pushGuard). Có payload thì gửi
+  // nguyên văn, không gọi AI soạn lại.
+  payload: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  },
   sent: {
     type: Boolean,
     default: false,

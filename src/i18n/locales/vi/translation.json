@@ -2009,10 +2009,10 @@
       "draft": "Bản nháp",
       "previewLabel": "Bản xem trước",
       "previewTitle": "Trang của Quý thành viên",
-      "designLabel": "Giao diện & Chủ đề",
-      "linkCardsLabel": "Thẻ liên kết",
-      "achievementsLabel": "Dự án & Thành tích",
-      "proofLabel": "Hồ sơ năng lực",
+      "designLabel": "Giao diện",
+      "linkCardsLabel": "Liên kết",
+      "achievementsLabel": "Dự án",
+      "proofLabel": "Năng lực",
       "editHint": "Chỉnh **giao diện, liên kết, thành tích** ở các mục phía trên — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.",
       "membershipHeader": "3-Year Developer Membership",
       "expiryLabel": "Hết hạn:",
@@ -2082,7 +2082,10 @@
       "reminderRejected": "Yêu cầu xác minh chưa được chấp thuận. Quý thành viên có thể nộp lại một lần hoặc gửi yêu cầu kháng nghị Hugo Studio.",
       "reminderAction": "Xác minh HSSV",
       "logoutBtn": "Đăng xuất",
-      "submitBtn": "Gửi thông tin"
+      "submitBtn": "Gửi thông tin",
+      "reminderShort": "Dùng thử còn {{days}} ngày",
+      "reminderPendingShort": "Hồ sơ HSSV đang chờ thẩm định",
+      "reminderRejectedShort": "Hồ sơ HSSV chưa được chấp thuận"
     },
     "historyActions": {
       "markAllRead": "Đánh dấu đã đọc",
@@ -2962,9 +2965,13 @@
     "permissions": {
       "eyebrow": "Thiết lập một lần",
       "title": "Đừng bỏ lỡ điều quan trọng",
-      "description": "Bật hai quyền thiết yếu để Hugo báo tin đúng lúc, cá nhân hóa nội dung gần Quý thành viên và bảo vệ phiên đăng nhập.",
+      "description": "Hugo Studio báo tin biến động JOY và bảo mật qua thông báo ứng dụng (bắt buộc). Email ưu đãi và vị trí là tùy chọn.",
       "pushTitle": "Thông báo quan trọng",
       "pushDescription": "Nhận cập nhật xác minh, JOY, bảo mật và hoạt động tài khoản ngay cả khi đã đóng ứng dụng.",
+      "emailTitle": "Ưu đãi qua email · tùy chọn",
+      "emailDescription": "Quà tặng JOY, quyền lợi mới và gợi ý dành riêng cho Quý thành viên. Hủy bất cứ lúc nào bằng một chạm trong thư.",
+      "requiredHint": "Thông báo ứng dụng là kênh bắt buộc để nhận tin bảo mật và biến động JOY. Kính mời Quý thành viên bật để tiếp tục.",
+      "emailError": "Chưa bật được email. Kính mời Quý thành viên thử lại.",
       "locationTitle": "Trải nghiệm theo khu vực",
       "locationDescription": "Dùng cho tin tức địa phương và cảnh báo đăng nhập bất thường.",
       "privacyTitle": "Quyền riêng tư được tôn trọng",
@@ -4069,6 +4076,71 @@
     },
     "joyTree": {
       "complete": "Cây đã trưởng thành"
+    },
+    "threads": {
+      "title": "Hôm nay",
+      "thread": "Chuỗi bài",
+      "back": "Quay lại",
+      "filters": {
+        "all": "Tất cả",
+        "members": "Thành viên",
+        "news": "Tin tức"
+      },
+      "placeholder": "Có điều gì mới?",
+      "replyPlaceholder": "Viết lời hồi đáp…",
+      "post": "Đăng",
+      "save": "Lưu",
+      "cancel": "Huỷ",
+      "newThread": "Bài viết mới",
+      "replyTitle": "Hồi đáp",
+      "editTitle": "Sửa bài viết",
+      "replyTo": "Trả lời {{name}}",
+      "seeMore": "Xem thêm",
+      "edited": "đã sửa",
+      "edit": "Sửa bài",
+      "delete": "Xoá bài",
+      "copyLink": "Sao chép liên kết",
+      "linkCopied": "Đã sao chép liên kết",
+      "deleteTitle": "Xoá bài viết này?",
+      "deleteMessage": "Mọi lời hồi đáp bên dưới cũng sẽ bị xoá theo.",
+      "deleted": "Đã xoá bài viết",
+      "readArticle": "Đọc toàn bài báo",
+      "like": "Thích",
+      "reply": "Hồi đáp",
+      "share": "Chia sẻ",
+      "noReplies": "Chưa có lời hồi đáp nào. Kính mời Quý thành viên mở lời.",
+      "empty": "Chưa có bài viết nào.",
+      "loadError": "Chưa tải được bảng tin.",
+      "retry": "Thử lại",
+      "gone": "Bài viết này không còn nữa.",
+      "articleGone": "Bài báo đã rời khỏi ấn bản hôm nay.",
+      "published": "Đã đăng bài",
+      "saved": "Đã lưu thay đổi",
+      "error": "Chưa đăng được, kính mời thử lại.",
+      "longHint": "{{count}} ký tự — trên bảng tin, bài dài hơn 255 ký tự sẽ được rút gọn kèm nút Xem thêm.",
+      "tools": {
+        "bold": "In đậm",
+        "italic": "In nghiêng",
+        "strike": "Gạch ngang",
+        "highlight": "Làm nổi bật",
+        "upper": "In hoa",
+        "bullet": "Gạch đầu dòng",
+        "numbered": "Đánh số",
+        "poll": "Bình chọn"
+      },
+      "poll": {
+        "option": "Lựa chọn {{n}}",
+        "add": "Thêm lựa chọn",
+        "duration": "Thời hạn bình chọn",
+        "votes": "{{count}} lượt bình chọn",
+        "closed": "Đã kết thúc",
+        "endsIn": "Kết thúc {{time}}",
+        "h1": "1 giờ",
+        "h6": "6 giờ",
+        "h24": "1 ngày",
+        "h72": "3 ngày",
+        "h168": "7 ngày"
+      }
     }
   },
   "memberTabs": {
@@ -4631,7 +4703,6 @@
       }
     }
   },
-
   "utilities": {
     "upgradeUnavailable": "Ứng dụng đang được nâng cấp lên phiên bản mới nhất. Vui lòng quay lại sau 24 giờ.",
     "categories": {
@@ -7374,7 +7445,17 @@
     "page": {
       "heroKicker": "Dịch vụ · Hugo Studio",
       "heroEyebrow": "Xưởng thiết kế số độc lập · Sài Gòn",
-      "artCards": ["Đẹp là khi không còn gì để bớt.", "Màu sắc là cảm xúc có hình.", "Khoảng trắng cũng biết nói.", "Mỗi pixel đều có lý do.", "Chuyển động kể nốt phần còn lại.", "Chữ đẹp được đọc trước khi được hiểu.", "Ý tưởng tốt sống lâu hơn xu hướng.", "Thiết kế bắt đầu từ lắng nghe.", "Nghệ thuật bắt đầu từ tò mò."],
+      "artCards": [
+        "Đẹp là khi không còn gì để bớt.",
+        "Màu sắc là cảm xúc có hình.",
+        "Khoảng trắng cũng biết nói.",
+        "Mỗi pixel đều có lý do.",
+        "Chuyển động kể nốt phần còn lại.",
+        "Chữ đẹp được đọc trước khi được hiểu.",
+        "Ý tưởng tốt sống lâu hơn xu hướng.",
+        "Thiết kế bắt đầu từ lắng nghe.",
+        "Nghệ thuật bắt đầu từ tò mò."
+      ],
       "aboutTitle1": "Thiết kế có chủ đích.",
       "aboutTitle2": "Viết mã đến nơi.",
       "socialTitle1": "Hugo Studio",
@@ -8313,5 +8394,139 @@
     "reset": "Xoá tiến độ học",
     "resetTitle": "Xoá toàn bộ tiến độ?",
     "resetBody": "Mọi bài đã qua sẽ được tính lại từ đầu."
+  },
+  "eduPage": {
+    "heroEyebrow": "Hugo Studio Member · dành cho người học",
+    "heroLede": "Một tài khoản mở ra cả một góc nhỏ cho người học: trang Bio mang tên Quý học viên, giờ tập trung có nhạc, vài ván cờ lúc nghỉ tay, bộ công cụ cho bài tập nhóm. Cài lên màn hình chính, mở ra như một ứng dụng.",
+    "heroCta": "Xem điều kiện",
+    "memberKicker": "Hugo Studio Member",
+    "memberTitle1": "Một tài khoản.",
+    "memberTitle2": "Mọi ứng dụng để học.",
+    "memberBody": "Đăng nhập một lần bằng Google. Trang Bio, phiên tập trung, điểm trò chơi và ngân khố JOY đi theo tài khoản, sang máy khác vẫn còn nguyên. Không quảng cáo, không bán dữ liệu.",
+    "facts": [
+      {
+        "value": "1",
+        "label": "tài khoản cho mọi ứng dụng"
+      },
+      {
+        "value": "3",
+        "label": "ngôn ngữ: Việt, Anh, Trung"
+      },
+      {
+        "value": "0",
+        "label": "quảng cáo trong ứng dụng"
+      }
+    ],
+    "featuresKicker": "Bên trong",
+    "featuresTitle1": "Bốn thứ đáng mở.",
+    "featuresTitle2": "Mỗi ngày.",
+    "features": [
+      {
+        "app": "Trang Bio",
+        "title": "Một trang mang tên chính mình.",
+        "body": "Ảnh, dự án, kỹ năng và mọi liên kết gom về một đường dẫn. Sửa ngay trong tài khoản, đổi giao diện lúc nào cũng được.",
+        "points": [
+          "Miễn phí 365 ngày khi đã xác minh",
+          "Ba giao diện: Mặc định, Phẳng, Khối",
+          "Một đường dẫn để gửi kèm hồ sơ"
+        ]
+      },
+      {
+        "app": "Chuyên Chú",
+        "title": "Tập trung, có nhạc nền.",
+        "body": "Đồng hồ Pomodoro ba cấp độ và đài nhạc ngay bên cạnh. Mỗi phiên hoàn thành được ghi nhận bằng JOY.",
+        "points": [
+          "Ba cấp: nhẹ, sâu, bậc thầy",
+          "Đài nhạc miễn phí trong cùng ứng dụng",
+          "Thưởng JOY sau mỗi phiên"
+        ]
+      },
+      {
+        "app": "Trò Chơi",
+        "title": "Nghỉ tay cho đáng.",
+        "body": "Bốn trò chơi do Hugo Studio tự làm, từ cờ vua 3D tới rắn săn mồi. Chơi ngay trong trình duyệt, không cài đặt.",
+        "points": [
+          "Độc quyền bởi Hugo Studio",
+          "Đấu máy hoặc hai người",
+          "Bảng xếp hạng theo mùa"
+        ]
+      },
+      {
+        "app": "HugoKit",
+        "title": "Tám công cụ, một chỗ.",
+        "body": "Tạo và quét mã QR, đổi ảnh, giải nén, tạo mật khẩu. Phần lớn xử lý ngay trên máy, tệp không phải gửi lên đâu.",
+        "points": [
+          "QR, ảnh, tệp, văn bản",
+          "Tạo mật khẩu mạnh",
+          "Khoá liên kết bằng mật khẩu"
+        ]
+      }
+    ],
+    "termsKicker": "Điều kiện",
+    "termsTitle1": "Bốn điều.",
+    "termsTitle2": "Rồi mọi thứ mở ra.",
+    "terms": [
+      {
+        "title": "Từ 14 tuổi trở lên",
+        "body": "Từ 14 đến dưới 18 tuổi cần có cha mẹ hoặc người giám hộ đồng ý và đồng hành."
+      },
+      {
+        "title": "Đăng nhập bằng Google",
+        "body": "Một tài khoản Google là đủ. Tốt nhất là tài khoản do trường cấp."
+      },
+      {
+        "title": "Xác minh là người học",
+        "body": "Email trường được duyệt tự động. Chưa có thì gửi giấy tờ người học còn hiệu lực để duyệt tay."
+      },
+      {
+        "title": "365 ngày kể từ khi xác minh",
+        "body": "Hết hạn thì gia hạn nếu vẫn đang học. Không tự động trừ tiền, dữ liệu vẫn giữ nguyên."
+      }
+    ],
+    "closingCta": "Trao đổi với Hugo"
+  },
+  "bioStudio": {
+    "links": {
+      "listTitle": "Liên kết đang hiển thị",
+      "listHint": "Thêm hay gỡ đều tự lưu ngay.",
+      "open": "Mở liên kết",
+      "remove": "Gỡ liên kết",
+      "removeTitle": "Gỡ liên kết này?",
+      "addTitle": "Thêm liên kết",
+      "addHint": "Chọn nền tảng để điền sẵn đầu đường dẫn, hoặc dán thẳng một URL.",
+      "labelField": "Tên hiển thị",
+      "zaloTitle": "Nút nhắn Zalo",
+      "zaloHint": "Khách bấm vào sẽ mở thẳng cuộc trò chuyện với số {{phone}}.",
+      "zaloNoPhone": "Chưa có số điện thoại hợp lệ ở mục Hồ sơ.",
+      "zaloNeedPhone": "Cần một số điện thoại hợp lệ ở mục Hồ sơ trước khi bật Zalo.",
+      "zaloOff": "Chưa sẵn sàng",
+      "aboutTitle": "Giới thiệu"
+    },
+    "achievements": {
+      "projects": "Dự án",
+      "services": "Dịch vụ",
+      "addProject": "Thêm dự án",
+      "addService": "Thêm dịch vụ",
+      "update": "Cập nhật",
+      "removeTitle": "Xoá mục này?"
+    },
+    "design": {
+      "themeTitle": "Giao diện trang",
+      "themeHint": "Chạm một mẫu để áp dụng và lưu ngay.",
+      "linkTitle": "Đường dẫn",
+      "shortLink": "Đường dẫn ngắn",
+      "fullLink": "Đường dẫn đầy đủ",
+      "domainTitle": "Tên miền riêng",
+      "domainOn": "Đang liên kết",
+      "domainOff": "Chưa kích hoạt",
+      "saveDomain": "Lưu tên miền",
+      "saving": "Đang lưu…",
+      "unlink": "Huỷ liên kết",
+      "unlinkTitle": "Huỷ liên kết tên miền riêng?",
+      "dnsTitle": "Cách trỏ DNS",
+      "dnsA": "Host @ trỏ về địa chỉ IP máy chủ Hugo Studio (dùng cho tên miền gốc).",
+      "dnsAfter": "Trỏ xong, tên miền tự kích hoạt kèm chứng chỉ bảo mật.",
+      "packagesTitle": "Gói đang dùng"
+    }
   }
 }

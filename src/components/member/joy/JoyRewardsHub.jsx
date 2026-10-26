@@ -272,7 +272,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
                 {spin.available
                   ? t("memberPortal.walletApp.rewards.spinReady", "Bạn có 1 lượt quay miễn phí hôm nay! Thử vận may ngay để nhận JOY hoặc Voucher xịn.")
                   : spin.spunThisYear
-                    ? t("memberPortal.accountHub.perksCopy.spunThisYear", { amount: joyText(spin.lastPrize), defaultValue: `Đã quay: Trúng ${joyText(spin.lastPrize)}` })
+                    ? t("memberPortal.accountHub.perksCopy.spunThisYear", { amount: spin.lastPrize, defaultValue: `Đã quay: Trúng ${joyText(spin.lastPrize)}` })
                     : spin.birthMonth
                       ? t("memberPortal.accountHub.perksCopy.opensInBirthMonth", { month: new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(2024, spin.birthMonth - 1, 1)) })
                       : t("memberPortal.accountHub.perksCopy.addBirthday")}

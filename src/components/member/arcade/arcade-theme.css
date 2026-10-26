@@ -13,7 +13,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .arc {
-  --arc-bg:      #f4f2fb;
+  --arc-bg:      #fbfaff;
   --arc-card:    #ffffff;
   --arc-fill:    rgba(120,120,128,.12);
   --arc-fill-a:  rgba(120,120,128,.2);
@@ -24,10 +24,12 @@
   --arc-a:       #7c3aed;
   --arc-a2:      #ec4899;
   --arc-joy:     #b7791f;
-  --arc-aurora-o: .55;
+  /* .55 phủ tím đặc lên nền sáng, cả sảnh ngả xám đục (26/10). Ở nền sáng
+     cực quang chỉ nên là vệt ửng màu. */
+  --arc-aurora-o: .2;
 
-  --arc-glass:     rgba(255,255,255,.66);
-  --arc-glass-brd: rgba(255,255,255,.7);
+  --arc-glass:     rgba(255,255,255,.86);
+  --arc-glass-brd: rgba(255,255,255,.9);
   --arc-glass-sh:  0 8px 32px rgba(60,30,120,.14), 0 2px 8px rgba(0,0,0,.06);
   --arc-glass-hi:  inset 0 1px 0 rgba(255,255,255,.75);
 

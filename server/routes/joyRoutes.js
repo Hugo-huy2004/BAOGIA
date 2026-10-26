@@ -1953,7 +1953,8 @@ router.post('/transfer', requireMember, async (req, res) => {
       {
         refId: txCode,
         bioDoc: sender,
-        counterparty: recipientName
+        counterparty: recipientName,
+        pushNotify: true
       }
     );
 

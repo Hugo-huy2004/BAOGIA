@@ -239,6 +239,7 @@ export default function MemberSettingsTab({
         await pushService.unsubscribe();
         setPushEnabled(false);
         showToast?.(t("memberPortal.settings.pushDisabledToast", nom("Đã tắt thông báo đẩy")), "success");
+        window.dispatchEvent(new Event("hugo:show-permission-primer"));
       } else {
         const result = await pushService.subscribe(email);
         if (result === "granted") {

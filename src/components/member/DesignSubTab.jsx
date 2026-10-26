@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { API_BASE } from "../../config/apiBase";
-import { Copy, ExternalLink, Globe, Check, Link as LinkIcon, Sparkles, CheckCircle2 } from "lucide-react";
+import { notify } from "../../lib/notify";
+import { BioIconButton, BioRow, BioSection, bioInputClass } from "./bioEditorKit";
 
 // 6 THEMES CHUẨN ĐƯỢC ĐỊNH KIỂU BỞI CÁC FILE CSS ĐỘC LẬP (HOÀN TOÀN MIỄN PHÍ)
 const AVAILABLE_THEMES = [
@@ -82,7 +83,6 @@ export default function DesignSubTab({
   onBioUpdate,
   showToast,
   handleSave,
-  saving = false,
 }) {
   const currentTemplate = formData.theme?.template || "default";
   const slug = bio?.slug || formData?.slug || "member";
@@ -96,7 +96,7 @@ export default function DesignSubTab({
   const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text);
     setCopiedLink(type);
-    showToast?.("Đã sao chép liên kết vào bộ nhớ tạm", "success");
+    notify.success(t("memberPortal.bioPreview.copySuccess"));
     setTimeout(() => setCopiedLink(null), 2000);
   };
 
@@ -111,7 +111,6 @@ export default function DesignSubTab({
     if (handleSave) {
       handleSave(null, newData);
     }
-    showToast?.(`Đã áp dụng và lưu giao diện ${theme.vietnameseTitle}`, "success");
   };
 
   const handleSaveCustomDomain = async (e) => {
@@ -143,7 +142,12 @@ export default function DesignSubTab({
   };
 
   const handleRemoveCustomDomain = async () => {
-    if (!window.confirm("Bạn có chắc chắn muốn hủy liên kết tên miền riêng này?")) return;
+    const ok = await notify.confirm({
+      title: t("bioStudio.design.unlinkTitle", "Huỷ liên kết tên miền riêng?"),
+      message: bio?.customDomain,
+      danger: true,
+    });
+    if (!ok) return;
     setSavingDomain(true);
     try {
       const res = await fetch(`${API_BASE}/bios/me/custom-domain`, {
@@ -167,264 +171,121 @@ export default function DesignSubTab({
     }
   };
 
+  const current = AVAILABLE_THEMES.find((x) => x.id === currentTemplate);
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      
-      {/* ── 1. BỘ SƯU TẬP GIAO DIỆN (100% MIỄN PHÍ) ── */}
-      <div className="space-y-3">
-        <div className="space-y-1 pl-1">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-primary" />
-            {t("memberPortal.design.title", "Bộ sưu tập Giao diện Bio")}
-          </h3>
-          <p className="text-xs text-muted-foreground/80 leading-relaxed">
-            Tất cả 6 giao diện được định kiểu riêng bằng file CSS độc lập, tải tức thì và hoàn toàn miễn phí cho mọi thành viên.
-          </p>
-        </div>
-
-        {/* Thanh trạng thái giao diện đang áp dụng */}
-        <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-xs">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-foreground text-[12px] truncate">
-              Đang dùng: <strong className="font-extrabold text-primary">{AVAILABLE_THEMES.find(t => t.id === currentTemplate)?.vietnameseTitle || "Edu Theme"}</strong>
-            </span>
-          </div>
-          <span className="text-[10.5px] text-muted-foreground font-medium shrink-0 hidden xs:inline">
-            Chạm thẻ để đổi ngay
-          </span>
-        </div>
-
-        {/* Lưới chọn giao diện: 2 cột trên điện thoại để nhìn tổng quan dễ chọn, 3 cột trên máy tính */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
+    <div className="space-y-7">
+      <BioSection
+        title={t("bioStudio.design.themeTitle", "Giao diện trang")}
+        aside={current?.vietnameseTitle}
+        hint={current ? current.desc : t("bioStudio.design.themeHint", "Chạm một mẫu để áp dụng và lưu ngay.")}
+      >
+        <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3">
           {AVAILABLE_THEMES.map((theme) => {
-            const isSelected = currentTemplate === theme.id;
-
+            const on = currentTemplate === theme.id;
             return (
               <button
                 key={theme.id}
                 type="button"
-                onClick={() => handleSelectTheme(theme)}
-                className={`group rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between active:scale-[0.98] ${
-                  isSelected
-                    ? "bg-primary/10 border-primary shadow-xs ring-2 ring-primary text-foreground"
-                    : "bg-card hover:bg-card/90 border-border/60 hover:border-border text-foreground/90 shadow-2xs"
+                aria-pressed={on}
+                onClick={() => !on && handleSelectTheme(theme)}
+                className={`relative min-w-0 overflow-hidden rounded-xl border text-left transition-transform active:scale-[0.98] ${
+                  on ? "border-primary ring-2 ring-primary" : "border-border/60"
                 }`}
               >
-                {/* Visual Background Thumbnail Banner */}
-                <div className="w-full h-20 sm:h-24 relative overflow-hidden border-b border-border/40 bg-muted/40">
+                <span className="block aspect-[16/10] w-full overflow-hidden bg-muted">
                   {theme.bgPreview ? (
-                    <img
-                      src={theme.bgPreview}
-                      alt={theme.title}
-                      className="w-full h-full object-cover opacity-90 transition-transform duration-300 group-hover:scale-105"
-                    />
+                    <img src={theme.bgPreview} alt="" loading="lazy" className="h-full w-full object-cover" />
                   ) : theme.isStudio ? (
-                    <div className="w-full h-full bg-[#030712] border-b border-cyan-500/30 flex flex-col items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,240,255,0.25),transparent_70%)]" />
-                      <div className="relative z-10 flex items-center gap-1 font-mono text-[9px] sm:text-[10px] font-bold text-cyan-400 tracking-[0.15em] uppercase">
-                        <span className="size-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                        <span>HUGO STUDIO</span>
-                      </div>
-                    </div>
+                    <span className="grid h-full w-full place-items-center bg-[#030712] font-mono text-[11px] font-bold tracking-[0.18em] text-cyan-300">HUGO STUDIO</span>
                   ) : (
-                    <div className="w-full h-full bg-amber-200 border-b-2 border-black flex items-center justify-center font-black text-black text-[10px] sm:text-xs uppercase tracking-widest">
-                      NEO BRUTALISM
-                    </div>
+                    <span className="grid h-full w-full place-items-center border-b-2 border-black bg-amber-200 text-[11px] font-black tracking-widest text-black">BRUTALISM</span>
                   )}
-                  {isSelected ? (
-                    <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground rounded-full p-1 shadow-md ring-1 ring-background">
-                      <Check className="size-3.5 stroke-[3]" />
-                    </div>
-                  ) : (
-                    <div className="absolute top-1.5 right-1.5 bg-black/30 backdrop-blur-xs text-white/70 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="material-symbols-outlined text-[13px]">touch_app</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-2.5 sm:p-3.5 flex-1 flex flex-col justify-between gap-2 sm:gap-3">
-                  <div>
-                    <div className="flex items-center justify-between gap-1">
-                      <h4 className="text-xs sm:text-sm font-bold tracking-tight text-foreground truncate">
-                        {theme.vietnameseTitle}
-                      </h4>
-                      {isSelected && (
-                        <span className="text-[10px] font-extrabold text-primary shrink-0 sm:hidden">
-                          ✓
-                        </span>
-                      )}
-                    </div>
-                    {/* Mô tả chi tiết: ẩn trên màn hình nhỏ để thẻ gọn gàng dễ so sánh, hiển thị đầy đủ trên tablet/desktop */}
-                    <p className="hidden sm:block text-[11.5px] text-muted-foreground mt-1 leading-relaxed line-clamp-2">
-                      {theme.desc}
-                    </p>
-                  </div>
-
-                  <div className="pt-1.5 sm:pt-2 border-t border-border/40 flex items-center justify-between gap-1">
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">
-                      {theme.title}
-                    </span>
-                    <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
-                      {theme.badgeText}
-                    </span>
-                  </div>
-                </div>
+                </span>
+                <span className="flex min-h-[44px] items-center justify-between gap-2 px-3 py-2">
+                  <span className="truncate text-[14px] font-semibold text-foreground">{theme.vietnameseTitle}</span>
+                  {on && <span className="material-symbols-outlined shrink-0 text-[20px] text-primary [font-variation-settings:'FILL'_1]" aria-hidden="true">check_circle</span>}
+                </span>
               </button>
             );
           })}
         </div>
+      </BioSection>
 
-        <div className="flex items-center justify-between pt-1 px-1 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-            <CheckCircle2 className="size-3.5" />
-            Giao diện được tự động cập nhật ngay lập tức khi bạn chọn
-          </span>
-          <span className="text-[11px] opacity-70">
-            Nút lưu ở các tab khác chỉ dùng cho thông tin cá nhân
-          </span>
-        </div>
-      </div>
-
-      {/* ── 2. CÁ NHÂN HÓA TÊN MIỀN & ĐƯỜNG DẪN BIO (CHUẨN APPLE SETTINGS) ── */}
-      <div className="space-y-3 pt-3 border-t border-border/60">
-        <div className="space-y-1 pl-1">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Globe className="size-3.5 text-primary" />
-            Cá nhân hóa Tên miền & Đường dẫn
-          </h3>
-          <p className="text-xs text-muted-foreground/80 leading-relaxed">
-            Dễ dàng chia sẻ hồ sơ qua đường dẫn ngắn hoặc gắn tên miền của riêng bạn để tạo dấu ấn thương hiệu cá nhân.
-          </p>
-        </div>
-
-        {/* Thẻ Đường dẫn có sẵn */}
-        <div className="bg-card/60 border border-border/70 rounded-2xl p-4 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                <LinkIcon className="size-3" /> Đường dẫn Bio ngắn gọn:
+      <BioSection title={t("bioStudio.design.linkTitle", "Đường dẫn")}>
+        {[["short", shortBioUrl], ["full", primaryBioUrl]].map(([type, url]) => (
+          <BioRow
+            key={type}
+            icon={type === "short" ? "link" : "language"}
+            title={url.replace(/^https?:\/\//, "")}
+            detail={type === "short" ? t("bioStudio.design.shortLink", "Đường dẫn ngắn") : t("bioStudio.design.fullLink", "Đường dẫn đầy đủ")}
+            href={url}
+            trailing={
+              <span className="-mr-2">
+                <BioIconButton
+                  icon={copiedLink === type ? "check" : "content_copy"}
+                  label={t("memberPortal.bioPreview.copyLinkAria")}
+                  onClick={() => copyToClipboard(url, type)}
+                />
               </span>
-              <p className="text-sm font-bold text-foreground mt-0.5 select-all font-mono">
-                {shortBioUrl}
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+            }
+          />
+        ))}
+      </BioSection>
+
+      <BioSection
+        title={t("bioStudio.design.domainTitle", "Tên miền riêng")}
+        aside={bio?.customDomain ? t("bioStudio.design.domainOn", "Đang liên kết") : t("bioStudio.design.domainOff", "Chưa kích hoạt")}
+      >
+        <form onSubmit={handleSaveCustomDomain}>
+          <input
+            type="text"
+            inputMode="url"
+            autoCapitalize="none"
+            value={customDomainInput}
+            onChange={(e) => setCustomDomainInput(e.target.value)}
+            aria-label={t("bioStudio.design.domainTitle", "Tên miền riêng")}
+            placeholder="bio.tenmien.vn"
+            className={`${bioInputClass} font-mono`}
+          />
+          <div className="flex gap-2 border-t border-border/50 p-3">
+            {bio?.customDomain && (
               <button
                 type="button"
-                onClick={() => copyToClipboard(shortBioUrl, "short")}
-                className="px-3 py-1.5 rounded-xl border border-border/70 hover:bg-muted text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                onClick={handleRemoveCustomDomain}
+                disabled={savingDomain}
+                className="h-11 flex-1 rounded-xl bg-destructive/10 text-[15px] font-semibold text-destructive disabled:opacity-40"
               >
-                {copiedLink === "short" ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
-                {copiedLink === "short" ? "Đã chép" : "Sao chép"}
+                {t("bioStudio.design.unlink", "Huỷ liên kết")}
               </button>
-              <a
-                href={shortBioUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
-              >
-                Xem ngay <ExternalLink className="size-3" />
-              </a>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <span className="text-xs font-semibold text-muted-foreground">Đường dẫn đầy đủ:</span>
-              <p className="text-xs text-muted-foreground/90 font-mono mt-0.5 select-all">
-                {primaryBioUrl}
-              </p>
-            </div>
+            )}
             <button
-              type="button"
-              onClick={() => copyToClipboard(primaryBioUrl, "full")}
-              className="px-2.5 py-1 rounded-lg hover:bg-muted text-[11px] font-medium text-muted-foreground flex items-center gap-1 transition-colors self-start sm:self-auto"
+              type="submit"
+              disabled={savingDomain || !customDomainInput.trim()}
+              className="h-11 flex-[2] rounded-xl bg-primary text-[15px] font-semibold text-primary-foreground disabled:opacity-40"
             >
-              {copiedLink === "full" ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
-              Sao chép
+              {savingDomain ? t("bioStudio.design.saving", "Đang lưu…") : t("bioStudio.design.saveDomain", "Lưu tên miền")}
             </button>
           </div>
-        </div>
-
-        {/* Thẻ Cấu hình Tên miền riêng (Custom Domain) */}
-        <div className="bg-card/60 border border-border/70 rounded-2xl p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-bold text-foreground flex items-center gap-2">
-              <Globe className="size-4 text-primary" /> Tên miền riêng (Custom Domain)
-            </span>
-            <span
-              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                bio?.customDomain
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {bio?.customDomain ? "Đang liên kết" : "Chưa kích hoạt"}
-            </span>
-          </div>
-
-          <form onSubmit={handleSaveCustomDomain} className="space-y-3">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  value={customDomainInput}
-                  onChange={(e) => setCustomDomainInput(e.target.value)}
-                  placeholder="ví dụ: bio.tenban.vn hoặc mybrand.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border/70 bg-background text-sm text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary font-mono placeholder:font-sans"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="submit"
-                  disabled={savingDomain || !customDomainInput.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-all shrink-0"
-                >
-                  {savingDomain ? "Đang lưu..." : "Lưu tên miền"}
-                </button>
-                {bio?.customDomain && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveCustomDomain}
-                    disabled={savingDomain}
-                    className="px-3 py-2.5 rounded-xl border border-destructive/30 hover:bg-destructive/10 text-destructive text-xs font-semibold transition-all shrink-0"
-                  >
-                    Hủy liên kết
-                  </button>
-                )}
-              </div>
+        </form>
+        <details className="group border-t border-border/50">
+          <summary className="flex min-h-[48px] cursor-pointer list-none items-center justify-between px-4 text-[15px] font-medium text-foreground [&::-webkit-details-marker]:hidden">
+            {t("bioStudio.design.dnsTitle", "Cách trỏ DNS")}
+            <span className="material-symbols-outlined text-[20px] text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true">expand_more</span>
+          </summary>
+          <dl className="space-y-3 px-4 pb-4 text-[13px] leading-relaxed text-muted-foreground">
+            <div>
+              <dt className="font-semibold text-foreground">CNAME</dt>
+              <dd>Host <code className="font-mono text-foreground">bio</code> → <code className="break-all font-mono text-foreground">cname.hugowishpax.studio</code></dd>
             </div>
-
-            {/* Hướng dẫn cấu hình DNS chuẩn Apple Inset */}
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50 space-y-2 text-xs text-muted-foreground leading-relaxed">
-              <p className="font-semibold text-foreground">
-                📌 Hướng dẫn cấu hình DNS tại nhà đăng ký tên miền:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-[11px] pt-1">
-                <div className="p-2 rounded-lg bg-background border border-border/40">
-                  <span className="font-bold text-foreground">Bản ghi CNAME (khuyên dùng):</span>
-                  <p className="mt-0.5 text-muted-foreground">Host: <span className="text-foreground">@</span> hoặc <span className="text-foreground">bio</span></p>
-                  <p className="text-muted-foreground">Giá trị: <span className="text-primary font-bold">cname.hugowishpax.studio</span></p>
-                </div>
-                <div className="p-2 rounded-lg bg-background border border-border/40">
-                  <span className="font-bold text-foreground">Bản ghi A (dành cho root domain):</span>
-                  <p className="mt-0.5 text-muted-foreground">Host: <span className="text-foreground">@</span></p>
-                  <p className="text-muted-foreground">Trỏ về địa chỉ IP máy chủ Hugo Studio</p>
-                </div>
-              </div>
-              <p className="text-[11px] opacity-75">
-                * Sau khi trỏ DNS, tên miền sẽ tự động kích hoạt và kết nối an toàn với máy chủ.
-              </p>
+            <div>
+              <dt className="font-semibold text-foreground">A</dt>
+              <dd>{t("bioStudio.design.dnsA", "Host @ trỏ về địa chỉ IP máy chủ Hugo Studio (dùng cho tên miền gốc).")}</dd>
             </div>
-          </form>
-        </div>
-
-      </div>
-
+            <dd>{t("bioStudio.design.dnsAfter", "Trỏ xong, tên miền tự kích hoạt kèm chứng chỉ bảo mật.")}</dd>
+          </dl>
+        </details>
+      </BioSection>
     </div>
   );
 }

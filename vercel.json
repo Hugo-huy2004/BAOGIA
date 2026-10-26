@@ -1,8 +1,20 @@
 {
   "redirects": [
-    { "source": "/booking", "destination": "/services#dat-lich", "permanent": true },
-    { "source": "/en/booking", "destination": "/en/services#dat-lich", "permanent": true },
-    { "source": "/zh/booking", "destination": "/zh/services#dat-lich", "permanent": true },
+    {
+      "source": "/booking",
+      "destination": "/services#dat-lich",
+      "permanent": true
+    },
+    {
+      "source": "/en/booking",
+      "destination": "/en/services#dat-lich",
+      "permanent": true
+    },
+    {
+      "source": "/zh/booking",
+      "destination": "/zh/services#dat-lich",
+      "permanent": true
+    },
     {
       "source": "/:path*",
       "has": [
@@ -323,8 +335,48 @@
       "destination": "/zh/services/add-ons/support/index.html"
     },
     {
+      "source": "/member",
+      "destination": "/member/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login/index.html"
+    },
+    {
+      "source": "/support-request",
+      "destination": "/support-request/index.html"
+    },
+    {
+      "source": "/member/:path*",
+      "destination": "/member/index.html"
+    },
+    {
+      "source": "/study/:path*",
+      "destination": "/study/index.html"
+    },
+    {
+      "source": "/hugoso",
+      "destination": "/study/index.html"
+    },
+    {
+      "source": "/hugoso/:path*",
+      "destination": "/study/index.html"
+    },
+    {
+      "source": "/chess/:room",
+      "destination": "/chess/index.html"
+    },
+    {
+      "source": "/bio/:slug",
+      "destination": "/api/bio-og?slug=:slug"
+    },
+    {
+      "source": "/b/:slug",
+      "destination": "/api/bio-og?slug=:slug"
+    },
+    {
       "source": "/((?!api/|assets/|.*\\.[a-zA-Z0-9]+$).*)",
-      "destination": "/index.html"
+      "destination": "/app-shell.html"
     }
   ],
   "headers": [

@@ -1,317 +1,245 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import OptimizedInput from "../common/OptimizedInput";
 import OptimizedTextarea from "../common/OptimizedTextarea";
+import { notify } from "../../lib/notify";
 import { SocialMonochromeIcon } from "../../utils/socialBrandHelper";
-import {
-  detectSocialPlatform,
-  SUPPORTED_PLATFORMS
-} from "../../utils/socialBrandConstants";
-import {
-  Trash2,
-  Plus,
-  MessageCircle,
-  Sparkles,
-  Edit3,
-  Star
-} from "lucide-react";
+import { detectSocialPlatform, SUPPORTED_PLATFORMS } from "../../utils/socialBrandConstants";
+import { BioIconButton, BioRow, BioSection, BioToggle, bioInputClass } from "./bioEditorKit";
+
+// Khớp giới hạn ở addSocialLink (MemberPortalPage): Zalo cũng tính là một liên kết.
+const MAX_LINKS = 5;
+const BIO_WORD_LIMIT = 110;
+const isZalo = (link) => (link.url || "").includes("zalo.me") || (link.label || "").toLowerCase() === "zalo";
+// zalo.me/<số> chỉ mở được bằng số điện thoại; chuỗi khác (mã Google, mã Zalo) ra trang lỗi.
+const PHONE_RE = /^(0\d{9,10}|\+?\d{9,15})$/;
 
 export default function LinksSubTab({
   formData,
   setFormData,
-  newLinkLabel,
-  setNewLinkLabel,
-  newLinkUrl,
-  setNewLinkUrl,
-  handleLinkInputKeyDown,
-  addSocialLink,
   removeSocialLink,
   handleFieldChange,
   bioTextareaRef,
   bio,
   handleSave,
-  showToast,
-  t
+  t,
 }) {
+  // Bản nháp giữ tại chỗ: state cũ nằm ở MemberPortalPage nên mỗi phím gõ vẽ lại
+  // cả portal, và ô nhập trễ 300ms khiến Enter thêm nhầm giá trị cũ.
+  const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkUrl, setNewLinkUrl] = useState("");
   const links = useMemo(() => (Array.isArray(formData.links) ? formData.links : []), [formData.links]);
+  const phone = (formData.phone || bio?.phone || "").replace(/[^\d+]/g, "").replace(/^\+84/, "0");
+  const phoneValid = PHONE_RE.test(phone);
+  const zaloOn = links.some(isZalo);
+  const full = links.length >= MAX_LINKS;
+  const words = formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0;
+  const aboutDirty = (formData.bio || "") !== (bio?.bio || "") || (formData.hobbies || "") !== (bio?.hobbies || "");
 
-  // Kiểm tra liên kết Zalo hiện tại
-  const rawPhone = formData.phone || bio?.phone || "";
-  // Làm sạch chuỗi số điện thoại
-  const cleanPhone = rawPhone.replace(/[^\d+]/g, "").replace(/^\+84/, "0");
-  const hasZaloLink = links.some(
-    (l) => (l.url && l.url.includes("zalo.me")) || (l.label && l.label.toLowerCase() === "zalo")
-  );
+  const saveLinks = (next) => {
+    const data = { ...formData, links: next };
+    setFormData(data);
+    handleSave?.(null, data);
+  };
 
-  // Toggle Zalo
-  const handleToggleZalo = (enabled) => {
-    if (enabled) {
-      if (!cleanPhone) {
-        showToast?.("Vui lòng cập nhật Số điện thoại ở mục Hồ sơ trước khi bật Zalo", "warning");
-        return;
-      }
-      const zaloUrl = `https://zalo.me/${cleanPhone}`;
-      // Gỡ link zalo cũ nếu có và thêm link mới
-      const filtered = links.filter(
-        (l) => !(l.url && l.url.includes("zalo.me")) && !(l.label && l.label.toLowerCase() === "zalo")
-      );
-      const updatedLinks = [...filtered, { label: "Zalo", url: zaloUrl }];
-      const newData = { ...formData, links: updatedLinks };
-      setFormData(newData);
-      handleSave?.(null, newData);
-      showToast?.(`Đã liên kết Zalo thành công với số ${cleanPhone}`, "success");
-    } else {
-      const updatedLinks = links.filter(
-        (l) => !(l.url && l.url.includes("zalo.me")) && !(l.label && l.label.toLowerCase() === "zalo")
-      );
-      const newData = { ...formData, links: updatedLinks };
-      setFormData(newData);
-      handleSave?.(null, newData);
-      showToast?.("Đã hủy liên kết Zalo", "success");
+  const toggleZalo = (on) => {
+    if (on && !phoneValid) {
+      notify.warning(t("bioStudio.links.zaloNeedPhone", "Cần một số điện thoại hợp lệ ở mục Hồ sơ trước khi bật Zalo."));
+      return;
+    }
+    if (on && full) {
+      notify.warning(t("memberPortal.toast.linkLimit"));
+      return;
+    }
+    const rest = links.filter((l) => !isZalo(l));
+    saveLinks(on ? [...rest, { label: "Zalo", url: `https://zalo.me/${phone}` }] : rest);
+  };
+
+  const addLink = () => {
+    const label = newLinkLabel.trim();
+    const url = newLinkUrl.trim();
+    if (full || !label || !url || SUPPORTED_PLATFORMS.some((p) => p.prefix === url)) return;
+    saveLinks([...links, { label, url: /^[a-z]+:\/\//i.test(url) ? url : `https://${url}` }]);
+    setNewLinkLabel("");
+    setNewLinkUrl("");
+  };
+  const onEnter = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addLink();
     }
   };
 
-  // Khi người dùng chọn platform từ danh sách hỗ trợ
-  const handleSelectPlatform = (platformId) => {
-    const platform = SUPPORTED_PLATFORMS.find((p) => p.id === platformId);
-    if (!platform) return;
+  const confirmRemove = async (idx) => {
+    const ok = await notify.confirm({
+      title: t("bioStudio.links.removeTitle", "Gỡ liên kết này?"),
+      message: links[idx]?.url,
+      danger: true,
+    });
+    if (ok) removeSocialLink(idx);
+  };
+
+  const pickPlatform = (platform) => {
     setNewLinkLabel(platform.name);
-    if (!newLinkUrl) {
-      setNewLinkUrl(platform.prefix);
-    }
+    if (!newLinkUrl || SUPPORTED_PLATFORMS.some((p) => p.prefix === newLinkUrl)) setNewLinkUrl(platform.prefix);
   };
 
   return (
-    <div className="space-y-5 animate-fadeIn">
-      
-      {/* ── 1. KẾT NỐI NHANH ZALO (TỰ ĐỘNG TẠO LINK CHAT) ── */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center px-1">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <MessageCircle className="size-3.5 text-primary" />
-            Liên kết nhanh Zalo
-          </h3>
-          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-            Tự động theo SĐT
-          </span>
-        </div>
-
-        <div className="bg-white dark:bg-card rounded-xl border border-border/60 shadow-sm p-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center text-foreground shrink-0 border border-border/50">
-              <SocialMonochromeIcon platform="zalo" className="size-5 text-foreground" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                Nhắn tin Zalo trực tiếp
-                {cleanPhone && (
-                  <span className="text-xs font-mono font-normal opacity-70">({cleanPhone})</span>
-                )}
-              </h4>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {cleanPhone
-                  ? `Khách truy cập sẽ mở trực tiếp cuộc trò chuyện tại zalo.me/${cleanPhone}`
-                  : "Chưa có số điện thoại. Hãy bổ sung SĐT ở Hồ sơ để kích hoạt."}
-              </p>
-            </div>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
-            <input
-              type="checkbox"
-              checked={hasZaloLink}
-              onChange={(e) => handleToggleZalo(e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
-          </label>
-        </div>
-      </div>
-
-      {/* ── 2. CÁC NỀN TẢNG MẠNG XÃ HỘI ĐƯỢC HỖ TRỢ ── */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center px-1">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-primary" />
-            {t("memberPortal.links.title", "Liên kết mạng xã hội")}
-          </h3>
-          <span className="text-[10px] font-semibold text-muted-foreground/70">
-            {t("memberPortal.links.autoSave", "Tự động lưu khi thêm/xóa")}
-          </span>
-        </div>
-
-        <div className="bg-white dark:bg-card rounded-xl border border-border/60 shadow-sm p-4 space-y-4">
-          
-          {/* Danh sách liên kết hiện tại */}
-          {links.length > 0 ? (
-            <div className="space-y-2">
-              {links.map((link, idx) => {
-                const platform = detectSocialPlatform(link.label, link.url);
-                return (
-                  <div
-                    key={idx}
-                    className="flex justify-between items-center p-3 rounded-xl bg-muted/40 border border-border/50 text-xs transition-all hover:border-border"
+    <div className="space-y-7">
+      <BioSection
+        title={t("bioStudio.links.listTitle", "Liên kết đang hiển thị")}
+        aside={`${links.length}/${MAX_LINKS}`}
+        hint={t("bioStudio.links.listHint", "Thêm hay gỡ đều tự lưu ngay.")}
+      >
+        {links.length === 0 ? (
+          <p className="px-4 py-6 text-center text-[15px] text-muted-foreground">
+            {t("memberPortal.links.empty", "Chưa có liên kết xã hội nào.")}
+          </p>
+        ) : (
+          links.map((link, idx) => (
+            <BioRow
+              key={`${link.url}-${idx}`}
+              icon={<SocialMonochromeIcon platform={detectSocialPlatform(link.label, link.url)} className="size-[18px]" />}
+              title={link.label || link.url}
+              detail={link.url.replace(/^https?:\/\//, "")}
+              trailing={
+                <span className="-mr-2 flex shrink-0">
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={t("bioStudio.links.open", "Mở liên kết")}
+                    className="grid h-11 w-11 place-items-center rounded-full text-muted-foreground hover:bg-muted"
                   >
-                    <div className="flex items-center gap-3 truncate pr-2">
-                      <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center text-foreground shrink-0 border border-border/40 shadow-2xs">
-                        <SocialMonochromeIcon platform={platform} className="size-4 text-foreground" />
-                      </div>
-                      <div className="truncate">
-                        <span className="font-bold text-foreground mr-1.5">
-                          {link.label || "Liên kết"}:
-                        </span>
-                        <span className="text-muted-foreground truncate text-[11.5px] font-mono">
-                          {link.url}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeSocialLink(idx)}
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500/10 transition-colors shrink-0"
-                      title="Xóa liên kết"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-6 border border-dashed border-border/80 rounded-xl">
-              <p className="text-xs italic text-muted-foreground">
-                {t("memberPortal.links.empty", "Chưa có liên kết mạng xã hội nào.")}
-              </p>
-            </div>
-          )}
+                    <span className="material-symbols-outlined text-[20px]" aria-hidden="true">open_in_new</span>
+                  </a>
+                  <BioIconButton icon="delete" danger label={t("bioStudio.links.remove", "Gỡ liên kết")} onClick={() => confirmRemove(idx)} />
+                </span>
+              }
+            />
+          ))
+        )}
+      </BioSection>
 
-          {/* Chọn nhanh nền tảng được hỗ trợ */}
-          <div className="pt-2 border-t border-border/60 space-y-2.5">
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-              Chọn nhanh ứng dụng được hỗ trợ:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {SUPPORTED_PLATFORMS.filter((p) => p.id !== "zalo").map((plat) => (
-                <button
-                  key={plat.id}
-                  type="button"
-                  onClick={() => handleSelectPlatform(plat.id)}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                    newLinkLabel.toLowerCase() === plat.name.toLowerCase()
-                      ? "bg-primary text-white border-primary"
-                      : "bg-muted/40 hover:bg-muted text-foreground border-border/50"
-                  }`}
-                >
-                  <SocialMonochromeIcon platform={plat.id} className="size-3.5" />
-                  <span>{plat.name}</span>
-                </button>
-              ))}
-            </div>
+      <BioSection
+        title={t("bioStudio.links.addTitle", "Thêm liên kết")}
+        hint={full ? t("memberPortal.toast.linkLimit") : t("bioStudio.links.addHint", "Chọn nền tảng để điền sẵn đầu đường dẫn, hoặc dán thẳng một URL.")}
+      >
+        <div className="flex gap-2 overflow-x-auto px-4 pt-4 pb-3 [scrollbar-width:none]">
+          {SUPPORTED_PLATFORMS.filter((p) => p.id !== "zalo").map((p) => {
+            const on = newLinkLabel.toLowerCase() === p.name.toLowerCase();
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => pickPlatform(p)}
+                aria-pressed={on}
+                className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[14px] font-medium transition-colors ${
+                  on ? "border-primary bg-primary text-primary-foreground" : "border-border/70 bg-background text-foreground hover:bg-muted"
+                }`}
+              >
+                <SocialMonochromeIcon platform={p.id} className="size-4" />
+                {p.name}
+              </button>
+            );
+          })}
+        </div>
+        <div className="border-t border-border/50">
+          <input
+            type="text"
+            value={newLinkLabel}
+            onKeyDown={onEnter}
+            onChange={(e) => setNewLinkLabel(e.target.value)}
+            aria-label={t("bioStudio.links.labelField", "Tên hiển thị")}
+            placeholder={t("bioStudio.links.labelField", "Tên hiển thị")}
+            className={bioInputClass}
+          />
+        </div>
+        <div className="border-t border-border/50">
+          <input
+            type="url"
+            inputMode="url"
+            autoCapitalize="none"
+            value={newLinkUrl}
+            onKeyDown={onEnter}
+            onChange={(e) => {
+              const val = e.target.value;
+              setNewLinkUrl(val);
+              if (!newLinkLabel) {
+                const matched = SUPPORTED_PLATFORMS.find((p) => p.id === detectSocialPlatform("", val));
+                if (matched) setNewLinkLabel(matched.name);
+              }
+            }}
+            aria-label={t("memberPortal.links.url", "Địa chỉ URL")}
+            placeholder="https://"
+            className={`${bioInputClass} font-mono text-[15px]`}
+          />
+        </div>
+        <div className="border-t border-border/50 p-3">
+          <button
+            type="button"
+            onClick={addLink}
+            disabled={full || !newLinkLabel.trim() || !newLinkUrl.trim()}
+            className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-primary text-[15px] font-semibold text-primary-foreground transition-opacity disabled:opacity-40"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">add</span>
+            {t("memberPortal.links.addLink", "Thêm liên kết")}
+          </button>
+        </div>
+      </BioSection>
 
-            {/* Form nhập nhãn và URL */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase pl-0.5">
-                  Ứng dụng / Tên hiển thị
-                </label>
-                <OptimizedInput
-                  type="text"
-                  value={newLinkLabel}
-                  onKeyDown={handleLinkInputKeyDown}
-                  onChange={(e) => setNewLinkLabel(e.target.value)}
-                  placeholder="Ví dụ: Facebook, Instagram, TikTok..."
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs font-semibold"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase pl-0.5">
-                  Địa chỉ URL
-                </label>
-                <OptimizedInput
-                  type="text"
-                  value={newLinkUrl}
-                  onKeyDown={handleLinkInputKeyDown}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setNewLinkUrl(val);
-                    // Tự động đoán label nếu chưa có
-                    if (!newLinkLabel) {
-                      const detected = detectSocialPlatform("", val);
-                      const matched = SUPPORTED_PLATFORMS.find((p) => p.id === detected);
-                      if (matched) setNewLinkLabel(matched.name);
-                    }
-                  }}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs font-semibold"
-                />
-              </div>
-            </div>
+      <BioSection
+        title={t("bioStudio.links.zaloTitle", "Nút nhắn Zalo")}
+        hint={phoneValid
+          ? t("bioStudio.links.zaloHint", { phone, defaultValue: "Khách bấm vào sẽ mở thẳng cuộc trò chuyện với số {{phone}}." })
+          : t("bioStudio.links.zaloNoPhone", "Chưa có số điện thoại hợp lệ ở mục Hồ sơ.")}
+      >
+        <BioRow
+          icon={<SocialMonochromeIcon platform="zalo" className="size-[18px]" />}
+          title="Zalo"
+          detail={phoneValid ? phone : t("bioStudio.links.zaloOff", "Chưa sẵn sàng")}
+          trailing={<BioToggle checked={zaloOn} onChange={toggleZalo} disabled={!zaloOn && !phoneValid} label="Zalo" />}
+        />
+      </BioSection>
 
+      <BioSection
+        title={t("bioStudio.links.aboutTitle", "Giới thiệu")}
+        aside={t("memberPortal.other.wordCount", { count: words, limit: BIO_WORD_LIMIT })}
+      >
+        <OptimizedTextarea
+          ref={bioTextareaRef}
+          name="bio"
+          rows={4}
+          value={formData.bio || ""}
+          onChange={handleFieldChange}
+          aria-label={t("bioStudio.links.aboutTitle", "Giới thiệu")}
+          placeholder={t("memberPortal.other.placeholderDesc", "Viết một vài dòng giới thiệu bản thân...")}
+          className={`${bioInputClass} min-h-[112px] resize-none leading-relaxed`}
+        />
+        <div className="flex items-center gap-3 border-t border-border/50 pl-4">
+          <span className="material-symbols-outlined text-[20px] text-muted-foreground" aria-hidden="true">interests</span>
+          <OptimizedInput
+            type="text"
+            name="hobbies"
+            value={formData.hobbies || ""}
+            onChange={handleFieldChange}
+            aria-label={t("memberPortal.other.hobbies", "Sở thích")}
+            placeholder={t("memberPortal.other.placeholderHobbies", "Sở thích")}
+            className={`${bioInputClass} pl-0`}
+          />
+        </div>
+        {aboutDirty && (
+          <div className="border-t border-border/50 p-3">
             <button
               type="button"
-              onClick={addSocialLink}
-              className="w-full bg-primary hover:bg-primary/90 text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm mt-1"
+              onClick={() => handleSave?.()}
+              className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-primary text-[15px] font-semibold text-primary-foreground"
             >
-              <Plus className="size-3.5" />
-              <span>{t("memberPortal.links.addLink", "Thêm liên kết")}</span>
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">check</span>
+              {t("memberPortal.bio.saveChanges")}
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* ── 3. TIỂU SỬ VÀ SỞ THÍCH ── */}
-      <div className="space-y-2 pt-2">
-        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider pl-1">
-          {t("memberPortal.other.title", "Thông tin bổ sung")}
-        </h3>
-        <div className="bg-white dark:bg-card rounded-xl border border-border/60 shadow-sm overflow-hidden divide-y divide-border/40">
-          {/* Sở thích */}
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground bg-muted shrink-0 border border-border/40">
-              <Star className="size-4" />
-            </div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider w-24 shrink-0">
-              {t("memberPortal.other.hobbies", "Sở thích")}
-            </label>
-            <OptimizedInput
-              type="text"
-              name="hobbies"
-              value={formData.hobbies || ""}
-              onChange={handleFieldChange}
-              placeholder={t("memberPortal.other.placeholderHobbies", "Ví dụ: Âm nhạc, nhiếp ảnh, thể thao...")}
-              className="w-full bg-transparent text-foreground placeholder-muted-foreground/60 focus:outline-none text-xs sm:text-sm font-semibold"
-            />
-          </div>
-
-          {/* Giới thiệu / Bio */}
-          <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-3 px-4 py-3 min-h-[70px]">
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-foreground bg-muted shrink-0 border border-border/40">
-                <Edit3 className="size-4" />
-              </div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider w-24 shrink-0">
-                {t("memberPortal.other.desc", "Giới thiệu")}
-              </label>
-            </div>
-            <div className="flex-grow flex flex-col w-full">
-              <OptimizedTextarea
-                ref={bioTextareaRef}
-                name="bio"
-                value={formData.bio || ""}
-                onChange={handleFieldChange}
-                placeholder={t("memberPortal.other.placeholderDesc", "Viết vài dòng giới thiệu bản thân...")}
-                className="w-full bg-transparent text-foreground placeholder-muted-foreground/60 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
-              />
-              <div className="flex justify-end text-[10px] font-bold text-muted-foreground mt-1 select-none pr-2">
-                {t("memberPortal.other.wordCount", {
-                  count: formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0,
-                  limit: 110,
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+        )}
+      </BioSection>
     </div>
   );
 }

@@ -42,15 +42,39 @@ export async function sendPushNotification(email, title, body, url = '/member/to
  * @param {object} params tham số của khoá
  * @param {string} url đường dẫn mở khi chạm vào thông báo
  */
-export async function sendLocalizedPush(email, key, params = {}, url = '/member/today') {
+export async function sendLocalizedPush(email, key, params = {}, url = '/member/today', money = null) {
   // Ngôn ngữ theo THIẾT BỊ, nhưng đơn vị tiền theo TÀI KHOẢN: người dùng chọn
   // đơn vị một lần và nó cố định, đổi máy hay đổi ngôn ngữ đều không đổi nó.
   const denom = await denomOfMember(email);
   return deliver(email, (sub) => {
     const language = notificationLanguage(sub.device?.locale);
     const text = renderNotification(key, params, language, denom);
-    return text ? { title: text.title, body: text.message } : null;
-  }, url);
+    if (!text) return null;
+    if (!money) return { title: text.title, body: text.message };
+    return { title: text.title, body: [moneyLine(money, language, denom), text.message].filter(Boolean).join('\n') };
+  }, url, money ? {
+    // Thông báo hệ thống: ưu tiên cao, giữ trên màn hình tới khi người dùng chạm,
+    // mỗi giao dịch một thẻ riêng (hai lần nhận liên tiếp không đè nhau).
+    tag: `joy-${money.refCode || Date.now()}`,
+    requireInteraction: true,
+    kind: 'system',
+    urgency: 'high',
+  } : {});
+}
+
+/**
+ * "+50.000 Kavo · Hugo" / "Số dư 120.000 Kavo · Mã GD JOYABC" — hai dòng chi
+ * tiết của push biến động JOY, theo ngôn ngữ thiết bị và đơn vị tài khoản.
+ */
+function moneyLine({ amount, balanceAfter, refCode, counterparty }, language, denom) {
+  const part = (key, params) => renderNotification(key, params, language, denom)?.title;
+  const head = `${amount < 0 ? '−' : '+'}${part('push.joyAmount', { amount: Math.abs(amount) })}`
+    + (counterparty ? ` · ${counterparty}` : '');
+  const tail = [
+    balanceAfter != null && part('push.joyBalance', { balance: balanceAfter }),
+    refCode && part('push.joyRef', { ref: refCode }),
+  ].filter(Boolean).join(' · ');
+  return [head, tail].filter(Boolean).join('\n');
 }
 
 /** Đơn vị hiển thị của một thành viên; hỏng hay thiếu thì về đơn vị mặc định. */
@@ -64,7 +88,8 @@ async function denomOfMember(email) {
 }
 
 /** Phần chung: tìm thiết bị, gửi, dọn đăng ký chết. */
-async function deliver(email, textFor, url) {
+async function deliver(email, textFor, url, extra = {}) {
+  const { urgency = 'normal', ...shown } = extra;
   try {
     if (!email) return;
 
@@ -86,9 +111,10 @@ async function deliver(email, textFor, url) {
           title: text.title,
           body: text.body || '',
           icon: '/image/avt7.png',
-          url: url || '/member/today'
+          url: url || '/member/today',
+          ...shown,
         });
-        return webpush.sendNotification(sub.subscription, payload)
+        return webpush.sendNotification(sub.subscription, payload, { urgency, TTL: 24 * 3600 })
           .catch(err => {
             console.error(`[Push Notifier] Gửi thất bại cho ${email} tại endpoint: ${sub.subscription.endpoint}`, err.message);
             // Nếu quyền bị hủy hoặc endpoint hỏng, xóa đăng ký

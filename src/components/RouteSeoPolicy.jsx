@@ -6,6 +6,15 @@ const INDEX_ROBOTS =
   "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 const PRIVATE_ROBOTS = "noindex, nofollow, noarchive";
 
+const MEMBER_TITLES = {
+  today: "Hôm nay",
+  apps: "Ứng dụng",
+  utilities: "Ứng dụng",
+  activity: "Hoạt động",
+  history: "Hoạt động",
+  account: "Tài khoản",
+};
+
 const PUBLIC_PATHS = new Set([
   "/introduction",
   "/services",
@@ -45,6 +54,14 @@ export default function RouteSeoPolicy() {
 
     setMeta("robots", robots);
     setMeta("googlebot", robots);
+
+    if (pathname.startsWith("/member")) {
+      const section = pathname.split("/")[2] || "today";
+      const title = pathname.startsWith("/member/utilities/joy_wallet")
+        ? "Ví JOY"
+        : (MEMBER_TITLES[section] || "Thành viên");
+      document.title = `${title} | Hugo Studio`;
+    }
 
     // `useLocation()` is relative to BrowserRouter.basename. On `/en/services`
     // it reports `/services`; use the browser URL so the English and Chinese

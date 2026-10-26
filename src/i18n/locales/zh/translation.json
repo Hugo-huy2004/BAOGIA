@@ -289,10 +289,10 @@
       "draft": "草稿",
       "previewLabel": "实时预览",
       "previewTitle": "您的页面",
-      "designLabel": "设计与主题",
-      "linkCardsLabel": "链接卡片",
-      "achievementsLabel": "项目与成就",
-      "proofLabel": "能力记录",
+      "designLabel": "主题",
+      "linkCardsLabel": "链接",
+      "achievementsLabel": "项目",
+      "proofLabel": "能力",
       "editHint": "编辑上方区域的**设计、链接和成就**——预览下方的内容将自动更新。",
       "membershipHeader": "三年开发者会员",
       "expiryLabel": "有效期：",
@@ -362,7 +362,10 @@
       "reminderRejected": "您的验证申请未获通过。您可重新提交一次，或请 Hugo Studio 协助复核。",
       "reminderAction": "验证学生身份",
       "logoutBtn": "退出",
-      "submitBtn": "提交信息"
+      "submitBtn": "提交信息",
+      "reminderShort": "试用期剩余 {{days}} 天",
+      "reminderPendingShort": "学生身份验证审核中",
+      "reminderRejectedShort": "学生身份验证未通过"
     },
     "historyActions": {
       "markAllRead": "标记所有为已读",
@@ -1744,9 +1747,13 @@
     "permissions": {
       "eyebrow": "一次性设置",
       "title": "保持与重要事物的连接",
-      "description": "启用两个关键权限，让 Hugo 可以在正确的时间通知你，并个性化附近的内容，保护你的登录。",
+      "description": "Hugo Studio 通过应用通知（必选）发送 JOY 变动与安全提醒。邮件优惠与位置均为可选项。",
       "pushTitle": "重要通知",
       "pushDescription": "即使关闭应用，也能接收验证、JOY、安全和账户更新的通知。",
+      "emailTitle": "邮件优惠 · 可选",
+      "emailDescription": "JOY 礼物、新权益与专属推荐。可随时在邮件中一键退订。",
+      "requiredHint": "应用通知为必选项，用于接收安全提醒与 JOY 变动。请开启以继续。",
+      "emailError": "暂时无法开启电子邮件，请重试。",
       "locationTitle": "本地体验",
       "locationDescription": "用于本地新闻和异常登录提醒。",
       "privacyTitle": "您的隐私始终掌握在您手中",
@@ -2811,6 +2818,71 @@
     },
     "joyTree": {
       "complete": "树已长成"
+    },
+    "threads": {
+      "title": "今日",
+      "thread": "帖子",
+      "back": "返回",
+      "filters": {
+        "all": "全部",
+        "members": "会员",
+        "news": "新闻"
+      },
+      "placeholder": "有什么新鲜事？",
+      "replyPlaceholder": "写下回复…",
+      "post": "发布",
+      "save": "保存",
+      "cancel": "取消",
+      "newThread": "新帖子",
+      "replyTitle": "回复",
+      "editTitle": "编辑帖子",
+      "replyTo": "回复 {{name}}",
+      "seeMore": "展开",
+      "edited": "已编辑",
+      "edit": "编辑",
+      "delete": "删除",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制",
+      "deleteTitle": "删除这条帖子？",
+      "deleteMessage": "其下所有回复也会一并删除。",
+      "deleted": "帖子已删除",
+      "readArticle": "阅读全文",
+      "like": "赞",
+      "reply": "回复",
+      "share": "分享",
+      "noReplies": "还没有回复，来说第一句吧。",
+      "empty": "还没有帖子。",
+      "loadError": "无法加载动态。",
+      "retry": "重试",
+      "gone": "该帖子已不存在。",
+      "articleGone": "该文章已不在今日版面中。",
+      "published": "已发布",
+      "saved": "已保存修改",
+      "error": "发布失败，请重试。",
+      "longHint": "{{count}} 字 — 超过 255 字的帖子在动态中会折叠，并显示“展开”。",
+      "tools": {
+        "bold": "加粗",
+        "italic": "斜体",
+        "strike": "删除线",
+        "highlight": "高亮",
+        "upper": "大写",
+        "bullet": "项目符号",
+        "numbered": "编号列表",
+        "poll": "投票"
+      },
+      "poll": {
+        "option": "选项 {{n}}",
+        "add": "添加选项",
+        "duration": "投票时长",
+        "votes": "{{count}} 票",
+        "closed": "投票已结束",
+        "endsIn": "{{time}}结束",
+        "h1": "1 小时",
+        "h6": "6 小时",
+        "h24": "1 天",
+        "h72": "3 天",
+        "h168": "7 天"
+      }
     }
   },
   "memberTabs": {
@@ -6971,7 +7043,6 @@
     "loadFailed": "无法加载此工具。请检查网络后重试。",
     "pickATool": "从左侧列表中选择一个工具开始。"
   },
-
   "servicePkg": {
     "compare": {
       "kicker": "对比",
@@ -7527,7 +7598,17 @@
     "page": {
       "heroKicker": "服务 · Hugo Studio",
       "heroEyebrow": "独立数字设计工作室 · 西贡",
-      "artCards": ["美，是再也无可删减。", "色彩是有形状的情绪。", "留白也会说话。", "每个像素都有理由。", "动效讲完剩下的故事。", "好字体先被感受，再被读懂。", "好点子比潮流活得更久。", "设计从倾听开始。", "艺术从好奇开始。"],
+      "artCards": [
+        "美，是再也无可删减。",
+        "色彩是有形状的情绪。",
+        "留白也会说话。",
+        "每个像素都有理由。",
+        "动效讲完剩下的故事。",
+        "好字体先被感受，再被读懂。",
+        "好点子比潮流活得更久。",
+        "设计从倾听开始。",
+        "艺术从好奇开始。"
+      ],
       "aboutTitle1": "有目的的设计。",
       "aboutTitle2": "代码贯彻到底。",
       "socialTitle1": "Hugo Studio",
@@ -8466,5 +8547,139 @@
     "reset": "清除進度",
     "resetTitle": "清除全部進度？",
     "resetBody": "所有已通過之課將重新計算。"
+  },
+  "eduPage": {
+    "heroEyebrow": "Hugo Studio Member · 为学习者而设",
+    "heroLede": "一个账号，打开一个为学习者准备的小角落：写着你名字的 Bio 页面、带音乐的专注时段、休息时的小游戏，以及做小组作业的工具箱。添加到主屏幕，像应用一样打开。",
+    "heroCta": "查看加入条件",
+    "memberKicker": "Hugo Studio Member",
+    "memberTitle1": "一个账号。",
+    "memberTitle2": "学习所需的每个应用。",
+    "memberBody": "用 Google 登录一次。Bio 页面、专注记录、游戏分数和 JOY 钱包都跟着账号走，换一台设备也能接着用。没有广告，不出售数据。",
+    "facts": [
+      {
+        "value": "1",
+        "label": "个账号通用所有应用"
+      },
+      {
+        "value": "3",
+        "label": "种语言：越南语、英语、中文"
+      },
+      {
+        "value": "0",
+        "label": "条应用内广告"
+      }
+    ],
+    "featuresKicker": "里面有什么",
+    "featuresTitle1": "四个值得打开的应用。",
+    "featuresTitle2": "每一天。",
+    "features": [
+      {
+        "app": "Bio 页面",
+        "title": "一个写着你名字的页面。",
+        "body": "照片、项目、技能和所有链接汇集在一个地址。在账号里直接编辑，随时更换外观。",
+        "points": [
+          "验证后免费 365 天",
+          "三种外观：默认、扁平、方块",
+          "一个链接，附在任何申请里"
+        ]
+      },
+      {
+        "app": "专注",
+        "title": "专注，配上音乐。",
+        "body": "三档番茄钟，电台就在旁边。每完成一次专注都会获得 JOY。",
+        "points": [
+          "轻度、深度、大师三档",
+          "同一应用内免费电台",
+          "每次专注后获得 JOY"
+        ]
+      },
+      {
+        "app": "游戏",
+        "title": "值得的休息。",
+        "body": "四款 Hugo Studio 自制游戏，从 3D 国际象棋到贪吃蛇。直接在浏览器中玩，无需安装。",
+        "points": [
+          "Hugo Studio 独家制作",
+          "对战电脑或双人对战",
+          "赛季排行榜"
+        ]
+      },
+      {
+        "app": "HugoKit",
+        "title": "八个工具，一个地方。",
+        "body": "生成和扫描二维码、转换图片、解压文件、生成密码。大部分在本机处理，文件不必上传。",
+        "points": [
+          "二维码、图片、文件、文本",
+          "强密码生成",
+          "密码保护链接"
+        ]
+      }
+    ],
+    "termsKicker": "加入条件",
+    "termsTitle1": "四个条件。",
+    "termsTitle2": "然后一切都会打开。",
+    "terms": [
+      {
+        "title": "年满 14 岁",
+        "body": "14 至未满 18 岁需要父母或监护人同意并陪同使用。"
+      },
+      {
+        "title": "使用 Google 登录",
+        "body": "任何 Google 账号都可以，学校发放的账号最好。"
+      },
+      {
+        "title": "通过学习者验证",
+        "body": "学校邮箱自动通过。没有的话，可提交有效的学生证件人工审核。"
+      },
+      {
+        "title": "验证后 365 天",
+        "body": "到期后如仍在读可续期。不会自动扣费，数据保持不变。"
+      }
+    ],
+    "closingCta": "与 Hugo 联系"
+  },
+  "bioStudio": {
+    "links": {
+      "listTitle": "已显示的链接",
+      "listHint": "添加或移除都会立即保存。",
+      "open": "打开链接",
+      "remove": "移除链接",
+      "removeTitle": "移除此链接？",
+      "addTitle": "添加链接",
+      "addHint": "选择平台可自动填入网址前缀，也可直接粘贴网址。",
+      "labelField": "显示名称",
+      "zaloTitle": "Zalo 聊天按钮",
+      "zaloHint": "访客点击即可与 {{phone}} 开始对话。",
+      "zaloNoPhone": "个人资料中尚无有效电话号码。",
+      "zaloNeedPhone": "开启 Zalo 前，请先在个人资料中填写有效电话号码。",
+      "zaloOff": "未就绪",
+      "aboutTitle": "简介"
+    },
+    "achievements": {
+      "projects": "项目",
+      "services": "服务",
+      "addProject": "添加项目",
+      "addService": "添加服务",
+      "update": "更新",
+      "removeTitle": "删除此项？"
+    },
+    "design": {
+      "themeTitle": "页面主题",
+      "themeHint": "点按主题即可应用并保存。",
+      "linkTitle": "链接",
+      "shortLink": "短链接",
+      "fullLink": "完整链接",
+      "domainTitle": "自定义域名",
+      "domainOn": "已连接",
+      "domainOff": "未启用",
+      "saveDomain": "保存域名",
+      "saving": "保存中…",
+      "unlink": "断开连接",
+      "unlinkTitle": "断开自定义域名？",
+      "dnsTitle": "DNS 设置",
+      "dnsA": "将主机 @ 指向 Hugo Studio 服务器 IP（用于根域名）。",
+      "dnsAfter": "DNS 生效后，域名会自动启用并配备 HTTPS。",
+      "packagesTitle": "当前套餐"
+    }
   }
 }

@@ -2,10 +2,8 @@ import cron from 'node-cron';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
-import { sendPushToUser } from './pushGuard.js';
-
-// The URL of the Python AI Server
-const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
+import { sendPushToUser, askPushAI } from './pushGuard.js';
+import { notificationLanguage, renderNotification } from '../../shared/notificationText.js';
 
 async function pMap(items, limit, fn) {
   const results = [];
@@ -54,40 +52,24 @@ async function runProactivePushJob() {
           Bio.findOne({ email }).lean(),
         ]);
 
-        if (!history || !history.historyLogs || history.historyLogs.length === 0) {
-          return; // Chưa có hoạt động gì
-        }
+        // Chưa có lịch sử thì AI không có gì để đọc — vẫn gửi lời mời trò
+        // chuyện soạn sẵn, vì đây chính là người cần được mời nhất.
+        const recentLogs = (history?.historyLogs || []).slice(-15).reverse();
+        const ai = recentLogs.length
+          ? await askPushAI('/api/ai/proactive-push', { logs: recentLogs, bio: bio || {} })
+          : null;
 
-        // Lấy tối đa 15 log gần nhất: O(15) thay vì sao chép đảo mảng
-        const recentLogs = history.historyLogs.slice(-15).reverse();
-
-        // Gọi sang Python AI Server
-        const response = await fetch(`${PYTHON_AI_URL}/api/ai/proactive-push`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            logs: recentLogs,
-            bio: bio || {}
-          })
+        // Cấu trúc dự kiến: { should_send, title, body, reason }. AI viết được
+        // thì dùng chữ của AI; không thì câu soạn sẵn theo ngôn ngữ thiết bị.
+        const aiResult = ai?.should_send && ai.title ? ai : {};
+        const fallback = renderNotification('push.checkin', {}, notificationLanguage(subs[0]?.device?.locale));
+        await sendPushToUser(email, subs, {
+          title: aiResult.title || fallback.title,
+          body: aiResult.body || fallback.message,
+          icon: '/image/avt7.png',
+          url: '/member/utilities/psychology',
+          tag: 'checkin',
         });
-
-        if (!response.ok) {
-          console.error(`AI Server lỗi khi xử lý cho email ${email}`);
-          return;
-        }
-
-        const aiResult = await response.json();
-
-        // Cấu trúc dự kiến: { should_send: true/false, title: "...", body: "...", reason: "..." }
-        if (aiResult && aiResult.should_send) {
-          const sent = await sendPushToUser(email, subs, {
-            title: aiResult.title || 'Bạn Học Đường',
-            body: aiResult.body || 'Cậu ơi, vào tâm sự với tớ một lát nhé!',
-            icon: '/image/avt7.png',
-            url: '/member/utilities/psychology'
-          });
-          if (sent) console.log(`AI quyết định gửi thông báo cho ${email}. Lý do: ${aiResult.reason}`);
-        }
 
       } catch (err) {
         console.error(`Lỗi khi xử lý proactive push cho ${email}:`, err);
@@ -101,13 +83,14 @@ async function runProactivePushJob() {
 }
 
 export function initProactivePushService() {
-  // Chạy lúc 21:00 mỗi ngày
-  cron.schedule('0 21 * * *', () => {
+  // 15:30 — giờ uể oải giữa chiều, khung giờ vàng duy nhất còn trống (21:00 đã
+  // là của nhắc ngủ; trước đây hai job cùng 21:00 nên một cái luôn bị nuốt).
+  cron.schedule('30 15 * * *', () => {
     runProactivePushJob();
   }, {
     timezone: "Asia/Ho_Chi_Minh"
   });
-  console.log('Đã thiết lập Cron Job: AI Proactive Push (21:00 hàng ngày)');
+  console.log('Đã thiết lập Cron Job: AI Proactive Push (15:30 hàng ngày)');
 }
 
 // Hàm này có thể được gọi thông qua 1 API ẩn để test ngay lập tức

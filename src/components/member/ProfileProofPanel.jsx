@@ -4,6 +4,7 @@ import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage } from "../../i18n/languages";
 import profileEvidenceApi from "../../services/api/modules/profileEvidenceApi";
+import { BioRow, BioSection, BioToggle } from "./bioEditorKit";
 
 /**
  * Hồ sơ năng lực có kiểm chứng — một tab trong app Danh Thiếp (bio).
@@ -104,7 +105,7 @@ export default function ProfileProofPanel({ publicLink }) {
       {!profile ? (
         <p className="px-1 py-10 text-center text-[15px] text-muted-foreground">{t("utilities.profile.loading")}</p>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-7">
           <section className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
               {t("utilities.profile.eyebrow")}
@@ -233,24 +234,16 @@ export default function ProfileProofPanel({ publicLink }) {
           )}
 
           {/* Công bố lên trang Bio công khai — miễn phí. */}
-          <section className="rounded-2xl border border-border/60 bg-card p-5">
-            <h3 className="text-sm font-bold text-foreground">{t("utilities.profile.publishTitle")}</h3>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{t("utilities.profile.publishDesc")}</p>
-
-            <label className="mt-4 flex min-h-11 items-center justify-between gap-3">
-              <span className="text-sm font-medium text-foreground">{t("utilities.profile.showOnBio")}</span>
-              <input
-                type="checkbox"
-                checked={Boolean(publishing?.enabled)}
-                disabled={saving}
-                onChange={(event) => togglePublish(event.target.checked)}
-                className="h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted transition-colors checked:bg-primary disabled:opacity-50"
-              />
-            </label>
-            {publishing?.enabled && publicLink && (
-              <p className="mt-2 break-all text-[13px] text-muted-foreground">{publicLink}</p>
-            )}
-          </section>
+          <BioSection
+            title={t("utilities.profile.publishTitle")}
+            hint={publishing?.enabled && publicLink ? publicLink.replace(/^https?:\/\//, "") : t("utilities.profile.publishDesc")}
+          >
+            <BioRow
+              icon="public"
+              title={t("utilities.profile.showOnBio")}
+              trailing={<BioToggle checked={Boolean(publishing?.enabled)} disabled={saving} onChange={togglePublish} label={t("utilities.profile.showOnBio")} />}
+            />
+          </BioSection>
         </div>
       )}
     </>
@@ -259,18 +252,17 @@ export default function ProfileProofPanel({ publicLink }) {
 
 function ProofSection({ title, children }) {
   return (
-    <section className="rounded-2xl border border-border/60 bg-card p-5">
-      <h3 className="mb-3 text-[13px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{title}</h3>
-      <dl className="space-y-2.5">{children}</dl>
-    </section>
+    <BioSection title={title}>
+      <dl>{children}</dl>
+    </BioSection>
   );
 }
 
 function ProofRow({ label, value, strong }) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className={`text-sm ${strong ? "font-bold text-foreground" : "text-muted-foreground"}`}>{value}</dd>
+    <div className="flex min-h-[48px] items-center justify-between gap-3 px-4 py-2 [&+&]:border-t [&+&]:border-border/50">
+      <dt className="min-w-0 text-[15px] text-foreground">{label}</dt>
+      <dd className={`min-w-0 text-right text-[15px] ${strong ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{value}</dd>
     </div>
   );
 }

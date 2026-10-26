@@ -5,24 +5,10 @@ import LazyBoundary from "./os/LazyBoundary";
 import { localeForLanguage } from "../../i18n/languages";
 import { getMemberSession } from "../../services/api/core/authSession";
 import "../../styles/bioStudio.css";
+import { BioRow, BioSection } from "./bioEditorKit";
 
 // Hồ sơ năng lực: từng là app "Hồ Sơ" riêng, gộp vào đây 25/10/2026.
 const ProfileProofPanel = lazy(() => import("./ProfileProofPanel"));
-
-// Darkens a #rrggbb color by a percentage — used to build a two-tone gradient
-// for the membership-card look from a single package accent color.
-// Chuyển từ MemberManageTab.jsx (2026-09-24): gói đang sở hữu là thông tin của
-// TRANG BIO, nên nó thuộc về màn cài đặt Bio này, không phải một hộp thoại
-// riêng mở từ Cài đặt tài khoản chung.
-function shadeColor(hex, percent) {
-  if (!hex) return "#000000";
-  const num = parseInt(hex.replace("#", ""), 16);
-  const amt = Math.round(2.55 * percent);
-  const r = Math.max(0, Math.min(255, (num >> 16) + amt));
-  const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt));
-  const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt));
-  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`;
-}
 
 function getBasePackageDetails(serviceLabel, t) {
   const label = serviceLabel || "Student Bio";
@@ -71,49 +57,6 @@ function getBasePackageDetails(serviceLabel, t) {
       t("memberPortal.packages.free.benefit3"),
     ],
   };
-}
-
-// Thẻ hội viên — mô phỏng một thẻ vật lý (chip, hàng thương hiệu, tên nổi,
-// ngày hiệu lực) thay vì một dòng cài đặt phẳng.
-function PackageCard({ name, duration, durationUnit, color, startLabel, expiresLabel, isBasePackage = false, t, onOpenDetails }) {
-  const durationLabel = expiresLabel || `+${duration} ${durationUnit === "days" ? t("memberPortal.package.days", "Ngày") : durationUnit === "years" ? t("memberPortal.package.years", "Năm") : t("memberPortal.package.months", "Tháng")}`;
-  const dark = shadeColor(color, -40);
-
-  return (
-    <button
-      type="button"
-      onClick={onOpenDetails}
-      className="relative w-full h-[140px] sm:h-[150px] rounded-[24px] p-5 text-left overflow-hidden shadow-sm border border-black/5 transition-transform duration-300 hover:-translate-y-1 active:scale-[0.98]"
-      style={{ background: `linear-gradient(135deg, ${color} 0%, ${dark} 100%)` }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
-      <span className="material-symbols-outlined absolute -right-3 -bottom-5 text-white/10 pointer-events-none" style={{ fontSize: 110 }}>style</span>
-      <div className="relative z-10 h-full flex flex-col justify-between text-white">
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[13px] font-black uppercase tracking-widest opacity-80 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              {isBasePackage ? t("memberPortal.package.base", "GÓI CƠ BẢN") : t("memberPortal.package.promo", "GÓI ƯU ĐÃI")}
-            </span>
-            <h3 className="text-lg font-black tracking-tight uppercase leading-none drop-shadow-sm mt-1">{name}</h3>
-          </div>
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 shrink-0 shadow-sm">
-            <span className="material-symbols-outlined text-[15px]">workspace_premium</span>
-          </div>
-        </div>
-        <div className="flex items-end justify-between mt-2">
-          <div>
-            <span className="block text-[13px] font-bold uppercase tracking-widest opacity-75">{t("memberPortal.package.startDate", "Ngày bắt đầu")}</span>
-            <span className="text-[13px] font-mono font-bold tracking-wide">{startLabel}</span>
-          </div>
-          <div className="text-right">
-            <span className="block text-[13px] font-bold uppercase tracking-widest opacity-75">{expiresLabel ? t("memberPortal.package.bioDuration", "Hạn dùng") : t("memberPortal.package.addedDuration", "Thời hạn")}</span>
-            <span className="text-[13px] font-mono font-bold tracking-wide">{durationLabel}</span>
-          </div>
-        </div>
-      </div>
-    </button>
-  );
 }
 
 function PackageDetailsSheet({ pkg, onClose, t }) {
@@ -172,7 +115,6 @@ export default function BioPreviewTab({
   showToast,
   onBack,
   renderAccountForm,
-  handleSave,
   route,
   onRouteChange,
 }) {
@@ -219,7 +161,6 @@ export default function BioPreviewTab({
   const [copied, setCopied] = useState(false);
   const [activePkg, setActivePkg] = useState(null);
   const basePkg = useMemo(() => getBasePackageDetails(bio?.serviceLabel, t), [bio?.serviceLabel, t]);
-  const startLabel = formatDate(bio?.createdAt ? new Date(bio.createdAt) : new Date(2026, 4, 15));
   const expiresLabel = bio?.expiresAt ? formatDate(new Date(bio.expiresAt)) : t("memberTabs.manage.lifetime");
 
   const copyLink = async () => {
@@ -263,14 +204,11 @@ export default function BioPreviewTab({
       tab={activeSection}
       onTabChange={setActiveSection}
       actions={ready ? (
-        <span className="flex items-center gap-1">
-          <button type="button" onClick={copyLink} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
-            <span className="material-symbols-outlined" aria-hidden="true">{copied ? "check" : "content_copy"}</span>
-          </button>
-          <a href={publicLink} target="_blank" rel="noreferrer" className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.openAria")}>
-            <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-          </a>
-        </span>
+        // Một nút: hai nút đè lên tiêu đề thu gọn khi cuộn. Mở trang đã có ở
+        // dòng đường dẫn (tab Giao diện) và khung xem trước.
+        <button type="button" onClick={copyLink} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
+          <span className="material-symbols-outlined" aria-hidden="true">{copied ? "check" : "content_copy"}</span>
+        </button>
       ) : null}
       scrollKey={activeSection}
       wide
@@ -284,71 +222,38 @@ export default function BioPreviewTab({
             ) : renderAccountForm?.(activeSection)}
           </section>
 
-          {handleSave && activeSection !== "proof" ? (
-            <button type="button" onClick={handleSave} className="bio-studio-save-button">
-              <span className="material-symbols-outlined" aria-hidden="true">check</span>
-              {t("memberPortal.bio.saveChanges")}
-            </button>
-          ) : null}
-
-          {/* Gói đang sở hữu — chuyển từ hộp thoại "Quản lý hồ sơ" trong Cài đặt
-              tài khoản (2026-09-24): đây là thông tin của trang Bio, nên nó
-              thuộc về màn cài đặt Bio, khách không phải mở một hộp thoại khác
-              để xem gói mình đang dùng cho chính trang này. */}
-          <section aria-label={t("memberTabs.manage.ownedPackagesTitle")} className="space-y-3">
-            <div className="space-y-1 text-left">
-              <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-                <span className="material-symbols-outlined text-base text-primary" aria-hidden="true">wallet</span>
-                {t("memberTabs.manage.ownedPackagesTitle")}
-              </h2>
-              <p className="text-[13px] text-muted-foreground/70">{t("memberTabs.manage.ownedPackagesDesc")}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <PackageCard
-                t={t}
-                name={basePkg.name}
-                duration={12}
-                durationUnit="months"
-                benefits={basePkg.benefits}
-                color={basePkg.color}
-                startLabel={startLabel}
-                expiresLabel={expiresLabel}
-                isBasePackage
-                onOpenDetails={() => setActivePkg({ name: basePkg.name, color: basePkg.color, benefits: basePkg.benefits })}
-              />
-              {bio?.packages?.map((pkg) => (
-                <PackageCard
-                  t={t}
+          {/* Gói & hạn dùng là thông tin của cả trang Bio, nhưng chỉ cần thấy một
+              chỗ: tab đầu. Bản cũ lặp thẻ gói (gradient) dưới MỌI tab. */}
+          {activeSection === "design" ? (
+            <BioSection
+              className="mt-7"
+              title={t("bioStudio.design.packagesTitle", "Gói đang dùng")}
+              hint={ready && session?.email ? t("memberPortal.bioPreview.daysLeft", { count: membership.remaining }) : null}
+            >
+              {[{ ...basePkg, _id: "base", sub: expiresLabel }, ...(bio?.packages || []).map((pkg) => ({ ...pkg, sub: formatDate(new Date(pkg.addedAt)) }))].map((pkg) => (
+                <BioRow
                   key={pkg._id}
-                  name={pkg.name}
-                  duration={pkg.duration}
-                  durationUnit={pkg.durationUnit}
-                  benefits={pkg.benefits}
-                  color={pkg.color}
-                  startLabel={formatDate(new Date(pkg.addedAt))}
-                  onOpenDetails={() => setActivePkg(pkg)}
+                  icon={<span className="material-symbols-outlined text-[20px]" style={{ color: pkg.color }} aria-hidden="true">workspace_premium</span>}
+                  title={pkg.name}
+                  detail={pkg.sub}
+                  onClick={() => setActivePkg(pkg)}
+                  trailing={<span className="material-symbols-outlined text-[20px] text-muted-foreground/60" aria-hidden="true">chevron_right</span>}
                 />
               ))}
-            </div>
-          </section>
-          {activePkg ? <PackageDetailsSheet pkg={activePkg} onClose={() => setActivePkg(null)} t={t} /> : null}
-
-          {ready && session?.email ? (
-            <section className="bio-studio-lifeline" aria-label={t("memberPortal.bioPreview.membershipHeader")}>
-              <div className="bio-studio-lifeline-row">
-                <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
-                <span className="bio-studio-lifeline-text">
-                  {t("memberPortal.bioPreview.bioExpiry")}: <strong>{formatDate(membership.end)}</strong>
-                </span>
-                <span className="bio-studio-lifeline-left">
-                  {t("memberPortal.bioPreview.daysLeft", { count: membership.remaining })}
-                </span>
-              </div>
-              <div className="bio-studio-progress">
-                <span style={{ width: `${membership.progress}%` }} />
-              </div>
-            </section>
+              {ready && session?.email ? (
+                <div className="border-t border-border/50 px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 text-[13px] text-muted-foreground">
+                    <span>{t("memberPortal.bioPreview.bioExpiry")}</span>
+                    <strong className="font-semibold text-foreground">{formatDate(membership.end)}</strong>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <span className="block h-full rounded-full bg-primary" style={{ width: `${membership.progress}%` }} />
+                  </div>
+                </div>
+              ) : null}
+            </BioSection>
           ) : null}
+          {activePkg ? <PackageDetailsSheet pkg={activePkg} onClose={() => setActivePkg(null)} t={t} /> : null}
         </main>
 
         {/* Trên điện thoại, khung xem trước là mục gập lại: mở trang thật chỉ

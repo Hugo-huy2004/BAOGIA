@@ -91,15 +91,17 @@ export function StatusBar({ show = true }) {
  * Thanh điều hướng: mờ nền khi cuộn, tiêu đề lớn thu nhỏ dần như iOS.
  * `scrolled` do vùng nội dung báo lên (xem `useScrolled`).
  */
-export function NavBar({ title, subtitle, large = true, left, right, scrolled = false }) {
+export function NavBar({ title, subtitle, large = true, left, right, scrolled = false, flat = false }) {
+  // `flat`: khung ngoài đã lo nền + đường kẻ (AppFrame), thanh này khỏi vẽ kính.
+  const glass = !flat && !(large && !scrolled);
   return (
     <header
       className="sticky top-0 z-30 shrink-0 px-3 transition-all"
       style={{
-        background: large && !scrolled ? "transparent" : "var(--ios-glass)",
-        backdropFilter: large && !scrolled ? "none" : "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: large && !scrolled ? "none" : "blur(24px) saturate(180%)",
-        borderBottom: `0.5px solid ${large && !scrolled ? "transparent" : "var(--ios-glass-border)"}`,
+        background: glass ? "var(--ios-glass)" : "transparent",
+        backdropFilter: glass ? "blur(24px) saturate(180%)" : "none",
+        WebkitBackdropFilter: glass ? "blur(24px) saturate(180%)" : "none",
+        borderBottom: `0.5px solid ${glass ? "var(--ios-glass-border)" : "transparent"}`,
       }}
     >
       <div className="flex min-h-[48px] items-center justify-between gap-2">
@@ -136,7 +138,7 @@ export function Scroll({ onScrolledChange, children, className = "" }) {
   return (
     <div
       onScroll={(e) => onScrolledChange?.(e.currentTarget.scrollTop > 8)}
-      className={`scrollbar-hide min-h-0 flex-1 overflow-y-auto overscroll-contain ${className}`}
+      className={`scrollbar-hide min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain ${className}`}
     >
       {children}
     </div>

@@ -244,6 +244,7 @@ const PersonalInfoSubTab = React.lazy(() => import("../../components/member/Pers
 import StudentRewardCard from "../../components/member/StudentRewardCard";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
+import { CLOSE_BUTTON_RESERVE } from "../../components/member/shared/BackButton";
 import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
 // Lazy-loaded main tabs
 const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
@@ -261,6 +262,9 @@ const PWAPermissionOnboarding = React.lazy(() => import("../../components/permis
 function MemberPortalPage() {
   const { t } = useTranslation();
   const memberSession = getMemberSession();
+  const onboardingSkipKey = memberSession?.email
+    ? `hugo_onboarding_skipped_${memberSession.email.toLowerCase()}`
+    : null;
   // Instant-paint from the last-known-good copy on this device — the real
   // fetch below still always runs to revalidate, this just avoids showing a
   // blank loading spinner on every reload for a returning member.
@@ -274,6 +278,10 @@ function MemberPortalPage() {
   const [birthdayMode, setBirthdayMode] = useState("day");
   const [showBirthdayWheel, setShowBirthdayWheel] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const handleSkipOnboarding = useCallback(() => {
+    if (onboardingSkipKey) sessionStorage.setItem(onboardingSkipKey, "true");
+    setShowOnboarding(false);
+  }, [onboardingSkipKey]);
   const [particleOpen, setParticleOpen] = useState(false);
   // Ví JOY mở modal này ở ba chế độ khác nhau (gửi / mã của tôi / quét).
   // Chỉ nhận chuỗi: nhiều nút truyền thẳng event handler vào đây.
@@ -643,7 +651,10 @@ function MemberPortalPage() {
           // Ví vẫn nạp bình thường; modal chỉ hỏi phần hồ sơ còn thiếu và tự
           // đóng nếu server báo không thiếu gì.
           hydrateWallet(memberSession.email, bootstrapData.wallet);
-          if (!b.onboardingCompleted) setShowOnboarding(true);
+          if (
+            !b.onboardingCompleted &&
+            (!onboardingSkipKey || sessionStorage.getItem(onboardingSkipKey) !== "true")
+          ) setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
@@ -673,7 +684,7 @@ function MemberPortalPage() {
       finally { setLoading(false); }
     };
     load();
-  }, [memberSession?.email, isGuestMode, bootstrapData, bootstrapLoading, bootstrapError]); // eslint-disable-line
+  }, [memberSession?.email, isGuestMode, bootstrapData, bootstrapLoading, bootstrapError, onboardingSkipKey]); // eslint-disable-line
 
   // Tối đa hai lượt kiểm tra cho hồ sơ đang chờ, thay vì gọi máy chủ mỗi 5 giây.
   useEffect(() => {
@@ -1174,14 +1185,19 @@ function MemberPortalPage() {
           <button
             type="button"
             onClick={() => navigate("/member/verify")}
-            className="flex w-full items-center justify-between gap-3 border-b border-primary/20 bg-primary/5 px-4 py-2 text-left text-xs text-foreground"
+            className="flex min-h-[44px] w-full items-center gap-2 border-b border-primary/15 bg-primary/5 pb-2 pl-4 text-left text-[13px] text-foreground"
+            // Nút X của app đặt `fixed` ở góc trên-phải, đè lên dải này; dải lại
+            // nằm sát mép trên nên phải tự né tai thỏ. Chữ chỉ một dòng — bản
+            // đầy đủ gãy 4 dòng và đẩy cả đầu app xuống (26/10), đọc ở trang Xác minh.
+            style={{ paddingRight: CLOSE_BUTTON_RESERVE, paddingTop: "max(8px, env(safe-area-inset-top, 0px))" }}
           >
-            <span>{t(
+            <span className="material-symbols-outlined shrink-0 text-[18px] text-primary" aria-hidden="true">school</span>
+            <span className="min-w-0 flex-1 truncate">{t(
               bio.verificationRequest?.notifiedStatus === "rejected"
-                ? "memberPortal.verify.reminderRejected"
+                ? "memberPortal.verify.reminderRejectedShort"
                 : bio.verificationRequest?.submitted
-                  ? "memberPortal.verify.reminderPending"
-                  : "memberPortal.verify.reminderText",
+                  ? "memberPortal.verify.reminderPendingShort"
+                  : "memberPortal.verify.reminderShort",
               { days: trialDaysRemaining },
             )}</span>
             <span className="shrink-0 font-bold text-primary">{t("memberPortal.verify.reminderAction")}</span>
@@ -1217,7 +1233,7 @@ function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
-            onSkip={() => setShowOnboarding(false)}
+            onSkip={handleSkipOnboarding}
             onDone={(result) => {
               setShowOnboarding(false);
               const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
@@ -1527,7 +1543,7 @@ function MemberPortalPage() {
           <React.Suspense fallback={null}>
             <OnboardingProfileModal
               email={memberSession.email}
-              onSkip={() => setShowOnboarding(false)}
+              onSkip={handleSkipOnboarding}
               onDone={(result) => {
                 setShowOnboarding(false);
                 const nextDenom = result?.profile?.joyDenom || result?.joyDenom;

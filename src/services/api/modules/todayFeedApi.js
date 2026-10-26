@@ -91,3 +91,16 @@ export const todayFeedApi = {
       });
   },
 };
+
+// Bảng tin kiểu Threads: `key` là id bài thành viên hoặc `a:<id bài báo>`.
+const json = (body) => ({ method: "POST", body: JSON.stringify(body) });
+export const todayPostsApi = {
+  feed: (before) => apiFetch(`/today/posts${before ? `?before=${encodeURIComponent(before)}` : ""}`),
+  stats: (keys) => apiFetch(`/today/posts/stats?keys=${encodeURIComponent(keys.join(","))}`),
+  thread: (key, language) => apiFetch(`/today/posts/${encodeURIComponent(key)}?lang=${languageCode(language)}`),
+  create: (body) => apiFetch("/today/posts", json(body)),
+  edit: (id, text) => apiFetch(`/today/posts/${id}`, { method: "PATCH", body: JSON.stringify({ text }) }),
+  remove: (id) => apiFetch(`/today/posts/${id}`, { method: "DELETE" }),
+  like: (key) => apiFetch(`/today/posts/${encodeURIComponent(key)}/like`, { method: "POST" }),
+  vote: (id, option) => apiFetch(`/today/posts/${id}/vote`, json({ option })),
+};

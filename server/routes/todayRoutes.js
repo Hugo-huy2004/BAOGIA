@@ -3,6 +3,9 @@ import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { resolveNewsEdition, studentNewsService } from '../services/studentNewsService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import mongoose from 'mongoose';
+import TodayPost from '../models/TodayPost.js';
+import Bio from '../models/Bio.js';
 
 const router = express.Router();
 const feedLimiter = rateLimit({
@@ -107,6 +110,235 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
     console.error('[Today Article]', error);
     return res.status(502).json({ error: 'Could not open this article right now.' });
   }
+});
+
+// ── Bảng tin kiểu Threads: bài của thành viên + tim/bình luận cho cả bài báo ──
+
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many posts. Please slow down.' },
+});
+
+// ponytail: "dài tuỳ thích" vẫn cần một trần ở cửa vào — 20.000 ký tự ≈ 8 trang A4.
+const MAX_TEXT = 20000;
+const POLL_HOURS = [1, 6, 24, 72, 168];
+const PAGE = 20;
+
+const isPostId = (key) => mongoose.isValidObjectId(key) && String(key).length === 24;
+const isArticleKey = (key) => /^a:[^\s/]{1,200}$/.test(String(key || ''));
+
+function cleanText(value) {
+  return String(value || '').replace(/\r\n?/g, '\n').replace(/\n{4,}/g, '\n\n\n').trim();
+}
+
+function cleanPoll(poll) {
+  if (!poll) return undefined;
+  const options = (Array.isArray(poll.options) ? poll.options : [])
+    .map((o) => String(o || '').trim().slice(0, 80))
+    .filter(Boolean);
+  if (options.length < 2 || options.length > 4) return null;
+  const hours = POLL_HOURS.includes(Number(poll.hours)) ? Number(poll.hours) : 24;
+  return { options: options.map((text) => ({ text, votes: [] })), endsAt: new Date(Date.now() + hours * 3600000) };
+}
+
+// Mọi thứ trả về client: không lộ email của ai, kể cả người bỏ phiếu.
+async function present(posts, me) {
+  const emails = [...new Set(posts.map((p) => p.authorEmail).filter(Boolean))];
+  const bios = await Bio.find({ email: { $in: emails } }, { email: 1, displayName: 1, avatarUrl: 1, slug: 1 }).lean();
+  const byEmail = new Map(bios.map((b) => [b.email, b]));
+  return posts.map((p) => {
+    const bio = byEmail.get(p.authorEmail);
+    const poll = p.poll && {
+      options: p.poll.options.map((o) => ({ text: o.text, count: o.votes.length })),
+      total: p.poll.options.reduce((sum, o) => sum + o.votes.length, 0),
+      myVote: p.poll.options.findIndex((o) => o.votes.includes(me)),
+      endsAt: p.poll.endsAt,
+      closed: new Date(p.poll.endsAt) < new Date(),
+    };
+    return {
+      key: p.articleKey || String(p._id),
+      author: p.authorEmail ? { name: bio?.displayName || 'Hugo member', avatar: bio?.avatarUrl || '', slug: bio?.slug || '' } : null,
+      text: p.text,
+      poll,
+      parentKey: p.parentKey,
+      likeCount: p.likeCount,
+      liked: (p.likes || []).includes(me),
+      replyCount: p.replyCount,
+      createdAt: p.createdAt,
+      editedAt: p.editedAt,
+      mine: Boolean(me) && p.authorEmail === me,
+    };
+  });
+}
+
+// Đọc bài không kéo cả mảng tim về: chỉ lấy đúng phần tử là mình (nếu có),
+// nên bài nghìn tim vẫn nhẹ như bài không tim.
+// ($elemMatch biến phép chiếu thành dạng "chọn trường", nên phải kê đủ trường present() dùng.)
+const view = (me) => ({
+  authorEmail: 1, articleKey: 1, text: 1, poll: 1, parentKey: 1, ancestors: 1,
+  likeCount: 1, replyCount: 1, editedAt: 1, createdAt: 1,
+  likes: { $elemMatch: { $eq: me } },
+});
+
+// Bóng hết tim và hết bình luận thì xoá — DB chỉ giữ bóng còn có nội dung.
+const dropEmptyShadow = (key) => (isArticleKey(key)
+  ? TodayPost.deleteOne({ articleKey: key, likeCount: { $lte: 0 }, replyCount: { $lte: 0 } })
+  : null);
+
+// Bóng của bài báo: tạo khi cần, để tim và bình luận có chỗ bám.
+const articleShadow = (key) => TodayPost.findOneAndUpdate(
+  { articleKey: key },
+  { $setOnInsert: { articleKey: key } },
+  { upsert: true, new: true },
+);
+
+const findNode = (key, projection) => (isArticleKey(key)
+  ? TodayPost.findOne({ articleKey: key }, projection)
+  : isPostId(key) ? TodayPost.findById(key, projection) : null);
+
+router.get('/posts', feedLimiter, requireMember, async (req, res) => {
+  try {
+    const filter = { parentKey: null, authorEmail: { $ne: null } };
+    const before = new Date(req.query.before);
+    if (!Number.isNaN(before.getTime())) filter.createdAt = { $lt: before };
+    const posts = await TodayPost.find(filter, view(req.memberEmail)).sort({ createdAt: -1 }).limit(PAGE).lean();
+    return res.json({ posts: await present(posts, req.memberEmail), more: posts.length === PAGE });
+  } catch (error) {
+    console.error('[Today posts]', error);
+    return res.status(500).json({ error: 'Could not load posts.' });
+  }
+});
+
+// Số tim/bình luận cho một loạt bài báo trong feed — một lượt gọi cho cả trang.
+router.get('/posts/stats', feedLimiter, requireMember, async (req, res) => {
+  const keys = String(req.query.keys || '').split(',').filter(isArticleKey).slice(0, 100);
+  const rows = await TodayPost.find({ articleKey: { $in: keys } }, view(req.memberEmail)).lean();
+  const stats = {};
+  for (const row of await present(rows, req.memberEmail)) {
+    stats[row.key] = { likeCount: row.likeCount, liked: row.liked, replyCount: row.replyCount };
+  }
+  return res.json({ stats });
+});
+
+router.get('/posts/:key', feedLimiter, requireMember, async (req, res) => {
+  try {
+    const { key } = req.params;
+    if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
+    const node = await findNode(key, view(req.memberEmail))?.lean();
+    if (!node && !isArticleKey(key)) return res.status(404).json({ error: 'This post was deleted.' });
+
+    const [replies, parent] = await Promise.all([
+      TodayPost.find({ parentKey: key }, view(req.memberEmail)).sort({ createdAt: 1 }).limit(200).lean(),
+      node?.parentKey && isPostId(node.parentKey) ? TodayPost.findById(node.parentKey, view(req.memberEmail)).lean() : null,
+    ]);
+    const [post] = node ? await present([node], req.memberEmail) : [null];
+    const [parentView] = parent ? await present([parent], req.memberEmail) : [null];
+    const article = isArticleKey(key) || isArticleKey(node?.parentKey)
+      ? await studentNewsService.findArticleById(String(isArticleKey(key) ? key : node.parentKey).slice(2), { language: normalizeLanguage(req.query.lang) })
+      : null;
+    return res.json({ post, parent: parentView, article, replies: await present(replies, req.memberEmail) });
+  } catch (error) {
+    console.error('[Today post]', error);
+    return res.status(500).json({ error: 'Could not open this post.' });
+  }
+});
+
+router.post('/posts', writeLimiter, requireMember, async (req, res) => {
+  try {
+    const text = cleanText(req.body?.text);
+    const poll = cleanPoll(req.body?.poll);
+    const parentKey = req.body?.parentKey ? String(req.body.parentKey) : null;
+    if (poll === null) return res.status(400).json({ error: 'A poll needs 2 to 4 options.' });
+    if (!text && !poll) return res.status(400).json({ error: 'Write something first.' });
+    if (text.length > MAX_TEXT) return res.status(400).json({ error: `Posts are limited to ${MAX_TEXT} characters.` });
+
+    let ancestors = [];
+    if (parentKey) {
+      if (isArticleKey(parentKey)) {
+        await articleShadow(parentKey);
+      } else {
+        const parent = isPostId(parentKey) ? await TodayPost.findById(parentKey, { ancestors: 1 }).lean() : null;
+        if (!parent) return res.status(404).json({ error: 'The post you replied to is gone.' });
+        ancestors = parent.ancestors || [];
+      }
+      ancestors = [...ancestors, parentKey];
+    }
+
+    const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, parentKey, ancestors: ancestors.length ? ancestors : undefined });
+    if (parentKey) await TodayPost.updateOne(isArticleKey(parentKey) ? { articleKey: parentKey } : { _id: parentKey }, { $inc: { replyCount: 1 } });
+    const [view] = await present([post.toObject()], req.memberEmail);
+    return res.status(201).json({ post: view });
+  } catch (error) {
+    console.error('[Today post create]', error);
+    return res.status(500).json({ error: 'Could not publish this post.' });
+  }
+});
+
+router.patch('/posts/:id', writeLimiter, requireMember, async (req, res) => {
+  const text = cleanText(req.body?.text);
+  if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
+  if (text.length > MAX_TEXT) return res.status(400).json({ error: `Posts are limited to ${MAX_TEXT} characters.` });
+  const post = await TodayPost.findOne({ _id: req.params.id, authorEmail: req.memberEmail });
+  if (!post) return res.status(404).json({ error: 'Not found.' });
+  if (!text && !post.poll) return res.status(400).json({ error: 'Write something first.' });
+  post.text = text;
+  post.editedAt = new Date();
+  await post.save();
+  const [view] = await present([post.toObject()], req.memberEmail);
+  return res.json({ post: view });
+});
+
+router.delete('/posts/:id', writeLimiter, requireMember, async (req, res) => {
+  if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
+  const post = await TodayPost.findOneAndDelete({ _id: req.params.id, authorEmail: req.memberEmail });
+  if (!post) return res.status(404).json({ error: 'Not found.' });
+  await TodayPost.deleteMany({ ancestors: String(post._id) });
+  if (post.parentKey) {
+    await TodayPost.updateOne(isArticleKey(post.parentKey) ? { articleKey: post.parentKey } : { _id: post.parentKey }, { $inc: { replyCount: -1 } });
+    await dropEmptyShadow(post.parentKey);
+  }
+  return res.json({ ok: true });
+});
+
+// Thả/bỏ tim — hai lệnh có điều kiện để bấm liên tục cũng không đếm lệch.
+router.post('/posts/:key/like', writeLimiter, requireMember, async (req, res) => {
+  const { key } = req.params;
+  const me = req.memberEmail;
+  if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
+  if (isArticleKey(key)) await articleShadow(key);
+  const where = isArticleKey(key) ? { articleKey: key } : { _id: key };
+  const opts = { new: true, projection: { likeCount: 1 } };
+  const added = await TodayPost.findOneAndUpdate({ ...where, likes: { $ne: me } }, { $push: { likes: me }, $inc: { likeCount: 1 } }, opts).lean();
+  const result = added || await TodayPost.findOneAndUpdate({ ...where, likes: me }, { $pull: { likes: me }, $inc: { likeCount: -1 } }, opts).lean();
+  if (!result) return res.status(404).json({ error: 'Not found.' });
+  if (!added) await dropEmptyShadow(key);
+  return res.json({ liked: Boolean(added), likeCount: result.likeCount });
+});
+
+// Một phiếu một người, không đổi được — như Threads.
+router.post('/posts/:id/vote', writeLimiter, requireMember, async (req, res) => {
+  const me = req.memberEmail;
+  const option = Number(req.body?.option);
+  if (!isPostId(req.params.id) || !Number.isInteger(option) || option < 0 || option > 3) {
+    return res.status(400).json({ error: 'Invalid vote.' });
+  }
+  const post = await TodayPost.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      [`poll.options.${option}`]: { $exists: true },
+      'poll.endsAt': { $gt: new Date() },
+      'poll.options.votes': { $ne: me },
+    },
+    { $push: { [`poll.options.${option}.votes`]: me } },
+    { new: true },
+  ).lean();
+  const current = post || await TodayPost.findById(req.params.id).lean();
+  if (!current?.poll) return res.status(404).json({ error: 'Not found.' });
+  const [view] = await present([current], me);
+  return res.json({ poll: view.poll });
 });
 
 export default router;

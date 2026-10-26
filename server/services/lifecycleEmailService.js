@@ -87,7 +87,7 @@ function unsubscribeUrl(email) {
   return `${APP_URL}/api/email/unsubscribe?token=${encodeURIComponent(token)}`;
 }
 
-function emailHtml({ name, eyebrow, title, body, cta, href, unsubscribe, palette = PALETTES[0], progressStep = 0 }) {
+function emailHtml({ name, eyebrow, title, body, cta, href, unsubscribe, palette = PALETTES[0], progressStep = 0, footer }) {
   const [accent, tint] = palette;
   const completedWidth = `${[34, 67, 100][progressStep] || 34}%`;
   const nextStep = ['Kể nhu cầu của bạn', 'Chọn phạm vi vừa đủ', 'Bắt đầu xây trang web'][progressStep] || 'Kể nhu cầu của bạn';
@@ -123,16 +123,39 @@ function emailHtml({ name, eyebrow, title, body, cta, href, unsubscribe, palette
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px;"><tr><td align="left" style="font-size:12px;color:#85878c;">Ý tưởng</td><td align="right" style="font-size:12px;color:#85878c;">Website sẵn sàng</td></tr></table>
         </td></tr>
         <tr><td align="center" style="padding:24px 40px 38px;"><a href="${href}" style="display:inline-block;background:${accent};color:#fff;padding:15px 30px;border-radius:10px;text-decoration:none;font-size:16px;font-weight:750;">${cta}</a></td></tr>
-        <tr><td style="padding:22px 32px 30px;background:#fafafa;text-align:center;font-size:12px;line-height:1.55;color:#8b8e93;">Bạn nhận thư này vì đã chọn nhận cập nhật từ Hugo Studio.<br><a href="${unsubscribe}" style="color:#62656a;text-decoration:underline;">Hủy đăng ký</a></td></tr>
+        <tr><td style="padding:22px 32px 30px;background:#fafafa;text-align:center;font-size:12px;line-height:1.55;color:#8b8e93;">${footer || `Bạn nhận thư này vì đã chọn nhận cập nhật từ Hugo Studio.<br><a href="${unsubscribe}" style="color:#62656a;text-decoration:underline;">Hủy đăng ký</a>`}</td></tr>
       </table>
     </td></tr></table></body></html>`;
+}
+
+const welcomeCampaign = () => ({ key: 'welcome', subject: 'Chào mừng bạn đến với Hugo Studio', eyebrow: 'Hugo Studio', title: 'Bắt đầu từ điều bạn đang có.', body: 'Bio, công cụ học tập và các quyền lợi thành viên luôn sẵn sàng để bạn quay lại đúng lúc cần.', cta: 'Khám phá quyền lợi', href: `${APP_URL}/member` });
+
+/**
+ * Thư chào mừng tài khoản (welcomeService gọi khi thành viên bật thông báo lần
+ * đầu). Là thư hệ thống, không quảng cáo → gửi cả khi chưa nhận email ưu đãi,
+ * chân thư nói đúng lý do. Gửi được thì đánh dấu để cron không gửi lại bản
+ * chào mừng; SendGrid chưa sẵn sàng thì người đã nhận ưu đãi vẫn được cron gửi bù.
+ */
+export async function sendWelcomeEmail(email) {
+  const campaign = welcomeCampaign();
+  const bio = await Bio.findOne({ email }, 'displayName').lean();
+  const result = await sendCustomEmail(email, campaign.subject, emailHtml({
+    name: bio?.displayName || 'bạn', ...campaign, unsubscribe: unsubscribeUrl(email),
+    footer: 'Thư tài khoản gửi một lần khi Quý thành viên kích hoạt thông báo Hugo Studio.',
+  }));
+  if (result.success && !result.simulated) {
+    await UserProfile.updateOne({ email }, {
+      $set: { 'marketing.lastCampaignAt': new Date(), 'marketing.lastCampaignKey': campaign.key },
+    });
+  }
+  return result;
 }
 
 function campaignFor(profile, now) {
   const inactiveDays = (now - new Date(profile.lastSignalAt)) / DAY;
   const { year, month, day } = dateKey(now);
   const today = `${year}-${month}-${day}`;
-  if (!profile.marketing?.lastCampaignAt) return { key: 'welcome', subject: 'Chào mừng bạn đến với Hugo Studio', eyebrow: 'Hugo Studio', title: 'Bắt đầu từ điều bạn đang có.', body: 'Bio, công cụ học tập và các quyền lợi thành viên luôn sẵn sàng để bạn quay lại đúng lúc cần.', cta: 'Khám phá quyền lợi', href: `${APP_URL}/member` };
+  if (!profile.marketing?.lastCampaignAt) return welcomeCampaign();
   const variant = variantFor(profile.email, now);
   const [topic, promise] = THEMES[variant % THEMES.length];
   const angle = ANGLES[Math.floor(variant / THEMES.length)];
@@ -161,16 +184,21 @@ export async function runLifecycleEmailJob(now = new Date()) {
     return { scanned: 0, sent: 0, deliveryUnavailable: true, error };
   }
   const cooldown = new Date(now - COOLDOWN_DAYS * DAY);
-  const profiles = await UserProfile.find({
+  // Trước đây `.limit(100)`: quá 100 người đăng ký là phần còn lại không bao giờ
+  // tới lượt (luôn xếp theo lastSignalAt, người ít hoạt động mãi nằm cuối). Giờ
+  // duyệt hết bằng cursor — không nạp cả danh sách vào RAM.
+  const cursor = UserProfile.find({
     'marketing.optedInAt': { $ne: null },
     'marketing.optedOutAt': null,
     lastSignalAt: { $ne: null },
     $or: [{ 'marketing.lastCampaignAt': null }, { 'marketing.lastCampaignAt': { $lte: cooldown } }],
-  }).sort({ lastSignalAt: -1 }).limit(100).lean();
+  }).sort({ lastSignalAt: -1 }).lean().cursor();
+  let scanned = 0;
   let sent = 0;
   let simulated = 0;
   try {
-    for (const profile of profiles) {
+    for await (const profile of cursor) {
+      scanned += 1;
       const campaign = campaignFor(profile, now);
       if (!campaign) continue;
       const bio = await Bio.findOne({ email: profile.email }, 'displayName').lean();
@@ -201,7 +229,7 @@ export async function runLifecycleEmailJob(now = new Date()) {
     }, { upsert: true });
     throw error;
   }
-  return { scanned: profiles.length, sent, simulated };
+  return { scanned, sent, simulated };
 }
 
 export function initLifecycleEmailService() {

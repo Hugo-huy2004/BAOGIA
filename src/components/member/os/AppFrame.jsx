@@ -140,19 +140,21 @@ export default function AppFrame({
           màu lớn sau nội dung, vừa xấu vừa làm chữ khó đọc. Trên desktop để nền
           phẳng `--ios-bg` (vẫn mang tint riêng của app) là đủ nhận diện. */}
       {bgLayer ? <div className="pointer-events-none absolute inset-0 overflow-hidden lg:hidden" style={{ zIndex: -10 }} aria-hidden="true">{bgLayer}</div> : null}
+      {/* Đầu app LIỀN với nền, chỉ có đường kẻ mảnh khi đã cuộn — đúng dáng iOS.
+          Bản cũ là tấm kính trắng bo góc dưới + đổ bóng; nội dung cuộn ở khối
+          riêng bên dưới (không trượt qua dưới đầu), nên kính chẳng làm mờ gì mà
+          chỉ thành một "bong bóng" lệch màu ôm tiêu đề (26/10). */}
       <div
-        className="relative z-40 shrink-0 rounded-b-[26px]"
+        className="relative z-40 shrink-0"
         style={{
           paddingTop: "max(4px, env(safe-area-inset-top, 0px))",
-          background: "var(--ios-glass)",
-          backdropFilter: "blur(26px) saturate(180%)",
-          WebkitBackdropFilter: "blur(26px) saturate(180%)",
-          borderBottom: "0.5px solid var(--ios-glass-border)",
-          boxShadow: "0 10px 30px rgba(46, 38, 28, 0.08)",
+          background: "var(--ios-bg)",
+          borderBottom: `0.5px solid ${scrolled ? "var(--ios-sep)" : "transparent"}`,
         }}
       >
         <div className={centered} style={centerStyle}>
           <NavBar
+            flat
             scrolled={scrolled}
             large={largeTitle}
             title={appTitle}

@@ -33,8 +33,13 @@ export function startViewTransition(updateFn) {
  */
 export function useViewTransitionNavigate(navigate) {
   return (to, options) => {
-    startViewTransition(() => {
-      navigate(to, options);
-    });
+    const viewTransition =
+      typeof document !== 'undefined' &&
+      typeof document.startViewTransition === 'function' &&
+      !window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+    // React Router waits for the routed DOM to commit before taking the new
+    // snapshot; wrapping navigate() ourselves can capture the old screen twice.
+    navigate(to, { ...options, viewTransition });
   };
 }

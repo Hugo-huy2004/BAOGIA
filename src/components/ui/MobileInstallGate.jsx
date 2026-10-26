@@ -7,9 +7,18 @@
  */
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { detectInstallTarget } from "../../config/platform";
 import { usePWA } from "../../hooks/usePWA";
 import { SwiftUIButton } from "./swiftui";
+
+// Video hướng dẫn có ba bản (render từ artifacts/pwa-install-guide/source).
+// Chữ Nôm dùng bản Việt; ngôn ngữ khác chưa có bản riêng thì xem bản Anh.
+function installVideoLang(language = "") {
+  const base = language.slice(0, 2);
+  if (base === "vi" || language.startsWith("nom")) return "vi";
+  return base === "zh" ? "zh" : "en";
+}
 
 const SAFARI_STEPS = [
   {
@@ -141,6 +150,8 @@ function stepsFor({ iOS, android, inApp, browser }) {
 
 export default function MobileInstallGate({ onBypass }) {
   const target = detectInstallTarget();
+  const { i18n } = useTranslation();
+  const videoLang = installVideoLang(i18n.resolvedLanguage || i18n.language);
   const { canInstall, install } = usePWA();
   const [copied, setCopied] = useState(false);
   const steps = stepsFor(target);
@@ -206,6 +217,16 @@ export default function MobileInstallGate({ onBypass }) {
             <span>Hướng dẫn cho {deviceLabel}</span>
           </div>
         </div>
+
+        <video
+          key={videoLang}
+          src={`/video/pwa-install/${videoLang}.mp4`}
+          poster={`/video/pwa-install/${videoLang}.jpg`}
+          controls
+          playsInline
+          preload="none"
+          className="mx-auto block aspect-[9/16] max-h-[70dvh] w-full max-w-[320px] rounded-2xl bg-black object-contain"
+        />
 
         {/* 1-Tap Quick Install Button (if browser supports BeforeInstallPrompt) */}
         {canInstall && (

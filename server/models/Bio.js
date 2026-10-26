@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { sealField, unsealField } from '../utils/dbSealingCipher.js';
+import { unsealField } from '../utils/dbSealingCipher.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 
 const BioSchema = new mongoose.Schema(
@@ -104,11 +104,12 @@ const BioSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    // Lưu chữ thường (26/10/2026, theo yêu cầu): bản niêm phong cũ lọt ra form
+    // qua mọi truy vấn lean(). Bản cũ còn trong DB được giải ở decryptBioFields;
+    // chuyển hẳn bằng server/scripts/unseal-phones.mjs.
     phone: {
       type: String,
-      default: '',
-      set: sealField,
-      get: unsealField
+      default: ''
     },
     // Kiểm tra thông tin cá nhân định kỳ (server/utils/identityCheck.js).
     // Người khai thật nhớ được thông tin của mình; người khai bừa thì vài tuần
@@ -864,7 +865,6 @@ const SENSITIVE_VERIFICATION_FIELDS = [
   'schoolLevel',
   'schoolName',
   'schoolIdCode',
-  'phoneZalo',
   'supportContact',
   'supportMessage',
 ];
@@ -907,7 +907,8 @@ function decryptBioFields(doc) {
     }
   }
   if (target.verificationRequest) {
-    for (const field of SENSITIVE_VERIFICATION_FIELDS) {
+    // phoneZalo không còn mã hoá khi lưu, nhưng bản cũ thì có — vẫn giải khi đọc.
+    for (const field of [...SENSITIVE_VERIFICATION_FIELDS, 'phoneZalo']) {
       if (typeof target.verificationRequest[field] === 'string' && target.verificationRequest[field]) {
         if (target.verificationRequest[field].startsWith('$enc$a256gcm$v1$')) {
           target.verificationRequest[field] = unsealField(target.verificationRequest[field]);
@@ -921,6 +922,12 @@ function decryptBioFields(doc) {
 
 BioSchema.post('init', function (doc) {
   decryptBioFields(doc);
+  // Giải không được (khoá đã xoay) thì số đã mất — để trống cho thành viên nhập
+  // lại, đừng đẩy chuỗi mã hoá ra form.
+  const target = doc._doc || doc;
+  if (typeof target.phone === 'string' && target.phone.startsWith('$enc$')) target.phone = '';
+  const request = target.verificationRequest;
+  if (request && typeof request.phoneZalo === 'string' && request.phoneZalo.startsWith('enc:')) request.phoneZalo = '';
 });
 
 BioSchema.post('save', function (doc) {

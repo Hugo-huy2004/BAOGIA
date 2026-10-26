@@ -2008,10 +2008,10 @@
       "draft": "Draft",
       "previewLabel": "Live preview",
       "previewTitle": "Your page",
-      "designLabel": "Design & Theme",
-      "linkCardsLabel": "Link Cards",
-      "achievementsLabel": "Projects & Achievements",
-      "proofLabel": "Verified record",
+      "designLabel": "Theme",
+      "linkCardsLabel": "Links",
+      "achievementsLabel": "Projects",
+      "proofLabel": "Proof",
       "editHint": "Edit **design, links, achievements** in the sections above — changes will auto-update in the preview below.",
       "membershipHeader": "3-Year Developer Membership",
       "expiryLabel": "Expires:",
@@ -2081,7 +2081,10 @@
       "reminderRejected": "Your verification request was declined. You may resubmit once or ask Hugo Studio to review it.",
       "reminderAction": "Verify student status",
       "logoutBtn": "Log out",
-      "submitBtn": "Submit information"
+      "submitBtn": "Submit information",
+      "reminderShort": "Trial: {{days}} days left",
+      "reminderPendingShort": "Student verification under review",
+      "reminderRejectedShort": "Student verification declined"
     },
     "historyActions": {
       "markAllRead": "Mark all as read",
@@ -2961,9 +2964,13 @@
     "permissions": {
       "eyebrow": "One-time setup",
       "title": "Stay connected to what matters",
-      "description": "Enable two essential permissions so Hugo can notify you at the right time, personalize nearby content, and protect your sign-in.",
+      "description": "Hugo Studio sends JOY activity and security alerts through app notifications (required). Offer emails and location are optional.",
       "pushTitle": "Important notifications",
       "pushDescription": "Receive verification, JOY, security, and account updates even after closing the app.",
+      "emailTitle": "Offers by email · optional",
+      "emailDescription": "JOY gifts, new perks and picks made for you. Unsubscribe anytime with one tap in any email.",
+      "requiredHint": "App notifications are required for security alerts and JOY activity. Turn them on to continue.",
+      "emailError": "Could not turn on email. Please try again.",
       "locationTitle": "Local experience",
       "locationDescription": "Used for local news and unusual sign-in alerts.",
       "privacyTitle": "Your privacy stays in your control",
@@ -4028,6 +4035,71 @@
     },
     "joyTree": {
       "complete": "Tree fully grown"
+    },
+    "threads": {
+      "title": "Today",
+      "thread": "Thread",
+      "back": "Back",
+      "filters": {
+        "all": "All",
+        "members": "Members",
+        "news": "News"
+      },
+      "placeholder": "What's new?",
+      "replyPlaceholder": "Write a reply…",
+      "post": "Post",
+      "save": "Save",
+      "cancel": "Cancel",
+      "newThread": "New thread",
+      "replyTitle": "Reply",
+      "editTitle": "Edit post",
+      "replyTo": "Reply to {{name}}",
+      "seeMore": "More",
+      "edited": "edited",
+      "edit": "Edit",
+      "delete": "Delete",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied",
+      "deleteTitle": "Delete this post?",
+      "deleteMessage": "All replies below it will be deleted too.",
+      "deleted": "Post deleted",
+      "readArticle": "Read the full article",
+      "like": "Like",
+      "reply": "Reply",
+      "share": "Share",
+      "noReplies": "No replies yet. Start the conversation.",
+      "empty": "No posts yet.",
+      "loadError": "Couldn't load the feed.",
+      "retry": "Try again",
+      "gone": "This post no longer exists.",
+      "articleGone": "This article has left today's edition.",
+      "published": "Posted",
+      "saved": "Changes saved",
+      "error": "Couldn't post. Please try again.",
+      "longHint": "{{count}} characters — posts over 255 characters are shortened in the feed with a More button.",
+      "tools": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "strike": "Strikethrough",
+        "highlight": "Highlight",
+        "upper": "Uppercase",
+        "bullet": "Bulleted list",
+        "numbered": "Numbered list",
+        "poll": "Poll"
+      },
+      "poll": {
+        "option": "Option {{n}}",
+        "add": "Add option",
+        "duration": "Poll length",
+        "votes": "{{count}} votes",
+        "closed": "Final results",
+        "endsIn": "Ends {{time}}",
+        "h1": "1 hour",
+        "h6": "6 hours",
+        "h24": "1 day",
+        "h72": "3 days",
+        "h168": "7 days"
+      }
     }
   },
   "memberTabs": {
@@ -4590,7 +4662,6 @@
       }
     }
   },
-
   "utilities": {
     "upgradeUnavailable": "This app is being upgraded to the latest version. Please try again in 24 hours.",
     "categories": {
@@ -7332,7 +7403,17 @@
     "page": {
       "heroKicker": "Independent freelance web development",
       "heroEyebrow": "Independent digital studio · Saigon",
-      "artCards": ["Beauty is when nothing is left to remove.", "Color is emotion with a shape.", "White space speaks too.", "Every pixel has a reason.", "Motion tells the rest of the story.", "Good type is felt before it is read.", "Good ideas outlive trends.", "Design begins with listening.", "Art begins with curiosity."],
+      "artCards": [
+        "Beauty is when nothing is left to remove.",
+        "Color is emotion with a shape.",
+        "White space speaks too.",
+        "Every pixel has a reason.",
+        "Motion tells the rest of the story.",
+        "Good type is felt before it is read.",
+        "Good ideas outlive trends.",
+        "Design begins with listening.",
+        "Art begins with curiosity."
+      ],
       "aboutTitle1": "Designed with intent.",
       "aboutTitle2": "Coded all the way through.",
       "socialTitle1": "Hugo Studio",
@@ -8271,5 +8352,139 @@
     "reset": "Clear progress",
     "resetTitle": "Clear all progress?",
     "resetBody": "Every passed lesson will be counted from zero again."
+  },
+  "eduPage": {
+    "heroEyebrow": "Hugo Studio Member · for learners",
+    "heroLede": "One account opens a small corner made for learners: a Bio page with your name on it, focus sessions with music, a quick game between tasks, a toolkit for group projects. Add it to your home screen and it opens like an app.",
+    "heroCta": "See who can join",
+    "memberKicker": "Hugo Studio Member",
+    "memberTitle1": "One account.",
+    "memberTitle2": "Every app you need to learn.",
+    "memberBody": "Sign in once with Google. Your Bio page, focus sessions, game scores and JOY wallet follow the account, so another device picks up right where you left off. No ads. No selling your data.",
+    "facts": [
+      {
+        "value": "1",
+        "label": "account for every app"
+      },
+      {
+        "value": "3",
+        "label": "languages: Vietnamese, English, Chinese"
+      },
+      {
+        "value": "0",
+        "label": "ads inside the apps"
+      }
+    ],
+    "featuresKicker": "Inside",
+    "featuresTitle1": "Four things worth opening.",
+    "featuresTitle2": "Every day.",
+    "features": [
+      {
+        "app": "Bio page",
+        "title": "A page with your name on it.",
+        "body": "Photo, projects, skills and every link in one address. Edit it from your account and switch the look whenever you like.",
+        "points": [
+          "Free for 365 days once verified",
+          "Three looks: Default, Flat, Block",
+          "One link to attach to any application"
+        ]
+      },
+      {
+        "app": "Focus",
+        "title": "Focus, with music.",
+        "body": "A three-level Pomodoro timer with the radio right beside it. Every finished session earns JOY.",
+        "points": [
+          "Light, deep and master levels",
+          "Free radio in the same app",
+          "JOY after every session"
+        ]
+      },
+      {
+        "app": "Games",
+        "title": "Breaks worth taking.",
+        "body": "Four games made by Hugo Studio, from 3D chess to snake. Play in the browser, nothing to install.",
+        "points": [
+          "Made exclusively by Hugo Studio",
+          "Play the bot or a friend",
+          "Seasonal leaderboards"
+        ]
+      },
+      {
+        "app": "HugoKit",
+        "title": "Eight tools, one place.",
+        "body": "Make and scan QR codes, convert images, unzip files, generate passwords. Most of it runs on your device, so files stay with you.",
+        "points": [
+          "QR, images, files, text",
+          "Strong password generator",
+          "Password-locked links"
+        ]
+      }
+    ],
+    "termsKicker": "Who can join",
+    "termsTitle1": "Four things.",
+    "termsTitle2": "Then everything opens.",
+    "terms": [
+      {
+        "title": "Aged 14 or over",
+        "body": "From 14 to under 18, a parent or guardian needs to agree and stay involved."
+      },
+      {
+        "title": "Sign in with Google",
+        "body": "Any Google account works. One issued by your school is best."
+      },
+      {
+        "title": "Verified as a learner",
+        "body": "A school email is approved automatically. Otherwise, send a valid student document for manual review."
+      },
+      {
+        "title": "365 days from verification",
+        "body": "Renew when it ends if you're still studying. Nothing is charged automatically and your data stays."
+      }
+    ],
+    "closingCta": "Talk to Hugo"
+  },
+  "bioStudio": {
+    "links": {
+      "listTitle": "Visible links",
+      "listHint": "Adding or removing saves instantly.",
+      "open": "Open link",
+      "remove": "Remove link",
+      "removeTitle": "Remove this link?",
+      "addTitle": "Add a link",
+      "addHint": "Pick a platform to prefill the address, or paste any URL.",
+      "labelField": "Display name",
+      "zaloTitle": "Zalo chat button",
+      "zaloHint": "Visitors tap it to open a chat with {{phone}}.",
+      "zaloNoPhone": "No valid phone number in Profile yet.",
+      "zaloNeedPhone": "Add a valid phone number in Profile before turning on Zalo.",
+      "zaloOff": "Not ready",
+      "aboutTitle": "About"
+    },
+    "achievements": {
+      "projects": "Projects",
+      "services": "Services",
+      "addProject": "Add project",
+      "addService": "Add service",
+      "update": "Update",
+      "removeTitle": "Delete this item?"
+    },
+    "design": {
+      "themeTitle": "Page theme",
+      "themeHint": "Tap a theme to apply and save it.",
+      "linkTitle": "Links",
+      "shortLink": "Short link",
+      "fullLink": "Full link",
+      "domainTitle": "Custom domain",
+      "domainOn": "Connected",
+      "domainOff": "Not active",
+      "saveDomain": "Save domain",
+      "saving": "Saving…",
+      "unlink": "Disconnect",
+      "unlinkTitle": "Disconnect custom domain?",
+      "dnsTitle": "DNS setup",
+      "dnsA": "Point host @ to the Hugo Studio server IP (for root domains).",
+      "dnsAfter": "Once DNS points here, the domain activates with HTTPS automatically.",
+      "packagesTitle": "Your plans"
+    }
   }
 }

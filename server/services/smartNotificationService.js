@@ -5,17 +5,26 @@ import Bio from '../models/Bio.js';
 import CompanionHistory from '../models/CompanionHistory.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import InAppNotification from '../models/InAppNotification.js';
-import { sendPushToUser, isQuietHours } from './pushGuard.js';
+import { sendPushToUser, isQuietHours, askPushAI } from './pushGuard.js';
 import { notificationLanguage, renderNotification } from '../../shared/notificationText.js';
 
-const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
-
-// Duolingo-style push windows (VN timezone)
+// Khung giờ vàng (giờ VN) — khớp PRIME_SLOTS trong pushGuard. 15:30 là của
+// proactivePushService. Giữa hai mốc liền nhau luôn ≥ 2 giờ 30, rộng hơn khoảng
+// chờ 90 phút, nên các job không đạp nhau.
 const SCHEDULES = {
-  sleep_reminder: '0 21 * * *',    // 21:00 — sleep reminder
-  wake_check:     '0 7  * * *',    // 07:00 — good morning check
-  wellness_noon:  '0 12 * * *',    // 12:00 — midday wellness nudge
-  streak_check:   '0 19 * * *',    // 19:00 — streak protect before evening
+  wake_check:     '30 7 * * *',   // 07:30 — vừa dậy, đang trên đường đi học/làm
+  wellness_noon:  '15 12 * * *',  // 12:15 — nghỉ trưa, lướt điện thoại nhiều nhất
+  streak_check:   '30 18 * * *',  // 18:30 — tan tầm, còn đủ giờ giữ chuỗi ngày
+  sleep_reminder: '0 21 * * *',   // 21:00 — trước giờ yên lặng 22:00
+};
+
+// Câu soạn sẵn cho từng mốc — dùng khi AI hỏng hoặc chê không đáng gửi, để
+// không mốc nào trôi qua im lặng.
+const CONTEXT_KEY = {
+  wake_cheer: 'push.wake',
+  wellness_nudge: 'push.noon',
+  streak_protect: 'push.streak',
+  sleep_reminder: 'push.sleep',
 };
 
 /**
@@ -59,22 +68,25 @@ async function runScheduledCompanionPushes() {
     // naturally lands once quiet hours pass instead of firing overnight.
     if (isQuietHours()) continue;
     try {
-      const bio = await Bio.findOne({ email: item.email }).lean();
-      // Lấy thiết bị TRƯỚC khi gọi AI: ngôn ngữ của người nhận là đầu vào của
-      // prompt, không phải thứ chọn sau khi đã có chữ.
       const subs = await NotificationSubscription.find({ email: item.email }).lean();
-      const response = await fetch(`${PYTHON_AI_URL}/api/notifications/companion-push`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bio: bio || {},
-          feature_label: item.label,
-          language: languageOf(subs)
-        }),
-      });
-
-      if (!response.ok) continue;
-      const aiResult = await response.json();
+      // Push đã soạn sẵn, bị pushGuard giữ lại chờ khung giờ vàng: tới lượt thì
+      // gửi nguyên văn, không xét khoảng chờ nữa.
+      if (item.payload) {
+        if (await sendPushToUser(item.email, subs, item.payload, { force: true }) !== 'queued') {
+          item.sent = true;
+          await item.save();
+        }
+        continue;
+      }
+      const bio = await Bio.findOne({ email: item.email }).lean();
+      // Thiết bị lấy TRƯỚC khi gọi AI: ngôn ngữ của người nhận là đầu vào của
+      // prompt, không phải thứ chọn sau khi đã có chữ. AI hỏng thì vẫn gửi câu
+      // dự phòng — trước đây AI hỏng là bỏ qua, và lần sau lại hỏng.
+      const aiResult = await askPushAI('/api/notifications/companion-push', {
+        bio: bio || {},
+        feature_label: item.label,
+        language: languageOf(subs),
+      }) || {};
 
       // Cooldown only suppresses the OS push (avoids stacking with another
       // job's notification) — the in-app inbox record below still lands.
@@ -134,33 +146,28 @@ async function runSmartPushJob(contextHint) {
       const streak = computeStreak(history?.historyLogs || []);
       const lastCheckin = history?.historyLogs?.slice(-1)[0]?.date || null;
 
-      const response = await fetch(`${PYTHON_AI_URL}/api/notifications/smart-push`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bio: bio || {},
-          sleepLogs: sleepData || [],
-          historyLogs: (history?.historyLogs || []).slice(-15),
-          streak,
-          lastCheckin,
-          pendingActions: [contextHint],
-          language: languageOf(subs),
-        }),
+      const language = languageOf(subs);
+      const ai = await askPushAI('/api/notifications/smart-push', {
+        bio: bio || {},
+        sleepLogs: sleepData || [],
+        historyLogs: (history?.historyLogs || []).slice(-15),
+        streak,
+        lastCheckin,
+        pendingActions: [contextHint],
+        language,
       });
 
-      if (!response.ok) return;
-
-      const aiResult = await response.json();
-      if (!aiResult?.should_send) return;
-
-      const fallback = renderNotification('event.wellnessNudge', {}, languageOf(subs));
+      // Mốc nào cũng gửi: AI viết được và thấy đáng gửi thì dùng chữ của AI (cá
+      // nhân hoá), còn lại dùng câu soạn sẵn của đúng mốc giờ đó.
+      const aiResult = ai?.should_send && ai.title ? ai : {};
+      const fallback = renderNotification(CONTEXT_KEY[contextHint] || 'event.wellnessNudge', {}, language);
       await sendPushToUser(email, subs, {
         title: aiResult.title || fallback.title,
         body:  aiResult.body  || fallback.message,
         icon:  '/image/avt7.png',
         badge: '/image/badge.png',
         url:   aiResult.url  || '/member/utilities/psychology',
-        tag:   aiResult.type || 'smart_push',
+        tag:   contextHint,
       });
     } catch (err) {
       console.error(`[SmartPush] Error for ${email}:`, err.message);
@@ -206,7 +213,7 @@ export function initSmartNotificationService() {
     runScheduledCompanionPushes().catch(console.error);
   }, tz);
 
-  console.log('SmartNotification service initialized (sleep_reminder 21h, wake 7h, wellness 12h, streak 19h, companion_push 10min)');
+  console.log('SmartNotification service initialized (wake 7:30, noon 12:15, streak 18:30, sleep 21:00, queue 10min)');
 }
 
 export async function triggerSmartPushNow(contextHint = 'wellness_nudge') {

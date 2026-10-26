@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { decryptText, encryptText } from '../utils/cryptoUtils.js';
+import { decryptText } from '../utils/cryptoUtils.js';
 
 const BookingSchema = new mongoose.Schema(
   {
@@ -63,13 +63,7 @@ const BookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// A prospective client's phone is sensitive too. Encrypt it at rest while
-// keeping the authenticated admin interface unchanged through hydration hooks.
-BookingSchema.pre('save', function encryptBookingPhone(next) {
-  if (this.isModified('phone') && this.phone) this.phone = encryptText(this.phone);
-  next();
-});
-
+// Số điện thoại lưu chữ thường (26/10/2026). Bản mã hoá cũ vẫn được giải khi đọc.
 function decryptBookingPhone(doc) {
   if (doc?.phone) doc.phone = decryptText(doc.phone);
 }

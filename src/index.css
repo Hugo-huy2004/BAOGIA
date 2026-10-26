@@ -1458,3 +1458,6 @@ html[lang="zh-TW"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):
   }
 }
 
+
+/* Nút tim "Ủng hộ máy chủ" trên thanh điều hướng (NavDock). */
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(.96); } 45% { transform: scale(1.12); } }

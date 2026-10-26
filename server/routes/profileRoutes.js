@@ -2,6 +2,7 @@ import express from 'express';
 import Bio from '../models/Bio.js';
 import HugoTeamDev from '../models/HugoTeamDev.js';
 import UserProfile from '../models/UserProfile.js';
+import { welcomeInBackground } from '../services/welcomeService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
 import {
@@ -155,6 +156,7 @@ router.patch('/me/marketing', requireMember, async (req, res) => {
     ? { optedInAt: now, optedOutAt: null, lastCampaignAt: null, lastCampaignKey: '' }
     : { optedOutAt: now };
   await UserProfile.updateOne({ email: req.memberEmail }, { $set: { marketing } }, { upsert: true });
+  if (req.body.enabled) welcomeInBackground(req.memberEmail);
   return res.json({ enabled: req.body.enabled });
 });
 

@@ -1,7 +1,6 @@
 import { signedJoy, timeAgo, tintOf } from "./notificationModel";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
-import { joyText } from "../../../lib/joyDisplay";
 
 const DIRECTION_ICON = { in: "arrow_downward", out: "arrow_upward" };
 
@@ -20,6 +19,7 @@ const initial = (name) => (name || "?").trim().charAt(0).toUpperCase();
  */
 export default function NotificationRow({ item, index = 0, onOpen, onAction, onDismiss }) {
   const { t, i18n } = useTranslation();
+  const hasBalance = typeof item.balanceAfter === "number" && Number.isFinite(item.balanceAfter);
   const language = i18n.resolvedLanguage || i18n.language || "vi";
   const locale = localeForLanguage(language);
   const isMoney = item.direction !== "none";
@@ -65,17 +65,21 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
             đâu thì người đọc không kiểm chứng được gì. Tên tra từ catalog —
             cùng nguồn mà AppFrame và Home dùng, nên luôn khớp và luôn đúng
             ngôn ngữ đang chọn. */}
-        {(Number.isFinite(Number(item.balanceAfter)) || item.refCode || item.appId) && (
+        {/* typeof, không Number(): Number(null) = 0 → thông báo không có số dư
+            từng hiện "Số dư 0 JOY". */}
+        {(hasBalance || item.refCode || item.appId) && (
           <span className="hgn-dim mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px]">
             {item.appId && (
               <span className="hgn-app-tag">
                 {t(`utilities.catalog.${item.appId}.title`, item.appId)}
               </span>
             )}
-            {Number.isFinite(Number(item.balanceAfter)) && (
+            {hasBalance && (
               <span>
+                {/* Số THÔ: chuỗi dịch đã tự định dạng bằng {{value, joy}}. Đưa vào
+                    chuỗi "1.234 JOY" thì bộ định dạng đọc ra NaN → "0 JOY". */}
                 {t("memberPortal.notificationCenter.balance", {
-                  value: joyText(item.balanceAfter),
+                  value: item.balanceAfter,
                 })}
               </span>
             )}

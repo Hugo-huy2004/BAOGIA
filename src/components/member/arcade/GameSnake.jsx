@@ -967,11 +967,11 @@ export default function GameSnake({ paused = false, onGameOver }) {
       if (e.code === "ArrowUp" || e.code === "KeyW") {
         g.targetHeading = 0; // Lên (Bắc)
       } else if (e.code === "ArrowRight" || e.code === "KeyD") {
-        g.targetHeading = Math.PI / 2; // Phải (Đông)
+        g.targetHeading = -Math.PI / 2; // Phải: camera nhìn về +Z nên bên phải màn hình là −X
       } else if (e.code === "ArrowDown" || e.code === "KeyS") {
         g.targetHeading = Math.PI; // Xuống (Nam)
       } else if (e.code === "ArrowLeft" || e.code === "KeyA") {
-        g.targetHeading = -Math.PI / 2; // Trái (Tây)
+        g.targetHeading = Math.PI / 2; // Trái: +X
       } else if (e.code === "Space" || e.code === "ShiftLeft" || e.code === "ShiftRight") {
         triggerBoost(true);
       }
@@ -1020,11 +1020,12 @@ export default function GameSnake({ paused = false, onGameOver }) {
 
     if (dist > 10) {
       // Vuốt hướng nào sang hướng đó:
-      // dx > 0 (vuốt phải)  -> angle = PI/2 (+X)
-      // dx < 0 (vuốt trái)  -> angle = -PI/2 (-X)
+      // Camera đứng ở −Z nhìn về +Z nên bên phải màn hình là −X:
+      // dx > 0 (vuốt phải)  -> angle = -PI/2 (-X)
+      // dx < 0 (vuốt trái)  -> angle = PI/2 (+X)
       // dy < 0 (vuốt lên)   -> angle = 0 (+Z)
       // dy > 0 (vuốt xuống) -> angle = PI (-Z)
-      const angle = Math.atan2(dx, -dy);
+      const angle = Math.atan2(-dx, -dy);
       gameRef.current.targetHeading = angle;
 
       // Di chuyển mốc bắt đầu nếu ngón tay kéo dài để người chơi bẻ lái liên tục mượt mà
@@ -1048,7 +1049,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
     const dy = t.currentY - t.startY;
     const dist = Math.hypot(dx, dy);
     if (dist > 12) {
-      const angle = Math.atan2(dx, -dy);
+      const angle = Math.atan2(-dx, -dy);
       gameRef.current.targetHeading = angle;
     }
 

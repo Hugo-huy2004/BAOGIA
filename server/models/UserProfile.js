@@ -22,6 +22,8 @@ const UserProfileSchema = new mongoose.Schema({
   appUseAt: { type: Map, of: Date, default: {} },     // appId → ngày dùng gần nhất
   engagementCount: { type: Number, default: 0 },
   lastSignalAt: { type: Date },
+  // Lần đầu bật thông báo ứng dụng → đã gửi lời chào (welcomeService).
+  welcomedAt: { type: Date, default: null },
   // Thư giới thiệu/gợi ý dịch vụ là marketing, không phải thư hệ thống. Mặc
   // định tắt và chỉ cron gửi sau khi thành viên tự bật ở cài đặt.
   marketing: {

@@ -11,6 +11,7 @@ import NotificationSubscription from '../../models/NotificationSubscription.js';
 import NativePushDevice from '../../models/NativePushDevice.js';
 import Bio from '../../models/Bio.js';
 import InAppNotification, { pruneNotifications } from '../../models/InAppNotification.js';
+import { welcomeInBackground } from '../../services/welcomeService.js';
 import { triggerSmartPushNow } from '../../services/smartNotificationService.js';
 import { triggerProactivePushNow } from '../../services/proactivePushService.js';
 
@@ -116,6 +117,7 @@ export async function subscribeWebPush(req, res) {
       { upsert: true, new: true }
     );
 
+    welcomeInBackground(email);
     return res.json({ success: true, message: 'Đã lưu đăng ký thông báo đẩy thành công.', data: updatedSub });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -321,6 +323,7 @@ export async function subscribeNativeDevice(req, res) {
       { upsert: true, new: true }
     );
 
+    welcomeInBackground(email);
     return res.json({ success: true, data: { id: device._id, platform: device.platform } });
   } catch (error) {
     return res.status(500).json({ error: error.message });

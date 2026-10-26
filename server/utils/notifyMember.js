@@ -59,7 +59,12 @@ export async function notifyMember({
     appId,
   });
 
-  if (push) await sendLocalizedPush(email, key, params, actionUrl);
+  // Biến động JOY là thông báo HỆ THỐNG: gửi ngay mọi giờ, kèm số tiền, người
+  // đối diện, số dư và mã GD ngay trên màn khoá — người nhận không phải mở app.
+  if (push) {
+    await sendLocalizedPush(email, key, params, actionUrl,
+      category === 'joy' && amount != null ? { amount, balanceAfter, refCode, counterparty } : null);
+  }
 
   return notification;
 }

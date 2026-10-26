@@ -212,6 +212,8 @@ self.addEventListener('push', function (event) {
     };
     // Chrome bắt buộc renotify phải đi kèm tag khác rỗng
     if (options.tag) options.renotify = true;
+    // Thông báo hệ thống (biến động JOY) nằm lại trên màn hình tới khi được chạm.
+    if (payload.requireInteraction) options.requireInteraction = true;
 
     event.waitUntil(
       Promise.all([

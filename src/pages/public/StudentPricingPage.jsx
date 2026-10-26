@@ -1,35 +1,165 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import BioThemePicker from "../../components/public/BioThemePicker";
-import EduPattern from "../../components/public/EduPattern";
+import { ArrowDown, ArrowRight, Check } from "lucide-react";
 import { useServiceCopy } from "../../hooks/useServiceCopy";
 import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
+import { useServicesFonts } from "../../hooks/useServicesFonts";
 import { getMemberSession, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
 import { notify } from "../../lib/notify";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
+import "./services-editorial.css";
+import "./edu-page.css";
 
-const EASE = [0.16, 1, 0.3, 1];
+const OBJ = { returnObjects: true };
+
+// Ảnh chụp thật từ app (393×852, @3x) — chụp lại khi giao diện app đổi.
+// `top` = màu mép trên của ảnh, tô dải thanh trạng thái quanh Dynamic Island.
+const FEATURE_SHOTS = [
+  { src: "/image/edu/bio.webp", top: "#e9e5df", colors: ["#f472b6", "#f59e0b"] },
+  { src: "/image/edu/focus.webp", top: "#fdfaff", colors: ["#34d399", "#0ea5e9"] },
+  { src: "/image/edu/arcade.webp", top: "#cda4f8", colors: ["#8b5cf6", "#ec4899"] },
+  { src: "/image/edu/hugokit.webp", top: "#fafafe", colors: ["#6366f1", "#22d3ee"] },
+];
+
+// Nền giáo dục: biểu tượng Material Symbols đơn sắc (đúng quy ước trang public)
+// xen vài ký hiệu chữ. [biểu tượng, trái %, trên %, cỡ px, độ sâu thị sai].
+const EDU_SYMBOLS = [
+  ["school", 3, 5, 54, 1.4], ["menu_book", 28, 6, 40, 0.8], ["Edu+", 52, 4, 30, 1.2], ["science", 88, 10, 46, 1.8],
+  ["calculate", 3, 46, 36, 0.9], ["lightbulb", 42, 34, 32, 0.6], ["functions", 72, 40, 38, 1.3], ["A+", 95, 50, 30, 1],
+  ["history_edu", 10, 90, 44, 1.1], ["translate", 47, 76, 34, 1.5], ["π", 60, 88, 34, 0.7], ["auto_stories", 84, 80, 46, 1.4],
+  ["edit", 47, 20, 30, 0.7], ["∑", 50, 60, 30, 1], ["biotech", 97, 92, 34, 1.2], ["architecture", 2, 72, 30, 0.8],
+];
+
+function EduSymbols() {
+  return EDU_SYMBOLS.map(([symbol, left, top, size, depth], index) => {
+    const style = { left: `${left}%`, top: `${top}%`, fontSize: size, "--d": depth, animationDelay: `${-index * 0.7}s` };
+    // Tên biểu tượng toàn chữ thường/gạch dưới; còn lại là ký hiệu vẽ bằng chữ.
+    return /^[a-z_]+$/.test(symbol)
+      ? <span key={index} className="material-symbols-outlined svc-logo edu-symbol" style={style}>{symbol}</span>
+      : <span key={index} className="svc-logo edu-symbol edu-symbol--text" style={{ ...style, fontSize: size * 0.8 }}>{symbol}</span>;
+  });
+}
+
+/** iPhone 15 Pro dựng bằng CSS: viền titan, nút hông, thanh trạng thái, thanh Home, kính phản chiếu. */
+function Phone({ shot, alt, className = "", eager = false }) {
+  const { src, top } = shot;
+  return (
+    <figure className={`edu-phone ${className}`} style={{ "--top": top }}>
+      <i className="edu-phone__btn edu-phone__btn--action" aria-hidden="true" />
+      <i className="edu-phone__btn edu-phone__btn--up" aria-hidden="true" />
+      <i className="edu-phone__btn edu-phone__btn--down" aria-hidden="true" />
+      <i className="edu-phone__btn edu-phone__btn--power" aria-hidden="true" />
+      <div className="edu-phone__screen">
+        <div className="edu-phone__status" aria-hidden="true">
+          <span>9:41</span>
+          <span className="edu-phone__island" />
+          <svg viewBox="0 0 66 12">
+            <path d="M1 9h3v3H1zM6 7h3v5H6zM11 4.5h3V12h-3zM16 2h3v10h-3z" />
+            <path d="M31 3.2a9.6 9.6 0 0 1 12.8 0l-1.4 1.5a7.5 7.5 0 0 0-10 0zM33.3 5.7a6.3 6.3 0 0 1 8.2 0l-1.4 1.5a4.2 4.2 0 0 0-5.4 0zM35.6 8.2a3 3 0 0 1 3.6 0L37.4 10z" />
+            <rect x="48.5" y="1.5" width="15" height="9" rx="2.6" fill="none" stroke="currentColor" strokeOpacity=".4" />
+            <rect x="50" y="3" width="12" height="6" rx="1.4" />
+            <path d="M64.6 4.6v2.8a1.5 1.5 0 0 0 0-2.8z" fillOpacity=".45" />
+          </svg>
+        </div>
+        <img src={src} alt={alt} width="393" height="852" loading={eager ? "eager" : "lazy"} decoding="async" />
+        <span className="edu-phone__home" aria-hidden="true" />
+        <span className="edu-phone__glare" aria-hidden="true" />
+      </div>
+    </figure>
+  );
+}
 
 function VerifyStep({ state, icon, title, desc }) {
   const mark = {
-    done: ["check_circle", "text-emerald-500"],
-    loading: ["progress_activity", "animate-spin text-primary"],
-    warn: ["pending", "text-amber-500"],
-    todo: [icon, "text-muted-foreground"],
+    done: ["check_circle", "edu-verify__mark--done"],
+    loading: ["progress_activity", "animate-spin"],
+    warn: ["pending", "edu-verify__mark--warn"],
+    todo: [icon, ""],
   }[state];
   return (
-    <li className="flex items-start gap-3 py-4">
-      <span className={`material-symbols-outlined mt-0.5 text-[20px] ${mark[1]}`}>{mark[0]}</span>
-      <div><p className="text-sm font-extrabold text-foreground">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{desc}</p></div>
+    <li>
+      <span className={`material-symbols-outlined edu-verify__mark ${mark[1]}`} aria-hidden="true">{mark[0]}</span>
+      <div><p className="edu-verify__title">{title}</p><p className="svc-type edu-verify__desc">{desc}</p></div>
     </li>
   );
 }
 
+/** Mở màn: ba màn hình app thật xoè quạt, nghiêng theo con trỏ (chỉ ghi biến CSS). */
+function EduHero() {
+  const { t } = useTranslation();
+  const ref = useRef(null);
+  const handlePointerMove = (event) => {
+    if (event.pointerType !== "mouse") return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    ref.current.style.setProperty("--mx", (x * 2 - 1).toFixed(3));
+    ref.current.style.setProperty("--my", (y * 2 - 1).toFixed(3));
+    ref.current.style.setProperty("--sx", `${Math.round(x * 100)}%`);
+    ref.current.style.setProperty("--sy", `${Math.round(y * 100)}%`);
+  };
+  const reset = () => {
+    ref.current?.style.setProperty("--mx", "0");
+    ref.current?.style.setProperty("--my", "0");
+  };
+  const features = t("eduPage.features", OBJ);
+
+  return (
+    <section ref={ref} className="svc-hero edu-hero" aria-labelledby="edu-title" onPointerMove={handlePointerMove} onPointerLeave={reset}>
+      <div className="svc-hero__bg" aria-hidden="true"><i /><i /><i /><div className="svc-hero__spot" /><EduSymbols /></div>
+      <div className="services-shell edu-hero__inner">
+        <div className="edu-hero__copy">
+          <p className="svc-type svc-hero__eyebrow">{t("eduPage.heroEyebrow")}</p>
+          <h1 id="edu-title" aria-label="Hugo Edu+">
+            <span aria-hidden="true">Hugo</span>
+            <span aria-hidden="true">Edu+</span>
+          </h1>
+          <p className="svc-type edu-hero__lede">{t("eduPage.heroLede")}</p>
+          <a href="#dieu-kien" className="svc-btn">{t("eduPage.heroCta")} <ArrowDown aria-hidden="true" /></a>
+        </div>
+        <div className="edu-fan">
+          <Phone shot={FEATURE_SHOTS[1]} alt={features[1]?.app} className="edu-fan__l" eager />
+          <Phone shot={FEATURE_SHOTS[2]} alt={features[2]?.app} className="edu-fan__r" eager />
+          <Phone shot={FEATURE_SHOTS[0]} alt={features[0]?.app} className="edu-fan__c" eager />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Hiện kiểu cuộn phim: khung nào lọt vào màn hình thì chạy trọn hiệu ứng kéo từ
+ * trên xuống (CSS transition). Không gắn thẳng vào vị trí cuộn, vì dừng cuộn
+ * giữa chừng sẽ để khung đứng mờ, cắt nửa.
+ */
+function useFilmReveal(rootRef) {
+  useEffect(() => {
+    const nodes = rootRef.current?.querySelectorAll(".edu-film") || [];
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      nodes.forEach((node) => node.classList.add("is-in"));
+      return undefined;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        observer.unobserve(entry.target);
+      });
+      // Ngưỡng 0 + lề dưới: khung đang bị clip-path cắt gần hết nên tỉ lệ
+      // giao nhau luôn ≈ 0 — ngưỡng kiểu 0.18 sẽ không bao giờ tới.
+    }, { threshold: 0, rootMargin: "0px 0px -12% 0px" });
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [rootRef]);
+}
+
 export default function StudentPricingPage() {
   const { t } = useTranslation();
+  useServicesFonts();
+  const pageRef = useRef(null);
+  useFilmReveal(pageRef);
   const [session, setSession] = useState(() => getMemberSession());
   const [eduState, setEduState] = useState("idle");
   const [gisReady, setGisReady] = useState(false);
@@ -107,103 +237,113 @@ export default function StudentPricingPage() {
 
   // Hỏi đáp lấy chung nguồn với trang dịch vụ, khỏi có hai bản trả lời lệch nhau.
   const faq = useServiceCopy("hugo-edu-plus")?.faq || [];
-
-  const BLOCK_ICONS = ["account_circle", "folder_open", "link", "school", "handyman", "qr_code_2"];
-  const bioBlocks = t("studentPage.blocks", { returnObjects: true }).map((b, i) => ({ ...b, icon: BLOCK_ICONS[i] }));
-
-  const BENEFIT_ICONS = ["badge", "terminal", "psychology", "groups"];
-  const benefits = t("studentPage.benefits", { returnObjects: true }).map((b, i) => ({ ...b, icon: BENEFIT_ICONS[i] }));
+  const features = t("eduPage.features", OBJ);
+  const facts = t("eduPage.facts", OBJ);
+  const terms = t("eduPage.terms", OBJ);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_10%_0%,rgba(23,234,217,.15),transparent_30rem),radial-gradient(circle_at_90%_10%,rgba(96,120,234,.17),transparent_32rem),hsl(var(--background))] pb-24 pt-16 text-foreground">
-      <section className="relative isolate flex min-h-[78svh] items-center overflow-hidden px-5 py-20 text-center sm:px-8">
-        <EduPattern className="-z-10 text-foreground/[.07] dark:text-foreground/[.06]" />
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7, ease: EASE }} className="mx-auto max-w-6xl">
-          <p className="mx-auto max-w-xl text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.heroEyebrow")}</p>
-          <h1 className="mx-auto mt-7 max-w-5xl text-[clamp(3.3rem,8vw,8rem)] font-black leading-[.91] tracking-[-.07em]">{t("studentPage.heroTitle1")}<span className="mt-2 block bg-[linear-gradient(100deg,#17ead9,#6078ea_58%,#a76cf2)] bg-clip-text text-transparent">{t("studentPage.heroTitle2")}</span></h1>
-          <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">{t("studentPage.heroLede")}</p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a href="#verify" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-extrabold text-background">{t("studentPage.heroCta")}<span className="material-symbols-outlined text-[17px]">arrow_downward</span></a>
-            <a href="#giao-dien" className="inline-flex min-h-12 items-center gap-2 rounded-full border border-border px-6 text-sm font-extrabold">{t("studentPage.heroCtaAlt")}</a>
-          </div>
-        </motion.div>
-      </section>
+    <div ref={pageRef} className="services-editorial edu-page">
+      <EduHero />
 
-      <section id="verify" className="scroll-mt-20 px-5 py-20 sm:px-8">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
-          <motion.div initial={{ opacity: 0, x: -28 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: .7, ease: EASE }}>
-            <p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.startKicker")}</p>
-            <div className="mt-5 flex items-end gap-4"><strong className="text-[clamp(6rem,15vw,11rem)] font-black leading-[.78] tracking-[-.09em]">365</strong><span className="pb-2 text-sm font-extrabold uppercase tracking-[.16em] text-muted-foreground">{t("studentPage.daysUnit")}<br/>{t("studentPage.daysFree")}</span></div>
-            <h2 className="mt-8 max-w-2xl text-3xl font-black tracking-[-.045em] sm:text-5xl">{t("studentPage.startTitle")}</h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground">{t("studentPage.startLede")}</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .7, ease: EASE }} className="rounded-[2.3rem] border border-white/75 bg-white/70 p-6 shadow-[0_30px_90px_rgba(58,88,170,.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/5 sm:p-8">
-            <div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary"><span className="material-symbols-outlined">{verified ? "verified" : "school"}</span></span><div><h2 className="text-lg font-black">{t("studentPage.verifyTitle")}</h2><p className="text-xs text-muted-foreground">{t("studentPage.verifySub")}</p></div></div>
-            <ul className="mt-5 divide-y divide-border/70">
-              <VerifyStep state={session?.email ? "done" : "todo"} icon="account_circle" title={t("studentPage.step1")} desc={session?.email || t("studentPage.step1Desc")} />
-              <VerifyStep state={eduState === "checking" ? "loading" : verified ? "done" : eduState === "pending" ? "warn" : "todo"} icon="alternate_email" title={t("studentPage.step2")} desc={verified ? t("studentPage.step2Ok") : eduState === "pending" ? t("studentPage.step2Pending") : t("studentPage.step2Todo")} />
-              <VerifyStep state={verified ? "done" : eduState === "pending" ? "warn" : "todo"} icon="redeem" title={t("studentPage.step3")} desc={t("studentPage.step3Desc")} />
-            </ul>
-            <div className="mt-5 border-t border-border/70 pt-5">
-              {!session?.email && <div className="flex flex-col items-center gap-3"><div ref={googleButtonRef} className="flex min-h-[44px] justify-center"/><button type="button" onClick={() => { const googleId = window.google?.accounts?.id; if (!googleId) return; googleId.cancel(); setTimeout(() => googleId.prompt(), 100); }} className="w-full rounded-full border border-border py-3 text-xs font-extrabold hover:bg-muted">{t("studentPage.pickAccount")}</button>{googleConfigError && <p className="text-center text-[10px] leading-5 text-amber-600">{googleConfigError}</p>}<p className="text-[10px] text-muted-foreground">{gisReady ? t("studentPage.gisReady") : t("studentPage.gisLoading")}</p></div>}
-              {verified && <Link to="/member" className="block w-full rounded-full bg-foreground py-3 text-center text-xs font-extrabold text-background">{t("studentPage.openBenefits")}</Link>}
-              {eduState === "pending" && <div className="space-y-3"><p className="text-xs leading-5 text-muted-foreground">{t("studentPage.pendingNote")}</p><Link to="/booking?type=student&plan=verify" className="block w-full rounded-full border border-border py-3 text-center text-xs font-extrabold">{t("studentPage.pendingCta")}</Link></div>}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="giao-dien" className="relative isolate scroll-mt-20 overflow-hidden px-5 py-20 sm:px-8">
-        <EduPattern className="-z-10 text-foreground/[.07] dark:text-foreground/[.06]" />
-        <div className="relative mx-auto max-w-6xl">
-          <p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.themeKicker")}</p>
-          <h2 className="mt-5 max-w-3xl text-[clamp(2.4rem,5.5vw,4.5rem)] font-black leading-[.98] tracking-[-.055em]">{t("studentPage.themeTitle1")}<br className="hidden sm:block" /> {t("studentPage.themeTitle2")}</h2>
-          <div className="mt-14">
-            <BioThemePicker />
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 py-20 sm:px-8">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.blocksKicker")}</p>
-          <h2 className="mt-5 max-w-3xl text-[clamp(2.4rem,5.5vw,4.5rem)] font-black leading-[.98] tracking-[-.055em]">{t("studentPage.blocksTitle")}</h2>
-          <div className="mt-14 grid gap-px overflow-hidden rounded-[2rem] border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-            {bioBlocks.map((block) => (
-              <article key={block.title} className="bg-card p-7">
-                <span className="material-symbols-outlined grid size-11 place-items-center rounded-2xl bg-muted text-foreground">{block.icon}</span>
-                <h3 className="mt-5 text-lg font-black tracking-[-.03em]">{block.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{block.desc}</p>
-              </article>
+      <section className="edu-member" aria-labelledby="edu-member-title">
+        <div className="services-shell">
+          <p className="svc-type svc-kicker edu-film">{t("eduPage.memberKicker")}</p>
+          <h2 id="edu-member-title" className="svc-big edu-film">{t("eduPage.memberTitle1")}<br /><em>{t("eduPage.memberTitle2")}</em></h2>
+          <p className="svc-type edu-member__body edu-film">{t("eduPage.memberBody")}</p>
+          <dl className="edu-facts">
+            {facts.map((fact) => (
+              <div key={fact.label} className="edu-film"><dt>{fact.value}</dt><dd className="svc-type">{fact.label}</dd></div>
             ))}
+          </dl>
+        </div>
+      </section>
+
+      <section className="edu-features" aria-labelledby="edu-features-title">
+        <div className="edu-features__bg" aria-hidden="true"><EduSymbols /></div>
+        <div className="services-shell">
+          <p className="svc-type svc-kicker edu-film">{t("eduPage.featuresKicker")}</p>
+          <h2 id="edu-features-title" className="svc-big edu-film">{t("eduPage.featuresTitle1")}<br /><em>{t("eduPage.featuresTitle2")}</em></h2>
+          <div className="edu-features__list">
+            {features.map((feature, index) => {
+              const shot = FEATURE_SHOTS[index];
+              return (
+                <article key={feature.app} className="edu-feature edu-film" style={{ "--a": shot.colors[0], "--b": shot.colors[1] }}>
+                  <div className="edu-feature__art">
+                    <i className="edu-feature__glow" aria-hidden="true" />
+                    <Phone shot={shot} alt={feature.app} />
+                  </div>
+                  <div className="edu-feature__copy">
+                    <p className="svc-type edu-feature__app">{String(index + 1).padStart(2, "0")} · {feature.app}</p>
+                    <h3>{feature.title}</h3>
+                    <p className="svc-type edu-feature__body">{feature.body}</p>
+                    <ul>
+                      {feature.points.map((point) => <li key={point}><Check aria-hidden="true" />{point}</li>)}
+                    </ul>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="mt-16 bg-[linear-gradient(145deg,#10172b,#1d315a)] px-5 py-24 text-white sm:px-8 sm:py-32">
-        <div className="mx-auto max-w-6xl">
-          <p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-[#17ead9]">{t("studentPage.insideKicker")}</p>
-          <h2 className="mt-5 max-w-4xl text-[clamp(3rem,7vw,6.5rem)] font-black leading-[.94] tracking-[-.065em]">{t("studentPage.insideTitle")}</h2>
-          <div className="mt-16 divide-y divide-white/12 border-y border-white/12">
-            {benefits.map((benefit, index) => <motion.article key={benefit.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .6, delay: index * .05, ease: EASE }} className="grid gap-4 py-8 sm:grid-cols-[64px_1fr_1fr] sm:items-center sm:gap-8"><span className="material-symbols-outlined text-4xl text-[#17ead9]">{benefit.icon}</span><h3 className="text-2xl font-black tracking-[-.035em]">{benefit.title}</h3><p className="text-sm leading-7 text-white/60">{benefit.desc}</p></motion.article>)}
+      <section id="dieu-kien" className="edu-terms" aria-labelledby="edu-terms-title">
+        <div className="services-shell">
+          <p className="svc-type svc-kicker edu-film">{t("eduPage.termsKicker")}</p>
+          <h2 id="edu-terms-title" className="svc-big edu-film">{t("eduPage.termsTitle1")}<br /><em>{t("eduPage.termsTitle2")}</em></h2>
+          <div className="edu-terms__grid">
+            <ol className="edu-terms__list">
+              {terms.map((term, index) => (
+                <li key={term.title} className="svc-step edu-film">
+                  <span className="svc-step__n" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{term.title}</h3>
+                  <p className="svc-type">{term.body}</p>
+                </li>
+              ))}
+            </ol>
+
+            <div id="verify" className="edu-verify">
+              <div className="edu-verify__head">
+                <span className="material-symbols-outlined" aria-hidden="true">{verified ? "verified" : "school"}</span>
+                <div><h3>{t("studentPage.verifyTitle")}</h3><p className="svc-type">{t("studentPage.verifySub")}</p></div>
+              </div>
+              <ul className="edu-verify__steps">
+                <VerifyStep state={session?.email ? "done" : "todo"} icon="account_circle" title={t("studentPage.step1")} desc={session?.email || t("studentPage.step1Desc")} />
+                <VerifyStep state={eduState === "checking" ? "loading" : verified ? "done" : eduState === "pending" ? "warn" : "todo"} icon="alternate_email" title={t("studentPage.step2")} desc={verified ? t("studentPage.step2Ok") : eduState === "pending" ? t("studentPage.step2Pending") : t("studentPage.step2Todo")} />
+                <VerifyStep state={verified ? "done" : eduState === "pending" ? "warn" : "todo"} icon="redeem" title={t("studentPage.step3")} desc={t("studentPage.step3Desc")} />
+              </ul>
+              <div className="edu-verify__actions">
+                {!session?.email && (
+                  <>
+                    <div ref={googleButtonRef} className="edu-verify__gis" />
+                    <button type="button" className="edu-verify__alt" onClick={() => { const googleId = window.google?.accounts?.id; if (!googleId) return; googleId.cancel(); setTimeout(() => googleId.prompt(), 100); }}>{t("studentPage.pickAccount")}</button>
+                    {googleConfigError && <p className="svc-type edu-verify__warn">{googleConfigError}</p>}
+                    <p className="svc-type edu-verify__hint">{gisReady ? t("studentPage.gisReady") : t("studentPage.gisLoading")}</p>
+                  </>
+                )}
+                {verified && <Link to="/member" className="svc-btn">{t("studentPage.openBenefits")} <ArrowRight aria-hidden="true" /></Link>}
+                {eduState === "pending" && (
+                  <>
+                    <p className="svc-type edu-verify__hint">{t("studentPage.pendingNote")}</p>
+                    <Link to="/services?type=student&plan=verify#dat-lich" className="edu-verify__alt">{t("studentPage.pendingCta")}</Link>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {faq.length ? (
-        <section className="px-5 py-20 sm:px-8">
-          <div className="mx-auto max-w-4xl">
-            <p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.faqKicker")}</p>
-            <h2 className="mt-5 text-[clamp(2.4rem,5.5vw,4.5rem)] font-black leading-[.98] tracking-[-.055em]">{t("studentPage.faqTitle")}</h2>
-            <div className="mt-12 border-t border-border">
+        <section className="edu-faq" aria-labelledby="edu-faq-title">
+          <div className="services-shell edu-faq__inner">
+            <p className="svc-type svc-kicker">{t("studentPage.faqKicker")}</p>
+            <h2 id="edu-faq-title" className="svc-big">{t("studentPage.faqTitle")}</h2>
+            <div className="edu-faq__list">
               {faq.map((item) => (
-                <details key={item.question} className="group border-b border-border py-5">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-base font-extrabold tracking-[-.02em]">
-                    <span>{item.question}</span>
-                    <span className="text-2xl font-normal text-muted-foreground transition-transform group-open:rotate-45" aria-hidden>+</span>
-                  </summary>
-                  <p className="mt-4 pr-10 text-sm leading-7 text-muted-foreground">{item.answer}</p>
+                <details key={item.question}>
+                  <summary><span>{item.question}</span><span aria-hidden="true">+</span></summary>
+                  <p className="svc-type">{item.answer}</p>
                 </details>
               ))}
             </div>
@@ -211,7 +351,14 @@ export default function StudentPricingPage() {
         </section>
       ) : null}
 
-      <section className="px-5 py-24 text-center sm:px-8 sm:py-32"><div className="mx-auto max-w-5xl"><p className="text-[11px] font-extrabold uppercase tracking-[.2em] text-primary">{t("studentPage.closingKicker")}</p><h2 className="mt-5 text-[clamp(3rem,7vw,6.5rem)] font-black leading-[.94] tracking-[-.065em]">{t("studentPage.closingTitle1")}<span className="mt-2 block bg-[linear-gradient(100deg,#17ead9,#6078ea)] bg-clip-text text-transparent">{t("studentPage.closingTitle2")}</span></h2><p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">{t("studentPage.closingLede")}</p><Link to="/booking?type=student" className="mt-9 inline-flex min-h-13 items-center gap-2 rounded-full bg-foreground px-7 py-4 text-sm font-extrabold text-background">{t("studentPage.closingCta")}<span className="material-symbols-outlined text-[17px]">arrow_forward</span></Link></div></section>
-    </main>
+      <section className="services-closing edu-closing" aria-labelledby="edu-closing-title">
+        <div className="services-shell">
+          <p className="svc-type svc-kicker">{t("studentPage.closingKicker")}</p>
+          <h2 id="edu-closing-title" className="svc-big edu-film">{t("studentPage.closingTitle1")}<br /><em>{t("studentPage.closingTitle2")}</em></h2>
+          <p className="svc-type edu-closing__lede">{t("studentPage.closingLede")}</p>
+          <Link to="/services?type=student#dat-lich" className="svc-btn">{t("eduPage.closingCta")} <ArrowRight aria-hidden="true" /></Link>
+        </div>
+      </section>
+    </div>
   );
 }

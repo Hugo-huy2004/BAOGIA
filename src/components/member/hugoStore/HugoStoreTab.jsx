@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import BackButton from "../shared/BackButton";
 import AppFrame from "../os/AppFrame";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
@@ -36,25 +35,29 @@ const recipientField = (handle) => (
 );
 
 const StoreSkeleton = () => (
-  <div className="flex flex-col space-y-10 px-5 py-4 w-full" aria-hidden="true">
-    <div className="flex overflow-hidden gap-4">
-      <div className="animate-pulse bg-muted/60 rounded-[20px] shrink-0 w-[85vw] max-w-[320px] aspect-[16/9]" />
-      <div className="animate-pulse bg-muted/60 rounded-[20px] shrink-0 w-[85vw] max-w-[320px] aspect-[16/9]" />
-    </div>
-    <div>
-      <div className="animate-pulse bg-muted/60 rounded-md w-32 h-6 mb-4" />
-      <div className="flex overflow-hidden gap-4">
-        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
-        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
-        <div className="animate-pulse bg-muted/60 rounded-[16px] shrink-0 w-[140px] aspect-square" />
+  <div className="space-y-7 px-4 pt-1" aria-hidden="true">
+    <div className="h-11 animate-pulse rounded-xl bg-muted" />
+    {[0, 1].map((group) => (
+      <div key={group}>
+        <div className="mb-2 h-5 w-28 animate-pulse rounded-md bg-muted" />
+        <div className="space-y-px overflow-hidden rounded-2xl border border-border/60 bg-card">
+          {[0, 1, 2].map((row) => (
+            <div key={row} className="flex items-center gap-3 px-4 py-3">
+              <div className="h-12 w-12 animate-pulse rounded-[22.5%] bg-muted" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    ))}
   </div>
 );
 
 export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOpenUtility, route, onRouteChange }) {
   const { t } = useTranslation();
-  const [scrolled, setScrolled] = useState(false);
   const [search, setSearch] = useState("");
   /*
    * Màn chi tiết app đọc từ ĐỊA CHỈ (/member/utilities/store/<appId>) chứ không
@@ -94,10 +97,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   }, [bio?.email]);
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
-
-  const handleScroll = useCallback((e) => {
-    setScrolled(e.currentTarget.scrollTop > 34);
-  }, []);
 
   const overlayOpen = Boolean(exchange || giftAppId);
   useEffect(() => {
@@ -226,7 +225,7 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
       actions={<JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />}
       scrollKey={detailId || ""}
       contentClassName=""
-      wide
+      contentMaxWidth="720px"
     >
       {/* SCROLLABLE CONTENT */}
       <div className="pb-20" {...tapGuard}>
@@ -249,8 +248,6 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
             entries={entries}
             packs={products}
             orders={orders}
-            balance={balance ?? bio?.joyBalance ?? 0}
-            title={storeName()}
             search={search}
             onSearch={setSearch}
             onOpenApp={openDetail}

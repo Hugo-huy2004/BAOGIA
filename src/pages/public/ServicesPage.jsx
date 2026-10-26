@@ -11,15 +11,12 @@ import { servicePackages } from "../../data/servicePackages";
 import { STUDIO_SOCIAL_LINKS } from "../../config/studioSocialLinks";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
+import { useServicesFonts } from "../../hooks/useServicesFonts";
 import { formatServicePrice } from "../../utils/servicePrice";
 import "../../components/public/hwagfu/hwagfu.css";
 import "./services-editorial.css";
 
 const OBJ = { returnObjects: true };
-
-// Baloo 2 (chữ tròn) + Xanh Mono (chữ đánh máy) chỉ dùng ở trang này, nên nạp
-// tại đây thay vì nhét vào index.html cho mọi trang cùng gánh.
-const SERVICES_FONTS_HREF = "https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Xanh+Mono:ital@0;1&display=swap";
 
 // Logo nền: tám ngôn ngữ/công cụ user chọn, mỗi cái xuất hiện hai lần ở hai độ
 // sâu khác nhau. Đơn sắc theo quy ước trang public — màu đến từ vệt xoáy.
@@ -31,17 +28,6 @@ const CODE_LOGOS = [
   [siReact, 18, 84, 40, 1.1], [siGithub, 36, 70, 30, 1.5], [siHtml5, 62, 86, 34, 0.7], [siPhp, 84, 82, 44, 1.4],
   [siCsharpText, 20, 34, 30, 0.7], [siTypescript, 50, 92, 30, 1], [siCss, 96, 92, 32, 1.2], [siC, 12, 66, 28, 0.8],
 ];
-
-function useServicesFonts() {
-  useEffect(() => {
-    if (document.getElementById("services-fonts")) return;
-    const link = document.createElement("link");
-    link.id = "services-fonts";
-    link.rel = "stylesheet";
-    link.href = SERVICES_FONTS_HREF;
-    document.head.appendChild(link);
-  }, []);
-}
 
 /**
  * Cảnh mở màn: Hugo đứng giữa các vệt màu xoáy, logo ngôn ngữ lập trình trôi ở

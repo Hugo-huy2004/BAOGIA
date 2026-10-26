@@ -91,6 +91,47 @@ const template = isPortfolio
   ? sourceTemplate.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "")
   : sourceTemplate;
 
+// Khung SPA nguyên gốc (splash, chưa chèn nội dung tĩnh) — dist/index.html sắp
+// bị ghi đè bằng trang Dịch vụ. Dùng cho trang chỉ-để-chia-sẻ, cho api/bio-og.js
+// và làm đích dự phòng cho mọi đường dẫn không có HTML riêng: dán link lạ vào
+// Zalo/Facebook ra thẻ Hugo Studio chung, không ra nhầm trang Dịch vụ.
+if (!isPortfolio) fs.writeFileSync(path.join(DIST, "app-shell.html"), sourceTemplate);
+
+// ── Ảnh chia sẻ theo từng trang ───────────────────────────────────────────────
+// Ảnh trong public/og/ chụp từ chính mở màn của trang đó (1200×630). Dự án dùng
+// ảnh bìa của nó. Kích thước khai đúng ảnh thật; không biết thì bỏ thẻ.
+const ogImage = (file, type, width, height) => ({ url: `${ORIGIN}${file}`, type, width, height });
+const OG = {
+  default: ogImage("/og-image.png", "image/png", 1106, 672),
+  services: ogImage("/og/services.jpeg", "image/jpeg", 1200, 630),
+  edu: ogImage("/og/edu.jpeg", "image/jpeg", 1200, 630),
+  study: ogImage("/og/study.jpeg", "image/jpeg", 1200, 630),
+};
+function ogImageFor(base) {
+  if (!isPortfolio && (base === "/" || base === "/services" || base.startsWith("/services/"))) return OG.services;
+  if (["/student-pricing", "/member", "/login"].includes(base)) return OG.edu;
+  if (base === "/study") return OG.study;
+  const project = base.startsWith("/project/") && projects.find((p) => `/project/${p.id}` === base);
+  const shot = project && (project.cover || project.shots?.[0]?.src);
+  if (shot) return { url: `${ORIGIN}/project-screenshots/${project.id}/${shot}.webp`, type: "image/webp", width: 1600, height: 1000 };
+  return OG.default;
+}
+function applyOgImage(html, img) {
+  for (const [attr, name, value] of [
+    ["property", "og:image", img.url],
+    ["property", "og:image:secure_url", img.url],
+    ["property", "og:image:type", img.type],
+    ["name", "twitter:image", img.url],
+  ]) {
+    html = html.replace(new RegExp(`(<meta ${attr}="${name}" content=")[^"]*(" />)`), `$1${value}$2`);
+  }
+  for (const dim of ["width", "height"]) {
+    const re = new RegExp(`(<meta property="og:image:${dim}" content=")[^"]*(" />)`);
+    html = img[dim] ? html.replace(re, `$1${img[dim]}$2`) : html.replace(new RegExp(`\\s*${re.source}`), "");
+  }
+  return html;
+}
+
 function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   const t = JSON.parse(
       fs.readFileSync(path.join(ROOT, `src/i18n/locales/${lang}/translation.json`), "utf8"),
@@ -556,6 +597,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
         `<meta name="${name}" content="${esc(val)}" />`,
       );
     }
+    html = applyOgImage(html, ogImageFor(r.path));
     const pageSchema = {
       "@context": "https://schema.org",
       "@graph": [
@@ -629,6 +671,58 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   }
 
   return siteRoutes;
+}
+
+// ── Trang chỉ-để-chia-sẻ ──────────────────────────────────────────────────────
+// /member, /login… là app sau đăng nhập: không lên sitemap (header Vercel đã đặt
+// noindex), nhưng dán link vào Zalo/Facebook vẫn phải ra đúng trang đó thay vì
+// trang Dịch vụ. Giữ nguyên splash — React dựng app thật ngay sau.
+const SHARE_PAGES = {
+  "/member": {
+    title: "Hugo Studio Member — Không gian của thành viên",
+    description: "Một tài khoản cho cả hệ sinh thái Hugo Studio: trang Bio mang tên chính mình, giờ tập trung có nhạc, trò chơi không quảng cáo và bộ công cụ HugoKit. Cài lên màn hình chính như một ứng dụng.",
+  },
+  "/login": {
+    title: "Đăng nhập Hugo Studio",
+    description: "Đăng nhập bằng Google để mở trang Bio, ví JOY, giờ tập trung và các ứng dụng thành viên của Hugo Studio. Người học xác minh email trường được dùng miễn phí 365 ngày.",
+  },
+  "/support-request": {
+    title: "Yêu cầu hỗ trợ | Hugo Studio",
+    description: "Gửi yêu cầu hỗ trợ kỹ thuật hoặc báo sự cố cho Hugo Studio. Dành cho thành viên đã đăng nhập; yêu cầu đi thẳng tới Hugo kèm số liên lạc để được gọi lại.",
+  },
+};
+// Đường dẫn con dùng chung thẻ chia sẻ với trang mẹ; /bio/:slug đi qua hàm
+// api/bio-og.js để thẻ mang tên và ảnh của đúng người.
+const SHARE_REWRITES = isPortfolio ? [] : [
+  { source: "/member/:path*", destination: "/member/index.html" },
+  { source: "/study/:path*", destination: "/study/index.html" },
+  { source: "/hugoso", destination: "/study/index.html" },
+  { source: "/hugoso/:path*", destination: "/study/index.html" },
+  { source: "/chess/:room", destination: "/chess/index.html" },
+  { source: "/bio/:slug", destination: "/api/bio-og?slug=:slug" },
+  { source: "/b/:slug", destination: "/api/bio-og?slug=:slug" },
+];
+const escAttr = (v) => String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const sharePaths = [];
+for (const [route, meta] of Object.entries(isPortfolio ? {} : SHARE_PAGES)) {
+  const url = ORIGIN + route;
+  let html = sourceTemplate
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(meta.title)}</title>`)
+    .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(meta.description)}" />`)
+    .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />`);
+  for (const [attr, name, value] of [
+    ["property", "og:title", meta.title], ["property", "og:description", meta.description],
+    ["property", "og:url", url], ["property", "og:image:alt", meta.title],
+    ["name", "twitter:title", meta.title], ["name", "twitter:description", meta.description],
+    ["name", "twitter:image:alt", meta.title],
+  ]) {
+    html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
+  }
+  html = applyOgImage(html, ogImageFor(route));
+  const out = path.join(DIST, route.replace(/^\//, ""));
+  fs.mkdirSync(out, { recursive: true });
+  fs.writeFileSync(path.join(out, "index.html"), html);
+  sharePaths.push(route);
 }
 
 // ── sitemap.xml ───────────────────────────────────────────────────────────────
@@ -727,9 +821,13 @@ fs.writeFileSync(
 // ra từ chính các trang vừa dựng; những rewrite khác (/api, /pay…) giữ nguyên.
 const vercelPath = path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json");
 const vercel = JSON.parse(fs.readFileSync(vercelPath, "utf8"));
-const generated = perLocale.flatMap(({ prefix, routes: list }) =>
-  list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path === "/" ? "" : r.path}/index.html` })),
-);
+const generated = [
+  ...perLocale.flatMap(({ prefix, routes: list }) =>
+    list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path === "/" ? "" : r.path}/index.html` })),
+  ),
+  ...sharePaths.map((route) => ({ source: route, destination: `${route}/index.html` })),
+  ...SHARE_REWRITES,
+];
 const generatedSources = new Set(generated.map((r) => r.source));
 // Bỏ các quy tắc trang tĩnh do CHÍNH script này sinh ra ở lần chạy trước — nhận
 // ra chúng bằng dấu hiệu `destination === source + "/index.html"`.
@@ -743,7 +841,9 @@ const kept = vercel.rewrites.filter(
   (r) => !generatedSources.has(r.source) && !isGeneratedPageRule(r),
 );
 // Vercel lấy quy tắc KHỚP ĐẦU TIÊN, nên chèn trước quy tắc bắt-tất-cả.
-const catchAll = kept.findIndex((r) => r.destination === "/index.html" || r.source.includes("(?!assets/"));
+// Nhận theo MẪU nguồn "/((?!…" chứ đừng theo đích: đích đã đổi từ /index.html
+// sang /app-shell.html (26/10/2026), so đích là để lọt và rewrite bị chèn SAU nó.
+const catchAll = kept.findIndex((r) => r.source.startsWith("/((?!") || r.destination === "/index.html");
 const at = catchAll === -1 ? kept.length : catchAll;
 const next = [...kept.slice(0, at), ...generated, ...kept.slice(at)];
 if (JSON.stringify(vercel.rewrites) !== JSON.stringify(next)) {

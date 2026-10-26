@@ -63,7 +63,7 @@ export async function executeHeldTransfer(pending) {
   await Promise.all([
     awardJoy(sender.email, -pending.totalDeducted, 'joy_gift_sent',
       `Gửi ${pending.numAmount} JOY cho ${pending.toName} (đã duyệt sau rà soát).${customMsg}`,
-      { refId: pending.txCode, bioDoc: sender, counterparty: pending.toName }),
+      { refId: pending.txCode, bioDoc: sender, counterparty: pending.toName, pushNotify: true }),
     awardJoy(recipient.email, pending.numAmount, 'joy_gift_received',
       `${pending.fromName} đã chuyển JOY cho bạn.${customMsg}`,
       { refId: pending.txCode, bioDoc: recipient, counterparty: pending.fromName, pushNotify: true, actionUrl: '/member/account' }),
