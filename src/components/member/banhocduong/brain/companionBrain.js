@@ -155,5 +155,8 @@ export async function thinkRemote(messages, { strip = (x) => x } = {}) {
   });
   if (!res.ok) throw new Error(`brain_remote_${res.status}`);
   const data = await res.json();
-  return cleanReply(strip(cleanReply(data.reply || "")), { final: true });
+  // Máy chủ có thể không gọi LLM: `intent` = câu này khớp mẫu soạn sẵn (client tự
+  // dựng câu trả lời), `warning` = lời cảnh cáo vi phạm lần 1–2.
+  if (data.intent || data.warning) return { intent: data.intent || null, warning: data.warning || null, reply: "" };
+  return { intent: null, warning: null, reply: cleanReply(strip(cleanReply(data.reply || "")), { final: true }) };
 }

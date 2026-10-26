@@ -6,6 +6,9 @@
  * Threshold lowered to 0.72 (from 0.80) for better recall with short/noisy input.
  */
 import Fuse from "fuse.js";
+// Mẫu câu dùng CHUNG với máy chủ (định tuyến intent bằng embedding trước khi
+// gọi LLM — server/services/intentRouter.js). Sửa mẫu câu thì sửa file JSON này.
+import INTENT_PATTERNS from "../../../../../shared/companionIntentPatterns.json";
 import { matchTherapyMethod } from "./therapyMethods";
 import { DEFAULT_HOTLINES } from "./hotlines";
 import { loadSecureMemory, saveSecureMemory, updateMemoryFromText } from "../utils/secureMemory";
@@ -230,11 +233,7 @@ export const INTENT_DATABASE = [
   {
     id: "greeting",
     tier: "free",
-    patterns: [
-      "chào cậu", "chào bạn", "hello", "hi", "xin chào", "chào bot",
-      "chào bạn học đường", "chào hugopsy", "chào chuyên viên", "chào nha",
-      "helo cậu", "helo", "lo cau", "hey", "ơi", "hay day"
-    ],
+    patterns: INTENT_PATTERNS.greeting,
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const checkins = (historyLogs || []).filter(l => l.type === "checkin" && l.mood);
@@ -258,10 +257,7 @@ export const INTENT_DATABASE = [
   {
     id: "goodbye",
     tier: "free",
-    patterns: [
-      "tạm biệt", "bye", "bye bye", "hẹn gặp lại", "tớ đi ngủ đây",
-      "tớ đi học đây", "tạm biệt cậu nhé", "tớ offline đây", "tạm biệt nha", "chào nhé"
-    ],
+    patterns: INTENT_PATTERNS.goodbye,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Bye ${name}!`, `Nhớ sạc pin cho bản thân nha, đừng gồng quá`, `Cần gì tớ luôn ở đây!`];
@@ -270,11 +266,7 @@ export const INTENT_DATABASE = [
   {
     id: "identity",
     tier: "paid",
-    patterns: [
-      "cậu là ai", "bạn là ai", "tên cậu là gì", "bạn học đường là ai",
-      "hugopsy là ai", "đây là bot gì", "giới thiệu bản thân", "cậu tên gì",
-      "bạn tên gì", "cậu là bot hay người"
-    ],
+    patterns: INTENT_PATTERNS.identity,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Tớ là HugoPSY nè`, `Bạn đồng hành tâm lý AI — ở đây để nghe ${name} xả hết mọi chuyện.`, `Học hành, cảm xúc, drama, lo lắng gì cũng kể tớ nghe nha!`];
@@ -283,23 +275,39 @@ export const INTENT_DATABASE = [
   {
     id: "features",
     tier: "paid",
-    patterns: [
-      "cậu có thể làm gì", "tính năng của ứng dụng", "hướng dẫn sử dụng",
-      "giúp tớ thế nào", "tính năng trị liệu là gì", "ứng dụng này giúp gì cho tớ",
-      "bot này làm được gì", "chức năng của cậu là gì", "tính năng của app"
-    ],
+    patterns: INTENT_PATTERNS.features,
     generateResponse: () => {
       return [`Tớ có cả combo xịn luôn nè:`, `Thở 4-7-8 hết stress tức thì, thư giãn cơ, âm thanh thiên nhiên dễ ngủ, bài test tâm lý chuẩn lâm sàng`, `Vào tab 'Trị Liệu' hay 'Đánh Giá' là thấy ngay á!`];
     }
   },
   {
+    // Nhờ giải hộ bài: bạn đồng hành KHÔNG đưa đáp án — hỏi kẹt ở bước nào và
+    // khích lệ tự làm. Trả lời tại chỗ để loại câu hỏi này không bao giờ lên LLM.
+    id: "homework_help",
+    tier: "free",
+    patterns: INTENT_PATTERNS.homework_help,
+    generateResponse: (bio) => {
+      const name = getFriendlyName(bio);
+      return _rotate("homework_help", [
+        [
+          `Tớ không giải hộ đâu ${name} ơi, vì giải hộ thì mai đi thi cậu vẫn kẹt y chỗ đó.`,
+          "Nhưng tớ ngồi cùng cậu nè: cậu chép đề ra, rồi chỉ tớ cậu làm tới bước nào thì đứng hình?",
+        ],
+        [
+          `Bài này ${name} làm được, chỉ là đang kẹt một chỗ thôi.`,
+          "Đề cho mình những gì, và đề muốn tìm cái gì? Cậu viết hai dòng đó ra trước xem.",
+        ],
+        [
+          "Tớ mà đưa đáp án thì cậu chép xong vẫn chưa hiểu, phí công cậu lắm.",
+          `Mình chia nhỏ nha ${name}: bước đầu tiên cậu định làm là gì? Sai cũng không sao, cứ thử.`,
+        ],
+      ]);
+    }
+  },
+  {
     id: "study_planning",
     tier: "free",
-    patterns: [
-      "lập kế hoạch học tập", "lên kế hoạch học", "sắp xếp lịch học",
-      "học thế nào hiệu quả", "cách học hiệu quả", "chia thời gian học",
-      "ôn bài như thế nào", "tạo thời khóa biểu học"
-    ],
+    patterns: INTENT_PATTERNS.study_planning,
     generateResponse: () => [
       "Mình bắt đầu bằng cách ghi tất cả môn và deadline ra một chỗ, rồi chọn đúng một việc quan trọng nhất cho hôm nay.",
       "Chia việc đó thành phiên 25 phút: 20 phút học chủ động, 5 phút tự kiểm tra không nhìn tài liệu. Sau mỗi hai phiên, nghỉ 10 phút.",
@@ -309,11 +317,7 @@ export const INTENT_DATABASE = [
   {
     id: "academic_stress",
     tier: "paid",
-    patterns: [
-      "áp lực học tập", "học hành mệt mỏi", "sợ thi rớt", "học không vào",
-      "áp lực điểm số", "căng thẳng vì học hành", "áp lực thi cử",
-      "stress học tập", "mệt mỏi vì thi cử", "bài tập quá nhiều", "deadline chồng chất"
-    ],
+    patterns: INTENT_PATTERNS.academic_stress,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "academic_stress",
       name: getFriendlyName(bio),
@@ -343,11 +347,7 @@ export const INTENT_DATABASE = [
   {
     id: "sleep",
     tier: "paid",
-    patterns: [
-      "tớ bị mất ngủ", "khó ngủ quá", "làm sao để ngủ ngon", "không ngủ được",
-      "thức khuya quá", "mẹo ngủ ngon", "làm sao ngủ ngon", "mất ngủ kéo dài",
-      "cứ tỉnh giấc giữa đêm", "ngủ không sâu"
-    ],
+    patterns: INTENT_PATTERNS.sleep,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "sleep",
       name: getFriendlyName(bio),
@@ -376,11 +376,7 @@ export const INTENT_DATABASE = [
   {
     id: "anxiety",
     tier: "paid",
-    patterns: [
-      "tớ thấy lo lắng", "bị lo âu quá", "hoảng sợ", "lo sợ mọi thứ",
-      "cảm thấy bồn chồn", "lo âu nặng", "làm sao hết lo âu", "tớ lo sợ quá",
-      "tớ cứ lo vô lý", "tim đập hồi hộp"
-    ],
+    patterns: INTENT_PATTERNS.anxiety,
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const gad7Logs = (historyLogs || []).filter(l => l.test === "gad7");
@@ -404,11 +400,7 @@ export const INTENT_DATABASE = [
   {
     id: "sadness",
     tier: "paid",
-    patterns: [
-      "tớ buồn quá", "chán nản mọi thứ", "thấy mệt mỏi buồn bã", "muốn khóc",
-      "tâm trạng tồi tệ", "tâm trạng đi xuống", "tớ thấy buồn", "buồn chán quá",
-      "tớ cảm thấy tệ", "tớ không vui chút nào"
-    ],
+    patterns: INTENT_PATTERNS.sadness,
     generateResponse: (bio, historyLogs) => {
       const name = getFriendlyName(bio);
       const phq9Logs = (historyLogs || []).filter(l => l.test === "phq9");
@@ -432,12 +424,7 @@ export const INTENT_DATABASE = [
   {
     id: "crisis",
     tier: "free",
-    patterns: [
-      "tớ muốn tự tử", "muốn chết", "không muốn sống nữa", "tự tử ở đâu",
-      "làm hại bản thân", "muốn kết liễu đời mình", "muốn tự sát",
-      "nếu tôi chết rồi thì sao", "tôi sẽ chết", "không ai cần tôi nữa",
-      "biến mất khỏi thế giới này", "sống không có ý nghĩa", "muốn kết thúc tất cả"
-    ],
+    patterns: INTENT_PATTERNS.crisis,
     // Kept as a single atomic message — urgent safety info (hotline, emergency number)
     // must never be split/delayed. Two-beat: (1) emotional validation first, (2) actionable
     // safety info with tappable quickActions rendered as tel: buttons by ChatTab.
@@ -453,11 +440,7 @@ export const INTENT_DATABASE = [
   {
     id: "clinical_tests",
     tier: "paid",
-    patterns: [
-      "test trầm cảm", "test lo âu", "kiểm tra sức khỏe tinh thần",
-      "bài test phq9", "bài test gad7", "trắc nghiệm tâm lý",
-      "kiểm tra trầm cảm", "làm bài test", "bài trắc nghiệm tâm lý"
-    ],
+    patterns: INTENT_PATTERNS.clinical_tests,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Được chứ, ${name}. HugoPSY có PHQ-9, GAD-7 và WHO-5 để sàng lọc hoặc tự theo dõi, cùng Big Five để tham khảo về tính cách. Đây không phải công cụ chẩn đoán và cậu không cần làm tất cả cùng lúc.`, `Cậu có thể chọn một bài phù hợp bên dưới; HugoPSY sẽ lưu kết quả để cậu tự xem xu hướng theo thời gian.`];
@@ -470,11 +453,7 @@ export const INTENT_DATABASE = [
   {
     id: "gratitude",
     tier: "free",
-    patterns: [
-      "cảm ơn cậu", "thank you", "cảm ơn bạn học đường", "bot dễ thương quá",
-      "cảm ơn chuyên viên", "cậu tốt quá", "bot hữu ích quá", "cảm ơn bot",
-      "thanks", "cảm ơn nha"
-    ],
+    patterns: INTENT_PATTERNS.gratitude,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Có gì đâu ${name} ơi`, `Được cậu tin tưởng chia sẻ là tớ vui muốn xỉu rồi á.`, `Chúc cậu một ngày nhẹ nhàng nha`];
@@ -483,11 +462,7 @@ export const INTENT_DATABASE = [
   {
     id: "positive",
     tier: "free",
-    patterns: [
-      "tớ thấy vui", "hôm nay rất vui", "mọi thứ tốt", "tớ thấy ổn",
-      "tớ rất khỏe", "tâm trạng tốt", "ngày hôm nay tuyệt vời",
-      "tớ thấy hạnh phúc", "moi thu on", "tớ đang ok lắm"
-    ],
+    patterns: INTENT_PATTERNS.positive,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return _rotate("positive", [
@@ -500,11 +475,7 @@ export const INTENT_DATABASE = [
   {
     id: "test_inventory",
     tier: "paid",
-    patterns: [
-      "bạn có bao nhiêu bài test", "có những bài test gì", "danh sách bài test",
-      "ứng dụng có mấy bài trắc nghiệm", "các bài kiểm tra tâm lý",
-      "test tâm lý gồm những gì", "có bao nhiêu bài trắc nghiệm", "có test gì"
-    ],
+    patterns: INTENT_PATTERNS.test_inventory,
     generateResponse: () => {
       return [`HugoPSY hiện mở 4 công cụ: PHQ-9 và GAD-7 để sàng lọc triệu chứng, WHO-5 để tự theo dõi trạng thái tinh thần, và Big Five để tham khảo về tính cách.`, `Kết quả không phải chẩn đoán. Cậu có thể kể tình trạng hiện tại để tớ gợi ý một bài phù hợp, hoặc vào tab “Đánh giá” để tự chọn.`];
     }
@@ -512,11 +483,7 @@ export const INTENT_DATABASE = [
   {
     id: "therapy_catalog",
     tier: "paid",
-    patterns: [
-      "có liệu pháp gì", "trị liệu gồm những gì", "các liệu pháp tự chữa lành",
-      "hướng dẫn dùng liệu pháp", "tớ nên dùng liệu pháp nào",
-      "bài tập tự chữa lành", "phương pháp trị liệu", "các bài trị liệu"
-    ],
+    patterns: INTENT_PATTERNS.therapy_catalog,
     generateResponse: () => {
       return [`Có 4 hoạt động chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), Đọc sách (chiêm nghiệm) và Viết Tự Do (xả áp lực).`, `Còn vài món AI cao cấp mở bằng JOY nữa. Ghé tab 'Thư Giãn' khám phá nha!`];
     }
@@ -524,11 +491,7 @@ export const INTENT_DATABASE = [
   {
     id: "pricing_package",
     tier: "paid",
-    patterns: [
-      "gói cước giá bao nhiêu", "làm sao mua gói", "cách hủy gói",
-      "cách đổi gói", "gói nào phù hợp với tớ", "phí dịch vụ là bao nhiêu",
-      "có mất phí không", "gói premium", "đăng ký gói"
-    ],
+    patterns: INTENT_PATTERNS.pricing_package,
     generateResponse: () => {
       return [`Giá và các gói đồng hành xem ở tab 'Quản lý' trong Cổng thành viên nha — đủ info luôn.`, `Kể tớ nghe nhu cầu của cậu, tớ gợi ý gói hợp nhất cho!`];
     }
@@ -536,10 +499,7 @@ export const INTENT_DATABASE = [
   {
     id: "joy_currency",
     tier: "paid",
-    patterns: [
-      "joy là gì", "làm sao có joy", "joy dùng để làm gì",
-      "kiếm joy thế nào", "joy là tiền gì", "đồng joy", "xu joy", "joy coin"
-    ],
+    patterns: INTENT_PATTERNS.joy_currency,
     generateResponse: () => {
       return [`JOY là tiền nội bộ hệ thống — kiếm bằng cách giới thiệu bạn bè hoặc đổi quà tặng`, `Dùng JOY mở liệu pháp AI cao cấp hoặc mua đồ ở Cửa hàng. Xem số dư ở tab 'JOY' nha!`];
     }
@@ -547,10 +507,7 @@ export const INTENT_DATABASE = [
   {
     id: "token_limit",
     tier: "paid",
-    patterns: [
-      "mỗi ngày chat được mấy lần", "hết token thì sao", "token chat là gì",
-      "tại sao bị trừ token", "khi nào token được làm mới", "giới hạn token", "lượt chat"
-    ],
+    patterns: INTENT_PATTERNS.token_limit,
     generateResponse: () => {
       return [`Mỗi ngày cậu có 10 token chat. Chào hỏi, cảm ơn, tâm sự thường thì miễn phí hết.`, `Câu hỏi tớ trả lời ngay = 1 token, cần suy nghĩ sâu = 3 token.`, `Reset mỗi ngày mới — hoặc mua thêm bằng JOY nếu cần gấp!`];
     }
@@ -558,10 +515,7 @@ export const INTENT_DATABASE = [
   {
     id: "about_creator",
     tier: "paid",
-    patterns: [
-      "ai tạo ra app này", "hugo studio là gì", "đội ngũ phát triển là ai",
-      "app này của ai", "ai làm ra hugopsy", "tác giả", "creator"
-    ],
+    patterns: INTENT_PATTERNS.about_creator,
     generateResponse: () => {
       return [`Tớ được Hugo Studio xây và huấn luyện nè.`, `Mục tiêu là làm bạn đồng hành tâm lý học đường cho học sinh sinh viên Việt Nam — cải tiến liên tục để nghe cậu tốt hơn mỗi ngày!`];
     }
@@ -569,11 +523,7 @@ export const INTENT_DATABASE = [
   {
     id: "data_privacy",
     tier: "paid",
-    patterns: [
-      "dữ liệu của tớ có an toàn không", "ai xem được tin nhắn của tớ",
-      "thông tin có bị lộ không", "có ai đọc được tâm sự của tớ không",
-      "bảo mật", "riêng tư", "dữ liệu cá nhân"
-    ],
+    patterns: INTENT_PATTERNS.data_privacy,
     generateResponse: () => {
       return [`Mọi tâm sự + dữ liệu hồ sơ của cậu được bảo mật hoàn toàn, chỉ dùng để tớ cá nhân hoá hỗ trợ thôi.`, `Không chia cho bên thứ ba đâu — cứ yên tâm tâm sự thật lòng nha!`];
     }
@@ -581,10 +531,7 @@ export const INTENT_DATABASE = [
   {
     id: "support_contact",
     tier: "paid",
-    patterns: [
-      "liên hệ hỗ trợ thế nào", "báo lỗi ở đâu", "gặp vấn đề kỹ thuật thì sao",
-      "tớ muốn gặp nhân viên hỗ trợ", "lỗi kỹ thuật", "hỗ trợ", "support"
-    ],
+    patterns: INTENT_PATTERNS.support_contact,
     generateResponse: () => {
       return [`Lỗi kỹ thuật hay cần người thật hỗ trợ thì bấm vào khung chat hỗ trợ ở trang chủ nha, team Hugo Studio phản hồi sớm lắm.`, `Còn chuyện tâm lý thì cứ kể tớ trước đã!`];
     }
@@ -592,11 +539,7 @@ export const INTENT_DATABASE = [
   {
     id: "loneliness",
     tier: "paid",
-    patterns: [
-      "tớ thấy cô đơn", "không ai hiểu tớ", "tớ cảm thấy lạc lõng",
-      "tớ chẳng có ai để nói chuyện", "tớ cô đơn quá", "không ai bên cạnh tớ",
-      "tớ thấy mình bị bỏ rơi", "không có bạn", "mình đơn độc lắm"
-    ],
+    patterns: INTENT_PATTERNS.loneliness,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return _rotate("loneliness", [
@@ -609,11 +552,7 @@ export const INTENT_DATABASE = [
   {
     id: "family_conflict",
     tier: "paid",
-    patterns: [
-      "cãi nhau với bố mẹ", "gia đình không hiểu tớ", "bố mẹ áp đặt tớ quá",
-      "mâu thuẫn với gia đình", "bố mẹ la mắng tớ", "tớ với gia đình không hợp",
-      "gia đình tớ căng thẳng", "bố mẹ kỳ vọng quá nhiều"
-    ],
+    patterns: INTENT_PATTERNS.family_conflict,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "family_conflict",
       name: getFriendlyName(bio),
@@ -642,11 +581,7 @@ export const INTENT_DATABASE = [
   {
     id: "friendship_conflict",
     tier: "paid",
-    patterns: [
-      "bạn bè xa lánh tớ", "tớ bị bắt nạt", "mâu thuẫn với bạn bè",
-      "tớ bị cô lập trong lớp", "bạn thân nói xấu tớ", "tớ bị bạn bè tẩy chay",
-      "tớ bị bully", "bạn bè xấu với tớ", "drama bạn bè"
-    ],
+    patterns: INTENT_PATTERNS.friendship_conflict,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "friendship_conflict",
       name: getFriendlyName(bio),
@@ -675,11 +610,7 @@ export const INTENT_DATABASE = [
   {
     id: "breakup",
     tier: "paid",
-    patterns: [
-      "tớ vừa chia tay", "thất tình", "người yêu chia tay tớ",
-      "tớ buồn vì chia tay", "tình cảm tan vỡ", "tớ bị người yêu bỏ",
-      "chia tay đau lắm", "hết yêu rồi"
-    ],
+    patterns: INTENT_PATTERNS.breakup,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "breakup",
       name: getFriendlyName(bio),
@@ -708,11 +639,7 @@ export const INTENT_DATABASE = [
   {
     id: "low_self_esteem",
     tier: "paid",
-    patterns: [
-      "tớ thấy mình vô dụng", "tớ tự ti quá", "tớ thấy mình kém cỏi",
-      "tớ không tin vào bản thân", "tớ ghét bản thân mình", "tớ cảm thấy mình thất bại",
-      "tớ không đủ giỏi", "tớ không làm được gì"
-    ],
+    patterns: INTENT_PATTERNS.low_self_esteem,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "low_self_esteem",
       name: getFriendlyName(bio),
@@ -741,11 +668,7 @@ export const INTENT_DATABASE = [
   {
     id: "procrastination",
     tier: "paid",
-    patterns: [
-      "tớ hay trì hoãn", "tớ lười học quá", "tớ không có động lực làm bài",
-      "tớ cứ trì hoãn deadline", "tớ không muốn làm gì cả",
-      "tớ mất động lực học tập", "chán làm bài quá", "cứ ôm việc không làm"
-    ],
+    patterns: INTENT_PATTERNS.procrastination,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "procrastination",
       name: getFriendlyName(bio),
@@ -774,11 +697,7 @@ export const INTENT_DATABASE = [
   {
     id: "anger",
     tier: "paid",
-    patterns: [
-      "tớ tức giận quá", "tớ đang rất bực bội", "tớ nóng giận",
-      "tớ giận điên lên được", "tớ thấy ấm ức", "tớ khó chịu trong người",
-      "tớ muốn đập phá", "tớ bức xúc lắm"
-    ],
+    patterns: INTENT_PATTERNS.anger,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "anger",
       name: getFriendlyName(bio),
@@ -807,11 +726,7 @@ export const INTENT_DATABASE = [
   {
     id: "panic_attack",
     tier: "free",
-    patterns: [
-      "tớ bị khó thở", "tim tớ đập nhanh quá", "tớ đang hoảng loạn",
-      "tớ thấy ngộp thở", "tớ run rẩy không kiểm soát được", "tớ sắp ngất rồi",
-      "tớ bị panic attack", "tớ đang lên cơn"
-    ],
+    patterns: INTENT_PATTERNS.panic_attack,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`${name} ơi, nghe giống panic attack — đáng sợ thật nhưng KHÔNG nguy hiểm tính mạng, sẽ qua đi 💙`, `Làm cùng tớ ngay: nhìn quanh gọi tên 5 vật thấy, 3 âm thanh nghe được.`, `Rồi hít mũi 4s — nín 4s — thở miệng 6s, lặp vài lần. Cậu đang ở chỗ an toàn không?`];
@@ -820,11 +735,7 @@ export const INTENT_DATABASE = [
   {
     id: "grief",
     tier: "paid",
-    patterns: [
-      "tớ vừa mất người thân", "tớ đau buồn vì mất mát", "người tớ yêu thương đã qua đời",
-      "tớ không vượt qua được nỗi đau mất người thân", "tớ đang để tang",
-      "mất đi người quan trọng", "người thân qua đời"
-    ],
+    patterns: INTENT_PATTERNS.grief,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "grief",
       name: getFriendlyName(bio),
@@ -853,11 +764,7 @@ export const INTENT_DATABASE = [
   {
     id: "future_anxiety",
     tier: "paid",
-    patterns: [
-      "tớ hoang mang về tương lai", "tớ không biết chọn ngành gì",
-      "tớ lo lắng về định hướng nghề nghiệp", "tớ không biết mình muốn gì",
-      "tớ sợ chọn sai ngành", "tương lai mờ mịt quá", "không biết làm gì sau này"
-    ],
+    patterns: INTENT_PATTERNS.future_anxiety,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "future_anxiety",
       name: getFriendlyName(bio),
@@ -886,10 +793,7 @@ export const INTENT_DATABASE = [
   {
     id: "checkin_feature",
     tier: "paid",
-    patterns: [
-      "check-in là gì", "điểm danh cảm xúc là gì", "streak là gì",
-      "tại sao phải check-in", "check in cảm xúc để làm gì"
-    ],
+    patterns: INTENT_PATTERNS.checkin_feature,
     generateResponse: () => {
       return [`Check-in là ghi nhận tâm trạng mỗi ngày — chỉ vài giây thôi!`, `Giúp tớ thấy xu hướng cảm xúc của cậu theo thời gian (chuỗi ngày liên tục = "streak"), từ đó gợi ý đúng cái cậu cần. Check-in ngay đầu khung chat nha!`];
     }
@@ -897,10 +801,7 @@ export const INTENT_DATABASE = [
   {
     id: "venting_space",
     tier: "paid",
-    patterns: [
-      "không gian trút giận là gì", "trút bầu tâm sự là gì",
-      "chế độ trút giận hoạt động sao", "tin nhắn tự hủy là gì"
-    ],
+    patterns: INTENT_PATTERNS.venting_space,
     generateResponse: () => {
       return [`"Trút Bầu Tâm Sự An Toàn" là chế độ tin nhắn tự xoá sau thời gian cậu chọn — KHÔNG lưu lại đâu hết 🔒`, `Trút sạch những điều khó nói mà không lo bị đọc lại. Bật ngay trong khung chat nha!`];
     }
@@ -908,10 +809,7 @@ export const INTENT_DATABASE = [
   {
     id: "room_organization",
     tier: "paid",
-    patterns: [
-      "làm sao bố trí phòng", "sắp xếp phòng cho gọn", "trang trí góc học tập",
-      "phòng tớ bừa quá", "dọn phòng thế nào", "sắp xếp lại phòng ngủ"
-    ],
+    patterns: INTENT_PATTERNS.room_organization,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Phòng bừa thường làm đầu óc rối theo đó, ${name}!`, `Mẹo: tách 3 khu riêng — học/ngủ/thư giãn — và dọn sạch mặt bàn học trước.`, `Ánh sáng tự nhiên + 1 góc cây xanh nhỏ cũng giúp tinh thần nhẹ hẳn. Cậu đang khó ở khu nào nhất?`];
@@ -920,10 +818,7 @@ export const INTENT_DATABASE = [
   {
     id: "mindful_spending",
     tier: "paid",
-    patterns: [
-      "tớ muốn mua đồ tớ thích", "có nên mua cây không", "tớ muốn tự thưởng cho mình",
-      "mua sắm để giải tỏa", "tớ hay mua sắm linh tinh", "tớ tiêu xài quá đà"
-    ],
+    patterns: INTENT_PATTERNS.mindful_spending,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Tự thưởng bản thân — mua cây, món đồ nhỏ — là cách chăm sóc tinh thần hoàn toàn lành mạnh đó ${name}!`, `Chỉ cần để ý: nếu mua sắm là cách DUY NHẤT để né cảm xúc khó, hoặc làm cậu lo về tài chính sau đó, thì chững lại xíu.`, `Món cậu đang muốn mua là gì, kể tớ nghe thử?`];
@@ -935,11 +830,7 @@ export const INTENT_DATABASE = [
   {
     id: "burnout",
     tier: "paid",
-    patterns: [
-      "tớ kiệt sức rồi", "tớ không còn sức để làm gì", "mệt mỏi kiệt lực",
-      "burn out rồi", "kiệt sức hoàn toàn", "không còn động lực gì nữa",
-      "hết sức rồi", "tớ gồng quá lâu", "cạn kiệt năng lượng", "xỉu rồi"
-    ],
+    patterns: INTENT_PATTERNS.burnout,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return _rotate("burnout", [
@@ -952,12 +843,7 @@ export const INTENT_DATABASE = [
   {
     id: "social_comparison",
     tier: "paid",
-    patterns: [
-      "tớ hay so sánh với người khác", "tại sao người ta giỏi thế",
-      "tớ thua kém mọi người", "nhìn người khác thành công mà tủi",
-      "fomo quá", "tớ thấy mình không bằng ai", "người khác hơn tớ",
-      "instagram làm tớ tủi thân"
-    ],
+    patterns: INTENT_PATTERNS.social_comparison,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "social_comparison",
       name: getFriendlyName(bio),
@@ -986,12 +872,7 @@ export const INTENT_DATABASE = [
   {
     id: "perfectionism",
     tier: "paid",
-    patterns: [
-      "tớ cầu toàn quá", "sợ làm sai", "tớ cứ muốn hoàn hảo",
-      "không dám bắt đầu vì sợ làm không tốt", "tớ hay chỉ trích bản thân",
-      "tớ sợ thất bại nên không dám thử", "phải làm cho hoàn hảo",
-      "không chịu được làm sai"
-    ],
+    patterns: INTENT_PATTERNS.perfectionism,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "perfectionism",
       name: getFriendlyName(bio),
@@ -1020,12 +901,7 @@ export const INTENT_DATABASE = [
   {
     id: "body_image",
     tier: "paid",
-    patterns: [
-      "tớ tự ti về ngoại hình", "tớ béo quá", "tớ xấu quá",
-      "tớ ghét cơ thể mình", "tớ không hài lòng với ngoại hình",
-      "người ta xinh hơn tớ nhiều", "tớ tự ti về cân nặng",
-      "tớ muốn giảm cân", "tớ thấy mình không xinh"
-    ],
+    patterns: INTENT_PATTERNS.body_image,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "body_image",
       name: getFriendlyName(bio),
@@ -1054,11 +930,7 @@ export const INTENT_DATABASE = [
   {
     id: "phone_addiction",
     tier: "paid",
-    patterns: [
-      "tớ nghiện điện thoại", "tớ không thể không dùng tiktok",
-      "tớ lướt mạng xã hội quá nhiều", "nghiện game", "không thể bỏ điện thoại xuống",
-      "tớ dùng điện thoại nhiều quá", "nghiện mạng xã hội", "screen time nhiều quá"
-    ],
+    patterns: INTENT_PATTERNS.phone_addiction,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "phone_addiction",
       name: getFriendlyName(bio),
@@ -1087,11 +959,7 @@ export const INTENT_DATABASE = [
   {
     id: "social_anxiety",
     tier: "paid",
-    patterns: [
-      "tớ sợ nói trước đám đông", "tớ sợ bị phán xét", "tớ ngại tiếp xúc người lạ",
-      "tớ bị social anxiety", "tớ sợ ra ngoài", "tớ không dám phát biểu",
-      "tớ sợ gặp người", "tớ ngại nói chuyện", "sợ bị mọi người nhìn"
-    ],
+    patterns: INTENT_PATTERNS.social_anxiety,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "social_anxiety",
       name: getFriendlyName(bio),
@@ -1120,11 +988,7 @@ export const INTENT_DATABASE = [
   {
     id: "homesickness",
     tier: "paid",
-    patterns: [
-      "tớ nhớ nhà quá", "xa nhà cô đơn lắm", "tớ nhớ bố mẹ",
-      "đi học xa nhà", "nhớ quê hương", "xa gia đình buồn lắm",
-      "tớ nhớ nhà ghê lắm", "đi xa nhớ nhà"
-    ],
+    patterns: INTENT_PATTERNS.homesickness,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "homesickness",
       name: getFriendlyName(bio),
@@ -1153,11 +1017,7 @@ export const INTENT_DATABASE = [
   {
     id: "first_love",
     tier: "paid",
-    patterns: [
-      "tớ thích ai đó", "tớ có crush", "tớ đang yêu", "tình cảm đầu tiên",
-      "tớ thích bạn trong lớp", "làm sao tỏ tình", "tớ thích một người",
-      "tớ đang có tình cảm với ai", "tớ bị crush"
-    ],
+    patterns: INTENT_PATTERNS.first_love,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Ôi, tình đầu nè ${name} 🥹 Cảm giác nhột nhột háo hức kiểu đó không có gì thay thế được!`, `Kể tớ nghe về người đó đi.`, `Hay đang phân vân chưa biết phải làm gì với tình cảm này?`];
@@ -1166,11 +1026,7 @@ export const INTENT_DATABASE = [
   {
     id: "jealousy",
     tier: "paid",
-    patterns: [
-      "tớ ghen với bạn", "tớ hay ghen tuông", "tớ cảm thấy ghen tị",
-      "tớ ganh tị với người khác", "tớ ghét người thành công hơn tớ",
-      "tớ ghen với người yêu cũ", "ghen tị là tốt hay xấu"
-    ],
+    patterns: INTENT_PATTERNS.jealousy,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "jealousy",
       name: getFriendlyName(bio),
@@ -1199,11 +1055,7 @@ export const INTENT_DATABASE = [
   {
     id: "concentration",
     tier: "paid",
-    patterns: [
-      "tớ không tập trung được", "tớ mất focus", "đầu óc cứ lơ đãng",
-      "tớ adhd", "tớ khó tập trung học", "đọc sách không vào đầu",
-      "tớ cứ bị phân tâm", "không giữ được sự tập trung"
-    ],
+    patterns: INTENT_PATTERNS.concentration,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "concentration",
       name: getFriendlyName(bio),
@@ -1232,11 +1084,7 @@ export const INTENT_DATABASE = [
   {
     id: "university_exam",
     tier: "paid",
-    patterns: [
-      "thi đại học", "thi thpt quốc gia", "thi thptqg", "đại học rớt thì sao",
-      "lo lắng thi tốt nghiệp", "áp lực thi đại học", "chọn trường đại học",
-      "thi thpt", "điểm chuẩn đại học", "ôn thi đại học", "thi quốc gia"
-    ],
+    patterns: INTENT_PATTERNS.university_exam,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "university_exam",
       name: getFriendlyName(bio),
@@ -1265,11 +1113,7 @@ export const INTENT_DATABASE = [
   {
     id: "emptiness",
     tier: "paid",
-    patterns: [
-      "tớ cảm thấy trống rỗng", "tớ không cảm thấy gì cả", "tớ vô cảm",
-      "tớ không biết mình đang cảm gì", "không buồn không vui chỉ trống không",
-      "empty quá", "tớ thấy mọi thứ vô nghĩa", "tớ thấy tê liệt cảm xúc"
-    ],
+    patterns: INTENT_PATTERNS.emptiness,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "emptiness",
       name: getFriendlyName(bio),
@@ -1298,11 +1142,7 @@ export const INTENT_DATABASE = [
   {
     id: "overthinking",
     tier: "paid",
-    patterns: [
-      "tớ nghĩ nhiều quá", "tớ hay overthink", "đầu óc tớ không tắt được",
-      "tớ cứ lo vẩn vơ", "suy nghĩ lặp lại mãi", "không ngừng lo nghĩ",
-      "tớ suy nghĩ lung tung", "não tớ cứ chạy mãi"
-    ],
+    patterns: INTENT_PATTERNS.overthinking,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "overthinking",
       name: getFriendlyName(bio),
@@ -1331,11 +1171,7 @@ export const INTENT_DATABASE = [
   {
     id: "exercise_request",
     tier: "paid",
-    patterns: [
-      "cho tớ bài tập thở", "hướng dẫn tớ thở sâu", "dạy tớ thiền",
-      "cho tớ bài thiền", "bài tập thư giãn", "tớ muốn thở sâu",
-      "cho tớ thư giãn", "bài tập giảm stress", "tập thở cùng tớ"
-    ],
+    patterns: INTENT_PATTERNS.exercise_request,
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
       return [`Tớ mở ngay bài tập thở cho ${name} nha!`, `Vào tab 'Trị Liệu' → 'Thở 4-7-8' để tớ hướng dẫn cậu từng bước — hoặc thử ngay: hít mũi 4 giây, nín 4 giây, thở miệng 6 giây, lặp 4 lần.`];
@@ -1344,11 +1180,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_bio_link",
     tier: "free",
-    patterns: [
-      "huong dan tao bio link", "thiet ke trang bio link", "chinh sua bio", "them lien ket",
-      "theme bio", "theme editor", "cach chinh bio", "chinh theme", "chinh nut", "chinh bo goc",
-      "chieu cao", "can nang", "so do", "nguc eo", "mong"
-    ],
+    patterns: INTENT_PATTERNS.guide_bio_link,
     generateResponse: () => {
       return [
         "Để làm một trang Bio Link siêu chất, cậu hãy vào mục Bio Editor trong Member Portal nha.",
@@ -1360,10 +1192,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_booking",
     tier: "free",
-    patterns: [
-      "huong dan dat lich", "quan ly lich hen", "booking", "lich chup",
-      "lam sao de khach dat lich", "xem lich khach dat", "lich dat hen"
-    ],
+    patterns: INTENT_PATTERNS.guide_booking,
     generateResponse: () => {
       return [
         "Khách hàng khi ghé thăm Bio Link của cậu chỉ cần bấm vào nút Đăng ký lịch chụp/hẹn là điền được thông tin đặt lịch.",
@@ -1375,9 +1204,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_qr",
     tier: "free",
-    patterns: [
-      "ma qr", "wifi qr", "qr wifi", "tao ma qr", "danh ba qr", "vcard qr", "vcard", "wifi"
-    ],
+    patterns: INTENT_PATTERNS.guide_qr,
     generateResponse: () => {
       return [
         "Trình tạo QR (trong HugoKit ở thẻ Tiện ích) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard).",
@@ -1389,9 +1216,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_signature",
     tier: "free",
-    patterns: [
-      "chu ky email", "signature", "hugosmail", "tao chu ky"
-    ],
+    patterns: INTENT_PATTERNS.guide_signature,
     generateResponse: () => {
       return [
         "Tab HugoSMail giúp cậu tạo chữ ký email thương hiệu.",
@@ -1402,9 +1227,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_ide",
     tier: "free",
-    patterns: [
-      "code", "lap trinh", "viet code", "ide", "hugocoder", "hoc lap trinh", "hoc code"
-    ],
+    patterns: INTENT_PATTERNS.guide_ide,
     generateResponse: () => {
       return [
         "IDE trong Study with Hugo là trình soạn thảo lập trình trực quan (C, C++, C#, Python, Web, PHP) chạy ngay trên trình duyệt.",
@@ -1415,9 +1238,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_chess",
     tier: "free",
-    patterns: [
-      "co vua", "chess", "hugochess", "dau co", "game co"
-    ],
+    patterns: INTENT_PATTERNS.guide_chess,
     generateResponse: () => {
       return [
         "HugoChess (ở Tab Utilities) là không gian sảnh cờ vua mini giúp cậu thi đấu với Stockfish AI, ghép đôi ngẫu nhiên hoặc tạo phòng đấu giao hữu cùng bạn bè để tích điểm xếp hạng JOY."
@@ -1427,9 +1248,7 @@ export const INTENT_DATABASE = [
   {
     id: "guide_partners",
     tier: "free",
-    patterns: [
-      "iframe", "nhung iframe", "doi tac", "nhung bio link", "partner", "khoa bao mat"
-    ],
+    patterns: INTENT_PATTERNS.guide_partners,
     generateResponse: () => {
       return [
         "Các đối tác liên kết muốn nhúng trình chỉnh sửa Bio Link của Hugo Studio lên trang web riêng của họ thì có thể sử dụng Iframe URL cùng khóa bảo mật do Admin cấp riêng trong Admin Panel nha."
@@ -1439,11 +1258,7 @@ export const INTENT_DATABASE = [
   {
     id: "existential_crisis",
     tier: "paid",
-    patterns: [
-      "song de lam gi", "tai sao to ton tai", "cuoc song vo nghia", "y nghia cuoc song",
-      "loay hoay", "khong biet minh muon gi", "ton tai vo nghia", "nhan sinh", "song de lam j",
-      "chong chenh", "vo huong", "mat phuong huong", "khong co muc dich song"
-    ],
+    patterns: INTENT_PATTERNS.existential_crisis,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "existential_crisis",
       name: getFriendlyName(bio),
@@ -1472,10 +1287,7 @@ export const INTENT_DATABASE = [
   {
     id: "trauma",
     tier: "paid",
-    patterns: [
-      "am anh qua khu", "ki uc dau buon", "truoc day tung bi", "sang chan tam ly", "trauma",
-      "nhung chuyen cu", "flashback", "noi dau cu", "am anh", "chuyen qua khu", "chuyen ngay xua"
-    ],
+    patterns: INTENT_PATTERNS.trauma,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "trauma",
       name: getFriendlyName(bio),
@@ -1504,11 +1316,7 @@ export const INTENT_DATABASE = [
   {
     id: "money_stress",
     tier: "paid",
-    patterns: [
-      "khong co tien", "lo tien hoc phi", "stress vi tien", "ap luc tai chinh",
-      "kiem tien vat va", "het tien roi", "het tien tieu", "tu tuc tai chinh",
-      "tien nong", "ap luc tien bac"
-    ],
+    patterns: INTENT_PATTERNS.money_stress,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "money_stress",
       name: getFriendlyName(bio),
@@ -1537,11 +1345,7 @@ export const INTENT_DATABASE = [
   {
     id: "imposter_syndrome",
     tier: "paid",
-    patterns: [
-      "hoi chung ke gia mao", "to an may", "do may man thoi", "to lam gia",
-      "khong xung dang", "imposter", "to an may thoi", "khong gioi nhu ho nghi",
-      "so bi phat hien kem coi"
-    ],
+    patterns: INTENT_PATTERNS.imposter_syndrome,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "imposter_syndrome",
       name: getFriendlyName(bio),
@@ -1570,10 +1374,7 @@ export const INTENT_DATABASE = [
   {
     id: "pet_grief",
     tier: "paid",
-    patterns: [
-      "cho chet", "meo chet", "thu cung qua doi", "mat pet", "mat cho meo",
-      "thu cung mat", "nho thu cung", "mat em cun", "mat em meo"
-    ],
+    patterns: INTENT_PATTERNS.pet_grief,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "pet_grief",
       name: getFriendlyName(bio),
@@ -1602,11 +1403,7 @@ export const INTENT_DATABASE = [
   {
     id: "lgbtq_confusion",
     tier: "paid",
-    patterns: [
-      "to thich con trai", "to thich con gai", "co phai lgbt", "hoang mang gioi tinh",
-      "come out", "so bi ky thi tinh duc", "lgbt", "gay", "les", "lesbian",
-      "comeout", "ban khoan gioi tinh", "tinh duc", "xu huong tinh duc"
-    ],
+    patterns: INTENT_PATTERNS.lgbtq_confusion,
     generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
       id: "lgbtq_confusion",
       name: getFriendlyName(bio),
@@ -1733,6 +1530,7 @@ const STATIC_RULES = [
   { id: "guide_partners",      regex: /(iframe|nhung iframe|nhung link|nhung bio|doi tac|partner|security key|khoa bao mat|ma bao mat)/ },
   { id: "panic_attack",        regex: /(kho tho|ngop tho|tim dap nhanh|hoang loan|run ray|sap ngat|panic)/ },
   { id: "crisis",              regex: /(tu tu|tu sat|ket lieu|khong muon song|muon chet|tu lam dau|muon ket thuc)/ },
+  { id: "homework_help",       regex: /(giai (giup|gium|ho|dum|di)|lam (giup|gium|ho|dum) (to|minh|em)|cho (to|minh|em) dap an|xin dap an|loi giai|giai phuong trinh|giai bai (toan|tap|nay))/ },
   { id: "university_exam",     regex: /(thi dai hoc|thi thpt|thptqg|thi quoc gia|diem chuan dai hoc|on thi dai hoc)/ },
   { id: "burnout",             regex: /(kiet suc|burn.?out|het suc roi|can kiet nang luong|gong qua lau|xiu roi)/ },
   { id: "social_comparison",   regex: /(so sanh voi nguoi|nguoi ta gioi hon|thua kem moi nguoi|fomo|instagram lam|khong bang ai)/ },
@@ -1744,15 +1542,15 @@ const STATIC_RULES = [
   { id: "homesickness",        regex: /(nho nha|xa nha|nho bo me|di hoc xa|nho que huong|xa gia dinh)/ },
   { id: "first_love",          regex: /(thich ai do|co crush|dang yeu ai|tinh cam dau tien|thich ban trong lop|to tinh)/ },
   { id: "jealousy",            regex: /(ghen voi ban|ghen tuong|ghen ti|ganh ti voi|ghet nguoi thanh cong hon)/ },
-  { id: "concentration",       regex: /(khong tap trung duoc|mat focus|lo dang|adhd|kho tap trung|doc sach khong vao)/ },
+  { id: "concentration",       regex: /(khong tap trung duoc|mat focus|lo dang|adhd|kho tap trung|doc sach khong vao|tap trung (hoc|lam bai|duoc)|de tap trung)/ },
   { id: "emptiness",           regex: /(trong rong|khong cam thay gi|vo cam|khong buon khong vui|trong khong|te liet cam xuc)/ },
   { id: "overthinking",        regex: /(nghi nhieu qua|overthink|dau oc khong tat|lo van vo|suy nghi lap lai|khong ngung lo nghi)/ },
   { id: "exercise_request",    regex: /(bai tap tho|huong dan tho|day toi thien|bai thien|bai tap thu gian|muon tho sau|tap tho cung toi)/ },
   { id: "checkin_feature",     regex: /(check.?in la gi|diem danh cam xuc|streak la gi|tai sao phai check)/ },
   { id: "venting_space",       regex: /(khong gian trut gian|trut bau tam su|tin nhan tu huy|che do trut gian)/ },
   { id: "loneliness",          regex: /(co don|lac long|khong ai hieu|khong ai ben canh|bi bo roi|khong co ban)/ },
-  { id: "family_conflict",     regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang|ky vong qua nhieu)/ },
-  { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully|drama ban be)/ },
+  { id: "family_conflict",     regex: /(cai nhau voi bo me|gia dinh khong hieu|bo me ap dat|mau thuan voi gia dinh|bo me la mang|ky vong qua nhieu|(bo|me|ba|bo me|ba me) (la|mang|danh|chui) (to|minh|em|con))/ },
+  { id: "friendship_conflict", regex: /(ban be xa lanh|bi bat nat|bi co lap|noi xau to|tay chay|bi bully|drama ban be|co lap)/ },
   { id: "breakup",             regex: /(chia tay|that tinh|nguoi yeu bo|tinh cam tan vo|chia tay dau)/ },
   { id: "low_self_esteem",     regex: /(vo dung|tu ti|kem coi|khong tin vao ban than|ghet ban than|cam thay that bai|khong du gioi)/ },
   { id: "procrastination",     regex: /(tri hoan|luoi hoc|mat dong luc|khong co dong luc|chan deadline|om viec khong lam)/ },
@@ -1773,11 +1571,11 @@ const STATIC_RULES = [
   { id: "identity",            regex: /(cau la ai|ban la ai|ten cau|la bot|gioi thieu ban than)/ },
   { id: "features",            regex: /(lam duoc gi|tinh nang|chuc nang|giup gi|huong dan|features)/ },
   { id: "sleep",               regex: /(mat ngu|kho ngu|ngu ngon|thuc khuya|thieu ngu|tinh giac giua dem)/ },
-  { id: "academic_stress",     regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|bai tap qua tai|deadline chong chat)/ },
+  { id: "academic_stress",     regex: /(ap luc hoc|thi cu|diem so|thi rot|stress hoc|bai tap qua tai|deadline chong chat|deadline|mai thi|sap thi|chua hoc gi|muon bo hoc)/ },
   { id: "anxiety",             regex: /(lo au|lo lang|bon chon|so hai|hoang so|lo so|tim dap hoi hop)/ },
   { id: "sadness",             regex: /(buon|chan nan|tuyet vong|met moi|khoc|cam thay te|khong vui)/ },
   { id: "gratitude",           regex: /(cam on|thank|de thuong|huu ich|tot qua|cau tot)/ },
-  { id: "positive",            regex: /(vui|khoe|hanh phuc|tuyet voi|rat tot|on lam|dang ok)/ },
+  { id: "positive",            regex: /(duoc \d+([.,]\d+)? diem|diem cao|dat giai|qua mon|do (dai hoc|nguyen vong)|vui|khoe|hanh phuc|tuyet voi|rat tot|on lam|dang ok)/ },
 ];
 
 // O(1) direct lookup map for intents compiled once at startup
@@ -1871,22 +1669,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
         }
       }
       const intent = INTENT_MAP[rule.id];
-      if (intent) {
-        return {
-          reply: intent.generateResponse(bio, historyLogs, memory, text),
-          id: intent.id,
-          tier: intent.tier || "free",
-          suggestPhq9: intent.suggestPhq9 || false,
-          suggestGad7: intent.suggestGad7 || false,
-          suggestWho5: intent.suggestWho5 || false,
-          suggestBigFive: intent.suggestBigFive || false,
-          suggestDass42: intent.suggestDass42 || false,
-          suggestMmpi30: intent.suggestMmpi30 || false,
-          showInlineBreathing: intent.showInlineBreathing || false,
-          showInlineCbt: intent.showInlineCbt || false,
-          quickActions: intent.quickActions || null,
-        };
-      }
+      if (intent) return toResult(intent, bio, historyLogs, memory, text);
     }
   }
 
@@ -1901,22 +1684,35 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
-  if (maxScore >= 0.72 && bestIntent) {
-    return {
-      reply: bestIntent.generateResponse(bio, historyLogs, memory, text),
-      id: bestIntent.id,
-      tier: bestIntent.tier || "free",
-      suggestPhq9: bestIntent.suggestPhq9 || false,
-      suggestGad7: bestIntent.suggestGad7 || false,
-      suggestWho5: bestIntent.suggestWho5 || false,
-      suggestBigFive: bestIntent.suggestBigFive || false,
-      suggestDass42: bestIntent.suggestDass42 || false,
-      suggestMmpi30: bestIntent.suggestMmpi30 || false,
-      showInlineBreathing: bestIntent.showInlineBreathing || false,
-      showInlineCbt: bestIntent.showInlineCbt || false,
-      quickActions: bestIntent.quickActions || null,
-    };
-  }
+  if (maxScore >= 0.72 && bestIntent) return toResult(bestIntent, bio, historyLogs, memory, text);
 
   return null;
+}
+
+function toResult(intent, bio, historyLogs, memory, text) {
+  return {
+    reply: intent.generateResponse(bio, historyLogs, memory, text),
+    id: intent.id,
+    tier: intent.tier || "free",
+    suggestPhq9: intent.suggestPhq9 || false,
+    suggestGad7: intent.suggestGad7 || false,
+    suggestWho5: intent.suggestWho5 || false,
+    suggestBigFive: intent.suggestBigFive || false,
+    suggestDass42: intent.suggestDass42 || false,
+    suggestMmpi30: intent.suggestMmpi30 || false,
+    showInlineBreathing: intent.showInlineBreathing || false,
+    showInlineCbt: intent.showInlineCbt || false,
+    quickActions: intent.quickActions || null,
+  };
+}
+
+/**
+ * Câu soạn sẵn cho một intent do MÁY CHỦ chọn (định tuyến bằng embedding, xem
+ * server/services/intentRouter.js). Tên lạ hoặc "crisis" → null: khủng hoảng chỉ
+ * được bắt bằng luật cục bộ ở trên, không để máy chủ quyết thay.
+ */
+export function intentReplyById(id, userText, bio, historyLogs = []) {
+  const intent = id !== "crisis" && Object.hasOwn(INTENT_MAP, id) ? INTENT_MAP[id] : null;
+  if (!intent) return null;
+  return toResult(intent, bio, historyLogs, loadSecureMemory(bio), String(userText || "").trim());
 }

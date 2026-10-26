@@ -7,7 +7,7 @@ const SecurityEventSchema = new mongoose.Schema({
   caseId: { type: String, required: true, unique: true, index: true },
   category: {
     type: String,
-    enum: ['intrusion', 'joy_abuse', 'availability_attack', 'system_attack', 'violent_facilitation', 'identity_fraud'],
+    enum: ['intrusion', 'joy_abuse', 'availability_attack', 'system_attack', 'violent_facilitation', 'identity_fraud', 'companion_abuse'],
     required: true,
     index: true,
   },

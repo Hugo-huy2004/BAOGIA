@@ -22,7 +22,10 @@ import SleepLog from "../models/SleepLog.js";
 import CheckinRecord from "../models/CheckinRecord.js";
 
 const MODEL = "@cf/qwen/qwen3-30b-a3b-fp8";
-const PER_MEMBER_DAILY = 80;
+// Câu giống mẫu soạn sẵn đã bị intentRouter chặn trước, nên LLM chỉ còn nhận
+// câu nói tự do: 40 lượt/ngày là dư cho người thật, và kẻ phá cần gấp đôi số
+// tài khoản để vét cạn hạn mức chung.
+const PER_MEMBER_DAILY = 40;
 const GLOBAL_DAILY = 1300; // chừa biên dưới ~1.400 lượt của hạn mức miễn phí
 const TIMEOUT_MS = 15_000;
 
@@ -123,17 +126,34 @@ export async function learningSnapshot(memberEmail) {
   return text;
 }
 
-// Vai trò cố định do máy chủ giữ: bạn đồng hành học tập và tinh thần, KHÔNG phải
-// máy tra cứu. Đặt ở server để client không gỡ được.
+// Nhân cách cố định do MÁY CHỦ giữ — client dựng phần nhân vật/giọng, nhưng
+// không gỡ được những luật này. Xếp theo thứ tự ưu tiên:
+//   1. Vai: tri kỷ lắng nghe, không khuyên sáo rỗng.
+//   2. Cảm xúc: công nhận TRƯỚC rồi mới mở hướng tích cực. Kéo thẳng sang "vui
+//      lên đi" là tích cực độc hại (toxic positivity) — tâm lý học coi đó là
+//      phủ nhận cảm xúc, người nghe thấy mình bị gạt đi.
+//   3. Không hoàn hảo: nói như người thật, có từ đệm, dám nói "tớ không chắc".
+//   4. Học tập: đồng hành, không phải máy tra cứu, không giải hộ.
 const COACH_RULES = [
-  "Bạn là bạn đồng hành học tập và tinh thần, không phải công cụ tra cứu.",
-  "Khi được hỏi kiến thức hay nhờ làm bài: đừng giải hộ, đừng liệt kê đáp án; hỏi họ đang kẹt ở bước nào, gợi ý chia nhỏ việc và khích lệ họ tự làm.",
+  "Bạn là người bạn tri kỷ: lắng nghe sâu, đáp đúng điều họ vừa kể, đặt họ làm trung tâm. Không đưa lời khuyên sáo rỗng; chỉ khuyên khi họ hỏi.",
+  "Luôn công nhận cảm xúc của họ trước, rồi mới giúp họ thấy một điều tích cực có thật hoặc một bước nhỏ tiếp theo — mọi câu đều để lại một hướng đi. Không phủ nhận nỗi buồn, không bảo họ \"vui lên\".",
+  "Nói tự nhiên như người thật: dùng vừa phải từ đệm như \"ừm\", \"à\", \"nè\", \"nha\"; chưa hiểu thì hỏi lại; không chắc thì nói không chắc. Nếu được hỏi thẳng, thành thật rằng bạn là bạn đồng hành AI.",
+  "Bạn là bạn đồng hành học tập và tinh thần, không phải công cụ tra cứu. Khi được hỏi kiến thức hay nhờ làm bài: đừng giải hộ, đừng liệt kê đáp án; hỏi họ đang kẹt ở bước nào, gợi ý chia nhỏ việc và khích lệ họ tự làm.",
 ].join(" ");
+
+// Mức tiêu cực đo bằng embedding (intentRouter.analyzeMessage) → cách đáp.
+function moodRule(negativity) {
+  if (typeof negativity !== "number") return "";
+  if (negativity >= 70) return `Câu vừa rồi rất nặng lòng (tiêu cực ${negativity}%): ưu tiên lắng nghe và ở bên họ, đừng khuyên, đừng vội kéo sang tích cực.`;
+  if (negativity <= 30) return `Câu vừa rồi tích cực/bình thường (tiêu cực ${negativity}%): mừng cùng hoặc trò chuyện nhẹ nhàng.`;
+  return `Câu vừa rồi hơi chùng (tiêu cực ${negativity}%): công nhận nhẹ nhàng rồi hỏi thêm.`;
+}
 // Chỉ thêm khi CÓ số liệu: không có mà vẫn bảo "nhắc tiến độ" là model tự bịa.
 const PROGRESS_RULE = "Khi hợp lúc, nhắc nhẹ tới tiến độ học thật dưới đây — khen cái họ đã làm, nếu bỏ học vài hôm thì rủ quay lại bằng một việc thật nhỏ, không trách. Không nhắc số liệu nào khác.";
 
-function withContext(messages, snapshot) {
-  const extra = snapshot ? `${COACH_RULES} ${PROGRESS_RULE}\nSố liệu thật về người này: ${snapshot}.` : COACH_RULES;
+function withContext(messages, snapshot, negativity) {
+  const rules = [COACH_RULES, snapshot && PROGRESS_RULE, moodRule(negativity)].filter(Boolean).join(" ");
+  const extra = snapshot ? `${rules}\nSố liệu thật về người này: ${snapshot}.` : rules;
   if (messages[0]?.role === "system") {
     return [{ role: "system", content: `${messages[0].content}\n${extra}` }, ...messages.slice(1)];
   }
@@ -212,14 +232,14 @@ function cleanReply(text) {
  * Trả { reply } hoặc ném lỗi có `status` (429 hết lượt, 503 chưa cấu hình/lỗi).
  * Thử lần lượt Cloudflare → Groq; nguồn nào hết lượt hay lỗi thì sang nguồn kế.
  */
-export async function think(memberEmail, messages) {
+export async function think(memberEmail, messages, { negativity } = {}) {
   if (!isConfigured()) throw fail("brain_not_configured", 503);
   roll();
   const used = perMember.get(memberEmail) || 0;
   if (used >= PER_MEMBER_DAILY) throw fail("brain_quota", 429);
 
   const snapshot = await learningSnapshot(memberEmail).catch(() => "");
-  const prompt = withContext(messages, snapshot);
+  const prompt = withContext(messages, snapshot, negativity);
   const providers = [
     cfConfigured() && globalCount < GLOBAL_DAILY && askCloudflare,
     groqConfigured() && groqCount < GROQ_DAILY && askGroq,

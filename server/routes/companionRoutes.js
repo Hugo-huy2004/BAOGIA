@@ -16,6 +16,9 @@ import { nextAllowedSendTime } from '../services/pushGuard.js';
 
 import { getVietnamDateString } from '../utils/timeUtils.js';
 import * as companionBrain from '../services/companionBrainService.js';
+import { analyzeMessage } from '../services/intentRouter.js';
+import { guardCompanionMessage } from '../services/companionGuard.js';
+import { sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -457,8 +460,21 @@ router.post('/history', requireMember, async (req, res) => {
 router.post('/brain', requireAdultMember, async (req, res) => {
   const messages = companionBrain.sanitizeMessages(req.body?.messages);
   if (!messages) return res.status(400).json({ error: 'invalid_messages' });
+  // Chuỗi xử lý: canh cửa (tục tĩu / xâm nhập / dồn dập) → phân tích cảm xúc &
+  // intent bằng embedding → câu soạn sẵn nếu khớp, không thì LLM + nhân cách.
+  // Lượt user cuối có thể bị client gộp nhiều câu bằng \n — câu sau cùng là điều
+  // họ vừa nói.
+  const lastText = messages.at(-1).content.split('\n').at(-1);
+  const guard = await guardCompanionMessage(req, lastText).catch((err) => {
+    console.warn('[companion guard]', err.message);
+    return null;
+  });
+  if (guard?.block) return sendSecurityBlockResponse(res, guard.block);
+  if (guard) return res.json(guard.body);
+  const analysis = await analyzeMessage(lastText);
+  if (analysis?.intent) return res.json({ intent: analysis.intent.id });
   try {
-    const { reply } = await companionBrain.think(req.memberEmail, messages);
+    const { reply } = await companionBrain.think(req.memberEmail, messages, { negativity: analysis?.negativity });
     res.json({ reply });
   } catch (err) {
     res.status(err.status || 503).json({ error: err.message });

@@ -9,6 +9,9 @@ import { sendAlert } from '../utils/alert.js';
 export const SECURITY_BLOCK_DAYS = 30;
 const BLOCK_MS = SECURITY_BLOCK_DAYS * 24 * 60 * 60 * 1000;
 const CONTENT_STRIKE_WINDOW_MS = 24 * 60 * 60 * 1000;
+// `strikes`: cảnh cáo lần 1 và 2, lần 3 trong 7 ngày mới khoá (chat nhân vật).
+const STRIKE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const STRIKES_TO_BLOCK = 3;
 const CACHE_MS = 30 * 1000;
 const CACHE_MAX = 5000;
 const blockCache = new Map();
@@ -287,8 +290,23 @@ export async function recordSecurityViolation({
     }
   }
 
+  // `strikes` khoá TÀI KHOẢN, không khoá IP: lỗi lời nói là của một người, còn
+  // IP trường học/nhà mạng thì cả trăm người dùng chung.
+  let strike = 0;
+  if (!shouldBlock && enforcement === 'strikes' && emailHash) {
+    const priors = await SecurityEvent.countDocuments({
+      emailHash,
+      category,
+      createdAt: { $gte: new Date(Date.now() - STRIKE_WINDOW_MS) },
+    });
+    strike = priors + 1;
+    if (strike >= STRIKES_TO_BLOCK) shouldBlock = true;
+  }
+
   let block = null;
-  if (shouldBlock) {
+  if (shouldBlock && enforcement === 'strikes') {
+    block = await applySubjectBlock('email', email, { caseId, reasonCode: category });
+  } else if (shouldBlock) {
     block = await applyActorBlock({ ip, email, phone, caseId, reasonCode: category });
   } else if (notify && shouldSendModerationCard(`${email || ip}:${category}`)) {
     // Normal / Suspicious case -> Create SecurityModeration request and send Telegram Moderation Card to Boss
@@ -394,7 +412,7 @@ export async function recordSecurityViolation({
     emailHash: emailHash.slice(0, 16),
   });
 
-  return { caseId, action, block };
+  return { caseId, action, block, strike };
 }
 
 function collectKeys(value, keys = new Set(), depth = 0) {

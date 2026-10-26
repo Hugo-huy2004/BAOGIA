@@ -22,7 +22,7 @@ import { joyText } from "../../../lib/joyDisplay";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { buildLocalReply } from "../../../services/classes/CompanionBot/localFallback";
-import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
+import { findMatchingIntent, intentReplyById, removeVietnameseTones } from "./constants/intentClassifier";
 import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 
 import { THERAPY_METHODS } from "./constants/therapyMethods";
@@ -63,7 +63,6 @@ function pruneOldMessages(msgs) {
 // Luật cục bộ vẫn tự trả lời những intent này dù còn lượt AI: an toàn (crisis)
 // phải tất định; lệnh mở/mở khoá bài tập là thao tác, không phải trò chuyện;
 // chỉ số đọc thẳng từ historyLogs chính xác hơn để AI diễn giải lại.
-const LOCAL_ONLY_INTENTS = new Set(["crisis", "therapy_open", "therapy_locked", "metrics_report"]);
 
 function deriveSmartFollowUps(userText, botText, mood) {
   const source = removeVietnameseTones(`${userText} ${botText}`).toLowerCase();
@@ -1103,13 +1102,13 @@ export default function ChatTab({
       return;
     }
 
-    // 1. Bộ luật cục bộ chỉ còn tự trả lời khi (a) bắt buộc phải tất định:
-    // khủng hoảng, lệnh mở/mở khoá bài tập, chỉ số đọc thẳng từ dữ liệu; hoặc
-    // (b) khách chưa đánh thức bộ não trên máy (khách không gọi được đám mây).
+    // 1. Intent trước, LLM sau: khớp bộ luật trên máy (miễn phí, tức thì) là trả
+    // lời bằng câu soạn sẵn luôn. Chỉ câu không khớp mới lên máy chủ — máy chủ
+    // còn một lớp khớp nghĩa bằng embedding nữa rồi mới tới LLM. LLM có bị đánh
+    // cạn hạn mức thì phần lớn cuộc trò chuyện vẫn chạy.
     const matched = findMatchingIntent(text, bio, historyLogs);
     const brainAwake = brainStatus === "awake";
-    const mustAnswerLocally = Boolean(matched) && LOCAL_ONLY_INTENTS.has(matched.id);
-    if (matched && (mustAnswerLocally || (isGuestMode && !brainAwake))) {
+    if (matched) {
       setInputText("");
       const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
       setMessages(prev => [...prev, userMsg]);
@@ -1196,9 +1195,26 @@ export default function ChatTab({
     const brainMessages = buildMessages({ companion, characterPrompt, history: messages, userText: text });
     const strip = (x) => stripExpr(companion, x);
     let reply = "";
+    let remote = null;
     if (!isGuestMode) {
-      try { reply = await brain.thinkRemote(brainMessages, { strip }); }
+      try { remote = await brain.thinkRemote(brainMessages, { strip }); reply = remote.reply; }
       catch (err) { console.warn("HugoPSY cloud brain:", err.message); }
+    }
+    // Cảnh cáo vi phạm (lần 1–2): nhân vật nói thẳng, không gọi bộ não nào nữa.
+    if (remote?.warning) {
+      await pushBotMessageChunks([remote.warning], { emotion: "buon" });
+      setLoading(false);
+      return;
+    }
+    // Máy chủ khớp nghĩa một intent: dùng câu soạn sẵn của intent đó.
+    const routed = remote?.intent ? intentReplyById(remote.intent, text, bio, historyLogs) : null;
+    if (routed) {
+      const { suggestPhq9, suggestGad7, showInlineBreathing, showInlineCbt, quickActions } = routed;
+      const chunks = Array.isArray(routed.reply) ? routed.reply : [routed.reply];
+      await pushBotMessageChunks(chunks, { suggestPhq9, suggestGad7, showInlineBreathing, showInlineCbt, quickActions: quickActions || null, emotion: nextMind.emotion });
+      setLoading(false);
+      setChatQuickReplies(deriveSmartFollowUps(text, chunks.join(" "), currentMood));
+      return;
     }
     if (!reply && brainAwake) {
       try { reply = await brain.think(brainMessages, (live) => { setLoading(false); showLive(live); }, { strip }); }
