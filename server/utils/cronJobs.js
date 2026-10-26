@@ -8,11 +8,13 @@ export function initCronJobs() {
   // The request middleware also checks the deadline so cron delay cannot grant extra access.
   cron.schedule('*/15 * * * *', async () => {
     try {
-      const { purgeExpiredUnverifiedMembers, purgeOrphanedVerificationEvidence } = await import('../services/memberAccountLifecycle.js');
-      const [result, evidenceRemoved] = await Promise.all([
+      const { purgeExpiredUnverifiedMembers, purgeOrphanedVerificationEvidence, purgeExpiringSecurityAppeals } = await import('../services/memberAccountLifecycle.js');
+      const [result, evidenceRemoved, appealsRemoved] = await Promise.all([
         purgeExpiredUnverifiedMembers({ limit: 20 }),
         purgeOrphanedVerificationEvidence({ limit: 100 }),
+        purgeExpiringSecurityAppeals({ limit: 50 }),
       ]);
+      if (appealsRemoved) console.log(`[CRON] Purged ${appealsRemoved} expiring security appeals.`);
       if (result.deleted) {
         console.log(`[CRON] Permanently deleted ${result.deleted} of ${result.scanned} expired unverified member accounts.`);
       }

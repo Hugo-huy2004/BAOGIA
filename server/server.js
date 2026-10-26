@@ -27,6 +27,7 @@ import {
   oauthCorsOptions,
   appCorsOptions,
   globalLimiter,
+  heavyLimiter,
 } from './config/index.js';
 import { setupWebSocketServers } from './services/websocketServer.js';
 
@@ -64,7 +65,7 @@ app.use(originLock);
 app.use(securityIpGate);
 
 // Reject abusive API traffic before spending CPU and memory parsing its body.
-app.use('/api', globalLimiter);
+app.use('/api', globalLimiter, heavyLimiter);
 
 app.use(express.json({
   limit: '10mb',

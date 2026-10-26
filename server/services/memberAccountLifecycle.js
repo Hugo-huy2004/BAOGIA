@@ -58,6 +58,31 @@ const removeOwnedImage = async (url) => {
   }
 };
 
+// Kháng nghị đã có quyết định thì không giữ gì: xoá selfie trên Cloudinary rồi xoá
+// luôn bản ghi (vị trí, IP). Nhật ký admin chỉ còn caseId. Xoá ảnh hỏng thì GIỮ
+// bản ghi để lượt dọn sau còn URL mà thử lại.
+export async function purgeSecurityAppeal(appeal) {
+  await removeOwnedImage(appeal.imageUrl);
+  await SecurityAppeal.deleteOne({ _id: appeal._id });
+}
+
+// TTL của Mongo xoá bản ghi nhưng không biết tới Cloudinary — đơn treo tới hết hạn
+// sẽ để lại selfie mồ côi vĩnh viễn. Dọn trước hạn TTL một ngày.
+export async function purgeExpiringSecurityAppeals({ now = new Date(), limit = 50 } = {}) {
+  const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const appeals = await SecurityAppeal.find({ expiresAt: { $lte: soon } }, 'imageUrl').limit(limit).lean();
+  let removed = 0;
+  for (const appeal of appeals) {
+    try {
+      await purgeSecurityAppeal(appeal);
+      removed += 1;
+    } catch (error) {
+      console.error('[appeal purge]', error.message);
+    }
+  }
+  return removed;
+}
+
 const removeSecurityAppeals = async (email) => {
   const appeals = await SecurityAppeal.find({ email }, 'imageUrl').lean();
   await Promise.all(appeals.map((appeal) => removeOwnedImage(appeal.imageUrl)));

@@ -442,10 +442,6 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
         await sendTelegramAlert('ℹ️ <b>Kháng nghị này đã được xử lý hoặc hết hạn.</b>');
         return;
       }
-      appeal.status = approve ? 'approved' : 'rejected';
-      appeal.decidedBy = 'Boss_Telegram';
-      appeal.decidedAt = new Date();
-      await appeal.save();
 
       if (approve) {
         // Gỡ mọi lệnh khoá đang treo trên email này (và IP/edge kèm theo).
@@ -459,12 +455,9 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
         await SecurityBlock.deleteMany({ actorKey: emailKey });
       }
 
-      // Dọn ảnh nhạy cảm khỏi Cloudinary ngay khi có quyết định — không giữ
-      // selfie của người ta lâu hơn mức cần để xét duyệt.
-      if (appeal.imageUrl) {
-        const { deleteAvatar } = await import('../utils/cloudinary.js');
-        await deleteAvatar(appeal.imageUrl).catch(() => {});
-      }
+      // Có quyết định là xoá sạch: selfie trên Cloudinary lẫn bản ghi vị trí/IP.
+      const { purgeSecurityAppeal } = await import('../services/memberAccountLifecycle.js');
+      await purgeSecurityAppeal(appeal).catch((e) => console.error('[appeal purge]', e.message));
 
       await AdminAuditLog.create({
         adminId: 'BOSS_TELEGRAM',

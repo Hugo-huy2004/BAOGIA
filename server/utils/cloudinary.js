@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import { compressDataUrl, IMAGE_PRESETS } from './imageCompress.js';
 
 dotenv.config();
 
@@ -42,142 +43,69 @@ export const getPublicIdFromUrl = (url) => {
   }
 };
 
+const configured = () => Boolean(process.env.CLOUDINARY_URL ||
+  (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET));
+
 /**
- * Uploads base64 avatar to Cloudinary and deletes old avatar if specified
- * @param {string} base64Str - The base64 Data URL (e.g. "data:image/webp;base64,...")
- * @param {string} email - The user email for public ID naming
- * @param {string} [oldAvatarUrl] - The existing avatar URL to destroy
- * @returns {Promise<string>} - The new secure URL from Cloudinary
+ * Xoá HẲN một ảnh: `invalidate` để CDN của Cloudinary bỏ cả bản cache, không chỉ
+ * bản gốc. Trả false khi URL không phải ảnh của mình hoặc xoá hỏng.
  */
-export const uploadAvatar = async (base64Str, email, oldAvatarUrl = '') => {
-  const isConfigured = process.env.CLOUDINARY_URL || 
-    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-
-  if (!isConfigured) {
-    throw new Error('Cloudinary is not configured. Please set environment variables.');
-  }
-
-  // 1. Delete the old avatar from Cloudinary first if it exists
-  if (oldAvatarUrl) {
-    const oldPublicId = getPublicIdFromUrl(oldAvatarUrl);
-    if (oldPublicId) {
-      try {
-        await cloudinary.uploader.destroy(oldPublicId);
-        console.log(`Deleted old avatar on Cloudinary: ${oldPublicId}`);
-      } catch (err) {
-        console.error('Failed to delete old avatar on Cloudinary:', err);
-      }
-    }
-  }
-
-  // 2. Format a safe email string for folder/public_id naming
-  const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  const folderPath = 'hugo_wishpax/avatars';
-  const publicId = `avatar_${cleanEmail}_${Date.now()}`;
-
-  // 3. Upload the new base64 image
-  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
-    folder: folderPath,
-    public_id: publicId,
-    overwrite: true,
-    resource_type: 'image',
-    quality: 'auto'
-  });
-
-  return uploadResponse.secure_url;
-};
-
 export const deleteAvatar = async (url) => {
   const publicId = getPublicIdFromUrl(url);
   if (!publicId) return false;
   try {
-    await cloudinary.uploader.destroy(publicId);
-    console.log(`Deleted image on Cloudinary: ${publicId}`);
-    return true;
+    const result = await cloudinary.uploader.destroy(publicId, { invalidate: true });
+    return result?.result === 'ok' || result?.result === 'not found';
   } catch (err) {
     console.error('Failed to delete image on Cloudinary:', err);
     return false;
   }
 };
 
-export const uploadAdImage = async (base64Str, oldUrl = '') => {
-  const isConfigured = process.env.CLOUDINARY_URL || 
-    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-
-  if (!isConfigured) {
-    throw new Error('Cloudinary is not configured.');
-  }
-
-  if (oldUrl) {
-    const oldPublicId = getPublicIdFromUrl(oldUrl);
-    if (oldPublicId) {
-      try {
-        await cloudinary.uploader.destroy(oldPublicId);
-      } catch {}
-    }
-  }
-
-  const folderPath = 'hugo_wishpax/ads';
-  const publicId = `ad_${Date.now()}`;
-
-  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
-    folder: folderPath,
+// Một cửa cho mọi upload: nén → tải bản MỚI lên → xong mới xoá bản cũ. Làm ngược
+// lại (xoá trước) thì upload hỏng là người dùng mất luôn ảnh đang có.
+async function uploadImage(base64Str, { folder, publicId, preset, oldUrl = '', tags }) {
+  if (!configured()) throw new Error('Cloudinary is not configured.');
+  const uploadResponse = await cloudinary.uploader.upload(await compressDataUrl(base64Str, preset), {
+    folder,
     public_id: publicId,
     overwrite: true,
     resource_type: 'image',
-    quality: 'auto'
+    ...(tags ? { tags } : {}),
   });
-
+  if (oldUrl && oldUrl !== uploadResponse.secure_url) await deleteAvatar(oldUrl);
   return uploadResponse.secure_url;
-};
+}
 
-// Ảnh kháng nghị mở khoá (selfie người dùng TỰ NGUYỆN gửi). Thư mục riêng,
-// gắn tag để dọn định kỳ — đây là dữ liệu nhạy cảm, chỉ giữ tới khi Boss quyết.
-export const uploadAppealImage = async (base64Str) => {
-  const isConfigured = process.env.CLOUDINARY_URL ||
-    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
-  if (!isConfigured) throw new Error('Cloudinary is not configured.');
-  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
-    folder: 'hugo_wishpax/appeals',
-    public_id: `appeal_${Date.now()}`,
-    overwrite: true,
-    resource_type: 'image',
-    quality: 'auto',
-    tags: ['appeal'],
-  });
-  return uploadResponse.secure_url;
-};
+export const uploadAvatar = (base64Str, email, oldAvatarUrl = '') => uploadImage(base64Str, {
+  folder: 'hugo_wishpax/avatars',
+  publicId: `avatar_${email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${Date.now()}`,
+  preset: IMAGE_PRESETS.avatar,
+  oldUrl: oldAvatarUrl,
+});
 
-export const uploadProductImage = async (base64Str, oldUrl = '') => {
-  const isConfigured = process.env.CLOUDINARY_URL ||
-    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+export const uploadAdImage = (base64Str, oldUrl = '') => uploadImage(base64Str, {
+  folder: 'hugo_wishpax/ads',
+  publicId: `ad_${Date.now()}`,
+  preset: IMAGE_PRESETS.content,
+  oldUrl,
+});
 
-  if (!isConfigured) {
-    throw new Error('Cloudinary is not configured.');
-  }
+// Ảnh kháng nghị mở khoá (selfie người dùng TỰ NGUYỆN gửi). Xoá ngay khi có quyết
+// định hoặc trước khi đơn hết hạn — xem purgeSecurityAppeal.
+export const uploadAppealImage = (base64Str) => uploadImage(base64Str, {
+  folder: 'hugo_wishpax/appeals',
+  publicId: `appeal_${Date.now()}`,
+  preset: IMAGE_PRESETS.content,
+  tags: ['appeal'],
+});
 
-  if (oldUrl) {
-    const oldPublicId = getPublicIdFromUrl(oldUrl);
-    if (oldPublicId) {
-      try {
-        await cloudinary.uploader.destroy(oldPublicId);
-      } catch {}
-    }
-  }
-
-  const folderPath = 'hugo_wishpax/utility_store';
-  const publicId = `product_${Date.now()}`;
-
-  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
-    folder: folderPath,
-    public_id: publicId,
-    overwrite: true,
-    resource_type: 'image',
-    quality: 'auto'
-  });
-
-  return uploadResponse.secure_url;
-};
+export const uploadProductImage = (base64Str, oldUrl = '') => uploadImage(base64Str, {
+  folder: 'hugo_wishpax/utility_store',
+  publicId: `product_${Date.now()}`,
+  preset: IMAGE_PRESETS.content,
+  oldUrl,
+});
 
 export default {
   uploadAvatar,

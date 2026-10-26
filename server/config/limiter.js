@@ -25,16 +25,18 @@ function memberEmail(req) {
   }
 }
 
+function subjectKey(req) {
+  req.limiterEmail = memberEmail(req);
+  return req.limiterEmail ? `m:${req.limiterEmail}` : ipKeyGenerator(req.ip);
+}
+
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: isDev ? 0 : 1500, // 0 = unlimited in dev; 1500/15 min (1.67 req/s avg) in prod
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || req.originalUrl.startsWith('/api/ops'),
-  keyGenerator: (req) => {
-    req.limiterEmail = memberEmail(req);
-    return req.limiterEmail ? `m:${req.limiterEmail}` : ipKeyGenerator(req.ip);
-  },
+  keyGenerator: subjectKey,
   message: { error: 'Quá nhiều truy cập, vui lòng thử lại sau 15 phút.' },
   handler: async (req, res, _next, options) => {
     try {
@@ -53,4 +55,26 @@ export const globalLimiter = rateLimit({
     }
     return res.status(options.statusCode).json(options.message);
   },
+});
+
+// Route TỐN TIỀN (chống Denial of Wallet): gọi AI, tool xử lý file, và mọi request
+// mang upload — multipart hoặc JSON to (ảnh base64). globalLimiter chặn LƯỢT, còn
+// đây chặn những lượt đắt, nên ngưỡng thấp hơn nhiều. Hạn mức AI theo ngày vẫn do
+// Python giữ; lớp này chỉ chặn dồn dập trong ngắn hạn.
+const HEAVY_PREFIXES = ['/api/ai', '/api/files', '/api/companion/brain', '/api/sleep/analyze'];
+const HEAVY_BODY_BYTES = 256 * 1024;
+const isHeavy = (req) => (
+  HEAVY_PREFIXES.some((p) => req.originalUrl.startsWith(p))
+  || String(req.headers['content-type'] || '').startsWith('multipart/form-data')
+  || Number(req.headers['content-length'] || 0) > HEAVY_BODY_BYTES
+);
+
+export const heavyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 0 : 60,
+  standardHeaders: false,
+  legacyHeaders: false,
+  skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || !isHeavy(req),
+  keyGenerator: subjectKey,
+  message: { error: 'Thao tác nặng quá dày, xin vui lòng thử lại sau ít phút.', code: 'HEAVY_RATE_LIMIT' },
 });

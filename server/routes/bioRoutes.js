@@ -4,6 +4,7 @@ import multer from 'multer';
 import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
+import { compressImage, IMAGE_PRESETS } from '../utils/imageCompress.js';
 import { requireAdmin, requireMember, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { COUNTRY_CODES, missingProfileFields, applyProfileValues, describeField } from '../utils/profileRequirements.js';
@@ -822,10 +823,12 @@ router.post('/me/verification', requireMember, studentVerificationLimiter, recei
       return res.status(409).json({ error: 'Bạn đã sử dụng đủ hai lần gửi hồ sơ. Hãy liên hệ hỗ trợ để được xem xét.' });
     }
 
-    const storedEvidence = await VerificationEvidence.create(evidence.map(({ file, mime }) => ({
+    // Nén trước khi ghi: chỉ lưu bản WebP đã bỏ EXIF, ảnh gốc không chạm DB.
+    const compressed = await Promise.all(evidence.map(({ file }) => compressImage(file.buffer, IMAGE_PRESETS.document)));
+    const storedEvidence = await VerificationEvidence.create(compressed.map((data) => ({
       memberId: bio._id,
-      mime,
-      data: file.buffer,
+      mime: 'image/webp',
+      data,
     })));
     createdEvidenceIds = storedEvidence.map((item) => item._id);
 
@@ -874,7 +877,8 @@ router.post('/me/verification', requireMember, studentVerificationLimiter, recei
       schoolName: normalizedSchoolName,
       schoolIdCode: schoolIdCode || '',
       phoneZalo,
-      avatarUrl: avatarUrl || '',
+      // Chỉ nhận URL ảnh đã có; base64 gửi vào đây sẽ nằm thô trong Mongo, không nén.
+      avatarUrl: /^https:\/\//.test(String(avatarUrl || '')) ? String(avatarUrl).slice(0, 2048) : '',
       evidenceFileIds: createdEvidenceIds.map(String),
       scheduleFileId: '',
       selfieFileId: '',
@@ -944,7 +948,7 @@ router.post('/me/verification', requireMember, studentVerificationLimiter, recei
       }
     }
     console.error('POST /me/verification error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({ error: error.message });
   }
 });
 

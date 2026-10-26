@@ -1492,10 +1492,7 @@ router.post('/users/:id/appeal/:appealId', requireAdmin, async (req, res) => {
     const appeal = await SecurityAppeal.findById(req.params.appealId);
     if (!appeal) return res.status(404).json({ error: 'Không tìm thấy đơn kháng nghị' });
 
-    appeal.status = decision === 'approve' ? 'approved' : 'rejected';
-    appeal.reviewedAt = new Date();
-    appeal.reviewerNote = String(note || '').slice(0, 1000);
-    await appeal.save();
+    const status = decision === 'approve' ? 'approved' : 'rejected';
 
     if (decision === 'approve') {
       const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
@@ -1505,8 +1502,12 @@ router.post('/users/:id/appeal/:appealId', requireAdmin, async (req, res) => {
       );
     }
 
+    // Có quyết định là xoá sạch: selfie trên Cloudinary lẫn bản ghi vị trí/IP.
+    const { purgeSecurityAppeal } = await import('../services/memberAccountLifecycle.js');
+    await purgeSecurityAppeal(appeal).catch((e) => console.error('[appeal purge]', e.message));
+
     await logAdminAuditAction(req, `appeal_${decision}`, null, appeal.email, `Kháng nghị mở khoá: ${decision}`, { appealId: String(appeal._id), note });
-    res.json({ success: true, status: appeal.status });
+    res.json({ success: true, status });
   } catch (err) {
     console.error('[admin] appeal review:', err);
     res.status(500).json({ error: err.message });
