@@ -193,8 +193,20 @@ async function askGroq(messages) {
   return data?.choices?.[0]?.message?.content ?? "";
 }
 
-// Model "suy nghĩ" đôi khi vẫn trả khối <think> dù đã tắt.
-const cleanReply = (text) => String(text || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+// Qwen3 trên Cloudflare có lúc lờ `/no_think`: nghĩ thành chữ ("Okay, let's see.
+// The user asked…") tới hết max_tokens, không kịp đóng </think> — đo thật trên
+// prod 26/10. Có </think> thì lấy phần sau; còn lại mà vẫn là dòng suy nghĩ thì
+// coi như hỏng để chuyển sang nguồn kế, tuyệt đối không đưa nó cho người dùng.
+const REASONING_LEAK = /<\/?think>|^(okay|ok|alright|hmm|so|let me|let's|first)\b|\bthe user\b/i;
+
+function cleanReply(text) {
+  let out = String(text || "");
+  const close = out.lastIndexOf("</think>");
+  if (close !== -1) out = out.slice(close + "</think>".length);
+  out = out.trim();
+  if (REASONING_LEAK.test(out)) throw fail("ai_reasoning_leak", 503);
+  return out;
+}
 
 /**
  * Trả { reply } hoặc ném lỗi có `status` (429 hết lượt, 503 chưa cấu hình/lỗi).
