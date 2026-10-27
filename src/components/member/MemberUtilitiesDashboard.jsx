@@ -36,6 +36,8 @@ import { prefetchAppsWhenIdle } from "./os/appIndex";
 import { announceAppLaunch } from "./os/appLaunch";
 import { prefetchChunk } from "../../utils/chunkPrefetcher";
 import HomeHeader, { RecentApps } from "./utilities/HomeHeader";
+import { memberDisplayName } from "../../lib/memberDisplayName";
+import { getMemberSession } from "../../services/api/core/authSession";
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
@@ -825,7 +827,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
         <div className="space-y-4">
-          <HomeHeader name={bio?.fullName || bio?.name} />
+          <HomeHeader name={memberDisplayName({ bio, session: getMemberSession() })} />
           <div className="apps-smartbar py-1">
             <button
               type="button"

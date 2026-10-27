@@ -1264,20 +1264,26 @@ function MemberPortalPage() {
         data-aura-theme={activePortalTheme}
       >
         {bio && !isGuestMode && !bio.isEduVerified && (
-          <div role="status" className="relative z-30 flex flex-wrap items-center justify-between gap-3 border-b border-primary/20 bg-primary/5 px-4 py-2.5 text-xs">
-            <p className="min-w-0 flex-1 text-foreground/90">
-              {bio.verificationRequest?.notifiedStatus === "rejected"
-                ? t("memberPortal.verify.reminderRejected")
+          // Một dòng như dải trong app (bản đầy đủ gãy 4 dòng, chiếm ~170px đầu
+          // mọi tab); lời giải thích dài nằm trong hộp Xác minh mở ra khi bấm.
+          <button
+            type="button"
+            role="status"
+            onClick={() => setShowVerifyModal(true)}
+            className="relative z-30 flex min-h-[40px] w-full items-center gap-2 border-b border-primary/15 bg-primary/5 px-4 text-left text-[13px] text-foreground"
+            style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+          >
+            <span className="material-symbols-outlined shrink-0 text-[18px] text-primary" aria-hidden="true">school</span>
+            <span className="min-w-0 flex-1 truncate">{t(
+              bio.verificationRequest?.notifiedStatus === "rejected"
+                ? "memberPortal.verify.reminderRejectedShort"
                 : verificationSubmitted
-                  ? t("memberPortal.verify.reminderPending")
-                  : t("memberPortal.verify.reminderText", {
-                    days: trialDaysRemaining,
-                  })}
-            </p>
-            <button type="button" onClick={() => setShowVerifyModal(true)} className="shrink-0 font-bold text-primary underline underline-offset-2">
-              {t("memberPortal.verify.reminderAction")}
-            </button>
-          </div>
+                  ? "memberPortal.verify.reminderPendingShort"
+                  : "memberPortal.verify.reminderShort",
+              { days: trialDaysRemaining },
+            )}</span>
+            <span className="shrink-0 font-bold text-primary">{t("memberPortal.verify.reminderAction")}</span>
+          </button>
         )}
         {/* Tài khoản từng bị loại khỏi nền theme vì nó tự vẽ nền tối riêng; từ khi
             dựng lại theo khuôn Today, nó dùng chung nền theme như mọi tab. */}
