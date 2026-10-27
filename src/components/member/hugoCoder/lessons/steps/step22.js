@@ -431,7 +431,7 @@ require view('header');
     {
       section: "apply",
       title: "Nghiệm thu chặng 5",
-      body: `Nhịp đạt chuẩn "đáng dùng" khi:
+      body: `**Mã nguồn chặng 5 (hoàn thiện):** [tải nhip-chang5-hoan-thien.zip](/downloads/coding/nhip-chang5-hoan-thien.zip) — giải nén để đối chiếu với bài của bạn (code và giáo trình đồng bộ).\n\nNhịp đạt chuẩn "đáng dùng" khi:
 
 - [ ] Hashtag lưu nhiều–nhiều; \`/tag/{tag}\` đúng; thẻ có dấu chạy được.
 - [ ] Nhắc tên \`@user\` tạo thông báo cho người có thật.

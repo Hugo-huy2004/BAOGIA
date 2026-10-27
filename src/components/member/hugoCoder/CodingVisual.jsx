@@ -709,7 +709,7 @@ const VISUALS = {
       <Label x={160} y={22} mono size={10} bold>body LIKE '%___%'</Label>
       <rect x="40" y="44" width="240" height="30" rx="6" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeOpacity="0.3" />
       <Label x={160} y={63} mono size={9}>{"' UNION SELECT … -- "}</Label>
-      {[["'", "đóng chuỗi gốc", 58], ["UNION SELECT", "nối truy vấn khác", 150], ["-- ", "bỏ phần đuôi", 250]].map(([t, desc, x], i) => (
+      {[["'", "đóng chuỗi gốc", 58], ["UNION SELECT", "nối truy vấn khác", 150], ["-- ", "bỏ phần đuôi", 250]].map(([, desc, x], i) => (
         <g key={desc}>
           <line x1={x} y1={74} x2={x} y2={92 + (i % 2) * 20} stroke={ACCENT} />
           <Label x={x} y={104 + (i % 2) * 20} size={9} bold>{desc}</Label>
@@ -894,6 +894,71 @@ const VISUALS = {
       ))}
       <Label x={160} y={40} size={9} muted>Mọi bảng ghi created_at từ đầu → giờ phân tích được</Label>
       <Label x={160} y={140} size={9.5} bold>Dữ liệu thô → chỉ số → quyết định</Label>
+    </>
+  ),
+  "deploy-diff": () => (
+    <>
+      <Box x={20} y={34} w={120} h={30} label="localhost" />
+      <Box x={180} y={34} w={120} h={30} label="production" accent />
+      {[["debug = true","debug = FALSE"],["127.0.0.1","sql123.host"],["HTTP","HTTPS"],["Secure: off","Secure: ON"]].map(([a,b],i)=>(
+        <g key={i}>
+          <Label x={80} y={86+i*22} size={9} mono muted>{a}</Label>
+          <Label x={240} y={86+i*22} size={9} mono bold>{b}</Label>
+        </g>
+      ))}
+      <Label x={160} y={176} size={9} muted>Mọi khác biệt nằm trong config.php + vài cờ</Label>
+    </>
+  ),
+  "deploy-layout": () => (
+    <>
+      <Box x={70} y={24} w={180} h={28} label="web root (htdocs / public_html)" />
+      <Box x={90} y={62} w={140} h={26} label="= nội dung public/" accent />
+      <Label x={160} y={104} size={9} muted>index.php · css · js · uploads</Label>
+      <Box x={70} y={120} w={180} h={28} label="thư mục CHA (ngoài web)" />
+      <Label x={160} y={162} size={9} mono>src/ · config.php · database/</Label>
+      <Label x={160} y={178} size={9} bold>Trình duyệt KHÔNG tải được config.php</Label>
+    </>
+  ),
+  "diataxis": () => (
+    <>
+      <line x1="160" y1="20" x2="160" y2="156" stroke="currentColor" strokeOpacity="0.25" />
+      <line x1="24" y1="88" x2="296" y2="88" stroke="currentColor" strokeOpacity="0.25" />
+      <Box x={28} y={30} w={112} h={44} label="Tutorial" sub="học — người mới" accent />
+      <Box x={180} y={30} w={112} h={44} label="How-to" sub="làm — DEPLOY.md" />
+      <Box x={28} y={102} w={112} h={44} label="Explanation" sub="hiểu — SECURITY.md" />
+      <Box x={180} y={102} w={112} h={44} label="Reference" sub="tra cứu — schema" accent />
+      <Label x={160} y={14} size={8.5} muted>thực hành ▲ / lý thuyết ▼</Label>
+      <Label x={160} y={176} size={9} bold>Mỗi tài liệu phục vụ MỘT nhu cầu — đừng trộn</Label>
+    </>
+  ),
+  "capstone-map": () => (
+    <>
+      <Box x={60} y={24} w={200} h={28} label="Nhịp bản mẫu (khoá)" accent />
+      {["theo dõi","thả tim","trả lời lồng","hashtag","nhắc tên","thông báo"].map((f,i)=>(
+        <g key={f}>
+          <rect x={10+(i%3)*103} y={62+Math.floor(i/3)*26} width="96" height="20" rx="5" fill={ACCENT} fillOpacity="0.1" stroke={ACCENT} strokeOpacity="0.5" />
+          <Label x={58+(i%3)*103} y={76+Math.floor(i/3)*26} size={8}>{f}</Label>
+        </g>
+      ))}
+      <Box x={60} y={122} w={200} h={26} label="+ 5 tính năng & 3 trang CỦA BẠN" />
+      <Arrow x1={160} y1={114} x2={160} y2={120} />
+      <Label x={160} y={170} size={9} bold>Dự án hoàn tất = thêm dấu ấn riêng lên nền đã có</Label>
+    </>
+  ),
+  "feature-lifecycle": () => (
+    <>
+      {[["1 Dữ liệu","bảng/cột"],["2 Model","SQL"],["3 Tuyến","controller"],["4 View","HTML"],["5 Bảo mật","CSRF·STRIDE"],["6 Tài liệu","README"]].map(([t,sub],i)=>(
+        <g key={t}>
+          <rect x={10+(i%3)*103} y={34+Math.floor(i/3)*54} width="96" height="42" rx="7" fill={ACCENT} fillOpacity={0.07+i*0.03} stroke={ACCENT} />
+          <Label x={58+(i%3)*103} y={54+Math.floor(i/3)*54} size={9} bold>{t}</Label>
+          <Label x={58+(i%3)*103} y={68+Math.floor(i/3)*54} size={8} muted>{sub}</Label>
+        </g>
+      ))}
+      <Arrow x1={106} y1={55} x2={112} y2={55} />
+      <Arrow x1={209} y1={55} x2={215} y2={55} />
+      <Arrow x1={106} y1={109} x2={112} y2={109} />
+      <Arrow x1={209} y1={109} x2={215} y2={109} />
+      <Label x={160} y={170} size={9} muted>Bỏ bước nào là nợ kỹ thuật — làm đủ 6 cho MỘT tính năng</Label>
     </>
   ),
 };

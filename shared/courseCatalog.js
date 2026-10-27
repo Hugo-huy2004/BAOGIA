@@ -13,7 +13,6 @@
  * Chỉ đọc đề cương nhẹ (stages.js), không kéo nội dung bài vào bundle.
  */
 import { STAGES, STEP_IDS } from "../src/components/member/hugoCoder/lessons/stages.js";
-import LEGACY_CERTIFICATES from "./legacyCertificates.js";
 
 export const WEB_COURSE_ID = "coding";
 
@@ -60,34 +59,3 @@ export function completedInCourse(course, completedLessons = []) {
   const done = new Set(completedLessons);
   return course.lessonIds.filter((id) => done.has(id));
 }
-
-/**
- * Chặng tra theo khoá trong đường dẫn chứng chỉ:
- *   "coding-1" hoặc "basic" → chặng 1 khoá Coding
- *   "1"                     → chặng 1 khoá Web CŨ (lesson1–100), chỉ để giấy
- *                             chứng nhận đã cấp trước 27/10/2026 vẫn mở được
- * Trả `{ course, stage, legacy? }` hoặc null.
- */
-export function resolveStageKey(key) {
-  const raw = String(key ?? "").trim();
-  if (!raw) return null;
-
-  const legacy = LEGACY_CERTIFICATES.find((item) => item.keys.includes(raw));
-  if (legacy) {
-    return {
-      legacy: true,
-      course: { id: legacy.courseId, code: legacy.courseCode, title: legacy.courseTitle },
-      stage: { ...legacy, id: `legacy-${legacy.phaseNumber}`, title: legacy.stageTitle },
-    };
-  }
-
-  const coding = getCourse(WEB_COURSE_ID);
-  const match = /^coding-(\d+)$/.exec(raw);
-  const stage = match
-    ? coding.stages.find((item) => item.phaseNumber === Number(match[1]))
-    : coding.stages.find((item) => item.id === raw);
-  return stage ? { course: coding, stage } : null;
-}
-
-/** Đường dẫn chứng chỉ của một chặng khoá Coding. */
-export const certificateKey = (phaseNumber) => `coding-${phaseNumber}`;

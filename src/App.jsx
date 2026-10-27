@@ -60,7 +60,6 @@ const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
-const CoderCertificatePage = lazyRoute(() => import("./pages/public/CoderCertificatePage"));
 const HugoLearningPage = lazyRoute(() => import("./pages/public/HugoLearningPage"));
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
@@ -257,7 +256,6 @@ function AppContent() {
           <Route path="/hugoso/:page/:sub" element={<HugoLearningPage />} />
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/b/:slug" element={<BioPublicPage />} />
-          <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
@@ -376,7 +374,6 @@ function AppContent() {
             } />
             <Route path="/bio/:slug" element={<BioPublicPage />} />
             <Route path="/b/:slug" element={<BioPublicPage />} />
-          <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

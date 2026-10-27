@@ -345,7 +345,7 @@ Trong phpMyAdmin, bảng \`login_attempts\` có các dòng với \`INET6_NTOA(ip
     {
       section: "apply",
       title: "Nghiệm thu chặng 4",
-      body: `Nhịp qua được bảng rà soát bảo mật khi:
+      body: `**Mã nguồn chặng 4 (bảo mật):** [tải nhip-chang4-bao-mat.zip](/downloads/coding/nhip-chang4-bao-mat.zip) — giải nén để đối chiếu với bài của bạn (code và giáo trình đồng bộ).\n\nNhịp qua được bảng rà soát bảo mật khi:
 
 - [ ] SQL Injection, XSS, CSRF: tấn công thử đều thất bại.
 - [ ] Tải tệp chỉ nhận ảnh thật, đã vẽ lại; thư mục cấm chạy \`.php\`.

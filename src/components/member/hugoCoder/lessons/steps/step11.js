@@ -387,7 +387,7 @@ if ($user === null) {
     {
       section: "apply",
       title: "Nghiệm thu chặng 2",
-      body: `Chặng 2 đạt khi:
+      body: `**Mã nguồn chặng 2 (PHP + MySQL):** [tải nhip-chang2-php-mysql.zip](/downloads/coding/nhip-chang2-php-mysql.zip) — giải nén để đối chiếu với bài của bạn (code và giáo trình đồng bộ).\n\nChặng 2 đạt khi:
 
 - [ ] \`includes/config.php\` + \`config.sample.php\`; ngoài \`db.php\` không tệp nào gọi \`new PDO\`.
 - [ ] Không còn \`posts.json\`, \`storage.php\`, \`data/\`.

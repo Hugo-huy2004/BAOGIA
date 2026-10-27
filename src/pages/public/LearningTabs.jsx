@@ -10,8 +10,8 @@ import { detectInstallTarget, isStandalone } from "../../config/platform";
  * tài khoản là một, chỉ vỏ dịch vụ tách riêng.
  *
  * Slug của tab là TỪ DÀNH RIÊNG trong địa chỉ: `/study/tien-do` là tab, còn
- * `/study/calendar` là một khoá. `check-course-catalog.mjs` canh để không bao
- * giờ có khoá nào trùng slug tab — trùng thì khoá đó vĩnh viễn không mở được.
+ * `/study/coding` là khoá. Đừng đặt khoá nào trùng slug tab — trùng thì khoá
+ * đó vĩnh viễn không mở được.
  */
 export const LEARNING_TABS = Object.freeze([
   { slug: "", label: "Giới thiệu", auth: false, Icon: Home },

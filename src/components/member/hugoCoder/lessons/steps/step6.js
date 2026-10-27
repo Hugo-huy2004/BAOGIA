@@ -309,7 +309,7 @@ Với \`textContent\`, bài hiện **nguyên văn** chuỗi đó — an toàn. G
     {
       section: "apply",
       title: "Nghiệm thu chặng 1",
-      body: `Bản mẫu Nhịp đạt khi:
+      body: `**Mã nguồn chặng 1 (HTML/CSS/JS):** [tải nhip-chang1-html-css-js.zip](/downloads/coding/nhip-chang1-html-css-js.zip) — giải nén để đối chiếu với bài của bạn (code và giáo trình đồng bộ).\n\nBản mẫu Nhịp đạt khi:
 
 - [ ] Đăng bài: bài mới hiện đầu bảng tin; bài trống hoặc quá 500 ký tự bị chặn.
 - [ ] Thả tim / bỏ tim đổi số và màu; điều khiển được bằng bàn phím.
