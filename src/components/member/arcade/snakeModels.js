@@ -184,7 +184,7 @@ const GEO_CACHE = {
 // ── Textures Cache ─────────────────────────────────────────────────────────
 let kiwiTextureCache = null;
 
-export function getKiwiTexture() {
+function getKiwiTexture() {
   if (kiwiTextureCache) return kiwiTextureCache;
 
   const canvas = document.createElement("canvas");

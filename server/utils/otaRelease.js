@@ -11,7 +11,7 @@
  */
 
 /** Bản phát hành hiện tại, đọc từ env — xem otaRoutes.js để biết vì sao. */
-export function currentRelease(env = process.env) {
+function currentRelease(env = process.env) {
   return {
     version: (env.OTA_VERSION || '').trim(),
     url: (env.OTA_URL || '').trim(),
@@ -21,7 +21,7 @@ export function currentRelease(env = process.env) {
 }
 
 /** So sánh semver theo SỐ. So chuỗi thì "2.0.10" < "2.0.9" — lỗi kinh điển. */
-export function compareVersions(a, b) {
+function compareVersions(a, b) {
   const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
   const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
   for (let i = 0; i < Math.max(pa.length, pb.length); i++) {

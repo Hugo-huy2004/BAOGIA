@@ -47,18 +47,6 @@ export const DEFAULT_DENOM = "vi";
  */
 export const BASE_DENOM = "vi";
 
-/** Danh sách chọn theo ngôn ngữ — đều trả về 1 đơn vị JOY duy nhất. */
-export const DENOM_ACCOUNT_OPTIONS = Object.entries(JOY_DENOMS).map(([key, denom]) => ({
-  key,
-  ...denom,
-  localeKeys: [key],
-}));
-
-/** Danh sách đơn vị hiển thị chuẩn — 1 đơn vị JOY duy nhất. */
-export const DENOM_OPTIONS = [
-  { key: "vi", code: "JOY", name: "JOY", factor: 1, localeKeys: Object.keys(JOY_DENOMS) }
-];
-
 /** Không có phí đổi đơn vị vì chỉ có 1 đơn vị JOY duy nhất. */
 export const CROSS_DENOM_FEE = 0;
 
@@ -68,7 +56,7 @@ export function denomKey(language) {
   return JOY_DENOMS[base] ? base : DEFAULT_DENOM;
 }
 
-export const denomOf = (language) => JOY_DENOMS[denomKey(language)];
+const denomOf = (language) => JOY_DENOMS[denomKey(language)];
 
 /** Hệ số luôn bằng 1 — 1 JOY duy nhất, không nhân chia quy đổi. */
 export function factorOf() {
@@ -118,7 +106,7 @@ export function convertDenom(amount, fromLanguage, toLanguage) {
 }
 
 /** Hai đơn vị này có phải đổi tiền không (es/fr cùng JOY€ nên KHÔNG tính). */
-export const isCrossDenom = (a, b) => denomOf(a).code !== denomOf(b).code;
+const isCrossDenom = (a, b) => denomOf(a).code !== denomOf(b).code;
 
 /**
  * Bảng số của một lần gửi JOY. Phí CỘNG THÊM vào phần người gửi trả — người nhận

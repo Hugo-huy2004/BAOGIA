@@ -50,11 +50,6 @@ export function recentIds(scope, limit = LIMIT) {
     .map((entry) => entry.id);
 }
 
-/** Lần mở gần nhất của một mục, dạng timestamp — null nếu chưa mở bao giờ. */
-export function lastOpenedAt(scope, id = "__app__") {
-  return read()[scope]?.find((entry) => entry.id === id)?.at ?? null;
-}
-
 /** Số lượt mở app, dùng để xếp hạng Spotlight. Mới hơn thì đứng trước. */
 export function appOpenOrder() {
   const all = read();
@@ -64,6 +59,3 @@ export function appOpenOrder() {
     .map((entry) => entry.scope);
 }
 
-export function clearUsage() {
-  write({});
-}

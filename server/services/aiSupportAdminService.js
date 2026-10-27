@@ -15,7 +15,7 @@ import { sendTelegramAlert } from './telegramService.js';
  *   5. Ghi nhận phản hồi của Boss khi trả lời ticket để học máy tự động (Self-learning loop).
  */
 
-export function detectSentiment(text) {
+function detectSentiment(text) {
   if (!text || typeof text !== 'string') return 'neutral';
   const lower = text.toLowerCase();
   const angryKeywords = ['lừa đảo', 'khóa tài khoản', 'mất tiền', 'chửi', 'tội', 'bức xúc', 'tệ', 'bẩn', 'tố cáo', 'tải quá lâu', 'nổ'];

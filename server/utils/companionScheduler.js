@@ -33,7 +33,7 @@ function getVietnamDateStr(dateInput) {
 /**
  * Chạy kiểm tra và gửi thông báo nhắc nhở
  */
-export async function runCompanionReminders(timeStr) {
+async function runCompanionReminders(timeStr) {
   try {
     console.log(`[Companion Scheduler] Bắt đầu quét người dùng cần nhắc nhở lúc ${timeStr}...`);
     

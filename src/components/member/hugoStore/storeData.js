@@ -44,8 +44,8 @@ const decorate = ({ id, tint, store: { game, planId } }) => ({
   get tagline() { return i18n.t(`utilities.catalog.${id}.description`); },
 });
 
-export const STORE_APPS = APP_STORE_MANIFESTS.filter(app => !app.store.game).map(decorate);
-export const STORE_GAMES = APP_STORE_MANIFESTS.filter(app => app.store.game).map(decorate);
+const STORE_APPS = APP_STORE_MANIFESTS.filter(app => !app.store.game).map(decorate);
+const STORE_GAMES = APP_STORE_MANIFESTS.filter(app => app.store.game).map(decorate);
 export const STORE_ITEMS = [...STORE_APPS, ...STORE_GAMES];
 
 const APP_INDEX = new Map(STORE_ITEMS.map(app => [app.id, app]));

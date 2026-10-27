@@ -83,6 +83,4 @@ export const sinoWithDigits = (value, locale = "vi-VN") =>
 
 /** Đơn vị đếm quen dùng trong văn thư: nhật (ngày), nguyệt (tháng), niên (năm). */
 export const sinoDays = (n, locale) => `${sino(n)} nhật (${Number(n || 0).toLocaleString(locale)} ngày)`;
-export const sinoMonths = (n, locale) => `${sino(n)} nguyệt (${Number(n || 0).toLocaleString(locale)} tháng)`;
-
 export default { sino, sinoWithDigits, sinoDays };

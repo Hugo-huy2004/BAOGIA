@@ -14,7 +14,7 @@ const STAGE_OPTIONS = [
 // Nhận diện link YouTube để nhúng preview. Dùng youtube-nocookie: trình phát
 // chính chủ (YouTube cho phép nhúng) nhưng không đặt cookie theo dõi trước khi
 // người xem bấm play.
-export function toYouTubeEmbed(url) {
+function toYouTubeEmbed(url) {
   const m = String(url || "").match(
     /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,20})/i
   );

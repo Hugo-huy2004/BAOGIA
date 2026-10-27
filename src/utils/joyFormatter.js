@@ -18,14 +18,6 @@ export const JOY_UNITS = {
   JOYzo: { key: 'JOYzo', label: 'Zoma (JOYzo)', multiplier: 150, desc: 'Zoma (150 JOY)' }
 };
 
-export const FIAT_EXCHANGE_RATES = {
-  VND: { code: 'VND', symbol: '₫', ratePerJoy: 1000, label: 'Việt Nam Đồng (VND)', locale: 'vi-VN' },
-  USD: { code: 'USD', symbol: '$', ratePerJoy: 0.04, label: 'Đô la Mỹ (USD)', locale: 'en-US' },
-  EUR: { code: 'EUR', symbol: '€', ratePerJoy: 0.037, label: 'Euro (EUR)', locale: 'de-DE' },
-  JPY: { code: 'JPY', symbol: '¥', ratePerJoy: 6.0, label: 'Yên Nhật (JPY)', locale: 'ja-JP' },
-  KRW: { code: 'KRW', symbol: '₩', ratePerJoy: 55.0, label: 'Won Hàn Quốc (KRW)', locale: 'ko-KR' }
-};
-
 /**
  * Format a JOY balance with standard thousand separators.
  */
@@ -64,30 +56,6 @@ export function formatJoyDual(amount) {
     return formatJoy(num);
   }
   return `${formatJoy(num)} (${formatJoyCompact(num)})`;
-}
-
-/**
- * Convert JOY amount to Fiat currency equivalent string.
- */
-export function formatJoyFiat(amountJoy, currencyCode = 'VND') {
-  const num = Number(amountJoy) || 0;
-  const fiatInfo = FIAT_EXCHANGE_RATES[currencyCode] || FIAT_EXCHANGE_RATES.VND;
-  const fiatVal = num * fiatInfo.ratePerJoy;
-
-  if (fiatInfo.code === 'VND') {
-    return `${Math.round(fiatVal).toLocaleString('vi-VN')} ₫`;
-  }
-  return `${fiatInfo.symbol}${fiatVal.toLocaleString(fiatInfo.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-/**
- * Format JOY in triple representation: Dual JOY + National Fiat Equivalent.
- */
-export function formatJoyFullWithFiat(amountJoy, currencyCode = 'VND') {
-  const joyStr = formatJoyDual(amountJoy);
-  const fiatStr = formatJoyFiat(amountJoy, currencyCode);
-  const usdStr = formatJoyFiat(amountJoy, 'USD');
-  return `${joyStr} ≈ ${fiatStr} (${usdStr})`;
 }
 
 /**

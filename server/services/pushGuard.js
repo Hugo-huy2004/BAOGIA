@@ -55,7 +55,7 @@ export function isQuietHours(date = new Date()) {
 }
 
 /** Khung giờ vàng đầu tiên SAU `after`. */
-export function nextPrimeSlot(after = new Date()) {
+function nextPrimeSlot(after = new Date()) {
   const vn = new Date(after.getTime() + VN_OFFSET_MS);
   for (let day = 0; day < 2; day += 1) {
     for (const [h, m] of PRIME_SLOTS) {

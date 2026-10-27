@@ -47,7 +47,3 @@ export function initOnboardingReminderService() {
   console.log('Đã thiết lập Cron Job: Nhắc hoàn tất hồ sơ (10:00 hàng ngày)');
 }
 
-// Gọi tay để thử ngay (ví dụ qua một API ẩn của admin).
-export async function triggerOnboardingReminderNow() {
-  await runOnboardingReminderJob();
-}

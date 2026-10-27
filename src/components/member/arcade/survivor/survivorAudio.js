@@ -185,32 +185,6 @@ export function playEnemyLaser(panX = 0) {
   osc.stop(now + 0.1);
 }
 
-// ── NGƯ LÔI ION / TÊN LỬA TỰ DẪN ────────────────────────────────────────────
-export function playTorpedoLaunch(panX = 0) {
-  if (isMuted) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  const now = ctx.currentTime;
-
-  const masterGain = ctx.createGain();
-  connectWithPanner(ctx, masterGain, panX);
-
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(280, now);
-  osc.frequency.linearRampToValueAtTime(1200, now + 0.18);
-
-  gain.gain.setValueAtTime(0.001, now);
-  gain.gain.linearRampToValueAtTime(0.18, now + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-
-  osc.connect(gain);
-  gain.connect(masterGain);
-  osc.start(now);
-  osc.stop(now + 0.24);
-}
-
 // ── TIẾNG NỔ CHIẾN HẠM / TÀU ĐỊCH: NỔ TO, UY LỰC, SUB-BASS RỀN VANG ─────────────
 export function playExplosion3D(size = 0.5, panX = 0) {
   if (isMuted) return;

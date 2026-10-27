@@ -158,7 +158,7 @@ export function suggest(metrics, policy) {
 }
 
 /** Áp quyết định của admin. Trả về hệ số mới. */
-export async function applyDecision({ action, decidedBy = 'telegram_admin', snapshot = null, suggested = '' }) {
+async function applyDecision({ action, decidedBy = 'telegram_admin', snapshot = null, suggested = '' }) {
   const policy = await JoyPolicy.current();
   const from = policy.issuanceMultiplier;
   let to = from;
@@ -186,7 +186,7 @@ export async function currentMultiplier() {
 }
 
 /** Báo cáo tuần dạng chữ, dùng cho Telegram (HTML). */
-export function formatReport(metrics, suggestion, policy, survey = null) {
+function formatReport(metrics, suggestion, policy, survey = null) {
   const n = (v) => Number(v || 0).toLocaleString('vi-VN');
   const rate = metrics.recoveryRate === null ? '—' : `${Math.round(metrics.recoveryRate * 100)}%`;
   const ACTION_LABEL = { increase: '📈 Nên TĂNG', decrease: '📉 Nên GIẢM', hold: '⏸ Nên GIỮ NGUYÊN' };

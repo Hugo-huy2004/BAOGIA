@@ -1,5 +1,6 @@
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { limiterStore } from '../config/limiter.js';
 import {
   loginWithGoogle,
   requestMemberOtp,
@@ -35,6 +36,7 @@ function loginSubject(req) {
 // chưa có chữ ký edge thì mọi người chung IP Vercel: 200 người vào cùng giờ là
 // người thứ 31 trở đi không đăng nhập được.
 const googleLoginLimiter = rateLimit({
+  ...limiterStore('login'),
   windowMs: 15 * 60 * 1000,
   max: isProd ? 30 : 1000,
   standardHeaders: true,
@@ -46,6 +48,7 @@ const googleLoginLimiter = rateLimit({
 // Trần tổng theo IP, đủ rộng cho cả hội trường sau một NAT (hay một IP Vercel),
 // đủ chặt để một máy không xoay vô hạn email giả.
 const loginIpCeiling = rateLimit({
+  ...limiterStore('login-ip'),
   windowMs: 15 * 60 * 1000,
   max: isProd ? 1500 : 10000,
   standardHeaders: false,
@@ -56,6 +59,7 @@ const loginIpCeiling = rateLimit({
 // OTP gửi email thật (tốn tiền, dễ bị dùng để spam hộp thư người khác): mỗi
 // địa chỉ 5 lần / 15 phút, ngoài trần tổng ở trên.
 const otpEmailLimiter = rateLimit({
+  ...limiterStore('otp'),
   windowMs: 15 * 60 * 1000,
   max: isProd ? 5 : 1000,
   standardHeaders: true,

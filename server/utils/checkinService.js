@@ -11,14 +11,14 @@ export function todayStr() {
   return toDateStr(new Date());
 }
 
-export function yesterdayStr(dateStr) {
+function yesterdayStr(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() - 1);
   return toDateStr(d);
 }
 
 /** Monday of the ISO week containing dateStr, as 'YYYY-MM-DD'. */
-export function getWeekStart(dateStr) {
+function getWeekStart(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   const isoDay = (d.getDay() + 6) % 7; // Mon=0 ... Sun=6
   d.setDate(d.getDate() - isoDay);
@@ -26,13 +26,13 @@ export function getWeekStart(dateStr) {
 }
 
 /** 1 (Monday) .. 7 (Sunday) */
-export function getDayOfWeek(dateStr) {
+function getDayOfWeek(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
   return ((d.getDay() + 6) % 7) + 1;
 }
 
 // Base daily rewards x3.
-export function rewardForDay(dayOfWeek) {
+function rewardForDay(dayOfWeek) {
   if (dayOfWeek === 1) return 150;
   if (dayOfWeek === 7) return 450;
   return 240;

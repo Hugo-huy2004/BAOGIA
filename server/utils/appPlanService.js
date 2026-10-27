@@ -35,7 +35,7 @@ export function isPlanApp(appId) {
 }
 
 /** Giá sở hữu, làm tròn tới trăm cho dễ đọc trên bảng giá. */
-export function ownPriceJoy(appId) {
+function ownPriceJoy(appId) {
   const plan = APP_PLANS[appId];
   if (!plan) return 0;
   const monthly = FEATURE_PRICES[plan.featureKey] || 0;
@@ -74,7 +74,7 @@ export function planLadder(appId) {
 }
 
 /** Khoá `item` để dùng lại đúng hoá đơn /joy/exchange-quote có sẵn. */
-export const ownExchangeItemKey = (appId) => `own_${appId}`;
+const ownExchangeItemKey = (appId) => `own_${appId}`;
 
 /** Bảng item sở hữu, sinh từ APP_PLANS để khỏi gõ tay 5 dòng trùng nhau. */
 export function ownExchangeItems() {
@@ -99,12 +99,12 @@ export function isOwned(bio, appId) {
   return Boolean(trialRecord(bio, appId)?.owned);
 }
 
-export function isTrialActive(bio, appId) {
+function isTrialActive(bio, appId) {
   const endsAt = trialRecord(bio, appId)?.trialEndsAt;
   return Boolean(endsAt) && new Date(endsAt).getTime() > Date.now();
 }
 
-export function hasUsedTrial(bio, appId) {
+function hasUsedTrial(bio, appId) {
   return Boolean(trialRecord(bio, appId)?.trialStartedAt);
 }
 
@@ -173,7 +173,7 @@ function writePlanRecord(bioDoc, appId, patch) {
 }
 
 /** Ghi quyền sở hữu lên hồ sơ (chỉ mutate, không lưu, không trừ tiền). */
-export function grantOwnership(bioDoc, appId, { giftedBy = null } = {}) {
+function grantOwnership(bioDoc, appId, { giftedBy = null } = {}) {
   const plan = APP_PLANS[appId];
   if (!plan) throw new Error('Ứng dụng không hợp lệ.');
   if (plan.ownFlag) bioDoc[plan.ownFlag] = true;

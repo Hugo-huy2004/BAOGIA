@@ -295,7 +295,7 @@ export const BOT_TIERS = {
 export const GRID_SIZE = 4;
 let tileSeq = 0;
 
-export const createTile = (level, extra = {}) => ({
+const createTile = (level, extra = {}) => ({
   id: `bot-${++tileSeq}-${Date.now()}`,
   level: Math.min(20, Math.max(1, level)),
   ...extra,
@@ -309,7 +309,7 @@ export const createIceTile = (turns = 4, extra = {}) => ({
   ...extra,
 });
 
-export function emptyGrid() {
+function emptyGrid() {
   return Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
 }
 
@@ -369,7 +369,7 @@ export function getBotMergePoints(level, isTriple = false) {
 }
 
 // Slide line
-export function slideLine(line) {
+function slideLine(line) {
   const tiles = line.filter((t) => t !== null);
   const out = [];
   let i = 0;

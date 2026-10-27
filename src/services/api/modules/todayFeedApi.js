@@ -3,7 +3,7 @@ import { languageCode } from "../../../i18n/languages";
 
 // Phải khớp NEWS_EDITIONS ở server/services/studentNewsService.js: lệch một
 // mã là client xin ấn bản server không có và feed rơi về bản tiếng Anh.
-export const TODAY_NEWS_EDITIONS = Object.freeze({
+const TODAY_NEWS_EDITIONS = Object.freeze({
   vi: "VN",
   en: "US",
   zh: "CN",
@@ -34,7 +34,7 @@ function assertTodayFeedEdition(feed, language) {
   throw error;
 }
 
-export function isTodayArticleForLanguage(payload, language) {
+function isTodayArticleForLanguage(payload, language) {
   const expected = normalizedEdition(language);
   const article = payload?.article;
   return Boolean(
@@ -48,8 +48,6 @@ export function isTodayArticleForLanguage(payload, language) {
 // log mọi phản hồi 4xx nên không nuốt được từ JS — cách duy nhất cho console
 // sạch là đừng gọi nữa. Nhớ trong phiên này, tới khi người dùng bấm "Thử lại".
 let readerEndpointMissing = false;
-export const retryReaderEndpoint = () => { readerEndpointMissing = false; };
-
 export const todayFeedApi = {
   // Ngôn ngữ quyết định luôn thị trường tin và múi giờ ấn bản ở phía server.
   getFeed({ language = "vi", category = "all", topic = "", query = "", page = 1, limit = 12, signal } = {}) {

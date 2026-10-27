@@ -19,9 +19,9 @@ export const SELECTABLE_LANGUAGES = SUPPORTED_LANGUAGES.filter(({ code }) => cod
 // One app-owned key is the source of truth. `i18nextLng` and `ui-store` are
 // kept as migration targets because older releases wrote the preference there.
 export const APP_LANGUAGE_STORAGE_KEY = "hugo-language";
-export const LEGACY_I18NEXT_LANGUAGE_STORAGE_KEY = "i18nextLng";
-export const LEGACY_UI_STORAGE_KEY = "ui-store";
-export const DEFAULT_LANGUAGE = "vi";
+const LEGACY_I18NEXT_LANGUAGE_STORAGE_KEY = "i18nextLng";
+const LEGACY_UI_STORAGE_KEY = "ui-store";
+const DEFAULT_LANGUAGE = "vi";
 
 const LANGUAGE_BY_CODE = new Map(SUPPORTED_LANGUAGES.map((language) => [language.code, language]));
 

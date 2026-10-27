@@ -67,7 +67,7 @@ export function useKeyboardVisible(threshold = 150) {
 // COMPOSITOR thread, so a bar positioned with it rides the keyboard animation
 // with zero JS and zero jank. We opt in once here; callers then position with
 // CSS env() instead of a JS transform.
-export const hasVirtualKeyboardAPI =
+const hasVirtualKeyboardAPI =
   typeof navigator !== "undefined" && "virtualKeyboard" in navigator;
 
 export function useVirtualKeyboardOptIn() {

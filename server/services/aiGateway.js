@@ -89,9 +89,6 @@ export function getQuotaStatus() {
   };
 }
 
-// Test-only reset so quota state doesn't leak between test cases.
-export function __resetQuota() { minuteHits = []; dayStart = startOfToday(); dayCount = 0; tokensToday = 0; consecFailures = 0; }
-
 // ── Response cache ──
 const cache = new Map();
 const CACHE_MAX = 600;

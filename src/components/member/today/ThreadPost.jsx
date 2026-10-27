@@ -85,7 +85,7 @@ function clampText(text) {
   return text.slice(0, space > CLAMP - 40 ? space : CLAMP);
 }
 
-export function relativeTime(value, language) {
+function relativeTime(value, language) {
   const seconds = Math.round((new Date(value).getTime() - Date.now()) / 1000);
   const rtf = new Intl.RelativeTimeFormat(language, { style: "narrow", numeric: "auto" });
   for (const [unit, size] of [["year", 31536000], ["month", 2592000], ["week", 604800], ["day", 86400], ["hour", 3600], ["minute", 60]]) {

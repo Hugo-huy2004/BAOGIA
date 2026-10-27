@@ -14,8 +14,8 @@
  * Một nguồn số thì không lệch được nữa.
  */
 export const CLOSE_BUTTON_EDGE = 14;   // px, khoảng cách tới mép màn (khớp `right` ở MemberUtilitiesTab)
-export const CLOSE_BUTTON_SIZE = 36;   // px, bề ngang lớn nhất (h-9 w-9 từ breakpoint sm)
-export const CLOSE_BUTTON_GAP = 10;    // px, khoảng thở giữa nút X và thứ đứng cạnh nó
+const CLOSE_BUTTON_SIZE = 36;   // px, bề ngang lớn nhất (h-9 w-9 từ breakpoint sm)
+const CLOSE_BUTTON_GAP = 10;    // px, khoảng thở giữa nút X và thứ đứng cạnh nó
 
 /** Bề ngang mà thanh tiêu đề phải chừa trống bên phải để không đụng nút X. */
 export const CLOSE_BUTTON_RESERVE =

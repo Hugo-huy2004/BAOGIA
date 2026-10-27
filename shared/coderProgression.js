@@ -7,11 +7,11 @@ export const CODER_STAGE_SEQUENCE = Object.freeze(
 
 const lessonIdFor = (number) => `step${number}`;
 
-export function getCoderStage(stageId) {
+function getCoderStage(stageId) {
   return CODER_STAGE_SEQUENCE.find((stage) => stage.id === stageId) || null;
 }
 
-export function getCoderStageForLesson(lessonId) {
+function getCoderStageForLesson(lessonId) {
   const match = /^step(\d{1,3})$/.exec(String(lessonId || ""));
   if (!match) return null;
   const lessonNumber = Number(match[1]);

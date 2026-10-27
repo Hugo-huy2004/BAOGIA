@@ -14,7 +14,7 @@ import { sendMagicLinkOtp } from '../../services/emailService.js';
 import { isDeletedMemberAccount } from '../../utils/deletedMemberAccount.js';
 
 export const isProduction = process.env.NODE_ENV === 'production';
-export const MEMBER_COOKIE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+const MEMBER_COOKIE_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
 const googleAuthClient = new OAuth2Client();
 const TRANSIENT_GOOGLE_ERRORS = new Set([
   'ECONNRESET',
@@ -24,7 +24,7 @@ const TRANSIENT_GOOGLE_ERRORS = new Set([
   'ECONNREFUSED',
 ]);
 
-export const setMemberCookie = (res, token) => {
+const setMemberCookie = (res, token) => {
   res.cookie('member_jwt', token, {
     httpOnly: true,
     secure: isProduction,

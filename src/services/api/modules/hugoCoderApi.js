@@ -2,7 +2,7 @@ import { getMemberSession } from "../core/authSession";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
-export class HugoCoderApiError extends Error {
+class HugoCoderApiError extends Error {
   constructor(message, status = 0) {
     super(message);
     this.name = "HugoCoderApiError";

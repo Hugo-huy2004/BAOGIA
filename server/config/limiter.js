@@ -2,12 +2,70 @@
  * CẤU HÌNH RATE LIMITING CHO SERVER
  * Tuân thủ Quy tắc 4 (Viblo): Cấu hình tập trung trong thư mục config/
  */
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator, MemoryStore } from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { recordSecurityViolation } from '../services/securityEnforcement.js';
+import { RedisStore } from 'rate-limit-redis';
+import redis from './redis.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
+
+// Bộ đếm dùng chung qua Redis khi có REDIS_URL: Render khởi động lại (deploy,
+// hết RAM) không còn xoá sạch bộ đếm, và chạy nhiều instance vẫn đếm chung.
+// Một kết nối riêng (không đụng kết nối pub/sub).
+const limiterRedis = redis?.duplicate();
+limiterRedis?.on('error', () => {});
+
+/**
+ * Redis trước, RAM khi Redis lỗi. Upstash gói Free hết hạn mức tháng thì trả lỗi
+ * cho mọi lệnh; nếu chỉ "cho qua khi lỗi" thì lúc đó KHÔNG còn trần lượt nào —
+ * đúng lúc đông người nhất. Rơi về bộ đếm trong RAM giữ được trần (theo từng
+ * instance), và tự quay lại Redis ngay khi Redis trả lời được.
+ */
+class FallbackStore {
+  constructor(primary) {
+    this.primary = primary;
+    this.memory = new MemoryStore();
+    this.localKeys = false;
+  }
+
+  init(options) {
+    this.primary.init?.(options);
+    this.memory.init(options);
+  }
+
+  async get(key) {
+    try { return await this.primary.get(key); } catch { return this.memory.get(key); }
+  }
+
+  async increment(key) {
+    try { return await this.primary.increment(key); } catch { return this.memory.increment(key); }
+  }
+
+  async decrement(key) {
+    await Promise.allSettled([this.primary.decrement(key), this.memory.decrement(key)]);
+  }
+
+  async resetKey(key) {
+    await Promise.allSettled([this.primary.resetKey(key), this.memory.resetKey(key)]);
+  }
+
+  shutdown() {
+    this.memory.shutdown?.();
+  }
+}
+
+export function limiterStore(prefix) {
+  if (!limiterRedis) return {};
+  const redisStore = new RedisStore({ prefix: `rl:${prefix}:`, sendCommand: (...args) => limiterRedis.call(...args) });
+  // Lúc khởi động Redis chưa kết nối xong nên lần nạp script đầu có thể hỏng;
+  // store tự nạp lại ở lượt đếm sau. Bắt lỗi ở đây để nó không thành
+  // unhandledRejection (báo động Telegram/Sentry giả mỗi lần deploy).
+  redisStore.incrementScriptSha?.catch?.(() => {});
+  redisStore.getScriptSha?.catch?.(() => {});
+  return { store: new FallbackStore(redisStore), passOnStoreError: true };
+}
 export const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 
 // Đếm theo tài khoản khi có token hợp lệ: IP sau proxy (Vercel → Cloudflare) không
@@ -56,6 +114,7 @@ setInterval(() => {
 }, 60 * 1000).unref();
 
 export const globalLimiter = rateLimit({
+  ...limiterStore('global'),
   windowMs: 15 * 60 * 1000,
   // Thành viên đếm theo tài khoản: 1500/15 phút. Khách ẩn danh đếm theo IP mà IP
   // có thể là của Vercel (chung cho mọi người chưa đăng nhập) nên trần rộng hơn;
@@ -101,6 +160,7 @@ export const isHeavy = (req) => (
 );
 
 export const heavyLimiter = rateLimit({
+  ...limiterStore('heavy'),
   windowMs: 15 * 60 * 1000,
   max: isDev ? 0 : 60,
   standardHeaders: false,

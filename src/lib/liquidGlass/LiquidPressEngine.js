@@ -32,7 +32,7 @@ const MOVE_CANCEL_PX = 10;
 const SMALL_CONTROL_PX = 120;
 
 /** Đường cong lò xo thật → chuỗi `linear()` cho CSS/WAAPI. */
-export class SpringCurve {
+class SpringCurve {
   constructor({ stiffness = 300, damping = 22, mass = 1 } = {}) {
     this.stiffness = stiffness;
     this.damping = damping;

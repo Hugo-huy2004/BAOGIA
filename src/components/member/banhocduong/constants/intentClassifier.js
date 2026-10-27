@@ -90,7 +90,7 @@ function getLatestBigFive(historyLogs) {
   return logs.length > 0 ? logs[logs.length - 1].traits : null;
 }
 
-export function buildMetricsSummary(historyLogs = []) {
+function buildMetricsSummary(historyLogs = []) {
   const phq9Logs = historyLogs.filter(l => l.test === "phq9");
   const gad7Logs = historyLogs.filter(l => l.test === "gad7");
   const who5Logs = historyLogs.filter(l => l.test === "who5");
@@ -112,7 +112,7 @@ export function buildMetricsSummary(historyLogs = []) {
   return [lines.join("\n"), anySevere ? "Mấy chỉ số này đang ở mức cao — cậu muốn tớ mở luôn liệu pháp phù hợp không?" : "Nhìn chung là ổn đó, cứ duy trì nhịp chăm sóc bản thân như vậy nha!"];
 }
 
-export function getDiceSimilarity(str1, str2) {
+function getDiceSimilarity(str1, str2) {
   const getBigrams = (str) => {
     const bigrams = new Set();
     for (let i = 0; i < str.length - 1; i++) bigrams.add(str.substring(i, i + 2));
@@ -130,7 +130,7 @@ export function getDiceSimilarity(str1, str2) {
   return (2.0 * intersection) / (b1.size + b2.size);
 }
 
-export function getSimilarityScore(s1, s2) {
+function getSimilarityScore(s1, s2) {
   return Math.max(getDiceSimilarity(s1, s2), getDiceSimilarity(removeVietnameseTones(s1), removeVietnameseTones(s2)));
 }
 

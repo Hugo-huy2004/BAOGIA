@@ -61,9 +61,6 @@ export const PROJECT_UNIT_PRICES = [
 
 const ALL_OPTIONS = PROJECT_PACKAGE_GROUPS.flatMap((g) => g.options.map((o) => ({ ...o, group: g.id })));
 
-/** Danh sách phẳng để kiểm tra nhanh ở máy chủ. */
-export const PROJECT_PACKAGE_IDS = ALL_OPTIONS.map((o) => o.id);
-
 /** Đổi id / tên cũ / tên hiển thị về id chuẩn. Trả '' nếu không nhận ra. */
 export function normalizePackageId(value) {
   const v = String(value || '').trim();
@@ -129,8 +126,6 @@ export function warrantyUntil(packageId, completedAt) {
   return end;
 }
 
-export const isLifetimeWarranty = (packageId) => getPackageFacts(packageId)?.warranty === LIFETIME;
-
 /**
  * In số tiền theo loại tiền của dự án: "1.290.000₫" hoặc "$219". Chỉ dùng lúc
  * in — tính toán luôn trên số (VNĐ nguyên, USD có thể lẻ xu).
@@ -140,4 +135,3 @@ export function formatMoney(n, currency = 'vnd') {
   if (currency === 'usd') return `${v < 0 ? '−' : ''}$${Math.abs(v).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
   return `${v < 0 ? '−' : ''}${Math.abs(Math.round(v)).toLocaleString('vi-VN')}₫`;
 }
-export const formatVnd = (n) => formatMoney(n, 'vnd');

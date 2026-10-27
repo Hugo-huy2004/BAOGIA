@@ -83,11 +83,3 @@ export function buildLocalReply(userText = "", opts = {}) {
   };
 }
 
-export function streamLocalReply(userText, onChunk, onDone, opts = {}) {
-  const result = buildLocalReply(userText, opts);
-  onChunk?.(result.reply);
-  setTimeout(() => {
-    onDone?.(result);
-  }, 100);
-}
-

@@ -246,7 +246,7 @@ export function inverseCommand(command, before = {}) {
 // đây: kênh duy nhất là Telegram, gửi mã về đúng khung chat vừa bấm thì chỉ là
 // thêm một nút nữa. Thứ thật sự chặn được lỗi TAY NHANH HƠN ĐẦU là bắt gõ lại
 // một câu — máy không gõ hộ, và AI cũng không.
-export const TYPED_CONFIRM = {
+const TYPED_CONFIRM = {
   maintenance: 'BAT BAO TRI',
 };
 

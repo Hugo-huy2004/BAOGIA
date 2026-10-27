@@ -44,7 +44,7 @@ const SCHEMES = {
   },
 };
 
-export const IOS_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
+const IOS_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", system-ui, sans-serif';
 
 export const vnd = (n) => `${Number(n || 0).toLocaleString("vi-VN")}đ`;
 
@@ -181,112 +181,6 @@ export function TabBar({ items, value, onChange, embedded = false }) {
         );
       })}
     </nav>
-  );
-}
-
-/**
- * Khung ứng dụng hai dạng: điện thoại (status bar + nav + tab bar dưới) và
- * desktop (sidebar trái + thanh công cụ trên). Demo chỉ khai báo một danh sách
- * tab duy nhất, không phải viết hai bộ điều hướng.
- */
-export function AppShell({ isMobile, brand, tabs, value, onChange, title, subtitle, actions, sidebarNote, bottomBar, children }) {
-  const [scrolled, setScrolled] = useState(false);
-
-  if (isMobile) {
-    return (
-      <>
-        <StatusBar show />
-        <NavBar
-          scrolled={scrolled}
-          title={title}
-          subtitle={subtitle}
-          left={brand?.icon ? <span className="material-symbols-outlined text-[24px]" style={{ color: "var(--ax)" }}>{brand.icon}</span> : null}
-          right={actions}
-        />
-        <Scroll onScrolledChange={setScrolled} className="px-4 pb-6">{children}</Scroll>
-        {bottomBar && <div className="px-4 pb-2">{bottomBar}</div>}
-        <TabBar items={tabs} value={value} onChange={onChange} />
-      </>
-    );
-  }
-
-  return (
-    <div className="flex min-h-0 flex-1">
-      <aside
-        className="flex w-[212px] shrink-0 flex-col px-3 py-4"
-        style={{ background: "var(--ios-surface)", borderRight: "0.5px solid var(--ios-sep)" }}
-      >
-        <div className="flex items-center gap-2 px-2 pb-4">
-          {brand?.icon && (
-            <span className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ background: "var(--ax)" }}>
-              <span className="material-symbols-outlined text-[20px] text-white">{brand.icon}</span>
-            </span>
-          )}
-          <span className="min-w-0">
-            <span className="block truncate text-[15px] font-semibold">{brand?.name}</span>
-            {brand?.note && <span className="block truncate text-[12px]" style={{ color: "var(--ios-label-2)" }}>{brand.note}</span>}
-          </span>
-        </div>
-
-        <nav className="flex flex-col gap-0.5">
-          {tabs.map((tab) => {
-            const active = value === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onChange(tab.id)}
-                aria-current={active ? "page" : undefined}
-                className="flex min-h-[38px] items-center gap-2.5 rounded-[9px] px-2.5 text-left text-[15px] font-medium transition-colors"
-                style={active ? { background: "var(--ax)", color: "#fff" } : { color: "var(--ios-label)" }}
-              >
-                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>
-                  {tab.icon}
-                </span>
-                <span className="min-w-0 flex-1 truncate">{tab.label}</span>
-                {tab.badge > 0 && (
-                  <span
-                    className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[11px] font-semibold"
-                    style={active ? { background: "rgba(255,255,255,0.28)", color: "#fff" } : { background: "#FF3B30", color: "#fff" }}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {sidebarNote && <div className="mt-auto px-2 pt-4 text-[12px] leading-snug" style={{ color: "var(--ios-label-2)" }}>{sidebarNote}</div>}
-      </aside>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header
-          className="flex min-h-[54px] shrink-0 items-center justify-between gap-3 px-6"
-          style={{ borderBottom: "0.5px solid var(--ios-sep)", background: "var(--ios-chrome)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
-        >
-          <div className="min-w-0">
-            <h1 className="truncate text-[20px] font-bold tracking-[-0.02em]">{title}</h1>
-            {subtitle && <p className="truncate text-[13px]" style={{ color: "var(--ios-label-2)" }}>{subtitle}</p>}
-          </div>
-          <div className="flex shrink-0 items-center gap-3">{actions}</div>
-        </header>
-        <Scroll onScrolledChange={setScrolled} className="px-6 py-5">{children}</Scroll>
-        {bottomBar && (
-          <div className="shrink-0 px-6 py-3" style={{ borderTop: "0.5px solid var(--ios-sep)" }}>{bottomBar}</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** Tiêu đề khối cho bố cục desktop. */
-export function SectionTitle({ children, action }) {
-  return (
-    <div className="mb-3 flex items-baseline justify-between gap-3">
-      <h2 className="text-[20px] font-bold tracking-[-0.02em]">{children}</h2>
-      {action}
-    </div>
   );
 }
 
@@ -445,35 +339,6 @@ export function Toggle({ checked, onChange, label }) {
   );
 }
 
-/** Bộ tăng giảm số lượng. */
-export function Stepper({ value, onChange, min = 0, max = 99 }) {
-  return (
-    <span className="inline-flex items-center gap-0.5 rounded-[9px] p-0.5" style={{ background: "var(--ios-fill)" }}>
-      <button
-        type="button"
-        onClick={() => onChange(Math.max(min, value - 1))}
-        disabled={value <= min}
-        aria-label="Giảm"
-        className="flex h-8 w-9 items-center justify-center rounded-[7px] transition-transform active:scale-95 disabled:opacity-30"
-        style={{ background: "var(--ios-elevated)" }}
-      >
-        <span className="material-symbols-outlined text-[18px]">remove</span>
-      </button>
-      <span className="w-8 text-center text-[17px] font-semibold tabular-nums">{value}</span>
-      <button
-        type="button"
-        onClick={() => onChange(Math.min(max, value + 1))}
-        disabled={value >= max}
-        aria-label="Tăng"
-        className="flex h-8 w-9 items-center justify-center rounded-[7px] transition-transform active:scale-95 disabled:opacity-30"
-        style={{ background: "var(--ios-elevated)" }}
-      >
-        <span className="material-symbols-outlined text-[18px]">add</span>
-      </button>
-    </span>
-  );
-}
-
 /** Ô tìm kiếm kiểu iOS. */
 export function SearchField({ value, onChange, placeholder = "Tìm kiếm" }) {
   return (
@@ -571,17 +436,6 @@ export function Toast({ message, icon = "check_circle" }) {
       </span>
     </div>
   );
-}
-
-/** Hook toast dùng chung: `const [toast, showToast] = useToast()`. */
-export function useToast(ms = 2200) {
-  const [toast, setToast] = useState(null);
-  useEffect(() => {
-    if (!toast) return undefined;
-    const id = setTimeout(() => setToast(null), ms);
-    return () => clearTimeout(id);
-  }, [toast, ms]);
-  return [toast, setToast];
 }
 
 /** Thanh tiến trình mảnh. */

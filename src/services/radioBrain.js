@@ -58,7 +58,7 @@ export function recordFail(id) {
  * Coi như hỏng — nhưng chỉ trong một ngày. Đài chết hôm nay có thể sống lại
  * mai, nên không bao giờ gạch tên vĩnh viễn.
  */
-export function isDead(id) {
+function isDead(id) {
   const entry = read()[id];
   if (!entry) return false;
   return entry.fail >= DEAD_AFTER_FAILS && Date.now() - (entry.lastFailAt || 0) < DAY;

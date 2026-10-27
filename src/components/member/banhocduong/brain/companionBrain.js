@@ -18,7 +18,7 @@
 // Máy không có WebGPU hoặc không đủ bộ nhớ → isSupported() = false và chat tự
 // dùng bộ luật soạn sẵn (cũng chạy trên máy).
 
-export const BRAIN_MODEL_ID = "Qwen3-1.7B-q4f16_1-MLC";
+const BRAIN_MODEL_ID = "Qwen3-1.7B-q4f16_1-MLC";
 
 let enginePromise = null;
 let engine = null;

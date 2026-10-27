@@ -5,7 +5,7 @@ import { isEcoOn } from "../Save_E/ecoMode";
 import { cacheFeed, readFeedCache, recordFeedHit } from "../Save_E/ecoStore";
 import { languageCode } from "../i18n/languages";
 
-export const todayFeedKey = (language, category) => [
+const todayFeedKey = (language, category) => [
   "today-feed",
   languageCode(language),
   category,

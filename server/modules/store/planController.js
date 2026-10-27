@@ -17,7 +17,7 @@ import { notifyMember } from '../../utils/notifyMember.js';
 /**
  * Tra cứu người nhận quà bằng mã giới thiệu / email / số điện thoại
  */
-export async function resolveRecipient({ toReferralCode, toEmail, toPhone }) {
+async function resolveRecipient({ toReferralCode, toEmail, toPhone }) {
   if (toReferralCode) {
     return Bio.findOne({ referralCode: String(toReferralCode).trim().toUpperCase() });
   }

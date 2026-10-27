@@ -17,7 +17,7 @@
  * nghiêng về lần đầu, để người ôn lại vẫn được ghi nhận mà không "mua" được
  * hạng cao bằng cách thi mãi.
  */
-export const GRADE_BANDS = Object.freeze([
+const GRADE_BANDS = Object.freeze([
   { min: 90, id: "excellent", label: "Xuất sắc", note: "Nắm chắc toàn chặng, làm được ngay." },
   { min: 80, id: "great", label: "Giỏi", note: "Vững kiến thức, chỉ còn vài chỗ nhỏ." },
   { min: 70, id: "good", label: "Khá", note: "Đủ dùng, nên ôn lại phần còn yếu." },

@@ -72,7 +72,7 @@ const matchesApiTarget = (requestUrl, target) => (
 // `http://localhost:3000/api/...`. Compare parsed origin/pathname instead of
 // string prefixes so both forms are authenticated without leaking a token to
 // an unrelated origin that merely contains `/api/` in its URL.
-export const isApiRequest = (url) => {
+const isApiRequest = (url) => {
   const parsed = parseRequestUrl(url);
   return Boolean(parsed && apiTargets().some(target => matchesApiTarget(parsed, target)));
 };

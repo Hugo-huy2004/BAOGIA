@@ -220,39 +220,3 @@ export async function sendTelegramPhoto(photoUrl, caption = '', replyMarkup = nu
   }
 }
 
-async function sendTelegramUpload(method, field, buffer, mimeType, filename, caption) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId || token.includes('YOUR_')) {
-    return { success: false, error: 'telegram_not_configured' };
-  }
-  try {
-    const form = new FormData();
-    form.set('chat_id', chatId);
-    form.set('caption', String(caption || '').slice(0, 1024));
-    form.set('parse_mode', 'HTML');
-    form.set(field, new Blob([buffer], { type: mimeType }), filename);
-    const response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: 'POST',
-      body: form,
-      signal: AbortSignal.timeout(15_000),
-    });
-    const data = await response.json();
-    if (!response.ok || !data.ok) return { success: false, error: data.description || 'telegram_upload_failed' };
-    const result = data.result;
-    const fileId = field === 'photo'
-      ? result?.photo?.at(-1)?.file_id
-      : result?.document?.file_id;
-    return fileId ? { success: true, fileId } : { success: false, error: 'telegram_file_id_missing' };
-  } catch (error) {
-    return { success: false, error: error.message || 'telegram_upload_failed' };
-  }
-}
-
-export function sendTelegramPhotoBuffer(buffer, mimeType, filename, caption) {
-  return sendTelegramUpload('sendPhoto', 'photo', buffer, mimeType, filename, caption);
-}
-
-export function sendTelegramDocumentBuffer(buffer, mimeType, filename, caption) {
-  return sendTelegramUpload('sendDocument', 'document', buffer, mimeType, filename, caption);
-}

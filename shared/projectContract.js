@@ -25,7 +25,7 @@
 import { getPackageFacts, formatMoney, marketOf, LIFETIME } from './projectPackages.js';
 import { PROJECT_STATUSES } from './projectWorkflow.js';
 
-export const STUDIO_PARTY = {
+const STUDIO_PARTY = {
   brand: 'Hugo Studio',
   representative: 'Hugo Wishpax',
   email: 'contact@hugowishpax.studio',

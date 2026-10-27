@@ -17,7 +17,7 @@ import { isDeletedMemberAccount } from '../../utils/deletedMemberAccount.js';
 
 export const RP_NAME = 'Hugo Studio';
 
-export function getDynamicOriginAndRPID(req) {
+function getDynamicOriginAndRPID(req) {
   const origin =
     req.get('origin') ||
     (process.env.NODE_ENV === 'production' ? 'https://hugowishpax.studio' : 'http://localhost:5173');
@@ -30,7 +30,7 @@ export function getDynamicOriginAndRPID(req) {
   return { expectedOrigin: origin, rpID };
 }
 
-export function bufToB64Url(buf) {
+function bufToB64Url(buf) {
   return Buffer.from(buf).toString('base64url');
 }
 

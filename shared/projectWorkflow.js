@@ -24,7 +24,7 @@
  * để NGƯỜI đọc và trao đổi; nó KHÔNG phải mã đăng nhập — mã đăng nhập phải khó
  * đoán, còn mã này thì cố tình đoán được.
  */
-export const PROJECT_ID_PREFIX = 'HG';
+const PROJECT_ID_PREFIX = 'HG';
 export const PROJECT_ID_PATTERN = /^HG-\d{4}-\d{3}$/;
 
 export function projectIdPeriod(date = new Date()) {
@@ -451,7 +451,7 @@ export const PACKAGE_BASE_DAYS = {
   'hugo-edu-plus': 1,
 };
 
-export const ESTIMATE_RULES = [
+const ESTIMATE_RULES = [
   { id: 'extraPages', label: 'Số trang vượt mức cơ bản',
     note: 'Mỗi trang thêm ngoài 4 trang đầu tính 1,5 ngày.',
     apply: (r) => Math.max(0, (r.pages?.length || 0) - 4) * 1.5 },
@@ -479,7 +479,7 @@ export const ESTIMATE_RULES = [
 ];
 
 /** Đệm cho vòng nghiệm thu và sửa. Dự án nào cũng có, nên nó nằm trong công thức. */
-export const REVIEW_BUFFER_DAYS = 3;
+const REVIEW_BUFFER_DAYS = 3;
 
 export function estimateProject(packageId, requirements = {}) {
   const base = PACKAGE_BASE_DAYS[packageId] ?? 10;

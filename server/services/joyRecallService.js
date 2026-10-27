@@ -1,7 +1,6 @@
 import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
 import { awardJoy } from '../utils/joyService.js';
-import { NON_ISSUANCE_SOURCES } from './joyStabilityService.js';
 
 /**
  * Thu hồi JOY theo chính sách bình ổn.
@@ -161,8 +160,5 @@ export async function lookup(code) {
     reason: rows[0]?.description || '',
   };
 }
-
-/** `joy_recall` phải nằm ngoài thống kê phát hành — khẳng định lại ở đây. */
-export const RECALL_IS_NOT_ISSUANCE = NON_ISSUANCE_SOURCES.has('joy_recall');
 
 export default { plan, execute, lookup, batchCode };

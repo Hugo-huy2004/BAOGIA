@@ -31,7 +31,7 @@ const bytesOf = (value) => {
    Mở lại ứng dụng trong vòng CACHE_MAX_AGE là KHÔNG gọi máy chủ lần nào. Kho
    bài của server làm mới mỗi 10 phút, nhưng ở chế độ này 6 tiếng vẫn là bản
    tin dùng được — đổi lại là số lượt gọi gần bằng 0. */
-export const CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
+const CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
 
 export function cacheFeed(key, data) {
   const bytes = bytesOf(data);

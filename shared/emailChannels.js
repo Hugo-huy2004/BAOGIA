@@ -104,7 +104,7 @@ export const EMAIL_CHANNELS = {
  * @param {string} keyOrId - 'contact' | 'support' | 'education' | 'adv' (case-insensitive)
  * @returns {typeof EMAIL_CHANNELS.CONTACT}
  */
-export function getEmailChannel(keyOrId = "contact") {
+function getEmailChannel(keyOrId = "contact") {
   const normalized = String(keyOrId || "contact").trim().toUpperCase();
   if (EMAIL_CHANNELS[normalized]) return EMAIL_CHANNELS[normalized];
 
@@ -134,9 +134,3 @@ export function createMailtoUrl(channelKeyOrId, { subject, body, lang = "vi" } =
   return `mailto:${channel.address}${query ? `?${query}` : ""}`;
 }
 
-/**
- * Danh sách toàn bộ 4 địa chỉ email chính thức
- */
-export const ALL_EMAIL_ADDRESSES = Object.freeze(
-  Object.values(EMAIL_CHANNELS).map((ch) => ch.address)
-);

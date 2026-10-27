@@ -13,7 +13,7 @@ const formatMoney = (amount) => new Intl.NumberFormat('vi-VN', {
   maximumFractionDigits: 0,
 }).format(Number(amount || 0));
 
-export const buildDonationThankYouEmail = (donation) => {
+const buildDonationThankYouEmail = (donation) => {
   const donorName = escapeHtml(donation.donorName || 'bạn');
   const orderCode = escapeHtml(donation.orderCode);
   const amount = formatMoney(donation.amount);

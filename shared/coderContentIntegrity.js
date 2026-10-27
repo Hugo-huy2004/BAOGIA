@@ -1,7 +1,7 @@
 import { validateQuizQuestion } from "./quizKinds.js";
 
 /** Bảy phần của một step, đúng thứ tự giáo trình. `quiz` nằm ở mảng riêng. */
-export const STEP_SECTIONS = Object.freeze(["intro", "visual", "research", "ideate", "core", "apply"]);
+const STEP_SECTIONS = Object.freeze(["intro", "visual", "research", "ideate", "core", "apply"]);
 const MIN_QUIZ = 8;
 
 const text = (value) => typeof value === "string" && value.trim().length > 0;

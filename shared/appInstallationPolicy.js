@@ -8,7 +8,7 @@ export { REQUIRED_APP_IDS, RETIRED_APP_IDS } from './appRegistry.js';
 // màn hình chính, còn đường dẫn cũ thì vẫn mở HugoKit (xem MemberUtilitiesTab).
 const RETIRED_APP_SET = new Set(RETIRED_APP_IDS);
 
-export class AppInstallationPolicy {
+class AppInstallationPolicy {
   constructor(requiredAppIds = REQUIRED_APP_IDS) {
     this.requiredAppIds = Object.freeze([...new Set(requiredAppIds)]);
     this.requiredSet = new Set(this.requiredAppIds);

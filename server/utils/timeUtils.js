@@ -9,12 +9,3 @@ export function getVietnamDateString(date = new Date()) {
   return formatter.format(date);
 }
 
-export function getVietnamTodayStr(date = new Date()) {
-  // Returns toDateString() in Asia/Ho_Chi_Minh timezone (e.g. "Wed Aug 19 2026")
-  const options = { timeZone: 'Asia/Ho_Chi_Minh', weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' };
-  const formatter = new Intl.DateTimeFormat('en-US', options);
-  const parts = formatter.formatToParts(date);
-  const map = {};
-  parts.forEach(p => map[p.type] = p.value);
-  return `${map.weekday} ${map.month} ${map.day} ${map.year}`;
-}

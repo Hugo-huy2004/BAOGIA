@@ -30,7 +30,7 @@
 
 // Each ring: radius fraction (1.0 == the anchor ring) and its own slot count,
 // tuned so the arc gap between adjacent dots stays wide enough to survive blur.
-export const PCC_RING_LAYOUT = [
+const PCC_RING_LAYOUT = [
   { frac: 0.40, slots: 12 },
   { frac: 0.55, slots: 20 },
   { frac: 0.70, slots: 26 },
@@ -48,10 +48,10 @@ export const PCC_SLOT_SITES = (() => {
   return sites;
 })();
 
-export const PCC_TOTAL_BITS = PCC_SLOT_SITES.length;      // 88
-export const PCC_TOTAL_BYTES = PCC_TOTAL_BITS / 8;        // 11
+const PCC_TOTAL_BITS = PCC_SLOT_SITES.length;      // 88
+const PCC_TOTAL_BYTES = PCC_TOTAL_BITS / 8;        // 11
 export const PCC_DATA_BYTES = PCC_TOTAL_BYTES - 1;        // 10 opaque payload bytes (+1 CRC-8)
-export const PCC_MAX_PAYLOAD_BYTES = PCC_DATA_BYTES - 1;  // 9 (string mode: 1 length byte)
+const PCC_MAX_PAYLOAD_BYTES = PCC_DATA_BYTES - 1;  // 9 (string mode: 1 length byte)
 
 // Anchor angles are intentionally asymmetric so orientation is unambiguous no
 // matter how the phone is rotated. They sit at the outermost radius, clearly
@@ -133,7 +133,7 @@ export function encodeBytes(data) {
 }
 
 // ─── Decode: scrambled bit array -> raw bytes (Uint8Array(10)) | null ────────
-export function decodeToBytes(bits) {
+function decodeToBytes(bits) {
   if (!bits || bits.length !== PCC_TOTAL_BITS) return null;
   const raw = new Array(PCC_TOTAL_BITS).fill(0);
   for (let i = 0; i < PCC_TOTAL_BITS; i++) raw[i] = (bits[SCRAMBLE.perm[i]] ? 1 : 0) ^ SCRAMBLE.key[i];
@@ -154,18 +154,6 @@ export function encodePayload(text) {
   data.set(utf8, 1);
   return encodeBytes(data);
 }
-export function decodeBits(bits) {
-  const data = decodeToBytes(bits);
-  if (!data) return null;
-  const len = data[0];
-  if (len === 0 || len > PCC_MAX_PAYLOAD_BYTES) return null;
-  try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(data.subarray(1, 1 + len));
-  } catch {
-    return null;
-  }
-}
-
 // ─── base64url <-> bytes (how the server token rides in/out of this codec) ────
 export function bytesToBase64Url(bytes) {
   let bin = "";

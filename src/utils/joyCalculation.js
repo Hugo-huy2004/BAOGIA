@@ -17,7 +17,7 @@
 // ─── Saturday 2× JOY Event ──────────────────────────────────────────────────
 // Every Saturday (Vietnam time, UTC+7) all arcade games award 2× JOY —
 // commemorating the Resurrection and salvation of the Son of God.
-export const EVENT_MULTIPLIER = 2;
+const EVENT_MULTIPLIER = 2;
 
 export function getEventMultiplier(date = new Date()) {
   const vnDay = new Date(date.getTime() + 7 * 60 * 60 * 1000).getUTCDay();
@@ -97,25 +97,5 @@ export function calcJoy(game, score) {
   }
   return Math.max(1, Math.floor(baseJoy + (score - threshold) * perPoint));
 }
-
-/**
- * Get human-readable formula description for a game.
- * @param {string} game
- * @returns {{ tiers: Array, description: string }}
- */
-export function getJoyFormula(game) {
-  const tiers = JOY_TIERS[game];
-  if (!tiers) return { tiers: [], description: "1% điểm" };
-
-  const lines = tiers.map(([threshold, base, per]) => {
-    if (threshold === 0) return `Đầu: ${per} JOY/điểm`;
-    return `Từ ${threshold}: +${base} JOY + ${per}/điểm`;
-  });
-
-  return { tiers, description: lines.join(" → ") };
-}
-
-/** All supported game ids */
-export const ARCADE_GAMES = Object.keys(JOY_TIERS);
 
 export default JOY_TIERS;

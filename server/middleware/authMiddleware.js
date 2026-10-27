@@ -81,7 +81,7 @@ const PROFILE_SETUP_ROUTES = [
   '/api/bios/me/verification',
 ];
 // Riêng đăng nhập/đăng xuất thì theo tiền tố: người dùng phải thoát ra được.
-export const isProfileSetupRoute = (url = '') => {
+const isProfileSetupRoute = (url = '') => {
   const path = String(url).split('?')[0].replace(/\/+$/, '') || '/';
   return PROFILE_SETUP_ROUTES.includes(path) || path.startsWith('/api/auth/member');
 };
@@ -461,7 +461,7 @@ const ageError = (res, age) => {
 };
 
 /** Gắn req.memberAge (null nếu chưa khai sinh nhật). Không chặn ai. */
-export const attachMemberAge = async (req, res, next) => {
+const attachMemberAge = async (req, res, next) => {
   try {
     req.memberAge = req.isAdminActor ? ADULT_AGE : await getMemberAge(req.memberEmail);
   } catch (error) {

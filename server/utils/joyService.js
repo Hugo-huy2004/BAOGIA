@@ -19,7 +19,7 @@ export const JOY_TITLES = JOY_SOURCES;
  * thu lẫn chi — ít nhất phải nói được tiền vào hay tiền ra, vì đó là thứ người
  * dùng cần biết đầu tiên khi mở thông báo.
  */
-export function joyTitleFor(source, amount) {
+function joyTitleFor(source, amount) {
   return JOY_TITLES[source] || (Number(amount) >= 0 ? 'Nhận JOY' : 'Dùng JOY');
 }
 
@@ -193,13 +193,6 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   }
 
   return { balance: bio.joyBalance, bio, notification, loanRepayment };
-}
-
-export async function getJoyBalance(email) {
-  let bio = await Bio.findOne({ email });
-  if (!bio) bio = await Bio.findOne({ contactEmail: email });
-  if (!bio) throw new Error('BIO_NOT_FOUND');
-  return bio.joyBalance;
 }
 
 /**

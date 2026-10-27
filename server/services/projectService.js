@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import mongoose from 'mongoose';
 import CustomerProject from '../models/CustomerProject.js';
 import Counter from '../models/Counter.js';
 import { onStatusChanged } from './projectContractService.js';
@@ -196,24 +195,6 @@ export async function saveRequirements(project, requirements, { actor, actorName
   return project;
 }
 
-/** Ghi tệp mã nguồn bàn giao. Không đổi trạng thái — đó là việc của transition. */
-export async function attachSourceDelivery(project, file, { actorName = '' } = {}) {
-  project.sourceDelivery = {
-    fileUrl: file.fileUrl,
-    fileName: file.fileName || '',
-    sizeBytes: Number(file.sizeBytes) || 0,
-    checksum: file.checksum || '',
-    uploadedAt: new Date(),
-    notes: file.notes || '',
-  };
-  project.history.push(historyEntry({
-    actor: 'admin', actorName, action: 'Tải lên mã nguồn',
-    note: `${file.fileName || 'source.zip'}${file.sizeBytes ? ` · ${Math.round(file.sizeBytes / 1024)} KB` : ''}`,
-  }));
-  await project.save();
-  return project;
-}
-
 /** Ẩn mọi bí mật trước khi trả cho khách. */
 export function toCustomerView(project) {
   const obj = project.toObject ? project.toObject() : { ...project };
@@ -228,4 +209,3 @@ export function toCustomerView(project) {
 }
 
 export { generateAccessCode, historyEntry, MAX_CUSTOMER_EDITS };
-export const isObjectId = (v) => mongoose.Types.ObjectId.isValid(v);

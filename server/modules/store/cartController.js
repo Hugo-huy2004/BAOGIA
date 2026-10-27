@@ -13,11 +13,11 @@ import { applyProductGrant } from '../../utils/productGrant.js';
 
 export const TAX_RATE = 0.09;
 
-export function clampQty(q) {
+function clampQty(q) {
   return Math.min(99, Math.max(1, Math.floor(Number(q)) || 1));
 }
 
-export function genOrderCode() {
+function genOrderCode() {
   return 'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 

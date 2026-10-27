@@ -47,17 +47,10 @@ function segmentPath(cx, cy, r, fromDeg, toDeg) {
  * `jitter` (đơn vị: phần của nửa ô, |jitter| < 1) làm chỗ dừng lệch tự nhiên
  * nhưng vẫn nằm trong lòng ô đã trúng.
  */
-export function targetAngle(index, count, turns = TURNS, jitter = 0) {
+function targetAngle(index, count, turns = TURNS, jitter = 0) {
   const seg = 360 / count;
   const clamped = Math.max(-0.98, Math.min(0.98, jitter));
   return turns * 360 - (index * seg + seg / 2) + (clamped * seg) / 2;
-}
-
-/** Ô đang nằm dưới kim sau khi đã xoay `angle` độ — dùng để kiểm chứng. */
-export function segmentUnderPointer(angle, count) {
-  const seg = 360 / count;
-  const normalized = ((-angle % 360) + 360) % 360;
-  return Math.floor(normalized / seg);
 }
 
 const buzz = (pattern) => {

@@ -34,7 +34,7 @@ const CATEGORY_GROUP = new Map(
  * Giao dịch JOY vẫn ưu tiên mũi tên hướng tiền (xem directionOf) — hướng tiền
  * quan trọng hơn chủ đề.
  */
-export const CATEGORY_STYLE = {
+const CATEGORY_STYLE = {
   verification: { icon: "verified", tint: "#0A84FF" },
   security: { icon: "shield_person", tint: "#FF453A" },
   package: { icon: "inventory_2", tint: "#BF5AF2" },
@@ -56,7 +56,7 @@ export function tintOf(item) {
   return (CATEGORY_STYLE[item.category] || CATEGORY_STYLE.system).tint;
 }
 
-export const groupOf = (category) => CATEGORY_GROUP.get(category) || "system";
+const groupOf = (category) => CATEGORY_GROUP.get(category) || "system";
 
 /**
  * Chỉ giữ các đích sâu, có ý nghĩa trong khu vực thành viên.
@@ -65,7 +65,7 @@ export const groupOf = (category) => CATEGORY_GROUP.get(category) || "system";
  * về màn hình mặc định. URL ngoài origin hoặc route cũ cũng không được phép
  * điều hướng từ inbox.
  */
-export function notificationDestination(rawUrl) {
+function notificationDestination(rawUrl) {
   if (typeof rawUrl !== "string") return "";
   const raw = rawUrl.trim();
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return "";
@@ -97,13 +97,13 @@ export function notificationDestination(rawUrl) {
  * Hướng dòng tiền. Dựa vào DẤU của `amount` chứ không đoán từ câu chữ.
  * 'in' = vào ví, 'out' = ra khỏi ví, 'none' = không phải giao dịch.
  */
-export function directionOf(amount) {
+function directionOf(amount) {
   if (typeof amount !== "number" || Number.isNaN(amount) || amount === 0) return "none";
   return amount > 0 ? "in" : "out";
 }
 
 /** Một thông báo từ DB → hình dạng dùng để vẽ. */
-export function fromNotification(n) {
+function fromNotification(n) {
   const direction = directionOf(n.amount);
   return {
     key: `n:${n._id}`,
@@ -139,7 +139,7 @@ export function buildFeed(notifications = []) {
 const DAY_MS = 86_400_000;
 
 /** Nhãn ngày: hôm nay / hôm qua / trong tuần / cũ hơn. */
-export function dayBucket(at, now = new Date()) {
+function dayBucket(at, now = new Date()) {
   const value = new Date(at);
   if (Number.isNaN(value.getTime())) return "earlier";
   const startOfToday = new Date(now);

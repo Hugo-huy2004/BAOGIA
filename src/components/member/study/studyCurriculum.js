@@ -7,7 +7,7 @@
 // (/study/web/lesson7, /study/calendar…) trỏ vào giáo trình đã gỡ ngày
 // 27/10/2026: khoá Web cũ mở bản đồ Coding, còn lại về trang chủ.
 export const COURSE_MAP_ROUTE = "coding";
-export const LESSON_PATTERN = /^step(?:[1-9]|[1-9]\d)$/;
+const LESSON_PATTERN = /^step(?:[1-9]|[1-9]\d)$/;
 const LEGACY_COURSE_ROUTES = new Set(["web"]);
 
 /**

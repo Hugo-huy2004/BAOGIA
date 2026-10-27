@@ -142,7 +142,7 @@ export const PUBLIC_TOOLS = {
 };
 
 /** Canonical slugs, plus the aliases that resolve to the same tool. */
-export const PUBLIC_TOOL_SLUGS = Object.entries(PUBLIC_TOOLS).flatMap(([slug, tool]) => [
+const PUBLIC_TOOL_SLUGS = Object.entries(PUBLIC_TOOLS).flatMap(([slug, tool]) => [
   slug,
   ...(tool.aliases ?? []),
 ]);

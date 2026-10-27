@@ -10,7 +10,7 @@ import { isStandalone } from "../../../config/platform";
 // builds that haven't adopted the marker yet.
 const SUGGEST_MARKER = /\[\[SUGGEST:\s*([a-z0-9,\s]+)\]\]/i;
 const BUY_MARKER = /\[\[BUY:\s*([a-z0-9_]+)\]\]/i;
-export function extractSuggestions(text) {
+function extractSuggestions(text) {
   const flags = {
     suggestPhq9: false,
     suggestGad7: false,

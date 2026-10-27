@@ -25,11 +25,11 @@ import { sendTelegramMessage, editTelegramMessage, askTelegramInput } from './te
 // bấm nút lần nữa, không đáng đánh đổi thêm một collection trong Mongo.
 const pendingInput = new Map(); // chatId -> { kind, id, messageId }
 
-export function setPendingInput(chatId, value) {
+function setPendingInput(chatId, value) {
   if (value) pendingInput.set(String(chatId), value);
   else pendingInput.delete(String(chatId));
 }
-export function takePendingInput(chatId) {
+function takePendingInput(chatId) {
   const key = String(chatId);
   const value = pendingInput.get(key);
   pendingInput.delete(key);
@@ -108,7 +108,7 @@ function listScreen(title, bios, emptyHint) {
 
 const backOnly = () => ({ inline_keyboard: [[{ text: '⬅️ Về bảng chính', callback_data: 'k:home' }]] });
 
-export async function searchScreen(query) {
+async function searchScreen(query) {
   const clean = String(query || '').trim();
   if (!clean) return { text: '🔍 Chưa có từ khoá nào.', markup: backOnly() };
 
@@ -130,7 +130,7 @@ export async function searchScreen(query) {
  * phải bấm qua ba lớp. Trạng thái khoá tài khoản phải tra riêng (lưu ở bảng
  * SecurityBlock dạng băm) nên hàm này bất đồng bộ.
  */
-export async function memberScreen(bioDoc) {
+async function memberScreen(bioDoc) {
   const bio = bioDoc;
   const ic = bio.identityCheck || {};
   const due = ic.nextDueAt && new Date(ic.nextDueAt) <= new Date();
