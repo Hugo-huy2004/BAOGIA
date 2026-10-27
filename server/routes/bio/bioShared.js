@@ -34,6 +34,16 @@ export function sanitizeBioOutput(bioObj) {
   return bioObj;
 }
 
+// Kiểm số điện thoại còn trống ở bước onboarding. Trả lời có/không về một số
+// là lộ thông tin nhẹ, nên đếm theo tài khoản và để thấp: đủ cho người gõ sai
+// vài lần, không đủ để dò danh bạ.
+export const phoneCheckLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  message: { error: 'Bạn kiểm tra số điện thoại quá nhiều lần. Vui lòng đợi vài phút.' }
+});
+
 export const checkLocationLimiter = rateLimit({
   keyGenerator: accountOrIpKey,
   windowMs: 5 * 60 * 1000,

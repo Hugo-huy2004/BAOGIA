@@ -2914,7 +2914,11 @@
         }
       },
       "next": "Tiếp tục",
-      "stepOf": "Bước {{current}}/{{total}}"
+      "stepOf": "Bước {{current}}/{{total}}",
+      "errors": {
+        "PHONE_TAKEN": "Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.",
+        "PHONE_INVALID": "Số điện thoại không hợp lệ."
+      }
     },
     "birthdaySurprise": {
       "monthTitle": "Tháng sinh nhật.",

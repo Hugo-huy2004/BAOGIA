@@ -45,6 +45,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     }
   });
   const [submitting, setSubmitting] = useState(false);
+  const [checkingPhone, setCheckingPhone] = useState(false);
   const [error, setError] = useState("");
   const [ethnicityOptions, setEthnicityOptions] = useState([]);
   const [loadingEthnicities, setLoadingEthnicities] = useState(false);
@@ -151,12 +152,41 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     return Boolean(String(values[field.key] || "").trim());
   };
 
-  const goNext = () => {
+  // Lỗi có mã (vd. PHONE_TAKEN) hiện bằng câu đã dịch theo ngôn ngữ đang chọn;
+  // không có bản dịch thì dùng câu server gửi.
+  const serverMessage = (data) => (data?.code
+    ? t(`memberPortal.onboarding.errors.${data.code}`, { defaultValue: data.error || t("memberPortal.onboarding.genericError") })
+    : data?.error || t("memberPortal.onboarding.genericError"));
+
+  // Số điện thoại chỉ thuộc một tài khoản: hỏi server ngay khi rời bước này để
+  // báo lỗi tại đúng chỗ, không để tới bước cuối mới hỏng.
+  const phoneIsFree = async () => {
+    setCheckingPhone(true);
+    try {
+      const r = await fetch(`${apiBase}/bios/me/phone-available?phone=${encodeURIComponent(String(values.phone || "").trim())}`, { credentials: "include" });
+      if (r.ok) return true;
+      const data = await r.json().catch(() => ({}));
+      // Chỉ chặn khi server nói rõ số sai/đã dùng; lỗi mạng hay quá giới hạn
+      // thì để bước lưu cuối cùng kiểm lại.
+      if (r.status === 409 || r.status === 400) {
+        setError(serverMessage(data));
+        return false;
+      }
+      return true;
+    } catch {
+      return true;
+    } finally {
+      setCheckingPhone(false);
+    }
+  };
+
+  const goNext = async () => {
     if (!isFilled(step)) {
       setError(t("memberPortal.onboarding.completeRequired"));
       return;
     }
     setError("");
+    if (step?.key === "phone" && !(await phoneIsFree())) return;
     if (isLastStep) handleSubmit();
     else setStepIndex((index) => index + 1);
   };
@@ -183,7 +213,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
         // về đúng bước đó để sửa, thay vì kẹt ở bước cuối.
         const badStep = data.field ? steps.findIndex((s) => s.key === data.field) : -1;
         if (badStep >= 0) setStepIndex(badStep);
-        throw new Error(data.error || t("memberPortal.onboarding.genericError"));
+        throw new Error(serverMessage(data));
       }
       // Server vẫn báo thiếu thì hỏi tiếp đúng phần còn thiếu, quay về bước đầu.
       if (Array.isArray(data.missing) && data.missing.length) {
@@ -471,7 +501,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
 
           <button
             onClick={goNext}
-            disabled={submitting}
+            disabled={submitting || checkingPhone}
             className="mt-5 min-h-[52px] w-full shrink-0 rounded-2xl bg-foreground text-[17px] font-bold text-background active:scale-[.99] disabled:opacity-50"
           >
             {submitting

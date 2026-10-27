@@ -2744,7 +2744,11 @@
         }
       },
       "next": "接俗",
-      "stepOf": "𨀈 {{current}}/{{total}}"
+      "stepOf": "𨀈 {{current}}/{{total}}",
+      "errors": {
+        "PHONE_TAKEN": "Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.",
+        "PHONE_INVALID": "Số điện thoại không hợp lệ."
+      }
     },
     "birthdaySurprise": {
       "monthTitle": "𣎃生日.",
@@ -4413,7 +4417,6 @@
       }
     }
   },
-
   "utilities": {
     "upgradeUnavailable": "應用當得𢪲級𨑗番版買一. 𢝙𢚸𢮿吏𡢐 24 𣇞.",
     "categories": {

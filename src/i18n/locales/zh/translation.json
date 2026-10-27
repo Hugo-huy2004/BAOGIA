@@ -1696,7 +1696,11 @@
         }
       },
       "next": "继续",
-      "stepOf": "第 {{current}} 步，共 {{total}} 步"
+      "stepOf": "第 {{current}} 步，共 {{total}} 步",
+      "errors": {
+        "PHONE_TAKEN": "此电话号码已被另一个 Hugo Studio 账户使用。请输入其他号码。",
+        "PHONE_INVALID": "电话号码无效。"
+      }
     },
     "birthdaySurprise": {
       "monthTitle": "您的生日月份！",

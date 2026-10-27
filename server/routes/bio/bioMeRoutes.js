@@ -17,7 +17,7 @@ import redisSlugService from '../../services/redisSlugService.js';
 import VerificationEvidence from '../../models/VerificationEvidence.js';
 import { generateRaw } from '../../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../../utils/studentRewards.js';
-import { sanitizeBioOutput, checkLocationLimiter, studentRewardLimiter, studentVerificationLimiter, verificationAppealLimiter, receiveStudentVerification, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, TWELVE_MONTHS_MS, SEVEN_DAYS_MS, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, removeDuplicateIdentityAccounts, stripSchoolLevelPrefix, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
+import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, studentRewardLimiter, studentVerificationLimiter, verificationAppealLimiter, receiveStudentVerification, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, TWELVE_MONTHS_MS, SEVEN_DAYS_MS, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, removeDuplicateIdentityAccounts, stripSchoolLevelPrefix, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
 
 const router = express.Router();
 
@@ -562,6 +562,21 @@ router.get('/me/profile-options/ethnicities', requireMember, async (req, res) =>
 });
 
 const PHONE_TAKEN_ERROR = 'Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.';
+const PHONE_TAKEN = { error: PHONE_TAKEN_ERROR, code: 'PHONE_TAKEN', field: 'phone' };
+
+// GET /me/phone-available?phone= — modal hỏi ngay khi rời bước số điện thoại,
+// để báo "số đã được dùng" tại đúng bước đó thay vì đợi tới bước cuối.
+router.get('/me/phone-available', requireMember, phoneCheckLimiter, async (req, res) => {
+  try {
+    const phone = String(req.query.phone || '').trim();
+    if (!/^[+()\d\s.-]{8,24}$/.test(phone)) return res.status(400).json({ error: 'Số điện thoại không hợp lệ.', code: 'PHONE_INVALID', field: 'phone' });
+    const taken = await Bio.exists({ phone, email: { $ne: req.memberEmail } });
+    if (taken) return res.status(409).json(PHONE_TAKEN);
+    res.json({ available: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // POST /me/onboarding — ghi những thông tin client vừa điền (mục nào gửi thì
 // ghi mục đó), sinh mã giới thiệu và áp mã người giới thiệu nếu có.
@@ -586,7 +601,7 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
     // "gửi JOY qua số điện thoại"). Kiểm TRƯỚC khi lưu để trả lời rõ ràng thay
     // vì để MongoDB ném E11000 thành lỗi 500.
     if (bio.isModified('phone') && await Bio.exists({ phone: bio.phone, _id: { $ne: bio._id } })) {
-      return res.status(409).json({ error: PHONE_TAKEN_ERROR, field: 'phone' });
+      return res.status(409).json(PHONE_TAKEN);
     }
 
     const referralCode = await ensureReferralCode(bio);
@@ -640,7 +655,7 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
     // không có dòng này thì log Render trống, không lần ra được nguyên nhân.
     // Hai request cùng lúc vẫn có thể lọt qua bước kiểm ở trên.
     if (error?.code === 11000 && error.keyPattern?.phone) {
-      return res.status(409).json({ error: PHONE_TAKEN_ERROR, field: 'phone' });
+      return res.status(409).json(PHONE_TAKEN);
     }
     console.error('POST /me/onboarding error:', error.name, error.message, error.errors ? Object.keys(error.errors) : '');
     res.status(500).json({ error: error.message });

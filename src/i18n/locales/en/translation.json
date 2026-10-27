@@ -2913,7 +2913,11 @@
         }
       },
       "next": "Continue",
-      "stepOf": "Step {{current}} of {{total}}"
+      "stepOf": "Step {{current}} of {{total}}",
+      "errors": {
+        "PHONE_TAKEN": "This phone number is already used by another Hugo Studio account. Please enter a different number.",
+        "PHONE_INVALID": "This phone number is not valid."
+      }
     },
     "birthdaySurprise": {
       "monthTitle": "Your birthday month!",
