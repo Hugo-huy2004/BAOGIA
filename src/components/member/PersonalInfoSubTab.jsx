@@ -158,6 +158,10 @@ export default function PersonalInfoSubTab({
     cleanVal(bio?.phone) ||
     "";
   const profileLanguage = bio?.language || "vi";
+  // Email Google lấy từ phiên đăng nhập; phiên cũ (đăng nhập sinh trắc học,
+  // bản lưu trước khi có trường email) có thể thiếu — hồ sơ trên server thì
+  // luôn có, nên dùng làm nguồn dự phòng.
+  const accountEmail = memberSession?.email || bio?.email || "";
   const isVietnamese = String(profileLanguage).toLowerCase().startsWith("vi");
   const privateAddress = formatFullAddress(formData, profileLanguage);
   const identityLockLabel = isVietnamese ? "Muốn thay đổi, vui lòng liên hệ admin" : "Contact an administrator to make changes";
@@ -215,7 +219,7 @@ export default function PersonalInfoSubTab({
           <h2>
             {formData.displayName || t("memberPortal.bio.noName")}
           </h2>
-          <p>{memberSession?.email || "—"}</p>
+          <p>{accountEmail || "—"}</p>
           <div className="apple-account-hero-badges">
             <div className={`apple-account-status ${bio?.isEduVerified ? "is-verified" : ""}`}>
               <span className="material-symbols-outlined" aria-hidden="true">
@@ -293,7 +297,7 @@ export default function PersonalInfoSubTab({
         <VerifiedRow
           icon="mail"
           label={t("memberPortal.bio.gmail")}
-          value={memberSession?.email}
+          value={accountEmail}
           lockLabel={t("memberPortal.account.eduFieldLocked")}
         />
         <VerifiedRow

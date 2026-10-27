@@ -582,11 +582,12 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                       {!editingProfile && (
                         <div className="md:col-span-2 grid grid-cols-2 gap-x-4 gap-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3 dark:border-white/10 dark:bg-white/5">
                           {[
+                            ['Email đăng nhập (Google)', bio.email || '—'],
                             ['Ngày sinh', bio.birthYear ? `${pad2(bio.birthDay)}/${pad2(bio.birthMonth)}/${bio.birthYear} · ${ageOf(bio)} tuổi` : 'Chưa khai'],
                             ['Sinh nhật (tự ghi)', bio.birthday || '—'],
                             ['Đồng ý của giám hộ', bio.guardianConsentAt ? formatDate(bio.guardianConsentAt) : '—'],
                             ['Ngôn ngữ', LANGUAGE_NAMES[bio.language] || bio.language || '—'],
-                            ['Email liên hệ', bio.contactEmail || '—'],
+                            ['Email liên hệ', bio.contactEmail || 'Dùng email đăng nhập'],
                             ['Mã giới thiệu', bio.referralCode || '—'],
                             ['Người giới thiệu', bio.referredBy || '—'],
                             ['Onboarding', bio.onboardingCompleted ? 'Đã xong' : 'Chưa xong'],
@@ -594,13 +595,22 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                           ].map(([label, value]) => (
                             <div key={label} className="min-w-0">
                               <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">{label}</p>
-                              <p className="mt-0.5 truncate text-[13px] font-bold text-slate-900 dark:text-white" title={String(value)}>{value}</p>
+                              <p className="mt-0.5 select-text truncate text-[13px] font-bold text-slate-900 dark:text-white" title={String(value)}>{value}</p>
                             </div>
                           ))}
                         </div>
                       )}
                       {editingProfile && (
                         <>
+                          <div className="md:col-span-2">
+                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Email đăng nhập (Google) — gắn với tài khoản Google, không sửa được</label>
+                            <input
+                              type="text"
+                              readOnly
+                              value={bio.email || ''}
+                              className="w-full select-all rounded-full border border-slate-200 bg-slate-100 px-3.5 py-2 font-mono font-bold text-slate-900 outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                            />
+                          </div>
                           <div>
                             <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Ngày sinh (khoá với thành viên — để trống để bắt khai lại)</label>
                             <input
@@ -624,7 +634,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                           </div>
                           {[
                             ['birthday', 'Sinh nhật (chuỗi tự ghi trên Bio)'],
-                            ['contactEmail', 'Email liên hệ'],
+                            ['contactEmail', 'Email liên hệ (chỉ khi khác email đăng nhập)'],
                           ].map(([field, label]) => (
                             <div key={field}>
                               <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">{label}</label>
