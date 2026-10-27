@@ -170,8 +170,9 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
   // và đó chính là "báo có thưởng nhưng ví không tăng".
   const joyPending = joyDelta > 0 && !resultData?.joyAwarded;
 
+  // data-lg-off: ô cờ và nút điều khiển bấm liên tục, không phồng/lún kiểu Liquid Glass.
   return createPortal(
-    <div className={`arcade-game arcade-game--${gameId}`}>
+    <div className={`arcade-game arcade-game--${gameId}`} data-lg-off>
       {stage !== "intro" && <div className="gshell__aurora" aria-hidden="true" />}
 
       {/* ── Stage: Per-game introduction ── */}
