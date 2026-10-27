@@ -455,7 +455,7 @@ Mở DevTools → *Network* → bấm tim: thấy một yêu cầu \`like.php\` 
         alt: "Trang Tìm với ô tìm kiếm chứa JOIN, dòng 4 kết quả cho JOIN, và các bài của An Phạm, Khoa Lê có tim hồng, Minh Trần",
         caption: "search.php?q=JOIN — tìm cả bài gốc lẫn câu trả lời, không phân biệt hoa thường.",
       },
-      body: `Nghiệm thu chặng 3:
+      body: `**Mã nguồn chặng 3 (mạng xã hội):** [tải nhip-chang3-mang-xa-hoi.zip](/downloads/coding/nhip-chang3-mang-xa-hoi.zip) — giải nén để đối chiếu với bài của bạn (code và giáo trình đồng bộ).\n\nNghiệm thu chặng 3:
 
 - [ ] Đăng ký, đăng nhập, đăng xuất; mật khẩu băm.
 - [ ] Đăng, sửa, xoá bài; người khác không sửa/xoá được.

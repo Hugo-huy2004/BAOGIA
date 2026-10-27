@@ -25,17 +25,27 @@ const feedbackLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Bảo vệ bản quyền giáo trình: nội dung bài chỉ phát qua API đã gate (xem
+// lessonController) và thêm giới hạn tần suất đọc để không ai cào cả khoá bằng
+// script. Giới hạn rộng rãi nên người học bình thường không bao giờ chạm tới.
+const readLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 90,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ==========================================
 // API CHA: /api/coder-lessons
 // Điều phối các API con của phân hệ bài học HugoCoder
 // ==========================================
 
 // --- 1. Danh sách bài giảng & Chi tiết bài học (Công khai cho trang /study) ---
-router.get('/', async (req, res) => {
+router.get('/', readLimiter, async (req, res) => {
   return getLessonList(req, res);
 });
 
-router.get('/:lessonId', async (req, res) => {
+router.get('/:lessonId', readLimiter, async (req, res) => {
   return getLessonDetail(req, res);
 });
 

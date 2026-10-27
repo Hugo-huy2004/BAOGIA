@@ -6,10 +6,8 @@ import {
   ChevronLeft,
   FileText,
   GraduationCap,
-  Lock,
   MonitorPlay,
   RefreshCw,
-  Share2,
   ShieldCheck,
   Target,
   X,
@@ -27,7 +25,6 @@ import { hugoCoderApi } from "../../../services/api/modules/hugoCoderApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
 import LessonPlayer from "./LessonPlayer";
-import { certificateKey } from "../../../../shared/courseCatalog";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
 import { joyText } from "../../../lib/joyDisplay";
@@ -377,7 +374,7 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
           <div className="min-w-0">
             <p className="text-[13px] font-black uppercase tracking-widest text-white/70">Danh hiệu hiện tại</p>
             <h3 className="text-lg font-black leading-tight truncate">{rank}</h3>
-            <p className="text-[13px] text-white/80 mt-0.5">{completed.length}/{courses.length} step • {earnedCount}/{stages.length} chặng đạt giấy chứng nhận</p>
+            <p className="text-[13px] text-white/80 mt-0.5">{completed.length}/{courses.length} step • {earnedCount}/{stages.length} chặng hoàn thành</p>
           </div>
         </div>
       </section>
@@ -404,51 +401,6 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
           </div>
         </section>
       )}
-
-      {/* Chứng chỉ — màu theo chặng, đồng bộ với bản đồ */}
-      <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
-        <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><Award className="w-3.5 h-3.5 text-foreground" /></span>
-          Giấy chứng nhận của tôi
-        </h3>
-        <div className="space-y-2">
-          {stages.map((stage) => {
-            const earned = stageEarned(stage);
-            const th = STAGE_THEME[stage.id];
-            const StageIcon = th.icon;
-            return (
-              <div
-                key={stage.id}
-                className={`flex items-center gap-3 rounded-xl border p-2.5 transition-all ${
-                  earned ? `bg-gradient-to-br ${th.soft}` : "border-border bg-muted/30"
-                }`}
-              >
-                <span className={`w-9 h-9 shrink-0 rounded-xl flex items-center justify-center ${
-                  earned ? `bg-gradient-to-br ${th.banner} text-white shadow-sm` : "bg-muted text-muted-foreground"
-                }`}>
-                  {earned ? <StageIcon className="w-4 h-4" /> : <Lock className="w-3.5 h-3.5" />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className={`text-[13px] font-black truncate ${earned ? "text-foreground" : "text-muted-foreground"}`}>{stage.title.replace(/^Chặng \d+: /, `Chặng ${stage.phaseNumber}: `)}</p>
-                  <p className="text-[13px] text-muted-foreground">{stage.rangeText}</p>
-                </div>
-                {earned ? (
-                  <a
-                    href={`/certificate/${bio?.slug}/${certificateKey(stage.phaseNumber)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-foreground text-background text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all"
-                  >
-                    <Share2 className="w-3 h-3" /> Chia sẻ
-                  </a>
-                ) : (
-                  <span className="shrink-0 text-[13px] font-bold text-muted-foreground uppercase">Chưa đạt</span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
 
       {/* Gói đã sở hữu — màu theo chặng */}
       <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
@@ -598,7 +550,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
       });
       if (program === "hugoteam") onProgramProgress?.(data);
     }
-    if (!member && data.passed) notify.info("Đăng nhập để lưu tiến độ và nhận giấy chứng nhận.");
+    if (!member && data.passed) notify.info("Đăng nhập để lưu tiến độ học tập.");
     return data;
   };
 

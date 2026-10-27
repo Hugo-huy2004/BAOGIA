@@ -36,7 +36,6 @@
     "check:grading": "cd server && node scripts/check-stage-grading.mjs",
     "gen:nginx": "node server/scripts/gen-nginx.mjs",
     "check:gateway": "node server/scripts/check-gateway.mjs",
-    "check:catalog": "cd server && node scripts/check-course-catalog.mjs",
     "check:guards": "node server/scripts/check-route-guards.mjs",
     "check:audit": "npm audit --omit=dev --audit-level=high && npm audit --omit=dev --audit-level=high --prefix server",
     "check:csp": "node scripts/checks/check-csp.mjs",

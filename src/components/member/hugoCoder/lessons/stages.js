@@ -89,7 +89,7 @@ export const STAGE_DEFS = [
       tagline: "Đưa Nhịp lên Internet miễn phí, đo người dùng, viết tài liệu và bảo vệ dự án hoàn tất.",
       learn: ["Phân tích sản phẩm và dữ liệu bằng SQL", "Triển khai PHP + MySQL lên hosting miễn phí", "Viết README và hướng dẫn sử dụng", "Dự án hoàn tất: 5 tính năng mới + 3 trang liên kết"],
       challenge: "Người lạ phải tự cài, tự dùng được sản phẩm của bạn chỉ bằng tài liệu bạn viết.",
-      promise: "Vạch đích: dự án hoàn tất được duyệt — 4.000 JOY + Giấy chứng nhận của Hugo Studio.",
+      promise: "Vạch đích: dự án hoàn tất được Hugo Studio duyệt — thưởng 4.000 JOY.",
       reading: [
         { title: "InfinityFree — Free PHP & MySQL hosting", author: "InfinityFree", url: "https://www.infinityfree.com/" },
         { title: "Make a README", author: "Danny Guo", url: "https://www.makeareadme.com/" },

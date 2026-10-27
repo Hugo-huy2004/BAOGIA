@@ -36,7 +36,6 @@ import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { maskEmail } from '../utils/piiMasker.js';
 import { broadcastToEmail } from '../utils/realtime.js';
-import { getStageCertificate } from '../utils/coderExamService.js';
 import InAppNotification from '../models/InAppNotification.js';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
@@ -1382,28 +1381,6 @@ router.delete('/me/custom-domain', requireMember, async (req, res) => {
   }
 });
 
-// GET /api/bios/certificate/:slug/:phase — giấy chứng nhận chặng HugoCoder.
-// Xác thực từ completedLessons trên server: không thể giả mạo bằng cách sửa URL.
-router.get('/certificate/:slug/:phase', async (req, res) => {
-  try {
-    const { slug, phase } = req.params;
-    if (global.validSlugs && !global.validSlugs.has(slug)) {
-      return res.status(404).json({ error: 'Không tìm thấy giấy chứng nhận.' });
-    }
-    const bio = await Bio.findOne({ slug });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy giấy chứng nhận.' });
-
-    const certificate = getStageCertificate(bio, phase);
-    if (!certificate) {
-      return res.status(404).json({ error: 'Học viên chưa hoàn thành chặng này.' });
-    }
-
-    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-    res.json(certificate);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // Trang Bio công khai chỉ được nhận đúng những trường mà giao diện render.
 // Trước đây route này trả nguyên document: kèm cả email, joyBalance, PIN, vị
