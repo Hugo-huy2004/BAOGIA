@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { ADMIN_DESTINATIONS } from "./adminDestinations";
-import { useTranslation } from "react-i18next";
+import { destinationsForPermissions } from "./adminDestinations";
 
-export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecuteCommand, onNavigateTab, users = [] }) {
-  const { t } = useTranslation();
+export default function AdminCommandPalette({ isOpen, onOpen, onClose, onNavigateTab, users = [], permissions = ["*"] }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef(null);
 
@@ -37,18 +35,10 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
     (u.email || "").toLowerCase().includes(query.toLowerCase())
   ).slice(0, 5);
 
-  const QUICK_COMMANDS = [
-    { label: "Bật/Tắt Chế độ bảo trì hệ thống", icon: "construction", action: () => onExecuteCommand?.("bật bảo trì") },
-    { label: "Dọn dẹp toàn bộ Error Logs rác", icon: "cleaning_services", action: () => onExecuteCommand?.("/clean-logs") },
-    { label: "Nạp 1000 JOY cho người dùng", icon: "payments", action: () => onExecuteCommand?.("nạp 1000 joy") },
-    { label: "Khóa khẩn cấp toàn bộ hệ thống", icon: "lock", action: () => onExecuteCommand?.("/lock") },
-    { label: "Xem báo cáo chỉ số hệ thống", icon: "analytics", action: () => onExecuteCommand?.("/stats") },
-  ].filter(c => c.label.toLowerCase().includes(query.toLowerCase()));
-
   // Dựng từ registry chứ không chép tay. Bản chép tay cũ trỏ vào ba hub đã bị
   // gỡ ("ecosystem", "coder", "system") nên ba lệnh này bấm vào không ra gì —
   // đúng kiểu lỗi mà danh sách song song luôn đẻ ra.
-  const TAB_NAVIGATIONS = ADMIN_DESTINATIONS.map((d) => ({
+  const TAB_NAVIGATIONS = destinationsForPermissions(permissions).map((d) => ({
     label: `Đi tới ${d.label}`,
     hint: d.sub,
     icon: d.icon,
@@ -85,35 +75,6 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
         {/* Results Body */}
         <div className="max-h-[380px] overflow-y-auto p-3 space-y-4 font-sans scrollbar-thin">
           
-          {/* Quick AI Commands Section */}
-          {QUICK_COMMANDS.length > 0 && (
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-3 mb-1.5 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-xs text-amber-400">bolt</span>
-                LỆNH THIẾT YẾU SIÊU TỐC
-              </div>
-              <div className="space-y-1">
-                {QUICK_COMMANDS.map((cmd, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => { cmd.action(); onClose(); }}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/10 text-xs font-bold transition-all text-left group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-indigo-400 group-hover:scale-110 transition-transform">
-                        {cmd.icon}
-                      </span>
-                      <span>{cmd.label}</span>
-                    </div>
-                    <span className="text-[10px] text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity font-mono">
-                      Chạy ↵
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* User Search Section */}
           {filteredUsers.length > 0 && (
             <div>
@@ -154,7 +115,7 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
             <div>
               <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 px-3 mb-1.5 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-xs text-emerald-400">near_me</span>
-                CHUYỂN HUB ĐIỀU HÀNH
+                ĐI TỚI KHU VỰC
               </div>
               <div className="space-y-1">
                 {TAB_NAVIGATIONS.map((nav, idx) => (
@@ -182,7 +143,7 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
 
         {/* Footer info */}
         <div className="px-5 py-2.5 bg-black/40 border-t border-white/10 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
-          <span>Hệ thống nhận diện lệnh tự động Hugo AI</span>
+          <span>Chỉ hiển thị khu vực bạn được cấp quyền</span>
           <span>Bấm ESC để đóng</span>
         </div>
       </div>

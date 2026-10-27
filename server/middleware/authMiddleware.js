@@ -6,6 +6,7 @@ import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
 import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
+import { hasAdminPermission, resolveAdminPermissions } from '../../shared/adminAccess.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
@@ -18,6 +19,52 @@ const sendAuthFailure = (res, error, authRole = 'member') => {
   }
   console.error('[auth availability]', error.message);
   return res.status(503).json({ code: 'AUTH_UNAVAILABLE', error: 'Máy chủ tạm thời không thể xác thực. Vui lòng thử lại.' });
+};
+
+const SELF_ADMIN_ROUTES = /^\/api\/admin\/(?:verify-session|logout|verify-password|change-password|account-settings)(?:\/|$)/;
+const ADMIN_PERMISSION_RULES = [
+  [/^\/api\/admin\/accounts(?:\/|$)/, 'access'],
+  [/^\/api\/admin\/(?:queue|joylater)(?:\/|$)/, 'queue'],
+  [/^\/api\/admin\/ai-support(?:\/|$)/, 'support'],
+  [/^\/api\/admin\/users(?:\/|$)/, 'users'],
+  [/^\/api\/admin\/(?:coder-submissions|learners|verify-graduation-project)(?:\/|$)/, 'learning'],
+  [/^\/api\/admin\/(?:store|orders)(?:\/|$)/, 'commerce'],
+  [/^\/api\/admin\/(?:audit-logs)(?:\/|$)/, 'audit'],
+  [/^\/api\/admin\/(?:security|brain\/auto-moderator)(?:\/|$)/, 'security'],
+  [/^\/api\/admin\/(?:system-overview)(?:\/|$)/, 'overview'],
+  [/^\/api\/admin\/(?:system-storage|error-logs|iot|interpret-command|send-ai-notification|marketing-email)(?:\/|$)/, 'system'],
+  [/^\/api\/hugoteam\/admin(?:\/|$)/, 'hugoteam'],
+  [/^\/api\/(?:coder-resources|coder-lessons)(?:\/|$)/, 'learning'],
+  [/^\/api\/(?:support|bookings)(?:\/|$)/, 'support'],
+  [/^\/api\/(?:customer-projects|customer)(?:\/|$)/, 'projects'],
+  [/^\/api\/(?:packages|utility-store|store|promos)(?:\/|$)/, 'commerce'],
+  [/^\/api\/(?:bios|profiles)(?:\/|$)/, 'users'],
+  [/^\/api\/(?:security|companion\/admin|ops|presence)(?:\/|$)/, 'security'],
+  [/^\/api\/(?:joy|payos|gift-cards)(?:\/|$)/, 'commerce'],
+  [/^\/api\/(?:data|notifications\/admin)(?:\/|$)/, 'system'],
+];
+
+const permissionForAdminRequest = (req) => {
+  const path = String(req.originalUrl || '').split('?')[0];
+  if (SELF_ADMIN_ROUTES.test(path)) return null;
+  return ADMIN_PERMISSION_RULES.find(([pattern]) => pattern.test(path))?.[1] || 'access';
+};
+
+const loadAdminClaims = async (decoded, req) => {
+  const admin = await Admin.findById(decoded.id)
+    .select({ sessionsValidFrom: 1, displayName: 1, role: 1, permissions: 1, active: 1 })
+    .lean();
+  if (!admin || admin.active === false) return null;
+  const permissions = resolveAdminPermissions(admin.role || 'owner', admin.permissions || []);
+  const needed = permissionForAdminRequest(req);
+  if (needed && !hasAdminPermission(permissions, needed)) return { forbidden: true };
+  return {
+    ...decoded,
+    adminRole: admin.role || 'owner',
+    displayName: admin.displayName || 'Quản trị viên',
+    permissions,
+    sessionsValidFrom: admin.sessionsValidFrom || null,
+  };
 };
 
 // Những route CẦN gọi được khi hồ sơ chưa xong — nếu chặn cả mấy đường này thì
@@ -145,9 +192,12 @@ export const requireAdmin = async (req, res, next) => {
     // ponytail: đọc thẳng DB, không đệm. Lưu lượng admin là một người và vài
     // dashboard 15 giây/lần — vài chục truy vấn mỗi phút. Đệm ở đây chỉ đổi
     // lấy một cửa sổ mà token đã thu hồi vẫn dùng được, không đáng.
-    const admin = await Admin.findById(decoded.id).select({ sessionsValidFrom: 1 }).lean();
+    const admin = await loadAdminClaims(decoded, req);
     if (!admin) {
       return invalidSession(res, 'admin');
+    }
+    if (admin.forbidden) {
+      return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền thực hiện thao tác này.' });
     }
     // So theo GIÂY, không theo mili-giây: `iat` của JWT chỉ có độ phân giải một
     // giây. Đăng xuất lúc 12:00:00.700 rồi đăng nhập lại lúc 12:00:00.900 sẽ
@@ -162,7 +212,7 @@ export const requireAdmin = async (req, res, next) => {
       }
     }
 
-    req.admin = decoded;
+    req.admin = admin;
 
     // Admin Security Armor Response Headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -233,7 +283,7 @@ export const signCustomerToken = (projectId) =>
 // Guards every customer-portal data route. Sets req.projectId (the only id the
 // route may touch) and req.customerRole ('customer' | 'admin'). Studio admins
 // are accepted too and act on the project named in the URL.
-export const requireCustomer = (req, res, next) => {
+export const requireCustomer = async (req, res, next) => {
   const token = extractToken(req, 'jwt') || extractToken(req, 'customer_jwt');
   if (!token) {
     return invalidSession(res, 'customer');
@@ -241,7 +291,13 @@ export const requireCustomer = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role === 'admin') {
+      const admin = await loadAdminClaims(decoded, req);
+      if (!admin) return invalidSession(res, 'admin');
+      if (admin.forbidden) {
+        return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền truy cập dự án này.' });
+      }
       req.customerRole = 'admin';
+      req.admin = admin;
       req.projectId = req.params.id;
       return next();
     }
@@ -368,8 +424,13 @@ export const requireMember = async (req, res, next) => {
       return next();
     }
     if (decoded.role === 'admin') {
+      const admin = await loadAdminClaims(decoded, req);
+      if (!admin) return invalidSession(res, 'admin');
+      if (admin.forbidden) {
+        return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền thực hiện thao tác này.' });
+      }
       req.isAdminActor = true;
-      req.admin = decoded;
+      req.admin = admin;
       // Admin acts on the account named by the request payload (may be absent
       // on /:id-style routes where the target is identified by document id).
       req.memberEmail = String(req.body?.email || req.query?.email || '').toLowerCase() || null;

@@ -11,6 +11,25 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    displayName: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: 'Quản trị viên'
+    },
+    role: {
+      type: String,
+      enum: ['owner', 'operator', 'support', 'finance', 'learning', 'security', 'viewer'],
+      default: 'owner'
+    },
+    permissions: {
+      type: [String],
+      default: []
+    },
+    active: {
+      type: Boolean,
+      default: true
+    },
     // Mốc thu hồi phiên. Token admin sống 14 ngày và JWT thì không rút lại được
     // — đăng xuất trước đây chỉ xoá cookie ở TRÌNH DUYỆT, còn token đã bị chép
     // ra thì vẫn dùng được tới hết hạn. requireAdmin từ chối mọi token phát

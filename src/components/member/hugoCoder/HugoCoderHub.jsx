@@ -545,11 +545,12 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
       }
       onBioUpdate?.({
         ...bio,
-        completedLessons: [...(bio?.completedLessons || []), course.id],
+        completedLessons: [...new Set([...(bio?.completedLessons || []), course.id])],
         hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: { best: data.score, firstTry: data.score } },
       });
       if (program === "hugoteam") onProgramProgress?.(data);
     }
+    if (member && program === "hugoteam" && data.alreadyCompleted) onProgramProgress?.(data);
     if (!member && data.passed) notify.info("Đăng nhập để lưu tiến độ học tập.");
     return data;
   };

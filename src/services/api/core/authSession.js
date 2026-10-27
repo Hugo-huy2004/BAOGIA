@@ -49,6 +49,19 @@ export const getMemberSession = () => {
   return session;
 };
 export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
+export const updateAdminSession = (admin) => {
+  const current = readSession(ADMIN_SESSION_KEY);
+  if (!current || !admin) return current;
+  const next = {
+    ...current,
+    id: admin.id || current.id,
+    displayName: admin.displayName || current.displayName || current.username,
+    adminRole: admin.adminRole || admin.role || current.adminRole || 'owner',
+    permissions: Array.isArray(admin.permissions) ? admin.permissions : (current.permissions || ['*']),
+  };
+  writeSession(ADMIN_SESSION_KEY, next, Boolean(localStorage.getItem(ADMIN_SESSION_KEY)));
+  return next;
+};
 
 export const clearAdminSession = () => {
   localStorage.removeItem(ADMIN_SESSION_KEY);

@@ -51,7 +51,12 @@ export async function connectDatabase() {
           const cryptoMod = await import('crypto');
           const bcryptMod = (await import('bcryptjs')).default;
           const usernameHash = cryptoMod.createHash('sha256').update(seedUser).digest('hex');
-          await Admin.create({ username: usernameHash, password: await bcryptMod.hash(seedPass, 12) });
+          await Admin.create({
+            username: usernameHash,
+            password: await bcryptMod.hash(seedPass, 12),
+            displayName: 'Chủ hệ thống',
+            role: 'owner',
+          });
           console.log('👥 Admin account seeded from ADMIN_SEED_* env vars');
         } else {
           console.warn('⚠️  No admin account exists and ADMIN_SEED_USERNAME/ADMIN_SEED_PASSWORD are not set — admin login unavailable until seeded.');

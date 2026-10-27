@@ -1,40 +1,28 @@
-export default function AdminHeader({ onOpenPalette, usersCount = 0, systemStatus = "Online" }) {
-  return (
-    <header className="h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#10121e]/85 backdrop-blur-3xl flex items-center justify-between gap-4 shrink-0 z-20 select-none shadow-sm">
-      
-      {/* Status Capsules */}
-      <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>{systemStatus}</span>
-        </div>
+import { ADMIN_ROLES } from "../../../shared/adminAccess";
+import { ADMIN_GROUPS } from "./adminDestinations";
 
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-slate-600 dark:text-slate-300 text-xs font-bold">
-          <span className="material-symbols-outlined text-sm text-blue-500">group</span>
-          <span>{usersCount.toLocaleString()} thành viên</span>
+export default function AdminHeader({ onOpenPalette, destination, session }) {
+  const role = ADMIN_ROLES[session?.adminRole] || ADMIN_ROLES.owner;
+  const group = ADMIN_GROUPS.find((item) => item.id === destination?.group)?.title || "Admin";
+  return (
+    <header className="flex min-h-[76px] shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-7">
+      <div className="min-w-0">
+        <div className="mb-1 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+          <span>Hugo Control</span><span>/</span><span>{group}</span>
         </div>
+        <h1 className="truncate text-xl font-black tracking-tight text-slate-950 sm:text-2xl">{destination?.label || "Quản trị"}</h1>
       </div>
 
-      {/* ⌘K Command Search Bar Capsule */}
-      <button
-        onClick={onOpenPalette}
-        className="flex items-center justify-between gap-4 h-10 px-4 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all text-xs font-semibold w-56 sm:w-80 shadow-inner group"
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="material-symbols-outlined text-base text-blue-500 group-hover:scale-110 transition-transform">search</span>
-          <span className="truncate">Tìm lệnh hoặc soi thành viên...</span>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onOpenPalette} className="hidden h-10 min-w-52 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-left text-xs font-semibold text-slate-500 transition-colors hover:border-slate-300 hover:bg-white sm:flex">
+          <span className="material-symbols-outlined text-[18px]">search</span><span className="flex-1">Tìm trang hoặc thành viên</span><kbd className="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[9px]">⌘K</kbd>
+        </button>
+        <button type="button" onClick={onOpenPalette} aria-label="Mở tìm kiếm" className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 sm:hidden"><span className="material-symbols-outlined text-[20px]">search</span></button>
+        <div className="hidden items-center gap-3 border-l border-slate-200 pl-3 lg:flex">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white">{(session?.displayName || "A").slice(0, 1).toUpperCase()}</div>
+          <div className="max-w-40"><p className="truncate text-xs font-black text-slate-900">{session?.displayName || "Quản trị viên"}</p><p className="truncate text-[10px] text-slate-500">{role.label}</p></div>
         </div>
-        <kbd className="px-2 py-0.5 rounded-md bg-black/10 dark:bg-white/10 text-[10px] font-mono font-extrabold text-slate-500 dark:text-slate-400 border border-black/10 dark:border-white/10">⌘K</kbd>
-      </button>
-
-      {/* Quick Action Button */}
-      <button
-        onClick={onOpenPalette}
-        title="Chạy lệnh điều hành nhanh"
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center active:scale-95 hover:shadow-lg hover:shadow-blue-600/30 transition-all shrink-0"
-      >
-        <span className="material-symbols-outlined text-lg">bolt</span>
-      </button>
+      </div>
     </header>
   );
 }

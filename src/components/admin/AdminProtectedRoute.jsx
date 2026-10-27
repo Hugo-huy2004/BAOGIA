@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { clearAdminSession, isAdminAuthenticated } from '../../services/api/core/authSession';
+import { clearAdminSession, isAdminAuthenticated, updateAdminSession } from '../../services/api/core/authSession';
 
 export default function AdminProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -36,6 +36,7 @@ export default function AdminProtectedRoute({ children }) {
           // Thành công
           const data = await res.json();
           if (data.success) {
+            updateAdminSession(data.admin);
             if (isMounted) setIsAuthenticated(true);
           } else {
             throw new Error('Invalid server response');

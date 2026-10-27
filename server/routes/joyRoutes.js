@@ -366,7 +366,22 @@ router.post('/award-learning', requireMember, async (req, res) => {
     // Học lại step đã qua: vẫn chấm để người học thấy kết quả, nhưng không ghi điểm.
     if (programProgress.includes(lessonId)) {
       const review = gradeStepQuiz(lessonId, evidence.answers);
-      return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance, ...review, passPercent: PASS_PERCENT });
+      if (isHugoTeam) {
+        const teamScore = teamDev.codingStepScores?.[lessonId];
+        const codingUpdate = { $addToSet: { completedLessons: lessonId } };
+        if (teamScore && !bio.hugoCoderExamScores?.[lessonId]) {
+          codingUpdate.$set = { [`hugoCoderExamScores.${lessonId}`]: teamScore };
+        }
+        await Bio.updateOne({ _id: bio._id }, codingUpdate);
+      }
+      return res.json({
+        success: true,
+        alreadyCompleted: true,
+        balance: bio.joyBalance,
+        ...review,
+        passPercent: PASS_PERCENT,
+        ...(isHugoTeam ? { program: 'hugoteam', completedCount: programProgress.length, requiredSteps: 16, nextStage: programProgress.length >= 16 ? 'mentor' : 'coding' } : {}),
+      });
     }
 
     const lessonGate = getCoderLessonGate(programProgress, lessonId);

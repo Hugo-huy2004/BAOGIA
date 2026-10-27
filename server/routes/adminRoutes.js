@@ -13,6 +13,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
+import AdminAuditLog from '../models/AdminAuditLog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,7 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 import { JWT_SECRET } from '../utils/secrets.js';
+import { ADMIN_PERMISSIONS, ADMIN_ROLES, resolveAdminPermissions } from '../../shared/adminAccess.js';
 
 // Username is hashed only as a lookup key (not a secret). Passwords used to be
 // unsalted SHA-256 — fast and brute-forceable if the DB ever leaked. They're now
@@ -150,7 +152,7 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
         cleanUser,
       ])];
       const adminCandidate = await Admin.findOne({ username: { $in: lookups } });
-      if (adminCandidate && (await verifyAndUpgrade(adminCandidate, password))) {
+      if (adminCandidate?.active !== false && (await verifyAndUpgrade(adminCandidate, password))) {
         matchingAdmin = adminCandidate;
       }
     } else {
@@ -281,6 +283,120 @@ router.post('/logout', requireAdmin, async (req, res) => {
 // Verify session route
 router.get('/verify-session', requireAdmin, (req, res) => {
   res.json({ success: true, admin: req.admin });
+});
+
+const ownerOnly = (req, res, next) => req.admin?.adminRole === 'owner'
+  ? next()
+  : res.status(403).json({ code: 'ADMIN_OWNER_REQUIRED', error: 'Chỉ Chủ hệ thống được quản lý tài khoản quản trị.' });
+
+const publicAdmin = (admin) => ({
+  id: admin._id,
+  displayName: admin.displayName || 'Quản trị viên',
+  role: admin.role || 'owner',
+  permissions: resolveAdminPermissions(admin.role || 'owner', admin.permissions || []),
+  customPermissions: admin.permissions || [],
+  active: admin.active !== false,
+  createdAt: admin.createdAt,
+  updatedAt: admin.updatedAt,
+});
+
+const auditAdminAccount = (req, action, target) => AdminAuditLog.create({
+  adminId: String(req.admin.id),
+  adminUsername: req.admin.displayName || req.admin.id,
+  action,
+  targetEmail: String(target || ''),
+  ipAddress: req.ip || '',
+  userAgent: req.headers['user-agent'] || '',
+}).catch((error) => console.error('[admin account audit]', error.message));
+
+router.get('/accounts', requireAdmin, ownerOnly, async (_req, res) => {
+  try {
+    const admins = await Admin.find().sort({ createdAt: 1 }).lean();
+    res.json({
+      admins: admins.map(publicAdmin),
+      roles: ADMIN_ROLES,
+      permissions: ADMIN_PERMISSIONS,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/accounts', requireAdmin, ownerOnly, async (req, res) => {
+  try {
+    const loginName = String(req.body?.loginName || '').trim().toLowerCase();
+    const displayName = String(req.body?.displayName || '').trim();
+    const password = String(req.body?.password || '');
+    const role = String(req.body?.role || 'viewer');
+    const permissions = Array.isArray(req.body?.permissions) ? req.body.permissions : [];
+    if (!/^[a-z0-9._-]{4,50}$/.test(loginName)) {
+      return res.status(400).json({ error: 'Tên đăng nhập cần 4–50 ký tự: chữ thường, số, dấu chấm, gạch ngang hoặc gạch dưới.' });
+    }
+    if (!displayName) return res.status(400).json({ error: 'Vui lòng nhập tên hiển thị.' });
+    if (password.length < 10) return res.status(400).json({ error: 'Mật khẩu cần ít nhất 10 ký tự.' });
+    if (!ADMIN_ROLES[role]) return res.status(400).json({ error: 'Vai trò không hợp lệ.' });
+
+    const username = sha256(loginName);
+    if (await Admin.exists({ username })) return res.status(409).json({ error: 'Tên đăng nhập đã tồn tại.' });
+    const admin = await Admin.create({
+      username,
+      displayName,
+      password: await bcrypt.hash(password, 12),
+      role,
+      permissions: role === 'owner' ? [] : resolveAdminPermissions(role, permissions),
+      active: true,
+    });
+    await auditAdminAccount(req, 'admin_account_created', `${displayName}:${role}`);
+    res.status(201).json({ admin: publicAdmin(admin) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.patch('/accounts/:id', requireAdmin, ownerOnly, async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Không tìm thấy tài khoản quản trị.' });
+    const role = req.body?.role === undefined ? admin.role : String(req.body.role);
+    if (!ADMIN_ROLES[role]) return res.status(400).json({ error: 'Vai trò không hợp lệ.' });
+    if (String(admin._id) === String(req.admin.id) && (role !== 'owner' || req.body?.active === false)) {
+      return res.status(400).json({ error: 'Bạn không thể tự hạ quyền hoặc khóa tài khoản đang đăng nhập.' });
+    }
+    if (admin.role === 'owner' && role !== 'owner' && await Admin.countDocuments({ role: 'owner', active: { $ne: false } }) <= 1) {
+      return res.status(400).json({ error: 'Hệ thống phải còn ít nhất một Chủ hệ thống đang hoạt động.' });
+    }
+    if (req.body?.displayName !== undefined) admin.displayName = String(req.body.displayName).trim().slice(0, 80);
+    if (req.body?.active !== undefined) admin.active = Boolean(req.body.active);
+    admin.role = role;
+    admin.permissions = role === 'owner' ? [] : resolveAdminPermissions(role, Array.isArray(req.body?.permissions) ? req.body.permissions : admin.permissions);
+    if (req.body?.password) {
+      const password = String(req.body.password);
+      if (password.length < 10) return res.status(400).json({ error: 'Mật khẩu cần ít nhất 10 ký tự.' });
+      admin.password = await bcrypt.hash(password, 12);
+      admin.sessionsValidFrom = new Date();
+    }
+    await admin.save();
+    await auditAdminAccount(req, 'admin_account_updated', `${admin.displayName}:${admin.role}`);
+    res.json({ admin: publicAdmin(admin) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/accounts/:id', requireAdmin, ownerOnly, async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Không tìm thấy tài khoản quản trị.' });
+    if (String(admin._id) === String(req.admin.id)) return res.status(400).json({ error: 'Bạn không thể xóa tài khoản đang đăng nhập.' });
+    if (admin.role === 'owner' && await Admin.countDocuments({ role: 'owner', active: { $ne: false } }) <= 1) {
+      return res.status(400).json({ error: 'Hệ thống phải còn ít nhất một Chủ hệ thống đang hoạt động.' });
+    }
+    await admin.deleteOne();
+    await auditAdminAccount(req, 'admin_account_deleted', admin.displayName);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Verify password route

@@ -13,7 +13,7 @@ import AdminDashboard, { SosOverlay } from "../../components/admin/AdminDashboar
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminWorkQueueTab from "../../components/admin/AdminWorkQueueTab";
 import AdminJoyLendingTab from "../../components/admin/AdminJoyLendingTab";
-import { DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, isValidDestination } from "../../components/admin/adminDestinations";
+import { ADMIN_DESTINATIONS, DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, destinationsForPermissions, isValidDestination } from "../../components/admin/adminDestinations";
 import { adminBrainApi } from "../../services/api/modules/adminBrainApi";
 import AdminSystemTab from "../../components/admin/AdminSystemTab";
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
@@ -25,15 +25,13 @@ import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissio
 import AdminCoderResourcesTab from "../../components/admin/AdminCoderResourcesTab";
 import AdminLearnersTab from "../../components/admin/AdminLearnersTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
-import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
-import AdminRobotTab from "../../components/admin/AdminRobotTab";
-import AdminOAuthAppsTab from "../../components/admin/AdminOAuthAppsTab";
-import AdminAIWorkforceTab from "../../components/admin/AdminAIWorkforceTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
+import AdminAccessTab from "../../components/admin/AdminAccessTab";
+import { hasAdminPermission } from "../../../shared/adminAccess";
 
-function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
+function HugoNoticeToast({ open, message, zIndex = 150 }) {
   if (!open) return null;
   return (
     <div
@@ -48,6 +46,8 @@ function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
 
 export default function AdminPanel() {
   const { t } = useTranslation();
+  const [adminSession] = useState(() => getAdminSession() || { permissions: ["*"] });
+  const availableDestinations = useMemo(() => destinationsForPermissions(adminSession.permissions), [adminSession.permissions]);
   // Lấy thẳng từ DataContext. Trước đây nhận qua prop, nhưng App.jsx render
   // <AdminPanel /> không kèm prop nào — nên `data` là undefined và mọi công
   // tắc trong tab Cài đặt ném "updateSystemSettings is not a function".
@@ -70,31 +70,29 @@ export default function AdminPanel() {
     const legacy = new URLSearchParams(location.search).get("tab");
     const wanted = seg || legacy || "";
     const resolved = LEGACY_TAB_ALIASES[wanted] || wanted;
-    return isValidDestination(resolved) ? resolved : DEFAULT_DESTINATION;
-  }, [location.pathname, location.search]);
+    return isValidDestination(resolved, adminSession.permissions)
+      ? resolved
+      : (availableDestinations[0]?.id || DEFAULT_DESTINATION);
+  }, [location.pathname, location.search, adminSession.permissions, availableDestinations]);
 
   const setActiveTab = useCallback(
-    (id) => navigate(`/admin/${id}`, { replace: false }),
-    [navigate],
+    (id) => {
+      if (isValidDestination(id, adminSession.permissions)) navigate(`/admin/${id}`, { replace: false });
+    },
+    [navigate, adminSession.permissions],
   );
 
   // `/admin` trần và `?tab=` kiểu cũ đều chuẩn hoá về đường dẫn thật, để địa chỉ
   // trên thanh URL luôn khớp thứ đang hiện.
   useEffect(() => {
     const seg = location.pathname.replace(/^\/admin\/?/, "").split("/")[0];
-    if (!isValidDestination(seg)) navigate(`/admin/${activeTab}`, { replace: true });
-  }, [location.pathname, activeTab, navigate]);
+    if (!isValidDestination(seg, adminSession.permissions)) navigate(`/admin/${activeTab}`, { replace: true });
+  }, [location.pathname, activeTab, navigate, adminSession.permissions]);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
   const [authChecking, setAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminToken, setAdminToken] = useState("");
-
-  // Telegram deep-link: auto-activate robot tab + pass token
-  const [robotDeepLinkToken] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("robotToken") || "";
-  });
 
   // Counts & Stats
   const [counts, setCounts] = useState({
@@ -128,7 +126,7 @@ export default function AdminPanel() {
       .catch(() => {});
   }, []);
 
-  useVisiblePoll(fetchCrisisAlerts, 15000);
+  useVisiblePoll(fetchCrisisAlerts, 15000, hasAdminPermission(adminSession.permissions, "security"));
 
   // Admin Super Security Armor: F12 / DevTools Inspection Trap
   useEffect(() => {
@@ -169,7 +167,7 @@ export default function AdminPanel() {
   const [aiBriefingData, setAiBriefingData] = useState(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && hasAdminPermission(adminSession.permissions, "support")) {
       const apiBase = import.meta.env.VITE_API_URL || "/api";
       fetch(`${apiBase}/admin/ai-support/briefing`, { credentials: "include" })
         .then(r => r.ok ? r.json() : null)
@@ -181,7 +179,7 @@ export default function AdminPanel() {
         })
         .catch(() => {});
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, adminSession.permissions]);
 
   const handleCloseAiBriefing = () => {
     setAiBriefingModalOpen(false);
@@ -321,7 +319,7 @@ export default function AdminPanel() {
   };
 
   // Fetch Users
-  const handleRefreshUsers = async () => {
+  const handleRefreshUsers = useCallback(async () => {
     setLoading(true);
     try {
       const res = await userApi.getBios({
@@ -348,7 +346,7 @@ export default function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit]);
 
   // Debounce searchInput -> searchQuery
   useEffect(() => {
@@ -372,10 +370,10 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      handleRefreshUsers();
+      if (hasAdminPermission(adminSession.permissions, "users")) handleRefreshUsers();
       fetchOverviewCounts();
     }
-  }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit, isAuthenticated]);
+  }, [isAuthenticated, adminSession.permissions, handleRefreshUsers]);
 
   const handleExecuteDelete = async () => {
     setConfirmError("");
@@ -529,17 +527,8 @@ export default function AdminPanel() {
 
       case "sentinel":
         return <AdminSecuritySentinelTab token={adminToken} onShowToast={(msg) => showNotification(msg)} />;
-      case "brain":
-        return <AdminBrainTab />;
-      case "workforce":
-        return <AdminAIWorkforceTab />;
-      case "robot":
-        return <AdminRobotTab deepLinkToken={robotDeepLinkToken} />;
-
       case "monitor":
         return <AdminSystemTab showNotification={showNotification} />;
-      case "oauth":
-        return <AdminOAuthAppsTab />;
       case "settings":
         return (
           <AdminSettingsTab
@@ -548,6 +537,8 @@ export default function AdminPanel() {
             handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete} triggerConfirm={triggerConfirm}
           />
         );
+      case "access":
+        return <AdminAccessTab currentAdminId={adminSession.id} />;
       default:
         return null;
     }
@@ -635,6 +626,7 @@ export default function AdminPanel() {
         setActiveTab={setActiveTab}
         handleLogout={handleLogout}
         counts={counts}
+        session={adminSession}
       />
 
       {/* MAIN WORKSPACE WRAPPER */}
@@ -643,7 +635,8 @@ export default function AdminPanel() {
         {/* Top Header with ⌘K Command Search Bar */}
         <AdminHeader
           onOpenPalette={() => setIsPaletteOpen(true)}
-          usersCount={totalMatchedUsers || users.length}
+          destination={ADMIN_DESTINATIONS.find((destination) => destination.id === activeTab)}
+          session={adminSession}
         />
 
         {/* ⌘K Command Palette Modal */}
@@ -652,11 +645,12 @@ export default function AdminPanel() {
           onOpen={() => setIsPaletteOpen(true)}
           onClose={() => setIsPaletteOpen(false)}
           users={users}
+          permissions={adminSession.permissions}
           onNavigateTab={(tab) => { setActiveTab(tab); setIsPaletteOpen(false); }}
         />
 
         {/* MAIN WORKSPACE CONTENT */}
-        <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] relative min-h-0">
+        <section className="flex-1 overflow-y-auto bg-[#f5f6f8] p-4 pb-24 sm:p-6 md:p-8 md:pb-8 relative min-h-0">
         
         {/* ── HUB 1: DASHBOARD & COMMAND ANALYTICS ── */}
           {renderTab()}
