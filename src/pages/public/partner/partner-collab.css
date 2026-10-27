@@ -301,3 +301,4 @@ html.dark .driver-popover.collab-tour .driver-popover-arrow-side-right { border-
   .collab-strip { grid-template-columns: 1fr; }
   .collab-frame { padding: 1.6rem 1.5rem 1.8rem; min-height: 0; }
 }
+.collab-claim__session .collab-btn { white-space: nowrap; }

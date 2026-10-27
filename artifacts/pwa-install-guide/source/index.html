@@ -2,173 +2,450 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hugo Studio — Hướng dẫn cài PWA</title>
+  <meta name="viewport" content="width=1080, initial-scale=1" />
+  <title>Hugo Studio — Cài ứng dụng lên điện thoại</title>
+  <!--
+    Video hướng dẫn cài PWA, dựng như một trang web theo dòng thời gian.
+    render.mjs gọi window.seek(giây) cho từng khung hình rồi chụp lại — không
+    có animation tự chạy, nên mỗi khung hình luôn giống nhau ở mọi lần render.
+    ?lang=vi|en|zh  ·  ?durations=5.1,8.2,…  (độ dài từng cảnh, theo file lời đọc)
+    Mở thẳng trong trình duyệt thì tự phát để xem thử.
+
+    Ngôn ngữ thiết kế: trang hỗ trợ của Apple — nền trắng, chữ hệ thống, một ý
+    mỗi cảnh, điện thoại thật ở giữa, chạm nhẹ bằng vòng tròn xám.
+  -->
   <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 1920px; overflow: hidden; background: #fff; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      color: #f8fafc;
-      background:
-        radial-gradient(circle at 15% 12%, rgba(74, 105, 255, .32), transparent 34%),
-        radial-gradient(circle at 90% 42%, rgba(168, 85, 247, .24), transparent 38%),
-        radial-gradient(circle at 48% 100%, rgba(14, 165, 233, .22), transparent 42%),
-        #080b14;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Display", Inter, "PingFang SC", "WenQuanYi Zen Hei", sans-serif;
+      color: #1d1d1f; -webkit-font-smoothing: antialiased;
     }
-    .scene { position: relative; width: 1080px; height: 1920px; padding: 76px 72px 64px; }
-    .noise { position: absolute; inset: 0; opacity: .055; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); pointer-events:none; }
-    header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; }
-    .brand { display: flex; align-items: center; gap: 18px; font-size: 24px; font-weight: 800; letter-spacing: .04em; }
-    .brand img { width: 62px; height: 62px; border-radius: 16px; box-shadow: 0 14px 38px rgba(37, 99, 235, .28); }
-    .badge { padding: 12px 20px; border-radius: 999px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); font-weight: 750; color: #cbd5e1; }
-    .copy { position: relative; z-index: 2; margin-top: 76px; }
-    .eyebrow { color: #7dd3fc; font-size: 24px; line-height: 1; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-    h1 { margin: 22px 0 18px; max-width: 900px; font-size: 74px; line-height: 1.04; letter-spacing: -.045em; }
-    .lede { margin: 0; max-width: 880px; color: #b8c1d6; font-size: 32px; line-height: 1.42; font-weight: 520; }
-    .stage { position: relative; z-index: 2; height: 1190px; display: flex; align-items: center; justify-content: center; }
-    .phone {
-      position: relative; width: 600px; height: 1140px; padding: 22px; border-radius: 78px;
-      background: linear-gradient(145deg, #31384c, #0d1019 48%, #20263a);
-      border: 2px solid rgba(255,255,255,.25); box-shadow: 0 48px 110px rgba(0,0,0,.58), inset 0 0 0 2px rgba(255,255,255,.06);
+    .layer { position: absolute; inset: 0; will-change: opacity, transform; }
+
+    /* ── Chữ trên cảnh ─────────────────────────────────────────────── */
+    .copy { position: absolute; left: 90px; right: 90px; top: 150px; text-align: center; }
+    .eyebrow { font-size: 30px; font-weight: 600; color: #86868b; letter-spacing: .01em; }
+    .title { margin-top: 18px; font-size: 72px; line-height: 1.08; font-weight: 700; letter-spacing: -.035em; text-wrap: balance; }
+
+    /* ── Điện thoại ────────────────────────────────────────────────── */
+    .device { position: absolute; left: 50%; top: 520px; width: 640px; height: 1310px; margin-left: -320px; }
+    .frame {
+      position: absolute; inset: 0; border-radius: 104px; border: 18px solid #1d1d1f;
+      box-shadow: 0 0 0 3px #d2d2d7, 0 60px 120px -40px rgba(0,0,0,.35);
     }
-    .phone::before { content:""; position:absolute; z-index:4; width: 190px; height: 42px; border-radius: 999px; background:#080a0f; top:34px; left:50%; transform:translateX(-50%); }
-    .screen { position: relative; overflow: hidden; height: 100%; border-radius: 58px; color:#111827; background: #f6f7fb; }
-    .status { height: 70px; padding: 24px 34px 0; display:flex; justify-content:space-between; font-size:20px; font-weight:800; }
-    .browser { margin: 14px 20px 0; height: 70px; border-radius: 24px; background:#fff; box-shadow:0 4px 20px rgba(15,23,42,.09); display:flex; align-items:center; gap:14px; padding:0 18px; color:#64748b; font-size:19px; font-weight:650; }
-    .browser .address { flex:1; padding:13px 18px; background:#eef1f6; border-radius:16px; text-align:center; color:#334155; }
-    .portal { margin: 22px 20px; border-radius: 36px; background:linear-gradient(145deg,#fff,#eef5ff); border:1px solid #dbeafe; padding:34px 28px; text-align:center; box-shadow:0 16px 34px rgba(37,99,235,.11); }
-    .portal img { width: 104px; height: 104px; border-radius: 25px; box-shadow:0 15px 30px rgba(37,99,235,.2); }
-    .portal h2 { font-size:38px; line-height:1.07; margin:22px 0 12px; letter-spacing:-.035em; }
-    .portal p { margin:0; color:#64748b; font-size:21px; line-height:1.45; }
-    .primary { margin-top:28px; padding:22px; border-radius:22px; color:white; background:linear-gradient(90deg,#2563eb,#7c3aed); font-size:22px; font-weight:850; }
-    .toolbar { position:absolute; left:0; right:0; bottom:0; height:112px; display:flex; align-items:center; justify-content:space-around; background:rgba(255,255,255,.95); border-top:1px solid #d9deea; font-size:39px; color:#2563eb; }
-    .tap { position:absolute; width:88px; height:88px; border:5px solid #22c55e; border-radius:50%; box-shadow:0 0 0 16px rgba(34,197,94,.19); }
-    .tap::after { content:attr(data-label); position:absolute; left:50%; top:-48px; transform:translateX(-50%); color:#15803d; font-size:18px; font-weight:900; letter-spacing:.08em; }
-    .sheet { position:absolute; left:16px; right:16px; bottom:14px; min-height:750px; padding:26px 24px 36px; border-radius:38px; background:rgba(248,250,252,.98); box-shadow:0 -26px 70px rgba(15,23,42,.24); }
-    .grabber { width:74px; height:7px; border-radius:99px; background:#cbd5e1; margin:0 auto 24px; }
-    .sheet-title { font-size:26px; font-weight:850; margin:10px 8px 18px; }
-    .row { position:relative; display:flex; align-items:center; min-height:82px; padding:0 18px; border-top:1px solid #dbe1eb; gap:18px; font-size:23px; font-weight:680; }
-    .row .ico { width:40px; color:#2563eb; text-align:center; font-size:30px; }
-    .row.target { margin:6px -4px; border:3px solid #2563eb; border-radius:22px; background:#eff6ff; color:#1d4ed8; }
-    .install-card { margin:90px 26px 0; padding:32px; border-radius:34px; background:#fff; box-shadow:0 16px 44px rgba(15,23,42,.12); }
-    .app-line { display:flex; gap:22px; align-items:center; }
-    .app-line img { width:100px; height:100px; border-radius:24px; }
-    .app-line strong { font-size:29px; }
-    .app-line span { display:block; margin-top:7px; color:#64748b; font-size:19px; }
-    .toggle { margin-top:34px; padding:22px 0; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; font-size:22px; font-weight:740; }
-    .switch { width:74px; height:42px; border-radius:30px; background:#22c55e; padding:5px; }
-    .switch::after { content:""; display:block; margin-left:32px; width:32px; height:32px; border-radius:50%; background:#fff; box-shadow:0 2px 7px rgba(0,0,0,.25); }
-    .navbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 22px 0; height:64px; font-size:21px; color:#2563eb; }
-    .navbar b { color:#111827; font-size:20px; }
-    .navbar strong { font-weight:850; }
-    .install-card { margin-top:30px !important; }
-    .confirm { margin-top:26px; padding:20px; border-radius:18px; background:#2563eb; color:#fff; text-align:center; font-size:23px; font-weight:850; }
-    .chrome-menu { position:absolute; top:108px; right:18px; width:440px; background:#fff; border-radius:24px; box-shadow:0 20px 58px rgba(15,23,42,.3); padding:12px 0; overflow:hidden; }
-    .chrome-menu .row { border:0; min-height:70px; }
-    .chrome-menu .target { margin:4px 10px; }
-    .homescreen { height:100%; padding:96px 44px 50px; color:white; background:linear-gradient(155deg,#172554,#312e81 52%,#701a75); }
-    .clock { text-align:center; font-size:95px; line-height:1; font-weight:300; letter-spacing:-.06em; }
-    .date { text-align:center; margin-top:14px; font-size:22px; color:#dbeafe; }
-    .apps { margin-top:150px; display:grid; grid-template-columns:repeat(4,1fr); gap:48px 28px; }
-    .app { text-align:center; font-size:17px; text-shadow:0 2px 8px rgba(0,0,0,.45); }
-    .app .fake, .app img { display:block; width:82px; height:82px; margin:0 auto 12px; border-radius:22px; background:rgba(255,255,255,.22); box-shadow:0 9px 20px rgba(0,0,0,.2); }
-    .callout { position:absolute; left:20px; right:20px; bottom:40px; padding:25px 30px; border-radius:28px; background:rgba(8,11,20,.82); border:1px solid rgba(255,255,255,.15); backdrop-filter:blur(18px); display:flex; gap:18px; align-items:flex-start; color:#e2e8f0; font-size:24px; line-height:1.4; box-shadow:0 18px 48px rgba(0,0,0,.25); }
-    .callout b { color:#fff; }
-    .callout .check { flex:0 0 38px; height:38px; display:grid; place-items:center; border-radius:50%; background:#22c55e; color:#052e16; font-weight:950; }
-    .footer { position:absolute; z-index:3; left:72px; right:72px; bottom:46px; display:flex; align-items:center; gap:18px; }
-    .progress { flex:1; height:8px; border-radius:10px; background:rgba(255,255,255,.12); overflow:hidden; }
-    .progress > div { height:100%; border-radius:10px; background:linear-gradient(90deg,#38bdf8,#8b5cf6); }
-    .counter { color:#94a3b8; font-size:20px; font-weight:800; }
-    .split { display:flex; gap:24px; justify-content:center; margin-top:80px; }
-    .platform { width:400px; padding:40px 30px; border-radius:40px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); text-align:center; }
-    .platform .symbol { font-size:105px; }
-    .platform h2 { margin:24px 0 9px; font-size:34px; }
-    .platform p { color:#aab5ca; font-size:23px; line-height:1.4; margin:0; }
-    .final { text-align:center; margin-top:190px; }
-    .final img { width:250px; height:250px; border-radius:58px; box-shadow:0 42px 90px rgba(37,99,235,.36); }
-    .final h1 { margin:55px auto 22px; }
-    .final p { color:#bcc6da; font-size:31px; line-height:1.5; }
-    .url { margin:38px auto 0; display:inline-block; padding:18px 28px; border-radius:999px; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.16); color:#7dd3fc; font-size:24px; font-weight:800; }
+    .frame.android { border-radius: 72px; }
+    .screen { position: relative; width: 100%; height: 100%; border-radius: 86px; overflow: hidden; background: #fff; }
+    .android .screen { border-radius: 54px; }
+    .island { position: absolute; z-index: 20; top: 26px; left: 50%; width: 170px; height: 50px; margin-left: -85px; border-radius: 30px; background: #000; }
+    .punch { position: absolute; z-index: 20; top: 30px; left: 50%; width: 30px; height: 30px; margin-left: -15px; border-radius: 50%; background: #000; }
+    .status { position: absolute; z-index: 15; top: 0; left: 0; right: 0; height: 100px; display: flex; align-items: center; justify-content: space-between; padding: 22px 54px 0 66px; font-size: 26px; font-weight: 600; }
+    .android .status { height: 84px; padding: 10px 40px 0 44px; font-size: 22px; }
+    .status svg { height: 22px; }
+    .ui { position: absolute; inset: 0; }
+
+    /* Trang Hugo Studio đang mở trong trình duyệt — tối giản, như ảnh chụp thật. */
+    .page { position: absolute; left: 0; right: 0; top: 100px; bottom: 0; padding: 70px 44px 0; text-align: center; background: #fff; }
+    .page img { width: 132px; height: 132px; border-radius: 30px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.3); }
+    .page h2 { margin-top: 30px; font-size: 44px; font-weight: 700; letter-spacing: -.03em; }
+    .page p { margin-top: 12px; font-size: 24px; line-height: 1.4; color: #6e6e73; }
+    .page .bar { height: 18px; margin: 18px auto 0; border-radius: 9px; background: #f2f2f7; }
+    .page .cta { display: inline-block; margin-top: 36px; padding: 18px 36px; border-radius: 999px; background: #1d1d1f; color: #fff; font-size: 24px; font-weight: 600; }
+
+    /* Thanh dưới của Safari (iOS 17/18). */
+    .safari { position: absolute; left: 0; right: 0; bottom: 0; height: 200px; background: rgba(246,246,246,.96); border-top: 1px solid #e5e5ea; }
+    .safari .addr { margin: 16px 26px 0; height: 66px; border-radius: 18px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 25px; color: #1d1d1f; }
+    .safari .addr small { color: #86868b; font-size: 22px; }
+    .safari .tools { display: flex; justify-content: space-around; align-items: center; height: 92px; padding: 0 20px; }
+    .safari .tools svg { width: 40px; height: 40px; stroke: #007aff; fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Thanh trên của trình duyệt trong app (Zalo / Facebook). */
+    .inapp { position: absolute; left: 0; right: 0; top: 100px; height: 88px; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; border-bottom: 1px solid #e5e5ea; background: #fff; font-size: 24px; font-weight: 600; }
+    .inapp .dom { font-weight: 500; color: #6e6e73; }
+    .inapp .x, .inapp .more { width: 52px; text-align: center; font-size: 34px; color: #1d1d1f; }
+
+    /* Bảng tác vụ / bảng chia sẻ trượt từ dưới lên. */
+    .sheet { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 40px 40px 0 0; background: #f2f2f7; box-shadow: 0 -10px 50px rgba(0,0,0,.18); padding: 18px 26px 60px; }
+    .grabber { width: 72px; height: 9px; margin: 0 auto 22px; border-radius: 5px; background: #c7c7cc; }
+    .sheet-head { display: flex; align-items: center; gap: 20px; padding: 6px 8px 26px; }
+    .sheet-head img { width: 80px; height: 80px; border-radius: 18px; }
+    .sheet-head b { display: block; font-size: 27px; }
+    .sheet-head span { font-size: 22px; color: #86868b; }
+    .group { border-radius: 22px; background: #fff; overflow: hidden; margin-bottom: 22px; }
+    .row { position: relative; display: flex; align-items: center; justify-content: space-between; height: 92px; padding: 0 30px; font-size: 27px; border-top: 1px solid #e5e5ea; }
+    .row:first-child { border-top: 0; }
+    .row svg { width: 36px; height: 36px; stroke: #1d1d1f; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .row.hl { background: #e9e9ee; }
+
+    /* Màn "Thêm vào Màn hình chính". */
+    .nav { position: absolute; left: 0; right: 0; top: 100px; height: 96px; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; font-size: 27px; }
+    .nav .l, .nav .r { color: #007aff; }
+    .nav .r { font-weight: 600; }
+    .nav b { font-weight: 600; }
+    .form { position: absolute; left: 26px; right: 26px; top: 230px; }
+    .card { border-radius: 22px; background: #fff; padding: 26px; display: flex; gap: 24px; align-items: center; }
+    .card img { width: 110px; height: 110px; border-radius: 25px; }
+    .card .name { font-size: 29px; padding-bottom: 14px; border-bottom: 1px solid #e5e5ea; }
+    .card .url { margin-top: 14px; font-size: 22px; color: #86868b; }
+    .switchrow { margin-top: 26px; border-radius: 22px; background: #fff; height: 96px; padding: 0 26px; display: flex; align-items: center; justify-content: space-between; font-size: 26px; }
+    .switch { position: relative; width: 92px; height: 56px; border-radius: 28px; background: #e9e9eb; }
+    .switch i { position: absolute; top: 4px; left: 4px; width: 48px; height: 48px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+    .hint { margin: 16px 10px 0; font-size: 21px; line-height: 1.4; color: #86868b; }
+
+    /* Android · Chrome. */
+    .chrome { position: absolute; left: 0; right: 0; top: 84px; height: 104px; display: flex; align-items: center; gap: 18px; padding: 0 22px 0 28px; background: #fff; }
+    .chrome .omni { flex: 1; height: 68px; border-radius: 34px; background: #f1f3f4; display: flex; align-items: center; padding: 0 26px; font-size: 25px; color: #202124; }
+    .chrome .kebab { width: 50px; text-align: center; font-size: 40px; line-height: 1; color: #5f6368; }
+    .menu { position: absolute; top: 104px; right: 16px; width: 400px; border-radius: 20px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,.22); padding: 12px 0; transform-origin: top right; }
+    .menu .item { position: relative; height: 82px; display: flex; align-items: center; gap: 22px; padding: 0 28px; font-size: 25px; color: #202124; }
+    .menu .item svg { width: 34px; height: 34px; stroke: #5f6368; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .menu .item.hl { background: #e8f0fe; }
+    .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.32); }
+    .dialog { position: absolute; left: 50px; right: 50px; top: 430px; border-radius: 34px; background: #fff; padding: 40px 38px 30px; }
+    .dialog h3 { font-size: 32px; font-weight: 500; }
+    .dialog .app { display: flex; gap: 22px; align-items: center; margin-top: 30px; }
+    .dialog .app img { width: 84px; height: 84px; border-radius: 20px; }
+    .dialog .app b { display: block; font-size: 27px; font-weight: 500; }
+    .dialog .app span { font-size: 22px; color: #5f6368; }
+    .dialog .btns { display: flex; justify-content: flex-end; gap: 46px; margin-top: 44px; font-size: 26px; font-weight: 600; color: #1a73e8; }
+
+    /* Màn hình chính. */
+    .home { position: absolute; inset: 0; background: linear-gradient(180deg, #e8eef8 0%, #f4efe9 100%); }
+    .grid { position: absolute; left: 50px; right: 50px; top: 170px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 56px; justify-items: center; }
+    .icon { width: 112px; height: 112px; border-radius: 26px; background: rgba(255,255,255,.72); }
+    .icon img { width: 100%; height: 100%; border-radius: 26px; }
+    .dock { position: absolute; left: 30px; right: 30px; bottom: 30px; height: 160px; border-radius: 50px; background: rgba(255,255,255,.45); display: flex; justify-content: space-around; align-items: center; }
+    .launch { position: absolute; inset: 0; background: #fff; display: grid; place-items: center; }
+    .launch img { width: 170px; height: 170px; border-radius: 38px; }
+
+    /* Chạm: vòng tròn xám mờ như video hỗ trợ của Apple. */
+    .tap { position: absolute; z-index: 30; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; background: rgba(60,60,67,.22); border: 3px solid rgba(255,255,255,.9); box-shadow: 0 4px 18px rgba(0,0,0,.18); opacity: 0; }
+
+    /* Cảnh mở đầu / kết thúc. */
+    .hero { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 100px; }
+    .hero img { width: 260px; height: 260px; border-radius: 58px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.35); }
+    .hero h1 { margin-top: 70px; font-size: 84px; line-height: 1.06; font-weight: 700; letter-spacing: -.04em; text-wrap: balance; }
+    .hero p { margin-top: 26px; font-size: 36px; color: #86868b; }
+    .hero .url { margin-top: 40px; font-size: 30px; font-weight: 600; color: #0066cc; }
+
+    /* Chấm tiến độ. */
+    .dots { position: absolute; left: 0; right: 0; bottom: 70px; display: flex; justify-content: center; gap: 14px; }
+    .dots i { width: 12px; height: 12px; border-radius: 6px; background: #d2d2d7; transition: none; }
+    .dots i.on { width: 44px; background: #1d1d1f; }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script>
-    const icon = "../../../public/favicon/web-app-manifest-512x512.png";
-    // Mỗi ngôn ngữ: chữ trên cảnh + chữ trong mockup. Nhãn trong mockup chép theo
-    // nhãn thật của Safari/Chrome ở ngôn ngữ đó.
+    const ICON = "../../../public/favicon/web-app-manifest-512x512.png";
+    const DOMAIN = "hugowishpax.studio";
+
+    // Chữ trên cảnh + nhãn trong giao diện giả lập (chép theo nhãn thật của
+    // Safari/Chrome ở ngôn ngữ đó). Lời đọc tương ứng: ../voice-script.md.
     const COPY = {
       vi: {
-        ui: { tap:"CHẠM", portalTitle:"Cài app để tiếp tục", portalDesc:"Khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài.", install:"Cài đặt ngay (1 chạm)", share:"Chia sẻ", fav:"Thêm vào Mục ưa thích", bookmark:"Thêm dấu trang", addHome:"Thêm vào Màn hình chính", find:"Tìm trên trang", edit:"Sửa tác vụ…", cancel:"Hủy", add:"Thêm", webApp:"Mở dưới dạng ứng dụng web", important:"<b>Quan trọng:</b> bật công tắc này để app mở toàn màn hình như ứng dụng thật.", reload:"Tải lại", download:"Tải xuống", history:"Lịch sử", installApp:"Cài đặt ứng dụng", date:"Thứ Hai, 26 tháng 10", photos:"Ảnh", notes:"Ghi chú", settings:"Cài đặt" },
+        intro: { title: "Hugo Studio trên màn hình chính", sub: "iPhone và Android · khoảng 30 giây" },
         scenes: [
-          { platform:"iPhone + Android", eyebrow:"Hướng dẫn chính thức", title:"Cài Hugo Studio như một ứng dụng", lede:"Không cần App Store. Chỉ mất khoảng 30 giây, mở toàn màn hình như ứng dụng trên điện thoại.", a:"Safari → Chia sẻ → Thêm vào Màn hình chính", b:"Chrome → Cài đặt ngay hoặc menu ⋮" },
-          { platform:"iPhone / iPad", eyebrow:"Bước 1 · Safari", title:"Mở đúng trang bằng Safari", lede:"Nếu đang ở Zalo, Facebook hoặc Chrome trên iPhone, Quý thành viên sao chép liên kết và mở lại bằng Safari." },
-          { platform:"iPhone / iPad", eyebrow:"Bước 2 · Safari", title:"Mở bảng Chia sẻ", lede:"Chạm biểu tượng ô vuông có mũi tên hướng lên. Một số bố cục Safari đặt Chia sẻ trong nút menu trang." },
-          { platform:"iPhone / iPad", eyebrow:"Bước 3 · Safari", title:"Chọn “Thêm vào Màn hình chính”", lede:"Vuốt danh sách xuống nếu chưa thấy. Có thể vào “Sửa tác vụ” để thêm mục này." },
-          { platform:"iPhone / iPad", eyebrow:"Bước 4 · Safari", title:"Bật “Mở dưới dạng ứng dụng web”", lede:"Giữ tên Hugo Studio, bật công tắc rồi nhấn “Thêm” ở góc trên bên phải." },
-          { platform:"Android · Chrome", eyebrow:"Cách nhanh nhất", title:"Nhấn “Cài đặt ngay” trên portal", lede:"Khi Chrome hỗ trợ, portal hiện nút cài một chạm. Xác nhận “Cài đặt” trong hộp thoại hệ thống." },
-          { platform:"Android · Chrome", eyebrow:"Nếu không thấy nút nhanh", title:"Mở menu ⋮ của Chrome", lede:"Chọn “Cài đặt ứng dụng” rồi xác nhận. Một số máy ghi là “Thêm vào màn hình chính”." },
-          { platform:"Hoàn tất", eyebrow:"Bước cuối", title:"Mở từ biểu tượng Hugo Studio", lede:"Quay về màn hình chính và chạm biểu tượng vừa tạo. App mở toàn màn hình, không còn thanh địa chỉ." },
-          { platform:"Hugo Studio", eyebrow:"Sẵn sàng", title:"Cài đặt đã hoàn tất", lede:"Đăng nhập lại nếu được hỏi. Từ đây khu vực thành viên tự nhận bản cập nhật mới.", finalTitle:"Hugo Studio đã ở trên màn hình chính", finalText:"Nếu app vẫn mở trong một tab có thanh địa chỉ,<br>xoá biểu tượng và cài lại đúng theo video." },
+          null,
+          { eyebrow: "iPhone · Bước 1", title: "Mở trang bằng Safari" },
+          { eyebrow: "iPhone · Bước 2", title: "Chạm nút Chia sẻ" },
+          { eyebrow: "iPhone · Bước 3", title: "Thêm vào Màn hình chính" },
+          { eyebrow: "iPhone · Bước 4", title: "Bật ứng dụng web, chạm Thêm" },
+          { eyebrow: "Android · Chrome", title: "Cài đặt bằng Chrome" },
+          { eyebrow: "Hoàn tất", title: "Mở từ màn hình chính" },
         ],
+        outro: { title: "Sẵn sàng.", sub: "Hugo Studio chạy toàn màn hình, như một ứng dụng thật." },
+        ui: { pageTitle: "Hugo Studio", pageText: "Học, làm và lớn lên cùng cộng đồng.", pageCta: "Bắt đầu", openSafari: "Mở trong Safari", copyLink: "Sao chép liên kết", share: "Chia sẻ", refresh: "Làm mới", copy: "Sao chép", readingList: "Thêm vào Danh sách đọc", bookmark: "Thêm dấu trang", favorites: "Thêm vào Mục ưa thích", addHome: "Thêm vào MH chính", addHomeFull: "Thêm vào Màn hình chính", cancel: "Hủy", add: "Thêm", webApp: "Mở dưới dạng ứng dụng web", webAppHint: "Bật để Hugo Studio mở toàn màn hình, không có thanh địa chỉ.", newTab: "Thẻ mới", history: "Lịch sử", downloads: "Tài nguyên đã tải xuống", installApp: "Cài đặt ứng dụng", installTitle: "Cài đặt ứng dụng?", install: "Cài đặt" },
       },
       en: {
-        ui: { tap:"TAP", portalTitle:"Install the app to continue", portalDesc:"The member area is built for the installed Hugo Studio app.", install:"Install now (1 tap)", share:"Share", fav:"Add to Favorites", bookmark:"Add Bookmark", addHome:"Add to Home Screen", find:"Find on Page", edit:"Edit Actions…", cancel:"Cancel", add:"Add", webApp:"Open as Web App", important:"<b>Important:</b> keep this switch on so the app opens full screen, like a real app.", reload:"Reload", download:"Downloads", history:"History", installApp:"Install app", date:"Monday, October 26", photos:"Photos", notes:"Notes", settings:"Settings" },
+        intro: { title: "Hugo Studio on your home screen", sub: "iPhone and Android · about 30 seconds" },
         scenes: [
-          { platform:"iPhone + Android", eyebrow:"Official guide", title:"Install Hugo Studio as an app", lede:"No App Store needed. It takes about 30 seconds and opens full screen like any other app.", a:"Safari → Share → Add to Home Screen", b:"Chrome → Install now or the ⋮ menu" },
-          { platform:"iPhone / iPad", eyebrow:"Step 1 · Safari", title:"Open the page in Safari", lede:"If you are in Zalo, Facebook or Chrome on iPhone, copy the link and open it again in Safari." },
-          { platform:"iPhone / iPad", eyebrow:"Step 2 · Safari", title:"Open the Share sheet", lede:"Tap the square with an arrow pointing up. Some Safari layouts keep Share inside the page menu." },
-          { platform:"iPhone / iPad", eyebrow:"Step 3 · Safari", title:"Choose “Add to Home Screen”", lede:"Scroll the list if you don’t see it. You can add it through “Edit Actions”." },
-          { platform:"iPhone / iPad", eyebrow:"Step 4 · Safari", title:"Turn on “Open as Web App”", lede:"Keep the name Hugo Studio, turn the switch on, then tap “Add” in the top right corner." },
-          { platform:"Android · Chrome", eyebrow:"Fastest way", title:"Tap “Install now” on the portal", lede:"When Chrome supports it, the portal shows a one-tap install button. Confirm “Install” in the system dialog." },
-          { platform:"Android · Chrome", eyebrow:"No quick button?", title:"Open Chrome’s ⋮ menu", lede:"Choose “Install app”, then confirm. On some phones it reads “Add to Home screen”." },
-          { platform:"Done", eyebrow:"Last step", title:"Open it from the Hugo Studio icon", lede:"Go back to the home screen and tap the new icon. The app opens full screen, with no address bar." },
-          { platform:"Hugo Studio", eyebrow:"Ready", title:"You’re all set", lede:"Sign in again if asked. From now on the member area updates itself automatically.", finalTitle:"Hugo Studio is on your home screen", finalText:"If the app still opens in a tab with an address bar,<br>delete the icon and install again following this video." },
+          null,
+          { eyebrow: "iPhone · Step 1", title: "Open the page in Safari" },
+          { eyebrow: "iPhone · Step 2", title: "Tap Share" },
+          { eyebrow: "iPhone · Step 3", title: "Add to Home Screen" },
+          { eyebrow: "iPhone · Step 4", title: "Turn on Web App, tap Add" },
+          { eyebrow: "Android · Chrome", title: "Install with Chrome" },
+          { eyebrow: "Done", title: "Open it from your home screen" },
         ],
+        outro: { title: "You're all set.", sub: "Hugo Studio runs full screen, just like a real app." },
+        ui: { pageTitle: "Hugo Studio", pageText: "Learn, build and grow with the community.", pageCta: "Get started", openSafari: "Open in Safari", copyLink: "Copy link", share: "Share", refresh: "Refresh", copy: "Copy", readingList: "Add to Reading List", bookmark: "Add Bookmark", favorites: "Add to Favorites", addHome: "Add to Home Screen", addHomeFull: "Add to Home Screen", cancel: "Cancel", add: "Add", webApp: "Open as Web App", webAppHint: "Keep this on so Hugo Studio opens full screen, with no address bar.", newTab: "New tab", history: "History", downloads: "Downloads", installApp: "Install app", installTitle: "Install app?", install: "Install" },
       },
       zh: {
-        ui: { tap:"点击", portalTitle:"安装应用以继续", portalDesc:"会员专区专为已安装的 Hugo Studio 应用优化。", install:"立即安装（一键）", share:"共享", fav:"添加到个人收藏", bookmark:"添加书签", addHome:"添加到主屏幕", find:"在页面上查找", edit:"编辑操作…", cancel:"取消", add:"添加", webApp:"作为网页 App 打开", important:"<b>重要：</b>请保持此开关开启，应用才会像真正的 App 一样全屏打开。", reload:"重新加载", download:"下载内容", history:"历史记录", installApp:"安装应用", date:"10月26日 星期一", photos:"照片", notes:"备忘录", settings:"设置" },
+        intro: { title: "把 Hugo Studio 放到主屏幕", sub: "iPhone 与安卓 · 约 30 秒" },
         scenes: [
-          { platform:"iPhone + Android", eyebrow:"官方指南", title:"把 Hugo Studio 安装成应用", lede:"无需 App Store，只需约 30 秒，像普通应用一样全屏打开。", a:"Safari → 共享 → 添加到主屏幕", b:"Chrome → 立即安装 或 ⋮ 菜单" },
-          { platform:"iPhone / iPad", eyebrow:"第 1 步 · Safari", title:"用 Safari 打开页面", lede:"如果正在 Zalo、Facebook 或 iPhone 上的 Chrome 中，请复制链接，再用 Safari 打开。" },
-          { platform:"iPhone / iPad", eyebrow:"第 2 步 · Safari", title:"打开共享菜单", lede:"点击带向上箭头的方框图标。部分 Safari 布局把“共享”放在页面菜单里。" },
-          { platform:"iPhone / iPad", eyebrow:"第 3 步 · Safari", title:"选择“添加到主屏幕”", lede:"如果没看到，请向下滑动列表，或通过“编辑操作”添加此项。" },
-          { platform:"iPhone / iPad", eyebrow:"第 4 步 · Safari", title:"开启“作为网页 App 打开”", lede:"保留名称 Hugo Studio，打开开关，然后点右上角的“添加”。" },
-          { platform:"Android · Chrome", eyebrow:"最快的方法", title:"点击门户上的“立即安装”", lede:"Chrome 支持时，门户会显示一键安装按钮。在系统对话框中确认“安装”。" },
-          { platform:"Android · Chrome", eyebrow:"没有快捷按钮？", title:"打开 Chrome 的 ⋮ 菜单", lede:"选择“安装应用”，然后确认。部分手机显示为“添加到主屏幕”。" },
-          { platform:"完成", eyebrow:"最后一步", title:"从 Hugo Studio 图标打开", lede:"回到主屏幕，点击新建的图标。应用将全屏打开，不再有地址栏。" },
-          { platform:"Hugo Studio", eyebrow:"准备就绪", title:"安装完成", lede:"如有提示请重新登录。之后会员专区会自动更新。", finalTitle:"Hugo Studio 已在主屏幕上", finalText:"如果应用仍在带地址栏的标签页中打开，<br>请删除图标，并按视频重新安装。" },
+          null,
+          { eyebrow: "iPhone · 第 1 步", title: "用 Safari 打开页面" },
+          { eyebrow: "iPhone · 第 2 步", title: "点按“共享”" },
+          { eyebrow: "iPhone · 第 3 步", title: "添加到主屏幕" },
+          { eyebrow: "iPhone · 第 4 步", title: "打开网页 App，点按添加" },
+          { eyebrow: "安卓 · Chrome", title: "用 Chrome 安装" },
+          { eyebrow: "完成", title: "从主屏幕打开" },
         ],
+        outro: { title: "一切就绪。", sub: "Hugo Studio 全屏运行，就像真正的 App。" },
+        ui: { pageTitle: "Hugo Studio", pageText: "与社区一起学习、创作、成长。", pageCta: "开始", openSafari: "在 Safari 中打开", copyLink: "拷贝链接", share: "共享", refresh: "刷新", copy: "拷贝", readingList: "添加到阅读列表", bookmark: "添加书签", favorites: "添加到个人收藏", addHome: "添加到主屏幕", addHomeFull: "添加到主屏幕", cancel: "取消", add: "添加", webApp: "作为网页 App 打开", webAppHint: "保持打开，Hugo Studio 就会全屏显示，没有地址栏。", newTab: "新标签页", history: "历史记录", downloads: "下载内容", installApp: "安装应用", installTitle: "安装应用？", install: "安装" },
       },
     };
+
     const params = new URLSearchParams(location.search);
     const lang = COPY[params.get("lang")] ? params.get("lang") : "vi";
-    document.documentElement.lang = lang;
-    const { ui, scenes } = COPY[lang];
-    const i = Math.max(0, Math.min(scenes.length - 1, Number(params.get("scene") || 0)));
-    const s = scenes[i];
-    const kind = ["platforms","safari","share","iossheet","iosconfirm","androidquick","androidmenu","home","final"][i];
-    const tap = (style) => `<div class="tap" data-label="${ui.tap}" style="${style}"></div>`;
-    const header = `<header><div class="brand"><img src="${icon}"><span>HUGO STUDIO</span></div><div class="badge">${s.platform}</div></header>`;
-    const intro = `${header}<div class="copy"><div class="eyebrow">${s.eyebrow}</div><h1>${s.title}</h1><p class="lede">${s.lede}</p></div>`;
-    const footer = `<div class="footer"><div class="progress"><div style="width:${((i+1)/scenes.length)*100}%"></div></div><div class="counter">${i+1} / ${scenes.length}</div></div>`;
-    const status = `<div class="status"><span>9:41</span><span>▮▮▮  Wi‑Fi  100%</span></div>`;
-    const portal = `<div class="portal"><img src="${icon}"><h2>${ui.portalTitle}</h2><p>${ui.portalDesc}</p><div class="primary">${ui.install}</div></div>`;
-    const browser = (android=false) => `<div class="browser"><span>${android?'⌂':'AA'}</span><div class="address">hugowishpax.studio</div><b>${android?'⋮':'↻'}</b></div>`;
-    const toolbar = `<div class="toolbar"><span>‹</span><span>›</span><span>□↑</span><span>▤</span><span>▢</span></div>`;
-    const phone = (inner) => `<div class="stage"><div class="phone"><div class="screen">${inner}</div></div></div>`;
-    let stage = "";
-    if (kind === "platforms") stage = `<div class="split"><div class="platform"><div class="symbol">◉</div><h2>iPhone / iPad</h2><p>${s.a}</p></div><div class="platform"><div class="symbol">◆</div><h2>Android</h2><p>${s.b}</p></div></div>`;
-    if (kind === "safari") stage = phone(`${status}${browser()}${portal}${toolbar}`);
-    if (kind === "share") stage = phone(`${status}${browser()}${portal}${toolbar}${tap("left:258px;bottom:14px")}`);
-    if (kind === "iossheet") stage = phone(`${status}${browser()}<div class="sheet"><div class="grabber"></div><div class="sheet-title">${ui.share}</div><div class="row"><span class="ico">☆</span>${ui.fav}</div><div class="row"><span class="ico">▱</span>${ui.bookmark}</div><div class="row target"><span class="ico">⊞</span>${ui.addHome}</div><div class="row"><span class="ico">⌕</span>${ui.find}</div><div class="row"><span class="ico">⚙</span>${ui.edit}</div></div>`);
-    if (kind === "iosconfirm") stage = phone(`${status}<div class="navbar"><span>${ui.cancel}</span><b>${ui.addHome}</b><strong>${ui.add}</strong></div><div class="install-card"><div class="app-line"><img src="${icon}"><div><strong>Hugo Studio</strong><span>hugowishpax.studio</span></div></div><div class="toggle"><span>${ui.webApp}</span><div class="switch"></div></div></div>${tap("right:14px;top:84px")}<div class="callout"><div class="check">✓</div><div>${ui.important}</div></div>`);
-    if (kind === "androidquick") stage = phone(`${status}${browser(true)}${portal}${tap("left:254px;top:560px")}`);
-    if (kind === "androidmenu") stage = phone(`${status}${browser(true)}${portal}<div class="chrome-menu"><div class="row"><span class="ico">↻</span>${ui.reload}</div><div class="row"><span class="ico">☆</span>${ui.bookmark}</div><div class="row"><span class="ico">⇩</span>${ui.download}</div><div class="row"><span class="ico">◷</span>${ui.history}</div><div class="row target"><span class="ico">⊞</span>${ui.installApp}</div></div>${tap("right:150px;top:400px")}`);
-    if (kind === "home") stage = phone(`<div class="homescreen"><div class="clock">09:41</div><div class="date">${ui.date}</div><div class="apps"><div class="app"><span class="fake"></span>${ui.photos}</div><div class="app"><span class="fake"></span>${ui.notes}</div><div class="app"><img src="${icon}">Hugo Studio</div><div class="app"><span class="fake"></span>${ui.settings}</div></div>${tap("left:299px;top:357px")}</div>`);
-    if (kind === "final") stage = `<div class="final"><img src="${icon}"><h1>${s.finalTitle}</h1><p>${s.finalText}</p><div class="url">www.hugowishpax.studio</div></div>`;
-    document.getElementById("root").innerHTML = `<main class="scene"><div class="noise"></div>${intro}${stage}${footer}</main>`;
+    const C = COPY[lang];
+    const U = C.ui;
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+
+    // Độ dài mặc định ước theo lời đọc; render.mjs truyền độ dài thật.
+    const DEFAULT_DURATIONS = [5.5, 9, 6, 5.5, 7.5, 9.5, 9];
+    const durations = (params.get("durations") || "").split(",").map(Number).filter((n) => n > 0);
+    const DUR = DEFAULT_DURATIONS.map((d, i) => durations[i] || d);
+    const STARTS = DUR.map((_, i) => DUR.slice(0, i).reduce((a, b) => a + b, 0));
+    const TOTAL = DUR.reduce((a, b) => a + b, 0);
+    window.TOTAL = TOTAL;
+    window.SCENE_STARTS = STARTS;
+
+    // ── Tiện ích thời gian ──────────────────────────────────────────────
+    const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+    const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+    const easeInOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+    /** Tiến độ 0→1 (đã làm mượt) của khoảng [a, b] tại thời điểm t. */
+    const seg = (t, a, b, ease = easeInOut) => ease(clamp((t - a) / (b - a)));
+    const mix = (a, b, p) => a + (b - a) * p;
+
+    // ── Biểu tượng (nét mảnh, kiểu SF Symbols) ──────────────────────────
+    const SVG = {
+      back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+      fwd: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+      share: '<svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v8a2 2 0 002 2h8a2 2 0 002-2v-8"/></svg>',
+      book: '<svg viewBox="0 0 24 24"><path d="M3 5c3-1 6-1 9 1 3-2 6-2 9-1v14c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6v14"/></svg>',
+      tabs: '<svg viewBox="0 0 24 24"><rect x="4" y="7" width="13" height="13" rx="2"/><path d="M8 4h10a2 2 0 012 2v10"/></svg>',
+      copy: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg>',
+      glasses: '<svg viewBox="0 0 24 24"><circle cx="6.5" cy="14" r="3.5"/><circle cx="17.5" cy="14" r="3.5"/><path d="M10 14h4M3 13l2-6M21 13l-2-6"/></svg>',
+      star: '<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+      plusbox: '<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+      compass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>',
+      link: '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg>',
+      refresh: '<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+      plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+      clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+      down: '<svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>',
+      install: '<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>',
+      signal: '<svg viewBox="0 0 34 22"><rect x="0" y="14" width="6" height="8" rx="1.5"/><rect x="9" y="10" width="6" height="12" rx="1.5"/><rect x="18" y="5" width="6" height="17" rx="1.5"/><rect x="27" y="0" width="6" height="22" rx="1.5"/></svg>',
+      battery: '<svg viewBox="0 0 50 22"><rect x="1" y="1" width="42" height="20" rx="6" fill="none" stroke="#1d1d1f" stroke-opacity=".4" stroke-width="2"/><rect x="4" y="4" width="34" height="14" rx="3.5"/><rect x="45" y="7" width="3" height="8" rx="1.5" opacity=".4"/></svg>',
+    };
+
+    const status = (android) => android
+      ? `<div class="status"><span>9:41</span><span>${SVG.signal}&nbsp;${SVG.battery}</span></div>`
+      : `<div class="status"><span>9:41</span><span>${SVG.signal}&nbsp;${SVG.battery}</span></div>`;
+    const page = () => `<div class="page"><img src="${ICON}"><h2>${U.pageTitle}</h2><p>${U.pageText}</p>
+      <div class="bar" style="width:86%"></div><div class="bar" style="width:72%"></div><div class="bar" style="width:80%"></div>
+      <div class="cta">${U.pageCta}</div></div>`;
+    const safariBar = () => `<div class="safari"><div class="addr"><small>AA</small>${DOMAIN}</div>
+      <div class="tools"><span>${SVG.back}</span><span>${SVG.fwd}</span><span id="share-btn">${SVG.share}</span><span>${SVG.book}</span><span>${SVG.tabs}</span></div></div>`;
+    const tap = (id) => `<div class="tap" id="${id}"></div>`;
+    const apps = (withHugo) => Array.from({ length: 16 }, (_, i) =>
+      (withHugo && i === 9) ? `<div class="icon" id="hugo-icon"><img src="${ICON}"></div>` : `<div class="icon"></div>`).join("");
+
+    // ── Cảnh ────────────────────────────────────────────────────────────
+    // Mỗi cảnh: html (dựng một lần) + update(t) với t = giây kể từ đầu cảnh.
+    const $ = (sel, el) => el.querySelector(sel);
+    const show = (el, o, y = 0, s = 1) => { el.style.opacity = o; el.style.transform = `translateY(${y}px) scale(${s})`; };
+    /** Vòng chạm: hiện ở (x, y) lúc `at`, nhấn xuống, rồi tan. */
+    const tapAt = (el, t, at, x, y) => {
+      const p = t - at;
+      el.style.left = `${x}px`; el.style.top = `${y}px`;
+      if (p < -0.35 || p > 0.6) { el.style.opacity = 0; return; }
+      const appear = seg(p, -0.35, 0, easeOut);
+      const press = p < 0 ? 1 : p < 0.15 ? mix(1, .82, p / .15) : mix(.82, 1.15, seg(p, .15, .6));
+      el.style.opacity = p < .15 ? appear : 1 - seg(p, .15, .6);
+      el.style.transform = `scale(${press * mix(1.3, 1, appear)})`;
+    };
+
+    const SCENES = [
+      // 0 · Mở đầu
+      {
+        phone: null,
+        html: () => `<div class="hero"><img id="i0" src="${ICON}"><h1 id="h0">${C.intro.title}</h1><p id="p0">${C.intro.sub}</p></div>`,
+        update(t, el) {
+          show($("#i0", el), seg(t, .2, 1.1), 0, mix(.86, 1, seg(t, .2, 1.4, easeOut)));
+          show($("#h0", el), seg(t, .7, 1.5), mix(24, 0, seg(t, .7, 1.6, easeOut)));
+          show($("#p0", el), seg(t, 1.1, 1.9), mix(18, 0, seg(t, 1.1, 2, easeOut)));
+        },
+      },
+      // 1 · iPhone: từ trình duyệt trong app → Safari
+      {
+        phone: "ios",
+        html: () => `<div class="ui" id="inapp-ui">${page()}<div class="inapp"><span class="x">✕</span><span class="dom">${DOMAIN}</span><span class="more" id="more">•••</span></div>
+            <div class="scrim" id="scrim1"></div>
+            <div class="sheet" id="sheet1"><div class="grabber"></div>
+              <div class="group"><div class="row hl" id="row-safari">${U.openSafari}${SVG.compass}</div><div class="row">${U.copyLink}${SVG.link}</div><div class="row">${U.share}${SVG.share}</div></div>
+            </div></div>
+          <div class="ui" id="safari-ui">${page()}${safariBar()}</div>${tap("tap1")}`,
+        update(t, el) {
+          if (t < 2.6) tapAt($("#tap1", el), t, 1.4, 548, 144);
+          else tapAt($("#tap1", el), t, 3.3, 300, 1032);
+          const open = seg(t, 1.6, 2.1);
+          $("#scrim1", el).style.opacity = open * (1 - seg(t, 3.6, 3.9));
+          $("#sheet1", el).style.transform = `translateY(${mix(420, 0, open)}px)`;
+          const toSafari = seg(t, 3.6, 4.2);
+          $("#inapp-ui", el).style.opacity = 1 - toSafari;
+          $("#safari-ui", el).style.opacity = toSafari;
+        },
+      },
+      // 2 · iPhone: chạm Chia sẻ
+      {
+        phone: "ios",
+        html: () => `<div class="ui">${page()}${safariBar()}<div class="scrim" id="scrim2"></div>
+            <div class="sheet" id="sheet2"><div class="grabber"></div>
+              <div class="sheet-head"><img src="${ICON}"><div><b>Hugo Studio</b><span>${DOMAIN}</span></div></div>
+              <div class="group"><div class="row">${U.copy}${SVG.copy}</div><div class="row">${U.readingList}${SVG.glasses}</div><div class="row">${U.bookmark}${SVG.book}</div></div>
+            </div></div>${tap("tap2")}`,
+        update(t, el) {
+          tapAt($("#tap2", el), t, 1.5, 302, 1210);
+          const open = seg(t, 1.8, 2.5);
+          $("#scrim2", el).style.opacity = open;
+          $("#sheet2", el).style.transform = `translateY(${mix(620, 0, open)}px)`;
+        },
+      },
+      // 3 · iPhone: kéo lên, chọn Thêm vào Màn hình chính
+      {
+        phone: "ios",
+        html: () => `<div class="ui">${page()}${safariBar()}<div class="scrim" style="opacity:1"></div>
+            <div class="sheet" id="sheet3"><div class="grabber"></div>
+              <div class="sheet-head"><img src="${ICON}"><div><b>Hugo Studio</b><span>${DOMAIN}</span></div></div>
+              <div class="group"><div class="row">${U.copy}${SVG.copy}</div><div class="row">${U.readingList}${SVG.glasses}</div><div class="row">${U.bookmark}${SVG.book}</div></div>
+              <div class="group"><div class="row">${U.favorites}${SVG.star}</div><div class="row" id="row-home">${U.addHomeFull}${SVG.plusbox}</div></div>
+            </div></div>${tap("tap3")}`,
+        update(t, el) {
+          const lift = seg(t, .6, 1.6);
+          $("#sheet3", el).style.transform = `translateY(${mix(210, 0, lift)}px)`;
+          $("#row-home", el).classList.toggle("hl", t > 2.35);
+          tapAt($("#tap3", el), t, 2.3, 300, 1118);
+        },
+      },
+      // 4 · iPhone: bật "Mở dưới dạng ứng dụng web" → Thêm → xuất hiện trên màn hình chính
+      {
+        phone: "ios",
+        html: () => `<div class="ui" id="form-ui" style="background:#f2f2f7">
+            <div class="nav"><span class="l">${U.cancel}</span><b>${U.addHome}</b><span class="r">${U.add}</span></div>
+            <div class="form"><div class="card"><img src="${ICON}"><div style="flex:1"><div class="name">Hugo Studio</div><div class="url">https://${DOMAIN}</div></div></div>
+              <div class="switchrow">${U.webApp}<div class="switch" id="sw"><i></i></div></div>
+              <p class="hint">${U.webAppHint}</p></div></div>
+          <div class="ui home" id="home4"><div class="grid">${apps(true)}</div><div class="dock"><div class="icon"></div><div class="icon"></div><div class="icon"></div><div class="icon"></div></div></div>${tap("tap4")}`,
+        update(t, el) {
+          tapAt($("#tap4", el), t, 1.6, 498, 427);
+          const on = seg(t, 1.65, 1.95);
+          $("#sw", el).style.background = `rgb(${mix(233, 52, on)}, ${mix(233, 199, on)}, ${mix(235, 89, on)})`;
+          $("#sw i", el).style.transform = `translateX(${36 * on}px)`;
+          if (t > 2.4) tapAt($("#tap4", el), t, 3.1, 546, 148);
+          const home = seg(t, 3.4, 4.0);
+          $("#form-ui", el).style.opacity = 1 - home;
+          $("#home4", el).style.opacity = home;
+          const pop = seg(t, 3.8, 4.5, easeOut);
+          const icon = $("#hugo-icon", el);
+          icon.style.opacity = pop;
+          icon.style.transform = `scale(${mix(.4, 1, pop)})`;
+        },
+      },
+      // 5 · Android: Chrome ⋮ → Cài đặt ứng dụng → Cài đặt
+      {
+        phone: "android",
+        html: () => `<div class="ui">${page().replace('class="page"', 'class="page" style="top:188px"')}
+            <div class="chrome"><div class="omni">${DOMAIN}</div><div class="kebab">⋮</div></div>
+            <div class="menu" id="menu5" style="top:150px"><div class="item">${SVG.plus}${U.newTab}</div><div class="item">${SVG.clock}${U.history}</div><div class="item">${SVG.down}${U.downloads}</div><div class="item" id="item-install">${SVG.install}${U.installApp}</div></div>
+            <div class="scrim" id="scrim5"></div>
+            <div class="dialog" id="dialog5"><h3>${U.installTitle}</h3><div class="app"><img src="${ICON}"><div><b>Hugo Studio</b><span>${DOMAIN}</span></div></div><div class="btns"><span>${U.cancel}</span><span>${U.install}</span></div></div>
+          </div>${tap("tap5")}`,
+        update(t, el) {
+          tapAt($("#tap5", el), t, 1.4, 574, 136);
+          const menu = seg(t, 1.6, 2.0, easeOut);
+          const close = seg(t, 3.2, 3.4);
+          $("#menu5", el).style.opacity = menu * (1 - close);
+          $("#menu5", el).style.transform = `scale(${mix(.9, 1, menu)})`;
+          $("#item-install", el).classList.toggle("hl", t > 2.95);
+          if (t > 2.2) tapAt($("#tap5", el), t, 2.9, 330, 459);
+          const dlg = seg(t, 3.4, 3.8, easeOut) * (1 - seg(t, 5.3, 5.6));
+          $("#scrim5", el).style.opacity = dlg;
+          $("#dialog5", el).style.opacity = dlg;
+          $("#dialog5", el).style.transform = `scale(${mix(.94, 1, dlg)})`;
+          if (t > 3.6) tapAt($("#tap5", el), t, 5.0, 498, 704);
+        },
+      },
+      // 6 · Mở từ màn hình chính, rồi khung kết
+      {
+        phone: "ios",
+        html: () => `<div class="ui home"><div class="grid">${apps(true)}</div><div class="dock"><div class="icon"></div><div class="icon"></div><div class="icon"></div><div class="icon"></div></div></div>
+          <div class="ui launch" id="launch"><img src="${ICON}"></div>${tap("tap6")}`,
+        outro: true,
+        update(t, el) {
+          tapAt($("#tap6", el), t, 1.5, 365, 461);
+          const open = seg(t, 1.7, 2.4, easeOut);
+          const launch = $("#launch", el);
+          launch.style.opacity = open;
+          launch.style.clipPath = `inset(${mix(380, 0, open)}px ${mix(250, 0, open)}px ${mix(820, 0, open)}px ${mix(250, 0, open)}px round ${mix(26, 88, open)}px)`;
+        },
+      },
+    ];
+
+    // ── Dựng ────────────────────────────────────────────────────────────
+    const root = document.getElementById("root");
+    const device = (kind) => `<div class="device"><div class="frame ${kind === "android" ? "android" : ""}"><div class="screen">
+      ${kind === "android" ? '<div class="punch"></div>' : '<div class="island"></div>'}${status(kind === "android")}<div class="content"></div></div></div></div>`;
+    const els = SCENES.map((scene, i) => {
+      const layer = document.createElement("div");
+      layer.className = "layer";
+      const copy = C.scenes[i];
+      layer.innerHTML = (copy ? `<div class="copy"><div class="eyebrow">${copy.eyebrow}</div><div class="title">${copy.title}</div></div>` : "")
+        + (scene.phone ? device(scene.phone) : scene.html());
+      if (scene.phone) layer.querySelector(".content").outerHTML = scene.html();
+      if (scene.outro) layer.insertAdjacentHTML("beforeend", `<div class="hero" id="outro" style="opacity:0;background:#fff;z-index:50"><img src="${ICON}"><h1>${C.outro.title}</h1><p>${C.outro.sub}</p><div class="url">${DOMAIN}</div></div>`);
+      root.appendChild(layer);
+      return layer;
+    });
+    const dots = document.createElement("div");
+    dots.className = "dots";
+    dots.innerHTML = SCENES.map(() => "<i></i>").join("");
+    root.appendChild(dots);
+
+    // Hai cảnh liền nhau cùng một chiếc điện thoại thì điện thoại đứng yên,
+    // chỉ chữ và màn hình đổi; đổi loại máy thì cả cảnh tan sang cảnh sau.
+    const FADE = 0.45;
+    window.seek = (time) => {
+      SCENES.forEach((scene, i) => {
+        const t = time - STARTS[i];
+        const el = els[i];
+        const inP = i === 0 ? 1 : seg(t, 0, FADE);
+        const outP = i === SCENES.length - 1 ? 0 : seg(t, DUR[i] - FADE * 0.2, DUR[i] + FADE * 0.8);
+        const visible = t > -0.01 && t < DUR[i] + FADE;
+        el.style.display = visible ? "block" : "none";
+        if (!visible) return;
+        const samePrev = i > 0 && Boolean(scene.phone) && SCENES[i - 1].phone === scene.phone;
+        const sameNext = Boolean(scene.phone) && SCENES[i + 1]?.phone === scene.phone;
+        // Cùng một chiếc máy: lớp cũ đứng yên bên dưới, màn hình mới hiện dần
+        // lên trong khung — khung máy không nhấp nháy giữa hai cảnh.
+        el.style.opacity = (samePrev ? 1 : inP) * (sameNext ? 1 : 1 - outP);
+        el.style.zIndex = String(i);
+        const copy = el.querySelector(".copy");
+        if (copy) show(copy, inP * (1 - outP), mix(16, 0, inP));
+        const screen = el.querySelector(".device .screen");
+        if (screen) screen.style.opacity = samePrev ? inP : 1;
+        scene.update(Math.max(0, t), el);
+        if (scene.outro) {
+          const end = seg(t, DUR[i] - 2.6, DUR[i] - 1.9);
+          show(el.querySelector("#outro"), end, 0, 1);
+        }
+      });
+      const current = STARTS.findLastIndex((s) => time >= s);
+      dots.querySelectorAll("i").forEach((d, i) => d.classList.toggle("on", i === current));
+      dots.style.opacity = time > TOTAL - 2.6 ? 1 - seg(time, TOTAL - 2.6, TOTAL - 2.2) : 1;
+    };
+
+    window.ready = Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+    if (!params.has("render")) {
+      const t0 = performance.now();
+      const loop = () => { window.seek(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); };
+      window.ready.then(loop);
+    } else {
+      window.seek(0);
+    }
   </script>
 </body>
 </html>
