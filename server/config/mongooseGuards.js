@@ -26,21 +26,34 @@ export class UnsafeQueryError extends Error {
   }
 }
 
-/** Trả về khoá cấm đầu tiên tìm thấy, hoặc '' nếu sạch. */
-export function findForbiddenKey(value, depth = 0) {
-  if (!value || typeof value !== 'object' || depth > MAX_DEPTH) return '';
-  // ObjectId, Date, Buffer… không phải đối tượng truy vấn, bỏ qua cho nhanh.
-  if (value instanceof Date || Buffer.isBuffer(value) || value._bsontype) return '';
-  if (Array.isArray(value)) {
+const isPlainObject = (value) => {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+/**
+ * Trả về khoá cấm đầu tiên tìm thấy, hoặc '' nếu sạch.
+ *
+ * Chỉ duyệt object thuần và mảng — đúng hình của một bộ lọc/cập nhật. Document,
+ * subdocument của Mongoose, ObjectId, Date, Map, Buffer… đều bỏ qua: chúng do
+ * máy chủ tạo chứ không phải chuỗi người dùng gửi, và subdocument giữ tham chiếu
+ * ngược về cha — duyệt vào đó là đi vòng, tốn CPU theo cấp số nhân.
+ */
+export function findForbiddenKey(value, depth = 0, seen = new WeakSet()) {
+  if (!value || typeof value !== 'object' || depth > MAX_DEPTH || seen.has(value)) return '';
+  const isArray = Array.isArray(value);
+  if (!isArray && !isPlainObject(value)) return '';
+  seen.add(value);
+  if (isArray) {
     for (const item of value) {
-      const hit = findForbiddenKey(item, depth + 1);
+      const hit = findForbiddenKey(item, depth + 1, seen);
       if (hit) return hit;
     }
     return '';
   }
   for (const key of Object.keys(value)) {
     if (FORBIDDEN_KEYS.has(key)) return key;
-    const hit = findForbiddenKey(value[key], depth + 1);
+    const hit = findForbiddenKey(value[key], depth + 1, seen);
     if (hit) return hit;
   }
   return '';

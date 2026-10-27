@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { nom } from "../../lib/nomText";
+import { memberDisplayName } from "../../lib/memberDisplayName";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Camera, Check, HugeIcon, Wallet } from "../ui/HugeIcon";
-import { useIsMobile } from "../../hooks/useIsMobile";
 import { sensory } from "../../lib/sensory";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { pushService } from "../../services/pushService";
@@ -153,15 +153,12 @@ export default function MemberSettingsTab({
   const currentLang = languageCode(i18n.resolvedLanguage || i18n.language);
   const email = memberSession?.email || bio?.email || "—";
   const displayName =
-    formData?.displayName ||
-    bio?.displayName ||
-    memberSession?.displayName ||
+    memberDisplayName({ formData, bio, session: memberSession }) ||
     t("memberPortal.navigation.memberFallback", nom("Thành viên Hugo"));
 
   // Lấy màu nền theme Aura hiện hành cho vùng avatar
   const activeThemeKey = resolveActivePortalTheme(bio);
   const themeConfig = getAuraTheme(activeThemeKey);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
@@ -179,9 +176,14 @@ export default function MemberSettingsTab({
       .catch(() => {});
   }, []);
 
+  // Chỉ tải lại khi đổi tài khoản. Phụ thuộc cả object `bio` thì mỗi lần hồ sơ
+  // được làm mới (bản cache → bản máy chủ, cập nhật realtime) lại gọi thêm hai
+  // API này. `bio` chỉ cần cho đường dự phòng của backend cũ, đọc qua ref.
+  const bioRef = useRef(bio);
+  bioRef.current = bio;
   useEffect(() => {
     if (!email || email === "—") return;
-    fetchJoyPerks(bio)
+    fetchJoyPerks(bioRef.current)
       .then((data) => {
         setPerks(data);
         setPerksLoaded(true);
@@ -193,7 +195,7 @@ export default function MemberSettingsTab({
         setChallengesLoaded(true);
       })
       .catch(() => {});
-  }, [email, bio]);
+  }, [email]);
 
   useEffect(() => {
     if (!accountSubTab || accountSubTab === "setting") return;
@@ -278,27 +280,6 @@ export default function MemberSettingsTab({
   const selectLanguage = async (code) => {
     if (code === currentLang) return;
     await changeAppLanguage(code);
-  };
-
-  const views = [
-    { id: "account", label: t("memberPortal.navigation.account", nom("Tài khoản")), icon: "person", path: "/member/account" },
-    { id: "setting", label: nom("Cài đặt"), icon: "settings", path: "/member/account/setting" },
-  ];
-  const chip = (view) => {
-    const active = currentView === view.id;
-    return (
-      <button
-        type="button"
-        onClick={() => { sensory.tap(); navigate(view.path); }}
-        aria-current={active ? "page" : undefined}
-        className={`flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[13px] font-extrabold shadow-sm transition-all active:scale-95 ${
-          active ? "bg-foreground text-background shadow-md" : "bg-zinc-100/80 text-muted-foreground hover:bg-zinc-200/70 hover:text-foreground dark:bg-white/[0.06] dark:hover:bg-white/[0.1]"
-        }`}
-      >
-        <HugeIcon name={view.icon} size={15} />
-        <span>{view.label}</span>
-      </button>
-    );
   };
 
   return (
@@ -397,32 +378,6 @@ export default function MemberSettingsTab({
         </div>
       </header>
 
-      {/* ── 2. THANH ĐIỀU HƯỚNG DÍNH — cùng khuôn thanh chuyên mục của Today ── */}
-      <div className="sticky top-2 z-20 w-full min-w-0">
-        <div className="relative flex items-center justify-between gap-1.5 overflow-hidden rounded-[24px] border border-white/70 bg-white/70 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-3xl dark:border-white/[0.12] dark:bg-white/[0.06] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-          {SHEEN}
-          <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
-            <div className="flex min-w-max items-center gap-1.5">
-              {views.map((v) => (
-                <div key={v.id} className="transition-transform duration-200 active:scale-95">
-                  {chip(v)}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex shrink-0 items-center border-l border-zinc-200/60 pl-1.5 dark:border-white/10">
-            <button
-              type="button"
-              onClick={() => { sensory.tap(); navigate("/member/activity"); }}
-              aria-label={nom("Thông báo")}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-zinc-100/90 text-muted-foreground shadow-xs transition-all hover:bg-white hover:text-foreground active:scale-90 dark:border-white/[0.12] dark:bg-white/[0.08] dark:hover:bg-white/[0.18]"
-            >
-              <HugeIcon name="notifications" size={17} />
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* ── 3. NỘI DUNG ──────────────────────────────────────────────────── */}
       {currentView === "account" && (
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2 md:items-start">
@@ -446,6 +401,23 @@ export default function MemberSettingsTab({
           <Section>
             <Row icon="logout" title={nom("Đăng xuất")} subtitle={nom("Đăng xuất khỏi thiết bị này")} danger onClick={handleLogout} />
           </Section>
+        </div>
+      )}
+
+      {currentView === "setting" && (
+        // Trang con kiểu Cài đặt iOS: nút quay lại + tiêu đề, thay cho thanh chuyển
+        // "Tài khoản / Cài đặt" dính trên đầu (nó đè lên nội dung khi cuộn và là
+        // lối thứ hai tới cùng một chỗ với dòng "Cài đặt" bên dưới).
+        <div className="flex items-center gap-1 px-1">
+          <button
+            type="button"
+            onClick={() => navigate("/member/account")}
+            className="inline-flex min-h-[44px] items-center gap-0.5 rounded-full pr-3 text-[16px] font-semibold text-primary"
+          >
+            <span className="material-symbols-outlined text-[26px]" aria-hidden="true">chevron_left</span>
+            {t("memberPortal.navigation.account", nom("Tài khoản"))}
+          </button>
+          <h2 className="ml-auto pr-2 text-[17px] font-extrabold text-foreground">{nom("Cài đặt")}</h2>
         </div>
       )}
 

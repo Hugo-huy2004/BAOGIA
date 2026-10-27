@@ -165,7 +165,7 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh }) 
     queryKey: ["today-posts"],
     queryFn: ({ pageParam }) => todayPostsApi.feed(pageParam),
     initialPageParam: null,
-    getNextPageParam: (last) => (last.more ? last.posts.at(-1)?.createdAt : undefined),
+    getNextPageParam: (last) => (last?.more ? last.posts?.at(-1)?.createdAt : undefined),
     ...FROZEN,
   });
 
@@ -178,7 +178,9 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh }) 
   });
 
   const items = useMemo(() => {
-    const members = filter === "news" ? [] : (posts.data?.pages || []).flatMap((p) => p.posts);
+    // Trang lỗi (429, 503 khi đông người) không có `posts`: bỏ qua thay vì làm sập
+    // cả tab Hôm nay vì đọc `post.key` trên undefined.
+    const members = filter === "news" ? [] : (posts.data?.pages || []).flatMap((p) => (Array.isArray(p?.posts) ? p.posts : []));
     const news = filter === "members" ? [] : articles.map((a) => articlePost(a, stats?.stats?.[`a:${a.id}`], fetchedAt || Date.now()));
     return [...members, ...news].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [filter, posts.data, articles, stats, fetchedAt]);

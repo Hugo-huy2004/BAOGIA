@@ -2,12 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
+import './styles/liquidGlass.css'
 import './i18n/config.js'
 import { initSecurityShield } from './utils/security'
 import { installApiAuthInterceptor } from './services/api/core/authInterceptor'
 import { installClientMonitoring } from './utils/clientMonitoring'
 import { initSentryMonitoring } from './utils/sentryMonitoring'
 import { startBrandColorCycle } from './lib/brandColorCycle'
+import { liquidPress } from './lib/liquidGlass/LiquidPressEngine'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
 
@@ -32,6 +34,8 @@ installApiAuthInterceptor();
 initSentryMonitoring();
 installClientMonitoring();
 startBrandColorCycle();
+// Cảm giác bấm kính kiểu iOS cho mọi nút — một bộ máy duy nhất ở gốc tài liệu.
+liquidPress.start();
 
 if (import.meta.env.DEV && 'serviceWorker' in navigator) {
   // Dev should always load fresh Vite modules instead of any previously cached PWA assets.

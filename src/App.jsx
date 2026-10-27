@@ -29,7 +29,9 @@ import MobileInstallGate from "./components/ui/MobileInstallGate";
 import SafeAreaProbe from "./components/ui/SafeAreaProbe";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
-import { LazyMotion } from "framer-motion";
+import { LazyMotion, MotionConfig } from "framer-motion";
+
+const IOS_SPRING = { type: "spring", visualDuration: 0.42, bounce: 0.18 };
 const loadMotionFeatures = () => import("./config/motionFeatures").then((mod) => mod.default);
 import { initGlobalHaptics } from "./utils/haptics";
 import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
@@ -487,6 +489,9 @@ export default function App() {
     <ErrorBoundary>
       <SecurityBlockBoundary>
         <LazyMotion features={loadMotionFeatures}>
+        {/* Chuyển động mặc định kiểu iOS 27: lò xo nảy nhẹ cho mọi hoạt hình chưa tự
+            khai báo transition; tôn trọng "Giảm chuyển động" của hệ điều hành. */}
+        <MotionConfig reducedMotion="user" transition={IOS_SPRING}>
         <DataProvider>
           <BrowserRouter basename={langPrefix || undefined} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
@@ -535,6 +540,7 @@ export default function App() {
             </TooltipProvider>
           </BrowserRouter>
         </DataProvider>
+        </MotionConfig>
         </LazyMotion>
       </SecurityBlockBoundary>
     </ErrorBoundary>

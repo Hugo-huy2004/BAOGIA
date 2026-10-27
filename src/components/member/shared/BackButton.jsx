@@ -26,6 +26,8 @@ export default function BackButton({
   className = "",
   style = {},
 }) {
+  // Nút đóng kiểu iOS 26/27: vòng kính trong với dấu X đơn sắc. Co/giãn khi bấm
+  // do bộ máy Liquid Glass lo (src/lib/liquidGlass), không tự scale ở đây.
   return (
     <button
       type="button"
@@ -33,7 +35,7 @@ export default function BackButton({
       aria-label={label}
       title={label}
       style={style}
-      className={`group relative inline-flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-[#ff5f57] text-[#700000] border border-[#d63d35]/40 shadow-md shadow-red-500/20 transition-all duration-150 hover:bg-[#e0443e] hover:scale-110 active:scale-95 cursor-pointer select-none ${className}`}
+      className={`lg-glass group relative inline-flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full text-foreground cursor-pointer select-none ${className}`}
     >
       <span className="material-symbols-outlined text-[17px] sm:text-[19px] font-black leading-none">
         close
