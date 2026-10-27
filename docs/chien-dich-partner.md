@@ -12,10 +12,16 @@ khoản đã đăng nhập Google, đã điền đủ hồ sơ, mỗi người m
    sang nét. Hai nhân vật vẽ theo logo — giọt thuỷ tinh Hugo Studio và ô `<J>`
    của hwagfu.dev — đi vào, bắt tay, nhảy lên chữ **COLLABORATE** phát sáng.
    Xong phim hiện nút **KHÁM PHÁ ƯU ĐÃI**.
-2. Bốn khung phim giới thiệu ưu đãi → nút Google (một chạm).
+2. Bốn thẻ quyền lợi có tương tác (bước đăng ký sáng dần, công tắc học sinh /
+   sinh viên tính tổng ngày và hạn dùng, chạm từng dịch vụ, JOY đếm lên) →
+   nút Google (một chạm). Thẻ theo chế độ sáng/tối của máy (`html.dark`).
+   Trang **không** hiện số suất còn lại.
 3. Hồ sơ thiếu gì hỏi nấy (`OnboardingProfileModal`, danh sách do server trả).
 4. `POST /api/partner-campaigns/<slug>/claim` → pháo hoa, màn chào mừng ghi rõ
    quà đã áp dụng, hạn tài khoản mới, số dư JOY.
+   Hết suất (hoặc chiến dịch đã đóng): vẫn đăng nhập và vẫn được chào mừng,
+   nhưng không nhận gì từ chiến dịch — chỉ còn JOY khởi tạo của hệ thống, kèm
+   lời nhắc xác minh giáo dục để tăng thời hạn dùng. Không bắn pháo hoa.
 5. Tour driver.js tự chạy, dẫn qua Bio, Ví JOY, Hugo Team, Study, HugoKit,
    Aura, Arcade rồi nút vào trang thành viên.
 
@@ -67,7 +73,7 @@ Tài khoản bị chặn được ghi thành lượt `rejected` (giữ chỗ ema
 bị chặn nhầm thì admin gỡ:
 
 - `GET /api/partner-campaigns/admin/<slug>/claims` — số đã nhận, số bị chặn,
-  danh sách gần nhất kèm lý do.
+  số suất đã dùng / còn lại (chỉ admin thấy), danh sách gần nhất kèm lý do.
 - `DELETE /api/partner-campaigns/admin/<slug>/claims/<id>` — gỡ một lượt bị
   chặn để tài khoản đó thử lại (lượt đã nhận quà thì không gỡ được).
 
@@ -84,5 +90,8 @@ bị chặn nhầm thì admin gỡ:
    (như của www, xem `docs/chong-ddos-12-tang.md`) cho cả tên miền partner.
    Thiếu thì luật IP và luật "vân tay + cùng mạng" tự bỏ qua (an toàn: không
    chặn nhầm), chỉ còn điện thoại, mã thiết bị và vị trí.
-4. **Google Search Console** → thêm property `partner.hugowishpax.studio`, nộp
+4. **Backend (Render)**: deploy lại để có `https://partner.hugowishpax.studio`
+   trong danh sách CORS (`server/config/cors.js`). Thiếu bước này trình duyệt
+   chặn mọi lời gọi `api.hugowishpax.studio` từ tên miền partner.
+5. **Google Search Console** → thêm property `partner.hugowishpax.studio`, nộp
    `https://partner.hugowishpax.studio/sitemap.xml`.

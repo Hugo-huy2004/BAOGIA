@@ -777,7 +777,6 @@ if (!isPortfolio) {
         price: "0",
         priceCurrency: "VND",
         availability: "https://schema.org/LimitedAvailability",
-        eligibleQuantity: { "@type": "QuantitativeValue", maxValue: campaign.maxClaims },
         offeredBy: [
           { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
           { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
@@ -790,7 +789,7 @@ if (!isPortfolio) {
       `Tặng ${campaign.bioDays} ngày duy trì tài khoản & trang Bio; thêm ${campaign.eduBonusDays} ngày nếu đã xác minh giáo dục.`,
       "Trải nghiệm các dịch vụ thành viên hoàn toàn miễn phí.",
       `Ví JOY được tặng ${campaign.joy.toLocaleString("vi-VN")} JOY và có thể tham gia các dự án phi lợi nhuận tại Hugo Team.`,
-      `Giới hạn ${campaign.maxClaims} tài khoản, mỗi người nhận một lần.`,
+      "Số lượng có hạn, mỗi người nhận một lần.",
     ];
     const body =
       `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6">` +

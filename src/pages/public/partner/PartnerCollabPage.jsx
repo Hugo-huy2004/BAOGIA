@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import confetti from "canvas-confetti";
 import CollabFilm from "./CollabFilm";
+import PerkCards from "./PerkCards";
 import { COLLAB_COPY } from "./collabCopy";
 import { HUGO_DROP } from "./mascotArt";
 import OnboardingProfileModal from "../../../components/member/OnboardingProfileModal";
@@ -11,7 +12,7 @@ import { API_BASE } from "../../../config/apiBase";
 import { getMemberSession, loginMemberWithGoogle, logoutAuth } from "../../../services/api/core/authSession";
 import { loadGoogleIdentity } from "../../../utils/loadGoogleIdentity";
 import { getDeviceFingerprint, getDeviceId } from "../../../utils/deviceSignals";
-import { getPartnerCampaign, isPartnerCampaignOpen, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
+import { getPartnerCampaign, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
 import "./partner-collab.css";
 
 const SERVICES_ORIGIN = "https://www.hugowishpax.studio";
@@ -156,9 +157,7 @@ export default function PartnerCollabPage() {
   useCampaignMeta(campaign, copy, canonical);
 
   const [reduced] = useState(prefersReducedMotion);
-  const [filmKey, setFilmKey] = useState(0);
   const [filmDone, setFilmDone] = useState(false);
-  const [live, setLive] = useState(null); // số suất còn lại từ server
   const [session, setSession] = useState(() => getMemberSession());
   const [stage, setStage] = useState("offer"); // offer | profile | claiming | welcome
   const [notice, setNotice] = useState(null); // { kind, title, body }
@@ -167,25 +166,7 @@ export default function PartnerCollabPage() {
   const tourRef = useRef(null);
   const autoTourRef = useRef(false);
 
-  useEffect(() => {
-    if (!campaign) return undefined;
-    let alive = true;
-    fetch(`${API_BASE}/partner-campaigns/${slug}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => alive && data?.campaign && setLive(data.campaign))
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [campaign, slug]);
-
-  const open = live ? live.open : isPartnerCampaignOpen(campaign);
-  const remaining = live?.remaining ?? campaign?.maxClaims;
-
   const finishFilm = useCallback(() => setFilmDone(true), []);
-  const replayFilm = () => {
-    setFilmDone(false);
-    setFilmKey((key) => key + 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
   const explore = () => offerRef.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
 
   const claim = useCallback(async () => {
@@ -220,10 +201,16 @@ export default function PartnerCollabPage() {
         setStage("profile");
         return;
       }
+      // Hết suất / hết hạn: vẫn chào mừng thành viên mới, chỉ là không có quà
+      // chiến dịch — ví còn JOY khởi tạo của hệ thống, gợi ý xác minh giáo dục.
+      if (data.code === "SOLD_OUT" || data.code === "CAMPAIGN_CLOSED") {
+        setResult({ ...data, soldOut: true, displayName: meData.displayName || getMemberSession()?.displayName || "" });
+        setStage("welcome");
+        return;
+      }
       if (!response.ok) {
         const kind = data.code === "DUPLICATE_PERSON" ? "rejected" : "error";
-        setNotice({ kind, title: kind === "rejected" ? ui.rejectedTitle : (data.code === "SOLD_OUT" ? ui.soldOut : ui.closed), body: data.error });
-        if (data.code === "SOLD_OUT" || data.code === "CAMPAIGN_CLOSED") setLive((current) => ({ ...(current || {}), open: false, remaining: 0 }));
+        setNotice({ kind, title: kind === "rejected" ? ui.rejectedTitle : ui.loginFailed, body: data.error });
         setStage("offer");
         return;
       }
@@ -255,14 +242,14 @@ export default function PartnerCollabPage() {
   useEffect(() => {
     if (stage !== "welcome") return undefined;
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
-    return result?.alreadyClaimed ? undefined : fireworks(reduced);
-  }, [stage, result?.alreadyClaimed, reduced]);
+    return result?.alreadyClaimed || result?.soldOut ? undefined : fireworks(reduced);
+  }, [stage, result?.alreadyClaimed, result?.soldOut, reduced]);
 
   const startTour = useCallback(async () => {
     const [{ driver }] = await Promise.all([import("driver.js"), import("driver.js/dist/driver.css")]);
     tourRef.current?.destroy();
     const steps = [
-      { element: "#collab-rewards", popover: { title: ui.welcomeEyebrow, description: ui.welcomeLede(campaign.partnerName) } },
+      { element: "#collab-rewards", popover: { title: ui.welcomeEyebrow, description: result?.soldOut ? ui.soldOutLede : ui.welcomeLede(campaign.partnerName) } },
       ...ui.features.map((feature) => ({
         element: `#collab-feature-${feature.id}`,
         popover: { title: feature.title, description: feature.tour },
@@ -287,7 +274,7 @@ export default function PartnerCollabPage() {
     });
     tourRef.current = tour;
     tour.drive();
-  }, [campaign, reduced, ui]);
+  }, [campaign, reduced, result?.soldOut, ui]);
 
   // Tự mở tour một lần, sau khi pháo hoa đã kịp nổ.
   useEffect(() => {
@@ -311,8 +298,6 @@ export default function PartnerCollabPage() {
     );
   }
 
-  const frames = ui.frames(campaign);
-
 
   return (
     <main className="collab" lang={lang}>
@@ -324,7 +309,7 @@ export default function PartnerCollabPage() {
         </header>
 
         <div className="collab-cinema__stage">
-          <CollabFilm key={filmKey} mark={mark} eyebrow={copy.eyebrow} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
+          <CollabFilm mark={mark} eyebrow={copy.eyebrow} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
         </div>
 
         <div className="collab-cinema__controls">
@@ -336,12 +321,6 @@ export default function PartnerCollabPage() {
                   {copy.cta.toUpperCase()}
                   <span className="material-symbols-outlined" aria-hidden="true">south</span>
                 </button>
-                <div className="collab-cinema__meta">
-                  <span className="collab-chip">{open ? ui.slotsLeft(remaining, campaign.maxClaims) : ui.soldOut}</span>
-                  <button type="button" className="collab-link" onClick={replayFilm}>
-                    <span className="material-symbols-outlined" aria-hidden="true">replay</span>{ui.replay}
-                  </button>
-                </div>
               </motion.div>
             ) : (
               <motion.button key="skip" type="button" className="collab-link collab-cinema__skip" onClick={finishFilm} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -359,33 +338,12 @@ export default function PartnerCollabPage() {
           <h2 id="collab-offer-title" className="collab-title">{ui.offerTitle}</h2>
           <p className="collab-lede">{ui.offerLede}</p>
 
-          <ol className="collab-strip">
-            {frames.map((frame, index) => (
-              <motion.li
-                key={frame.title}
-                className="collab-frame"
-                style={{ "--i": index }}
-                initial={reduced ? false : { opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.35 }}
-                transition={{ delay: index * 0.08, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <span className="collab-frame__no collab-type">{String(index + 1).padStart(2, "0")}</span>
-                <span className="material-symbols-outlined collab-frame__icon" aria-hidden="true">{frame.icon}</span>
-                <h3>{frame.title}</h3>
-                <p>{frame.body}</p>
-              </motion.li>
-            ))}
-          </ol>
+          <PerkCards campaign={campaign} ui={ui} lang={lang} reduced={reduced} />
 
           <div className="collab-claim" id="nhan-uu-dai">
             <div className="collab-claim__copy">
               <h2 className="collab-title collab-title--sm">{ui.claimTitle}</h2>
               <p className="collab-lede">{ui.claimLede}</p>
-              <div className="collab-meter" role="img" aria-label={ui.slotsLeft(remaining, campaign.maxClaims)}>
-                <span style={{ width: `${Math.max(2, (remaining / campaign.maxClaims) * 100)}%` }} />
-              </div>
-              <p className="collab-type collab-meter__label">{open ? ui.slotsLeft(remaining, campaign.maxClaims) : ui.soldOut}</p>
             </div>
 
             <div className="collab-claim__action">
@@ -401,9 +359,7 @@ export default function PartnerCollabPage() {
                   )}
                 </div>
               )}
-              {!open ? (
-                <p className="collab-note">{remaining === 0 ? ui.soldOut : ui.closed}</p>
-              ) : stage === "claiming" ? (
+              {stage === "claiming" ? (
                 <p className="collab-note"><span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span> {ui.claiming}</p>
               ) : session ? (
                 <div className="collab-claim__session">
@@ -452,16 +408,25 @@ export default function PartnerCollabPage() {
                 <h2 id="collab-welcome-title" className="collab-title">
                   {ui.welcomeTitle(result.displayName || session?.displayName || "")}
                 </h2>
-                <p className="collab-lede">{result.alreadyClaimed ? ui.alreadyClaimed : ui.welcomeLede(campaign.partnerName)}</p>
+                <p className="collab-lede">
+                  {result.soldOut ? ui.soldOutLede : result.alreadyClaimed ? ui.alreadyClaimed : ui.welcomeLede(campaign.partnerName)}
+                </p>
 
-                <ul id="collab-rewards" className="collab-rewards">
-                  <li><span className="material-symbols-outlined" aria-hidden="true">check_circle</span>{ui.rewardDays(campaign.bioDays)}</li>
-                  {(result.eduBonusApplied || result.granted?.eduBonusDays > 0) && (
-                    <li><span className="material-symbols-outlined" aria-hidden="true">school</span>{ui.rewardEdu(campaign.eduBonusDays)}</li>
-                  )}
-                  <li><span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>{ui.rewardJoy(campaign.joy)}</li>
-                  <li><span className="material-symbols-outlined" aria-hidden="true">apps</span>{ui.rewardFree}</li>
-                </ul>
+                {result.soldOut ? (
+                  <ul id="collab-rewards" className="collab-rewards">
+                    <li><span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>{ui.rewardJoySystem(result.joyBalance || 0)}</li>
+                    <li><span className="material-symbols-outlined" aria-hidden="true">apps</span>{ui.rewardFree}</li>
+                  </ul>
+                ) : (
+                  <ul id="collab-rewards" className="collab-rewards">
+                    <li><span className="material-symbols-outlined" aria-hidden="true">check_circle</span>{ui.rewardDays(campaign.bioDays)}</li>
+                    {(result.eduBonusApplied || result.granted?.eduBonusDays > 0) && (
+                      <li><span className="material-symbols-outlined" aria-hidden="true">school</span>{ui.rewardEdu(campaign.eduBonusDays)}</li>
+                    )}
+                    <li><span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>{ui.rewardJoy(campaign.joy)}</li>
+                    <li><span className="material-symbols-outlined" aria-hidden="true">apps</span>{ui.rewardFree}</li>
+                  </ul>
+                )}
                 <p className="collab-type collab-welcome__facts">
                   {result.expiresAt && <span>{ui.expiresAt(formatDate(result.expiresAt, lang))}</span>}
                   <span>{ui.joyBalance(result.joyBalance || 0)}</span>
@@ -470,7 +435,7 @@ export default function PartnerCollabPage() {
                 {!result.isEduVerified && (
                   <p className="collab-note collab-note--edu">
                     <span className="material-symbols-outlined" aria-hidden="true">school</span>
-                    {ui.eduHint(campaign.eduBonusDays)}{" "}
+                    {result.soldOut ? ui.soldOutEdu : ui.eduHint(campaign.eduBonusDays)}{" "}
                     <a className="collab-link" href={`${SERVICES_ORIGIN}/student-pricing`}>{ui.eduCta}</a>
                   </p>
                 )}

@@ -42,7 +42,7 @@ function svgFor(campaign) {
   </g>
   <text x="600" y="500" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs" font-family="DejaVu Sans, Arial, sans-serif" font-weight="bold" font-size="118" fill="url(#word)" filter="url(#glow)" opacity=".6">COLLABORATE</text>
   <text x="600" y="500" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs" font-family="DejaVu Sans, Arial, sans-serif" font-weight="bold" font-size="118" fill="url(#word)">COLLABORATE</text>
-  <text x="600" y="566" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" letter-spacing="1" fill="#a1a1a6">+${campaign.bioDays} ngày Bio · +${campaign.joy} JOY · ${campaign.maxClaims} suất · ${esc(new URL(campaign.publicUrl).host)}</text>
+  <text x="600" y="566" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" letter-spacing="1" fill="#a1a1a6">+${campaign.bioDays} ngày Bio · +${campaign.joy} JOY · ${esc(new URL(campaign.publicUrl).host)}</text>
 </svg>`;
 }
 

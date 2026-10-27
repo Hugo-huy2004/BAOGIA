@@ -57,7 +57,7 @@ export const PARTNER_CAMPAIGNS = {
       vi: {
         metaTitle: "Thư mời nhận ưu đãi Collaborate · hwagfu.dev × Hugo Studio",
         metaDescription:
-          "Thư mời tham gia nhận ưu đãi collaborate của hwagfu.dev và Hugo Studio: đăng ký bằng Google, nhận 6 tháng duy trì tài khoản & trang Bio (thêm 365 ngày nếu xác minh giáo dục), 1000 JOY và trải nghiệm miễn phí các dịch vụ. Giới hạn 250 tài khoản.",
+          "Thư mời tham gia nhận ưu đãi collaborate của hwagfu.dev và Hugo Studio: đăng ký bằng Google, nhận 6 tháng duy trì tài khoản & trang Bio (thêm 365 ngày nếu xác minh giáo dục), 1000 JOY và trải nghiệm miễn phí các dịch vụ. Số lượng có hạn.",
         keywords:
           "hwagfu.dev, Hugo Studio, ưu đãi collaborate, thư mời hợp tác, trang Bio miễn phí, ví JOY, Hugo Team, ưu đãi sinh viên",
         eyebrow: "Thư mời · Collaborate",
@@ -69,7 +69,7 @@ export const PARTNER_CAMPAIGNS = {
       en: {
         metaTitle: "Collaborate invitation · hwagfu.dev × Hugo Studio",
         metaDescription:
-          "An invitation to the hwagfu.dev × Hugo Studio collaboration: sign up with Google to get 6 months of account & Bio page, +365 days with education verification, 1000 JOY and free access to the services. Limited to 250 accounts.",
+          "An invitation to the hwagfu.dev × Hugo Studio collaboration: sign up with Google to get 6 months of account & Bio page, +365 days with education verification, 1000 JOY and free access to the services. Limited spots.",
         keywords: "hwagfu.dev, Hugo Studio, collaboration offer, free bio page, JOY wallet, Hugo Team",
         eyebrow: "Invitation · Collaborate",
         headline: "hwagfu.dev × Hugo Studio",

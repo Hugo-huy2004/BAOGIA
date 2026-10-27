@@ -46,6 +46,8 @@ const reserveSlot = async (campaign) => {
 };
 const releaseSlot = (campaign) => Counter.updateOne({ _id: slotKey(campaign.slug), seq: { $gt: 0 } }, { $inc: { seq: -1 } });
 
+// Số suất còn lại KHÔNG công bố ra ngoài — trang chỉ cần biết còn mở hay không.
+// Hết suất người ta vẫn đăng nhập được, chỉ không nhận quà chiến dịch.
 const publicCampaign = async (campaign) => {
   const used = await slotsUsed(campaign.slug);
   return {
@@ -55,11 +57,15 @@ const publicCampaign = async (campaign) => {
     bioDays: campaign.bioDays,
     eduBonusDays: campaign.eduBonusDays,
     joy: campaign.joy,
-    maxClaims: campaign.maxClaims,
-    remaining: Math.max(0, campaign.maxClaims - used),
     open: isPartnerCampaignOpen(campaign) && used < campaign.maxClaims,
     endsAt: campaign.endsAt,
   };
+};
+
+// Riêng cho admin: kèm số suất đã dùng / còn lại.
+const adminCampaign = async (campaign) => {
+  const used = await slotsUsed(campaign.slug);
+  return { ...(await publicCampaign(campaign)), maxClaims: campaign.maxClaims, used, remaining: Math.max(0, campaign.maxClaims - used) };
 };
 
 const findBio = async (email) => (await Bio.findOne({ email })) || Bio.findOne({ contactEmail: email });
@@ -178,7 +184,7 @@ router.get('/admin/:slug/claims', requireAdmin, loadCampaign, async (req, res) =
         .select('email status reason eduBonusApplied createdAt')
         .lean(),
     ]);
-    return res.json({ campaign: await publicCampaign(campaign), granted, rejected, claims: recent });
+    return res.json({ campaign: await adminCampaign(campaign), granted, rejected, claims: recent });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -196,7 +202,7 @@ router.delete('/admin/:slug/claims/:id', requireAdmin, loadCampaign, async (req,
   }
 });
 
-// GET /:slug — thông tin công khai của chiến dịch (số quà, số suất còn lại).
+// GET /:slug — thông tin công khai của chiến dịch (số quà, còn mở hay không).
 router.get('/:slug', loadCampaign, async (req, res) => {
   try {
     return res.json({ campaign: await publicCampaign(req.campaign) });
@@ -250,7 +256,7 @@ const pushHistory = (bio, campaign, detail) => {
 // đã tự trả response (từ chối / hết suất) và trả null.
 const createGrantedClaim = async (req, res, campaign, bio) => {
   if (!isPartnerCampaignOpen(campaign)) {
-    res.status(410).json({ code: 'CAMPAIGN_CLOSED', error: 'Chiến dịch đã kết thúc.' });
+    res.status(410).json({ code: 'CAMPAIGN_CLOSED', error: 'Chiến dịch đã kết thúc.', ...claimView(null, bio) });
     return null;
   }
   const signals = identitySignals(req, bio);
@@ -264,7 +270,9 @@ const createGrantedClaim = async (req, res, campaign, bio) => {
     return null;
   }
   if (!await reserveSlot(campaign)) {
-    res.status(410).json({ code: 'SOLD_OUT', error: `Đã đủ ${campaign.maxClaims} tài khoản nhận ưu đãi. Cảm ơn bạn đã quan tâm!` });
+    // Trả kèm trạng thái tài khoản: trang vẫn chào mừng, chỉ báo là quà
+    // chiến dịch đã trao hết (JOY khởi tạo của hệ thống vẫn còn nguyên).
+    res.status(410).json({ code: 'SOLD_OUT', error: 'Ưu đãi hợp tác đã được trao hết.', ...claimView(null, bio) });
     return null;
   }
   try {
