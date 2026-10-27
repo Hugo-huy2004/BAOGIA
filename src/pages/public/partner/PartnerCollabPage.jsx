@@ -11,7 +11,6 @@ import { API_BASE } from "../../../config/apiBase";
 import { getMemberSession, loginMemberWithGoogle, logoutAuth } from "../../../services/api/core/authSession";
 import { loadGoogleIdentity } from "../../../utils/loadGoogleIdentity";
 import { getDeviceFingerprint, getDeviceId } from "../../../utils/deviceSignals";
-import { useServicesFonts } from "../../../hooks/useServicesFonts";
 import { getPartnerCampaign, isPartnerCampaignOpen, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
 import "./partner-collab.css";
 
@@ -146,7 +145,6 @@ function GoogleButton({ onCredential, ui }) {
 export default function PartnerCollabPage() {
   const params = useParams();
   const { i18n } = useTranslation();
-  useServicesFonts();
   const lang = String(i18n.language || "vi").startsWith("vi") ? "vi" : "en";
   const ui = COLLAB_COPY[lang];
 
@@ -320,24 +318,19 @@ export default function PartnerCollabPage() {
     <main className="collab" lang={lang}>
       {/* ── Mở màn: phim ─────────────────────────────────────────────────── */}
       <section className="collab-cinema" aria-label={copy.headline}>
-        <div className="collab-cinema__leaks" aria-hidden="true"><i /><i /><i /></div>
-        <div className="collab-cinema__grain" aria-hidden="true" />
-        <div className="collab-cinema__bars" aria-hidden="true" />
-        <div className="collab-cinema__sprockets" aria-hidden="true" />
-
         <header className="collab-cinema__top">
           <Lockup mark={mark} />
-          <span className="collab-type collab-cinema__rec" aria-hidden="true">● REC · {copy.eyebrow}</span>
+          <span className="collab-type collab-cinema__eyebrow" aria-hidden="true">{copy.eyebrow}</span>
         </header>
 
         <div className="collab-cinema__stage">
-          <CollabFilm key={filmKey} mark={mark} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
+          <CollabFilm key={filmKey} mark={mark} eyebrow={copy.eyebrow} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
         </div>
 
         <div className="collab-cinema__controls">
           <AnimatePresence mode="wait">
             {filmDone ? (
-              <motion.div key="cta" className="collab-cinema__cta" initial={{ opacity: 0, y: 18, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 220, damping: 18 }}>
+              <motion.div key="cta" className="collab-cinema__cta" initial={{ opacity: 0, y: 16, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
                 <p className="collab-cinema__lede">{copy.lede}</p>
                 <button type="button" className="collab-btn collab-btn--glow" onClick={explore}>
                   {copy.cta.toUpperCase()}
@@ -372,10 +365,10 @@ export default function PartnerCollabPage() {
                 key={frame.title}
                 className="collab-frame"
                 style={{ "--i": index }}
-                initial={reduced ? false : { opacity: 0, y: 28, rotate: index % 2 ? 1.5 : -1.5 }}
-                whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ delay: index * 0.12, type: "spring", stiffness: 160, damping: 20 }}
+                initial={reduced ? false : { opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ delay: index * 0.08, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span className="collab-frame__no collab-type">{String(index + 1).padStart(2, "0")}</span>
                 <span className="material-symbols-outlined collab-frame__icon" aria-hidden="true">{frame.icon}</span>
@@ -454,7 +447,7 @@ export default function PartnerCollabPage() {
           <motion.div className="collab-welcome" role="dialog" aria-modal="true" aria-labelledby="collab-welcome-title"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="collab-welcome__scroll">
-              <motion.section className="collab-welcome__card" initial={{ y: 40, scale: 0.94 }} animate={{ y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 180, damping: 18 }}>
+              <motion.section className="collab-welcome__card" initial={{ y: 32, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
                 <p className="collab-type collab-eyebrow">{ui.welcomeEyebrow}</p>
                 <h2 id="collab-welcome-title" className="collab-title">
                   {ui.welcomeTitle(result.displayName || session?.displayName || "")}

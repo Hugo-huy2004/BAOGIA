@@ -7,9 +7,10 @@ khoản đã đăng nhập Google, đã điền đủ hồ sơ, mỗi người m
 
 ## Luồng người dùng
 
-1. Phim mở màn dựng bằng SVG (`src/pages/public/partner/CollabFilm.jsx`): hai
-   nhân vật cartoon vẽ theo logo — giọt thuỷ tinh Hugo Studio và ô `<J>` của
-   hwagfu.dev — đi vào, bắt tay, nhảy lên chữ **COLLABORATE** phát sáng.
+1. Phim mở màn dựng bằng SVG (`src/pages/public/partner/CollabFilm.jsx`),
+   nhịp kiểu keynote: sân khấu đen, sàn bóng phản chiếu, tiêu đề hiện từ nhoè
+   sang nét. Hai nhân vật vẽ theo logo — giọt thuỷ tinh Hugo Studio và ô `<J>`
+   của hwagfu.dev — đi vào, bắt tay, nhảy lên chữ **COLLABORATE** phát sáng.
    Xong phim hiện nút **KHÁM PHÁ ƯU ĐÃI**.
 2. Bốn khung phim giới thiệu ưu đãi → nút Google (một chạm).
 3. Hồ sơ thiếu gì hỏi nấy (`OnboardingProfileModal`, danh sách do server trả).
