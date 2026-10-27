@@ -32,7 +32,7 @@ const countryFlag = (code) => String.fromCodePoint(...String(code).split("").map
  * bao nhiêu nữa mới xong. Một câu hỏi một màn thì chữ để to được, nút để 52px
  * được, và có thanh tiến độ nói rõ còn mấy bước.
  */
-export default function OnboardingProfileModal({ email, onDone, onSkip }) {
+export default function OnboardingProfileModal({ email, onDone, onSkip, blocking = false }) {
   const { t, i18n } = useTranslation();
   const [missing, setMissing] = useState(null);
   const [values, setValues] = useState({});
@@ -475,8 +475,10 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
                 : t("memberPortal.onboarding.next")}
           </button>
 
-          {/* Bỏ điều kiện bắt buộc, luôn cho phép "Để sau" để không gây ức chế */}
-          {onSkip && (
+          {/* Chế độ chặn cứng (tạo tài khoản): KHÔNG cho "Để sau" — phải khai đủ
+              thông tin bắt buộc mới dùng được app. Nơi khác (trang đối tác) vẫn
+              cho bỏ qua vì không phải cổng tạo tài khoản. */}
+          {!blocking && onSkip && (
             <button
               onClick={onSkip}
               disabled={submitting}

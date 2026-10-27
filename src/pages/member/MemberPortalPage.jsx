@@ -651,10 +651,14 @@ function MemberPortalPage() {
           // Ví vẫn nạp bình thường; modal chỉ hỏi phần hồ sơ còn thiếu và tự
           // đóng nếu server báo không thiếu gì.
           hydrateWallet(memberSession.email, bootstrapData.wallet);
-          if (
-            !b.onboardingCompleted &&
-            (!onboardingSkipKey || sessionStorage.getItem(onboardingSkipKey) !== "true")
-          ) setShowOnboarding(true);
+          // Chặn cứng: còn thiếu thông tin bắt buộc thì modal luôn bật, bỏ qua
+          // cờ "đã để sau" của phiên — phải hoàn tất mới dùng được app. Dùng
+          // `profileMissing` (server tính sống) thay vì cờ onboardingCompleted
+          // cũ, để tài khoản cũ nay thiếu địa chỉ cũng bị hỏi lại.
+          const hasProfileGaps = Array.isArray(b.profileMissing)
+            ? b.profileMissing.length > 0
+            : !b.onboardingCompleted;
+          if (hasProfileGaps) setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
@@ -1233,6 +1237,7 @@ function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
+            blocking
             onSkip={handleSkipOnboarding}
             onDone={(result) => {
               setShowOnboarding(false);
@@ -1543,6 +1548,7 @@ function MemberPortalPage() {
           <React.Suspense fallback={null}>
             <OnboardingProfileModal
               email={memberSession.email}
+              blocking
               onSkip={handleSkipOnboarding}
               onDone={(result) => {
                 setShowOnboarding(false);

@@ -229,6 +229,7 @@ app.use((err, req, res, next) => {
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
+import { initOnboardingReminderService } from './services/onboardingReminderService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
 import { initRealtimeFanout } from './utils/realtime.js';
@@ -304,6 +305,9 @@ server.listen(PORT, () => {
 
   // Initialize AI Proactive Push Notifications scheduler
   initProactivePushService();
+
+  // Nhắc hoàn tất hồ sơ bằng push (10:00) cho tài khoản còn thiếu thông tin
+  initOnboardingReminderService();
 
   // Initialize Duolingo-style smart push (sleep, wellness, streak)
   initSmartNotificationService();
