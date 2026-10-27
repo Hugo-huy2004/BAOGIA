@@ -399,7 +399,7 @@ export default function MemberSettingsTab({
 
       {/* ── 2. THANH ĐIỀU HƯỚNG DÍNH — cùng khuôn thanh chuyên mục của Today ── */}
       <div className="sticky top-2 z-20 w-full min-w-0">
-        <div className="relative flex items-center justify-between gap-1.5 overflow-hidden rounded-[24px] border border-white/70 bg-white/70 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-3xl dark:border-white/12 dark:bg-white/[0.06] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+        <div className="relative flex items-center justify-between gap-1.5 overflow-hidden rounded-[24px] border border-white/70 bg-white/70 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] backdrop-blur-3xl dark:border-white/[0.12] dark:bg-white/[0.06] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
           {SHEEN}
           <div className="min-w-0 flex-1 overflow-x-auto scrollbar-hide">
             <div className="flex min-w-max items-center gap-1.5">
@@ -415,7 +415,7 @@ export default function MemberSettingsTab({
               type="button"
               onClick={() => { sensory.tap(); navigate("/member/activity"); }}
               aria-label={nom("Thông báo")}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-zinc-100/90 text-muted-foreground shadow-xs transition-all hover:bg-white hover:text-foreground active:scale-90 dark:border-white/12 dark:bg-white/[0.08] dark:hover:bg-white/[0.18]"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-zinc-100/90 text-muted-foreground shadow-xs transition-all hover:bg-white hover:text-foreground active:scale-90 dark:border-white/[0.12] dark:bg-white/[0.08] dark:hover:bg-white/[0.18]"
             >
               <HugeIcon name="notifications" size={17} />
             </button>

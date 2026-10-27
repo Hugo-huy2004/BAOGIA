@@ -129,6 +129,8 @@ export function ensureTranslations(language = i18n.language) {
               ...(own.utilities || {}),
               categories: appCopy.categories,
               badges: appCopy.badges,
+              // Bản Nôm chưa có lời chào riêng: dùng bản quốc ngữ thay vì đoán chữ.
+              home: appCopy.home || MEMBER_APP_TRANSLATIONS.vi.home,
               catalog: {
                 ...(own.utilities?.catalog || {}),
                 ...appCopy.catalog,

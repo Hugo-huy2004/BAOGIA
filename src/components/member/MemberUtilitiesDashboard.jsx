@@ -33,6 +33,9 @@ import {
 import { openDestination } from "./os/appIntent";
 import { appOpenOrder } from "./os/appUsage";
 import { prefetchAppsWhenIdle } from "./os/appIndex";
+import { announceAppLaunch } from "./os/appLaunch";
+import { prefetchChunk } from "../../utils/chunkPrefetcher";
+import HomeHeader, { RecentApps } from "./utilities/HomeHeader";
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
@@ -658,6 +661,28 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   // A tap opens an app. Moving the pointer turns the gesture into native scrolling.
+  // Mọi đường mở app trên Trang chủ (icon, widget, hàng Gần đây) đi qua đây để
+  // cùng kiểm tra chặn bảo trì và cùng có hiệu ứng phóng từ icon.
+  const openApp = (app, iconElement) => {
+    if (app.id.startsWith("arcade_")) {
+      const gameKey = app.id.replace("arcade_", "");
+      navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
+      return;
+    }
+    if (app.id !== "store" && data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
+      const isBlocked = typeof data.systemSettings.blockUtilities === "boolean"
+        ? data.systemSettings.blockUtilities
+        : data.systemSettings.blockUtilities === app.id;
+
+      if (isBlocked) {
+        showToast?.(t("utilities.library.upgrading"), "info");
+        return;
+      }
+    }
+    announceAppLaunch(app, iconElement);
+    setSelectedUtility(app.id);
+  };
+
   const handleAppTouchStart = (app, event) => {
     if (event?.isPrimary === false) return;
 
@@ -735,45 +760,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         setEditingApp(app);
         return;
       }
-      if (app.id === "store") {
-        setSelectedUtility("store");
-        return;
-      }
-      if (app.id.startsWith("arcade_")) {
-        const gameKey = app.id.replace("arcade_", "");
-        navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
-        return;
-      }
-      if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
-        const isBlocked = typeof data.systemSettings.blockUtilities === "boolean" 
-          ? data.systemSettings.blockUtilities 
-          : data.systemSettings.blockUtilities === app.id;
-
-        if (isBlocked) {
-          showToast?.(t("utilities.library.upgrading"), "info");
-          return;
-        }
-      }
-      setSelectedUtility(app.id);
+      openApp(app, event?.currentTarget?.querySelector?.(".utility-app-icon"));
     }
   };
 
-  const prefetchUtility = (appId) => {
-    try {
-      switch (appId) {
-        case "study": import("./study/StudyWithHugoApp"); break;
-        case "handle": import("./hugoKit/HugoKitApp"); break;
-        case "psychology": import("./banhocduong/BanhocduongTab"); break;
-        case "team": import("./HugoTeamTab"); break;
-        case "arcade": import("./arcade/HugoArcadeTab"); break;
-        case "aura": import("./MemberAuraTab"); break;
-        case "bio": import("./BioPreviewTab"); break;
-        default: break;
-      }
-    } catch {
-      // Fail silently for prefetching
-    }
-  };
+  const prefetchUtility = prefetchChunk;
 
   const myAppsList = useMemo(() => {
     // Read directly from localStorage so any installs (even from other components) show immediately.
@@ -821,11 +812,20 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     return prefetchAppsWhenIdle(ids);
   }, [homeAppKey, isVisible]);
 
+  // "Gần đây": tối đa 4 app đã cài, theo lần mở mới nhất. Tính lại mỗi lần quay
+  // về Trang chủ (isVisible) vì nhật ký mở app ghi ở ngoài component này.
+  const recentApps = useMemo(() => {
+    if (!isVisible) return [];
+    const byId = new Map(myAppsList.map((app) => [app.id, app]));
+    return appOpenOrder().map((id) => byId.get(id)).filter((app) => app && app.id !== "store").slice(0, 4);
+  }, [myAppsList, isVisible]);
+
   return (
     <div className="relative space-y-6 animate-fadeIn pb-24 select-none">
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
         <div className="space-y-4">
+          <HomeHeader name={bio?.fullName || bio?.name} />
           <div className="apps-smartbar py-1">
             <button
               type="button"
@@ -859,6 +859,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             </div>
           ) : (
             <div className="space-y-8">
+              <RecentApps apps={recentApps} gradients={GRADIENTS} onOpen={openApp} />
+
               {/* SECTION A: PREMIUM WIDGETS DASHBOARD Component */}
               <WidgetRenderer
                 myWidgets={myWidgets}

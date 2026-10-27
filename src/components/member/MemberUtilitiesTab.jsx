@@ -10,6 +10,7 @@ import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 import LazyBoundary from "./os/LazyBoundary";
+import AppLaunchLayer from "./os/AppLaunchLayer";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 
@@ -103,6 +104,8 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           />
         </div>
       )}
+
+      <AppLaunchLayer />
 
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard — always mounted so event listeners & state persist */}
