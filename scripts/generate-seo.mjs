@@ -28,7 +28,7 @@ import { priceCurrency, servicePackages } from "../src/data/servicePackages.js";
 import { SERVICE_ADDONS, addonPath } from "../src/data/serviceAddons.js";
 import { projects } from "../src/data/projects.js";
 import { profileSkills, skillsCopy } from "../src/data/profileSkills.js";
-import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../shared/partnerCampaigns.js";
+import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../shared/partnerCampaigns.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const isPortfolio = process.env.SITE_TARGET === "portfolio";
@@ -733,79 +733,120 @@ for (const [route, meta] of Object.entries(isPortfolio ? {} : SHARE_PAGES)) {
 // canonical là tên miền đó; tên miền ấy cũng có sitemap/robots riêng
 // (vercel.json → redirects theo host chuyển chúng về đây).
 const partnerRewrites = [];
+// Bốn trang mỗi chiến dịch: trang gốc (x-default — người dùng được hỏi chọn
+// ngôn ngữ) và một trang cho mỗi ngôn ngữ /vi, /en, /zh. Tiêu đề của bản ngôn
+// ngữ mang đuôi "/VI", "/EN", "/ZH" để link chia sẻ nhìn là biết bản nào.
+const PARTNER_PERKS = {
+  vi: (c) => [
+    "Đăng ký tài khoản chỉ với một nút Google.",
+    `Tặng ${c.bioDays} ngày duy trì tài khoản & trang Bio; thêm ${c.eduBonusDays} ngày nếu đã xác minh giáo dục.`,
+    "Trải nghiệm các dịch vụ thành viên hoàn toàn miễn phí.",
+    `Ví JOY được tặng ${c.joy.toLocaleString("vi-VN")} JOY và có thể tham gia các dự án phi lợi nhuận tại Hugo Team.`,
+    "Số lượng có hạn, mỗi người nhận một lần.",
+  ],
+  en: (c) => [
+    "Sign up with a single Google button.",
+    `${c.bioDays} days of account & Bio page; ${c.eduBonusDays} more days with education verification.`,
+    "Member services, completely free to try.",
+    `${c.joy.toLocaleString("en-US")} JOY in your wallet and a seat in Hugo Team's non-profit projects.`,
+    "Limited spots, one claim per person.",
+  ],
+  zh: (c) => [
+    "只需一个 Google 按钮即可注册。",
+    `赠送 ${c.bioDays} 天账户与 Bio 页面使用期；完成教育认证再加 ${c.eduBonusDays} 天。`,
+    "会员服务完全免费体验。",
+    `JOY 钱包获赠 ${c.joy.toLocaleString("zh-CN")} JOY，并可加入 Hugo Team 的非营利项目。`,
+    "名额有限，每人限领一次。",
+  ],
+};
+const PARTNER_OG_LOCALE = { vi: "vi_VN", en: "en_US", zh: "zh_CN" };
 if (!isPortfolio) {
   for (const campaign of Object.values(PARTNER_CAMPAIGNS)) {
-    const meta = campaign.copy.vi;
-    const route = `/collab/${campaign.slug}`;
+    const baseRoute = `/collab/${campaign.slug}`;
     const onPartnerHost = campaign.slug === PARTNER_HOST_CAMPAIGN;
-    const url = onPartnerHost ? campaign.publicUrl : ORIGIN + route;
+    const baseUrl = onPartnerHost ? campaign.publicUrl : ORIGIN + baseRoute;
     const image = { url: `${ORIGIN}/og/partner-${campaign.slug}.jpg`, type: "image/jpeg", width: 1200, height: 630 };
-    let html = sourceTemplate
-      .replace(/<html lang="[^"]*"/, '<html lang="vi"')
-      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(meta.metaTitle)}</title>`)
-      .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(meta.metaDescription)}" />`)
-      .replace(/<meta\s+name="keywords"\s+content="[\s\S]*?"\s*\/>/, `<meta name="keywords" content="${escAttr(meta.keywords)}" />`)
-      .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />`);
-    for (const [attr, name, value] of [
-      ["property", "og:title", meta.metaTitle], ["property", "og:description", meta.metaDescription],
-      ["property", "og:url", url], ["property", "og:image:alt", meta.metaTitle],
-      ["name", "twitter:title", meta.metaTitle], ["name", "twitter:description", meta.metaDescription],
-      ["name", "twitter:image:alt", meta.metaTitle],
-    ]) {
-      html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
-    }
-    html = applyOgImage(html, image);
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": `${url}#webpage`,
-      url,
-      name: meta.metaTitle,
-      description: meta.metaDescription,
-      inLanguage: "vi",
-      image: image.url,
-      publisher: { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
-      about: [
-        { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
-        { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
-      ],
-      mainEntity: {
-        "@type": "Offer",
-        name: meta.metaTitle,
-        description: meta.metaDescription,
+    const hreflang = [
+      ...PARTNER_LANGS.map((code) => `<link rel="alternate" hreflang="${code}" href="${baseUrl}/${code}" />`),
+      `<link rel="alternate" hreflang="x-default" href="${baseUrl}" />`,
+    ].join("\n    ");
+
+    for (const lang of [null, ...PARTNER_LANGS]) {
+      const code = lang || "vi";
+      const meta = partnerCampaignCopy(campaign, code);
+      const title = lang ? meta.linkTitle : meta.metaTitle;
+      const route = lang ? `${baseRoute}/${lang}` : baseRoute;
+      const url = lang ? `${baseUrl}/${lang}` : baseUrl;
+      let html = sourceTemplate
+        .replace(/<html lang="[^"]*"/, `<html lang="${code}"`)
+        .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(title)}</title>`)
+        .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(meta.metaDescription)}" />`)
+        .replace(/<meta\s+name="keywords"\s+content="[\s\S]*?"\s*\/>/, `<meta name="keywords" content="${escAttr(meta.keywords)}" />`)
+        .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />\n    ${hreflang}`);
+      for (const [attr, name, value] of [
+        ["property", "og:title", title], ["property", "og:description", meta.metaDescription],
+        ["property", "og:url", url], ["property", "og:image:alt", title],
+        ["property", "og:locale", PARTNER_OG_LOCALE[code]],
+        ["name", "twitter:title", title], ["name", "twitter:description", meta.metaDescription],
+        ["name", "twitter:image:alt", title],
+      ]) {
+        html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
+      }
+      html = applyOgImage(html, image);
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
         url,
-        price: "0",
-        priceCurrency: "VND",
-        availability: "https://schema.org/LimitedAvailability",
-        offeredBy: [
+        name: title,
+        description: meta.metaDescription,
+        inLanguage: code,
+        image: image.url,
+        publisher: { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+        about: [
           { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
           { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
         ],
-      },
-    };
-    html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
-    const perks = [
-      "Đăng ký tài khoản chỉ với một nút Google.",
-      `Tặng ${campaign.bioDays} ngày duy trì tài khoản & trang Bio; thêm ${campaign.eduBonusDays} ngày nếu đã xác minh giáo dục.`,
-      "Trải nghiệm các dịch vụ thành viên hoàn toàn miễn phí.",
-      `Ví JOY được tặng ${campaign.joy.toLocaleString("vi-VN")} JOY và có thể tham gia các dự án phi lợi nhuận tại Hugo Team.`,
-      "Số lượng có hạn, mỗi người nhận một lần.",
-    ];
-    const body =
-      `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6">` +
-      `<p>${escAttr(meta.eyebrow)}</p><h1>${escAttr(meta.metaTitle)}</h1><p>${escAttr(meta.lede)}</p>` +
-      `<ul>${perks.map((perk) => `<li>${escAttr(perk)}</li>`).join("")}</ul>` +
-      `<p><a href="${campaign.partnerUrl}">${escAttr(campaign.partnerName)}</a> · <a href="${ORIGIN}/">Hugo Studio</a></p></div>`;
-    html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
-    const out = path.join(DIST, route.replace(/^\//, ""));
-    fs.mkdirSync(out, { recursive: true });
-    fs.writeFileSync(path.join(out, "index.html"), html);
-    partnerRewrites.push({ source: route, destination: `${route}/index.html` });
+        mainEntity: {
+          "@type": "Offer",
+          name: title,
+          description: meta.metaDescription,
+          url,
+          price: "0",
+          priceCurrency: "VND",
+          availability: "https://schema.org/LimitedAvailability",
+          offeredBy: [
+            { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+            { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
+          ],
+        },
+      };
+      html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
+      const langLinks = PARTNER_LANGS.map((other) => `<a href="${baseRoute}/${other}" hreflang="${other}">/${other.toUpperCase()}</a>`).join(" · ");
+      const body =
+        `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6">` +
+        `<p>${escAttr(meta.eyebrow)}</p><h1>${escAttr(title)}</h1><p>${escAttr(meta.lede)}</p>` +
+        `<ul>${PARTNER_PERKS[code](campaign).map((perk) => `<li>${escAttr(perk)}</li>`).join("")}</ul>` +
+        `<p>${langLinks}</p>` +
+        `<p><a href="${campaign.partnerUrl}">${escAttr(campaign.partnerName)}</a> · <a href="${ORIGIN}/">Hugo Studio</a></p></div>`;
+      html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
+      const out = path.join(DIST, route.replace(/^\//, ""));
+      fs.mkdirSync(out, { recursive: true });
+      fs.writeFileSync(path.join(out, "index.html"), html);
+      partnerRewrites.push({ source: route, destination: `${route}/index.html` });
+    }
 
     if (onPartnerHost) {
       const origin = new URL(campaign.publicUrl).origin;
+      const entry = (loc, priority) =>
+        `  <url>\n    <loc>${loc}</loc>\n` +
+        PARTNER_LANGS.map((code) => `    <xhtml:link rel="alternate" hreflang="${code}" href="${baseUrl}/${code}"/>\n`).join("") +
+        `    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}"/>\n` +
+        `    <changefreq>weekly</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
       fs.writeFileSync(path.join(DIST, "partner-sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${campaign.publicUrl}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`);
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
+        entry(baseUrl, "1.0") + PARTNER_LANGS.map((code) => entry(`${baseUrl}/${code}`, "0.9")).join("") +
+        `</urlset>\n`);
       fs.writeFileSync(path.join(DIST, "partner-robots.txt"), `User-agent: *\nAllow: /\nDisallow: /member\nDisallow: /api\n\nSitemap: ${origin}/sitemap.xml\n`);
       // Tên miền partner chuyển `/`, /sitemap.xml, /robots.txt về các file trên
       // bằng `redirects` có `has: host` trong vercel.json — Vercel xét redirect

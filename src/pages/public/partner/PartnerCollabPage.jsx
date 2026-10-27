@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import confetti from "canvas-confetti";
 import CollabFilm from "./CollabFilm";
 import PerkCards from "./PerkCards";
-import { COLLAB_COPY } from "./collabCopy";
+import { COLLAB_COPY, COLLAB_LANGS, COLLAB_LANG_PICKER, collabLocale } from "./collabCopy";
+import { detectCollabLang, getSavedCollabLang, saveCollabLang } from "./detectCollabLang";
 import { HUGO_DROP } from "./mascotArt";
 import OnboardingProfileModal from "../../../components/member/OnboardingProfileModal";
 import { API_BASE } from "../../../config/apiBase";
@@ -17,7 +18,7 @@ import { detectInstallTarget, IS_NATIVE } from "../../../config/platform";
 import { useStandalone } from "../../../hooks/usePWA";
 import MobileInstallGate from "../../../components/ui/MobileInstallGate";
 import { useServicesFonts } from "../../../hooks/useServicesFonts";
-import { getPartnerCampaign, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
+import { getPartnerCampaign, isPartnerLang, partnerCampaignCopy, partnerCampaignPath, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
 import "./partner-collab.css";
 
 const SERVICES_ORIGIN = "https://www.hugowishpax.studio";
@@ -25,7 +26,7 @@ const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /** Thẻ meta riêng của trang chiến dịch — canonical trỏ về tên miền partner. */
-function useCampaignMeta(campaign, copy, canonical) {
+function useCampaignMeta(campaign, copy, canonical, baseUrl) {
   useEffect(() => {
     if (!campaign) return undefined;
     const setMeta = (attr, key, value) => {
@@ -38,18 +39,20 @@ function useCampaignMeta(campaign, copy, canonical) {
       el.setAttribute("content", value);
     };
     const image = `${SERVICES_ORIGIN}/og/partner-${campaign.slug}.jpg`;
-    document.title = copy.metaTitle;
+    // Tiêu đề link mang đuôi /VI, /EN, /ZH: chia sẻ ra ngoài nhìn là biết bản nào.
+    document.title = copy.linkTitle;
     setMeta("name", "description", copy.metaDescription);
     setMeta("name", "keywords", copy.keywords);
     setMeta("name", "robots", "index, follow, max-image-preview:large");
     setMeta("name", "googlebot", "index, follow, max-image-preview:large");
     for (const [key, value] of [
-      ["og:type", "website"], ["og:title", copy.metaTitle], ["og:description", copy.metaDescription],
+      ["og:type", "website"], ["og:title", copy.linkTitle], ["og:description", copy.metaDescription],
       ["og:url", canonical], ["og:image", image], ["og:image:secure_url", image],
-      ["og:image:type", "image/jpeg"], ["og:image:width", "1200"], ["og:image:height", "630"], ["og:image:alt", copy.metaTitle],
+      ["og:image:type", "image/jpeg"], ["og:image:width", "1200"], ["og:image:height", "630"], ["og:image:alt", copy.linkTitle],
+      ["og:locale", collabLocale(copy.lang).replace("-", "_")],
     ]) setMeta("property", key, value);
     for (const [key, value] of [
-      ["twitter:card", "summary_large_image"], ["twitter:title", copy.metaTitle],
+      ["twitter:card", "summary_large_image"], ["twitter:title", copy.linkTitle],
       ["twitter:description", copy.metaDescription], ["twitter:image", image],
     ]) setMeta("name", key, value);
     let link = document.querySelector('link[rel="canonical"]');
@@ -59,8 +62,19 @@ function useCampaignMeta(campaign, copy, canonical) {
       document.head.appendChild(link);
     }
     link.setAttribute("href", canonical);
-    return undefined;
-  }, [campaign, copy, canonical]);
+    // hreflang: ba bản ngôn ngữ chỉ vào nhau, trang gốc (hỏi chọn ngôn ngữ) là x-default.
+    document.head.querySelectorAll('link[data-collab-hreflang]').forEach((node) => node.remove());
+    for (const [hreflang, href] of [...COLLAB_LANGS.map((code) => [code, `${baseUrl}/${code}`]), ["x-default", baseUrl]]) {
+      const alt = document.createElement("link");
+      alt.rel = "alternate";
+      alt.hreflang = hreflang;
+      alt.href = href;
+      alt.dataset.collabHreflang = "";
+      document.head.appendChild(alt);
+    }
+    document.documentElement.lang = copy.lang;
+    return () => document.head.querySelectorAll('link[data-collab-hreflang]').forEach((node) => node.remove());
+  }, [campaign, copy, canonical, baseUrl]);
 }
 
 /** Cụm logo đôi ở đầu phim — vẽ lại theo hai logo, không cần tải ảnh. */
@@ -106,11 +120,71 @@ function fireworks(reduced) {
 const formatDate = (value, lang) => {
   if (!value) return "";
   try {
-    return new Date(value).toLocaleDateString(lang === "vi" ? "vi-VN" : "en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+    return new Date(value).toLocaleDateString(collabLocale(lang), { day: "2-digit", month: "2-digit", year: "numeric" });
   } catch {
     return "";
   }
 };
+
+/**
+ * Bộ chọn ngôn ngữ lúc vào trang: ngôn ngữ đoán theo vùng thiết bị được chọn
+ * sẵn và gắn nhãn "gợi ý", người dùng xác nhận hoặc đổi rồi mới vào phim.
+ */
+function LangPicker({ suggested, onChoose }) {
+  const [choice, setChoice] = useState(suggested);
+  return (
+    <div className="collab-langpick" role="dialog" aria-modal="true" aria-labelledby="collab-langpick-title">
+      <motion.div className="collab-langpick__card" initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+        <span className="material-symbols-outlined collab-langpick__icon" aria-hidden="true">translate</span>
+        <h2 id="collab-langpick-title" className="collab-langpick__title">{COLLAB_LANG_PICKER.title[choice]}</h2>
+        <div className="collab-langpick__list" role="radiogroup">
+          {COLLAB_LANGS.map((code) => (
+            <button
+              key={code}
+              type="button"
+              role="radio"
+              aria-checked={choice === code}
+              lang={code}
+              className={`collab-langpick__option${choice === code ? " is-active" : ""}`}
+              onClick={() => setChoice(code)}
+            >
+              <span className="collab-langpick__code">/{code.toUpperCase()}</span>
+              <span className="collab-langpick__name">{COLLAB_LANG_PICKER.names[code]}</span>
+              {code === suggested && <span className="collab-langpick__hint">{COLLAB_LANG_PICKER.suggested[code]}</span>}
+              <span className="material-symbols-outlined collab-langpick__check" aria-hidden="true">{choice === code ? "radio_button_checked" : "radio_button_unchecked"}</span>
+            </button>
+          ))}
+        </div>
+        <button type="button" className="collab-btn collab-btn--glow collab-langpick__go" onClick={() => onChoose(choice)}>
+          {COLLAB_LANG_PICKER.confirm[choice]}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+/** Công tắc ngôn ngữ trên đầu trang: mỗi bản là một link thật /vi, /en, /zh. */
+function LangSwitch({ slug, lang, onChoose }) {
+  return (
+    <nav className="collab-langswitch" aria-label="Language">
+      {COLLAB_LANGS.map((code) => (
+        <Link
+          key={code}
+          to={partnerCampaignPath(slug, code)}
+          replace
+          lang={code}
+          hrefLang={code}
+          aria-current={code === lang ? "true" : undefined}
+          className={code === lang ? "is-active" : ""}
+          onClick={() => onChoose(code, { navigate: false })}
+          title={COLLAB_LANG_PICKER.names[code]}
+        >
+          /{code.toUpperCase()}
+        </Link>
+      ))}
+    </nav>
+  );
+}
 
 function GoogleButton({ onCredential, ui }) {
   const ref = useRef(null);
@@ -150,17 +224,47 @@ function GoogleButton({ onCredential, ui }) {
 
 export default function PartnerCollabPage() {
   const params = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { i18n } = useTranslation();
   useServicesFonts();
-  const lang = String(i18n.language || "vi").startsWith("vi") ? "vi" : "en";
-  const ui = COLLAB_COPY[lang];
 
   const slug = String(params.slug || PARTNER_HOST_CAMPAIGN).toLowerCase();
   const campaign = getPartnerCampaign(slug);
-  const copy = campaign?.copy?.[lang] || campaign?.copy?.vi;
+
+  // Ngôn ngữ: đường dẫn /vi|/en|/zh thắng tất cả (link chia sẻ phải mở đúng
+  // bản). Không có thì dùng lựa chọn đã lưu; lần đầu thì hỏi, gợi ý theo vùng.
+  const urlLang = isPartnerLang(params.lang) ? params.lang : null;
+  const [suggested] = useState(detectCollabLang);
+  const [savedLang, setSavedLang] = useState(getSavedCollabLang);
+  const [pickerOpen, setPickerOpen] = useState(() => !urlLang && !getSavedCollabLang());
+  const lang = urlLang || savedLang || suggested;
+  const ui = COLLAB_COPY[lang];
+  const copy = partnerCampaignCopy(campaign, lang);
+
+  const chooseLang = useCallback((code, { navigate: go = true } = {}) => {
+    saveCollabLang(code);
+    setSavedLang(code);
+    setPickerOpen(false);
+    if (go) navigate(`${partnerCampaignPath(slug, code)}${location.search}${location.hash}`, { replace: true });
+  }, [navigate, slug, location.search, location.hash]);
+
+  // Đã chọn ở lần trước mà mở link gốc → đưa về đúng bản, khỏi hỏi lại.
+  // Link sai mã ngôn ngữ (/collab/x/fr) cũng về bản hợp lệ thay vì 404.
+  useEffect(() => {
+    if (!campaign || urlLang || pickerOpen) return;
+    if (params.lang || savedLang) navigate(`${partnerCampaignPath(slug, lang)}${location.search}${location.hash}`, { replace: true });
+  }, [campaign, urlLang, pickerOpen, params.lang, savedLang, slug, lang, navigate, location.search, location.hash]);
+
+  // Giao diện chung (hồ sơ, đăng nhập…) đi theo ngôn ngữ trang.
+  useEffect(() => {
+    if (!pickerOpen && !String(i18n.language || "").startsWith(lang)) i18n.changeLanguage(lang);
+  }, [lang, pickerOpen, i18n]);
+
   const mark = useMemo(() => (campaign ? { ...campaign.mark, label: campaign.partnerName } : null), [campaign]);
-  const canonical = slug === PARTNER_HOST_CAMPAIGN ? campaign?.publicUrl : `${SERVICES_ORIGIN}/collab/${slug}`;
-  useCampaignMeta(campaign, copy, canonical);
+  const baseUrl = slug === PARTNER_HOST_CAMPAIGN ? campaign?.publicUrl : `${SERVICES_ORIGIN}/collab/${slug}`;
+  const canonical = urlLang ? `${baseUrl}/${urlLang}` : baseUrl;
+  useCampaignMeta(campaign, copy, canonical, baseUrl);
 
   const [reduced] = useState(prefersReducedMotion);
   // Điện thoại phải nhận quà trong app đã cài (PWA); máy tính dùng trình duyệt.
@@ -322,15 +426,19 @@ export default function PartnerCollabPage() {
         <header className="collab-cinema__top">
           <Lockup mark={mark} />
           <span className="collab-type collab-cinema__eyebrow" aria-hidden="true">{copy.eyebrow}</span>
+          <LangSwitch slug={slug} lang={lang} onChoose={chooseLang} />
         </header>
 
         <div className="collab-cinema__stage">
-          <CollabFilm mark={mark} eyebrow={copy.eyebrow} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
+          {/* Phim chờ người dùng chọn xong ngôn ngữ mới chạy, để không lỡ mất đoạn mở màn. */}
+          {!pickerOpen && (
+            <CollabFilm mark={mark} eyebrow={copy.eyebrow} headline={copy.headline} tagline={copy.tagline} reduced={reduced} onDone={finishFilm} />
+          )}
         </div>
 
         <div className="collab-cinema__controls">
           <AnimatePresence mode="wait">
-            {filmDone ? (
+            {pickerOpen ? null : filmDone ? (
               <motion.div key="cta" className="collab-cinema__cta" initial={{ opacity: 0, y: 16, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
                 <p className="collab-cinema__lede">{copy.lede}</p>
                 <button type="button" className="collab-btn collab-btn--glow" onClick={explore}>
@@ -418,6 +526,8 @@ export default function PartnerCollabPage() {
           </nav>
         </div>
       </footer>
+
+      {pickerOpen && <LangPicker suggested={suggested} onChoose={chooseLang} />}
 
       {/* ── Điện thoại: hướng dẫn cài app (video + từng bước), bắt buộc ──── */}
       {showInstall && mustInstall && (

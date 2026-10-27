@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { animate, AnimatePresence, motion, useInView } from "framer-motion";
+import { collabLocale } from "./collabCopy";
 
 /**
  * Bốn thẻ quyền lợi của trang chiến dịch — mỗi thẻ có một thứ để chạm:
@@ -14,7 +15,7 @@ import { animate, AnimatePresence, motion, useInView } from "framer-motion";
 const EASE = [0.22, 1, 0.36, 1];
 
 const formatDate = (date, lang) =>
-  date.toLocaleDateString(lang === "vi" ? "vi-VN" : "en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+  date.toLocaleDateString(collabLocale(lang), { day: "2-digit", month: "2-digit", year: "numeric" });
 
 function SignupSteps({ steps, reduced }) {
   const ref = useRef(null);
@@ -111,7 +112,7 @@ function JoyCounter({ joy, ui, lang, reduced }) {
   return (
     <div ref={ref} className="collab-perk__joy">
       <button type="button" className="collab-perk__joy-count" onClick={() => setRun((n) => n + 1)} aria-label={`${joy} JOY — ${ui.perk.joyReplay}`}>
-        <strong>{value.toLocaleString(lang === "vi" ? "vi-VN" : "en-US")}</strong>
+        <strong>{value.toLocaleString(collabLocale(lang))}</strong>
         <span>JOY</span>
       </button>
       <p className="collab-perk__team">

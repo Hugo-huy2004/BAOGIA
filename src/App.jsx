@@ -242,6 +242,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<PartnerCollabPage />} />
           <Route path="/collab/:slug" element={<PartnerCollabPage />} />
+          <Route path="/collab/:slug/:lang" element={<PartnerCollabPage />} />
         </Routes>
       </Suspense>
     );

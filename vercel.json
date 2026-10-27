@@ -108,6 +108,18 @@
       "destination": "/collab/hwagfu/index.html"
     },
     {
+      "source": "/collab/hwagfu/vi",
+      "destination": "/collab/hwagfu/vi/index.html"
+    },
+    {
+      "source": "/collab/hwagfu/en",
+      "destination": "/collab/hwagfu/en/index.html"
+    },
+    {
+      "source": "/collab/hwagfu/zh",
+      "destination": "/collab/hwagfu/zh/index.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     },

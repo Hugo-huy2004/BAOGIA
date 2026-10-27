@@ -80,8 +80,36 @@ export const PARTNER_CAMPAIGNS = {
         lede: "Two studios shake hands on a collaboration — and you are among the first invited to join.",
         cta: "Explore the offer",
       },
+      zh: {
+        metaTitle: "合作优惠邀请函 · hwagfu.dev × Hugo Studio",
+        metaDescription:
+          "hwagfu.dev 与 Hugo Studio 合作优惠邀请：使用 Google 注册，获赠 6 个月账户与 Bio 页面使用期（完成教育认证再加 365 天）、1000 JOY，并免费体验各项服务。名额有限。",
+        keywords: "hwagfu.dev, Hugo Studio, 合作优惠, 免费 Bio 页面, JOY 钱包, Hugo Team, 学生优惠",
+        eyebrow: "邀请函 · Collaborate",
+        headline: "hwagfu.dev × Hugo Studio",
+        tagline: "to build · to learn · to grow",
+        lede: "两家工作室携手合作——你是首批受邀加入的人之一。",
+        cta: "探索优惠",
+      },
     },
   },
+};
+
+// ── Ngôn ngữ ──────────────────────────────────────────────────────────────
+// Mỗi ngôn ngữ có đường dẫn riêng /collab/<slug>/<vi|en|zh> để chia sẻ đúng bản;
+// tiêu đề link mang đuôi "/VI", "/EN", "/ZH" để nhìn là biết bản nào.
+export const PARTNER_LANGS = ["vi", "en", "zh"];
+export const isPartnerLang = (value) => PARTNER_LANGS.includes(value);
+
+/** Đường dẫn một bản ngôn ngữ (bỏ `lang` = trang gốc, sẽ hỏi chọn ngôn ngữ). */
+export const partnerCampaignPath = (slug, lang) => `/collab/${slug}${isPartnerLang(lang) ? `/${lang}` : ""}`;
+
+/** Lời văn của một bản ngôn ngữ, kèm tiêu đề có đuôi ngôn ngữ. */
+export const partnerCampaignCopy = (campaign, lang) => {
+  const code = isPartnerLang(lang) && campaign?.copy?.[lang] ? lang : "vi";
+  const copy = campaign?.copy?.[code];
+  if (!copy) return null;
+  return { ...copy, lang: code, linkTitle: `${copy.metaTitle} /${code.toUpperCase()}` };
 };
 
 export const getPartnerCampaign = (slug) =>
