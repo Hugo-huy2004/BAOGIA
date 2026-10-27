@@ -1,3 +1,5 @@
+// Phải đứng đầu: gắn chốt chặn truy vấn trước khi bất kỳ model nào được biên dịch.
+import './config/mongooseGuards.js';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';

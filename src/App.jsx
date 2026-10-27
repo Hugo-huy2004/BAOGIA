@@ -35,6 +35,7 @@ import { initGlobalHaptics } from "./utils/haptics";
 import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import ScreenProtection from "./components/security/ScreenProtection";
+import TraceWatermark from "./components/security/TraceWatermark";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
@@ -291,6 +292,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       <ScreenProtection />
+      {isMemberRoute && isAuthenticated && <TraceWatermark />}
       
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}
