@@ -69,6 +69,7 @@ let dayStart = startOfToday();
 let dayCount = 0;
 let tokensToday = 0;
 let consecFailures = 0;
+let lastCapAlertAt = 0;
 
 function startOfToday() { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); }
 function rollDay() { const s = startOfToday(); if (s !== dayStart) { dayStart = s; dayCount = 0; tokensToday = 0; } }
@@ -112,7 +113,19 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
   if (cacheKey) { const c = cacheGet(cacheKey); if (c != null) return c; }
 
   const q = getQuotaStatus();
-  if (lowPriority && q.saturated) { sendAlert('Gemini quota saturated (dropped low-priority call)', q); return null; }
+  // Hệ thống phi lợi nhuận: chạm trần ngày là dừng MỌI cuộc gọi, kể cả cuộc gọi
+  // tương tác. Trước đây cuộc gọi tương tác vẫn đi tiếp — nếu một khoá thuộc
+  // project Google Cloud đã bật thanh toán, phần vượt trần sẽ bị tính tiền.
+  // Trả null như mọi lần gọi thất bại khác; nơi gọi đã xử lý null.
+  if (q.saturated) {
+    // Một dòng mỗi 5 phút: sendAlert ghi MongoDB ở mọi lần gọi, mà lúc chạm trần
+    // thì mỗi tin nhắn người dùng là một lần — đầy 512MB của Atlas gói Free.
+    if (Date.now() - lastCapAlertAt > 5 * 60_000) {
+      lastCapAlertAt = Date.now();
+      sendAlert('Gemini daily cap reached — AI paused until tomorrow', q);
+    }
+    return null;
+  }
 
   // List of free fallback models to try if the primary one is throttled/fails
   const FREE_MODELS = [

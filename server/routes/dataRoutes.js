@@ -2,6 +2,10 @@ import express from 'express';
 import Data from '../models/Data.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
+
+// Dữ liệu công khai, đọc ở mọi lần mở app: giữ 10 giây trong RAM trước Redis để
+// cả trăm lượt đọc cùng lúc chỉ tốn một lệnh Upstash (gói Free). Xem cacheHelper.
+const HOT_PUBLIC = { hotMs: 10_000 };
 import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import Bio from '../models/Bio.js';
@@ -163,7 +167,7 @@ router.get('/bootstrap', async (req, res) => {
           edgeCached: true,
         },
       };
-    });
+    }, HOT_PUBLIC);
 
     res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     res.json(bootstrapData);
@@ -207,7 +211,7 @@ router.get('/', async (req, res) => {
       delete sanitized.dongThap;
       delete sanitized.catholicism;
       return sanitized;
-    });
+    }, HOT_PUBLIC);
 
     res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     res.json(sanitizedData);

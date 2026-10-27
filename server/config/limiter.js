@@ -11,8 +11,9 @@ import redis from './redis.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-// Bộ đếm dùng chung qua Redis khi có REDIS_URL: Render khởi động lại (deploy,
-// hết RAM) không còn xoá sạch bộ đếm, và chạy nhiều instance vẫn đếm chung.
+// Bộ đếm qua Redis khi có REDIS_URL — CHỈ cho các trần lượt ít request nhưng cần
+// sống qua lần khởi động lại (đăng nhập, OTP): chống dò mật khẩu bằng cách chờ
+// Render restart. Trần trên mọi request ở lại RAM để giữ Upstash trong gói Free.
 // Một kết nối riêng (không đụng kết nối pub/sub).
 const limiterRedis = redis?.duplicate();
 limiterRedis?.on('error', () => {});
@@ -113,8 +114,11 @@ setInterval(() => {
   for (const [k, at] of flagged) if (now - at > FLAG_WINDOW_MS) flagged.delete(k);
 }, 60 * 1000).unref();
 
+// Đếm trong RAM, không qua Redis: lượt này chạy trên MỌI request, qua Redis là
+// một lệnh mỗi request — đủ để đốt hết 500.000 lệnh/tháng của Upstash gói Free
+// (hệ thống phi lợi nhuận, không dùng gói trả phí). Render Free chạy một instance
+// nên đếm trong RAM là đủ; chỉ mất bộ đếm khi khởi động lại.
 export const globalLimiter = rateLimit({
-  ...limiterStore('global'),
   windowMs: 15 * 60 * 1000,
   // Thành viên đếm theo tài khoản: 1500/15 phút. Khách ẩn danh đếm theo IP mà IP
   // có thể là của Vercel (chung cho mọi người chưa đăng nhập) nên trần rộng hơn;
@@ -160,7 +164,6 @@ export const isHeavy = (req) => (
 );
 
 export const heavyLimiter = rateLimit({
-  ...limiterStore('heavy'),
   windowMs: 15 * 60 * 1000,
   max: isDev ? 0 : 60,
   standardHeaders: false,

@@ -38,10 +38,18 @@ function remember(key, entry, ttlMs) {
  * outage fallback. Fresh for staleTimeMs, usable for at most 3x that (<= 5 min).
  * ponytail: single-flight is per process; add distributed leases if DB load warrants it.
  */
-export async function fetchWithCache(key, staleTimeMs, fetcher) {
+async function fetchShared(key, staleTimeMs, fetcher, hotMs = 0) {
   if (!Number.isFinite(staleTimeMs) || staleTimeMs <= 0 || staleTimeMs > MAX_AGE_MS) {
     throw new RangeError('Cache freshness must be between 0 and 300000 ms');
   }
+  const generation = hotGeneration.get(key) || 0;
+  const markHot = (data, ageMs) => {
+    if (!hotMs || (hotGeneration.get(key) || 0) !== generation) return;
+    const lifetime = Math.min(hotMs, HOT_MAX_MS, staleTimeMs - ageMs);
+    if (lifetime <= 0) return;
+    if (hot.size >= MAX_KEYS) hot.delete(hot.keys().next().value);
+    hot.set(key, { data, until: Date.now() + lifetime });
+  };
   const ttlMs = Math.min(staleTimeMs * 3, MAX_AGE_MS);
   const pending = pendingRequests.get(key);
   if (pending) {
@@ -75,12 +83,14 @@ export async function fetchWithCache(key, staleTimeMs, fetcher) {
     const usable = entry && Object.hasOwn(entry, 'data') && age >= 0 && age < ttlMs;
     if (usable && age < staleTimeMs) {
       cleanup();
+      markHot(entry.data, age);
       return entry.data;
     }
 
     const refresh = async () => {
       const data = await fetcher(); // Also handles synchronous throws.
       const updated = { data, updatedAt: Date.now() };
+      markHot(data, 0);
       // A tombstone lives longer than any fill we permit to populate Redis.
       if (current() && Date.now() - startedAt < MAX_AGE_MS) {
         if (useRedis) {
@@ -107,6 +117,8 @@ export async function fetchWithCache(key, staleTimeMs, fetcher) {
 }
 
 export async function clearCache(key) {
+  hot.delete(key);
+  hotGeneration.set(key, (hotGeneration.get(key) || 0) + 1);
   cache.del(key);
   pendingRequests.delete(key);
   if (shared?.status !== 'ready') return;
@@ -114,4 +126,30 @@ export async function clearCache(key) {
     // Unique expiring tombstones fence fills that started on an empty cache too.
     await shared.set(PREFIX + key, JSON.stringify({ invalidated: randomUUID() }), 'PX', MAX_AGE_MS);
   } catch { /* DB writes must not fail because the optional cache is down. */ }
+}
+
+/**
+ * Lớp nóng trong RAM trước Redis — TUỲ CHỌN theo route (`{ hotMs }`).
+ *
+ * Mỗi lượt đọc qua Redis là một lệnh tính vào hạn mức Upstash gói Free
+ * (500.000/tháng; hệ thống phi lợi nhuận, không dùng gói trả phí): 200 người
+ * cùng mở `/api/data` là 200 lệnh cho cùng một nội dung. Route bật `hotMs` thì
+ * nhiều người đọc cùng lúc chỉ tốn một lệnh.
+ *
+ * Đổi lại, instance KHÁC có thể thấy bản cũ thêm tối đa `hotMs` sau khi xoá
+ * cache (instance này thì clearCache xoá ngay). Vì vậy mặc định TẮT: chỉ bật
+ * cho dữ liệu công khai mà chậm vài giây không sai gì. Lớp nóng chỉ nhận bản đã
+ * biết là tươi (đọc tươi từ Redis hoặc vừa nạp từ nguồn) và không sống quá phần
+ * độ tươi còn lại, nên không kéo dài một bản cũ đang chờ làm mới nền.
+ */
+const HOT_MAX_MS = 10_000;
+const hot = new Map();
+// Mỗi lần clearCache tăng thế hệ của khoá: một lượt đọc bắt đầu TRƯỚC khi xoá
+// mà về SAU khi xoá thì không được ghi bản cũ trở lại lớp nóng.
+const hotGeneration = new Map();
+
+export async function fetchWithCache(key, staleTimeMs, fetcher, { hotMs = 0 } = {}) {
+  const entry = hot.get(key);
+  if (entry && Date.now() < entry.until) return entry.data;
+  return fetchShared(key, staleTimeMs, fetcher, hotMs);
 }

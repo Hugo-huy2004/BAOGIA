@@ -32,6 +32,16 @@ Lưới an toàn đã mất theo: đối chiếu khoá i18n giữa 9 ngôn ngữ
 trong portal có bản dịch, và toán tiền/token. Sửa mấy chỗ đó thì phải tự soát
 tay.
 
+## Cost: free tiers only (nonprofit)
+
+Hugo Studio is nonprofit: **no paid plan, no service that bills**. Every provider
+runs on its free tier and code must stay inside it — see `docs/chi-phi-0d.md` for
+the list, limits and guards. Never recommend upgrading a plan, adding a card, or a
+new service without a free tier. When a quota runs out the feature must degrade
+(fallback, pause, 429), never start billing: e.g. `aiGateway` stops all Gemini
+calls at the daily cap, rate limiters count in RAM, Redis reads go through the
+opt-in hot layer in `utils/cacheHelper.js`.
+
 ## Architecture
 
 Three servers, but the browser only ever talks to **one origin**: every `/api/*`
