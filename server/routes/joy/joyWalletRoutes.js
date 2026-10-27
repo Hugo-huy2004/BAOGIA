@@ -250,7 +250,7 @@ router.get('/qr-payload', requireMember, async (req, res) => {
     const bio = await Bio.findOne({ email }).select('displayName avatarUrl referralCode joyBalance');
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
     if (!bio.referralCode) {
-      const { ensureReferralCode } = await import('../utils/referralService.js');
+      const { ensureReferralCode } = await import('../../utils/referralService.js');
       await ensureReferralCode(bio);
     }
     res.json({
@@ -522,14 +522,14 @@ router.post('/transfer', requireMember, async (req, res) => {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       });
       // Báo người dùng: giao dịch đang được xem xét, KHÔNG phải thất bại.
-      const { notifyMember } = await import('../utils/notifyMember.js');
+      const { notifyMember } = await import('../../utils/notifyMember.js');
       await notifyMember({
         email: sender.email, type: 'info', category: 'joy',
         key: 'source.transfer_held', actionUrl: '/member/account', push: true,
         amount: -totalDeducted, refCode: txCode, counterparty: recipientName,
       }).catch(() => {});
       // Báo Boss kèm nút duyệt/từ chối.
-      import('../services/telegramService.js').then(({ sendTelegramAlert }) => {
+      import('../../services/telegramService.js').then(({ sendTelegramAlert }) => {
         sendTelegramAlert(
           `🔍 <b>[GIỮ GIAO DỊCH LỚN CHỜ RÀ SOÁT]</b>\n\n`
           + `👤 <code>${sender.email}</code> → <code>${recipient.email}</code>\n`

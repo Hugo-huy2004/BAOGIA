@@ -138,7 +138,7 @@ router.post('/verify-otp', otpVerifyLimiter, async (req, res) => {
     });
 
     try {
-      const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+      const AdminAuditLog = (await import('../../models/AdminAuditLog.js')).default;
       await AdminAuditLog.create({
         adminId: String(record.adminId),
         adminUsername: record.adminUsername,

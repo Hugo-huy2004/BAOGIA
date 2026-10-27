@@ -345,8 +345,8 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
     const emailPromises = [];
     const pushPromises = [];
 
-    const { sendCustomEmail } = await import('../services/emailService.js');
-    const InAppNotification = (await import('../models/InAppNotification.js')).default;
+    const { sendCustomEmail } = await import('../../services/emailService.js');
+    const InAppNotification = (await import('../../models/InAppNotification.js')).default;
 
     for (const bio of recipients) {
       const userDisplayName = bio.displayName || 'Thành viên';
@@ -411,11 +411,11 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
 // GET /admin/users/:id/details - Soi thông tin chi tiết người dùng
 router.get('/users/:id/details', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
-    const JoyLedger = (await import('../models/JoyLedger.js')).default;
-    const SecurityEvent = (await import('../models/SecurityEvent.js')).default;
-    const SupportTicket = (await import('../models/SupportTicket.js')).default;
-    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
+    const JoyLedger = (await import('../../models/JoyLedger.js')).default;
+    const SecurityEvent = (await import('../../models/SecurityEvent.js')).default;
+    const SupportTicket = (await import('../../models/SupportTicket.js')).default;
+    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
 
     const bioDoc = await Bio.findById(req.params.id);
     if (!bioDoc) {
@@ -449,7 +449,7 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
 // biết vì sao khoá tra cứu của từng model không giống nhau.
 router.get('/users/:id/overview', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bioDoc = await Bio.findById(req.params.id);
     if (!bioDoc) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng' });
 
@@ -474,14 +474,14 @@ router.post('/users/:id/appeal/:appealId', requireAdmin, async (req, res) => {
     if (!['approve', 'reject'].includes(decision)) {
       return res.status(400).json({ error: 'decision phải là approve hoặc reject' });
     }
-    const SecurityAppeal = (await import('../models/SecurityAppeal.js')).default;
+    const SecurityAppeal = (await import('../../models/SecurityAppeal.js')).default;
     const appeal = await SecurityAppeal.findById(req.params.appealId);
     if (!appeal) return res.status(404).json({ error: 'Không tìm thấy đơn kháng nghị' });
 
     const status = decision === 'approve' ? 'approved' : 'rejected';
 
     if (decision === 'approve') {
-      const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+      const SecurityBlock = (await import('../../models/SecurityBlock.js')).default;
       await SecurityBlock.updateMany(
         { email: appeal.email, active: true },
         { $set: { active: false, releasedAt: new Date(), releasedBy: 'admin-appeal' } },
@@ -489,7 +489,7 @@ router.post('/users/:id/appeal/:appealId', requireAdmin, async (req, res) => {
     }
 
     // Có quyết định là xoá sạch: selfie trên Cloudinary lẫn bản ghi vị trí/IP.
-    const { purgeSecurityAppeal } = await import('../services/memberAccountLifecycle.js');
+    const { purgeSecurityAppeal } = await import('../../services/memberAccountLifecycle.js');
     await purgeSecurityAppeal(appeal).catch((e) => console.error('[appeal purge]', e.message));
 
     await logAdminAuditAction(req, `appeal_${decision}`, null, appeal.email, `Kháng nghị mở khoá: ${decision}`, { appealId: String(appeal._id), note });
@@ -508,7 +508,7 @@ router.post('/users/:id/held-transfer/:txId', requireAdmin, async (req, res) => 
     if (!['release', 'block'].includes(decision)) {
       return res.status(400).json({ error: 'decision phải là release hoặc block' });
     }
-    const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
+    const PendingTransfer = (await import('../../models/PendingTransfer.js')).default;
     const tx = await PendingTransfer.findById(req.params.txId);
     if (!tx) return res.status(404).json({ error: 'Không tìm thấy giao dịch' });
     if (tx.status && !['pending', 'held', 'review'].includes(tx.status)) {
@@ -537,7 +537,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude,
       locationVerifiedAt, ethnicity, religion,
     } = req.body;
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
       return res.status(404).json({ error: 'Không tìm thấy người dùng' });
@@ -619,7 +619,7 @@ router.post('/users/:id/adjust-joy', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Số lượng quy đổi bằng 0' });
     }
 
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
       return res.status(404).json({ error: 'Không tìm thấy người dùng' });
@@ -661,8 +661,8 @@ router.post('/users/:id/adjust-joy', requireAdmin, async (req, res) => {
 // GET /admin/users/:id/joy-reconciliation - Kiểm tra đối soát số dư JOY với tổng sổ cái JoyLedger
 router.get('/users/:id/joy-reconciliation', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
-    const { reconcileJoyBalance } = await import('../utils/joyService.js');
+    const Bio = (await import('../../models/Bio.js')).default;
+    const { reconcileJoyBalance } = await import('../../utils/joyService.js');
     const bio = await Bio.findById(req.params.id).lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 
@@ -677,8 +677,8 @@ router.get('/users/:id/joy-reconciliation', requireAdmin, async (req, res) => {
 // POST /admin/users/:id/reconcile-joy - Khôi phục & Đồng bộ hóa chuẩn số dư Ví JOY theo Sổ cái
 router.post('/users/:id/reconcile-joy', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
-    const { reconcileJoyBalance } = await import('../utils/joyService.js');
+    const Bio = (await import('../../models/Bio.js')).default;
+    const { reconcileJoyBalance } = await import('../../utils/joyService.js');
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 
@@ -706,9 +706,9 @@ router.post('/users/:id/reconcile-joy', requireAdmin, async (req, res) => {
 router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
   try {
     const { voucherCode, joyReward, message } = req.body;
-    const Bio = (await import('../models/Bio.js')).default;
-    const { awardJoy } = await import('../utils/joyService.js');
-    const { sendCustomEmail } = await import('../services/emailService.js');
+    const Bio = (await import('../../models/Bio.js')).default;
+    const { awardJoy } = await import('../../utils/joyService.js');
+    const { sendCustomEmail } = await import('../../services/emailService.js');
 
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
@@ -787,13 +787,13 @@ router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
 // POST /admin/users/:id/revoke-session - Đăng xuất cưỡng chế & Thu hồi phiên làm việc
 router.post('/users/:id/revoke-session', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
       return res.status(404).json({ error: 'Không tìm thấy người dùng' });
     }
 
-    const { revokeMemberSession } = await import('../utils/memberSession.js');
+    const { revokeMemberSession } = await import('../../utils/memberSession.js');
     await revokeMemberSession(bio, 'Admin');
 
     logAdminAuditAction(req, 'REVOKE_SESSION', bio._id, bio.email, `Thu hồi phiên đăng nhập của ${bio.displayName}`);
@@ -816,8 +816,8 @@ router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Tiêu đề email (subject) là bắt buộc' });
     }
 
-    const Bio = (await import('../models/Bio.js')).default;
-    const { sendCustomEmail } = await import('../services/emailService.js');
+    const Bio = (await import('../../models/Bio.js')).default;
+    const { sendCustomEmail } = await import('../../services/emailService.js');
 
     const bio = await Bio.findById(req.params.id).lean();
     if (!bio || !bio.email) {
@@ -854,7 +854,7 @@ router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
 // POST /admin/users/:id/toggle-wallet-freeze - Đóng băng / Mở đóng băng Ví JOY
 router.post('/users/:id/toggle-wallet-freeze', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 
@@ -885,7 +885,7 @@ router.post('/users/:id/toggle-wallet-freeze', requireAdmin, async (req, res) =>
 // POST /admin/users/:id/toggle-edu-status - Phê duyệt / Thu hồi EDU Status
 router.post('/users/:id/toggle-edu-status', requireAdmin, async (req, res) => {
   try {
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 

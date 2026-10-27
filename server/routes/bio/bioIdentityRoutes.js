@@ -14,7 +14,7 @@ const router = express.Router();
 // GET /api/bios/me/identity-check — tới hạn chưa, đang hỏi món gì.
 router.get('/me/identity-check', requireMember, async (req, res) => {
   try {
-    const IC = await import('../utils/identityCheck.js');
+    const IC = await import('../../utils/identityCheck.js');
     const bio = await Bio.findOne({ email: req.memberEmail });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
 
@@ -59,21 +59,21 @@ router.get('/me/identity-check', requireMember, async (req, res) => {
 // POST /api/bios/me/identity-check/send-otp — gửi mã tới chính hòm thư đã đăng ký.
 router.post('/me/identity-check/send-otp', requireMember, identityOtpLimiter, async (req, res) => {
   try {
-    const IC = await import('../utils/identityCheck.js');
+    const IC = await import('../../utils/identityCheck.js');
     const bio = await Bio.findOne({ email: req.memberEmail });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
     if (!IC.isDue(bio) || bio.identityCheck?.pendingField !== 'email') {
       return res.status(400).json({ error: 'Đợt kiểm tra hiện tại không yêu cầu mã email.' });
     }
 
-    const { issueEmailOtp, hasLiveEmailOtp } = await import('../utils/emailOtp.js');
+    const { issueEmailOtp, hasLiveEmailOtp } = await import('../../utils/emailOtp.js');
     // Mã cũ còn hiệu lực thì giữ nguyên: cấp mã mới sẽ vô hiệu hoá đúng cái mã
     // người dùng đang gõ dở, và mỗi lần cấp là thêm một email rời máy chủ.
     if (hasLiveEmailOtp(bio.email, 'identity')) {
       return res.json({ success: true, alreadySent: true, emailHint: maskEmail(bio.email) });
     }
 
-    const { sendMagicLinkOtp } = await import('../services/emailService.js');
+    const { sendMagicLinkOtp } = await import('../../services/emailService.js');
     const code = issueEmailOtp(bio.email, 'identity');
     const mail = await sendMagicLinkOtp(bio.email, code, 'identity');
 
@@ -83,7 +83,7 @@ router.post('/me/identity-check/send-otp', requireMember, identityOtpLimiter, as
     // Đổi sang mục khác để đợt kiểm tra vẫn diễn ra, chỉ là hỏi thứ khác.
     if (!mail?.success || mail.simulated) {
       console.warn(`⚠️ Kiểm tra thông tin: không gửi được mã tới ${maskEmail(bio.email)} — chuyển sang hỏi mục khác.`);
-      const IC2 = await import('../utils/identityCheck.js');
+      const IC2 = await import('../../utils/identityCheck.js');
       const fallback = IC2.availableFields(bio).find((f) => f !== 'email');
       bio.identityCheck.pendingField = fallback || '';
       if (!fallback) IC2.scheduleNext(bio, { advance: false });
@@ -107,7 +107,7 @@ router.post('/me/identity-check/send-otp', requireMember, identityOtpLimiter, as
 // POST /api/bios/me/identity-check/answer  { value }
 router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, async (req, res) => {
   try {
-    const IC = await import('../utils/identityCheck.js');
+    const IC = await import('../../utils/identityCheck.js');
     const bio = await Bio.findOne({ email: req.memberEmail });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
     if (!IC.isDue(bio)) return res.json({ success: true, due: false });
@@ -133,7 +133,7 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
 
     let correct;
     if (field === 'email') {
-      const { verifyEmailOtp, hasLiveEmailOtp } = await import('../utils/emailOtp.js');
+      const { verifyEmailOtp, hasLiveEmailOtp } = await import('../../utils/emailOtp.js');
       // Không có mã nào đang sống thì đây không phải câu trả lời sai — chưa
       // từng có câu hỏi. Đếm nó là một lần sai là khoá người vô tội.
       if (!hasLiveEmailOtp(bio.email, 'identity')) {
@@ -166,7 +166,7 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
     // Hết lượt: khoá tài khoản bằng đúng cơ chế an ninh đang chạy, nên người
     // dùng thấy màn khoá kèm đường kháng nghị và admin có sẵn nút gỡ.
     const { recordSecurityViolation, sendSecurityBlockResponse, findActiveSecurityBlock } =
-      await import('../services/securityEnforcement.js');
+      await import('../../services/securityEnforcement.js');
     const { caseId } = await recordSecurityViolation({
       req,
       email: bio.email,
@@ -180,7 +180,7 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
 
     // Sổ kiểm toán là NƠI DUY NHẤT còn giữ email dạng đọc được cho ca này:
     // SecurityEvent chỉ lưu bản băm. Nút xử lý trên Telegram tra ngược qua đây.
-    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    const AdminAuditLog = (await import('../../models/AdminAuditLog.js')).default;
     await AdminAuditLog.create({
       adminId: 'SYSTEM_IDENTITY_CHECK',
       adminUsername: 'Kiểm tra thông tin định kỳ',
@@ -191,7 +191,7 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
 
     // Báo Boss kèm hai nút xử lý — kháng nghị thường tới qua email, nhưng người
     // bị khoá oan thì nhắn ngay, và Boss cần gỡ được từ điện thoại.
-    const { sendTelegramAlert } = await import('../services/telegramService.js');
+    const { sendTelegramAlert } = await import('../../services/telegramService.js');
     sendTelegramAlert(
       `🪪 <b>[KIỂM TRA THÔNG TIN: ĐÃ KHOÁ TÀI KHOẢN]</b>\n\n`
       + `👤 <b>Thành viên:</b> <code>${bio.email}</code> (${bio.displayName || 'chưa đặt tên'})\n`

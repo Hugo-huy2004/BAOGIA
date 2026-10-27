@@ -34,7 +34,7 @@ router.post('/joylater/apply', requireMember, (_req, res) => {
  */
 router.post('/joylater/review', requireAdmin, async (req, res) => {
   try {
-    const { forceReview } = await import('../services/joyCreditService.js');
+    const { forceReview } = await import('../../services/joyCreditService.js');
     const email = String(req.body?.email || '').trim().toLowerCase() || null;
     // `requireAdmin` đặt `req.admin` (payload { id, role, uaHash }); `req.adminEmail`
     // chưa bao giờ tồn tại nên trước đây `by` luôn là chuỗi 'admin'.

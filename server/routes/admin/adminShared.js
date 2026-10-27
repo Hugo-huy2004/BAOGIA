@@ -98,7 +98,7 @@ export async function issueAdminOtp(admin) {
     expiresAt: Date.now() + OTP_TTL_MS,
   });
 
-  const { sendTelegramAlert } = await import('../services/telegramService.js');
+  const { sendTelegramAlert } = await import('../../services/telegramService.js');
   const otpHtml = `
 🔑 <b>[HUGO ADMIN OTP]</b>
 
@@ -430,7 +430,7 @@ export function localFallbackInterpret(text) {
  */
 export async function logAdminAuditAction(req, action, targetUserId, targetUserEmail, details, metadata = {}) {
   try {
-    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    const AdminAuditLog = (await import('../../models/AdminAuditLog.js')).default;
     await AdminAuditLog.create({
       adminId: String(req.admin?.id || 'admin'),
       adminUsername: req.admin?.id || 'admin',

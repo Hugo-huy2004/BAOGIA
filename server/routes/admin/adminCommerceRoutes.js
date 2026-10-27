@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/orders/update-status', requireAdmin, async (req, res) => {
   try {
     const { orderId, status } = req.body;
-    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
     const order = await UtilityOrder.findById(orderId);
     if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
     order.status = status;
@@ -30,9 +30,9 @@ router.post('/orders/update-status', requireAdmin, async (req, res) => {
 router.get('/joylater', requireAdmin, async (req, res) => {
   try {
     const [Bio, JoyCreditProfile, JoyPolicy] = await Promise.all([
-      import('../models/Bio.js'), import('../models/JoyCreditProfile.js'), import('../models/JoyPolicy.js'),
+      import('../../models/Bio.js'), import('../../models/JoyCreditProfile.js'), import('../../models/JoyPolicy.js'),
     ]).then((m) => m.map((x) => x.default));
-    const { effectiveLimit } = await import('../services/joyCreditService.js');
+    const { effectiveLimit } = await import('../../services/joyCreditService.js');
 
     const [borrowers, profiles, policy] = await Promise.all([
       Bio.find({ 'joyLoan.outstanding': { $gt: 0 } },
@@ -93,7 +93,7 @@ router.post('/joylater/limit', requireAdmin, async (req, res) => {
   try {
     const { email, limit, reason, days } = req.body || {};
     if (!email) return res.status(400).json({ error: 'Thiếu email' });
-    const JoyCreditProfile = (await import('../models/JoyCreditProfile.js')).default;
+    const JoyCreditProfile = (await import('../../models/JoyCreditProfile.js')).default;
     const profile = await JoyCreditProfile.findOne({ email: String(email).toLowerCase() });
     if (!profile) return res.status(404).json({ error: 'Người này chưa có hồ sơ tín dụng' });
 
@@ -128,7 +128,7 @@ router.post('/joylater/suspend', requireAdmin, async (req, res) => {
   try {
     const { email, suspend, reason } = req.body || {};
     if (!email) return res.status(400).json({ error: 'Thiếu email' });
-    const JoyCreditProfile = (await import('../models/JoyCreditProfile.js')).default;
+    const JoyCreditProfile = (await import('../../models/JoyCreditProfile.js')).default;
     const profile = await JoyCreditProfile.findOne({ email: String(email).toLowerCase() });
     if (!profile) return res.status(404).json({ error: 'Người này chưa có hồ sơ tín dụng' });
 
@@ -160,7 +160,7 @@ router.post('/joylater/pause', requireAdmin, async (req, res) => {
     if (paused && !reason?.trim()) {
       return res.status(400).json({ error: 'Phải ghi lý do tạm dừng cho vay toàn hệ thống.' });
     }
-    const JoyPolicy = (await import('../models/JoyPolicy.js')).default;
+    const JoyPolicy = (await import('../../models/JoyPolicy.js')).default;
     const policy = await JoyPolicy.current();
     policy.lending = paused
       ? { enabled: false, pausedReason: reason.trim().slice(0, 300), pausedBy: req.admin?.id || 'admin', pausedAt: new Date() }
@@ -185,7 +185,7 @@ router.post('/joylater/:caseId', requireAdmin, async (req, res) => {
     if (!['ban', 'skip'].includes(decision)) {
       return res.status(400).json({ error: 'decision phải là ban hoặc skip' });
     }
-    const { handleJoyLaterCallback } = await import('../services/joyLaterEnforcement.js');
+    const { handleJoyLaterCallback } = await import('../../services/joyLaterEnforcement.js');
     const by = `web:${req.admin?.id || 'admin'}`;
     const result = await handleJoyLaterCallback({ data: `jl:${decision}:${req.params.caseId}`, by });
     if (!result) return res.status(400).json({ error: 'Không xử lý được hồ sơ này.' });
@@ -202,7 +202,7 @@ router.post('/joylater/:caseId', requireAdmin, async (req, res) => {
 // xem quy mô audience và có thể chủ động chạy một lượt đã được giới hạn sẵn.
 router.get('/marketing-email', requireAdmin, async (_req, res) => {
   try {
-    const { getLifecycleEmailStatus } = await import('../services/lifecycleEmailService.js');
+    const { getLifecycleEmailStatus } = await import('../../services/lifecycleEmailService.js');
     return res.json({ success: true, ...(await getLifecycleEmailStatus()) });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -212,7 +212,7 @@ router.get('/marketing-email', requireAdmin, async (_req, res) => {
 router.patch('/marketing-email', requireAdmin, async (req, res) => {
   if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ error: 'enabled must be a boolean' });
   try {
-    const { setLifecycleEmailEnabled } = await import('../services/lifecycleEmailService.js');
+    const { setLifecycleEmailEnabled } = await import('../../services/lifecycleEmailService.js');
     const status = await setLifecycleEmailEnabled(req.body.enabled);
     await logAdminAuditAction(req, 'MARKETING_EMAIL_TOGGLE', null, '', `Lifecycle email ${req.body.enabled ? 'enabled' : 'disabled'}`);
     return res.json({ success: true, ...status });
@@ -223,7 +223,7 @@ router.patch('/marketing-email', requireAdmin, async (req, res) => {
 
 router.post('/marketing-email/run', requireAdmin, async (req, res) => {
   try {
-    const { runLifecycleEmailJob } = await import('../services/lifecycleEmailService.js');
+    const { runLifecycleEmailJob } = await import('../../services/lifecycleEmailService.js');
     const result = await runLifecycleEmailJob();
     await logAdminAuditAction(req, 'MARKETING_EMAIL_RUN', null, '', `Lifecycle email: ${result.sent || 0} sent`, result);
     return res.json({ success: true, ...result });
@@ -235,7 +235,7 @@ router.post('/marketing-email/run', requireAdmin, async (req, res) => {
 // GET /admin/store/products - Lấy toàn bộ sản phẩm Utility Store cho Admin (kèm sản phẩm ẩn)
 router.get('/store/products', requireAdmin, async (req, res) => {
   try {
-    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const UtilityProduct = (await import('../../models/UtilityProduct.js')).default;
     const products = await UtilityProduct.find().sort({ createdAt: -1 }).lean();
     res.json({ success: true, products: products.map((product) => ({
       ...product,
@@ -254,7 +254,7 @@ router.post('/store/products', requireAdmin, async (req, res) => {
     if (!name) {
       return res.status(400).json({ error: 'Tên sản phẩm là bắt buộc' });
     }
-    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const UtilityProduct = (await import('../../models/UtilityProduct.js')).default;
     const product = await UtilityProduct.create({
       name,
       description: description || '',
@@ -283,7 +283,7 @@ router.post('/store/products', requireAdmin, async (req, res) => {
 // PUT /admin/store/products/:id - Cập nhật thông tin sản phẩm Utility Store
 router.put('/store/products/:id', requireAdmin, async (req, res) => {
   try {
-    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const UtilityProduct = (await import('../../models/UtilityProduct.js')).default;
     const product = await UtilityProduct.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
 
@@ -309,7 +309,7 @@ router.put('/store/products/:id', requireAdmin, async (req, res) => {
 // DELETE /admin/store/products/:id - Bật/tắt sản phẩm Store
 router.delete('/store/products/:id', requireAdmin, async (req, res) => {
   try {
-    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const UtilityProduct = (await import('../../models/UtilityProduct.js')).default;
     const product = await UtilityProduct.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
 
@@ -328,7 +328,7 @@ router.delete('/store/products/:id', requireAdmin, async (req, res) => {
 // GET /admin/store/orders - Danh sách đơn hàng mua sắm Store
 router.get('/store/orders', requireAdmin, async (req, res) => {
   try {
-    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
     const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100));
     const orders = await UtilityOrder.find().sort({ createdAt: -1 }).limit(limit).lean();
     res.json({ success: true, orders });
@@ -341,14 +341,14 @@ router.get('/store/orders', requireAdmin, async (req, res) => {
 // POST /admin/store/orders/:id/cancel-refund - Hủy đơn hàng & Hoàn tiền JOY 1-Click
 router.post('/store/orders/:id/cancel-refund', requireAdmin, async (req, res) => {
   try {
-    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
     const order = await UtilityOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
     if (order.status === 'cancelled') {
       return res.status(400).json({ error: 'Đơn hàng này đã bị hủy trước đó' });
     }
 
-    const { awardJoy } = await import('../utils/joyService.js');
+    const { awardJoy } = await import('../../utils/joyService.js');
     order.status = 'cancelled';
     await order.save();
 

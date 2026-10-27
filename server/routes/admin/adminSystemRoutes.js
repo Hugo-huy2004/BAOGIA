@@ -185,7 +185,7 @@ Be smart:
 // GET /admin/iot/devices (admin) - Danh sách thiết bị IoT
 router.get('/iot/devices', requireAdmin, async (req, res) => {
   try {
-    const IoTDevice = (await import('../models/IoTDevice.js')).default;
+    const IoTDevice = (await import('../../models/IoTDevice.js')).default;
     const devices = await IoTDevice.find({}).sort({ lastSeen: -1 });
     res.json({ success: true, devices });
   } catch (err) {
@@ -197,7 +197,7 @@ router.get('/iot/devices', requireAdmin, async (req, res) => {
 router.post('/iot/toggle', requireAdmin, async (req, res) => {
   try {
     const { deviceId } = req.body;
-    const IoTDevice = (await import('../models/IoTDevice.js')).default;
+    const IoTDevice = (await import('../../models/IoTDevice.js')).default;
     const dev = await IoTDevice.findOne({ deviceId });
     if (!dev) return res.status(404).json({ error: 'Không tìm thấy thiết bị IoT' });
     dev.isActive = !dev.isActive;
@@ -223,7 +223,7 @@ router.get('/queue', requireAdmin, async (req, res) => {
 // GET /admin/audit-logs - Lấy danh sách nhật ký kiểm toán hành động quản trị
 router.get('/audit-logs', requireAdmin, async (req, res) => {
   try {
-    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    const AdminAuditLog = (await import('../../models/AdminAuditLog.js')).default;
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
     const logs = await AdminAuditLog.find().sort({ timestamp: -1 }).limit(limit).lean();
     res.json({ success: true, logs });
@@ -236,7 +236,7 @@ router.get('/audit-logs', requireAdmin, async (req, res) => {
 // GET /admin/brain/auto-moderator/scan - AI Quét tự động rủi ro an ninh & biến động JOY
 router.get('/brain/auto-moderator/scan', requireAdmin, async (req, res) => {
   try {
-    const { runAutoModerationScan } = await import('../services/adminBrainService.js');
+    const { runAutoModerationScan } = await import('../../services/adminBrainService.js');
     const result = await runAutoModerationScan();
     res.json({ success: true, ...result });
   } catch (err) {
@@ -249,7 +249,7 @@ router.get('/brain/auto-moderator/scan', requireAdmin, async (req, res) => {
 router.post('/brain/auto-moderator/resolve', requireAdmin, async (req, res) => {
   try {
     const { userId, freezeWallet = false, action = 'DISMISS' } = req.body;
-    const Bio = (await import('../models/Bio.js')).default;
+    const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(userId);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 
@@ -283,7 +283,7 @@ router.post('/brain/auto-moderator/resolve', requireAdmin, async (req, res) => {
 // GET /api/admin/ai-support/briefing - Báo cáo chủ động các việc AI Support Admin đã tự động làm
 router.get('/ai-support/briefing', requireAdmin, async (req, res) => {
   try {
-    const { getPendingBriefing } = await import('../services/aiSupportAdminService.js');
+    const { getPendingBriefing } = await import('../../services/aiSupportAdminService.js');
     const briefingData = await getPendingBriefing();
     res.json({ success: true, ...briefingData });
   } catch (err) {
@@ -295,7 +295,7 @@ router.get('/ai-support/briefing', requireAdmin, async (req, res) => {
 // POST /api/admin/ai-support/mark-read - Đánh dấu đã xem báo cáo của AI
 router.post('/ai-support/mark-read', requireAdmin, async (req, res) => {
   try {
-    const { markBriefingReported } = await import('../services/aiSupportAdminService.js');
+    const { markBriefingReported } = await import('../../services/aiSupportAdminService.js');
     const { logIds } = req.body || {};
     await markBriefingReported(logIds);
     res.json({ success: true, message: 'Đã đánh dấu đã đọc báo cáo AI thành công' });
@@ -308,9 +308,9 @@ router.post('/ai-support/mark-read', requireAdmin, async (req, res) => {
 // ─── BOT SECURITY SENTINEL TELEMETRY ROUTES ──────────────────────────────────
 router.get('/security/sentinel-summary', requireAdmin, async (req, res) => {
   try {
-    const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
-    const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
-    const SecurityEvent = (await import('../models/SecurityEvent.js')).default;
+    const SecurityModeration = (await import('../../models/SecurityModeration.js')).default;
+    const SecurityBlock = (await import('../../models/SecurityBlock.js')).default;
+    const SecurityEvent = (await import('../../models/SecurityEvent.js')).default;
 
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const [pendingCount, activeBlocksCount, events24hCount, pendingModerations, activeBlocks, recentEvents] = await Promise.all([
@@ -343,12 +343,12 @@ router.post('/security/resolve-moderation', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Yêu cầu không hợp lệ' });
     }
 
-    const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+    const SecurityModeration = (await import('../../models/SecurityModeration.js')).default;
     const mod = await SecurityModeration.findOne({ caseId });
     if (!mod) return res.status(404).json({ error: 'Không tìm thấy yêu cầu' });
 
     if (action === 'approve') {
-      const { applyActorBlock } = await import('../services/securityEnforcement.js');
+      const { applyActorBlock } = await import('../../services/securityEnforcement.js');
       await applyActorBlock({ ip: mod.ip, email: mod.email, phone: mod.phone, caseId: mod.caseId, reasonCode: mod.category });
       mod.status = 'approved';
     } else {
@@ -367,7 +367,7 @@ router.post('/security/resolve-moderation', requireAdmin, async (req, res) => {
 router.post('/security/unblock-actor', requireAdmin, async (req, res) => {
   try {
     const { blockId, actorKey } = req.body || {};
-    const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+    const SecurityBlock = (await import('../../models/SecurityBlock.js')).default;
 
     let query = {};
     if (blockId) query = { _id: blockId };
