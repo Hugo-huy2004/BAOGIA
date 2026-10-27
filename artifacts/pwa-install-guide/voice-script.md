@@ -28,6 +28,10 @@ zh-01.mp3 … zh-07.mp3
 `node artifacts/pwa-install-guide/source/render.mjs` — video có lời sẽ ra ở
 `public/video/pwa-install/`.
 
+Cũng có thể thu **một file liền cho mỗi thứ tiếng** (các đoạn cách nhau bằng
+`<break time="1.5s" />`), đặt ở `voice/source/<lang>.mp3` rồi tách bằng
+`split-voice.mjs` — xem `voice/README.md`.
+
 ---
 
 ## Tiếng Việt
