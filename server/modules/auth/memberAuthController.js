@@ -150,7 +150,13 @@ export async function requestMemberOtp(req, res) {
       return res.status(410).json({ code: 'ACCOUNT_DELETED', error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.' });
     }
     const code = issueEmailOtp(cleanEmail, 'login');
-    await sendMagicLinkOtp(cleanEmail, code);
+    const sent = await sendMagicLinkOtp(cleanEmail, code);
+    // Gửi hỏng (SendGrid từ chối, thiếu khoá ở production) thì nói thật — báo
+    // "đã gửi" là để người dùng ngồi chờ một mã không bao giờ tới.
+    if (!sent?.success) {
+      console.error('[member otp] gửi email thất bại:', sent?.error);
+      return res.status(502).json({ code: 'OTP_EMAIL_FAILED', error: 'Chưa gửi được email chứa mã. Vui lòng thử lại sau hoặc đăng nhập bằng Google.' });
+    }
 
     return res.json({ success: true, message: `Mã OTP đã gửi tới ${cleanEmail}.` });
   } catch (error) {

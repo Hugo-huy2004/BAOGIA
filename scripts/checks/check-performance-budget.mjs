@@ -45,6 +45,20 @@ for (const forbidden of config.forbiddenAssets || []) {
   if (match) failures.push(`${forbidden.message} Found: ${match}`);
 }
 
+// Trần chung cho từng chunk JS (thay cho cảnh báo chunkSizeWarningLimit của
+// Vite, vốn phải nâng cao vì web-llm): vượt trần mà không phải thư viện được
+// miễn thì chặn.
+if (config.largeChunks) {
+  const { maxBytes, allowContaining = [] } = config.largeChunks;
+  for (const file of files.filter((name) => name.endsWith(".js"))) {
+    const full = path.join(assetsDir, file);
+    if ((await stat(full)).size <= maxBytes) continue;
+    const text = await readFile(full, "utf8");
+    if (allowContaining.some((marker) => text.includes(marker))) continue;
+    failures.push(`${file}: ${(await stat(full)).size} bytes vượt trần chunk ${maxBytes} bytes — tách bằng import() động`);
+  }
+}
+
 for (const budget of config.budgets) {
   const file = resolveAsset(budget);
   if (!file) {

@@ -33,6 +33,24 @@ function permutation(length, seed) {
 
 const newIndexOf = (perm) => new Map(perm.map((old, now) => [old, now]));
 
+/**
+ * Hoán vị mà đáp án đúng KHÔNG nằm nguyên chỗ cũ. Mã nguồn giáo trình công
+ * khai: nếu xáo xong đáp án vẫn ở vị trí gốc, người chép đáp án theo thứ tự gốc
+ * trúng câu đó. Còn trùng thì xoay thêm một nấc — mỗi nấc dời mọi vị trí đi
+ * một, nên đáp án chắc chắn đổi chỗ (trừ khi mọi phương án đều đúng).
+ */
+function answerMovingPermutation(question, seed) {
+  const answers = Array.isArray(question.a) ? question.a : [question.a];
+  const original = [...answers].sort((x, y) => x - y).join(",");
+  let perm = permutation(question.o.length, seed);
+  for (let turn = 0; turn < perm.length; turn += 1) {
+    const at = newIndexOf(perm);
+    if (answers.map((old) => at.get(old)).sort((x, y) => x - y).join(",") !== original) break;
+    perm = [...perm.slice(1), perm[0]];
+  }
+  return perm;
+}
+
 /** Một câu sau khi xáo, đáp án dời theo. Vẫn còn `a`/`why` — chỉ máy chủ giữ bản này. */
 function presentQuestion(question, index) {
   const seed = `${index}:${question.q}`;
@@ -40,7 +58,7 @@ function presentQuestion(question, index) {
     case "mcq":
     case "output":
     case "multi": {
-      const perm = permutation(question.o.length, seed);
+      const perm = answerMovingPermutation(question, seed);
       const at = newIndexOf(perm);
       return {
         ...question,

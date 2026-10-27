@@ -225,8 +225,11 @@ const CRITERIA = [
   {
     id: "noEmoji",
     label: "không emoji (chỉ Material Symbols đơn sắc)",
-    test: ({ all, appName }) => Boolean(EXCEPTIONS[`noEmoji@${appName}`])
-      || !/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(all),
+    // Nội dung bài học (hugoCoder/lessons/) là GIÁO TRÌNH: "♥" trong mã mẫu là
+    // nút Thích của dự án người học tự viết, "✓" là chữ trong hướng dẫn — không
+    // phải icon giao diện của app, nên không tính vào luật này.
+    test: ({ files, appName }) => Boolean(EXCEPTIONS[`noEmoji@${appName}`])
+      || !files.some((f) => !/[\\/]lessons[\\/]/.test(f.rel) && /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(f.text)),
   },
 ];
 
