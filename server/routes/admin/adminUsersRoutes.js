@@ -536,6 +536,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom,
       countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude,
       locationVerifiedAt, ethnicity, religion,
+      birthDay, birthMonth, birthYear, birthday, language, contactEmail, bio: bioText,
     } = req.body;
     const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
@@ -559,7 +560,36 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (ethnicity !== undefined) bio.ethnicity = ethnicity;
     if (religion !== undefined) bio.religion = religion;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;
-    const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion].some((value) => value !== undefined);
+    if (birthday !== undefined) bio.birthday = String(birthday).slice(0, 60);
+    if (contactEmail !== undefined) bio.contactEmail = String(contactEmail).trim().toLowerCase().slice(0, 200);
+    if (bioText !== undefined) bio.bio = String(bioText).slice(0, 2000);
+    if (language !== undefined) {
+      const code = String(language || '').toLowerCase();
+      if (code && !['vi', 'en', 'zh'].includes(code)) return res.status(400).json({ error: 'Ngôn ngữ phải là vi, en hoặc zh.' });
+      bio.language = code;
+    }
+    // Ngày sinh: thành viên chỉ khai được một lần rồi khoá — admin là người duy
+    // nhất sửa được khi khai nhầm. Gửi cả ba số 0 (hoặc rỗng) để xoá, thành viên
+    // sẽ được hỏi lại ở onboarding.
+    if (birthDay !== undefined || birthMonth !== undefined || birthYear !== undefined) {
+      const day = Number(birthDay) || 0;
+      const month = Number(birthMonth) || 0;
+      const year = Number(birthYear) || 0;
+      const cleared = !day && !month && !year;
+      const valid = Number.isInteger(day) && day >= 1 && day <= 31
+        && Number.isInteger(month) && month >= 1 && month <= 12
+        && Number.isInteger(year) && year >= 1900 && year <= new Date().getFullYear()
+        && new Date(year, month - 1, day).getDate() === day;
+      if (!cleared && !valid) return res.status(400).json({ error: 'Ngày sinh không hợp lệ.' });
+      bio.birthDay = day;
+      bio.birthMonth = month;
+      bio.birthYear = year;
+    }
+    // Một số điện thoại chỉ thuộc một tài khoản (index unique) — báo rõ thay vì 500.
+    if (bio.isModified('phone') && bio.phone && await Bio.exists({ phone: bio.phone, _id: { $ne: bio._id } })) {
+      return res.status(409).json({ error: 'Số điện thoại này đã thuộc một tài khoản khác.' });
+    }
+    const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion, birthDay, birthMonth, birthYear, language].some((value) => value !== undefined);
 
     if (addDays && !isNaN(Number(addDays))) {
       const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
@@ -585,10 +615,13 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       timestamp: new Date()
     });
     if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
-    await bio.save();
+    const changedFields = bio.modifiedPaths().filter((path) => !path.includes('.') && path !== 'history');
+    await bio.save({ validateModifiedOnly: true });
     if (memberGateChanged) invalidateMemberGate(bio.email);
 
-    logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${expDateStr}) cho ${bio.displayName}`);
+    // Ghi TÊN trường đã sửa (không ghi giá trị: nhật ký không được thành bản
+    // sao thứ hai của dữ liệu nhạy cảm).
+    logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${expDateStr}) cho ${bio.displayName}`, { fields: changedFields });
 
     res.json({
       success: true,

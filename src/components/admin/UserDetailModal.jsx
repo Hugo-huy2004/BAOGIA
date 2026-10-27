@@ -7,6 +7,24 @@ import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency';
 import { maskPhone } from '../../utils/phoneSecurity';
 import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from '../../lib/profileDisplay';
 
+const pad2 = (n) => String(n).padStart(2, '0');
+
+/** Ngày sinh khoá (birthDay/Month/Year) → giá trị cho <input type="date">. */
+const toBirthDateInput = (bio) => (bio?.birthYear && bio?.birthMonth && bio?.birthDay
+  ? `${bio.birthYear}-${pad2(bio.birthMonth)}-${pad2(bio.birthDay)}`
+  : '');
+
+function ageOf(bio) {
+  if (!bio?.birthYear || !bio?.birthMonth || !bio?.birthDay) return null;
+  const now = new Date();
+  let age = now.getFullYear() - bio.birthYear;
+  if (now.getMonth() + 1 < bio.birthMonth || (now.getMonth() + 1 === bio.birthMonth && now.getDate() < bio.birthDay)) age -= 1;
+  return age;
+}
+
+const LANGUAGE_NAMES = { vi: 'Tiếng Việt', en: 'English', zh: '中文' };
+const formatDate = (value) => (value && !isNaN(new Date(value).getTime()) ? new Date(value).toLocaleDateString('vi-VN') : '—');
+
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState(null);
@@ -21,7 +39,8 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [profileForm, setProfileForm] = useState({
     displayName: '', headline: '', phone: '', address: '', jobTitle: '', education: '',
     countryCode: '', adminArea: '', locality: '', exactAddress: '', verifiedLatitude: '',
-    verifiedLongitude: '', locationVerifiedAt: '', ethnicity: '', religion: ''
+    verifiedLongitude: '', locationVerifiedAt: '', ethnicity: '', religion: '',
+    birthDate: '', birthday: '', language: '', contactEmail: '', bio: ''
   });
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -99,7 +118,12 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
           locationVerifiedAt: data.bio.locationVerifiedAt || '',
           ethnicity: data.bio.ethnicity || '',
           religion: data.bio.religion || '',
-          joyDenom: data.bio.joyDenom || 'vi'
+          joyDenom: data.bio.joyDenom || 'vi',
+          birthDate: toBirthDateInput(data.bio),
+          birthday: data.bio.birthday || '',
+          language: data.bio.language || '',
+          contactEmail: data.bio.contactEmail || '',
+          bio: data.bio.bio || ''
         });
       }
       fetchReconciliation();
@@ -147,7 +171,9 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
     e.preventDefault();
     setSavingProfile(true);
     try {
-      const res = await adminBrainApi.updateUserProfileAndExpiration(user._id, profileForm);
+      const { birthDate, ...rest } = profileForm;
+      const [birthYear = 0, birthMonth = 0, birthDay = 0] = birthDate ? birthDate.split('-').map(Number) : [];
+      const res = await adminBrainApi.updateUserProfileAndExpiration(user._id, { ...rest, birthDay, birthMonth, birthYear });
       notify.success(res.message || 'Đã cập nhật hồ sơ thành công');
       setEditingProfile(false);
       fetchDetails();
@@ -553,6 +579,74 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      {!editingProfile && (
+                        <div className="md:col-span-2 grid grid-cols-2 gap-x-4 gap-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3 dark:border-white/10 dark:bg-white/5">
+                          {[
+                            ['Ngày sinh', bio.birthYear ? `${pad2(bio.birthDay)}/${pad2(bio.birthMonth)}/${bio.birthYear} · ${ageOf(bio)} tuổi` : 'Chưa khai'],
+                            ['Sinh nhật (tự ghi)', bio.birthday || '—'],
+                            ['Đồng ý của giám hộ', bio.guardianConsentAt ? formatDate(bio.guardianConsentAt) : '—'],
+                            ['Ngôn ngữ', LANGUAGE_NAMES[bio.language] || bio.language || '—'],
+                            ['Email liên hệ', bio.contactEmail || '—'],
+                            ['Mã giới thiệu', bio.referralCode || '—'],
+                            ['Người giới thiệu', bio.referredBy || '—'],
+                            ['Onboarding', bio.onboardingCompleted ? 'Đã xong' : 'Chưa xong'],
+                            ['Ngày tạo tài khoản', formatDate(bio.createdAt)],
+                          ].map(([label, value]) => (
+                            <div key={label} className="min-w-0">
+                              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">{label}</p>
+                              <p className="mt-0.5 truncate text-[13px] font-bold text-slate-900 dark:text-white" title={String(value)}>{value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {editingProfile && (
+                        <>
+                          <div>
+                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Ngày sinh (khoá với thành viên — để trống để bắt khai lại)</label>
+                            <input
+                              type="date"
+                              value={profileForm.birthDate}
+                              max={new Date().toISOString().slice(0, 10)}
+                              onChange={(e) => setProfileForm((p) => ({ ...p, birthDate: e.target.value }))}
+                              className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Ngôn ngữ chính</label>
+                            <select
+                              value={profileForm.language}
+                              onChange={(e) => setProfileForm((p) => ({ ...p, language: e.target.value }))}
+                              className="w-full cursor-pointer rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
+                            >
+                              <option value="">— Chưa chọn —</option>
+                              {Object.entries(LANGUAGE_NAMES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                            </select>
+                          </div>
+                          {[
+                            ['birthday', 'Sinh nhật (chuỗi tự ghi trên Bio)'],
+                            ['contactEmail', 'Email liên hệ'],
+                          ].map(([field, label]) => (
+                            <div key={field}>
+                              <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">{label}</label>
+                              <input
+                                type="text"
+                                value={profileForm[field] || ''}
+                                onChange={(e) => setProfileForm((current) => ({ ...current, [field]: e.target.value }))}
+                                className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
+                              />
+                            </div>
+                          ))}
+                          <div className="md:col-span-2">
+                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Giới thiệu bản thân</label>
+                            <textarea
+                              rows={3}
+                              value={profileForm.bio}
+                              onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
+                              className="w-full rounded-3xl border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
+                            />
+                          </div>
+                        </>
+                      )}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tên hiển thị</label>
                         <input
