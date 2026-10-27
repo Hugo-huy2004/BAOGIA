@@ -43,7 +43,7 @@ async function generateUniqueReferralCode(bio) {
 export async function ensureReferralCode(bio) {
   if (bio.referralCode) return bio.referralCode;
   bio.referralCode = await generateUniqueReferralCode(bio);
-  await bio.save();
+  await bio.save({ validateModifiedOnly: true });
   return bio.referralCode;
 }
 

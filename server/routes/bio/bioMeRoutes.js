@@ -596,7 +596,11 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
 
     const stillMissing = missingProfileFields(bio);
     bio.onboardingCompleted = stillMissing.length === 0;
-    await bio.save();
+    // Chỉ kiểm những ô vừa ghi: hồ sơ cũ có thể mang sẵn một giá trị không còn
+    // hợp lệ theo schema hiện tại (voucher thiếu hạn, link thiếu mật khẩu…), và
+    // kiểm cả tài liệu thì lần lưu onboarding nào cũng hỏng vì thứ người dùng
+    // không thấy và không sửa được.
+    await bio.save({ validateModifiedOnly: true });
     invalidateMemberGate(bio.email);
 
     res.json({
@@ -623,6 +627,9 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       },
     });
   } catch (error) {
+    // safeServerErrors che nội dung lỗi 500 với client, nên ghi lại ở đây —
+    // không có dòng này thì log Render trống, không lần ra được nguyên nhân.
+    console.error('POST /me/onboarding error:', error.name, error.message, error.errors ? Object.keys(error.errors) : '');
     res.status(500).json({ error: error.message });
   }
 });

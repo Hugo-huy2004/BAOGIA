@@ -123,7 +123,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
 
   // Nếu người gọi truyền bioDoc và không skipSave, ta cần lưu các thuộc tính khác (VD: joySentDate) mà caller đã thay đổi trên bioDoc
   if (opts.bioDoc && !opts.skipSave) {
-    await opts.bioDoc.save();
+    await opts.bioDoc.save({ validateModifiedOnly: true });
   }
 
   // Keep the chess-displayed "JOY" number perfectly in sync with the real wallet.
