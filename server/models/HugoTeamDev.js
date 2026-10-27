@@ -50,6 +50,24 @@ const messageSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const assessmentAttemptSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    questions: { type: mongoose.Schema.Types.Mixed, default: [] },
+    startedAt: { type: Date, default: Date.now },
+    completedAt: { type: Date, default: null },
+    scores: {
+      logic: { type: Number, default: 0 },
+      creativity: { type: Number, default: 0 },
+      eq: { type: Number, default: 0 },
+      overall: { type: Number, default: 0 },
+    },
+    passed: { type: Boolean, default: false },
+    violationReason: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const hugoTeamDevSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -59,6 +77,22 @@ const hugoTeamDevSchema = new mongoose.Schema(
     cv: { type: String, default: "" },
     cvPath: { type: String, default: "" },
     approvedAt: { type: Date, default: null },
+    role: { type: String, enum: ["member", "mentor"], default: "member" },
+    assessmentAttempts: { type: [assessmentAttemptSchema], default: [] },
+    assessmentStage: { type: String, enum: ["none", "in_progress", "passed", "coding", "mentor", "team", "official"], default: "none" },
+    codingStartedAt: { type: Date, default: null },
+    codingDeadline: { type: Date, default: null },
+    codingCompletedSteps: { type: [String], default: [] },
+    codingStepScores: { type: mongoose.Schema.Types.Mixed, default: {} },
+    codingResetAt: { type: Date, default: null },
+    codingResetReason: { type: String, default: "" },
+    mentor: { name: { type: String, default: "" }, email: { type: String, default: "" }, assignedAt: { type: Date, default: null } },
+    mentorEndsAt: { type: Date, default: null },
+    teamId: { type: String, default: "" },
+    teamRole: { type: String, enum: ["member", "teamlead"], default: "member" },
+    contributionScore: { type: Number, default: 0, min: 0, max: 100 },
+    rewardGrantedAt: { type: Date, default: null },
+    rewardMembershipEndsAt: { type: Date, default: null },
 
     tasks: [taskSchema],
     hourLogs: [hourLogSchema],

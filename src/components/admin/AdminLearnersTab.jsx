@@ -105,7 +105,7 @@ export default function AdminLearnersTab() {
         <section className="rounded-2xl border border-border bg-card p-4">
           <h3 className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
             <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-            Bài đang chặn nhiều người nhất
+            Step đang chặn nhiều người nhất
           </h3>
           <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
             Nhiều người cùng dừng ở một bài thường là dấu hiệu bài đó có vấn đề — đề mơ hồ,
@@ -117,7 +117,7 @@ export default function AdminLearnersTab() {
                 key={item.lesson}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-[11px] font-bold text-foreground"
               >
-                Bài {item.lesson}
+                Step {item.lesson}
                 <b className="text-primary">{item.learners}</b>
               </span>
             ))}
@@ -189,13 +189,13 @@ export default function AdminLearnersTab() {
                       <p className="text-[10px] text-muted-foreground">{learner.email}</p>
                     </td>
                     <td className="px-3 py-3">
-                      <p className="font-bold tabular-nums text-foreground">{learner.lessonsDone}/100</p>
+                      <p className="font-bold tabular-nums text-foreground">{learner.lessonsDone}/26</p>
                       <p className="text-[10px] text-muted-foreground">
                         {STAGE_LABEL[learner.stageId] || "—"}
                       </p>
                     </td>
                     <td className="px-3 py-3 tabular-nums text-foreground">
-                      {learner.stuckAt ? `Bài ${learner.stuckAt}` : "Xong hết"}
+                      {learner.stuckAt ? `Step ${learner.stuckAt}` : "Xong hết"}
                     </td>
                     <td className="px-3 py-3 text-foreground">{trackInfo?.title || "Chưa chọn"}</td>
                     <td className="px-3 py-3 tabular-nums text-foreground">{learner.readingsDone}</td>

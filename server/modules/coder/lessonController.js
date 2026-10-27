@@ -3,13 +3,19 @@
  * Controller tập trung toàn bộ logic nghiệp vụ bài giảng, chấm bài tập và ghi nhận phản hồi bài học HugoCoder.
  */
 import LessonFeedback from '../../models/LessonFeedback.js';
+import Bio from '../../models/Bio.js';
+import HugoTeamDev from '../../models/HugoTeamDev.js';
+import { requireMember } from '../../middleware/authMiddleware.js';
+import { canReadCoderStage } from '../../utils/appPlanService.js';
+import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
+import { PUBLIC_TOOLS } from '../../../src/config/publicTools.js';
 import { sendTelegramAlert } from '../../services/telegramService.js';
 import {
-  MOBILE_GUIDE_EXTRAS,
   STAGES,
   WEB_COURSES,
   getStageBenefits,
 } from '../../../src/components/member/hugoCoder/lessons/index.js';
+import { publicQuiz } from '../../../shared/stepQuiz.js';
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -18,6 +24,8 @@ export const SUMMARY_FIELDS = [
   'file',
   'practiceType',
   'duration',
+  'stage',
+  'draft',
 ];
 
 export function lessonSummary(course) {
@@ -26,12 +34,10 @@ export function lessonSummary(course) {
   );
 }
 
+// Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.
 export function publicCourse(course) {
   if (!course) return null;
-  return {
-    ...course,
-    mobileExtra: MOBILE_GUIDE_EXTRAS[course.id] || {},
-  };
+  return { ...course, quiz: publicQuiz(course.quiz) };
 }
 
 /**
@@ -70,25 +76,68 @@ export async function getLessonList(req, res) {
  * Lấy chi tiết bài học
  */
 export async function getLessonDetail(req, res) {
-  const course = WEB_COURSES.find((item) => item.id === req.params.lessonId);
-  if (!course) return res.status(404).json({ error: 'Lesson not found' });
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
-  return res.json({ lesson: publicCourse(course) });
+  const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
+  if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
+  const course = WEB_COURSES[index];
+  // Mười bài học thử (cùng con số trang /study dùng) công khai, cache ở CDN được.
+  if (index < PUBLIC_TOOLS.study.previewLessons) {
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
+    return res.json({ lesson: publicCourse(course) });
+  }
+
+  // Bài trả phí: không bao giờ vào cache dùng chung, kể cả phản hồi lỗi.
+  res.setHeader('Cache-Control', 'private, no-store');
+  if (!req.headers.authorization && !req.cookies?.member_jwt && !req.cookies?.jwt) {
+    return res.status(401).json({ code: 'LOGIN_REQUIRED', error: 'Đăng nhập để học bài này.' });
+  }
+  return requireMember(req, res, async () => {
+    try {
+      if (req.query.program === 'hugoteam') {
+        const dev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: 'coding' }).select('_id').lean();
+        if (!dev || index >= 16) {
+          return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Step này không thuộc chương trình Coding hiện tại của HugoTeam.' });
+        }
+        return res.json({ lesson: publicCourse(course) });
+      }
+      if (!req.isAdminActor) {
+        const fields = 'hugoCoderAll7Lifetime hugoCoderBasicLifetime hugoCoderIntermediateLifetime hugoCoderAdvancedLifetime '
+          + 'hugoCoderSecurityLifetime hugoCoderExamLifetime hugoCoderOptimizeLifetime hugoCoderUltimateLifetime '
+          + 'hugoCoderDevopsLifetime featureSubscriptions appPlans';
+        const email = req.memberEmail;
+        const bio = await Bio.findOne({ email }).select(fields).lean()
+          || await Bio.findOne({ contactEmail: email }).select(fields).lean();
+        const stage = STAGES.find((item) => index >= item.from && index < item.to);
+        if (!canReadCoderStage(bio, stage?.id)) {
+          return res.status(403).json({
+            code: 'COURSE_ACCESS_REQUIRED',
+            error: 'Bài này thuộc phần trả phí. Mở khóa bộ Phát triển Web hoặc chặng chứa bài để học tiếp.',
+            lessonId: course.id,
+            stageId: stage?.id || null,
+          });
+        }
+      }
+      return res.json({ lesson: publicCourse(course) });
+    } catch (error) {
+      console.error('[coder lesson access]', error.message);
+      return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa kiểm được quyền truy cập. Vui lòng thử lại.' });
+    }
+  });
 }
 
 /**
- * Chấm mã thực hành của học viên (Server-side verify)
+ * Chấm trắc nghiệm cho khách học thử: chỉ step thuộc phần học thử, không ghi
+ * tiến độ. Step trả phí không chấm ở đây — lời giải trả về sau khi chấm chính là
+ * đáp án, phát cho người chưa mua là phát nội dung trả phí.
  */
-export async function verifyLessonCode(req, res) {
-  const course = WEB_COURSES.find((item) => item.id === req.params.lessonId);
-  if (!course) return res.status(404).json({ error: 'Lesson not found' });
-  const code = typeof req.body?.code === 'string' ? req.body.code.slice(0, 200_000) : '';
-  try {
-    const passed = typeof course.verify === 'function' ? Boolean(course.verify(code)) : true;
-    return res.json({ passed });
-  } catch {
-    return res.json({ passed: false });
+export async function gradePreviewQuiz(req, res) {
+  const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
+  if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
+  if (index >= PUBLIC_TOOLS.study.previewLessons) {
+    return res.status(403).json({ code: 'COURSE_ACCESS_REQUIRED', error: 'Step này cần đăng nhập và mở khóa.' });
   }
+  const graded = gradeStepQuiz(WEB_COURSES[index].id, req.body?.answers);
+  if (!graded) return res.status(409).json({ code: 'STEP_NOT_READY', error: 'Step này đang được soạn.' });
+  return res.json({ ...graded, passPercent: PASS_PERCENT });
 }
 
 /**

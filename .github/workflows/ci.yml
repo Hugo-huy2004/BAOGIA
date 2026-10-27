@@ -27,6 +27,11 @@ jobs:
       - run: npm run check:gateway
       - run: npm run check:guards
 
+      # Giáo trình HugoCoder: cổng 8081 hay mô tả kỳ thi lệch EXAM_SIZE /
+      # EXAM_PASS_PERCENT thì đỏ; bài thi cuối chặng phải đúng bản thiết kế.
+      - run: npm run check:coder-content
+      - run: npm run check:exam
+
       # Lỗ hổng phụ thuộc. Chỉ chặn ở mức high trở lên — moderate/low vẫn hiện
       # trong log nhưng không dựng tường, vì nhiều cái phải chờ bản vá thượng
       # nguồn (ví dụ quill 2.0.3 hiện chưa có bản sửa).

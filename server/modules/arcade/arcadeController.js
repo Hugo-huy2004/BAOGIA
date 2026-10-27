@@ -9,7 +9,9 @@ import { awardJoy } from '../../utils/joyService.js';
 import { minorEmailSet } from '../../utils/memberAge.js';
 import { getVietnamDateString } from '../../utils/timeUtils.js';
 
-export const SCORE_CEILINGS = { '2048': 2000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000, pinball: 500000 };
+// Snake has no fixed round timer, so a legitimate long run can exceed 8,000.
+// Keep a high server-side ceiling for abuse protection without rejecting real games.
+export const SCORE_CEILINGS = { '2048': 2000000, caro: 200, survivor: 80000, snake: 80000, chess: 3000, pinball: 500000 };
 export const RESULTS = ['win', 'lose', 'draw'];
 export const ARCADE_DAILY_JOY_CAP = 3000;
 
@@ -163,15 +165,17 @@ export async function postScore(req, res) {
     const grantedAmount = reservation ? reservation.granted : 0;
     joyDelta = grantedAmount;
     let joyAwarded = false;
+    let balanceAfter = null;
 
     if (grantedAmount > 0) {
       try {
-        await awardJoy(
+        const awardResult = await awardJoy(
           email, grantedAmount, 'arcade_score',
           `${game} — ${numScore.toLocaleString('vi-VN')} điểm`,
           { refId: game },
         );
         joyAwarded = true;
+        balanceAfter = awardResult.balance;
       } catch (e) {
         console.error('[arcade joy award]', e.message);
         await releaseDailyArcadeJoy(email, grantedAmount);
@@ -191,6 +195,7 @@ export async function postScore(req, res) {
       joyDelta,
       joyBase,
       joyAwarded,
+      balance: balanceAfter,
       multiplier,
       event: multiplier > 1 ? 'resurrection_saturday' : null,
       dailyCapReached: !reservation || Number(reservation.arcadeJoyToday) >= ARCADE_DAILY_JOY_CAP,

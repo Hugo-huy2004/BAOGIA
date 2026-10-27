@@ -161,13 +161,14 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.32);
 }
 
+/* Bản đồ phong cảnh tràn sát mép màn hình: khung không đệm, không giới hạn bề ngang. */
 .coder-journey {
-  width: min(920px, 100%);
+  width: 100%;
   max-width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  margin: 0 auto;
-  padding: 28px 22px calc(60px + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  padding: 0;
   color: var(--color-foreground);
   overflow-x: clip;
 }
@@ -962,9 +963,6 @@
     height: 17px;
   }
 
-  .coder-journey {
-    padding: 14px 10px calc(44px + env(safe-area-inset-bottom, 0px));
-  }
 
   .coder-journey-hero {
     min-height: 0;
@@ -2841,3 +2839,348 @@
 .dark .lesson-player-evidence li.is-matched { color: #5fd6c6; }
 
 .lesson-player-evidence svg { width: 14px; height: 14px; stroke-width: 3; }
+
+/* ── Slide khoá Coding ───────────────────────────────────────────────────
+   Slide có bảng và khối mã dài hơn bước cũ: ô nội dung được cuộn, căn giữa khi
+   ngắn (`safe center` không xén đầu nội dung dài). */
+.lesson-player-content {
+  overflow-y: auto;
+  justify-content: safe center;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.lesson-player-prose table { width: 100%; border-collapse: collapse; margin: 0 0 12px; font-size: 14px; }
+.lesson-player-prose th,
+.lesson-player-prose td { padding: 6px 8px; border-bottom: 1px solid var(--coder-border); text-align: left; vertical-align: top; }
+.lesson-player-prose blockquote {
+  margin: 0 0 12px; padding: 8px 12px; border-left: 3px solid var(--step-tone, #0a84ff);
+  font-size: 13.5px; color: var(--coder-secondary);
+}
+.lesson-player-prose input[type="checkbox"] { margin-right: 6px; }
+
+.coding-visual { margin: 0; padding: 10px; border-radius: 16px; background: color-mix(in srgb, var(--step-tone, #0a84ff) 6%, transparent); }
+.coding-visual svg { display: block; width: 100%; height: auto; max-height: 260px; }
+
+.lesson-quiz-result { display: grid; gap: 12px; }
+.lesson-quiz-score { display: grid; gap: 2px; margin: 0; }
+.lesson-quiz-score b { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; }
+.lesson-quiz-score.is-pass b { color: #30a46c; }
+.lesson-quiz-score.is-fail b { color: #e5484d; }
+.lesson-quiz-review { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.lesson-quiz-review li { display: grid; gap: 3px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--coder-border); font-size: 13.5px; line-height: 1.45; }
+.lesson-quiz-review li.is-right b { color: #30a46c; }
+.lesson-quiz-review li.is-wrong b { color: #e5484d; }
+.lesson-quiz-retry {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; border: 0; border-radius: 14px; font: inherit; font-weight: 800;
+  background: var(--step-tone, #0a84ff); color: #fff; cursor: pointer;
+}
+.lesson-quiz-retry svg { width: 18px; height: 18px; }
+
+/* ══ Bản đồ khoá Coding (CourseMap) ════════════════════════════════════════
+   Mỗi chặng một vùng phong cảnh: --sky/--ground là nền, --node/--node-deep là
+   màu ô step (mặt và mặt vát), --deco-* tô cây cỏ. Màu nền và màu ô luôn tương
+   phản để ô step nổi lên khỏi phong cảnh. */
+.cmap {
+  position: relative;
+  min-height: 100%;
+  background: #58c13d;
+  /* Khung AppFrame chừa 40px + safe-area ở đáy; kéo bản đồ phủ luôn phần đó
+     để không lộ dải nền trắng dưới vạch đích. */
+  margin-bottom: calc(-40px - env(safe-area-inset-bottom, 0px));
+}
+.cmap-tone-blue   { --sky: #9be15d; --ground: #58c13d; --node: #1cb0f6; --node-deep: #1899d6; --deco-a: #2f9e44; --deco-b: #40c057; --deco-c: #ff6b9d; --banner: #1cb0f6; }
+.cmap-tone-green  { --sky: #7fd8ee; --ground: #2fb5c9; --node: #ff9600; --node-deep: #d97e00; --deco-a: #1c8a7d; --deco-b: #22a699; --deco-c: #ffd43b; --banner: #ff9600; }
+.cmap-tone-purple { --sky: #d9f99d; --ground: #a3d977; --node: #ce82ff; --node-deep: #a568cc; --deco-a: #6aa84f; --deco-b: #8bc34a; --deco-c: #b197fc; --banner: #a560f0; }
+.cmap-tone-pink   { --sky: #ffe8a3; --ground: #ffc861; --node: #ff4b4b; --node-deep: #d63a3a; --deco-a: #e8a33d; --deco-b: #c98a2a; --deco-c: #ff6b6b; --banner: #ff4b4b; }
+.cmap-tone-indigo { --sky: #3b3f8f; --ground: #262a63; --node: #ffc800; --node-deep: #d9a900; --deco-a: #4c5bd4; --deco-b: #5c6ac4; --deco-c: #ffe066; --banner: #5865f2; }
+.cmap-tone-orange { --sky: #ffd8a8; --ground: #ffa94d; --node: #58cc02; --node-deep: #46a302; --deco-a: #d9822b; --deco-b: #e8590c; --deco-c: #fff3bf; --banner: #ff7a1a; }
+
+.cmap-zone {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 16px 34px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .16) 0 2px, transparent 3px) 0 0 / 34px 34px,
+    linear-gradient(180deg, var(--prev, var(--sky)) 0, var(--sky) 160px, var(--ground) 100%);
+}
+/* Đêm sao cho chặng 5: chấm sáng thay cho cỏ. */
+.cmap-tone-indigo.cmap-zone {
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, .7) 0 1px, transparent 1.6px) 0 0 / 46px 52px,
+    radial-gradient(circle, rgba(255, 255, 255, .35) 0 1px, transparent 1.5px) 23px 26px / 46px 52px,
+    linear-gradient(180deg, var(--prev, var(--sky)) 0, var(--sky) 160px, var(--ground) 100%);
+}
+
+.cmap-scenery { position: absolute; inset: 70px 0 0; pointer-events: none; }
+.cmap-deco { position: absolute; width: 44px; height: 44px; }
+.cmap-deco.is-tree { width: 58px; height: 58px; }
+
+.cmap-banner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto 64px;
+  padding: 14px 14px 14px 18px;
+  border-radius: 20px;
+  background: var(--banner);
+  color: #fff;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .18);
+}
+.cmap-banner small { display: block; font-size: 12.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+.cmap-banner h2 { margin: 2px 0 0; font-size: 18px; font-weight: 800; line-height: 1.25; }
+.cmap-info {
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .85); background: rgba(255, 255, 255, .18);
+  color: #fff; font: 900 18px/1 system-ui, sans-serif; cursor: pointer;
+}
+.cmap-info:hover { background: rgba(255, 255, 255, .3); }
+.cmap-info:focus-visible, .cmap-hex:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.cmap-ring {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  background: conic-gradient(#fff var(--p), rgba(255, 255, 255, .28) 0);
+}
+.cmap-ring b {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  background: var(--banner); font-size: 11.5px; font-weight: 900;
+}
+
+.cmap-path { position: relative; z-index: 1; display: grid; gap: 22px; justify-items: center; margin: 0; padding: 0; list-style: none; }
+.cmap-node { position: relative; transform: translateX(var(--x)); }
+
+/* Ô lục giác: lớp dưới tối hơn làm mặt vát, mặt trên nhấc lên 7px; bấm thì lún. */
+.cmap-hex {
+  position: relative;
+  display: block;
+  width: 78px;
+  height: 84px;
+  padding: 0;
+  border: 0;
+  background: var(--node-deep);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.cmap-hex-face {
+  position: absolute;
+  inset: 0 0 7px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--node) 82%, #fff), var(--node));
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  color: #fff;
+  transition: transform .12s ease;
+}
+.cmap-hex-face svg { width: 32px; height: 32px; stroke-width: 2.6; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .15)); }
+.cmap-hex:active:not(:disabled) .cmap-hex-face { transform: translateY(5px); }
+.cmap-node.is-locked .cmap-hex { background: #b9b9b9; cursor: default; }
+.cmap-node.is-locked .cmap-hex-face { background: #e5e5e5; color: #a3a3a3; }
+.cmap-node.is-current .cmap-hex { width: 90px; height: 97px; }
+.cmap-node.is-current::before {
+  content: "";
+  position: absolute;
+  inset: -12px -10px -6px;
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, .75);
+  animation: cmap-pulse 1.8s ease-out infinite;
+}
+
+.cmap-bubble {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--node-deep);
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .12);
+  animation: cmap-bob 1.6s ease-in-out infinite;
+}
+.cmap-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% 0;
+  border: 7px solid transparent;
+  border-top-color: #fff;
+}
+
+/* Nhân vật đứng chờ bên đường: nhún nhẹ như đang đợi người học bước tới. */
+.cmap-mascot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
+  height: auto;
+  translate: calc(-50% + var(--side) * 118px) -50%;
+  filter: drop-shadow(0 6px 0 rgba(0, 0, 0, .14));
+  animation: cmap-wait 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.cmap-finish {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 26px 16px calc(50px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, #ffa94d, #fff3bf);
+  color: #5c3c00;
+  text-align: center;
+}
+.cmap-trophy {
+  display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%;
+  background: #ffc800; color: #fff; box-shadow: 0 6px 0 #d9a900;
+}
+.cmap-trophy svg { width: 36px; height: 36px; }
+.cmap-finish.is-done .cmap-trophy { animation: cmap-bob 1.6s ease-in-out infinite; }
+.cmap-finish strong { font-size: 18px; font-weight: 900; }
+.cmap-finish small { font-size: 13px; font-weight: 700; opacity: .75; }
+
+/* Bảng chi tiết chặng */
+.cmap-sheet-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; align-items: end; justify-items: center; background: rgba(0, 0, 0, .45); }
+.cmap-sheet {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: var(--coder-card, #fff);
+  color: inherit;
+  border-top: 6px solid var(--banner);
+}
+.cmap-sheet small { color: var(--banner); font-size: 13px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.cmap-sheet h2 { margin: 4px 40px 6px 0; font-size: 22px; font-weight: 850; line-height: 1.25; }
+.cmap-sheet h3 { margin: 16px 0 6px; font-size: 15px; font-weight: 850; }
+.cmap-sheet p, .cmap-sheet li { font-size: 15px; line-height: 1.55; }
+.cmap-sheet ul { margin: 0; padding-left: 20px; list-style: disc; }
+.cmap-sheet-tagline { margin: 0; font-weight: 650; }
+.cmap-sheet-promise { margin: 16px 0 0; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--banner) 12%, transparent); font-weight: 700; }
+.cmap-sheet-grade { margin: 12px 0 0; }
+.cmap-sheet-close {
+  position: absolute; top: 14px; right: 14px; display: grid; place-items: center;
+  width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(118, 118, 128, .14); color: inherit; cursor: pointer;
+}
+.cmap-sheet-close svg { width: 18px; height: 18px; }
+.dark .cmap-sheet { --coder-card: #1c1c1f; color: #f2f2f5; }
+
+@keyframes cmap-pulse { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.25); opacity: 0; } }
+@keyframes cmap-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes cmap-wait { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .cmap-node.is-current::before, .cmap-bubble, .cmap-mascot, .cmap-finish.is-done .cmap-trophy { animation: none; }
+}
+@media (max-width: 380px) {
+  .cmap-mascot { width: 78px; translate: calc(-50% + var(--side) * 100px) -50%; }
+}
+
+/* Nút Tiến độ ở góc phải thanh đầu hub (thay chỗ số dư JOY). */
+.coder-hub-progress {
+  justify-self: end;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 0 12px; border: 0; border-radius: 12px;
+  background: color-mix(in srgb, var(--coder-blue, #007aff) 12%, transparent);
+  color: var(--coder-blue, #007aff); font: inherit; font-size: 15px; font-weight: 650; cursor: pointer;
+}
+.coder-hub-progress svg { width: 18px; height: 18px; }
+.coder-progress-sheet { padding-top: 56px; }
+
+/* ── Slide nhiều màu ────────────────────────────────────────────────────────
+   Nền cả màn nhuộm theo phần đang học (--step-tone đặt ở .lesson-player): sang
+   phần mới là đổi màu, người học biết ngay mình đang đọc, đang làm hay đang thi. */
+.lesson-player {
+  background:
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--step-tone, #0a84ff) 22%, transparent) 0 120px, transparent 260px),
+    radial-gradient(circle at 92% 92%, color-mix(in srgb, var(--step-tone, #0a84ff) 16%, transparent) 0 140px, transparent 300px),
+    linear-gradient(180deg, color-mix(in srgb, var(--step-tone, #0a84ff) 12%, var(--coder-surface-solid, #fff)), var(--coder-surface-solid, #fff));
+  transition: background-color .3s ease;
+}
+.lesson-player-title { color: color-mix(in srgb, var(--step-tone, #0a84ff) 38%, currentColor); }
+.lesson-player-prose,
+.coding-visual,
+.quiz-card {
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: var(--coder-card, #fff);
+  border: 2px solid color-mix(in srgb, var(--step-tone, #0a84ff) 22%, transparent);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 18%, transparent);
+}
+.coding-visual { padding: 10px; }
+.coding-shot { margin: 0; display: grid; gap: 8px; }
+.coding-shot img {
+  display: block; width: 100%; height: auto; border-radius: 14px;
+  border: 2px solid color-mix(in srgb, var(--step-tone, #0a84ff) 22%, transparent);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 18%, transparent);
+  background: #fff;
+}
+.coding-shot figcaption { font-size: 13.5px; line-height: 1.45; opacity: .75; }
+.lesson-player-prose strong { color: color-mix(in srgb, var(--step-tone, #0a84ff) 70%, currentColor); }
+.lesson-player-sound { color: var(--step-tone, #0a84ff) !important; }
+.lesson-player-sound svg { width: 21px; height: 21px; }
+.lesson-player-track i { background: var(--step-tone, #0a84ff); transition: width .3s ease, background .3s ease; }
+
+/* Trắc nghiệm: câu hỏi to, đáp án là nút 3D có chip chữ cái mỗi chữ một màu. */
+.quiz-q { margin: 0 0 4px; font-size: 19px; font-weight: 800; line-height: 1.4; }
+.quiz-option {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px;
+  padding: 10px 14px; border-radius: 16px; text-align: left;
+  font: inherit; font-size: 16px; font-weight: 600; line-height: 1.4; color: inherit;
+  background: var(--coder-card, #fff);
+  border: 2px solid var(--coder-border, rgba(15, 23, 42, .12));
+  border-bottom-width: 5px;
+  cursor: pointer;
+  transition: transform .08s ease, border-color .15s ease, background .15s ease;
+}
+.quiz-option:hover { border-color: color-mix(in srgb, var(--step-tone, #0a84ff) 45%, transparent); }
+.quiz-option:active { transform: translateY(3px); border-bottom-width: 2px; }
+.quiz-option.is-on {
+  border-color: var(--step-tone, #0a84ff);
+  background: color-mix(in srgb, var(--step-tone, #0a84ff) 12%, var(--coder-card, #fff));
+  color: color-mix(in srgb, var(--step-tone, #0a84ff) 75%, currentColor);
+}
+.quiz-letter {
+  display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 10px;
+  color: #fff; font-size: 15px; font-weight: 900; font-family: system-ui, sans-serif;
+}
+.quiz-letter.is-0 { background: #1cb0f6; }
+.quiz-letter.is-1 { background: #58cc02; }
+.quiz-letter.is-2 { background: #ff9600; }
+.quiz-letter.is-3 { background: #ce82ff; }
+.quiz-option.is-on .quiz-letter { box-shadow: 0 0 0 3px color-mix(in srgb, var(--step-tone, #0a84ff) 35%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .quiz-option, .lesson-player-track i { transition: none; }
+}
+
+/* Đầu slide gọn: huy hiệu nhỏ cùng hàng với nhãn, chừa chỗ cho nội dung. */
+.lesson-player-head { grid-template-columns: auto 1fr; align-items: center; gap: 8px 10px; }
+.lesson-player-badge { width: 40px; height: 40px; border-radius: 12px; box-shadow: 0 3px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 70%, #000); }
+.lesson-player-badge svg { width: 21px; height: 21px; }
+.lesson-player-kind { justify-self: start; }
+.lesson-player-title { grid-column: 1 / -1; font-size: 23px; }
+.lesson-player-body { gap: 14px; }
+/* Ở trắc nghiệm, nhân vật thu nhỏ để đáp án có chỗ. */
+.lesson-player-body.is-check .lesson-buddy-bubble { display: none; }
+.lesson-player-body.is-check .lesson-buddy { justify-self: end; }
+.lesson-player-body.is-check .lesson-buddy-art { width: 48px; height: 48px; }
+/* Nút chính đổi màu theo phần đang học. */
+.lesson-player-foot > button {
+  background: var(--step-tone, var(--coder-blue));
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 72%, #000);
+}
+
+/* Nhân vật SVG: chớp mắt và vẫy tay chậm trong lúc chờ. */
+span.cmap-mascot svg { display: block; width: 100%; height: auto; }
+.cmap-blink { animation: cmap-blink 4.2s infinite; transform-box: fill-box; transform-origin: center; }
+.cmap-wave-arm { animation: cmap-wave 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 90%; }
+@keyframes cmap-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes cmap-wave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-24deg); } }
+@media (prefers-reduced-motion: reduce) { .cmap-blink, .cmap-wave-arm { animation: none; } }

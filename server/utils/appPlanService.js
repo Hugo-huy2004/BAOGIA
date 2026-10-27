@@ -138,6 +138,28 @@ export function planState(bio, appId) {
   return { tier: 'none', unlocked: false, expiresAt: null, trialUsed: hasUsedTrial(bio, appId) };
 }
 
+// Gói lẻ từng chặng Coder (mua vĩnh viễn ở joyRoutes). Ba cờ cũ của chặng 4
+// (Security/Exam/Optimize) và gói Ultimate cũ vẫn tính để ai đã trả tiền không mất quyền.
+export function getCoderOwnedStages(bio) {
+  return {
+    basic: Boolean(bio.hugoCoderBasicLifetime),
+    intermediate: Boolean(bio.hugoCoderIntermediateLifetime),
+    advanced: Boolean(bio.hugoCoderAdvancedLifetime),
+    security: Boolean(
+      bio.hugoCoderSecurityLifetime
+      || bio.hugoCoderExamLifetime
+      || bio.hugoCoderOptimizeLifetime
+    ),
+    project: Boolean(bio.hugoCoderUltimateLifetime),
+    devops: Boolean(bio.hugoCoderDevopsLifetime || bio.hugoCoderUltimateLifetime)
+  };
+}
+
+/** Đọc được chi tiết bài Coder thuộc chặng `stageId`: có cả app (sở hữu/thuê/dùng thử) hoặc sở hữu đúng chặng đó. */
+export function canReadCoderStage(bio, stageId) {
+  return planState(bio, 'ide').unlocked || Boolean(getCoderOwnedStages(bio || {})[stageId]);
+}
+
 function writePlanRecord(bioDoc, appId, patch) {
   const current = trialRecord(bioDoc, appId) || {};
   const next = { ...current, ...patch };

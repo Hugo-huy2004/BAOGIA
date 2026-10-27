@@ -29,6 +29,7 @@ export default function PWARealtimeBridge() {
 
     let socket;
     let disposed = false;
+    let probing = false;
 
     const abortRef = { current: null };
     let syncPromise = null;
@@ -44,11 +45,23 @@ export default function PWARealtimeBridge() {
     };
     let stableTimer = null;
     let firstConnection = true;
-    const connect = () => {
+    const connect = async () => {
       if (disposed) return;
       window.clearTimeout(retryTimer.current);
       if (socket && socket.readyState <= WebSocket.OPEN) return;
       if (navigator.onLine === false || !getMemberToken()) return;
+      if (probing) return;
+      probing = true;
+      try {
+        const health = await fetch(`${apiBase}/health`, { credentials: 'omit', cache: 'no-store' });
+        if (!health.ok) { scheduleReconnect(); return; }
+      } catch {
+        scheduleReconnect();
+        return;
+      } finally {
+        probing = false;
+      }
+      if (disposed || socket) return;
       let connection;
       try {
         connection = new WebSocket(realtimeUrl());

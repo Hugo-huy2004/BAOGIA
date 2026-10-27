@@ -6,7 +6,7 @@ export function getStageBenefitsFromCatalog(stageId, stages = []) {
   return stages.find((stage) => stage.id === stageId)?.benefits || [];
 }
 
-export function useCoderLessons(activeCourseId, { enabled = true } = {}) {
+export function useCoderLessons(activeCourseId, { enabled = true, program = "coding" } = {}) {
   const catalogQuery = useInfiniteQuery({
     queryKey: ["coder-lessons", "catalog"],
     queryFn: ({ pageParam, signal }) => fetchLessonPage(pageParam, signal),
@@ -46,11 +46,14 @@ export function useCoderLessons(activeCourseId, { enabled = true } = {}) {
   const summary = summaries.find((item) => item.id === selectedId);
 
   const detailQuery = useQuery({
-    queryKey: ["coder-lessons", "detail", selectedId],
-    queryFn: ({ signal }) => fetchLesson(selectedId, signal),
+    queryKey: ["coder-lessons", "detail", selectedId, program],
+    queryFn: ({ signal }) => fetchLesson(selectedId, signal, program),
     enabled: enabled && Boolean(selectedId),
     placeholderData: summary ? { lesson: summary } : undefined,
     staleTime: 10 * 60_000,
+    // Bài trả phí khi chưa có quyền: 401/403 là câu trả lời cuối, thử lại vô ích.
+    // Hub tự hiện cổng mua khoá theo useFeatureGate.
+    retry: (count, error) => ![401, 403].includes(error?.status) && count < 3,
   });
 
   const selectedLesson = detailQuery.data?.lesson || summary || null;
@@ -65,7 +68,11 @@ export function useCoderLessons(activeCourseId, { enabled = true } = {}) {
     courses,
     stages,
     selectedLesson,
+    // Chi tiết đã tải xong (có slide) — bản tóm tắt trong danh mục thì chưa.
+    detailReady: Boolean(detailQuery.data?.lesson?.slides),
     loading: catalogQuery.isLoading || (Boolean(selectedId) && detailQuery.isLoading),
     error: catalogQuery.error || detailQuery.error,
+    // 401/403 từ máy chủ = step trả phí chưa có quyền; hub hiện cổng mua khoá.
+    detailError: detailQuery.error,
   };
 }

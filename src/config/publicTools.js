@@ -42,16 +42,16 @@ export const PUBLIC_TOOLS = {
   study: {
     gate: "level",
     aliases: ["hugoso"],
-    // Học thật mười bài đầu — đủ đi hết HTML, CSS, JS, SQL và PHP cơ bản — rồi
+    // Học thử trọn chặng 1 (6 step: lập trình, web, HTML, CSS, JS, DOM) rồi
     // mới phải quyết định. Hằng số nằm ở đây chứ không trong HugoCoderHub: trang
     // công khai chỉ cần con số, import từ hub sẽ kéo cả bộ học vào bundle.
-    previewLessons: 10,
-    title: "Hugo Learning — Tự học có hướng dẫn, by Hugo Studio",
+    previewLessons: 6,
+    title: "Coding — Học lập trình web từ A đến Z, by Hugo Studio",
     description:
-      "Dự án học tập phi lợi nhuận: bài đi từng bước một màn hình, thực hành trên công cụ thật, bài thi do máy chủ chấm và giấy chứng nhận có xếp loại.",
-    heading: "Hugo Learning",
+      "Tự tay xây một mạng xã hội chia sẻ bài viết ngắn bằng HTML, CSS, JavaScript, PHP và MySQL: 26 step từ con số 0 tới triển khai miễn phí, trắc nghiệm do máy chủ chấm và giấy chứng nhận có xếp loại.",
+    heading: "Coding",
     summary:
-      "Học theo lộ trình, đánh giá bằng bài làm. Đăng nhập để mở nội dung từng khoá và theo dõi tiến độ.",
+      "Học lập trình web theo từng step, làm dự án mạng xã hội thật. Học thử miễn phí trọn chặng 1.",
   },
   radio: {
     gate: "open",

@@ -4568,7 +4568,7 @@
       "dangNapBoCau": "正在加载测验问题...",
       "ketQuaKiemTra": "测试结果：",
       "tuyetVoiBanDa": "优秀！你通过了测试。",
-      "ratTiecDiemSo": "遗憾的是，你的得分低于60%的最低要求。",
+      "ratTiecDiemSo": "遗憾的是，你的得分低于{{percent}}%的最低要求。",
       "nhanThuongJoyHoan": "JOY",
       "doiDeThiKhac": "重试",
       "cauHoi": "问题",

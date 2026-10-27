@@ -40,7 +40,7 @@ const manifest = ({
 
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
-  manifest({ id: "study", icon: "school", tint: "purple", category: "edu", badge: "new", storageMb: 8.1 }),
+  manifest({ id: "study", icon: "code", tint: "purple", category: "edu", badge: "new", storageMb: 8.1 }),
   manifest({ id: "team", icon: "groups", tint: "teal", category: "edu", badge: "join", storageMb: 1.6, version: "1.4.0", store: true, storeOrder: 6 }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
   manifest({

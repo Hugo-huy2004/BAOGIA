@@ -26,16 +26,13 @@ export default function CoderLearningJourney({
   stages,
   loading,
   onOpenLesson,
-  isOffice,
+  includeLocalProgress = true,
 }) {
   const { t } = useTranslation();
-  // Office courses dùng localStorage key riêng với prefix `hugoso-`.
-  const completedLessons = isOffice
-    ? readLocalList("hugoso_completed_steps_v1").map((id) => id.replace(/^hugoso-/, ""))
-    : readLocalList(CODER_STORAGE_KEYS.progress);
+  // Bản trong máy để vẽ ngay; gộp với bản máy chủ để đổi máy vẫn đúng.
   const completedSet = useMemo(
-    () => new Set(completedLessons),
-    [completedLessons],
+    () => new Set([...(includeLocalProgress ? readLocalList(CODER_STORAGE_KEYS.progress) : []), ...(bio?.completedLessons || [])]),
+    [bio?.completedLessons, includeLocalProgress],
   );
   const firstIncompleteIndex = courses.findIndex(
     (course) => !completedSet.has(course.id),
@@ -61,6 +58,15 @@ export default function CoderLearningJourney({
     );
   }
 
+  // Tải xong mà không có step nào (mất mạng, máy chủ lỗi): nói rõ, đừng để màn trống.
+  if (!loading && courses.length === 0) {
+    return (
+      <div className="coder-journey-loading" role="status">
+        <p>Chưa tải được lộ trình. Kiểm tra kết nối rồi mở lại Coding.</p>
+      </div>
+    );
+  }
+
   return (
     <main className="coder-journey">
       {/* Trang này CHỈ còn bản đồ. Dải chỉ số và thẻ kho báu đã dời ra trang
@@ -74,7 +80,6 @@ export default function CoderLearningJourney({
         examScores={bio?.hugoCoderExamScores || {}}
         serverCompleted={bio?.completedLessons || []}
         onOpenLesson={onOpenLesson}
-        isOffice={isOffice}
       />
     </main>
   );

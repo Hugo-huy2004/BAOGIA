@@ -1,5 +1,6 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
+import HugoTeamDev from '../models/HugoTeamDev.js';
 import { getWalletOverview, claimDailyCheckin } from '../controllers/joyWalletController.js';
 import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
@@ -12,13 +13,8 @@ import { debtRestriction } from '../services/joyLaterEnforcement.js';
 import { RESTRICTIONS } from '../../shared/joyLaterPolicy.js';
 import { transferFeeRateOf, dailyTransferCapOf } from '../../shared/tierFinance.js';
 import PendingTransfer from '../models/PendingTransfer.js';
-import CoderResource from '../models/CoderResource.js';
-import ReadingSession from '../models/ReadingSession.js';
-import { requiredReadingFor } from '../../shared/readingLessons.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import {
-  HUGOSO_PRICES,
-  HUGOSO_BUNDLE_PRICE as SHARED_HUGOSO_BUNDLE_PRICE,
   BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
   STUDY_LIFETIME,
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
@@ -27,10 +23,12 @@ import {
   joyLaterStatus, quoteLoan, openJoyLaterLoan, payOffJoyLater, payInstallment, joyLaterHistory,
   hasOpenLoan,
 } from '../utils/joyLaterService.js';
-import { ownExchangeItems } from '../utils/appPlanService.js';
+import { ownExchangeItems, getCoderOwnedStages, canReadCoderStage } from '../utils/appPlanService.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';
-import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
+import { gradeStepQuiz, PASS_PERCENT } from '../utils/coderExamService.js';
+import { STEP_IDS } from '../../src/components/member/hugoCoder/lessons/stages.js';
+import { PUBLIC_TOOLS } from '../../src/config/publicTools.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
 import { randomInt, randomBytes } from 'node:crypto';
@@ -51,74 +49,44 @@ import {
 
 const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 const COMPRESS_CHARGE = 50;
-const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${index + 1}`);
-const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
-const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
-const HUGOSO_COURSES = Object.freeze({
-  calendar: { label: 'CAL 101 · Quản trị Thời gian và Lịch làm việc', priceJoy: HUGOSO_PRICES.calendar },
-  docs: { label: 'DOC 102 · Soạn thảo Học thuật và Bố cục Báo cáo', priceJoy: HUGOSO_PRICES.docs },
-  sheets: { label: 'SHE 201 · Dữ liệu và Báo cáo Vận hành', priceJoy: HUGOSO_PRICES.sheets },
-  ai: { label: 'AIA 202 · Trợ lý AI: Gemini, ChatGPT và Claude', priceJoy: HUGOSO_PRICES.ai }
-});
-// Học phần AI trước đây mang id 'gemini'. Ai đã mua thì bản ghi vẫn ghi tên cũ,
-// nên phải quy về tên mới khi kiểm quyền — nếu không họ mất học phần đã trả tiền.
-const HUGOSO_LEGACY_IDS = Object.freeze({ gemini: 'ai' });
-const canonicalCourseId = (id) => HUGOSO_LEGACY_IDS[id] || id;
-// Gói trọn bộ suy ra từ 4 phần (giảm 30%), không viết tay để khỏi lệch khi đổi giá.
-const HUGOSO_BUNDLE_PRICE = SHARED_HUGOSO_BUNDLE_PRICE;
-const HUGOSO_COURSE_IDS = Object.freeze(Object.keys(HUGOSO_COURSES));
+const CODER_LESSON_IDS = STEP_IDS;
 const CODER_STAGE_DEFINITIONS = {
   basic: {
     key: 'hugoCoderBasicLifetime',
-    label: 'Chặng 1: Phản Xạ Cơ Bản',
+    label: 'Chặng 1: Nền tảng lập trình và Web',
     priceJoy: STUDY_LIFETIME.basic
   },
   intermediate: {
     key: 'hugoCoderIntermediateLifetime',
-    label: 'Chặng 2: Tư Duy Kiến Trúc',
+    label: 'Chặng 2: PHP, SQL và máy chủ localhost',
     priceJoy: STUDY_LIFETIME.intermediate,
     previousTier: 'basic',
   },
   advanced: {
     key: 'hugoCoderAdvancedLifetime',
-    label: 'Chặng 3: CTDL, Giải Thuật & Mật Mã',
+    label: 'Chặng 3: CRUD mạng xã hội',
     priceJoy: STUDY_LIFETIME.advanced,
     previousTier: 'intermediate',
   },
   security: {
     key: 'hugoCoderSecurityLifetime',
-    label: 'Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI',
+    label: 'Chặng 4: Bảo mật ứng dụng web',
     priceJoy: STUDY_LIFETIME.security,
     previousTier: 'advanced',
   },
   project: {
     key: 'hugoCoderUltimateLifetime',
-    label: 'Chặng 5: Siêu Đồ Án Full-Stack & AI',
+    label: 'Chặng 5: Hoàn thiện sản phẩm',
     priceJoy: STUDY_LIFETIME.project,
     previousTier: 'security',
   },
   devops: {
     key: 'hugoCoderDevopsLifetime',
-    label: 'Chặng 6: Kỹ Sư DevOps & Phát Hành',
+    label: 'Chặng 6: Phân tích, triển khai và dự án hoàn tất',
     priceJoy: STUDY_LIFETIME.devops,
     previousTier: 'project',
   }
 };
-
-function getCoderOwnedStages(bio) {
-  return {
-    basic: Boolean(bio.hugoCoderBasicLifetime),
-    intermediate: Boolean(bio.hugoCoderIntermediateLifetime),
-    advanced: Boolean(bio.hugoCoderAdvancedLifetime),
-    security: Boolean(
-      bio.hugoCoderSecurityLifetime
-      || bio.hugoCoderExamLifetime
-      || bio.hugoCoderOptimizeLifetime
-    ),
-    project: Boolean(bio.hugoCoderUltimateLifetime),
-    devops: Boolean(bio.hugoCoderDevopsLifetime || bio.hugoCoderUltimateLifetime)
-  };
-}
 
 function getCoderStageQuote(bio, tier) {
   const definition = CODER_STAGE_DEFINITIONS[tier];
@@ -300,110 +268,6 @@ router.get('/balance', requireMember, async (req, res) => {
   }
 });
 
-function hugoSOPricing(bio) {
-  const owned = new Set((bio?.hugoSOCourses || []).map(canonicalCourseId));
-  const remaining = HUGOSO_COURSE_IDS.filter((courseId) => !owned.has(courseId));
-  const remainingListPrice = remaining.reduce(
-    (sum, courseId) => sum + HUGOSO_COURSES[courseId].priceJoy,
-    0
-  );
-  // Members who already bought individual courses never pay for them twice.
-  // The 18% bundle rate is applied only to the remaining curriculum.
-  const bundlePrice = remaining.length === HUGOSO_COURSE_IDS.length
-    ? HUGOSO_BUNDLE_PRICE
-    : Math.round(remainingListPrice * 0.82);
-  const pricing = Object.fromEntries(
-    HUGOSO_COURSE_IDS.map((courseId) => [
-      courseId,
-      calcExchangeTotal(HUGOSO_COURSES[courseId].priceJoy)
-    ])
-  );
-  pricing.bundle = calcExchangeTotal(bundlePrice);
-  return { pricing, remaining };
-}
-
-// HugoSO access is intentionally separate from monthly app subscriptions:
-// courses are owned for life and never renew automatically.
-router.get('/hugoso-access', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const { pricing } = hugoSOPricing(bio);
-    return res.json({
-      // Quy id cũ về id mới trước khi trả xuống: người mua học phần 'gemini'
-      // ngày trước vẫn phải mở được 'ai'.
-      ownedCourses: [...new Set((bio.hugoSOCourses || []).map(canonicalCourseId))],
-      pricing,
-      balance: Number(bio.joyBalance) || 0
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/buy-hugoso-course', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const courseId = String(req.body?.courseId || '');
-    if (courseId !== 'bundle' && !HUGOSO_COURSES[courseId]) {
-      return res.status(400).json({ error: 'Khóa học Năng suất số và AI không hợp lệ.' });
-    }
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const owned = new Set(bio.hugoSOCourses || []);
-    const { pricing, remaining } = hugoSOPricing(bio);
-    if (courseId === 'bundle' && remaining.length === 0) {
-      return res.status(400).json({ error: 'Bạn đã sở hữu toàn bộ bộ Năng suất số và AI.' });
-    }
-    if (courseId !== 'bundle' && owned.has(courseId)) {
-      return res.status(400).json({ error: 'Bạn đã sở hữu khóa học này.' });
-    }
-
-    const targetIds = courseId === 'bundle' ? remaining : [courseId];
-    const quote = pricing[courseId];
-    if (bio.joyBalance < quote.total) {
-      return res.status(400).json({
-        error: `Số dư JOY không đủ. Bạn cần ${quote.total} JOY để mở khóa.`
-      });
-    }
-
-    const label = courseId === 'bundle'
-      ? `Office Ready Bundle (${targetIds.length} khóa còn lại)`
-      : HUGOSO_COURSES[courseId].label;
-    const result = await awardJoy(
-      bio.email,
-      -quote.total,
-      'hugoso_course',
-      `Mở khóa trọn đời ${label} (gồm ${quote.tax} JOY phí sáng tạo)`,
-      {
-        bioDoc: bio,
-        skipSave: true,
-        refId: `hugoso_${courseId}`,
-        actionUrl: '/member/utilities/hugoso'
-      }
-    );
-
-    bio.hugoSOCourses = [...new Set([...(bio.hugoSOCourses || []), ...targetIds])];
-    bio.markModified('hugoSOCourses');
-    await bio.save();
-
-    return res.json({
-      success: true,
-      balance: result.balance,
-      ownedCourses: [...new Set(bio.hugoSOCourses.map(canonicalCourseId))],
-      unlockedCourses: targetIds
-    });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
-
 // GET /api/joy/history?limit=50&days=30
 // Trả kèm tổng kết N ngày để ví chỉ cần một lượt gọi. `days=0` bỏ phần tổng kết.
 router.get('/history', requireMember, async (req, res) => {
@@ -467,138 +331,45 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
   }
 });
 
-const CODER_EXAM_RETAKE_FEE = 250; // Lượt thi đầu nằm trong gói; từ lượt 2: 250 JOY/lần
-
-// POST /api/joy/coder-exam/start — máy chủ ra đề (không gửi đáp án xuống client)
-router.post('/coder-exam/start', requireMember, async (req, res) => {
-  try {
-    const { lessonId, confirmRetake } = req.body;
-    const email = req.memberEmail;
-    if (!email || !lessonId) return res.status(400).json({ error: 'lessonId là bắt buộc.' });
-    if (!CODER_QUIZ_LESSONS.has(lessonId) || !isQuizLesson(lessonId)) {
-      return res.status(400).json({ error: 'Bài học này không phải bài thi trắc nghiệm.' });
-    }
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const lessonGate = getCoderLessonGate(bio.completedLessons || [], lessonId);
-    if (!lessonGate.unlocked && !(bio.completedLessons || []).includes(lessonId)) {
-      return res.status(409).json({
-        code: lessonGate.code,
-        error: `Bạn cần hoàn thành các bài trước theo đúng thứ tự. Bài đầu tiên còn thiếu: ${lessonGate.missingLessons[0]}.`,
-        firstMissingLesson: lessonGate.missingLessons[0],
-        missingLessonCount: lessonGate.missingLessons.length,
-      });
-    }
-
-    const attemptsUsed = Number(bio.hugoCoderExamAttempts?.[lessonId] || 0);
-    const alreadyCompleted = (bio.completedLessons || []).includes(lessonId);
-    const needsFee = !alreadyCompleted && attemptsUsed >= 1; // đã hoàn thành thì ôn tập miễn phí
-
-    let charged = 0;
-    if (needsFee) {
-      if (!confirmRetake) {
-        // Client phải xác nhận trước khi bị trừ JOY — không trừ tiền âm thầm
-        return res.status(402).json({
-          error: `Lượt thi trong gói đã dùng. Thi lại tốn ${CODER_EXAM_RETAKE_FEE} JOY/lần.`,
-          requiresFee: CODER_EXAM_RETAKE_FEE,
-          attemptsUsed
-        });
-      }
-      try {
-        await awardJoy(
-          email,
-          -CODER_EXAM_RETAKE_FEE,
-          'coder_exam_retake',
-          `Phí thi lại Study with Hugo ${lessonId} (lượt ${attemptsUsed + 1})`,
-          { bioDoc: bio, refId: `${lessonId}_retake_${attemptsUsed + 1}` }
-        );
-        charged = CODER_EXAM_RETAKE_FEE;
-      } catch (e) {
-        if (e.message === 'INSUFFICIENT_JOY') {
-          return res.status(400).json({ error: `Số dư JOY không đủ — cần ${CODER_EXAM_RETAKE_FEE} JOY để thi lại.` });
-        }
-        throw e;
-      }
-    }
-
-    const exam = startExam(email, lessonId);
-    res.json({ ...exam, attemptsUsed, charged, retakeFee: CODER_EXAM_RETAKE_FEE, balance: bio.joyBalance });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// POST /api/joy/coder-exam/submit — máy chủ chấm, đậu thì cấp vé ngắn hạn cho award-learning
-router.post('/coder-exam/submit', requireMember, async (req, res) => {
-  try {
-    const { examId, answers } = req.body;
-    const email = req.memberEmail;
-    if (!email || !examId) return res.status(400).json({ error: 'examId là bắt buộc.' });
-
-    const result = submitExam(email, examId, answers);
-
-    // Mỗi lần NỘP tiêu một lượt thi (chỉ đếm khi bài chưa hoàn thành)
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (bio && !(bio.completedLessons || []).includes(result.lessonId)) {
-      const attempts = { ...(bio.hugoCoderExamAttempts || {}) };
-      const attemptNo = Number(attempts[result.lessonId] || 0) + 1;
-      attempts[result.lessonId] = attemptNo;
-      bio.hugoCoderExamAttempts = attempts;
-      bio.markModified('hugoCoderExamAttempts');
-
-      // Giữ lại điểm để chứng chỉ chặng xếp loại được. `firstTry` chỉ ghi một
-      // lần: nó là thước đo trung thực nhất, thi lại nhiều lần thì `best` cao
-      // dần nhưng lần đầu vẫn nói đúng năng lực lúc học xong.
-      const scores = { ...(bio.hugoCoderExamScores || {}) };
-      const previous = scores[result.lessonId] || {};
-      scores[result.lessonId] = {
-        best: Math.max(Number(previous.best || 0), result.score),
-        firstTry: previous.firstTry === undefined ? result.score : previous.firstTry,
-        last: result.score,
-        attempts: attemptNo,
-        at: new Date().toISOString(),
-      };
-      bio.hugoCoderExamScores = scores;
-      bio.markModified('hugoCoderExamScores');
-
-      await bio.save();
-    }
-
-    res.json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 // POST /api/joy/award-learning
 router.post('/award-learning', requireMember, async (req, res) => {
   try {
-    const { lessonId, evidence = {} } = req.body;
+    const { lessonId, evidence = {}, program = 'coding' } = req.body;
     const email = req.memberEmail;
     if (!email || !lessonId) return res.status(400).json({ error: 'Email and lessonId are required' });
 
     const lessonIndex = CODER_LESSON_IDS.indexOf(lessonId);
     if (lessonIndex === -1) {
-      return res.status(400).json({ error: 'Bài học Phát triển Web không hợp lệ.' });
+      return res.status(400).json({ error: 'Step Coding không hợp lệ.' });
     }
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
+    const isHugoTeam = program === 'hugoteam';
+    let teamDev = null;
+    if (isHugoTeam) {
+      teamDev = await HugoTeamDev.findOne({ email, assessmentStage: 'coding' });
+      if (!teamDev) return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam.' });
+      if (teamDev.codingStartedAt && Date.now() - new Date(teamDev.codingStartedAt).getTime() > 14 * 24 * 60 * 60 * 1000) {
+        return res.status(409).json({ code: 'HUGOTEAM_CODING_EXPIRED', error: 'Đã quá 14 ngày. Mở lại HugoTeam để reset lộ trình và làm lại bài đánh giá.' });
+      }
+      if (lessonIndex >= 16) return res.status(403).json({ code: 'HUGOTEAM_PROGRAM_COMPLETE', error: 'Chương trình Coding HugoTeam gồm 16 step; dự án cuối thực hiện trong giai đoạn Mentor.' });
+    }
+
     if (!bio.completedLessons) {
       bio.completedLessons = [];
     }
+    const programProgress = isHugoTeam ? (teamDev.codingCompletedSteps || []) : bio.completedLessons;
 
-    if (bio.completedLessons.includes(lessonId)) {
-      return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
+    // Học lại step đã qua: vẫn chấm để người học thấy kết quả, nhưng không ghi điểm.
+    if (programProgress.includes(lessonId)) {
+      const review = gradeStepQuiz(lessonId, evidence.answers);
+      return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance, ...review, passPercent: PASS_PERCENT });
     }
 
-    const lessonGate = getCoderLessonGate(bio.completedLessons, lessonId);
+    const lessonGate = getCoderLessonGate(programProgress, lessonId);
     if (!lessonGate.unlocked) {
       return res.status(409).json({
         code: lessonGate.code,
@@ -610,38 +381,50 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
 
 
-    if (CODER_QUIZ_LESSONS.has(lessonId)) {
-      // Điểm bài thi do MÁY CHỦ chấm (coder-exam/start + submit) — không tin điểm client khai
-      const serverScore = consumeExamPass(email, lessonId);
-      if (serverScore === null) {
-        return res.status(400).json({ error: 'Bài thi phải được chấm tại máy chủ. Hãy làm bài trong phần Thực hành tương tác và đạt tối thiểu 60%.' });
-      }
-    } else if (requiredReadingFor(lessonId)) {
-      // Bài qua bằng đọc: kiểm ở đây chứ không chỉ khoá nút bên giao diện —
-      // khoá nút chỉ ngăn người dùng bấm nhầm, không ngăn ai gọi thẳng API.
-      const articleTitle = requiredReadingFor(lessonId);
-      const article = await CoderResource.findOne({ type: 'article', title: articleTitle })
-        .select('_id')
-        .lean();
-      const done = article && await ReadingSession.exists({
-        memberEmail: email,
-        resourceId: article._id,
-        completedAt: { $ne: null },
+    // Step ngoài phần học thử chỉ được tính khi có quyền đọc chính step đó —
+    // nếu không, ai cũng đoán đáp án mà "qua" được step trả phí.
+    if (!isHugoTeam && lessonIndex >= PUBLIC_TOOLS.study.previewLessons && !canReadCoderStage(bio, lessonGate.stage.id)) {
+      return res.status(403).json({
+        code: 'COURSE_ACCESS_REQUIRED',
+        error: 'Step này thuộc phần trả phí. Mở khóa Coding hoặc chặng chứa step để học tiếp.',
       });
-      if (!done) {
-        return res.status(400).json({
-          code: 'READING_REQUIRED',
-          error: `Bài này qua bằng đọc: hãy đọc hết “${articleTitle}” trong phần Học liệu rồi quay lại.`,
-        });
-      }
-    } else if (CODER_SCREENSHOT_LESSONS.has(lessonId)) {
-      const score = Number(evidence.score);
-      if (!Number.isFinite(score) || score < 60) {
-        return res.status(400).json({ error: 'Bài nộp cần đạt tối thiểu 60% để nhận thưởng JOY.' });
-      }
     }
 
-
+    // Trắc nghiệm cuối step do MÁY CHỦ chấm lại từ câu trả lời — không tin điểm client khai.
+    const graded = gradeStepQuiz(lessonId, evidence.answers);
+    if (!graded) {
+      return res.status(409).json({ code: 'STEP_NOT_READY', error: 'Step này đang được soạn, chưa mở.' });
+    }
+    // Giữ điểm cho chứng chỉ chặng: `firstTry` chỉ ghi một lần — nó nói đúng
+    // năng lực lúc học xong, còn `best` thì lên dần qua mỗi lần làm lại.
+    const previous = isHugoTeam ? (teamDev.codingStepScores?.[lessonId] || {}) : (bio.hugoCoderExamScores?.[lessonId] || {});
+    const scoreEntry = {
+      best: Math.max(Number(previous.best || 0), graded.score),
+      firstTry: previous.firstTry ?? graded.score,
+      last: graded.score,
+      attempts: Number(previous.attempts || 0) + 1,
+      at: new Date().toISOString(),
+    };
+    const codingPrevious = bio.hugoCoderExamScores?.[lessonId] || {};
+    const codingScoreEntry = isHugoTeam ? {
+      best: Math.max(Number(codingPrevious.best || 0), graded.score),
+      firstTry: codingPrevious.firstTry ?? graded.score,
+      last: graded.score,
+      attempts: Number(codingPrevious.attempts || 0) + 1,
+      at: new Date().toISOString(),
+    } : scoreEntry;
+    await Bio.updateOne({ _id: bio._id }, { $set: { [`hugoCoderExamScores.${lessonId}`]: codingScoreEntry } });
+    if (isHugoTeam) {
+      await HugoTeamDev.updateOne({ _id: teamDev._id }, { $set: { [`codingStepScores.${lessonId}`]: scoreEntry } });
+    }
+    if (!graded.passed) {
+      return res.json({
+        code: 'QUIZ_BELOW_PASS',
+        ...graded,
+        passPercent: PASS_PERCENT,
+        error: `Đạt ${graded.score}%, cần từ ${PASS_PERCENT}%. Ôn lại phần chưa vững rồi làm lại bài trắc nghiệm.`,
+      });
+    }
 
     let privateEvidence = null;
     if (isLearningEvidenceEnabledFor(bio)) {
@@ -662,7 +445,21 @@ router.post('/award-learning', requireMember, async (req, res) => {
       { $addToSet: { completedLessons: lessonId } },
     );
 
-    res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence });
+    if (isHugoTeam) {
+      const updatedTeam = await HugoTeamDev.findOneAndUpdate(
+        { _id: teamDev._id, assessmentStage: 'coding' },
+        { $addToSet: { codingCompletedSteps: lessonId } },
+        { new: true },
+      );
+      const completedCount = updatedTeam?.codingCompletedSteps?.length || 0;
+      if (completedCount >= 16) {
+        updatedTeam.assessmentStage = 'mentor';
+        await updatedTeam.save();
+      }
+      return res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, program: 'hugoteam', completedCount, requiredSteps: 16, nextStage: completedCount >= 16 ? 'mentor' : 'coding' });
+    }
+
+    res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -736,7 +533,7 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
       });
     }
 
-    const requiredLesson = `lesson${stageProgress.stage.to}`;
+    const requiredLesson = `step${stageProgress.stage.to}`;
 
     const rewardAmount = 800;
     const result = await awardJoy(

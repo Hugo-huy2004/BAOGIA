@@ -260,8 +260,8 @@ export default function UtilityPublicPage() {
             onUpdateCompanionState={handleTherapyStateUpdate}
           />
         );
-      // Study đứng riêng được: xem trọn lộ trình 100 bài và học thật 10 bài đầu
-      // mà không cần tài khoản; bài 11 trở đi mới hiện thẻ đăng nhập + mở gói.
+      // Coding đứng riêng được: xem trọn 26 step và học thật trọn chặng 1 mà
+      // không cần tài khoản; từ step 7 máy chủ mới đòi đăng nhập + mở gói.
       case "study":
       case "hugoso":
         return (
@@ -269,7 +269,6 @@ export default function UtilityPublicPage() {
             bio={player}
             showToast={commonProps.showToast}
             onBioUpdate={handleBioUpdate}
-            previewLessons={toolConfig.previewLessons}
             studyRoute={page || null}
             studySub={sub || null}
             onBack={() => navigate("/introduction")}

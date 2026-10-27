@@ -89,7 +89,7 @@ export default function HugoLearningPage() {
     jsonLd.textContent = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "Hugo Learning",
+      name: "Coding — Hugo Studio",
       description: meta.description,
       publisher: { "@type": "Organization", name: "Hugo Studio" },
       isAccessibleForFree: true,
@@ -194,7 +194,6 @@ export default function HugoLearningPage() {
         showToast={(message, type) => (
           notify[type === "error" ? "error" : type === "warning" ? "warning" : "success"](message)
         )}
-        previewLessons={PUBLIC_TOOLS.study.previewLessons}
         embedded
         studyRoute={tab ? null : page}
         studySub={tab ? null : sub}
@@ -202,8 +201,8 @@ export default function HugoLearningPage() {
         // Hai địa chỉ này KHÁC nhau nên phải nói rõ, đừng để app tự suy từ
         // pathname — đứng ở tab mà suy thì gốc thành /study/khoa-hoc.
         studyBasePath="/study"
-        studyHomePath="/study/khoa-hoc"
-        onBack={() => navigate("/study/khoa-hoc")}
+        studyHomePath="/study"
+        onBack={() => navigate("/study")}
       />
     </Suspense>
   );

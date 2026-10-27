@@ -6165,7 +6165,7 @@
       "dangNapBoCau": "Loading the quiz questions...",
       "ketQuaKiemTra": "Test result:",
       "tuyetVoiBanDa": "Excellent! You passed the test.",
-      "ratTiecDiemSo": "Unfortunately the score is below the 60% minimum.",
+      "ratTiecDiemSo": "Unfortunately the score is below the {{percent}}% minimum.",
       "nhanThuongJoyHoan": "Claim the JOY reward & finish",
       "doiDeThiKhac": "Get a different paper & retry",
       "cauHoi": "Question",

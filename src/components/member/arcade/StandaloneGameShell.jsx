@@ -104,10 +104,12 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
           joyDelta: res.joyDelta ?? estimatedJoy,
           joyBase: res.joyBase ?? res.joyDelta ?? estimatedBase,
           joyAwarded: res.joyAwarded ?? false,
+          balance: res.balance ?? null,
           multiplier: res.multiplier ?? 1,
           event: res.event ?? null,
           dailyCapReached: res.dailyCapReached ?? false,
         }));
+        if (res.balance != null) useJoyStore.getState().setBalance(res.balance);
       }
     } catch {
       // Score submission failed — show estimated JOY

@@ -4,7 +4,6 @@ import {
   BookOpenCheck,
   Braces,
   ChevronLeft,
-  Coins,
   FileText,
   GraduationCap,
   Lock,
@@ -13,11 +12,11 @@ import {
   Share2,
   ShieldCheck,
   Target,
+  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
-import { useJoy } from "../../../lib/joyDisplay";
 import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
 import { CODER_STORAGE_KEYS } from "./workspaceUtils";
@@ -27,17 +26,14 @@ import { getMemberSession } from "../../../services/api/core/authSession";
 import { hugoCoderApi } from "../../../services/api/modules/hugoCoderApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
-import { useFeatureGate } from "../../../hooks/useFeatureGate";
-import CapstoneTrackPicker from "./CapstoneTrackPicker";
 import LessonPlayer from "./LessonPlayer";
-import { CAPSTONE_PICK_LESSON } from "../../../../shared/capstoneTracks";
+import { certificateKey } from "../../../../shared/courseCatalog";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
 import { joyText } from "../../../lib/joyDisplay";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví.
 const MAINTENANCE_PRICE = 50;
-const RETAKE_PRICE = 250;
 
 
 function percentage(part, total) {
@@ -46,25 +42,12 @@ function percentage(part, total) {
 
 export function HugoStudioQuality({ courses, stages }) {
   const { t } = useTranslation();
+  // Thước đo trung thực: step đã soạn đủ bảy phần (mục tiêu, thực hành,
+  // trắc nghiệm) trên tổng số step của đề cương.
   const quality = useMemo(() => {
     const total = courses.length;
-    const withGoals = courses.filter((course) => course.overview?.outcomes?.length > 0).length;
-    const withPractice = courses.filter((course) => (
-      course.tasks?.length > 0
-      || Boolean(course.challenge)
-      || Boolean(course.practiceType)
-    )).length;
-    const withAssessment = courses.filter((course) => (
-      Boolean(course.verify)
-      || course.miniQuiz?.length > 0
-      || course.practiceType === "graduation_submission"
-    )).length;
-    return {
-      total,
-      goals: percentage(withGoals, total),
-      practice: percentage(withPractice, total),
-      assessment: percentage(withAssessment, total),
-    };
+    const written = percentage(courses.filter((course) => !course.draft).length, total);
+    return { total, goals: written, practice: written, assessment: written };
   }, [courses]);
 
   const metrics = [
@@ -198,7 +181,7 @@ export function ResourceGrid({ type, stages }) {
             <button
               key={f.id}
               onClick={() => setStage(f.id)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-black border transition-all active:scale-95 ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-black border transition-all active:scale-95 ${
                 active
                   ? "bg-foreground text-background border-foreground"
                   : "bg-muted text-muted-foreground border-border hover:bg-muted/70"
@@ -217,7 +200,7 @@ export function ResourceGrid({ type, stages }) {
           {empty && (
             <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 px-3 py-2.5">
               <span className="material-symbols-outlined text-lg text-muted-foreground">{type === "video" ? "smart_display" : "menu_book"}</span>
-              <p className="text-[11px] text-muted-foreground leading-4">
+              <p className="text-[13px] text-muted-foreground leading-4">
                 {type === "video" ? "Video bài học đang được biên soạn" : "Tài liệu học thuật đang được tuyển chọn"} — Hugo Studio sẽ đăng dần theo từng chặng.
               </p>
             </div>
@@ -238,18 +221,18 @@ export function ResourceGrid({ type, stages }) {
                 <ResourcePreview type={item.type} url={item.url} className="w-full aspect-video" />
                 <div className="p-3 space-y-1.5 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide border ${th ? th.chip : "bg-muted text-muted-foreground border-border"}`}>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[13px] font-black uppercase tracking-wide border ${th ? th.chip : "bg-muted text-muted-foreground border-border"}`}>
                       {th && <span className={`w-1.5 h-1.5 rounded-full ${th.dot}`} />}
                       {stageLabels[item.stageId] || "Mọi chặng"}
                     </span>
                   </div>
                   <p className="text-sm font-black text-foreground leading-snug">{item.title}</p>
-                  {item.source && <p className="text-[10px] font-bold text-muted-foreground">Nguồn: {item.source}</p>}
-                  {item.description && <p className="text-xs text-muted-foreground leading-5 line-clamp-3">{item.description}</p>}
+                  {item.source && <p className="text-[13px] font-bold text-muted-foreground">Nguồn: {item.source}</p>}
+                  {item.description && <p className="text-[13px] text-muted-foreground leading-5 line-clamp-3">{item.description}</p>}
                   <div className="pt-1">
                     <a href={item.url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-foreground underline underline-offset-2">
-                      <span className="material-symbols-outlined text-xs">open_in_new</span>
+                      className="inline-flex items-center gap-1 text-[13px] font-black uppercase tracking-wider text-foreground underline underline-offset-2">
+                      <span className="material-symbols-outlined text-[13px]">open_in_new</span>
                       Mở {item.type === "video" ? "video" : "tài liệu"}
                     </a>
                   </div>
@@ -281,7 +264,7 @@ function LearningResources({ stages }) {
         <button
           type="button"
           onClick={() => setType("video")}
-          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-semibold transition ${
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-[13px] font-semibold transition ${
             type === "video" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
           }`}
         >
@@ -291,7 +274,7 @@ function LearningResources({ stages }) {
         <button
           type="button"
           onClick={() => setType("document")}
-          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-semibold transition ${
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-[13px] font-semibold transition ${
             type === "document" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
           }`}
         >
@@ -311,9 +294,6 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
     [bio?.completedLessons, courses]
   );
-  // Học viên đã học tới chặng đồ án chưa? Đếm số bài đã xong thay vì đợi đúng
-  // `lesson70`: người mua trọn gói có thể hoàn thành lệch thứ tự.
-  const reachedCapstone = (bio?.completedLessons || []).length >= CAPSTONE_PICK_LESSON - 1;
   const hasAll = !!bio?.hugoCoderAll7Lifetime;
   const maintenanceExpires = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
   const maintenanceActive = hasAll || (maintenanceExpires ? new Date(maintenanceExpires).getTime() > Date.now() : false);
@@ -328,25 +308,26 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
   };
 
   const stageEarned = (stage) => {
-    const lastId = `lesson${stage.to}`;
+    const lastId = `step${stage.to}`;
     if (stage.phaseNumber === 6) return completed.includes(lastId) || bio?.hugoCoderProjectStatus === "approved";
     return completed.includes(lastId);
   };
 
-  const examLessons = courses.filter((c) => c.practiceType === "quiz");
-  const attempts = bio?.hugoCoderExamAttempts || {};
+  const scores = bio?.hugoCoderExamScores || {};
+  const scoredSteps = courses.filter((course) => scores[course.id]);
   const earnedCount = stages.filter(stageEarned).length;
+  // Danh hiệu theo chặng đã đi qua (6 / 11 / 15 / 19 / 22 step).
   const rank =
-    completed.length >= 90 ? "Kỹ sư DevOps"
-    : completed.length >= 70 ? "Kỹ sư Full-Stack"
-    : completed.length >= 50 ? "Kỹ sư Bảo mật & AI"
-    : completed.length >= 25 ? "Lập trình viên Trung cấp"
-    : completed.length >= 10 ? "Lập trình viên Sơ cấp"
+    completed.length >= 22 ? "Kỹ sư Full-Stack"
+    : completed.length >= 19 ? "Kỹ sư Bảo mật Web"
+    : completed.length >= 15 ? "Lập trình viên CRUD"
+    : completed.length >= 11 ? "Lập trình viên PHP & SQL"
+    : completed.length >= 6 ? "Lập trình viên Web nền tảng"
     : "Học viên Nhập môn";
 
   const payMaintenance = async () => {
     const ok = await notify.confirm({
-      title: "Gia hạn lộ trình Phát triển Web",
+      title: "Gia hạn khoá Coding",
       message: `Dùng ${joyText(MAINTENANCE_PRICE)} (+10% phí sáng tạo) để gia hạn 30 ngày quyền truy cập học tập?`,
       confirmText: `Gia hạn ${joyText(MAINTENANCE_PRICE)}`
     });
@@ -371,7 +352,7 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
     }
   };
 
-  const pct = completed.length;
+  const pct = percentage(completed.length, courses.length);
 
   return (
     <div className="space-y-5">
@@ -394,47 +375,35 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
             </div>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-widest text-white/70">Danh hiệu hiện tại</p>
+            <p className="text-[13px] font-black uppercase tracking-widest text-white/70">Danh hiệu hiện tại</p>
             <h3 className="text-lg font-black leading-tight truncate">{rank}</h3>
-            <p className="text-[11px] text-white/80 mt-0.5">{completed.length}/100 bài • {earnedCount}/6 chặng đạt giấy chứng nhận</p>
+            <p className="text-[13px] text-white/80 mt-0.5">{completed.length}/{courses.length} step • {earnedCount}/{stages.length} chặng đạt giấy chứng nhận</p>
           </div>
         </div>
       </section>
 
-      {/* Đề tài tốt nghiệp — chỉ hiện khi đã tới chặng đồ án, trước đó chọn cũng
-          chưa dùng vào việc gì. */}
-      {reachedCapstone && (
-        <section className="rounded-2xl border border-border bg-card p-4">
-          <CapstoneTrackPicker />
+      {/* Điểm trắc nghiệm do máy chủ chấm — lần đầu và tốt nhất. */}
+      {scoredSteps.length > 0 && (
+        <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
+          <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><GraduationCap className="w-3.5 h-3.5 text-foreground" /></span>
+            Điểm trắc nghiệm
+          </h3>
+          <div className="space-y-1.5">
+            {scoredSteps.map((step) => {
+              const entry = scores[step.id];
+              return (
+                <div key={step.id} className="flex items-center justify-between gap-2 text-[13px] py-2 border-b border-border/40 last:border-0">
+                  <span className="text-foreground/80 truncate">{step.title}</span>
+                  <span className="shrink-0 text-[13px] font-black text-muted-foreground">
+                    lần đầu {entry.firstTry}% · cao nhất {entry.best}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </section>
       )}
-
-      {/* Lượt thi trong gói */}
-      <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
-        <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><GraduationCap className="w-3.5 h-3.5 text-foreground" /></span>
-          Lượt thi kiểm tra
-        </h3>
-        <p className="text-[10.5px] text-muted-foreground leading-4 -mt-1">Mỗi bài thi có 1 lượt trong gói. Thi lại tốn {joyText(RETAKE_PRICE)}/lượt.</p>
-        <div className="space-y-1.5">
-          {examLessons.map((exam) => {
-            const used = Number(attempts[exam.id] || 0);
-            const passed = completed.includes(exam.id);
-            return (
-              <div key={exam.id} className="flex items-center justify-between gap-2 text-xs py-2 border-b border-border/40 last:border-0">
-                <span className="text-foreground/80 truncate">{exam.title.replace(/^\d+\.\s*/, "")}</span>
-                <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wide ${
-                  passed ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : used === 0 ? "bg-primary/10 text-primary"
-                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                }`}>
-                  {passed ? "Đã đậu" : used === 0 ? "Còn lượt" : `Đã nộp ${used}`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </section>
 
       {/* Chứng chỉ — màu theo chặng, đồng bộ với bản đồ */}
       <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
@@ -460,20 +429,20 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
                   {earned ? <StageIcon className="w-4 h-4" /> : <Lock className="w-3.5 h-3.5" />}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-xs font-black truncate ${earned ? "text-foreground" : "text-muted-foreground"}`}>{stage.title.replace(/^Chặng \d+: /, `Chặng ${stage.phaseNumber}: `)}</p>
-                  <p className="text-[10px] text-muted-foreground">{stage.rangeText}</p>
+                  <p className={`text-[13px] font-black truncate ${earned ? "text-foreground" : "text-muted-foreground"}`}>{stage.title.replace(/^Chặng \d+: /, `Chặng ${stage.phaseNumber}: `)}</p>
+                  <p className="text-[13px] text-muted-foreground">{stage.rangeText}</p>
                 </div>
                 {earned ? (
                   <a
-                    href={`/certificate/${bio?.slug}/${stage.phaseNumber}`}
+                    href={`/certificate/${bio?.slug}/${certificateKey(stage.phaseNumber)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-foreground text-background text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all"
+                    className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-foreground text-background text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all"
                   >
                     <Share2 className="w-3 h-3" /> Chia sẻ
                   </a>
                 ) : (
-                  <span className="shrink-0 text-[9.5px] font-bold text-muted-foreground uppercase">Chưa đạt</span>
+                  <span className="shrink-0 text-[13px] font-bold text-muted-foreground uppercase">Chưa đạt</span>
                 )}
               </div>
             );
@@ -488,7 +457,7 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
           Gói đã sở hữu
         </h3>
         {hasAll && (
-          <div className="rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 p-3 text-xs font-black flex items-center gap-2">
+          <div className="rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 p-3 text-[13px] font-black flex items-center gap-2">
             <Award className="w-4 h-4" /> Trọn gói 6 chặng vĩnh viễn — miễn phí bảo trì trọn đời
           </div>
         )}
@@ -499,8 +468,8 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
             return (
               <div key={stage.id} className={`rounded-xl border p-2.5 text-center ${owned ? `bg-gradient-to-br ${th.soft}` : "border-border bg-muted/30 opacity-70"}`}>
                 <span className={`inline-block w-2 h-2 rounded-full mb-1 ${owned ? th.dot : "bg-muted-foreground/40"}`} />
-                <p className="text-[10px] font-black text-foreground">Chặng {stage.phaseNumber}</p>
-                <p className="text-[8.5px] text-muted-foreground leading-tight">{owned ? "Vĩnh viễn" : "Chưa mở"}</p>
+                <p className="text-[13px] font-black text-foreground">Chặng {stage.phaseNumber}</p>
+                <p className="text-[13px] text-muted-foreground leading-tight">{owned ? "Vĩnh viễn" : "Chưa mở"}</p>
               </div>
             );
           })}
@@ -508,8 +477,8 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
         {!hasAll && (
           <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/40 border border-border p-3">
             <div className="min-w-0">
-              <p className="text-xs font-black text-foreground">Phí bảo trì hàng tháng</p>
-              <p className="text-[10px] text-muted-foreground leading-4">
+              <p className="text-[13px] font-black text-foreground">Phí bảo trì hàng tháng</p>
+              <p className="text-[13px] text-muted-foreground leading-4">
                 {maintenanceActive
                   ? `Còn hạn đến ${new Date(maintenanceExpires).toLocaleDateString("vi-VN")}`
                   : "Hết hạn — gia hạn để tiếp tục học (quá 3 tháng reset tiến trình)"}
@@ -517,7 +486,7 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
             </div>
             <button
               onClick={payMaintenance}
-              className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all shadow-sm"
+              className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-white text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all shadow-sm"
             >
               <RefreshCw className="w-3 h-3" /> {joyText(MAINTENANCE_PRICE)}
             </button>
@@ -528,31 +497,23 @@ export function ManageTab({ bio, onBioUpdate, courses, stages }) {
   );
 }
 
-// ====== Vỏ toàn màn hình của HugoCoder ======
-// Hai màn: BẢN ĐỒ khoá học và TRÌNH PHÁT bài; địa chỉ quyết định đang ở màn nào.
-// Ba bảng Học liệu/Chất lượng/Tiến độ đã dời ra trang chủ Study (chúng nói về cả
-// chương trình chứ không riêng khoá này), nên ở đây không còn thanh tab.
-// Gate JOY một lần ở đây.
-// `previewLessons > 0` mở chế độ học thử (số bài miễn phí khai báo ở
-// config/publicTools.ts): không bọc cả app trong FeatureGate
-// nữa mà khoá theo từng bài, nên khách thấy trọn lộ trình 100 bài và học ngay
-// được phần đầu. Portal thành viên không truyền gì, hành vi giữ nguyên.
-export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", previewLessons = 0, externalCourses, externalStages }) {
+// ====== Vỏ toàn màn hình của khoá Coding ======
+// Hai màn: BẢN ĐỒ khoá học và TRÌNH PHÁT step; địa chỉ quyết định đang ở màn nào.
+// `framed`: bản đồ nằm trong khung AppFrame của app Coding — chỉ vẽ nội dung,
+// không dựng vỏ toàn màn và thanh đầu riêng. Bảng Tiến độ khi đó do khung điều
+// khiển qua `progressOpen`/`onProgressChange`.
+export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, basePath = "/member/utilities/study/coding", framed = false, progressOpen: controlledProgress, onProgressChange, program = "coding", programProgress = null, maxSteps = null, onProgramProgress, onLessonChange }) {
   const { t } = useTranslation();
-  const joy = useJoy();
   const navigate = useNavigate();
-  // Bài đang mở đọc THẲNG từ địa chỉ (`basePath/lessonN`). Giữ thêm một bản
-  // trong state thì hai nguồn lệch nhau: bấm vào bài chỉ đổi state, địa chỉ vẫn
-  // là bản đồ, và tải lại trang là mất chỗ đang học.
+  const [ownProgress, setOwnProgress] = useState(false);
+  const progressOpen = controlledProgress ?? ownProgress;
+  const setProgressOpen = onProgressChange ?? setOwnProgress;
+  // Step đang mở đọc THẲNG từ địa chỉ (`basePath/stepN`): tải lại trang là ở
+  // nguyên chỗ đang học.
   const selectedLessonId = urlLessonId || null;
-  const joyBalance = useJoyStore((s) => s.balance);
-  // Office courses dùng data tĩnh, không gọi API coder.
-  const coderData = useCoderLessons(selectedLessonId, { enabled: !externalCourses });
-  const courses = externalCourses || coderData.courses;
-  const stages = externalStages || coderData.stages;
-  const loading = externalCourses ? false : coderData.loading;
-  const isOffice = Boolean(externalCourses);
-  const { active: hasCoderAccess } = useFeatureGate(bio, isOffice ? null : "hugoCoder");
+  const { courses: allCourses, stages, loading, detailReady, detailError } = useCoderLessons(selectedLessonId, { program });
+  const courses = maxSteps ? allCourses.slice(0, maxSteps) : allCourses;
+  const progressBio = program === "hugoteam" ? { ...bio, completedLessons: programProgress || [] } : bio;
   const onBioUpdateRef = useRef(onBioUpdate);
 
   useEffect(() => {
@@ -560,6 +521,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
   }, [onBioUpdate]);
 
   useEffect(() => {
+    if (!getMemberSession()?.email) return undefined;
     let active = true;
     hugoCoderApi.getAccessSnapshot()
       .then(({ bio: accessBio }) => {
@@ -568,31 +530,30 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
         useJoyStore.getState().setBalance(accessBio.joyBalance);
       })
       .catch(() => {
-        // The cached profile remains usable while offline; purchase actions
-        // still perform their own authoritative server validation.
+        // Hồ sơ đã lưu vẫn dùng được khi mất mạng; mua bán luôn được máy chủ kiểm lại.
       });
     return () => {
       active = false;
     };
   }, []);
 
-  const openLesson = (lessonId) => navigate(`${basePath}/${lessonId}`);
+  const openLesson = (lessonId) => onLessonChange ? onLessonChange(lessonId) : navigate(`${basePath}/${lessonId}`);
+  // Thoát step thì về BẢN ĐỒ khoá học, không văng ra ngoài app.
+  const exitLesson = () => onLessonChange ? onLessonChange(null) : navigate(basePath);
 
-  // Thoát bài học thì về BẢN ĐỒ khoá học, không văng thẳng ra ngoài Study.
-  // Trước đây ở chế độ `unifiedHome` nó gọi `onBack()` — nên bản đồ không bao
-  // giờ hiện ra và người học mất chỗ đứng sau mỗi bài.
-  // `basePath` đã trỏ sẵn vào khoá đang học (…/study/web, …/study/calendar), nên
-  // thoát bài là về đúng gốc đó — không nối thêm "web" vào sau tên khoá.
-  const exitLesson = () => navigate(basePath);
+  // Quyền đọc step do MÁY CHỦ quyết định (6 step học thử, gói trọn bộ, gói
+  // chặng, thuê, dùng thử). Client không tự đoán: hỏi chi tiết step, bị từ chối
+  // 401/403 thì hiện cổng mua. Một bộ luật duy nhất, không lệch được.
+  const lessonLocked = [401, 403].includes(detailError?.status);
 
   const gate = (extra) => (
     <FeatureGate
       bio={bio}
       featureKey="hugoCoder"
       priceJoy={1500}
-      icon="terminal"
-      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
-      description="Học 100 bài theo 6 phần từ nền tảng đến DevOps, có thực hành, đánh giá và sản phẩm đầu ra."
+      icon="code"
+      title="Trao đổi JOY để mở khóa Coding"
+      description="26 step lập trình web: tự xây mạng xã hội chia sẻ bài viết ngắn bằng HTML, CSS, JavaScript, PHP và MySQL, tới triển khai và dự án."
       onBioUpdate={onBioUpdate}
       onBack={onBack}
       className="max-w-lg mx-auto mt-10"
@@ -600,112 +561,99 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
     />
   );
 
-  // Bài đang mở nằm ngoài phần học thử? `courses` đã theo đúng thứ tự lộ trình.
-  const lessonLocked = previewLessons > 0
-    && !hasCoderAccess
-    && courses.findIndex((course) => course.id === selectedLessonId) >= previewLessons;
-
-
-  /**
-   * Ghi nhận hoàn thành bài sau khi đi hết các bước trong LessonPlayer.
-   *
-   * Tiến độ thật do MÁY CHỦ giữ (`completedLessons` trên hồ sơ); bản trong máy
-   * chỉ để bản đồ vẽ ngay mà không phải đợi tải lại. Máy chủ vẫn tự kiểm thứ tự
-   * bài, bài thi và bài đọc bắt buộc — client không tự khai qua được.
-   */
   const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-  const rewardLesson = async (course) => {
-    const session = getMemberSession();
-    if (!session?.email) {
-      notify.success('Đã hoàn thành bài học.');
-      return;
+  /**
+   * Nộp trắc nghiệm cuối step. Thành viên nộp qua award-learning: máy chủ chấm,
+   * ghi điểm, kiểm thứ tự step và quyền, đạt thì ghi tiến độ. Khách học thử chỉ
+   * được chấm (không lưu) ở 6 step đầu.
+   */
+  const submitQuiz = async (course, answers) => {
+    const member = Boolean(getMemberSession()?.email);
+    const response = await fetch(member ? `${apiBase}/joy/award-learning` : `${apiBase}/coder-lessons/${course.id}/grade`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(member ? { lessonId: course.id, evidence: { answers }, program } : { answers }),
+    });
+    const data = await response.json().catch(() => ({}));
+    // Chưa đạt vẫn là kết quả hợp lệ kèm lời giải, không phải lỗi mạng.
+    if (!response.ok && data.code !== "QUIZ_BELOW_PASS") {
+      throw new Error(data.error || "Chưa nộp được bài, hãy thử lại.");
     }
-
-    // Office courses dùng hệ thống tiến độ riêng (localStorage + server endpoint khác).
-    if (isOffice) {
-      const lessonId = `hugoso-${course.id}`;
-      try {
-        const key = "hugoso_completed_steps_v1";
-        const done = JSON.parse(localStorage.getItem(key) || "[]");
-        if (Array.isArray(done) && !done.includes(lessonId)) {
-          localStorage.setItem(key, JSON.stringify([...done, lessonId]));
-        }
-      } catch {
-        /* hết quota */
-      }
-      fetch(`${apiBase}/member/progress/lesson/${lessonId}/complete`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      }).catch(() => {});
-      notify.success("Đã hoàn thành bài học.");
-      onBioUpdate?.({ ...bio, completedLessons: [...(bio?.completedLessons || []), lessonId] });
-      return;
-    }
-
-    try {
-      const response = await fetch(`${apiBase}/joy/award-learning`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lessonId: course.id, evidence: { channel: 'player', score: 100 } }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || 'Chưa lưu được tiến độ.');
-
+    if (member && data.passed && !data.alreadyCompleted) {
       try {
         const key = CODER_STORAGE_KEYS.progress;
-        const done = JSON.parse(localStorage.getItem(key) || '[]');
+        const done = JSON.parse(localStorage.getItem(key) || "[]");
         if (Array.isArray(done) && !done.includes(course.id)) {
           localStorage.setItem(key, JSON.stringify([...done, course.id]));
         }
       } catch {
-        /* hết quota: bản đồ sẽ tự đúng lại ở lần tải sau, không đáng chặn bài học */
+        /* hết quota: bản đồ tự đúng lại ở lần tải sau */
       }
-
-      notify.success(data.evidence
-        ? 'Đã hoàn thành! Minh chứng mới đã lưu vào Hugo Profile.'
-        : 'Đã hoàn thành bài học.');
-      onBioUpdate?.({ ...bio, completedLessons: [...(bio?.completedLessons || []), course.id] });
-    } catch (error) {
-      notify.error(error.message || 'Chưa lưu được tiến độ, hãy thử lại.');
+      onBioUpdate?.({
+        ...bio,
+        completedLessons: [...(bio?.completedLessons || []), course.id],
+        hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: { best: data.score, firstTry: data.score } },
+      });
+      if (program === "hugoteam") onProgramProgress?.(data);
     }
+    if (!member && data.passed) notify.info("Đăng nhập để lưu tiến độ và nhận giấy chứng nhận.");
+    return data;
   };
 
   const currentCourse = courses.find((course) => course.id === selectedLessonId) || null;
-  // Bài kế tiếp theo đúng thứ tự lộ trình; bài cuối thì không có nút "Bài tiếp".
+  // Step kế tiếp theo đúng thứ tự lộ trình; step cuối thì không có nút "Step tiếp".
   const nextLessonId = (() => {
     const at = courses.findIndex((course) => course.id === selectedLessonId);
     return at >= 0 ? courses[at + 1]?.id || null : null;
   })();
+  const playable = currentCourse && !lessonLocked && (currentCourse.draft || detailReady);
 
-  const shell = (
+  const progressSheet = progressOpen && (
+    <div className="cmap-sheet-backdrop" role="presentation" onClick={() => setProgressOpen(false)}>
+      <div className="cmap-sheet coder-progress-sheet" role="dialog" aria-modal="true" aria-label="Tiến độ" onClick={(event) => event.stopPropagation()}>
+        <button type="button" className="cmap-sheet-close" onClick={() => setProgressOpen(false)} aria-label="Đóng"><X aria-hidden="true" /></button>
+        <ManageTab bio={bio} onBioUpdate={onBioUpdate} courses={courses} stages={stages} />
+      </div>
+    </div>
+  );
+
+  if (framed) {
+    return (
+      <>
+        <CoderLearningJourney bio={progressBio} courses={courses} stages={stages} loading={loading} onOpenLesson={openLesson} includeLocalProgress={program !== "hugoteam"} />
+        {progressSheet}
+      </>
+    );
+  }
+
+  return (
     <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
-      {currentCourse && !lessonLocked ? (
+      {playable ? (
         <LessonPlayer
           course={currentCourse}
           onExit={exitLesson}
-          onFinished={() => rewardLesson(currentCourse)}
+          onSubmitQuiz={(answers) => submitQuiz(currentCourse, answers)}
           onNextLesson={nextLessonId ? () => openLesson(nextLessonId) : undefined}
-          certificateUrl={isOffice && bio?.slug ? `/certificate/${bio.slug}/office-${currentCourse.id}` : undefined}
         />
       ) : (
         <>
           <header className="coder-hub-header shrink-0">
             <div className="coder-hub-titlebar">
-              <button onClick={onBack} className="coder-hub-back" aria-label={t("hugoCoderLearning.back")}>
+              <button onClick={currentCourse ? exitLesson : onBack} className="coder-hub-back" aria-label={t("hugoCoderLearning.back")}>
                 <ChevronLeft />
                 <span>{t("hugoCoderLearning.back")}</span>
               </button>
               <div className="coder-hub-brand">
                 <span><Braces /></span>
-                <h2>Study with Hugo</h2>
+                <h2>Coding</h2>
               </div>
-              <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
-                <Coins />
-                <span>{joy.text(joyBalance ?? bio?.joyBalance ?? 0)}</span>
-              </div>
+              {/* Tiến độ, giấy chứng nhận và gói đã sở hữu — gom vào một nút. */}
+              <button type="button" className="coder-hub-progress" onClick={() => setProgressOpen(true)} aria-label="Tiến độ và giấy chứng nhận">
+                <Award aria-hidden="true" />
+                <span>Tiến độ</span>
+              </button>
             </div>
           </header>
 
@@ -717,23 +665,20 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
             ) : (
               <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
                 <CoderLearningJourney
-                  bio={bio}
+                  bio={progressBio}
                   courses={courses}
                   stages={stages}
-                  loading={loading}
+                  loading={loading || Boolean(currentCourse && !detailError)}
                   onOpenLesson={openLesson}
-                  isOffice={isOffice}
+                  includeLocalProgress={program !== "hugoteam"}
                 />
               </div>
             )}
           </div>
         </>
       )}
+
+      {progressSheet}
     </div>
   );
-
-  // Học thử: khoá theo từng bài ở trên, không dựng bức tường trước cả app.
-  // Office courses không cần feature gate — chúng có hệ thống mua riêng.
-  if (previewLessons > 0 || isOffice) return shell;
-  return gate({ children: shell });
 }

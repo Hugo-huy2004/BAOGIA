@@ -5852,7 +5852,7 @@
       "dangNapBoCau": "當納部句𠳨測驗...",
       "ketQuaKiemTra": "結果檢查:",
       "tuyetVoiBanDa": "絶潙. 貴學員㐌越過排檢查成功.",
-      "ratTiecDiemSo": "慄惜, 點數𣗓達要求最少 (60%).",
+      "ratTiecDiemSo": "慄惜, 點數𣗓達要求最少 ({{percent}}%).",
       "nhanThuongJoyHoan": "認賞 JOY & 完成",
       "doiDeThiKhac": "𢷮題試恪 & 爫吏",
       "cauHoi": "句𠳨",

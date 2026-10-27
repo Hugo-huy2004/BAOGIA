@@ -435,6 +435,8 @@ import Bio from '../models/Bio.js';
 import ReadingSession from '../models/ReadingSession.js';
 import { CODER_STAGE_SEQUENCE, isCoderLessonId } from '../../shared/coderProgression.js';
 
+const CODER_STEP_COUNT = CODER_STAGE_SEQUENCE.at(-1).to;
+
 router.get('/users/search', requireAdmin, async (req, res) => {
   try {
     const { q } = req.query;
@@ -601,8 +603,8 @@ router.get('/learners', requireAdmin, async (req, res) => {
 
       // Bài đầu tiên chưa xong — nơi người học đang đứng.
       let stuckAt = null;
-      for (let number = 1; number <= 100; number += 1) {
-        if (!coderDone.includes(`lesson${number}`)) { stuckAt = number; break; }
+      for (let number = 1; number <= CODER_STEP_COUNT; number += 1) {
+        if (!coderDone.includes(`step${number}`)) { stuckAt = number; break; }
       }
 
       return {
@@ -645,8 +647,8 @@ router.get('/learners/stuck', requireAdmin, async (req, res) => {
     for (const row of rows) {
       const done = new Set((row.completedLessons || []).filter(isCoderLessonId));
       if (!done.size) continue;
-      for (let number = 1; number <= 100; number += 1) {
-        if (!done.has(`lesson${number}`)) {
+      for (let number = 1; number <= CODER_STEP_COUNT; number += 1) {
+        if (!done.has(`step${number}`)) {
           counts.set(number, (counts.get(number) || 0) + 1);
           break;
         }

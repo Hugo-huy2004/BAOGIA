@@ -68,13 +68,18 @@ export function isQuizAnswerCorrect(question, answer) {
     case "match":
       // Đáp án là ánh xạ { chỉ số vế trái: chỉ số vế phải }. Nối đúng nghĩa là
       // mọi cặp đều trỏ về đúng chính nó.
+      // Đề đã xáo vế phải (shared/stepQuiz.js) mang `a[i]` = vị trí đúng.
       return Array.isArray(question.pairs)
-        && question.pairs.every((_, index) => Number(answer?.[index]) === index);
+        && question.pairs.every((_, index) => (
+          Number(answer?.[index]) === (Array.isArray(question.a) ? question.a[index] : index)
+        ));
 
     case "bug":
     case "output":
     case "mcq":
     default:
+      // Bỏ trống không phải "chọn phương án 0": Number(null) và Number("") đều ra 0.
+      if (answer === null || answer === undefined || answer === "") return false;
       return Number(answer) === question.a;
   }
 }
@@ -91,7 +96,9 @@ export function quizAnswerText(question) {
     case "order":
       return (question.a || []).map((index) => question.items?.[index]).filter(Boolean).join(" → ");
     case "match":
-      return (question.pairs || []).map(([left, right]) => `${left} → ${right}`).join(" · ");
+      return (question.pairs || []).map(([left, right], i) => (
+        `${left} → ${Array.isArray(question.a) ? question.pairs[question.a[i]]?.[1] : right}`
+      )).join(" · ");
     case "bug":
       return `Dòng ${Number(question.a) + 1}`;
     default:

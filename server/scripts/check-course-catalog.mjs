@@ -10,13 +10,14 @@
  * Danh mục dựng từ giáo trình, nên khoá mới phải tự có mặt, tự cấp chứng nhận,
  * tự vào các bảng — không phải nhớ sửa thêm nơi nào.
  */
-import { COURSE_CATALOG, getCourse, courseOfLesson, resolveStageKey } from '../../shared/courseCatalog.js';
+import { COURSE_CATALOG, getCourse, courseOfLesson, resolveStageKey, certificateKey } from '../../shared/courseCatalog.js';
+import LEGACY_CERTIFICATES from '../../shared/legacyCertificates.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
 
 const problems = [];
 const check = (ok, message) => { if (!ok) problems.push(message); };
 
-check(COURSE_CATALOG.length >= 2, 'Danh mục phải có ít nhất khoá Web và một học phần Năng suất.');
+check(COURSE_CATALOG.length >= 1, 'Danh mục phải có khoá Coding.');
 
 const ids = new Set();
 for (const course of COURSE_CATALOG) {
@@ -51,9 +52,7 @@ for (const course of COURSE_CATALOG) {
 
   // Mỗi chặng phải cấp được chứng nhận khi học hết — bằng CẢ hai dạng khoá tra.
   for (const stage of course.stages) {
-    const keys = course.kind === 'office'
-      ? [course.id, `office-${course.id}`]
-      : [String(stage.phaseNumber), stage.id];
+    const keys = [certificateKey(stage.phaseNumber), stage.id];
 
     for (const key of keys) {
       const found = resolveStageKey(key);
@@ -85,7 +84,7 @@ for (const course of COURSE_CATALOG) {
     }
 
     // Chưa học hết thì KHÔNG được cấp — nếu không thì tờ giấy vô nghĩa.
-    const key = course.kind === 'office' ? course.id : String(stage.phaseNumber);
+    const key = certificateKey(stage.phaseNumber);
     const thieu = getStageCertificate(
       { displayName: 'x', slug: 'x', completedLessons: stage.lessonIds.slice(0, -1) },
       key,
@@ -95,12 +94,29 @@ for (const course of COURSE_CATALOG) {
 }
 
 // Khoá tra sai phải trả null, không được ném lỗi hay rơi về khoá đầu tiên.
-for (const bad of ['', null, undefined, 'không-có', '999', 'office-không-có']) {
+for (const bad of ['', null, undefined, 'không-có', '999', 'office-calendar', 'coding-99']) {
   if (resolveStageKey(bad) !== null) {
     problems.push(`Khoá tra không hợp lệ "${bad}" lại ra một chặng.`);
   }
 }
 check(getCourse('không-có') === null, 'getCourse với id lạ phải trả null.');
+
+// Giấy chứng nhận khoá Web CŨ (cấp trước 27/10/2026) phải còn mở được: hồ sơ
+// học xong lesson1–100 thì cả 6 đường dẫn số "1".."6" vẫn ra chứng nhận.
+const legacyBio = {
+  displayName: 'Kiểm thử', slug: 'kiem-thu',
+  completedLessons: LEGACY_CERTIFICATES.flatMap((item) => item.lessonIds),
+  hugoCoderExamScores: {},
+};
+for (const item of LEGACY_CERTIFICATES) {
+  for (const key of item.keys) {
+    const cert = getStageCertificate(legacyBio, key);
+    if (!cert || cert.stageTitle !== item.stageTitle) problems.push(`Chứng nhận cũ "${key}" không còn mở được.`);
+  }
+}
+if (getStageCertificate({ ...legacyBio, completedLessons: ['lesson1'] }, '1')) {
+  problems.push('Chứng nhận cũ cấp cho người chưa học hết chặng.');
+}
 
 // Slug tab của Hugo Learning là từ dành riêng trong địa chỉ: một khoá trùng slug
 // thì /study/<slug> luôn ra tab, và khoá đó vĩnh viễn không mở được.
@@ -119,6 +135,6 @@ if (problems.length) {
 
 const tong = COURSE_CATALOG.reduce((sum, course) => sum + course.lessonIds.length, 0);
 console.log(
-  `Danh mục khoá học: ${COURSE_CATALOG.length} khoá · ${tong} bài · `
-  + `${COURSE_CATALOG.reduce((n, c) => n + c.stages.length, 0)} chặng — chứng nhận cấp được cho mọi chặng.`,
+  `Danh mục khoá học: ${COURSE_CATALOG.length} khoá · ${tong} step · `
+  + `${COURSE_CATALOG.reduce((n, c) => n + c.stages.length, 0)} chặng — chứng nhận cấp được cho mọi chặng, ${LEGACY_CERTIFICATES.length} chứng nhận khoá cũ còn mở.`,
 );

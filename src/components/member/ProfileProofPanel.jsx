@@ -137,7 +137,6 @@ export default function ProfileProofPanel({ publicLink }) {
               value={profile.learning.certificate ? t("utilities.profile.granted") : t("utilities.profile.notYet")}
               strong={profile.learning.certificate}
             />
-            <ProofRow label={t("utilities.profile.studyCourses")} value={String(profile.learning.studyCourses)} />
           </ProofSection>
 
           {data?.capabilities?.learningEvidence && (

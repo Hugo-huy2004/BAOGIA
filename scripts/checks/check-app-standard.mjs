@@ -80,7 +80,8 @@ const EXCEPTIONS = {
 const APPS = {
   hugoKit: { entry: "hugoKit/HugoKitApp.jsx", dir: "hugoKit" },
   wallet: { entry: "wallet/JoyWalletApp.jsx", dir: "wallet" },
-  study: { entry: "study/StudyWithHugoApp.jsx", dir: "study" },
+  // Vỏ Coding ở study/, còn bản đồ + trình học ở hugoCoder/ — quét cả hai.
+  study: { entry: "study/StudyWithHugoApp.jsx", dir: ["study", "hugoCoder"] },
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
   arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   banhocduong: { entry: "banhocduong/BanhocduongTab.jsx", dir: "banhocduong" },
@@ -246,7 +247,8 @@ for (const [name, spec] of Object.entries(APPS)) {
   // `files` giữ đường dẫn tương đối để tiêu chí nào cần thì áp ngoại lệ theo file.
   let files = [{ rel: spec.entry, text: entry }];
   if (spec.dir) {
-    const found = await walk(path.join(MEMBER, spec.dir));
+    const dirs = Array.isArray(spec.dir) ? spec.dir : [spec.dir];
+    const found = (await Promise.all(dirs.map((dir) => walk(path.join(MEMBER, dir))))).flat();
     files = await Promise.all(found.map(async (f) => ({
       rel: path.relative(MEMBER, f),
       text: await readFile(f, "utf8"),

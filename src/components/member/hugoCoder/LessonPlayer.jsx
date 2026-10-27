@@ -1,36 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, MessageSquareWarning, PenLine, Target, TriangleAlert, Wrench, X } from "lucide-react";
+import { ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, Image, Library, Lightbulb, MessageSquareWarning, RotateCcw, Sparkles, Target, Volume2, VolumeX, Wrench, X } from "lucide-react";
 import confetti from "canvas-confetti";
 import { notify } from "../../../lib/notify";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import QuizQuestion from "./QuizQuestion";
 import LessonBuddy from "./LessonBuddy";
-import LessonExam from "./LessonExam";
-import { buildOfficeSteps } from "../hugoSO/officeLessonSteps";
-import { practiceEvidence, isPracticeDone } from "../hugoSO/officeLessonSteps";
-// Biểu định kiểu đi kèm component: trình học giờ dùng chung cho cả khoá Năng
-// suất, mà app đó không nạp CSS của khoá Web.
+import CodingVisual from "./CodingVisual";
 import "../../../styles/hugoCoderLearning.css";
-import { isQuizAnswerCorrect, shuffleQuizOptions } from "../../../../shared/quizKinds";
 import { CODER_STORAGE_KEYS } from "./workspaceUtils";
 
 /**
- * Trình phát bài học — mỗi lần một bước, màn hình cố định.
+ * Trình phát step — mỗi lần một slide, màn hình cố định.
  *
- * Trước đây cả bài đổ ra một trang dài; người học phải tự cuộn tìm chỗ mình
- * đang ở và không biết còn bao nhiêu nữa mới xong. Ở đây bài cắt thành các bước
- * nhỏ, mỗi bước chiếm trọn màn, chỉ một nút tiếp tục.
- *
- * ponytail: các bước cắt từ nội dung ĐÃ CÓ (`theory` theo tiêu đề, `labSteps`,
- * `commonMistakes`, `miniQuiz`) — giáo trình không phải sửa dòng nào.
+ * Một step gồm các slide theo bảy phần (giới thiệu, minh hoạ, học thuật, lên ý
+ * tưởng, kiến thức chính, áp dụng, trắc nghiệm). Trắc nghiệm cuối step KHÔNG
+ * chấm ở đây: đề xuống từ máy chủ đã xáo và không mang đáp án, người học trả lời
+ * hết rồi mới nộp, máy chủ chấm và trả lời giải.
  */
 const API = import.meta.env.VITE_API_URL || "/api";
 
 // Bước đang học, để tải lại trang không ném người học về đầu bài. Chỉ giữ MỘT
 // bài: bỏ dở rồi mở bài khác thì con trỏ cũ vô nghĩa.
 const STEP_KEY = "student_ide_lesson_step";
+const SOUND_KEY = "coding.sound";
 
 function readStep(lessonId) {
   try {
@@ -41,94 +35,13 @@ function readStep(lessonId) {
   }
 }
 
-/**
- * Cắt lý thuyết thành các bước đọc, và TÁCH tiêu đề khỏi thân.
- *
- * Giáo trình dùng `###` (105 chỗ) và `#`, KHÔNG dùng `##` — bản đầu của hàm
- * này chỉ khớp `##` nên không tách được tiêu đề nào, và mọi tiêu đề nằm lại
- * trong thân bài dưới dạng một dòng chữ hoa giữa đoạn văn.
- *
- * Một tiêu đề mỗi bài nghĩa là cả phần lý thuyết dồn vào MỘT bước — dày đặc.
- * Nên chunk nào còn dài thì cắt tiếp theo dòng trống, gom lại quanh
- * `SOFT_LIMIT` ký tự để mỗi màn đọc được mà không phải cuộn.
- */
-const SOFT_LIMIT = 520;
-
-function packParagraphs(body) {
-  const paragraphs = body.split(/\n{2,}/).map((item) => item.trim()).filter(Boolean);
-  const packs = [];
-  let current = "";
-  for (const paragraph of paragraphs) {
-    if (current && (current.length + paragraph.length) > SOFT_LIMIT) {
-      packs.push(current);
-      current = paragraph;
-    } else {
-      current = current ? `${current}\n\n${paragraph}` : paragraph;
-    }
-  }
-  if (current) packs.push(current);
-  return packs.length ? packs : [body];
-}
-
-function splitTheory(theory) {
-  const text = String(theory || "").trim();
-  if (!text) return [];
-  const chunks = text.split(/\n(?=#{1,3}\s)/).map((chunk) => chunk.trim()).filter(Boolean);
-
-  return (chunks.length ? chunks : [text]).flatMap((chunk) => {
-    const match = /^(#{1,3})\s+(.+?)\n([\s\S]*)$/.exec(chunk);
-    const title = match ? match[2].trim() : "";
-    const body = (match ? match[3] : chunk).trim();
-    return packParagraphs(body).map((part, partIndex) => ({
-      // Tiêu đề chỉ gắn cho mảnh đầu; các mảnh sau là phần tiếp của cùng mục.
-      title: partIndex === 0 ? title : "",
-      body: part,
-    }));
-  });
-}
-
 function buildSteps(course) {
-  const steps = [];
-
-  for (const chunk of splitTheory(course.theory)) {
-    steps.push({ kind: "read", title: chunk.title, body: chunk.body });
-  }
-
-  (course.labSteps || []).forEach((step, index) => {
-    steps.push({
-      kind: "do",
-      index,
-      title: `Bước ${index + 1}`,
-      body: typeof step === "string" ? step : String(step),
-      code: course.starterCode || "",
-    });
+  if (course.draft) return [];
+  const steps = (course.slides || []).map((slide) => ({ kind: slide.section, ...slide }));
+  (course.quiz || []).forEach((question, index) => {
+    steps.push({ kind: "check", index, title: `Câu ${index + 1}/${course.quiz.length}`, question });
   });
-
-  if (course.commonMistakes?.length) {
-    // Mỗi lỗi là một object {symptom, cause, fix} — `String(...)` trước đây biến
-    // cả trăm bài thành một danh sách "[object Object]". Giữ nguyên ba trường,
-    // vì đúng ba trường đó mới dạy được: thấy gì, vì sao, sửa ra sao.
-    steps.push({
-      kind: "warn",
-      title: "Tránh mấy lỗi này",
-      items: course.commonMistakes.map((item) => (
-        typeof item === "string" ? { symptom: item } : item
-      )),
-    });
-  }
-
-  (course.miniQuiz || []).forEach((question, index) => {
-    // Xáo phương án mỗi lượt học: 93% đáp án trong giáo trình nằm ở vị trí B,
-    // nên không xáo thì bấm B là qua mà chẳng cần đọc.
-    steps.push({ kind: "quiz", index, title: "Kiểm tra hiểu bài", question: shuffleQuizOptions(question) });
-  });
-
-  // Bài kiểm tra cuối chặng: đề và điểm đều ở máy chủ. Tự chấm tại đây thì
-  // `award-learning` từ chối (400) và mọi bài sau kẹt thứ tự (409).
-  if (course.practiceType === "quiz") {
-    steps.push({ kind: "exam", title: "Bài kiểm tra cuối chặng" });
-  }
-
+  if (course.quiz?.length) steps.push({ kind: "result", title: "Kết quả trắc nghiệm" });
   return steps;
 }
 
@@ -141,13 +54,14 @@ function buildSteps(course) {
  * không gradient.
  */
 const KIND = {
-  read: { label: "Đọc hiểu", icon: BookOpen, tone: "#0a84ff" },
-  code: { label: "Chép về máy", icon: ClipboardCopy, tone: "#5856d6" },
-  do: { label: "Thực hành", icon: Wrench, tone: "#12a594" },
-  warn: { label: "Lỗi hay gặp", icon: TriangleAlert, tone: "#f76b15" },
-  quiz: { label: "Kiểm tra", icon: Target, tone: "#8e4ec6" },
-  exam: { label: "Thi cuối chặng", icon: GraduationCap, tone: "#c2410c" },
-  submit: { label: "Nộp bằng chứng", icon: PenLine, tone: "#0a7ea4" },
+  intro: { label: "Giới thiệu", icon: Sparkles, tone: "#0a84ff" },
+  visual: { label: "Minh hoạ", icon: Image, tone: "#30a46c" },
+  research: { label: "Học thuật & nghiên cứu", icon: Library, tone: "#5856d6" },
+  ideate: { label: "Lên ý tưởng", icon: Lightbulb, tone: "#f76b15" },
+  core: { label: "Kiến thức chính", icon: BookOpen, tone: "#0a7ea4" },
+  apply: { label: "Áp dụng vào dự án", icon: Wrench, tone: "#12a594" },
+  check: { label: "Trắc nghiệm", icon: Target, tone: "#8e4ec6" },
+  result: { label: "Kết quả", icon: GraduationCap, tone: "#c2410c" },
 };
 
 /** Ô góp ý — mở từ icon ở góc, gửi thẳng về Telegram của người vận hành. */
@@ -248,9 +162,9 @@ function LessonDone({ course, stepCount, onExit, onNext }) {
 
       <LessonBuddy mood="done" size="lg" seed={stepCount} />
 
-      <h2>Hoàn thành bài học</h2>
+      <h2>Hoàn thành step</h2>
       <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
-      <span className="lesson-done-count">{stepCount} bước đã đi qua</span>
+      <span className="lesson-done-count">{stepCount} slide đã đi qua</span>
 
       <div className="lesson-done-actions">
         <button type="button" className="is-ghost" onClick={onExit}>Trở về bản đồ</button>
@@ -260,285 +174,240 @@ function LessonDone({ course, stepCount, onExit, onNext }) {
   );
 }
 
-/**
- * @param {object[]} [buildSteps] Bước dựng sẵn, dùng cho giáo trình có cấu trúc
- * khác (các học phần Năng suất). Bỏ trống thì tự cắt bước từ bài Web như cũ —
- * một trình học duy nhất cho mọi khoá, thay vì mỗi khoá một giao diện.
- */
-export default function LessonPlayer({ course, steps: givenSteps, onExit, onFinished, onNextLesson, certificateUrl }) {
-  const steps = useMemo(() => {
-    if (givenSteps) return givenSteps;
-    if (!course._officeLesson) return buildSteps(course);
+/** Lời giải từng câu sau khi máy chủ chấm. */
+function QuizReview({ result, onRetry }) {
+  return (
+    <div className="lesson-quiz-result">
+      <p className={`lesson-quiz-score ${result.passed ? "is-pass" : "is-fail"}`}>
+        <b>{result.score}%</b>
+        <span>{result.passed
+          ? `Đạt — đúng ${result.correct}/${result.total} câu.`
+          : `Chưa đạt — cần từ ${result.passPercent}%. Đọc lời giải rồi làm lại.`}</span>
+      </p>
+      <ol className="lesson-quiz-review">
+        {(result.review || []).map((item, index) => (
+          <li key={index} className={item.correct ? "is-right" : "is-wrong"}>
+            <b>{item.correct ? "Đúng" : "Sai"} · Câu {index + 1}</b>
+            {!item.correct && <span>Đáp án: {item.answer}</span>}
+            {item.why && <span>{item.why}</span>}
+          </li>
+        ))}
+      </ol>
+      {!result.passed && (
+        <button type="button" className="lesson-quiz-retry" onClick={onRetry}>
+          <RotateCcw aria-hidden="true" /> Làm lại trắc nghiệm
+        </button>
+      )}
+    </div>
+  );
+}
 
-    // Bài cuối của học phần Năng suất được khai là bài kiểm tra tổng hợp
-    // (`practiceType: "quiz"` + `quizPool` gom câu từ mọi bài). Nhánh này
-    // trước đây rẽ thẳng sang buildOfficeSteps nên bài kiểm tra ấy chưa bao giờ
-    // hiện ra — một tính năng được khai báo mà không chạy.
-    const officeSteps = buildOfficeSteps(course._officeLesson);
-    if (course.practiceType === "quiz" && course.quizPool?.length) {
-      officeSteps.push({ kind: "exam", title: "Bài kiểm tra tổng hợp" });
-    }
-    return officeSteps;
-  }, [course, givenSteps]);
-  const [index, setIndex] = useState(() => Math.min(readStep(course.id), Math.max(0, steps.length - 1)));
+/**
+ * @param {(answers: unknown[]) => Promise<object>} onSubmitQuiz  nộp câu trả lời,
+ *   trả `{ passed, score, correct, total, passPercent, review }` do máy chủ chấm.
+ */
+export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesson }) {
+  const steps = useMemo(() => buildSteps(course), [course]);
+  const firstCheck = steps.findIndex((step) => step.kind === "check");
+  // Câu trả lời không lưu qua lần tải lại, nên quay về giữa bài trắc nghiệm thì
+  // làm lại từ câu đầu — nộp với ô trống chỉ tốn một lượt chấm vô ích.
+  const resumeAt = () => {
+    const saved = Math.min(readStep(course.id), Math.max(0, steps.length - 1));
+    return firstCheck >= 0 && saved > firstCheck ? firstCheck : saved;
+  };
+  const [index, setIndex] = useState(resumeAt);
   const [answers, setAnswers] = useState({});
-  const [checked, setChecked] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [done, setDone] = useState(false);
-  // null = chưa chấm; false = vừa sai. Đúng thì đi tiếp ngay nên không cần giữ.
-  const [lastWrong, setLastWrong] = useState(false);
-  // Trả lời đúng thì dừng một nhịp để Hugo kịp khen rồi mới sang bước sau.
-  const [cheering, setCheering] = useState(false);
-  // Bài nộp của bước "nộp bằng chứng"; xoá khi sang bước khác.
-  const [submission, setSubmission] = useState("");
-  // Dùng lại bộ âm của Arcade thay vì thêm thư viện: nó tổng hợp bằng
-  // Web Audio nên không tải tệp nào, và cả hai chỗ nghe giống nhau là đúng —
-  // cùng một hệ thì cùng một tiếng.
-  const { playWin, playLose, playBeep } = useArcadeSound();
-  // Hẹn giờ đọc hàm mới nhất qua ref, nếu không nó đóng gói mất `index` cũ và
-  // luôn nhảy về cùng một bước.
-  const advanceRef = useRef(() => {});
+  const [result, setResult] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  // Dùng lại bộ âm của Arcade: tổng hợp bằng Web Audio, không tải tệp nào.
+  // Âm thanh tắt được và nhớ lựa chọn trên máy — học ở thư viện, lớp học thì cần im.
+  const sound = useArcadeSound();
+  const [muted, setMuted] = useState(() => {
+    try { return localStorage.getItem(SOUND_KEY) === "off"; } catch { return false; }
+  });
+  const sfx = (name) => { if (!muted) sound[name](); };
+  const toggleSound = () => setMuted((current) => {
+    try { localStorage.setItem(SOUND_KEY, current ? "on" : "off"); } catch { /* chỉ mất lựa chọn */ }
+    return !current;
+  });
 
   useEffect(() => {
-    setIndex(readStep(course.id));
+    setIndex(resumeAt());
     setAnswers({});
-    setChecked(false);
     setDone(false);
-    setLastWrong(false);
-    setCheering(false);
+    setResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ đặt lại khi đổi step
   }, [course.id]);
 
-  // Ghi lại chỗ đang đứng: bước hiện tại, và bài này là bài mở gần nhất (bản đồ
-  // đọc `lastLesson` để đặt con trỏ "đang học").
+  // Ghi lại chỗ đang đứng, và step này là step mở gần nhất (bản đồ đọc `lastLesson`).
   useEffect(() => {
     try {
       localStorage.setItem(STEP_KEY, `${course.id}:${index}`);
       localStorage.setItem(CODER_STORAGE_KEYS.lastLesson, course.id);
     } catch {
-      /* hết quota: chỉ mất chỗ đang đọc, bài học vẫn chạy bình thường */
+      /* hết quota: chỉ mất chỗ đang đọc, step vẫn chạy bình thường */
     }
   }, [course.id, index]);
 
-  useEffect(() => {
-    if (!cheering) return undefined;
-    const timer = setTimeout(() => {
-      setCheering(false);
-      advanceRef.current();
-    }, 850);
-    return () => clearTimeout(timer);
-  }, [cheering]);
+  if (course.draft) {
+    return (
+      <div className="lesson-player">
+        <div className="lesson-done">
+          <LessonBuddy mood="learn" size="lg" seed={1} />
+          <h2>Step này đang được soạn</h2>
+          <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
+          <div className="lesson-done-actions">
+            <button type="button" onClick={onExit}>Trở về bản đồ</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const step = steps[index];
-  const last = index === steps.length - 1;
+  const step = steps[Math.min(index, steps.length - 1)];
+  if (!step) return null;
+  const last = index >= steps.length - 1;
   const percent = steps.length ? Math.round(((index + 1) / steps.length) * 100) : 0;
 
-  if (!step) return null;
-
-  // `silent` khi vừa phát tiếng thắng cho câu trả lời đúng — nếu không thì
-  // một lần bấm kêu hai tiếng, và bước cuối bắn pháo hoa hai lần.
-  const advance = (silent = false) => {
-    if (!silent) playBeep();
-    setChecked(false);
-    setLastWrong(false);
-    setSubmission("");
-    if (!last) {
-      setIndex((current) => current + 1);
-      return;
-    }
-    playWin();
-    confetti({ particleCount: 170, spread: 105, origin: { y: 0.62 }, disableForReducedMotion: true });
-    // Ghi nhận hoàn thành ngay, nhưng KHÔNG rời màn — người học còn phải chọn
-    // trở về hay học tiếp.
-    onFinished?.();
-    setDone(true);
-  };
-
-  const submit = () => {
-    if (step.kind !== "quiz") {
-      advance();
-      return;
-    }
-    // Sai thì hiện đáp án đúng NGAY tại bước đó, không dồn xuống cuối bài —
-    // học viên sửa hiểu lầm lúc còn nhớ câu hỏi.
-    if (isQuizAnswerCorrect(step.question, answers[step.index])) {
-      playWin();
-      confetti({ particleCount: 70, spread: 62, origin: { y: 0.7 }, disableForReducedMotion: true });
-      setCheering(true);
-    } else {
-      playLose();
-      setLastWrong(true);
-      setChecked(true);
-      notify.error("Chưa đúng — đọc lại phần giải thích rồi thử lại.");
+  const submitQuiz = async () => {
+    setSubmitting(true);
+    try {
+      const ordered = course.quiz.map((_, i) => answers[i]);
+      const graded = await onSubmitQuiz(ordered);
+      setResult(graded);
+      if (graded.passed) {
+        sfx("playWin");
+        confetti({ particleCount: 170, spread: 105, origin: { y: 0.62 }, disableForReducedMotion: true });
+      } else {
+        sfx("playLose");
+      }
+    } catch (error) {
+      notify.error(error.message || "Chưa nộp được bài, hãy thử lại.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  advanceRef.current = () => advance(true);
+  const next = () => {
+    sfx("playBeep");
+    if (step.kind === "result") {
+      if (result?.passed) setDone(true);
+      else if (!result) submitQuiz();
+      return;
+    }
+    // Câu trắc nghiệm cuối cùng: sang màn kết quả là nộp luôn.
+    if (steps[index + 1]?.kind === "result") {
+      setIndex(index + 1);
+      submitQuiz();
+      return;
+    }
+    if (!last) setIndex(index + 1);
+  };
 
-  const answered = step.kind === "submit"
-    ? isPracticeDone(step, submission)
-    : step.kind !== "quiz" || answers[step.index] !== undefined;
-  const kind = KIND[step.kind] || KIND.read;
+  const retry = () => {
+    setAnswers({});
+    setResult(null);
+    setIndex(firstCheck);
+  };
+
+  const ready = step.kind === "check"
+    ? answers[step.index] !== undefined
+    : step.kind === "result" ? !submitting && (result?.passed || !result) : true;
+  const kind = KIND[step.kind] || KIND.core;
   const KindIcon = kind.icon;
-  // Hugo nói theo việc đang làm: sai thì động viên, còn lại thì nhắc đúng
-  // kiểu bước — đọc thì nhắc đọc kỹ, thực hành thì nhắc mở máy gõ.
-  const STEP_MOOD = { do: "practice", exam: "exam" };
-  const buddyMood = cheering
-    ? "correct"
-    : lastWrong ? "wrong" : (STEP_MOOD[step.kind] || "learn");
+  const STEP_MOOD = { apply: "practice", check: "exam", result: result?.passed ? "correct" : result ? "wrong" : "exam" };
 
   if (done) {
     return (
       <div className="lesson-player">
-        <LessonDone
-          course={course}
-          stepCount={steps.length}
-          onExit={onExit}
-          onNext={onNextLesson}
-        />
+        <LessonDone course={course} stepCount={steps.length} onExit={onExit} onNext={onNextLesson} />
       </div>
     );
   }
 
   return (
-    <div className="lesson-player">
+    <div className={`lesson-player is-${step.kind}`} style={{ "--step-tone": kind.tone }}>
       <header className="lesson-player-top">
-        <button type="button" onClick={onExit} aria-label="Thoát bài học">
+        <button type="button" onClick={onExit} aria-label="Thoát step">
           <X aria-hidden="true" />
         </button>
         <span className="lesson-player-track" aria-label={`${percent}%`}>
           <i style={{ width: `${percent}%` }} />
         </span>
         <span className="lesson-player-count">{index + 1}/{steps.length}</span>
-        {/* Góp ý ở góc mọi bước: người học nói đúng lúc họ vấp, không phải đợi
-            hết bài rồi mới nhớ ra chỗ nào khó hiểu. */}
-        <button
-          type="button"
-          className="lesson-player-flag"
-          onClick={() => setFeedbackOpen(true)}
-          aria-label="Góp ý cho bước này"
-        >
+        <button type="button" className="lesson-player-sound" onClick={toggleSound} aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"} aria-pressed={!muted}>
+          {muted ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
+        </button>
+        {/* Góp ý ở góc mọi slide: người học nói đúng lúc họ vấp. */}
+        <button type="button" className="lesson-player-flag" onClick={() => setFeedbackOpen(true)} aria-label="Góp ý cho slide này">
           <MessageSquareWarning aria-hidden="true" />
         </button>
       </header>
 
-      {/* Vùng nội dung KHÔNG cuộn: mỗi bước phải vừa một màn. */}
-      <main
-        key={index}
-        className={`lesson-player-body is-${step.kind}${lastWrong ? " is-wrong" : ""}`}
-        style={{ "--step-tone": kind.tone }}
-      >
+      <main key={index} className={`lesson-player-body is-${step.kind}`} style={{ "--step-tone": kind.tone }}>
         <div className="lesson-player-head">
-          <span className="lesson-player-badge" aria-hidden="true">
-            <KindIcon />
-          </span>
+          <span className="lesson-player-badge" aria-hidden="true"><KindIcon /></span>
           <span className="lesson-player-kind">{kind.label}</span>
           {step.title && <h2 className="lesson-player-title">{step.title}</h2>}
         </div>
 
         <div className="lesson-player-content">
-          {step.kind === "read" && (
+          {step.visual && <CodingVisual name={step.visual} label={step.title} />}
+
+          {/* Ảnh chụp màn hình thật cho các slide dạy thao tác (phpMyAdmin, hosting…). */}
+          {step.image && (
+            <figure className="coding-shot">
+              <img src={step.image.src} alt={step.image.alt} loading="lazy" decoding="async" />
+              {step.image.caption && <figcaption>{step.image.caption}</figcaption>}
+            </figure>
+          )}
+
+          {step.body && (
             <div className="lesson-player-prose">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{step.body}</ReactMarkdown>
             </div>
           )}
 
-          {step.kind === "do" && (
-            <>
-              <p className="lesson-player-do">{step.body}</p>
-              {step.checkpoint && (
-                <p className="lesson-player-checkpoint">
-                  <Check aria-hidden="true" />
-                  {step.checkpoint}
-                </p>
-              )}
-              {step.code && <CodeCard code={step.code} file={course.file} />}
-            </>
-          )}
+          {step.code && <CodeCard code={step.code.content} file={step.code.file} />}
 
-          {step.kind === "warn" && (
-            <ul className="lesson-player-warn">
-              {step.items.map((item) => (
-                <li key={item.symptom}>
-                  <b>{item.symptom}</b>
-                  {item.cause && <span className="warn-cause">{item.cause}</span>}
-                  {item.fix && <span className="warn-fix">{item.fix}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {step.kind === "quiz" && (
+          {step.kind === "check" && (
             <QuizQuestion
               question={step.question}
               index={step.index}
               value={answers[step.index]}
               onChange={(answer) => {
-                setChecked(false);
+                sfx("playMove");
                 setAnswers((current) => ({ ...current, [step.index]: answer }));
               }}
-              reviewed={checked}
+              reviewed={false}
             />
           )}
 
-          {/* Máy chủ chỉ ra đề và chấm 5 bài thi của khoá Web. Bài kiểm tra của
-              học phần Năng suất chấm tại chỗ từ quizPool đã gom sẵn. */}
-          {step.kind === "exam" && (
-            <LessonExam
-              course={course}
-              serverGraded={!course._officeLesson}
-              onPassed={() => advance(true)}
-              certificateUrl={certificateUrl}
-            />
-          )}
-
-          {step.kind === "submit" && (
-            <>
-              <p className="lesson-player-do">{step.body}</p>
-              <textarea
-                className="lesson-player-submit"
-                rows={5}
-                value={submission}
-                onChange={(event) => setSubmission(event.target.value)}
-                placeholder={step.placeholder}
-              />
-              {/* Thanh bằng chứng: người học thấy còn thiếu ý nào, thay vì bị
-                  chặn bởi một nút mờ không nói lý do. */}
-              <ul className="lesson-player-evidence">
-                {practiceEvidence(step, submission).map((item) => (
-                  <li key={item.keyword} className={item.matched ? "is-matched" : ""}>
-                    {item.matched && <Check aria-hidden="true" />}
-                    {item.label}
-                  </li>
-                ))}
-              </ul>
-            </>
+          {step.kind === "result" && (
+            result
+              ? <QuizReview result={result} onRetry={retry} />
+              : <p className="lesson-player-lead">{submitting ? "Máy chủ đang chấm bài…" : "Chưa nộp được bài."}</p>
           )}
         </div>
 
-        <LessonBuddy
-          mood={buddyMood}
-          seed={index}
-        />
+        <LessonBuddy mood={STEP_MOOD[step.kind] || "learn"} seed={index} />
       </main>
 
-      {/* Bước thi tự có nút nộp và nút nhận đề mới — thêm "Tiếp tục" ở đây thì
-          người học bấm qua được bài thi mà không nộp. */}
-      {step.kind !== "exam" && (
+      {!(step.kind === "result" && result && !result.passed) && (
         <footer className="lesson-player-foot">
-          <button type="button" onClick={submit} disabled={!answered || cheering}>
-            {step.kind === "quiz" ? "Kiểm tra" : last ? "Hoàn thành bài" : "Tiếp tục"}
-            {step.kind === "quiz" ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
+          <button type="button" onClick={next} disabled={!ready}>
+            {step.kind === "result"
+              ? (result?.passed ? "Hoàn thành step" : "Nộp lại")
+              : steps[index + 1]?.kind === "result" ? "Nộp bài" : step.kind === "check" ? "Câu tiếp" : "Tiếp tục"}
+            {step.kind === "check" ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
           </button>
         </footer>
       )}
 
       {feedbackOpen && (
-        <FeedbackSheet
-          course={course}
-          step={step}
-          stepIndex={index}
-          onClose={() => setFeedbackOpen(false)}
-        />
+        <FeedbackSheet course={course} step={step} stepIndex={index} onClose={() => setFeedbackOpen(false)} />
       )}
     </div>
   );

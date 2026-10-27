@@ -82,17 +82,19 @@ const SCENES = {
     </>
   ),
 
-  // Học Cùng Hugo — mũ tốt nghiệp
+  // Coding — cửa sổ mã mang ký hiệu </>
   study: (f) => (
     <>
-      <ellipse cx="24" cy="37.5" rx="12" ry="2.6" fill="#000" opacity="0.16" />
-      <path d="M16 22v7.5c0 3.2 3.6 5.3 8 5.3s8-2.1 8-5.3V22Z" fill={f} />
-      <path d="M16 22v7.5c0 1.7 1 3.1 2.6 4V22Z" fill="#000" opacity="0.13" />
-      <path d="m24 12 16 6.6-16 6.6-16-6.6Z" fill="#000" opacity="0.2" transform="translate(0 1.6)" />
-      <path d="m24 12 16 6.6-16 6.6-16-6.6Z" fill={f} />
-      <path d="m24 12 16 6.6-16 6.6Z" fill="#000" opacity="0.1" />
-      <path d="M38 20v9" stroke="#fbbf24" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="38" cy="30.4" r="2.4" fill="#fbbf24" />
+      <ellipse cx="24" cy="38.5" rx="13" ry="2.4" fill="#000" opacity="0.16" />
+      <Slab x={8} y={11} w={32} h={25} r={4} fill={f} />
+      <circle cx="12.5" cy="15.5" r="1.3" fill="#f87171" />
+      <circle cx="16.5" cy="15.5" r="1.3" fill="#fbbf24" />
+      <circle cx="20.5" cy="15.5" r="1.3" fill="#34d399" />
+      <g fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m18.5 22.5-4.5 4.5 4.5 4.5" />
+        <path d="m29.5 22.5 4.5 4.5-4.5 4.5" />
+        <path d="m26 21.5-4 11" />
+      </g>
     </>
   ),
 

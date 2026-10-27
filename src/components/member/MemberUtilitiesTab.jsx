@@ -177,7 +177,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Hugo Team — Recruitment */}
       {selectedUtility === "team" && (
-        <HugoTeamTab onBack={() => onSelectUtility(null)} />
+        <HugoTeamTab onBack={() => onSelectUtility(null)} bio={bio} onBioUpdate={onBioUpdate} />
       )}
 
       {/* HugoArcade */}

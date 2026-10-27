@@ -17,6 +17,8 @@ import { SECURITY_BLOCK_STORAGE_KEY } from "../../../components/SecurityBlockScr
 let cachedTargets = null;
 
 // Route trong danh sách này phải đặt `s-maxage` và KHÔNG được đổi theo người đọc.
+// Mục kết thúc bằng `$` chỉ khớp đúng đường dẫn: danh mục coder-lessons dùng
+// chung, còn chi tiết bài trả phí phải mang token để máy chủ kiểm quyền.
 const SHARED_CACHE_PATHS = [
   "/api/today/feed",
   "/api/arcade/leaderboard",
@@ -24,8 +26,12 @@ const SHARED_CACHE_PATHS = [
   "/api/chess/leaderboard",
   "/api/presence/status-by-slug",
   "/api/legal-docs",
-  "/api/coder-lessons",
+  "/api/coder-lessons$",
 ];
+
+const isSharedCachePath = (pathname = "") => SHARED_CACHE_PATHS.some((p) => (
+  p.endsWith("$") ? pathname === p.slice(0, -1) : pathname.startsWith(p)
+));
 
 const apiTargets = () => {
   if (cachedTargets) return cachedTargets;
@@ -166,7 +172,7 @@ export function installApiAuthInterceptor() {
     // Dữ liệu giống nhau cho mọi người: gửi KHÔNG cookie, KHÔNG token. Request
     // mang Authorization thì CDN bỏ qua cache và cachePolicy ép no-store — một
     // triệu thành viên đăng nhập là một triệu lượt chạm thẳng vào Node.
-    if (method === "GET" && SHARED_CACHE_PATHS.some((p) => parseRequestUrl(url)?.pathname.startsWith(p))) {
+    if (method === "GET" && isSharedCachePath(parseRequestUrl(url)?.pathname)) {
       return originalFetch(input, { ...requestInit, credentials: "omit" });
     }
     const shouldTrack = !url.includes("/api/ops/client-event");

@@ -1,20 +1,18 @@
-export const CODER_STAGE_SEQUENCE = Object.freeze([
-  Object.freeze({ id: "basic", from: 1, to: 10 }),
-  Object.freeze({ id: "intermediate", from: 11, to: 25 }),
-  Object.freeze({ id: "advanced", from: 26, to: 50 }),
-  Object.freeze({ id: "security", from: 51, to: 70 }),
-  Object.freeze({ id: "project", from: 71, to: 90 }),
-  Object.freeze({ id: "devops", from: 91, to: 100 }),
-]);
+import { STAGES } from "../src/components/member/hugoCoder/lessons/stages.js";
 
-const lessonIdFor = (number) => `lesson${number}`;
+// Ranh giới chặng (đánh số step từ 1) suy từ đề cương khoá Coding.
+export const CODER_STAGE_SEQUENCE = Object.freeze(
+  STAGES.map(({ id, from, to }) => Object.freeze({ id, from: from + 1, to })),
+);
+
+const lessonIdFor = (number) => `step${number}`;
 
 export function getCoderStage(stageId) {
   return CODER_STAGE_SEQUENCE.find((stage) => stage.id === stageId) || null;
 }
 
 export function getCoderStageForLesson(lessonId) {
-  const match = /^lesson(\d{1,3})$/.exec(String(lessonId || ""));
+  const match = /^step(\d{1,3})$/.exec(String(lessonId || ""));
   if (!match) return null;
   const lessonNumber = Number(match[1]);
   return CODER_STAGE_SEQUENCE.find(
@@ -66,7 +64,7 @@ export function getCoderLessonGate(completedLessons, lessonId) {
   const stage = getCoderStageForLesson(lessonId);
   if (!stage) return { unlocked: false, code: "INVALID_LESSON", missingLessons: [] };
 
-  const lessonNumber = Number(String(lessonId).replace("lesson", ""));
+  const lessonNumber = Number(String(lessonId).replace("step", ""));
   const completed = new Set(Array.isArray(completedLessons) ? completedLessons : []);
   const missingLessons = Array.from(
     { length: Math.max(0, lessonNumber - 1) },

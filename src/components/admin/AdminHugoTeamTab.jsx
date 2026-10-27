@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { Check, X, FileText, Mail, Calendar } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
+import "../../styles/adminHugoTeam.css";
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "—");
 
@@ -28,155 +29,7 @@ function Chip({ meta }) {
 }
 
 export default function AdminHugoTeamTab() {
-  const [view, setView] = useState("team"); // team | applicants
-  const [applicants, setApplicants] = useState([]);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/hugoteam/admin/applicants`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : { applicants: [] }))
-      .then((d) => setApplicants(d.applicants || []))
-      .catch(() => {});
-  }, []);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-2xl font-bold text-foreground">Hugo Team</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setView("team")}
-            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-              view === "team" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}
-          >
-            Quản lý team
-          </button>
-          <button
-            onClick={() => setView("applicants")}
-            className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-              view === "applicants" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}
-          >
-            Đơn đăng ký
-            {applicants.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-black flex items-center justify-center">
-                {applicants.length}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {view === "applicants" ? (
-        <ApplicantsView applicants={applicants} setApplicants={setApplicants} />
-      ) : (
-        <TeamView />
-      )}
-    </div>
-  );
-}
-
-/* ───────────────────────── Đơn đăng ký (giữ nguyên luồng cũ) ───────────────────────── */
-
-function ApplicantsView({ applicants, setApplicants }) {
-  const [selectedCv, setSelectedCv] = useState(null);
-
-  const decide = async (action, email, name) => {
-    if (action === "reject") {
-      const ok = await notify.confirm({ title: `Từ chối ${name}?`, danger: true });
-      if (!ok) return;
-    }
-    try {
-      const res = await fetch(`${API_BASE}/hugoteam/admin/${action}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) throw new Error();
-      notify.success(action === "approve" ? `${name} đã được phê duyệt!` : `Đã từ chối ${name}`);
-      setApplicants((list) => list.filter((a) => a.email !== email));
-      setSelectedCv(null);
-    } catch {
-      notify.error("Thao tác thất bại");
-    }
-  };
-
-  if (applicants.length === 0) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-12 text-center">
-        <p className="text-muted-foreground">Không có đơn đăng ký nào chờ duyệt</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-3">
-        {applicants.map((app) => (
-          <div
-            key={app.email}
-            onClick={() => setSelectedCv(app)}
-            className={`rounded-xl border p-4 cursor-pointer transition-all ${
-              selectedCv?.email === app.email
-                ? "border-primary bg-primary/10"
-                : "border-border bg-card hover:border-primary/50"
-            }`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground">{app.name}</h3>
-                <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                  <p className="flex items-center gap-2"><Mail className="w-4 h-4" />{app.email}</p>
-                  {app.school && <p>{app.school}</p>}
-                  <p className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {fmtDate(app.createdAt)}
-                  </p>
-                </div>
-              </div>
-              <FileText className="w-5 h-5 text-accent flex-shrink-0" />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedCv && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-4 self-start">
-          <h3 className="font-bold text-foreground">Xem Xét Đơn</h3>
-          <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-sm font-semibold text-foreground">{selectedCv.name}</p>
-            <p className="text-xs text-muted-foreground mt-1">{selectedCv.email}</p>
-          </div>
-          <a
-            href={selectedCv.cvPath}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-semibold text-foreground hover:bg-muted transition-all"
-          >
-            <FileText className="w-4 h-4" />
-            Xem CV (PDF)
-          </a>
-          <div className="space-y-2 border-t border-border pt-4">
-            <button
-              onClick={() => decide("approve", selectedCv.email, selectedCv.name)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-success/20 text-success font-bold rounded-lg hover:bg-success/30 transition-all"
-            >
-              <Check className="w-4 h-4" />
-              Phê Duyệt
-            </button>
-            <button
-              onClick={() => decide("reject", selectedCv.email, selectedCv.name)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/20 text-destructive font-bold rounded-lg hover:bg-destructive/30 transition-all"
-            >
-              <X className="w-4 h-4" />
-              Từ Chối
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <TeamView />;
 }
 
 /* ───────────────────────── Quản lý team ───────────────────────── */
@@ -186,6 +39,13 @@ function TeamView() {
   const [selected, setSelected] = useState(null); // email
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [section, setSection] = useState("overview");
+  const [query, setQuery] = useState("");
+  const [stage, setStage] = useState("all");
+  const [mentorForm, setMentorForm] = useState({ name: "", email: "" });
+  const [showMentorForm, setShowMentorForm] = useState(false);
+  const [teamSelection, setTeamSelection] = useState([]);
+  const [teamId, setTeamId] = useState("");
 
   const loadDevs = useCallback(async () => {
     try {
@@ -203,6 +63,7 @@ function TeamView() {
     try {
       const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(email)}`, { credentials: "include" });
       if (res.ok) setDetail((await res.json()).dev);
+      else setDetail(null);
     } catch {
       notify.error("Lỗi tải chi tiết dev");
     }
@@ -213,63 +74,117 @@ function TeamView() {
 
   const refresh = () => { loadDevs(); if (selected) loadDetail(selected); };
 
-  if (loading) return <div className="text-center py-12 text-muted-foreground">Đang tải...</div>;
+  const addMentor = async () => {
+    if (!mentorForm.name.trim() || !mentorForm.email.trim()) return notify.error("Nhập tên và email Mentor");
+    const res = await fetch(`${API_BASE}/hugoteam/admin/mentors`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(mentorForm) });
+    const data = await res.json();
+    if (!res.ok) return notify.error(data.error || "Không thể thêm Mentor");
+    notify.success("Đã thêm tài khoản Mentor"); setMentorForm({ name: "", email: "" }); setShowMentorForm(false); refresh();
+  };
+  const adminAction = async (path, body = {}) => {
+    const res = await fetch(`${API_BASE}/hugoteam/admin/${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Thao tác thất bại");
+    notify.success("Đã cập nhật HugoTeam"); refresh();
+  };
 
-  if (devs.length === 0) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-12 text-center">
-        <p className="text-muted-foreground">Chưa có dev nào được phê duyệt</p>
-      </div>
-    );
-  }
+  const toggleTeamMember = (email) => setTeamSelection((current) => current.includes(email)
+    ? current.filter((item) => item !== email)
+    : current.length < 10 ? [...current, email] : current);
+
+  const assignTeam = async () => {
+    if (!teamSelection.length) return notify.error("Chọn ít nhất một thành viên đủ điều kiện");
+    try {
+      await adminAction("teams/assign", { emails: teamSelection, teamId: teamId.trim() || undefined });
+      setTeamSelection([]);
+      setTeamId("");
+    } catch (error) { notify.error(error.message); }
+  };
+
+  const mentors = devs.filter((dev) => dev.role === "mentor");
+  const teams = Object.entries(devs.reduce((result, dev) => {
+    if (dev.teamId) (result[dev.teamId] ||= []).push(dev);
+    return result;
+  }, {}));
+  const needsAttention = devs.filter((dev) => dev.submittedTasks || dev.pendingLogs || dev.unreadMessages);
+  const eligibleForTeam = devs.filter((dev) => dev.assessmentStage === "mentor" && dev.mentorEndsAt && new Date(dev.mentorEndsAt) <= new Date());
+  const filtered = devs.filter((dev) => {
+    const matchesQuery = `${dev.name} ${dev.email} ${dev.teamId}`.toLowerCase().includes(query.trim().toLowerCase());
+    return matchesQuery && (stage === "all" || dev.assessmentStage === stage || dev.status === stage);
+  });
+  const pipeline = [
+    ["Đánh giá", devs.filter((dev) => ["none", "in_progress", "passed"].includes(dev.assessmentStage)).length, "psychology"],
+    ["Coding", devs.filter((dev) => dev.assessmentStage === "coding").length, "code"],
+    ["Mentor", devs.filter((dev) => dev.assessmentStage === "mentor").length, "supervisor_account"],
+    ["Team", devs.filter((dev) => dev.assessmentStage === "team").length, "groups"],
+    ["Chính thức", devs.filter((dev) => dev.assessmentStage === "official").length, "verified"],
+  ];
+
+  if (loading) return <div className="ht-admin-loading"><span className="material-symbols-outlined animate-spin">progress_activity</span><p>Đang tải trung tâm điều hành HugoTeam…</p></div>;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-      {/* Danh sách dev + stats */}
-      <div className="space-y-3">
-        {devs.map((d) => (
-          <div
-            key={d.email}
-            onClick={() => setSelected(d.email)}
-            className={`rounded-xl border p-4 cursor-pointer transition-all space-y-2 ${
-              selected === d.email ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50"
-            }`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-bold text-foreground text-sm">{d.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{d.email}</p>
-              </div>
-              {(d.unreadMessages > 0 || d.submittedTasks > 0 || d.pendingLogs > 0) && (
-                <span className="h-2.5 w-2.5 rounded-full bg-destructive flex-shrink-0 mt-1" />
-              )}
-            </div>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-              <span className="font-semibold text-foreground">{d.approvedHours}h duyệt</span>
-              {d.pendingHours > 0 && <span>{d.pendingHours}h chờ</span>}
-              <span>{d.openTasks} task mở</span>
-              {d.submittedTasks > 0 && <span className="text-primary font-semibold">{d.submittedTasks} chờ nghiệm thu</span>}
-              {d.unreadMessages > 0 && <span className="text-destructive font-semibold">{d.unreadMessages} tin mới</span>}
-            </div>
-            {/* Tiến độ 500h */}
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (d.approvedHours / 500) * 100)}%` }} />
-            </div>
-          </div>
-        ))}
+    <div className="ht-admin">
+      <header className="ht-admin-hero">
+        <div>
+          <p className="ht-admin-kicker">HugoTeam Control Center</p>
+          <h2>Điều hành toàn bộ hành trình thành viên.</h2>
+          <p>Một nơi để theo dõi đánh giá, Coding, Mentor, team, nhiệm vụ và mọi trạng thái cần xử lý.</p>
+        </div>
+        <button type="button" onClick={refresh} className="ht-admin-refresh"><span className="material-symbols-outlined">refresh</span>Làm mới</button>
+      </header>
+
+      <div className="ht-admin-metrics">
+        <div><span>Tổng hồ sơ</span><strong>{devs.length}</strong></div>
+        <div><span>Mentor</span><strong>{mentors.length}</strong></div>
+        <div><span>Team hoạt động</span><strong>{teams.length}</strong></div>
+        <div className={needsAttention.length ? "is-alert" : ""}><span>Cần xử lý</span><strong>{needsAttention.length}</strong></div>
       </div>
 
-      {/* Chi tiết dev */}
-      <div className="lg:col-span-2">
-        {!detail ? (
-          <div className="rounded-2xl border border-border bg-card p-12 text-center">
-            <p className="text-muted-foreground">Chọn một dev để quản lý task, giờ và trao đổi</p>
-          </div>
-        ) : (
-          <DevDetail dev={detail} refresh={refresh} />
-        )}
+      <nav className="ht-admin-nav" aria-label="Khu vực quản trị HugoTeam">
+        {[["overview", "Tổng quan", "dashboard"], ["members", "Thành viên", "group"], ["mentors", "Mentor", "supervisor_account"], ["teams", "Phân bổ team", "account_tree"]].map(([id, label, icon]) => (
+          <button type="button" key={id} onClick={() => setSection(id)} className={section === id ? "is-active" : ""}><span className="material-symbols-outlined">{icon}</span>{label}</button>
+        ))}
+      </nav>
+
+      {devs.length === 0 ? (
+        <div className="ht-admin-empty"><span className="material-symbols-outlined">group_off</span><h3>Chưa có hồ sơ HugoTeam</h3><p>Hồ sơ sẽ xuất hiện tại đây ngay khi thành viên bắt đầu bài đánh giá.</p></div>
+      ) : section === "overview" ? (
+        <div className="ht-admin-overview">
+          <section className="ht-admin-panel ht-admin-panel-wide">
+            <div className="ht-admin-panel-head"><div><p>Pipeline</p><h3>Tiến độ toàn hệ thống</h3></div><button type="button" onClick={() => setSection("members")}>Xem thành viên</button></div>
+            <div className="ht-admin-pipeline">{pipeline.map(([label, count, icon]) => <div key={label}><span className="material-symbols-outlined">{icon}</span><strong>{count}</strong><p>{label}</p></div>)}</div>
+          </section>
+          <section className="ht-admin-panel">
+            <div className="ht-admin-panel-head"><div><p>Hàng đợi</p><h3>Cần admin xử lý</h3></div><span>{needsAttention.length}</span></div>
+            <div className="ht-admin-queue">{needsAttention.slice(0, 6).map((dev) => <button type="button" key={dev.email} onClick={() => { setSelected(dev.email); setSection("members"); }}><span>{dev.name}</span><small>{dev.submittedTasks ? `${dev.submittedTasks} task` : ""}{dev.pendingLogs ? ` · ${dev.pendingLogs} giờ` : ""}{dev.unreadMessages ? ` · ${dev.unreadMessages} tin` : ""}</small></button>)}{!needsAttention.length && <p>Không có việc tồn đọng.</p>}</div>
+          </section>
+          <section className="ht-admin-panel">
+            <div className="ht-admin-panel-head"><div><p>Tự động hóa</p><h3>Phân bổ nhanh</h3></div></div>
+            <div className="ht-admin-actions"><button type="button" onClick={() => adminAction("assign-next-mentor").catch((error) => notify.error(error.message))}><span className="material-symbols-outlined">person_add</span><b>Phân Mentor kế tiếp</b><small>Ưu tiên Mentor còn ít mentee nhất</small></button><button type="button" onClick={() => adminAction("auto-build-teams").catch((error) => notify.error(error.message))}><span className="material-symbols-outlined">hub</span><b>Tự xây team</b><small>Tối đa 10 thành viên mỗi team</small></button></div>
+          </section>
+        </div>
+      ) : section === "members" ? (
+        <div className="ht-admin-members">
+          <aside className="ht-admin-roster">
+            <div className="ht-admin-filters"><label><span className="material-symbols-outlined">search</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên, email hoặc team" /></label><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="all">Mọi giai đoạn</option><option value="none">Chưa đánh giá</option><option value="coding">Coding</option><option value="mentor">Mentor</option><option value="team">Team</option><option value="official">Chính thức</option><option value="rejected">Đình chỉ</option></select></div>
+            <div className="ht-admin-roster-list">{filtered.map((dev) => <button type="button" key={dev.email} onClick={() => setSelected(dev.email)} className={selected === dev.email ? "is-active" : ""}><span className="ht-admin-avatar">{dev.name?.[0]?.toUpperCase() || "?"}</span><span className="min-w-0"><b>{dev.name}</b><small>{dev.email}</small><em>{dev.assessmentStage || dev.status}{dev.teamId ? ` · ${dev.teamId}` : ""}</em></span>{(dev.unreadMessages || dev.submittedTasks || dev.pendingLogs) ? <i /> : null}</button>)}{!filtered.length && <p className="ht-admin-no-result">Không có hồ sơ phù hợp.</p>}</div>
+          </aside>
+          <main>{detail ? <DevDetail dev={detail} refresh={refresh} /> : <div className="ht-admin-empty"><span className="material-symbols-outlined">person_search</span><h3>Chọn một thành viên</h3><p>Chi tiết hồ sơ, quyền, nhiệm vụ, giờ công và trao đổi sẽ hiển thị tại đây.</p></div>}</main>
+        </div>
+      ) : section === "mentors" ? (
+        <div className="space-y-4">
+          <div className="ht-admin-toolbar"><div><h3>Đội ngũ Mentor</h3><p>Mỗi Mentor hỗ trợ tối đa 100 thành viên trong một chu kỳ.</p></div><button type="button" onClick={() => setShowMentorForm((value) => !value)}><span className="material-symbols-outlined">person_add</span>Thêm Mentor</button></div>
+          {showMentorForm && <div className="ht-admin-inline-form"><input value={mentorForm.name} onChange={(event) => setMentorForm({ ...mentorForm, name: event.target.value })} placeholder="Tên Mentor" /><input value={mentorForm.email} onChange={(event) => setMentorForm({ ...mentorForm, email: event.target.value })} placeholder="Email Mentor" type="email" /><button type="button" onClick={addMentor}>Tạo tài khoản</button></div>}
+          <div className="ht-admin-card-grid">{mentors.map((mentor) => { const load = devs.filter((dev) => dev.mentor?.email === mentor.email && dev.mentorEndsAt && new Date(dev.mentorEndsAt) > new Date()).length; return <button type="button" key={mentor.email} className="ht-admin-person-card" onClick={() => { setSelected(mentor.email); setSection("members"); }}><span className="ht-admin-avatar">{mentor.name?.[0]?.toUpperCase() || "M"}</span><div><h4>{mentor.name}</h4><p>{mentor.email}</p><div><span style={{ width: `${load}%` }} /></div><small>{load}/100 mentee đang đồng hành</small></div></button>; })}{!mentors.length && <div className="ht-admin-empty"><h3>Chưa có Mentor</h3><p>Thêm tài khoản Mentor để bắt đầu phân công.</p></div>}</div>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <div className="ht-admin-toolbar"><div><h3>Phân bổ team</h3><p>Chỉ thành viên đã hoàn tất 30 ngày Mentor mới xuất hiện trong danh sách chờ.</p></div><button type="button" onClick={() => adminAction("auto-build-teams").catch((error) => notify.error(error.message))}><span className="material-symbols-outlined">auto_awesome</span>Tự động xây team</button></div>
+          <section className="ht-admin-allocation"><div><h4>Danh sách đủ điều kiện</h4><p>Chọn tối đa 10 thành viên.</p><div className="ht-admin-checklist">{eligibleForTeam.map((dev) => <label key={dev.email}><input type="checkbox" checked={teamSelection.includes(dev.email)} onChange={() => toggleTeamMember(dev.email)} /><span>{dev.name}<small>{dev.contributionScore}/100 đóng góp</small></span></label>)}{!eligibleForTeam.length && <p>Chưa có thành viên đủ điều kiện phân team.</p>}</div></div><div><h4>Tạo team thủ công</h4><p>{teamSelection.length}/10 thành viên đã chọn</p><input value={teamId} onChange={(event) => setTeamId(event.target.value)} placeholder="Tên team (để trống sẽ tự sinh)" /><button type="button" onClick={assignTeam} disabled={!teamSelection.length}>Phân vào team</button></div></section>
+          <div className="ht-admin-card-grid">{teams.map(([id, members]) => <article key={id} className="ht-admin-team-card"><div><span className="material-symbols-outlined">groups</span><small>{members.length}/10</small></div><h4>{id}</h4><p>{members.map((member) => member.name).join(" · ")}</p><button type="button" onClick={() => { setQuery(id); setSection("members"); }}>Quản lý thành viên</button></article>)}</div>
+        </div>
+      )}
       </div>
-    </div>
   );
 }
 
@@ -363,24 +278,98 @@ Hugo Studio — HugoTeam`,
 
 function DevDetail({ dev, refresh }) {
   const [tab, setTab] = useState("tasks");
+  const [mentorEmail, setMentorEmail] = useState(dev.mentor?.email || "");
+  const [mentorName, setMentorName] = useState(dev.mentor?.name || "");
+
+  useEffect(() => {
+    setMentorEmail(dev.mentor?.email || "");
+    setMentorName(dev.mentor?.name || "");
+  }, [dev.email, dev.mentor?.email, dev.mentor?.name]);
 
   const pendingLogs = dev.hourLogs.filter((l) => l.status === "pending").length;
   const unread = dev.messages.filter((m) => m.from === "dev" && !m.readByAdmin).length;
+  const scores = dev.latestAssessment;
+
+  const update = async (body) => {
+    const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) return notify.error(data.error || "Cập nhật thất bại");
+    notify.success("Đã cập nhật hồ sơ"); refresh();
+  };
+
+  const postAction = async (suffix, success, confirmation) => {
+    if (confirmation && !(await notify.confirm(confirmation))) return;
+    try {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/${suffix}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mentorEmail, mentorName }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Thao tác thất bại");
+      notify.success(success);
+      refresh();
+    } catch (error) {
+      notify.error(error.message);
+    }
+  };
+
+  const removeTeam = async () => {
+    const ok = await notify.confirm({ title: `Xoá ${dev.name} khỏi team?`, message: "Hồ sơ HugoTeam vẫn được giữ lại, chỉ xoá phân công team hiện tại.", danger: true });
+    if (!ok) return;
+    const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/remove-team`, { method: "POST", credentials: "include" });
+    if (res.ok) { notify.success("Đã xoá khỏi team"); refresh(); } else notify.error("Không thể xoá khỏi team");
+  };
+  const deleteAccount = async () => {
+    const ok = await notify.confirm({ title: `Xoá vĩnh viễn ${dev.name}?`, message: "Toàn bộ hồ sơ, task, giờ và tin nhắn HugoTeam sẽ bị xoá. Không có bồi hoàn tự động.", danger: true });
+    if (!ok) return;
+    const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}`, { method: "DELETE", credentials: "include" });
+    if (res.ok) { notify.success("Đã xoá tài khoản HugoTeam"); refresh(); } else notify.error("Không thể xoá tài khoản");
+  };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
+    <div className="ht-admin-profile">
+      <div className="ht-admin-profile-head">
         <div>
-          <h3 className="font-bold text-foreground text-lg">{dev.name}</h3>
-          <p className="text-xs text-muted-foreground">{dev.email}{dev.school ? ` · ${dev.school}` : ""} · tham gia {fmtDate(dev.approvedAt)}</p>
+          <p>Hồ sơ thành viên</p>
+          <h3>{dev.name}</h3>
+          <span>{dev.email}{dev.school ? ` · ${dev.school}` : ""} · tham gia {fmtDate(dev.approvedAt)}</span>
         </div>
-        <div className="text-right">
-          <p className="text-xl font-black text-primary leading-none">{dev.approvedHours}h</p>
-          <p className="text-[10px] text-muted-foreground">/{500}h tri ân{dev.pendingHours > 0 ? ` · ${dev.pendingHours}h chờ duyệt` : ""}</p>
+        <div className="ht-admin-hours">
+          <strong>{dev.approvedHours}h</strong>
+          <span>/500h đã duyệt{dev.pendingHours > 0 ? ` · ${dev.pendingHours}h chờ` : ""}</span>
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="ht-admin-progress-grid">
+        <article><span className="material-symbols-outlined">psychology</span><small>Đánh giá</small><strong>{dev.assessmentAttempts}/3 lượt</strong><p>{scores ? `${scores.logic}% Logic · ${scores.creativity}% Sáng tạo · ${scores.eq}% EQ` : "Chưa có kết quả"}</p></article>
+        <article><span className="material-symbols-outlined">code</span><small>Coding HugoTeam</small><strong>{dev.codingCompletedSteps?.length || 0}/16 step</strong><p>{dev.codingDeadline ? `Hạn ${fmtDate(dev.codingDeadline)}` : "Chưa bắt đầu"}</p></article>
+        <article><span className="material-symbols-outlined">supervisor_account</span><small>Mentor</small><strong>{dev.mentor?.name || "Chưa phân"}</strong><p>{dev.mentorEndsAt ? `Kết thúc ${fmtDate(dev.mentorEndsAt)}` : "Chu kỳ 30 ngày"}</p></article>
+        <article><span className="material-symbols-outlined">groups</span><small>Team</small><strong>{dev.teamId || "Chưa có team"}</strong><p>{dev.teamId ? `${dev.teamRole} · ${dev.contributionScore}/100 đóng góp` : "Chờ đủ điều kiện"}</p></article>
+      </div>
+
+      <section className="ht-admin-controls">
+        <div className="ht-admin-panel-head"><div><p>Quyền quản trị</p><h3>Trạng thái và phân công</h3></div><span className={`ht-admin-status ${dev.status === "approved" ? "is-approved" : ""}`}>{dev.status === "approved" ? "Đang hoạt động" : dev.status === "rejected" ? "Đã đình chỉ" : "Chờ xử lý"}</span></div>
+        <div className="ht-admin-control-grid">
+          <label><span>Trạng thái tài khoản</span><select value={dev.status} onChange={(event) => update({ status: event.target.value })}><option value="pending">Chờ xử lý</option><option value="approved">Đang hoạt động</option><option value="rejected">Đình chỉ</option></select></label>
+          <label><span>Giai đoạn</span><select value={dev.assessmentStage || "none"} onChange={(event) => update({ assessmentStage: event.target.value })}><option value="none">Đánh giá</option><option value="coding">Coding</option><option value="mentor">Mentor 30 ngày</option><option value="team">Team</option><option value="official">Chính thức</option></select></label>
+          <label><span>Team</span><input defaultValue={dev.teamId || ""} onBlur={(event) => { if (event.target.value !== (dev.teamId || "")) update({ teamId: event.target.value }); }} placeholder="Chưa có team" /></label>
+          <label><span>Điểm đóng góp</span><input type="number" min="0" max="100" defaultValue={dev.contributionScore || 0} onBlur={(event) => update({ contributionScore: event.target.value })} /></label>
+        </div>
+        <div className="ht-admin-mentor-form"><input value={mentorName} onChange={(event) => setMentorName(event.target.value)} placeholder="Tên Mentor" /><input value={mentorEmail} onChange={(event) => setMentorEmail(event.target.value)} placeholder="Email Mentor" type="email" /><button type="button" onClick={() => postAction("mentor", "Đã phân công Mentor")}>Phân Mentor</button></div>
+        <div className="ht-admin-command-bar">
+          {dev.assessmentStage === "team" && <button type="button" className="is-success" onClick={() => postAction("officialize", "Đã công nhận thành viên chính thức", { title: `Công nhận ${dev.name}?`, message: "Hệ thống sẽ tặng 10.000 JOY và 365 ngày duy trì tài khoản." })}><span className="material-symbols-outlined">verified</span>Công nhận chính thức</button>}
+          <button type="button" onClick={() => postAction("reset-assessment", "Đã đặt lại toàn bộ lộ trình", { title: "Đặt lại toàn bộ lộ trình?", message: "Kết quả test, Coding, Mentor, team và điểm đóng góp sẽ bị xoá.", danger: true })}><span className="material-symbols-outlined">restart_alt</span>Reset đánh giá</button>
+          <button type="button" onClick={() => postAction("reset-coding", "Đã đặt lại Coding HugoTeam", { title: "Đặt lại Coding HugoTeam?", message: "Chỉ tiến độ Coding HugoTeam, Mentor và team bị đặt lại.", danger: true })}><span className="material-symbols-outlined">history</span>Reset Coding</button>
+          <button type="button" onClick={removeTeam} disabled={!dev.teamId}><span className="material-symbols-outlined">group_remove</span>Xoá khỏi team</button>
+          <button type="button" onClick={() => update({ role: dev.role === "mentor" ? "member" : "mentor" })}><span className="material-symbols-outlined">manage_accounts</span>{dev.role === "mentor" ? "Gỡ quyền Mentor" : "Cấp quyền Mentor"}</button>
+          <button type="button" onClick={() => postAction("block", dev.status === "approved" ? "Đã đình chỉ tài khoản" : "Đã khôi phục tài khoản")}><span className="material-symbols-outlined">block</span>{dev.status === "approved" ? "Đình chỉ" : "Khôi phục"}</button>
+          <button type="button" className="is-danger" onClick={deleteAccount}><span className="material-symbols-outlined">delete_forever</span>Xoá tài khoản</button>
+        </div>
+      </section>
+
+      <div className="ht-admin-work-tabs">
         {[
           { id: "tasks", label: "Task" },
           { id: "hours", label: `Giờ${pendingLogs ? ` (${pendingLogs})` : ""}` },
@@ -390,9 +379,7 @@ function DevDetail({ dev, refresh }) {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}
+            className={tab === t.id ? "is-active" : ""}
           >
             {t.label}
           </button>

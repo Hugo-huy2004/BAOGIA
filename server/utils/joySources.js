@@ -73,6 +73,7 @@ export const JOY_SOURCES = {
   // HugoArcade 2048: Mua búa đập ô và thưởng mở khóa nhân vật sưu tầm lần đầu
   arcade_hammer: 'Mua búa phá ô game 2048',
   arcade_character_unlock: 'Mở khóa nhân vật Jelly 2048',
+  hugoteam_assessment: 'Lệ phí đánh giá năng lực HugoTeam',
 };
 
 /**

@@ -95,6 +95,7 @@ export async function submitScore(game, { score, result }, bio) {
     const res = await fetch(`${getApiUrl()}/arcade/score`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body:    JSON.stringify(body),
     });
     if (!res.ok) return null;

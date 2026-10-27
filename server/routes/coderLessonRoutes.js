@@ -4,16 +4,16 @@ import { requireMember } from '../middleware/authMiddleware.js';
 import {
   getLessonList,
   getLessonDetail,
-  verifyLessonCode,
+  gradePreviewQuiz,
   submitLessonFeedback,
   SUMMARY_FIELDS,
 } from '../modules/coder/lessonController.js';
 
 const router = express.Router();
 
-const verifyLimiter = rateLimit({
+const gradeLimiter = rateLimit({
   windowMs: 60_000,
-  max: 40,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -39,12 +39,12 @@ router.get('/:lessonId', async (req, res) => {
   return getLessonDetail(req, res);
 });
 
-// --- 2. Chấm điểm bài thực hành ---
-router.post('/:lessonId/verify', verifyLimiter, async (req, res) => {
-  return verifyLessonCode(req, res);
+// Khách học thử chấm trắc nghiệm ở đây; thành viên nộp qua /api/joy/award-learning để lưu tiến độ.
+router.post('/:lessonId/grade', gradeLimiter, async (req, res) => {
+  return gradePreviewQuiz(req, res);
 });
 
-// --- 3. Gửi góp ý / phản hồi bài học ---
+// --- 2. Gửi góp ý / phản hồi bài học ---
 router.post('/:lessonId/feedback', feedbackLimiter, requireMember, async (req, res) => {
   return submitLessonFeedback(req, res);
 });

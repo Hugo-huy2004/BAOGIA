@@ -4,6 +4,7 @@ import HugoTeamDev from '../models/HugoTeamDev.js';
 import UserProfile from '../models/UserProfile.js';
 import { welcomeInBackground } from '../services/welcomeService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { STEP_IDS } from '../../src/components/member/hugoCoder/lessons/stages.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
 import {
   deletePrivateEvidence,
@@ -14,7 +15,8 @@ const router = express.Router();
 
 // Tổng số bài của bộ Phát triển Web — dùng để ra tỉ lệ "x/100", không phải để
 // khoe con số tròn.
-const CODER_TOTAL_LESSONS = 100;
+// Đếm theo khoá Coding (26 step); id bài của khoá Web cũ không tính nữa.
+const CODER_STEP_IDS = new Set(STEP_IDS);
 
 const findMemberBio = (email) => Bio.findOne({
   $or: [{ email }, { contactEmail: email }],
@@ -31,7 +33,7 @@ const findMemberBio = (email) => Bio.findOne({
 async function buildProfile(bio) {
   const dev = await HugoTeamDev.findOne({ email: bio.email, status: 'approved' });
 
-  const lessonsDone = (bio.completedLessons || []).length;
+  const lessonsDone = (bio.completedLessons || []).filter((id) => CODER_STEP_IDS.has(id)).length;
   const tasksDone = (dev?.tasks || []).filter((task) => task.status === 'done').length;
 
   return {
@@ -48,9 +50,8 @@ async function buildProfile(bio) {
     },
     learning: {
       lessonsDone,
-      lessonsTotal: CODER_TOTAL_LESSONS,
-      certificate: Boolean(bio.hugoCoderAll7Lifetime) && lessonsDone >= CODER_TOTAL_LESSONS,
-      studyCourses: (bio.hugoSOCourses || []).length,
+      lessonsTotal: CODER_STEP_IDS.size,
+      certificate: bio.hugoCoderProjectStatus === 'approved' || lessonsDone >= CODER_STEP_IDS.size,
     },
     // Chỉ đếm giờ ĐÃ DUYỆT. Giờ đang chờ duyệt không được lên hồ sơ, nếu không
     // thì bất kỳ ai cũng tự nâng số của mình bằng cách khai thêm.

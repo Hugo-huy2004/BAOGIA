@@ -105,7 +105,7 @@ export default function ArticleReader({ title, onCompleted }) {
     }
   }, [article, saving, onCompleted]);
 
-  if (error) return <p className="text-xs font-bold text-destructive">{error}</p>;
+  if (error) return <p className="text-[13px] font-bold text-destructive">{error}</p>;
   if (!article) return <div className="h-40 animate-pulse rounded-xl bg-muted" aria-hidden="true" />;
 
   const ready = done || (remaining !== null && remaining <= 0);
@@ -113,12 +113,12 @@ export default function ArticleReader({ title, onCompleted }) {
   return (
     <article className="space-y-4">
       <header className="space-y-1.5 border-b border-border pb-3">
-        <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-primary">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-black uppercase tracking-wider text-primary">
           <BookOpenCheck className="h-3.5 w-3.5" aria-hidden="true" />
           Bài đọc bắt buộc
         </span>
         <h3 className="text-base font-black leading-snug text-foreground">{article.title}</h3>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[13px] text-muted-foreground">
           {article.author} · {article.readingMinutes} phút đọc
         </p>
       </header>
@@ -129,12 +129,12 @@ export default function ArticleReader({ title, onCompleted }) {
 
       {article.references?.length > 0 && (
         <section className="rounded-xl bg-muted/50 p-3">
-          <h4 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+          <h4 className="text-[13px] font-black uppercase tracking-wider text-muted-foreground">
             Tài liệu tham khảo
           </h4>
           <ol className="mt-2 space-y-2">
             {article.references.map((reference) => (
-              <li key={reference} className="text-[11px] leading-relaxed text-muted-foreground">
+              <li key={reference} className="text-[13px] leading-relaxed text-muted-foreground">
                 {reference}
               </li>
             ))}
@@ -144,7 +144,7 @@ export default function ArticleReader({ title, onCompleted }) {
 
       <div className="sticky bottom-0 -mx-1 bg-background/95 px-1 pb-1 pt-3 backdrop-blur">
         {done ? (
-          <p className="flex items-center justify-center gap-2 rounded-xl bg-success/10 py-3 text-xs font-black text-success">
+          <p className="flex items-center justify-center gap-2 rounded-xl bg-success/10 py-3 text-[13px] font-black text-success">
             <Check className="h-4 w-4" aria-hidden="true" />
             Đã hoàn thành bài đọc
           </p>
@@ -153,7 +153,7 @@ export default function ArticleReader({ title, onCompleted }) {
             type="button"
             onClick={finish}
             disabled={!ready || saving}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-black uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-[13px] font-black uppercase tracking-widest text-white transition-all active:scale-95 disabled:opacity-50"
           >
             {ready ? (
               <>

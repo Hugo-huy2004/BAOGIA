@@ -15,22 +15,25 @@ import { quizKind, quizAnswerText } from "../../../../shared/quizKinds";
  * khó dùng bằng bàn phím — trong khi thứ đang kiểm tra là kiến thức, không phải
  * độ khéo tay.
  */
-const OPTION_BASE =
-  "w-full text-left p-2.5 rounded-lg border text-xs transition-all active:scale-[0.98]";
-const OPTION_IDLE = "bg-background border-border text-foreground hover:bg-muted";
-const OPTION_ON = "bg-primary border-primary text-white shadow-sm font-bold";
+// Nút đáp án to, có chip chữ cái mỗi chữ một màu — kiểu dáng ở hugoCoderLearning.css
+// (.quiz-option). Bản cũ là ô xám mảnh 13px, đọc như một biểu mẫu chứ không như trò chơi.
+const OPTION_BASE = "quiz-option";
+const OPTION_IDLE = "";
+const OPTION_ON = "is-on";
+const LETTERS = ["A", "B", "C", "D", "E", "F"];
+const Letter = ({ index }) => <span className={`quiz-letter is-${index % 4}`} aria-hidden="true">{LETTERS[index]}</span>;
 const FIELD =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary";
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground outline-none focus:border-primary";
 
 function Code({ children }) {
   return (
-    <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-[11px] leading-relaxed text-foreground">
+    <pre className="overflow-x-auto rounded-lg bg-muted/60 p-3 text-[13px] leading-relaxed text-foreground">
       <code>{children}</code>
     </pre>
   );
 }
 
-export default function QuizQuestion({ question, index, value, onChange, reviewed }) {
+export default function QuizQuestion({ question, value, onChange, reviewed }) {
   const kind = quizKind(question);
   const correct = reviewed && quizAnswerText(question);
 
@@ -39,8 +42,8 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
       case "multi": {
         const picked = Array.isArray(value) ? value : [];
         return (
-          <div className="space-y-2 pl-2">
-            <p className="text-[11px] text-muted-foreground">Chọn tất cả đáp án đúng.</p>
+          <div className="space-y-2">
+            <p className="text-[13px] text-muted-foreground">Chọn tất cả đáp án đúng.</p>
             {question.o.map((option, optionIndex) => {
               const on = picked.includes(optionIndex);
               return (
@@ -53,7 +56,8 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
                   )}
                   className={`${OPTION_BASE} ${on ? OPTION_ON : OPTION_IDLE}`}
                 >
-                  {option}
+                  <Letter index={optionIndex} />
+                  <span>{option}</span>
                 </button>
               );
             })}
@@ -80,7 +84,7 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
 
       case "blank":
         return (
-          <div className="space-y-2 pl-2">
+          <div className="space-y-2">
             <Code>{question.code}</Code>
             <input
               type="text"
@@ -107,17 +111,17 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
           onChange(next);
         };
         return (
-          <div className="space-y-2 pl-2">
-            <p className="text-[11px] text-muted-foreground">Sắp xếp các bước cho đúng thứ tự.</p>
+          <div className="space-y-2">
+            <p className="text-[13px] text-muted-foreground">Sắp xếp các bước cho đúng thứ tự.</p>
             {order.map((itemIndex, position) => (
               <div
                 key={itemIndex}
                 className="flex items-center gap-2 rounded-lg border border-border bg-background p-2"
               >
-                <span className="w-5 shrink-0 text-center text-[11px] font-bold text-primary">
+                <span className="w-5 shrink-0 text-center text-[13px] font-bold text-primary">
                   {position + 1}
                 </span>
-                <span className="min-w-0 flex-1 text-xs text-foreground">{question.items[itemIndex]}</span>
+                <span className="min-w-0 flex-1 text-[13px] text-foreground">{question.items[itemIndex]}</span>
                 <span className="flex shrink-0 gap-1">
                   <button
                     type="button"
@@ -150,11 +154,11 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
         const rights = question.pairs.map(([, right], i) => ({ right, i }));
         const shuffled = [...rights].sort((a, b) => (a.right > b.right ? 1 : -1));
         return (
-          <div className="space-y-2 pl-2">
-            <p className="text-[11px] text-muted-foreground">Nối mỗi mục bên trái với mục đúng bên phải.</p>
+          <div className="space-y-2">
+            <p className="text-[13px] text-muted-foreground">Nối mỗi mục bên trái với mục đúng bên phải.</p>
             {question.pairs.map(([left], leftIndex) => (
               <div key={left} className="flex items-center gap-2">
-                <span className="min-w-0 flex-1 text-xs font-medium text-foreground">{left}</span>
+                <span className="min-w-0 flex-1 text-[13px] font-medium text-foreground">{left}</span>
                 <span className="material-symbols-outlined shrink-0 text-[16px] text-muted-foreground" aria-hidden="true">
                   arrow_forward
                 </span>
@@ -177,8 +181,8 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
 
       case "bug":
         return (
-          <div className="space-y-2 pl-2">
-            <p className="text-[11px] text-muted-foreground">Chạm vào dòng có lỗi.</p>
+          <div className="space-y-2">
+            <p className="text-[13px] text-muted-foreground">Chạm vào dòng có lỗi.</p>
             <div className="overflow-hidden rounded-lg border border-border">
               {question.lines.map((line, lineIndex) => (
                 <button
@@ -186,7 +190,7 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
                   type="button"
                   aria-pressed={value === lineIndex}
                   onClick={() => onChange(lineIndex)}
-                  className={`flex w-full items-start gap-2 border-b border-border/60 p-2 text-left font-mono text-[11px] last:border-0 transition-colors ${
+                  className={`flex w-full items-start gap-2 border-b border-border/60 p-2 text-left font-mono text-[13px] last:border-0 transition-colors ${
                     value === lineIndex ? "bg-primary text-white" : "bg-background text-foreground hover:bg-muted"
                   }`}
                 >
@@ -202,9 +206,9 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
 
       case "output":
         return (
-          <div className="space-y-2 pl-2">
+          <div className="space-y-2">
             <Code>{question.code}</Code>
-            <p className="text-[11px] text-muted-foreground">Đoạn mã trên in ra gì?</p>
+            <p className="text-[13px] text-muted-foreground">Đoạn mã trên in ra gì?</p>
             {question.o.map((option, optionIndex) => (
               <button
                 key={optionIndex}
@@ -213,7 +217,8 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
                 onClick={() => onChange(optionIndex)}
                 className={`${OPTION_BASE} font-mono ${value === optionIndex ? OPTION_ON : OPTION_IDLE}`}
               >
-                {option}
+                <Letter index={optionIndex} />
+                <span>{option}</span>
               </button>
             ))}
           </div>
@@ -221,7 +226,7 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
 
       default:
         return (
-          <div className="space-y-2 pl-2">
+          <div className="space-y-2">
             {question.o.map((option, optionIndex) => (
               <button
                 key={optionIndex}
@@ -230,7 +235,8 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
                 onClick={() => onChange(optionIndex)}
                 className={`${OPTION_BASE} ${value === optionIndex ? OPTION_ON : OPTION_IDLE}`}
               >
-                {option}
+                <Letter index={optionIndex} />
+                <span>{option}</span>
               </button>
             ))}
           </div>
@@ -239,14 +245,11 @@ export default function QuizQuestion({ question, index, value, onChange, reviewe
   };
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs font-black leading-relaxed text-foreground">
-        <span className="mr-1 text-primary">{index + 1}.</span>
-        {question.q}
-      </p>
+    <div className="quiz-card space-y-3">
+      <p className="quiz-q">{question.q}</p>
       {body()}
       {reviewed && (
-        <p className="text-[11px] font-bold text-success">
+        <p className="text-[13px] font-bold text-success">
           Đáp án đúng: {correct}
           {question.why ? ` — ${question.why}` : ""}
         </p>

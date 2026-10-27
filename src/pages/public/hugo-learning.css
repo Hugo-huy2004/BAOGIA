@@ -590,7 +590,6 @@
    1120px. Là một trang riêng thì cột hẹp giữa màn rộng trông như trang chưa
    dựng xong. Ở đây nới ra hết bề ngang, chừa lề đủ để dòng chữ không quá dài. */
 .hugo-learning-shell .study-main,
-.hugo-learning-shell .coder-journey,
 .hugo-learning-shell .hso-main {
   width: 100%;
   max-width: none;

@@ -87,18 +87,6 @@ export const STUDY_LIFETIME = Object.fromEntries(
 /** Trọn khoá 6 chặng (R3) — rẻ hơn mua lẻ đúng bằng BUNDLE_DISCOUNT. */
 export const STUDY_ALL_STAGES_PRICE = bundleFromParts(STUDY_STAGES.map((s) => s.lifetime));
 
-// ── HUGOSO: 4 công cụ + gói trọn bộ (R1 + R3) ──────────────────────
-// Trước đây 320/450/520/390 — bốn con số lẻ không theo quy tắc nào, và gói trọn
-// bộ 1.290 giảm 23% trong khi "mua vĩnh viễn" giảm 30%: hai mức ưu đãi khác nhau
-// cho cùng một ý "mua nhiều rẻ hơn". Giờ mỗi công cụ = 1 ngày chơi.
-export const HUGOSO_PRICES = {
-  calendar: 400,
-  docs:     400,
-  sheets:   400,
-  ai:       400,
-};
-export const HUGOSO_BUNDLE_PRICE = bundleFromParts(Object.values(HUGOSO_PRICES));
-
 // ── Giao diện Bio (thuê) ───────────────────────────────────────────
 // Món trang trí — nửa ngày chơi.
 export const BIO_THEME_RENTAL_PRICE = 200;
