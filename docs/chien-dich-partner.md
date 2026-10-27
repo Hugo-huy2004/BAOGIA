@@ -81,9 +81,11 @@ bị chặn nhầm thì admin gỡ:
 ## Triển khai (làm một lần)
 
 1. **Vercel** → project chính → Domains → thêm `partner.hugowishpax.studio`
-   (cùng project với www, không cần project riêng). `middleware.js` ở gốc repo
-   trỏ `/`, `/sitemap.xml`, `/robots.txt` của tên miền này về trang chiến dịch
-   — rewrite trong `vercel.json` thua file tĩnh cùng đường dẫn nên không dùng.
+   (cùng project với www, không cần project riêng). `redirects` có `has: host`
+   trong `vercel.json` chuyển `/` của tên miền này về `/collab/hwagfu` (trang
+   tĩnh có sẵn ảnh + mô tả cho bot chia sẻ link), `/sitemap.xml` và `/robots.txt`
+   về bản riêng của partner. Redirect được Vercel xét trước file tĩnh; rewrite
+   thì thua file tĩnh cùng đường dẫn nên không dùng.
 2. **Google Cloud Console** → OAuth client của web → *Authorized JavaScript
    origins* → thêm `https://partner.hugowishpax.studio`. Thiếu bước này nút
    Google không hiện.
