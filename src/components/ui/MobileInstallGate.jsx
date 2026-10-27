@@ -13,7 +13,8 @@
  *   onClose        — có thì hiện nút quay lại
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { detectInstallTarget } from "../../config/platform";
 import { usePWA } from "../../hooks/usePWA";
@@ -29,6 +30,8 @@ function installLang(language = "") {
 const COPY = {
   vi: {
     title: "Cài app để tiếp tục",
+    unmute: "Bật tiếng",
+    close: "Đóng",
     lede: "Khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài — mở toàn màn hình, nhanh và gọn.",
     guideFor: (device) => `Hướng dẫn cho ${device}`,
     installNow: "Cài đặt",
@@ -57,6 +60,8 @@ const COPY = {
   },
   en: {
     title: "Install the app to continue",
+    unmute: "Turn on sound",
+    close: "Close",
     lede: "The member area is built for the installed Hugo Studio app — full screen, fast and clean.",
     guideFor: (device) => `Guide for ${device}`,
     installNow: "Install",
@@ -85,6 +90,8 @@ const COPY = {
   },
   zh: {
     title: "安装 App 以继续",
+    unmute: "打开声音",
+    close: "关闭",
     lede: "会员区专为已安装的 Hugo Studio App 优化——全屏、流畅、简洁。",
     guideFor: (device) => `${device} 安装指南`,
     installNow: "安装",
@@ -125,6 +132,121 @@ function stepKeys({ iOS, android, inApp, browser }) {
   if (android && browser === "samsung") return ["samsungMenu", "samsungAdd", "openIcon"];
   if (android && browser === "firefox") return ["firefoxMenu", "firefoxAdd", "openIcon"];
   return ["chromeMenu", "chromeInstall", "openIcon"];
+}
+
+const AUTO_KEY = "pwa_guide_autoplayed";
+const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Video hướng dẫn: vừa tới trang là tự phát và nở ra kín màn hình (từ đúng chỗ
+ * của nó — framer-motion `layout`), phát xong tự thu về. Không dùng Fullscreen
+ * API: iPhone chỉ cho vào toàn màn hình hệ thống khi người dùng vừa chạm.
+ * Trình duyệt chặn tự phát có tiếng thì phát không tiếng, kèm nút bật tiếng.
+ * Mỗi phiên chỉ tự mở một lần; bấm vào video là mở lại.
+ */
+function GuideVideo({ lang, t }) {
+  const ref = useRef(null);
+  const [expanded, setExpanded] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  const play = async () => {
+    const video = ref.current;
+    if (!video) return;
+    video.muted = false;
+    try {
+      await video.play();
+      setMuted(false);
+    } catch {
+      video.muted = true;
+      setMuted(true);
+      await video.play().catch(() => {});
+    }
+  };
+
+  const open = () => {
+    setExpanded(true);
+    play();
+  };
+
+  useEffect(() => {
+    let seen = false;
+    try { seen = sessionStorage.getItem(AUTO_KEY) === "1"; } catch { /* storage bị chặn */ }
+    if (seen) return undefined;
+    const timer = window.setTimeout(() => {
+      try { sessionStorage.setItem(AUTO_KEY, "1"); } catch { /* storage bị chặn */ }
+      if (prefersReducedMotion()) play();
+      else open();
+    }, 700);
+    return () => window.clearTimeout(timer);
+    // Chỉ chạy một lần khi trang hướng dẫn vừa hiện.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Khoá cuộn trang phía sau khi video đang phủ kín màn hình.
+  useEffect(() => {
+    if (!expanded) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [expanded]);
+
+  const unmute = () => {
+    const video = ref.current;
+    if (!video) return;
+    video.muted = false;
+    setMuted(false);
+    video.play().catch(() => {});
+  };
+
+  const spring = { type: "spring", stiffness: 260, damping: 32 };
+  return (
+    <div className="relative mx-auto mt-7 aspect-[9/16] w-full max-w-[300px]">
+      {expanded && (
+        <motion.div
+          className="fixed inset-0 z-[130] bg-black/90 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setExpanded(false)}
+          aria-hidden="true"
+        />
+      )}
+      <motion.div
+        layout
+        transition={spring}
+        className={expanded
+          ? "fixed inset-0 z-[131] flex items-center justify-center p-[max(1rem,env(safe-area-inset-top))_1rem_max(1rem,env(safe-area-inset-bottom))]"
+          : "absolute inset-0"}
+      >
+        <motion.video
+          layout
+          transition={spring}
+          ref={ref}
+          src={`/video/pwa-install/${lang}.mp4`}
+          poster={`/video/pwa-install/${lang}.jpg`}
+          controls={expanded}
+          playsInline
+          preload="metadata"
+          onEnded={() => setExpanded(false)}
+          onClick={() => { if (!expanded) open(); }}
+          className={`block aspect-[9/16] bg-white object-cover dark:bg-[#1c1c1e] ${expanded
+            ? "h-full max-h-full w-auto max-w-full rounded-[22px]"
+            : "h-full w-full cursor-pointer rounded-[28px] shadow-[0_20px_50px_-24px_rgba(0,0,0,.35)]"}`}
+        />
+      </motion.div>
+      {expanded && (
+        <div className="fixed inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-[132] flex justify-between px-4">
+          {muted ? (
+            <button type="button" onClick={unmute} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white/90 px-4 text-[15px] font-semibold text-[#1d1d1f] active:opacity-70">
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">volume_up</span>{t.unmute}
+            </button>
+          ) : <span />}
+          <button type="button" onClick={() => setExpanded(false)} className="inline-flex h-10 items-center gap-1 rounded-full bg-white/90 px-4 text-[15px] font-semibold text-[#1d1d1f] active:opacity-70">
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>{t.close}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 const linkClass = "text-[17px] text-[#0071e3] dark:text-[#2997ff] active:opacity-60";
@@ -192,15 +314,7 @@ export default function MobileInstallGate({
           </p>
         </header>
 
-        <video
-          key={lang}
-          src={`/video/pwa-install/${lang}.mp4`}
-          poster={`/video/pwa-install/${lang}.jpg`}
-          controls
-          playsInline
-          preload="none"
-          className="mx-auto mt-7 block aspect-[9/16] w-full max-w-[300px] rounded-[28px] bg-white object-cover shadow-[0_20px_50px_-24px_rgba(0,0,0,.35)] dark:bg-[#1c1c1e]"
-        />
+        <GuideVideo key={lang} lang={lang} t={t} />
 
         {canInstall && (
           <button

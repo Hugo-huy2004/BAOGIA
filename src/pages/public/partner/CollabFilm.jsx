@@ -33,16 +33,20 @@ const track = (points, offset = 0) => {
   };
 };
 
-/** Gộp nhiều track của cùng một phần tử vào một cặp animate/transition. */
+/** Gộp nhiều track của cùng một phần tử vào bộ initial/animate/transition.
+ *  `initial` là giá trị đầu của từng track — thiếu nó, framer-motion ghi tạm
+ *  "undefined" vào thuộc tính SVG (d, cx, ry…) ở khung đầu và trình duyệt báo lỗi. */
 const tracks = (map, duration, offset = 0) => {
+  const initial = {};
   const animate = {};
   const transition = {};
   for (const [prop, points] of Object.entries(map)) {
     const { values, times } = track(points, offset);
+    initial[prop] = values[0];
     animate[prop] = values;
     transition[prop] = { duration, times, ease: "easeInOut" };
   }
-  return { animate, transition };
+  return { initial, animate, transition };
 };
 
 /** Track của diễn viên: viết theo giờ riêng của cảnh, tự lùi sau tiêu đề mở màn. */
@@ -88,7 +92,7 @@ function Leg({ hip, foot, duration, rig }) {
 
 function Face({ y, look, duration, delay = 0 }) {
   // look: [[t, -1|0|1], …] — hướng con ngươi. Chớp mắt lặp chậm suốt phim.
-  const blink = { animate: { ry: [7.6, 7.6, 0.8, 7.6] }, transition: { duration: 3.6, times: [0, 0.9, 0.95, 1], repeat: Infinity, delay: CAST + delay } };
+  const blink = { initial: { ry: 7.6 }, animate: { ry: [7.6, 7.6, 0.8, 7.6] }, transition: { duration: 3.6, times: [0, 0.9, 0.95, 1], repeat: Infinity, delay: CAST + delay } };
   const pupil = (base) => cast({ cx: look.map(([t, v]) => [t, base + v * 2.2]) }, duration);
   const brows = cast({ y: [[0, 0], [2.6, 0], [2.8, -4], [3.6, -4], [3.9, -1], [TOTAL, -1]] }, duration);
   const closed = `M -7 ${y + 11} Q 0 ${y + 17} 7 ${y + 11} Q 0 ${y + 14} -7 ${y + 11} Z`;
