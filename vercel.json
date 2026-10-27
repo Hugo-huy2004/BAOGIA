@@ -1,6 +1,39 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "partner.hugowishpax.studio"
+        }
+      ],
+      "destination": "/collab/hwagfu",
+      "permanent": false
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [
+        {
+          "type": "host",
+          "value": "partner.hugowishpax.studio"
+        }
+      ],
+      "destination": "/partner-sitemap.xml",
+      "permanent": false
+    },
+    {
+      "source": "/robots.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "partner.hugowishpax.studio"
+        }
+      ],
+      "destination": "/partner-robots.txt",
+      "permanent": false
+    },
+    {
       "source": "/booking",
       "destination": "/services#dat-lich",
       "permanent": true

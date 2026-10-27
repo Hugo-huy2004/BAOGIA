@@ -21,7 +21,10 @@ export const PARTNER_CAMPAIGNS = {
     slug: "hwagfu",
     partnerName: "hwagfu.dev",
     partnerUrl: "https://hwagfu.dev",
-    publicUrl: "https://partner.hugowishpax.studio/",
+    // Địa chỉ chính thức (canonical/og:url) là một trang tĩnh THẬT, để bot chia sẻ
+    // link luôn đọc được ảnh + mô tả. `/` của tên miền partner chuyển hướng về
+    // đây (vercel.json → redirects), không phụ thuộc middleware.
+    publicUrl: "https://partner.hugowishpax.studio/collab/hwagfu",
     // Nhân vật đối tác trong phim, vẽ theo logo hwagfu.dev: ô vuông bo góc màu
     // kem, "<" ">" cam ôm chữ "J" xanh than. `wordmark` = [phần chính, đuôi màu cam].
     mark: {

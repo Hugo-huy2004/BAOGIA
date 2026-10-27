@@ -731,7 +731,7 @@ for (const [route, meta] of Object.entries(isPortfolio ? {} : SHARE_PAGES)) {
 // tiêu đề, mô tả, ảnh chia sẻ và lời mời — để Google, Zalo, Facebook đọc được
 // thư mời mà không cần chạy JS. Chiến dịch đang đứng ở tên miền partner lấy
 // canonical là tên miền đó; tên miền ấy cũng có sitemap/robots riêng
-// (middleware.js ở gốc repo trỏ chúng về đây).
+// (vercel.json → redirects theo host chuyển chúng về đây).
 const partnerRewrites = [];
 if (!isPortfolio) {
   for (const campaign of Object.values(PARTNER_CAMPAIGNS)) {
@@ -803,12 +803,13 @@ if (!isPortfolio) {
     partnerRewrites.push({ source: route, destination: `${route}/index.html` });
 
     if (onPartnerHost) {
-      const origin = campaign.publicUrl.replace(/\/$/, "");
+      const origin = new URL(campaign.publicUrl).origin;
       fs.writeFileSync(path.join(DIST, "partner-sitemap.xml"),
-        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${origin}/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`);
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${campaign.publicUrl}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`);
       fs.writeFileSync(path.join(DIST, "partner-robots.txt"), `User-agent: *\nAllow: /\nDisallow: /member\nDisallow: /api\n\nSitemap: ${origin}/sitemap.xml\n`);
-      // Tên miền partner trỏ `/`, sitemap, robots về các file trên qua middleware.js
-      // (rewrite trong vercel.json thua file tĩnh cùng đường dẫn).
+      // Tên miền partner chuyển `/`, /sitemap.xml, /robots.txt về các file trên
+      // bằng `redirects` có `has: host` trong vercel.json — Vercel xét redirect
+      // TRƯỚC file tĩnh (rewrite thì thua file tĩnh cùng đường dẫn).
     }
   }
 }
