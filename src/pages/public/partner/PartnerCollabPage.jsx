@@ -201,12 +201,15 @@ export default function PartnerCollabPage() {
         return;
       }
       const [deviceId, deviceFp] = [getDeviceId(), await getDeviceFingerprint()];
-      const response = await fetch(`${API_BASE}/partner-campaigns/${slug}/claim`, {
+      const send = () => fetch(`${API_BASE}/partner-campaigns/${slug}/claim`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceId, deviceFp }),
       });
+      // Nhận quà gọi lại an toàn (đã nhận thì server không cộng lần hai), nên
+      // rớt mạng/edge trả lỗi không kèm CORS thì thử lại một lần trước khi báo.
+      const response = await send().catch(() => new Promise((resolve) => setTimeout(resolve, 1500)).then(send));
       const data = await response.json().catch(() => ({}));
       if (data.code === "PROFILE_INCOMPLETE") {
         setStage("profile");
@@ -228,7 +231,7 @@ export default function PartnerCollabPage() {
       setResult({ ...data, displayName: meData.displayName || getMemberSession()?.displayName || "" });
       setStage("welcome");
     } catch {
-      setNotice({ kind: "error", title: ui.loginFailed, body: "" });
+      setNotice({ kind: "error", title: ui.networkError, body: "" });
       setStage("offer");
     }
   }, [slug, ui]);
