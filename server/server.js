@@ -13,6 +13,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
 import { originLock } from './middleware/originLock.js';
 import { clientIp } from './utils/clientIp.js';
+import { loadShield, loadShieldStatus } from './middleware/loadShield.js';
 import { mountServices } from './services.manifest.js';
 import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
@@ -61,23 +62,35 @@ app.use((req, _res, next) => {
 // Request không đi qua Cloudflare (đánh thẳng *.onrender.com) bị từ chối trước mọi thứ khác.
 app.use(originLock);
 
+// Khiên tải: tổng lưu lượng / event-loop lag bất thường → khách ẩn danh nhận 503 trước khi tốn gì thêm.
+app.use(loadShield);
+
 // Reject blocked networks before parsing or buffering their request bodies.
 app.use(securityIpGate);
 
 // Reject abusive API traffic before spending CPU and memory parsing its body.
 app.use('/api', globalLimiter, heavyLimiter);
 
-app.use(express.json({
-  limit: '10mb',
-  verify: (req, _res, buffer) => {
-    // Sentry signs the exact webhook bytes. Preserve them only for this small
-    // endpoint instead of retaining a second copy of every JSON request.
-    if (req.originalUrl?.split('?')[0] === '/api/ops/sentry-hook') {
-      req.rawBody = Buffer.from(buffer);
-    }
-  },
-}));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// Body 10mb chỉ cho những route thật sự nhận ảnh base64 (ảnh quảng cáo, ảnh
+// sản phẩm, selfie kháng nghị, avatar trong hồ sơ, admin). Mọi route khác 1mb:
+// parse JSON là đồng bộ, một body 10mb chặn cả event loop của 0,1 CPU.
+const BIG_BODY_PREFIXES = ['/api/bios', '/api/data', '/api/security', '/api/utility-store', '/api/hugoteam', '/api/admin'];
+const bodyLimit = (req) => (BIG_BODY_PREFIXES.some((p) => req.path.startsWith(p)) ? '10mb' : '1mb');
+// Sentry signs the exact webhook bytes. Preserve them only for this small
+// endpoint instead of retaining a second copy of every JSON request.
+const keepSentryRawBody = (req, _res, buffer) => {
+  if (req.originalUrl?.split('?')[0] === '/api/ops/sentry-hook') {
+    req.rawBody = Buffer.from(buffer);
+  }
+};
+const parsers = Object.fromEntries(['10mb', '1mb'].map((limit) => [limit, [
+  express.json({ limit, verify: keepSentryRawBody }),
+  express.urlencoded({ limit, extended: true }),
+]]));
+app.use((req, res, next) => {
+  const [json, form] = parsers[bodyLimit(req)];
+  json(req, res, (err) => (err ? next(err) : form(req, res, next)));
+});
 
 // High-confidence exploit and server-owned JOY-field detection.
 app.use(requestThreatGuard);
@@ -178,6 +191,8 @@ const healthHandler = (_req, res) => {
     status: dbStatus === 'connected' ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     version: '2.0.0',
+    // Chỉ bậc khiên (0/1/2), không lộ số liệu tải cho người ngoài.
+    shield: loadShieldStatus().level,
   });
 };
 app.get('/health', healthHandler);
@@ -238,6 +253,10 @@ process.on('unhandledRejection', (reason) => {
 
 // Create HTTP server so WebSocket can share the same port
 const server = http.createServer(app);
+// Chống slowloris: header phải tới trong 15 giây, cả body trong 60 giây
+// (mặc định Node là 60 giây / 5 phút). Chỉ đo chiều GỬI LÊN — luồng SSE trả về của AI không bị cắt.
+server.headersTimeout = 15_000;
+server.requestTimeout = 60_000;
 
 // WebSocket servers & upgrade dispatcher — quản lý tập trung trong services/websocketServer.js (Quy tắc 2).
 // Phục vụ các kênh WS: '/ws' (realtime) và '/ws/chess' (cờ vua).

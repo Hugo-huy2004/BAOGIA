@@ -17,6 +17,9 @@ export async function connectDatabase() {
     await mongoose.connect(MONGODB_URI, {
       maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 5,
       serverSelectionTimeoutMS: 5000,
+      // Pool cạn thì chờ tối đa 5 giây rồi báo lỗi: xếp hàng vô hạn là mỗi
+      // request treo giữ RAM, cơn lũ ngắn biến thành sập hẳn.
+      waitQueueTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
     console.log('✅ MongoDB connected successfully');

@@ -544,7 +544,7 @@ const MACHINE_WEBHOOK_PATHS = new Set([
   '/api/telegram/webhook',
   '/api/payos/webhook',
 ]);
-const isMachineWebhook = (req) => MACHINE_WEBHOOK_PATHS.has(req.path);
+export const isMachineWebhook = (req) => MACHINE_WEBHOOK_PATHS.has(req.path);
 
 const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1', 'localhost']);
 const isDevMode = process.env.NODE_ENV !== 'production';
