@@ -60,7 +60,6 @@ const PUBLIC_ROUTES = {
   "partnerCampaignRoutes.js GET /:slug": "chỉ trả số quà công khai của chiến dịch (đã in sẵn trên trang partner) — không dữ liệu người dùng; nhận quà ở POST /:slug/claim có requireMember",
   "bioRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
   "bioRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
-  "bioRoutes.js GET /certificate/:slug/:phase": "chứng chỉ công khai, dùng để khoe",
   "bioRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
   "profileRoutes.js GET /public/:slug": "hồ sơ công khai theo slug",
   "presenceRoutes.js GET /status-by-slug": "chấm online trên trang Bio công khai; tra bằng slug nên không lộ email",

@@ -140,8 +140,11 @@ function PerkCard({ frame, index, children, reduced }) {
       viewport={{ once: true, amount: 0.3 }}
       transition={{ delay: index * 0.08, duration: 0.9, ease: EASE }}
     >
-      <span className="collab-frame__no collab-type">{String(index + 1).padStart(2, "0")}</span>
-      <span className="material-symbols-outlined collab-frame__icon" aria-hidden="true">{frame.icon}</span>
+      <i className="collab-frame__glow" aria-hidden="true" />
+      <div className="collab-frame__head">
+        <span className="collab-frame__no" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+        <span className="material-symbols-outlined collab-frame__icon" aria-hidden="true">{frame.icon}</span>
+      </div>
       <h3>{frame.title}</h3>
       <p>{frame.body}</p>
       <div className="collab-perk">{children}</div>

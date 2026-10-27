@@ -7,7 +7,9 @@ export const COLLAB_COPY = {
   vi: {
     skip: "Bỏ qua",
     offerEyebrow: "Ưu đãi Collaborate",
-    offerTitle: "Bốn khung hình, một lời mời",
+    offerTitle: ["Bốn quyền lợi,", "một lời mời."],
+    marquee: (c) => [`${c.partnerName} × Hugo Studio`, "to build", "to learn", "to grow", `+${c.bioDays} ngày Bio`, `${c.joy.toLocaleString("vi-VN")} JOY`, "Hugo Team"],
+    claimMarker: "Nhận ưu đãi",
     offerLede: "Mỗi người nhận một lần. Đăng nhập, điền hồ sơ, và quà được áp dụng ngay lúc chào mừng.",
     frames: (c) => [
       { id: "signup", icon: "login", title: "Đăng ký một chạm", body: "Chỉ một nút Google. Không mật khẩu, không biểu mẫu dài dòng." },
@@ -32,7 +34,6 @@ export const COLLAB_COPY = {
     installNote: "Trên điện thoại, ưu đãi được nhận trong ứng dụng Hugo Studio. Cài xong, mở app từ màn hình chính là vào thẳng trang nhận quà.",
     installTitle: "Cài ứng dụng để nhận ưu đãi",
     installLede: "Ưu đãi hợp tác được nhận trong ứng dụng Hugo Studio. Xem video, làm theo vài bước, rồi mở app từ màn hình chính.",
-    fairPlay: "Mỗi người chỉ nhận một lần: hệ thống đối chiếu số điện thoại, thiết bị và mạng để giữ ưu đãi cho người thật.",
     googleUnavailable: "Đăng nhập Google chưa sẵn sàng trên tên miền này. Vui lòng thử lại sau.",
     loginFailed: "Đăng nhập Google chưa thành công. Vui lòng thử lại.",
     claiming: "Đang áp dụng ưu đãi…",
@@ -79,7 +80,9 @@ export const COLLAB_COPY = {
   en: {
     skip: "Skip",
     offerEyebrow: "Collaborate offer",
-    offerTitle: "Four frames, one invitation",
+    offerTitle: ["Four perks,", "one invitation."],
+    marquee: (c) => [`${c.partnerName} × Hugo Studio`, "to build", "to learn", "to grow", `+${c.bioDays} Bio days`, `${c.joy.toLocaleString("en-US")} JOY`, "Hugo Team"],
+    claimMarker: "Claim the offer",
     offerLede: "One claim per person. Sign in, finish your profile, and the gifts are applied the moment you are welcomed.",
     frames: (c) => [
       { id: "signup", icon: "login", title: "One-tap sign-up", body: "Just one Google button. No password, no long forms." },
@@ -104,7 +107,6 @@ export const COLLAB_COPY = {
     installNote: "On phones, the offer is claimed inside the Hugo Studio app. Once installed, open it from your home screen to land right on the claim page.",
     installTitle: "Install the app to claim",
     installLede: "The collaboration offer is claimed inside the Hugo Studio app. Watch the video, follow a few steps, then open the app from your home screen.",
-    fairPlay: "One claim per person: phone number, device and network are checked to keep the offer for real people.",
     googleUnavailable: "Google sign-in is not ready on this domain yet. Please try again later.",
     loginFailed: "Google sign-in did not complete. Please try again.",
     claiming: "Applying your offer…",
