@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { RoutePrefetcher } from "../../../utils/routePrefetcher";
+import { prefetchChunk } from "../../../utils/chunkPrefetcher";
 import { triggerPWAInstallDirectly } from "../../../utils/pwaInstallTrigger";
 import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
 import { Search, X } from "lucide-react";
@@ -179,8 +179,8 @@ export default function LibraryCatalog({
             return (
               <div
                 key={app.id}
-                onMouseEnter={() => RoutePrefetcher.prefetchApp(app.id)}
-                onTouchStart={() => RoutePrefetcher.prefetchApp(app.id)}
+                onMouseEnter={() => prefetchChunk(app.id)}
+                onTouchStart={() => prefetchChunk(app.id)}
                 onClick={() => { setSelectedApp(app); setDescExpanded(false); }}
                 className="cursor-pointer flex items-center gap-3.5 p-3 sm:px-4 hover:bg-muted/40 active:bg-muted/60 transition-colors"
               >

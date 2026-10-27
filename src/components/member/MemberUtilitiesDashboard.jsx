@@ -32,6 +32,7 @@ import {
 } from "../../../shared/appRegistry";
 import { openDestination } from "./os/appIntent";
 import { appOpenOrder } from "./os/appUsage";
+import { prefetchAppsWhenIdle } from "./os/appIndex";
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
@@ -809,6 +810,16 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     );
   }, [myAppsList, utilitySizes]);
 
+  // Mở app không phải chờ: lúc máy rảnh, tải sẵn mã của các app trên Trang chủ,
+  // app hay mở trước (appOpenOrder), mạng chậm hay tiết kiệm dữ liệu thì thôi.
+  const homeAppKey = myAppsList.map((app) => app.id).join(",");
+  useEffect(() => {
+    if (!isVisible || !homeAppKey) return undefined;
+    const order = appOpenOrder();
+    const rank = (id) => (order.includes(id) ? order.indexOf(id) : order.length);
+    const ids = homeAppKey.split(",").sort((a, b) => rank(a) - rank(b));
+    return prefetchAppsWhenIdle(ids);
+  }, [homeAppKey, isVisible]);
 
   return (
     <div className="relative space-y-6 animate-fadeIn pb-24 select-none">

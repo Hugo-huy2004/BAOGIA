@@ -10,12 +10,13 @@ import Bio from '../models/Bio.js';
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
 export async function connectDatabase() {
-  // Pool chỉ 5 kết nối: một truy vấn bị kẻ xấu ép quét cả collection mà không có
-  // trần thời gian sẽ giữ kết nối tới khi xong, vài cái như vậy là cả server đứng.
+  // Pool 10 kết nối: 5 thì một đợt vài trăm người đăng nhập cùng lúc xếp hàng quá
+  // waitQueueTimeoutMS và nhận lỗi. Trần maxTimeMS vẫn giữ: một truy vấn bị ép
+  // quét cả collection không giữ được kết nối quá 15 giây.
   mongoose.set('maxTimeMS', 15000);
   try {
     await mongoose.connect(MONGODB_URI, {
-      maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 5,
+      maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 10,
       serverSelectionTimeoutMS: 5000,
       // Pool cạn thì chờ tối đa 5 giây rồi báo lỗi: xếp hàng vô hạn là mỗi
       // request treo giữ RAM, cơn lũ ngắn biến thành sập hẳn.

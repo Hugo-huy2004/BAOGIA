@@ -15,11 +15,16 @@ import { sendTelegramAlert } from '../services/telegramService.js';
  *   health và cổng đăng nhập vẫn đi — người thật không bị liên luỵ.
  * Bậc 2 (lag > 2×SHIELD_LAG_MS): thêm cả thao tác NẶNG (AI, upload) của thành viên.
  *
- * ENV: SHIELD=off tắt hẳn · SHIELD_FORCE=1 bật tay bậc 1 · SHIELD_RPS_FLOOR (60)
+ * Đọc công khai đã có cache trong RAM (CACHED_READ) vẫn đi ở bậc 1: chúng gần
+ * như không tốn CPU, và chặn chúng là trang đích của chiến dịch trắng trơn đúng
+ * lúc đông người mở cùng lúc — cơn đông thật trông y như cơn lũ ở bậc này.
+ *
+ * ENV: SHIELD=off tắt hẳn · SHIELD_FORCE=1 bật tay bậc 1 · SHIELD_RPS_FLOOR (150)
  * · SHIELD_MULT (5) · SHIELD_LAG_MS (250).
  */
 const num = (name, def) => (process.env[name] ? Number(process.env[name]) : def);
 const EXEMPT = /^\/(health|api\/health|api\/auth\/member|api\/ops)/;
+const CACHED_READ = /^\/api\/(data(\/bootstrap)?|partner-campaigns\/[\w-]+|legal-docs|bios\/themes|packages)\/?$/;
 
 const lag = monitorEventLoopDelay({ resolution: 20 });
 lag.enable();
@@ -46,7 +51,7 @@ setInterval(() => {
   lastLagMs = lagMs;
 
   const lagLimit = num('SHIELD_LAG_MS', 250);
-  const trigger = Math.max(num('SHIELD_RPS_FLOOR', 60), baseline * num('SHIELD_MULT', 5));
+  const trigger = Math.max(num('SHIELD_RPS_FLOOR', 150), baseline * num('SHIELD_MULT', 5));
   const next = process.env.SHIELD_FORCE === '1' ? Math.max(1, lagMs > lagLimit * 2 ? 2 : 1)
     : lagMs > lagLimit * 2 ? 2
       : (lagMs > lagLimit || rps > trigger) ? 1
@@ -76,6 +81,7 @@ export function loadShield(req, res, next) {
   if (process.env.SHIELD === 'off') return next();
   count += 1;
   if (level === 0 || EXEMPT.test(req.path) || isMachineWebhook(req)) return next();
+  if (level === 1 && req.method === 'GET' && CACHED_READ.test(req.path)) return next();
   const member = verifiedActor(req);
   if (member && !(level === 2 && isHeavy(req))) return next();
   res.set('Retry-After', '30');

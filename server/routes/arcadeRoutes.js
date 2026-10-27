@@ -1,5 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import { accountOrIpKey } from '../config/limiter.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import {
   postScore,
@@ -19,6 +20,7 @@ import {
 const router = express.Router();
 
 const scoreLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 60 * 1000,
   max: process.env.NODE_ENV === 'production' ? 40 : 1000,
   standardHeaders: true,

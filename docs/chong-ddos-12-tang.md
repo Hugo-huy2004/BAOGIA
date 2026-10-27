@@ -39,13 +39,13 @@ WebSocket không qua Vercel: trình duyệt nối thẳng `api.` nên Cloudflare
 |---|---|---|
 | `EDGE_CLIENT_IP_SECRET` | chạy `openssl rand -hex 32` rồi dán | chữ ký cho tầng 5, phải trùng với mục C |
 | `SECURITY_AUTOBLOCK` | `0` | **tạm thời**: khi tầng 5 chưa chạy, 8 lần dò quét là tự chặn nhầm IP Vercel. Xoá biến này sau khi mục F bước 2 đạt |
-| `MAX_DB_POOL` | `10` | pool 5 quá nhỏ cho 100 người cùng lúc |
+| `MAX_DB_POOL` | `10` (mặc định từ 27/10) | chỉ đặt khi muốn khác 10 |
 | `TRUSTED_IPS` | IP public của wifi sự kiện (xem bên dưới) | 100 người sau một NAT, trước khi đăng nhập là chung một bucket |
 
 Cách lấy IP wifi sự kiện: đứng ở chỗ tổ chức, nối wifi đó, mở `https://ifconfig.me`. Có nhiều đường mạng thì nhập các IP cách nhau bằng dấu phẩy.
 
 Tuỳ chọn cho khiên tải (để trống là dùng mặc định):
-`SHIELD_RPS_FLOOR=60` · `SHIELD_MULT=5` · `SHIELD_LAG_MS=250` · `SHIELD_FORCE=1` (bật tay) · `SHIELD=off` (tắt hẳn).
+`SHIELD_RPS_FLOOR=150` · `SHIELD_MULT=5` · `SHIELD_LAG_MS=250` · `SHIELD_FORCE=1` (bật tay) · `SHIELD=off` (tắt hẳn).
 
 Nên cân nhắc: **Settings → Instance Type → Starter** cho ngày sự kiện. Gói Free chỉ có 0,1 CPU; Starter có 0,5 CPU, tính tiền theo giờ chạy.
 
