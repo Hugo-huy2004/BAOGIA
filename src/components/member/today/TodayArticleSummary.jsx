@@ -193,7 +193,7 @@ export default function TodayArticleSummary({
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/12 text-foreground active:scale-95 transition-all shadow-xs shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/[0.12] text-foreground active:scale-95 transition-all shadow-xs shrink-0"
               aria-label="Quay lại danh sách bài viết"
             >
               <HugeIcon name="arrow_back" size={15} />
@@ -373,7 +373,7 @@ export default function TodayArticleSummary({
                     <button
                       type="button"
                       onClick={handleCopySummary}
-                      className="py-2.5 px-3 rounded-full text-xs font-bold bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/12 text-foreground active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs"
+                      className="py-2.5 px-3 rounded-full text-xs font-bold bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/[0.12] text-foreground active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs"
                     >
                       <HugeIcon name="copy" size={14} />
                       <span>Sao chép tóm tắt</span>
@@ -385,7 +385,7 @@ export default function TodayArticleSummary({
                       className={`py-2.5 px-3 rounded-full text-xs font-bold border transition-all flex items-center justify-center gap-1.5 active:scale-95 shadow-xs ${
                         isBookmarked
                           ? "bg-amber-500/20 border-amber-500/40 text-amber-500 dark:text-amber-400"
-                          : "bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/12 text-foreground"
+                          : "bg-white/70 dark:bg-white/[0.08] hover:bg-white dark:hover:bg-white/[0.16] border border-white/60 dark:border-white/[0.12] text-foreground"
                       }`}
                     >
                       <HugeIcon name={isBookmarked ? "bookmark_added" : "bookmark_border"} size={15} />

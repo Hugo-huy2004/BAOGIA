@@ -9,6 +9,7 @@ const catalog = (entries) => Object.fromEntries(entries.map(([id, title, descrip
 
 export const MEMBER_APP_TRANSLATIONS = {
   vi: {
+    home: { recent: "Gần đây", greeting: { morning: "Chào buổi sáng", afternoon: "Chào buổi chiều", evening: "Chào buổi tối", night: "Khuya rồi" } },
     categories: { all: "Tất cả", education: "Học tập", wellness: "Sức khỏe", tools: "Công cụ", entertainment: "Giải trí" },
     badges: { hot: "NỔI BẬT", new: "MỚI", join: "THAM GIA", ai: "AI", lofi: "LOFI", free: "MIỄN PHÍ", utility: "TIỆN ÍCH", games: "TRÒ CHƠI", focus: "TẬP TRUNG", system: "HỆ THỐNG", store: "CỬA HÀNG", game: "TRÒ CHƠI" },
     catalog: catalog([
@@ -65,6 +66,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     ]),
   },
   en: {
+    home: { recent: "Recent", greeting: { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening", night: "Up late" } },
     categories: { all: "All", education: "Learning", wellness: "Wellness", tools: "Tools", entertainment: "Entertainment" },
     badges: { hot: "HOT", new: "NEW", join: "JOIN", ai: "AI", lofi: "LOFI", free: "FREE", utility: "UTILITY", games: "GAMES", focus: "FOCUS", system: "SYSTEM", store: "STORE", game: "GAME" },
     catalog: catalog([
@@ -94,6 +96,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     ]),
   },
   zh: {
+    home: { recent: "最近使用", greeting: { morning: "早上好", afternoon: "下午好", evening: "晚上好", night: "夜深了" } },
     categories: { all: "全部", education: "学习", wellness: "身心健康", tools: "工具", entertainment: "娱乐" },
     badges: { hot: "热门", new: "新品", join: "加入", ai: "AI", lofi: "LOFI", free: "免费", utility: "工具", games: "游戏", focus: "专注", system: "系统", store: "商店", game: "游戏" },
     catalog: catalog([

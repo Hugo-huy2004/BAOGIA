@@ -183,7 +183,7 @@ function MobilePortalNav({
           paints the shader behind these controls, as required by the library. */}
       <div
         id="glass-tab-indicator"
-        className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/18 backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"
+        className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/[0.16] backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"
         style={{
           width: `calc((100% - 8px) / ${tabs.length || 1})`,
           left: "4px",
