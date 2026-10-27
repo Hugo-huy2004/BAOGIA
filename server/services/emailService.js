@@ -78,101 +78,61 @@ const templates = {
   }),
 };
 
-// Email sending functions
-export const sendHugoTeamApplyConfirm = async (name, email) => {
-  try {
-    const template = templates.hugoTeamApplyConfirm(name, email);
-    await sgMail.send({
-      from: process.env.EMAIL_CONTACT,
-      to: email,
-      subject: template.subject,
-      html: template.html,
-    });
-    console.log(`✅ Hugo Team apply confirmation sent to ${email}`);
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${email}:`, error.message);
-    return { success: false, error: error.message };
+// MỘT đường gửi thật duy nhất. Mọi hàm gửi bên dưới đều đi qua đây nên luật
+// "mô phỏng khi chưa có khoá / báo lỗi thật khi đã có khoá" chỉ nằm MỘT chỗ.
+//
+// NGHIÊM TRỌNG đã sửa (27/10/2026): trước đây hàm này nuốt MỌI lỗi SendGrid rồi
+// trả { success: true, simulated: true }. Admin bấm gửi, thấy "thành công",
+// nhưng người nhận không bao giờ nhận được — người gửi chưa verify, khoá sai,
+// 401… đều bị giấu. Giờ: CHƯA có khoá thật → mô phỏng (chỉ hợp lệ ở dev); ĐÃ có
+// khoá → lỗi gửi thật phải lộ ra ({ success: false, error }), không báo giả.
+export const sendCustomEmail = async (
+  to, subject, html, cc = null, fromEmail = null, attachments = null, replyTo = null,
+) => {
+  const sender = fromEmail || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
+  const msg = { from: sender, to, subject, html };
+  if (cc) msg.cc = cc;
+  if (replyTo) msg.replyTo = replyTo;
+  if (attachments?.length) msg.attachments = attachments;
+
+  if (!isEmailDeliverable()) {
+    console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
+    return { success: true, simulated: true, message: `Email đã được mô phỏng gửi tới ${to} (SENDGRID_API_KEY chưa cấu hình).` };
   }
-};
 
-export const sendHugoTeamApproved = async (name, email) => {
   try {
-    const template = templates.hugoTeamApproved(name, email);
-    await sgMail.send({
-      from: process.env.EMAIL_SUPPORT,
-      to: email,
-      replyTo: process.env.EMAIL_SUPPORT,
-      subject: template.subject,
-      html: template.html,
-    });
-    console.log(`✅ Hugo Team approved notification sent to ${email}`);
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${email}:`, error.message);
-    return { success: false, error: error.message };
-  }
-};
-
-export const sendHugoTeamRejected = async (name, email) => {
-  try {
-    const template = templates.hugoTeamRejected(name, email);
-    await sgMail.send({
-      from: process.env.EMAIL_CONTACT,
-      to: email,
-      subject: template.subject,
-      html: template.html,
-    });
-    console.log(`✅ Hugo Team rejection notification sent to ${email}`);
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${email}:`, error.message);
-    return { success: false, error: error.message };
-  }
-};
-
-export const sendContactForm = async (name, email, subject, message, recipientEmail) => {
-  try {
-    const template = templates.contactForm(name, email, subject, message);
-    await sgMail.send({
-      from: process.env.EMAIL_CONTACT,
-      to: recipientEmail,
-      replyTo: email,
-      subject: template.subject,
-      html: template.html,
-    });
-    console.log(`✅ Contact form email sent to ${recipientEmail}`);
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Failed to send contact form email:`, error.message);
-    return { success: false, error: error.message };
-  }
-};
-
-export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = null, attachments = null) => {
-  try {
-    const sender = fromEmail || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
-    const msg = {
-      from: sender,
-      to,
-      subject,
-      html,
-    };
-    if (cc) msg.cc = cc;
-    if (attachments?.length) msg.attachments = attachments;
-
-    if (!isEmailDeliverable()) {
-      console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
-      return { success: true, simulated: true, message: `Email đã được mô phỏng gửi thành công tới ${to}` };
-    }
-
     await sgMail.send(msg);
-    console.log(`✅ Custom email sent to ${to}`);
+    console.log(`✅ Email sent to ${to}`);
     return { success: true };
   } catch (error) {
-    console.warn(`⚠️ SendGrid API error, falling back to simulated email:`, error.message);
-    return { success: true, simulated: true, message: `Đã mô phỏng gửi email tới ${to} (SendGrid API key chưa kích hoạt)` };
+    // SendGrid gói chi tiết lỗi (sender chưa verify, 401…) trong response.body.
+    const detail = error.response?.body?.errors?.map((e) => e.message).join('; ') || error.message;
+    console.error(`❌ SendGrid gửi tới ${to} thất bại:`, detail);
+    return { success: false, error: detail };
   }
+};
+
+// Email sending functions — tất cả ủy thác cho sendCustomEmail để dùng chung
+// luật mô phỏng/báo lỗi (trước đây mỗi hàm tự gọi sgMail.send và NÉM lỗi → route
+// trả 500 khi chưa cấu hình khoá).
+export const sendHugoTeamApplyConfirm = (name, email) => {
+  const template = templates.hugoTeamApplyConfirm(name, email);
+  return sendCustomEmail(email, template.subject, template.html, null, process.env.EMAIL_CONTACT);
+};
+
+export const sendHugoTeamApproved = (name, email) => {
+  const template = templates.hugoTeamApproved(name, email);
+  return sendCustomEmail(email, template.subject, template.html, null, process.env.EMAIL_SUPPORT, null, process.env.EMAIL_SUPPORT);
+};
+
+export const sendHugoTeamRejected = (name, email) => {
+  const template = templates.hugoTeamRejected(name, email);
+  return sendCustomEmail(email, template.subject, template.html, null, process.env.EMAIL_CONTACT);
+};
+
+export const sendContactForm = (name, email, subject, message, recipientEmail) => {
+  const template = templates.contactForm(name, email, subject, message);
+  return sendCustomEmail(recipientEmail, template.subject, template.html, null, process.env.EMAIL_CONTACT, null, email);
 };
 
 /** Gửi mã OTP đăng nhập Magic Link 1 lần (hạn 10 phút) */

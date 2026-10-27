@@ -132,13 +132,16 @@ export const PROFILE_FIELDS = [
     },
   },
   {
-    // Location and sensitive identity details must not block account creation.
+    // Nơi ở (quốc gia + địa chỉ) là BẮT BUỘC từ 27/10/2026 — hồ sơ phải khai
+    // đủ mới tạo được tài khoản. Chỉ dữ liệu NHẠY CẢM (sắc tộc, tôn giáo, xác
+    // minh toạ độ bản đồ) mới giữ tuỳ chọn, để không ép khai đặc-category data
+    // theo Nghị định 13/2023 Điều 2.
     key: 'countryCode',
     type: 'country',
     label: 'Quốc gia / vùng lãnh thổ',
     hint: 'Chọn nơi bạn đang sinh sống để Hugo Studio chuẩn bị trải nghiệm phù hợp theo khu vực.',
     options: COUNTRY_CODES.map((value) => ({ value })),
-    required: false,
+    required: true,
     isMissing: (bio) => !COUNTRY_CODES.includes(String(bio.countryCode || '').toUpperCase()),
     apply(bio, value) {
       const code = String(value || '').toUpperCase();
@@ -151,7 +154,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Tỉnh / Thành phố / Bang',
     hint: 'Nhập đơn vị hành chính cấp tỉnh, thành phố hoặc bang theo quốc gia đã chọn.',
-    required: false,
+    required: true,
     isMissing: (bio) => !String(bio.adminArea || '').trim(),
     apply(bio, value) {
       bio.adminArea = sensitiveAnswer(value, 120);
@@ -162,7 +165,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Phường / Xã / Khu vực',
     hint: 'Nhập đơn vị hành chính địa phương tương ứng nơi bạn đang ở.',
-    required: false,
+    required: true,
     isMissing: (bio) => !String(bio.locality || '').trim(),
     apply(bio, value) {
       bio.locality = sensitiveAnswer(value, 120);
@@ -173,7 +176,7 @@ export const PROFILE_FIELDS = [
     type: 'addressDetail',
     label: 'Địa chỉ chi tiết',
     hint: 'Chỉ ghi phần còn lại như số nhà, tên đường, toà nhà. Quốc gia và đơn vị hành chính đã được lưu ở các bước trước.',
-    required: false,
+    required: true,
     isMissing: (bio) => !String(bio.exactAddress || '').trim(),
     apply(bio, value) {
       const address = sensitiveAnswer(value, 500);
