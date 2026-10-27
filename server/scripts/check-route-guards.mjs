@@ -57,6 +57,7 @@ const PUBLIC_ROUTES = {
   "iotRoutes.js POST /vitals": "thiết bị IoT gửi số đo, xác thực bằng khoá thiết bị",
 
   // ── Nội dung công khai thật sự ───────────────────────────────────────────
+  "partnerCampaignRoutes.js GET /:slug": "chỉ trả số quà công khai của chiến dịch (đã in sẵn trên trang partner) — không dữ liệu người dùng; nhận quà ở POST /:slug/claim có requireMember",
   "bioRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
   "bioRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
   "bioRoutes.js GET /certificate/:slug/:phase": "chứng chỉ công khai, dùng để khoe",

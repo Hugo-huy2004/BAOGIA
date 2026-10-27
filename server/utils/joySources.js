@@ -74,6 +74,9 @@ export const JOY_SOURCES = {
   arcade_hammer: 'Mua búa phá ô game 2048',
   arcade_character_unlock: 'Mở khóa nhân vật Jelly 2048',
   hugoteam_assessment: 'Lệ phí đánh giá năng lực HugoTeam',
+  // Quà chiến dịch hợp tác (partner.hugowishpax.studio) — mỗi tài khoản nhận
+  // một lần cho mỗi chiến dịch, khoá bằng chỉ mục duy nhất ở PartnerClaim.
+  partner_campaign: 'Quà hợp tác Hugo Studio × đối tác',
 };
 
 /**
@@ -185,6 +188,7 @@ export const JOY_REWARD_SOURCES = new Set([
   'ide_phase_1_completion', 'ide_phase_2_completion', 'ide_phase_3_completion',
   'ide_phase_4_completion', 'ide_phase_5_completion', 'ide_phase_6_completion',
   'ide_phase_7_completion', 'birthday_spin', 'admin_voucher',
+  'partner_campaign',
 ]);
 
 /**
@@ -253,6 +257,7 @@ export const JOY_SOURCE_GROUPS = {
   chat_tokens_exchange: 'muasam',
   gift_code: 'khuyenmai',
   admin_voucher: 'khuyenmai',
+  partner_campaign: 'khuyenmai',
   admin_direct_add: 'khuyenmai',
   admin_telegram_button: 'khuyenmai',
   admin_adjustment: 'khuyenmai'

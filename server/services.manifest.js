@@ -96,6 +96,9 @@ export const SERVICES = Object.freeze([
   { id: "store-promo", prefix: "/api/store", module: "./routes/storePromoRoutes.js" },
   { id: "store-plan", prefix: "/api/store", module: "./routes/storePlanRoutes.js" },
   { id: "joy-gift-cards", prefix: "/api/joy-gift-cards", module: "./routes/joyGiftCardRoutes.js" },
+  // Quà chiến dịch hợp tác (partner.hugowishpax.studio). Đọc thông tin chiến
+  // dịch thì công khai; nhận quà đi qua requireMember trong router.
+  { id: "partner-campaigns", prefix: "/api/partner-campaigns", module: "./routes/partnerCampaignRoutes.js", public: true },
 
   // ── Ứng dụng thành viên ───────────────────────────────────────────────────
   { id: "notifications", prefix: "/api/notifications", module: "./routes/notificationRoutes.js" },

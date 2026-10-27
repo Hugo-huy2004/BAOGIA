@@ -28,3 +28,13 @@ export const clientIp = (req, fallback = '') => {
   const cf = req.headers['cf-connecting-ip'];
   return typeof cf === 'string' && cf ? cf.trim() : fallback;
 };
+
+/**
+ * IP thật ĐÃ ĐƯỢC EDGE KÝ, hoặc '' nếu không chắc. Dùng cho luật "mỗi người một
+ * lần": request đi qua Vercel rewrite mà thiếu chữ ký thì cf-connecting-ip là IP
+ * của Vercel — mọi người dùng chung, đếm theo nó là chặn nhầm cả loạt.
+ */
+export const signedClientIp = (req) => {
+  const relayed = req.headers['x-hugo-client-ip'];
+  return typeof relayed === 'string' && relayed && edgeSigned(req) ? relayed.trim() : '';
+};
