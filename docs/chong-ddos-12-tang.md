@@ -48,7 +48,7 @@ Cách lấy IP wifi sự kiện: đứng ở chỗ tổ chức, nối wifi đó,
 Tuỳ chọn cho khiên tải (để trống là dùng mặc định):
 `SHIELD_RPS_FLOOR=150` · `SHIELD_MULT=5` · `SHIELD_LAG_MS=250` · `SHIELD_FORCE=1` (bật tay) · `SHIELD=off` (tắt hẳn).
 
-Nên cân nhắc: **Settings → Instance Type → Starter** cho ngày sự kiện. Gói Free chỉ có 0,1 CPU; Starter có 0,5 CPU, tính tiền theo giờ chạy.
+Giữ **Instance Type = Free**. Hệ thống phi lợi nhuận, không nâng gói trả phí (xem `docs/chi-phi-0d.md`); sức chịu tải đến từ các tầng ở trên, không từ CPU mua thêm.
 
 Đổi env xong thì Render tự khởi động lại, khoảng 1 phút.
 
