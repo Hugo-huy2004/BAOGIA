@@ -74,7 +74,7 @@ export function median(numbers) {
 }
 
 /** Hạn mức vay, làm tròn xuống mốc 50 cho dễ đọc. */
-export function creditLimit(medianDailyIncome) {
+function creditLimit(medianDailyIncome) {
   const raw = Math.max(0, medianDailyIncome) * JOYLATER.limitDays;
   return Math.min(JOYLATER.hardCap, Math.floor(raw / 50) * 50);
 }
@@ -86,7 +86,7 @@ export function clampInstallments(count) {
 }
 
 /** Tỉ lệ phí theo số đợt: chia càng nhiều, phí càng cao. */
-export function feeRateFor(installments = 1) {
+function feeRateFor(installments = 1) {
   return JOYLATER.feeRate + (clampInstallments(installments) - 1) * JOYLATER.installmentFeeStep;
 }
 
@@ -207,17 +207,6 @@ export function payoffDue(dueAt, index, now = Date.now(), graceDays = JOYLATER.e
 export function expectedDays(total, medianDailyIncome) {
   const perDay = Math.max(1, medianDailyIncome * JOYLATER.garnishRate);
   return Math.max(1, Math.ceil(total / perDay));
-}
-
-/**
- * Trừ bao nhiêu từ một lần nhận JOY. Không bao giờ trừ quá số còn nợ, và luôn
- * để lại phần lớn cho người chơi tiếp — trả nợ không được biến thành "chơi mà
- * không nhận được gì".
- */
-export function repaymentFor(incomeAmount, outstanding) {
-  if (!(outstanding > 0) || !(incomeAmount > 0)) return 0;
-  const share = Math.floor(incomeAmount * JOYLATER.garnishRate);
-  return Math.max(0, Math.min(share, outstanding));
 }
 
 /** Đủ điều kiện vay chưa — trả về lý do cụ thể để UI nói thẳng, không nói chung chung. */

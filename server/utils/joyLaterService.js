@@ -25,7 +25,7 @@ export const hasOpenLoan = (bio) => Number(bio?.joyLoan?.outstanding) > 0;
  * Chỉ đếm JOY ĐI VÀO (amount > 0) và bỏ hai nguồn của chính JOYlater ra, nếu
  * không thì khoản vay tự nó lại làm hạn mức lần sau phình lên.
  */
-export async function dailyIncomeProfile(email) {
+async function dailyIncomeProfile(email) {
   const since = new Date(Date.now() - JOYLATER.incomeWindowDays * DAY_MS);
   const rows = await JoyLedger.aggregate([
     { $match: { email, amount: { $gt: 0 }, createdAt: { $gte: since }, source: { $nin: ['joylater_open'] } } },
@@ -290,7 +290,7 @@ function describeLoan(loan, medianDaily, enforcement = null) {
  * kho. Hỏng thì về mốc chuẩn chứ KHÔNG chặn người ta vay — một lỗi thống kê
  * không đáng để đóng cả sản phẩm.
  */
-export async function currentWeeklyRate() {
+async function currentWeeklyRate() {
   try {
     const { weeklyMetrics } = await import('../services/joyStabilityService.js');
     const metrics = await weeklyMetrics(1);

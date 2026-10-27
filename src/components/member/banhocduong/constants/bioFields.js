@@ -15,7 +15,7 @@ export function getLockedFields(bio) {
 }
 
 // Vietnamese labels for friendly chat messages.
-export const BIO_FIELD_LABELS = {
+const BIO_FIELD_LABELS = {
   displayName: "họ và tên",
   birthday: "ngày sinh",
   phone: "số điện thoại",

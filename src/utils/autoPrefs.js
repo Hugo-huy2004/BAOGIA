@@ -15,8 +15,6 @@
 const STORE_KEY = "hugo_auto_prefs_v1";
 const VALID = new Set(["auto", "on", "off"]);
 
-export const AUTO_PREF_KEYS = ["push", "sound", "weatherBg", "weatherAlert", "donation"];
-
 function readStore() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
   catch { return {}; }
@@ -25,7 +23,7 @@ function writeStore(obj) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(obj)); } catch { /* ignore */ }
 }
 
-export function getPref(key) {
+function getPref(key) {
   const v = readStore()[key];
   return VALID.has(v) ? v : "auto";
 }

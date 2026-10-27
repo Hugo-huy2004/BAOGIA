@@ -18,7 +18,7 @@ import mongoose from 'mongoose';
 const FORBIDDEN_KEYS = new Set(['$where', '$function', '$accumulator', '__proto__', 'constructor', 'prototype']);
 const MAX_DEPTH = 32;
 
-export class UnsafeQueryError extends Error {
+class UnsafeQueryError extends Error {
   constructor(key) {
     super(`Truy vấn bị chặn: toán tử không được phép (${key}).`);
     this.name = 'UnsafeQueryError';
@@ -39,7 +39,7 @@ const isPlainObject = (value) => {
  * máy chủ tạo chứ không phải chuỗi người dùng gửi, và subdocument giữ tham chiếu
  * ngược về cha — duyệt vào đó là đi vòng, tốn CPU theo cấp số nhân.
  */
-export function findForbiddenKey(value, depth = 0, seen = new WeakSet()) {
+function findForbiddenKey(value, depth = 0, seen = new WeakSet()) {
   if (!value || typeof value !== 'object' || depth > MAX_DEPTH || seen.has(value)) return '';
   const isArray = Array.isArray(value);
   if (!isArray && !isPlainObject(value)) return '';
@@ -75,7 +75,7 @@ function guardAggregate() {
   if (key) throw new UnsafeQueryError(key);
 }
 
-export function queryGuardPlugin(schema) {
+function queryGuardPlugin(schema) {
   schema.pre(QUERY_HOOKS, guardQuery);
   schema.pre('aggregate', guardAggregate);
 }

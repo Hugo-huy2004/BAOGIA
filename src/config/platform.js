@@ -17,13 +17,10 @@
  * branches and every browser visitor precaches the Capacitor plugin chunks
  * they will never run.
  */
-export const BUILD_TARGET = import.meta.env.VITE_BUILD_TARGET || "web";
+const BUILD_TARGET = import.meta.env.VITE_BUILD_TARGET || "web";
 
 /** True in the App Store / Play Store builds. */
 export const IS_NATIVE = BUILD_TARGET === "native";
-
-/** True in the browser build, where the PWA layer is still wanted. */
-export const IS_WEB = !IS_NATIVE;
 
 /**
  * True when the app runs as an app rather than a browser tab: an installed PWA,
@@ -40,7 +37,7 @@ export const IS_WEB = !IS_NATIVE;
 /* Query này CHỈ dùng để nghe thay đổi (người dùng cài PWA giữa phiên, hoặc
    bấm F11) rồi chạy lại isStandalone(). Nó cố tình rộng — quyết định thật nằm
    ở isStandalone() bên dưới. */
-export const APP_DISPLAY_QUERY =
+const APP_DISPLAY_QUERY =
   "(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui), (display-mode: window-controls-overlay)";
 
 export const subscribeDisplayMode = (onChange) => {

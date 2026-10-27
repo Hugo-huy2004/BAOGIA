@@ -20,13 +20,13 @@ const DEFAULT_CURVE = { step: 500, max: 10 };
 const curveOf = (gameId) => CURVES[gameId] || DEFAULT_CURVE;
 
 /** Cấp độ hiện tại (bắt đầu từ 1) suy ra từ điểm — không cần state riêng. */
-export function levelFor(gameId, score) {
+function levelFor(gameId, score) {
   const { step, max } = curveOf(gameId);
   return Math.min(max, 1 + Math.floor(Math.max(0, score) / step));
 }
 
 /** Tiến độ 0→1 tới cấp kế tiếp; đạt trần thì luôn 1 (thanh HUD đầy). */
-export function levelProgress(gameId, score) {
+function levelProgress(gameId, score) {
   const { step, max } = curveOf(gameId);
   if (levelFor(gameId, score) >= max) return 1;
   return (Math.max(0, score) % step) / step;
@@ -76,37 +76,5 @@ export function createCombo({ windowMs = 2600, step = 0.25, max = 3 } = {}) {
 // ── Chữ điểm bay lên (canvas) ─────────────────────────────────────
 // Người chơi phải THẤY điểm mình vừa ăn được là bao nhiêu, nếu không thì
 // combo/hệ số nhân chỉ là con số vô hình trong code.
-
-export function pushPopup(list, x, y, text, color, size = 15) {
-  list.push({ x, y, text, color, size, life: 1, vy: -0.85 });
-}
-
-export function updatePopups(list) {
-  for (let i = list.length - 1; i >= 0; i--) {
-    const p = list[i];
-    p.y += p.vy;
-    p.vy *= 0.97;
-    p.life -= 0.018;
-    if (p.life <= 0) list.splice(i, 1);
-  }
-}
-
-export function drawPopups(ctx, list) {
-  ctx.save();
-  ctx.textAlign = "center";
-  ctx.lineJoin = "round";
-  for (const p of list) {
-    const eased = p.life > 0.85 ? (1 - p.life) / 0.15 : 1; // bung ra lúc mới hiện
-    ctx.globalAlpha = Math.min(1, p.life * 1.6);
-    ctx.font = `900 ${p.size * (0.7 + eased * 0.3)}px ui-sans-serif, system-ui, sans-serif`;
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "rgba(0,0,0,.55)";
-    ctx.strokeText(p.text, p.x, p.y);
-    ctx.fillStyle = p.color;
-    ctx.fillText(p.text, p.x, p.y);
-  }
-  ctx.restore();
-  ctx.globalAlpha = 1;
-}
 
 export default { levelFor, levelProgress, ramp, createCombo, maxLevel };

@@ -14,7 +14,7 @@
  */
 import { STAGES, STEP_IDS } from "../src/components/member/hugoCoder/lessons/stages.js";
 
-export const WEB_COURSE_ID = "coding";
+const WEB_COURSE_ID = "coding";
 
 function buildCodingCourse() {
   const stages = STAGES.map((stage) => {
@@ -44,15 +44,6 @@ function buildCodingCourse() {
 }
 
 export const COURSE_CATALOG = Object.freeze([buildCodingCourse()]);
-
-export function getCourse(courseId) {
-  return COURSE_CATALOG.find((course) => course.id === courseId) || null;
-}
-
-/** Khoá chứa một step; null nếu id không thuộc khoá nào. */
-export function courseOfLesson(lessonId) {
-  return COURSE_CATALOG.find((course) => course.lessonIds.includes(lessonId)) || null;
-}
 
 /** Id step đã hoàn thành của một khoá — bộ đếm chung cho mọi bảng. */
 export function completedInCourse(course, completedLessons = []) {

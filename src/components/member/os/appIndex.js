@@ -44,7 +44,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * lần sau 800 ms trước khi để LazyBoundary báo lỗi — 4G chập chờn là chuyện
  * thường, còn chunk đã bị thay sau deploy thì lần thử lại cũng hỏng nhanh.
  */
-export function loadApp(appId) {
+function loadApp(appId) {
   const id = resolveAppId(appId);
   const loader = APP_LOADERS[id];
   if (!loader) return Promise.reject(new Error(`Unknown app: ${appId}`));

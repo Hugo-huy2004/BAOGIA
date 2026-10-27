@@ -500,4 +500,3 @@ export function renderNotification(key, params = {}, language = "vi", denom = DE
   };
 }
 
-export const NOTIFICATION_LANGUAGES = LANGUAGES;

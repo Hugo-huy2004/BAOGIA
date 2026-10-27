@@ -37,18 +37,6 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * Format bất kỳ lỗi nào (ApiError, Error thường hoặc chuỗi) sang thông điệp hiển thị cho người dùng
- */
-export function formatErrorMessage(err, t, fallback = "Đã xảy ra sự cố. Vui lòng thử lại sau.") {
-  if (!err) return fallback;
-  if (err instanceof ApiError && typeof t === "function") {
-    return err.getLocalizedMessage(t);
-  }
-  if (typeof err === "string") return err;
-  return err.message || fallback;
-}
-
 /** Read a response exactly once and preserve the server's status/code/message. */
 export async function readApiResponse(response) {
   if (response.status === 204) return null;

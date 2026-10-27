@@ -120,11 +120,4 @@ export const notify = {
   },
 };
 
-// Backward-compatible shim for the ubiquitous `showToast(message, type)` prop.
-// Point old call sites at this and the local toast plumbing can be deleted.
-export function toastCompat(message, type = "info") {
-  const t = type === "loading" ? "loading" : (META[type] ? type : "info");
-  return show(t, message);
-}
-
 export default notify;

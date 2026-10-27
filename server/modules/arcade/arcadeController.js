@@ -15,7 +15,7 @@ export const SCORE_CEILINGS = { '2048': 2000000, caro: 200, survivor: 80000, sna
 export const RESULTS = ['win', 'lose', 'draw'];
 export const ARCADE_DAILY_JOY_CAP = 3000;
 
-export async function reserveDailyArcadeJoy(email, amount) {
+async function reserveDailyArcadeJoy(email, amount) {
   if (amount <= 0) return null;
   const today = getVietnamDateString();
   const owner = { $or: [{ email }, { contactEmail: email }] };
@@ -39,7 +39,7 @@ export async function reserveDailyArcadeJoy(email, amount) {
   return { granted: grantAmount, arcadeJoyToday: updated?.arcadeJoyToday || currentToday + grantAmount };
 }
 
-export async function releaseDailyArcadeJoy(email, amount) {
+async function releaseDailyArcadeJoy(email, amount) {
   if (amount <= 0) return;
   const today = new Date().toISOString().slice(0, 10);
   await Bio.updateOne(
@@ -49,7 +49,7 @@ export async function releaseDailyArcadeJoy(email, amount) {
 }
 
 const SATURDAY_JOY_MULTIPLIER = 2;
-export function isSaturdayEvent(date = new Date()) {
+function isSaturdayEvent(date = new Date()) {
   return new Date(date.getTime() + 7 * 60 * 60 * 1000).getUTCDay() === 6;
 }
 
@@ -90,7 +90,7 @@ export function calcJoy(game, score) {
   return Math.max(1, Math.floor(baseJoy + (score - threshold) * perPoint));
 }
 
-export function cleanDisplayName(name) {
+function cleanDisplayName(name) {
   if (!name) return 'Thành viên Hugo';
   let str = String(name);
   try {

@@ -3,7 +3,7 @@
  * Định nghĩa phong cách Squircle 3D gradient và icon cho từng chuyên mục bài viết
  */
 
-export const CATEGORY_STYLES = Object.freeze({
+const CATEGORY_STYLES = Object.freeze({
   technology: {
     icon: "memory",
     name: "Công nghệ",

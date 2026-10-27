@@ -13,7 +13,7 @@ import { getMemberSession } from "../../services/api/core/authSession";
  * kèm email đã che bớt để chính chủ nhận ra. Admin đối chiếu mã bằng cách băm
  * email nghi vấn theo cùng công thức (`traceCode` bên dưới).
  */
-export function traceCode(email) {
+function traceCode(email) {
   let hash = 0x811c9dc5;
   for (const char of String(email || "").toLowerCase()) {
     hash ^= char.codePointAt(0);

@@ -24,7 +24,7 @@ function localToday(now = new Date()) {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
-export function isCampaignLive(today = localToday()) {
+function isCampaignLive(today = localToday()) {
   return today >= FROM && today <= THROUGH;
 }
 

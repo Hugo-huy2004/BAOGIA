@@ -175,25 +175,6 @@ export const playChessCheckSound = () => {
   } catch { /* ignore */ }
 };
 
-export const playGameMerge = () => {
-  try {
-    const ctx = getAudioContext();
-    [660, 990].forEach((hz, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      const at = ctx.currentTime + i * 0.06;
-      osc.frequency.setValueAtTime(hz, at);
-      gain.gain.setValueAtTime(0.25, at);
-      gain.gain.exponentialRampToValueAtTime(0.001, at + 0.14);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(at);
-      osc.stop(at + 0.15);
-    });
-  } catch { /* ignore */ }
-};
-
 export const playGameWin = () => {
   try {
     const ctx = getAudioContext();
@@ -231,20 +212,3 @@ export const playGameLose = () => {
   } catch { /* ignore */ }
 };
 
-export const playTick = () => {
-  try {
-    const ctx = getAudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.08);
-  } catch (e) {
-    console.warn("Audio tick effect failed:", e);
-  }
-};

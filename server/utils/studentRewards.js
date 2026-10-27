@@ -3,7 +3,7 @@ export const STUDENT_REWARD_TYPES = Object.freeze({
   transcript: Object.freeze({ days: 60, label: 'Bảng điểm hiện tại' }),
 });
 
-export function vietnamYearMonth(now = new Date()) {
+function vietnamYearMonth(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: 'Asia/Ho_Chi_Minh',
     year: 'numeric',

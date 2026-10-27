@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Award,
-  BookOpenCheck,
-  Braces,
-  ChevronLeft,
-  FileText,
-  GraduationCap,
-  MonitorPlay,
-  RefreshCw,
-  ShieldCheck,
-  Target,
-  X,
-} from "lucide-react";
+import { Award, Braces, ChevronLeft, FileText, GraduationCap, MonitorPlay, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
@@ -37,96 +25,6 @@ function percentage(part, total) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
 
-export function HugoStudioQuality({ courses, stages }) {
-  const { t } = useTranslation();
-  // Thước đo trung thực: step đã soạn đủ bảy phần (mục tiêu, thực hành,
-  // trắc nghiệm) trên tổng số step của đề cương.
-  const quality = useMemo(() => {
-    const total = courses.length;
-    const written = percentage(courses.filter((course) => !course.draft).length, total);
-    return { total, goals: written, practice: written, assessment: written };
-  }, [courses]);
-
-  const metrics = [
-    { value: quality.goals, label: t("hugoCoderLearning.quality.metrics.goals"), icon: Target },
-    { value: quality.practice, label: t("hugoCoderLearning.quality.metrics.practice"), icon: BookOpenCheck },
-    { value: quality.assessment, label: t("hugoCoderLearning.quality.metrics.assessment"), icon: ShieldCheck },
-  ];
-
-  return (
-    <main className="coder-quality-page">
-      <section className="coder-quality-hero">
-        <span className="coder-studio-seal coder-studio-seal-light">
-          <ShieldCheck aria-hidden="true" />
-          {t("hugoCoderLearning.studioSeal.prefix")}
-          <strong>Hugo Studio</strong>
-        </span>
-        <p>{t("hugoCoderLearning.quality.eyebrow")}</p>
-        <h1>{t("hugoCoderLearning.quality.title")}</h1>
-        <span>{t("hugoCoderLearning.quality.description")}</span>
-      </section>
-
-      <section className="coder-quality-metrics" aria-label={t("hugoCoderLearning.quality.metricsLabel")}>
-        {metrics.map(({ value, label, icon: Icon }) => (
-          <article key={label}>
-            <Icon aria-hidden="true" />
-            <strong>{value}%</strong>
-            <span>{label}</span>
-          </article>
-        ))}
-      </section>
-
-      <section className="coder-quality-standard">
-        <div className="coder-quality-standard-heading">
-          <span><ShieldCheck aria-hidden="true" /></span>
-          <div>
-            <small>{t("hugoCoderLearning.quality.standardEyebrow")}</small>
-            <h2>{t("hugoCoderLearning.quality.standardTitle")}</h2>
-          </div>
-        </div>
-        <div className="coder-quality-points">
-          {["goal", "sync", "feedback", "evidence"].map((key, index) => (
-            <article key={key}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <div>
-                <strong>{t(`hugoCoderLearning.quality.points.${key}.title`)}</strong>
-                <p>{t(`hugoCoderLearning.quality.points.${key}.description`)}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="coder-quality-curriculum">
-        <div>
-          <small>{t("hugoCoderLearning.quality.curriculumEyebrow")}</small>
-          <h2>{t("hugoCoderLearning.quality.curriculumTitle")}</h2>
-        </div>
-        <div className="coder-quality-stage-grid">
-          {stages.map((stage) => {
-            const stageCourses = courses.slice(stage.from, stage.to);
-            return (
-              <article key={stage.id}>
-                <span>{stage.phaseNumber}</span>
-                <div>
-                  <strong>{stage.title.replace(/^Chặng \d+:\s*/, "")}</strong>
-                  <small>{stageCourses.length} {t("hugoCoderLearning.stats.lessons").toLowerCase()}</small>
-                </div>
-                <ShieldCheck aria-hidden="true" />
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <p className="coder-quality-note">
-        <ShieldCheck aria-hidden="true" />
-        {t("hugoCoderLearning.quality.note")}
-      </p>
-    </main>
-  );
-}
-
 // Thẻ skeleton — dùng khi đang tải HOẶC chưa có học liệu nào (giữ layout không trống trải)
 function ResourceSkeleton() {
   return (
@@ -142,7 +40,7 @@ function ResourceSkeleton() {
 }
 
 // ====== Tab Video / Tài liệu — học liệu admin đăng, có preview trực quan ======
-export function ResourceGrid({ type, stages }) {
+function ResourceGrid({ type, stages }) {
   const [items, setItems] = useState(null);
   const [stage, setStage] = useState("all");
   const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -285,7 +183,7 @@ function LearningResources({ stages }) {
 }
 
 // ====== Tab Quản lý — gói, chứng chỉ, hồ sơ học thuật ======
-export function ManageTab({ bio, onBioUpdate, courses, stages }) {
+function ManageTab({ bio, onBioUpdate, courses, stages }) {
   const apiBase = import.meta.env.VITE_API_URL || "/api";
   const completed = useMemo(
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),

@@ -50,7 +50,7 @@ async function dequeueScore(id, db) {
 }
 
 // Called on submit success and on window 'online' event — drains the queue.
-export async function flushScoreQueue() {
+async function flushScoreQueue() {
   let db;
   try { db = await openQueueDb(); } catch { return; }
 
@@ -118,16 +118,6 @@ export async function fetchLeaderboard(game, limit = 30) {
     return data.leaderboard || [];
   } catch {
     return [];
-  }
-}
-
-export async function fetchMyBest(game, email) {
-  try {
-    const res = await fetch(`${getApiUrl()}/arcade/me?email=${encodeURIComponent(email)}&game=${encodeURIComponent(game)}`);
-    if (!res.ok) return { bestScore: 0, gamesPlayed: 0 };
-    return await res.json();
-  } catch {
-    return { bestScore: 0, gamesPlayed: 0 };
   }
 }
 

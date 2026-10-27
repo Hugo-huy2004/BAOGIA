@@ -40,38 +40,6 @@ export async function getJoyQrPayload(email) {
   return parseOrThrow(res);
 }
 
-export async function resolveJoyQr(payload) {
-  if (!payload || typeof payload !== "string") {
-    throw new Error("Mã JOY không hợp lệ.");
-  }
-  let cleanPayload = payload.trim();
-  if (cleanPayload.includes("://") || cleanPayload.includes("?ref=")) {
-    try {
-      const u = new URL(cleanPayload, window.location.origin);
-      cleanPayload = u.searchParams.get("ref") || u.pathname.split("/").pop() || cleanPayload;
-    } catch {}
-  }
-
-  // 1. Try 14-char signed token
-  if (/^[A-Za-z0-9_-]{14}$/.test(cleanPayload)) {
-    try {
-      const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(cleanPayload)}`);
-      const data = await parseOrThrow(res);
-      if (data && data.success !== false) return data;
-    } catch {}
-  }
-
-  // 2. Fallback: Search user by Referral Code / Email / Query
-  try {
-    const searchResults = await searchJoyUser(cleanPayload, "");
-    if (searchResults && searchResults.length > 0) {
-      return searchResults[0];
-    }
-  } catch {}
-
-  throw new Error("Mã JOY không hợp lệ hoặc không tìm thấy người nhận.");
-}
-
 export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
@@ -172,16 +140,6 @@ export async function setTransactionPin(pin) {
   return parseOrThrow(res);
 }
 
-export async function verifyTransactionPin(pin) {
-  const res = await fetch(`${getApiUrl()}/joy/verify-pin`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pin }),
-    credentials: "include"
-  });
-  return parseOrThrow(res);
-}
-
 /**
  * Tra người nhận từ MÃ TRÊN THẺ (mã vạch CODE128, hoặc gõ tay, hoặc thẻ NFC).
  *
@@ -215,28 +173,6 @@ export async function claimChallenge(email, challengeId) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, challengeId }),
-    credentials: "include"
-  });
-  return parseOrThrow(res);
-}
-
-export async function claimInfoBonus(email) {
-  const res = await fetch(`${getApiUrl()}/joy/claim-info-bonus`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-    credentials: "include"
-  });
-  return parseOrThrow(res);
-}
-
-// Thưởng riêng khi đọc hết ghi chú nâng cấp 2.0 — máy chủ mới là nơi chốt
-// một-lần-duy-nhất, phía client chỉ mở khoá nút bấm.
-export async function claimInfoReadBonus(email) {
-  const res = await fetch(`${getApiUrl()}/joy/claim-info-read-bonus`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
     credentials: "include"
   });
   return parseOrThrow(res);
@@ -283,18 +219,3 @@ export async function claimTreeBonus() {
   return parseOrThrow(res);
 }
 
-/**
- * Chọn đơn vị JOY của tài khoản. Đi qua chính endpoint onboarding vì đó là nơi
- * duy nhất ghi trường này — và nó vốn BỎ QUA mục đã có giá trị, nên đơn vị vẫn
- * là ghi-một-lần: không cần thêm khoá riêng ở đây, và cũng không thể lách phí
- * đổi đơn vị bằng cách gọi lại.
- */
-export async function chooseJoyDenom(joyDenom) {
-  const res = await fetch(`${getApiUrl()}/bios/me/onboarding`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ joyDenom }),
-  });
-  return parseOrThrow(res);
-}

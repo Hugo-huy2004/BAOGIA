@@ -1,28 +1,7 @@
-// Bảng giá JOY — MỘT nguồn duy nhất cho cả client và server.
-//
-// ── NEO GIÁ: THU NHẬP MỘT NGÀY ─────────────────────────────────────
-// Người chơi kiếm được bao nhiêu JOY mỗi ngày (số lấy từ chính code, không đoán):
-//   · Điểm danh:                150–450  (REWARD_TABLE — checkinService)
-//   · HugoArcade:               ≤ 150    (ARCADE_DAILY_JOY_CAP)
-//   · HugoAura tập trung 3 giờ: ≤ 150    (FOCUS_DAILY_JOY_CAP)
-//   · Caro tiết kiệm 5 ván:     ≤ 50     (ECO_CARO_JOY × ECO_CARO_DAILY_GAMES)
-//   · HugoPSY trị liệu 60 phút: ≤ 180    (COMPANION_JOY_CAP_SECONDS)
-//   · 5 thử thách ngày:         ≤ 205    (DAILY_CHALLENGES)
-// → Cày hết ~4 giờ: 1.185/ngày. Chơi thường ~20 phút: ~415/ngày.
-//
-// Hai nguồn cuối nằm trong HugoPSY — app chỉ mở cho người dùng tiếng Việt (xem
-// `psychologyGate`). Người dùng ngôn ngữ khác chỉ kiếm tối đa 800/ngày, nên giá
-// phải vừa với ngưỡng thấp hơn đó.
-export const DAILY_CASUAL_JOY = 415;
-
 // Gói sở hữu và combo vẫn suy từ giá tháng; ba bồn tiêu thường xuyên bên dưới
 // dùng đúng ba mốc 200 / 500 / 1.000 để người dùng không phải học bảng giá.
 export const OWN_EQUIV_MONTHS = 12;
 export const OWN_DISCOUNT = 0.3;
-export const BUNDLE_DISCOUNT = OWN_DISCOUNT;
-
-const roundTo = (value, step) => Math.round(value / step) * step;
-
 // Ba mốc giá duy nhất của vòng kinh tế tiện ích:
 // hoạt động có ích → nhận JOY → đổi lấy quyền lợi nhìn thấy được.
 export const JOY_SINK_PRICES = Object.freeze({
@@ -37,20 +16,6 @@ export const utilityProductPrice = (productType) => (
     ? JOY_SINK_PRICES.timedUpgrade
     : JOY_SINK_PRICES.utility
 );
-
-/** Giá mua vĩnh viễn suy ra từ giá thuê tháng (R2). */
-export const ownFromMonthly = (monthly) => Math.max(
-  monthly,
-  roundTo(monthly * OWN_EQUIV_MONTHS * (1 - OWN_DISCOUNT), 100),
-);
-
-/** Giá gói trọn bộ suy ra từ các phần (R3). */
-export const bundleFromParts = (parts) => roundTo(
-  parts.reduce((sum, part) => sum + part, 0) * (1 - BUNDLE_DISCOUNT), 50,
-);
-
-/** Bao nhiêu ngày chơi thường mới đủ mua — dùng cho test và trang giá. */
-export const daysToAfford = (joy) => joy / DAILY_CASUAL_JOY;
 
 // ── MỞ APP / TÍNH NĂNG: 200 JOY ────────────────────────────────────
 // Một mốc duy nhất cho quyền truy cập tháng, không còn 13 mức giá lẻ.
@@ -71,7 +36,7 @@ export const FEATURE_PRICES = {
 // Giữ đúng khoảng giá tác giả đã đặt (1.500–4.000 ≈ 3,6–9,6 ngày chơi) nhưng
 // TĂNG DẦN theo chặng. Bản cũ không tăng dần: chặng 1 và chặng 6 cùng 1.500,
 // còn chặng 2/3/4 đều 2.600 — người học không thấy được mình đang lên bậc nào.
-export const STUDY_STAGES = [
+const STUDY_STAGES = [
   { tier: "basic",        monthlyKey: "hugoCoderBasic",        lifetime: 1500 },
   { tier: "intermediate", monthlyKey: "hugoCoderIntermediate", lifetime: 2000 },
   { tier: "advanced",     monthlyKey: "hugoCoderAdvanced",     lifetime: 2500 },
@@ -83,9 +48,6 @@ export const STUDY_STAGES = [
 export const STUDY_LIFETIME = Object.fromEntries(
   STUDY_STAGES.map(({ tier, lifetime }) => [tier, lifetime]),
 );
-
-/** Trọn khoá 6 chặng (R3) — rẻ hơn mua lẻ đúng bằng BUNDLE_DISCOUNT. */
-export const STUDY_ALL_STAGES_PRICE = bundleFromParts(STUDY_STAGES.map((s) => s.lifetime));
 
 // ── Giao diện Bio (thuê) ───────────────────────────────────────────
 // Món trang trí — nửa ngày chơi.
@@ -139,22 +101,6 @@ export const TRANSFER_MONTHLY_CAP = 8000;
  * khác.
  */
 export const TRANSFER_FEE_RATE = 0.05;
-
-// ── Nguồn thu JOY mỗi ngày ─────────────────────────────────────────
-// Dùng để dựng bảng biểu trong tài khoản. Con số phải khớp code chạy thật —
-// có test đọc thẳng file server để đối chiếu, không cho phép lệch.
-export const JOY_INCOME_SOURCES = [
-  { id: "checkin",   min: 150, max: 450, vietnameseOnly: false, source: "checkinService.REWARD_TABLE" },
-  { id: "arcade",    min: 0,   max: 150, vietnameseOnly: false, source: "arcadeRoutes.ARCADE_DAILY_JOY_CAP" },
-  { id: "focus",     min: 0,   max: 150, vietnameseOnly: false, source: "joyRoutes.FOCUS_DAILY_JOY_CAP" },
-  { id: "ecoCaro",   min: 0,   max: 50,  vietnameseOnly: false, source: "arcadeRoutes.ECO_CARO_JOY×5" },
-  { id: "therapy",   min: 0,   max: 180, vietnameseOnly: true,  source: "companionRoutes.COMPANION_JOY_CAP_SECONDS" },
-  { id: "challenge", min: 0,   max: 205, vietnameseOnly: true,  source: "companionRoutes.DAILY_CHALLENGES" },
-];
-
-export const dailyCeiling = (vietnamese = true) => JOY_INCOME_SOURCES
-  .filter((s) => vietnamese || !s.vietnameseOnly)
-  .reduce((sum, s) => sum + s.max, 0);
 
 // ── Cây nhiệm vụ mỗi ngày ──────────────────────────────────────────
 // Làm xong TẤT CẢ nhiệm vụ trong ngày thì cây lớn hết và được thưởng thêm.

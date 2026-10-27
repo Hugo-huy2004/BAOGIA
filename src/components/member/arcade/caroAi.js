@@ -68,7 +68,7 @@ function threatScore(count, openEnds) {
 }
 
 /** Giá trị của việc `player` đặt quân vào (r,c) — tổng đòn thế theo 4 hướng. */
-export function cellScore(board, r, c, player) {
+function cellScore(board, r, c, player) {
   let total = 0;
   for (const [dr, dc] of DIRECTIONS) {
     const { count, openEnds } = runThrough(board, r, c, player, dr, dc);
@@ -118,7 +118,7 @@ function immediateWin(board, player, cells) {
 
 const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
 
-export function pickMoveEasy(board) {
+function pickMoveEasy(board) {
   const cells = candidates(board, 1);
   if (!cells.length) return null;
   return immediateWin(board, AI, cells)
@@ -126,7 +126,7 @@ export function pickMoveEasy(board) {
     || pickRandom(cells);
 }
 
-export function pickMoveMedium(board) {
+function pickMoveMedium(board) {
   const cells = candidates(board);
   if (!cells.length) return null;
   const win = immediateWin(board, AI, cells);
@@ -145,7 +145,7 @@ export function pickMoveMedium(board) {
 
 const HARD_SHORTLIST = 10;
 
-export function pickMoveHard(board) {
+function pickMoveHard(board) {
   const cells = candidates(board);
   if (!cells.length) return null;
   const win = immediateWin(board, AI, cells);

@@ -18,7 +18,7 @@ import { revokeMemberSession } from './memberSession.js';
 export const SCHEDULE_DAYS = [30, 90, 180, 365];
 
 // Xoay vòng câu hỏi. 'email' là bước nặng nhất (phải mở hòm thư) nên xếp cuối.
-export const FIELD_ROTATION = ['phone', 'birthday', 'email'];
+const FIELD_ROTATION = ['phone', 'birthday', 'email'];
 
 // Sai vài lần coi như gõ nhầm — số điện thoại và ngày sinh gõ sai rất dễ. Sai
 // lần thứ ba trong CÙNG một đợt mới là khai man.
@@ -35,7 +35,7 @@ export function normalizePhone(value) {
 }
 
 /** Chấp nhận mọi kiểu gõ ngày: 20/09/2008, 20-9-2008, 2008/09/20. */
-export function parseBirthInput(value) {
+function parseBirthInput(value) {
   const nums = String(value || '').match(/\d+/g);
   if (!nums || nums.length < 3) return null;
   const parts = nums.map(Number);

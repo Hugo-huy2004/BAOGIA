@@ -1,6 +1,6 @@
 import { removeVietnameseTones } from "../constants/intentClassifier";
 
-export function isInfrastructureErrorText(text = "") {
+function isInfrastructureErrorText(text = "") {
   const t = removeVietnameseTones(String(text)).toLowerCase();
   return (
     t.includes("may chu ai") ||

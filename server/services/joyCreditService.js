@@ -30,7 +30,7 @@ const WINDOW_DAYS = 28;
  * sơ, lúc xét lại hằng tuần và lúc hiện màn hình đều phải nhìn thấy CÙNG một
  * bộ số, nếu không thì hạn mức hiện trên màn khác hạn mức đã ghi.
  */
-export async function gatherSignals(email) {
+async function gatherSignals(email) {
   const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] })
     .select('email joyBalance createdAt birthYear birthMonth birthDay starVip')
     .lean();

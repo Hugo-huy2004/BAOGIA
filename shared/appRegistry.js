@@ -63,7 +63,7 @@ export const APP_REGISTRY = Object.freeze([
   manifest({ id: "arcade_snake", icon: "all_inclusive", tint: "teal", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 13 }),
 ]);
 
-export const APP_REGISTRY_BY_ID = new Map(APP_REGISTRY.map((app) => [app.id, app]));
+const APP_REGISTRY_BY_ID = new Map(APP_REGISTRY.map((app) => [app.id, app]));
 export const APP_CATALOG_MANIFESTS = Object.freeze(APP_REGISTRY.filter((app) => app.surfaces.catalog));
 export const APP_STORE_MANIFESTS = Object.freeze(
   APP_REGISTRY.filter((app) => app.surfaces.store).sort((a, b) => a.storeOrder - b.storeOrder),
@@ -152,7 +152,7 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
  * nên mở app nào cũng ra đúng một màu — app không có bản sắc, và đổi theme
  * portal là đổi luôn màu của cả 20 app.
  */
-export const APP_ACCENTS = Object.freeze({
+const APP_ACCENTS = Object.freeze({
   indigo: "#5B5BD6",
   rose: "#E5484D",
   cyan: "#00A2C7",
@@ -176,7 +176,7 @@ export const APP_DESTINATIONS = Object.freeze(
   ),
 );
 
-export const getAppManifest = (appId) => APP_REGISTRY_BY_ID.get(String(appId || "")) || null;
+const getAppManifest = (appId) => APP_REGISTRY_BY_ID.get(String(appId || "")) || null;
 export const getAppStorageMb = (appId) => getAppManifest(appId)?.storageMb ?? 2.0;
 export const getAppVersion = (appId) => getAppManifest(appId)?.version ?? "1.0.0";
 export const getAppAccent = (appId) => APP_ACCENTS[getAppManifest(appId)?.tint] || APP_ACCENTS.blue;

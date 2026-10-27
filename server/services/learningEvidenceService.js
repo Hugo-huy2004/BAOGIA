@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import LearningEvidence from '../models/LearningEvidence.js';
 import { STAGES, WEB_COURSES } from '../../src/components/member/hugoCoder/lessons/index.js';
 
-export class EvidenceDeletedError extends Error {
+class EvidenceDeletedError extends Error {
   constructor() {
     super('EVIDENCE_DELETED');
     this.name = 'EvidenceDeletedError';

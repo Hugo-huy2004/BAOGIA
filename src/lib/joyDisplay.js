@@ -78,16 +78,11 @@ export function setJoyDenom(value, subject = activeSubject) {
   publish();
 }
 
-/** Tài khoản đã thật sự chọn đơn vị chưa. `false` = chưa được hỏi. */
-export const joyDenomChosen = () => Boolean(active);
-
 /** Đơn vị dùng để ĐỊNH DẠNG; chưa chọn thì tạm lấy mặc định cho khỏi vỡ. */
 const formatting = () => active || DEFAULT_DENOM;
 
 export const joyDenom = () => "JOY";
 export const joyCode = () => "JOY";
-export const joyName = () => "JOY";
-
 /** JOY gốc → SỐ (không kèm mã). Chỉ có 1 đơn vị JOY duy nhất. */
 export const joyValue = (joy) => {
   const parsed = Number(joy);
@@ -95,7 +90,7 @@ export const joyValue = (joy) => {
 };
 
 /** Số người dùng gõ → số JOY (làm tròn). */
-export const joyToRaw = (amount) => {
+const joyToRaw = (amount) => {
   const parsed = Number(amount);
   return Number.isFinite(parsed) ? Math.round(parsed) : 0;
 };
@@ -126,7 +121,7 @@ export const VAN = 10000;
  * 190.895 → "19 vạn 895" (vi) hoặc "19万895" (zh).
  * Dưới một vạn thì giữ nguyên số.
  */
-export function toVan(amount, locale, lang = "vi") {
+function toVan(amount, locale, lang = "vi") {
   const n = Math.abs(Math.round(Number(amount) || 0));
   const sign = Number(amount) < 0 ? "−" : "";
   if (n < VAN) return sign + n.toLocaleString(locale);

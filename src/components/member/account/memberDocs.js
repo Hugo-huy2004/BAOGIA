@@ -178,4 +178,3 @@ export const MEMBER_DOCS = {
   },
 };
 
-export const LEGAL_DOC_KEYS = ["terms-manifest", "database-policy"];

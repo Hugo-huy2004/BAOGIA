@@ -94,7 +94,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const daysAgo = (date) => Math.floor((Date.now() - new Date(date).getTime()) / DAY_MS);
 
-export async function learningSnapshot(memberEmail) {
+async function learningSnapshot(memberEmail) {
   const hit = snapshots.get(memberEmail);
   if (hit && hit.exp > Date.now()) return hit.text;
 

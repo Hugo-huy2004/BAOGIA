@@ -113,17 +113,3 @@ function handleBranchError(error, state, featureLabel, res) {
   }
 }
 
-/**
- * Trả về báo cáo trạng thái các nhánh phục vụ admin dashboard và health check
- */
-export function getBranchHealthReport() {
-  const report = {};
-  for (const [name, state] of branchRegistry.entries()) {
-    report[name] = {
-      status: state.status,
-      failures: state.failureCount,
-      isOpen: state.status === 'OPEN',
-    };
-  }
-  return report;
-}

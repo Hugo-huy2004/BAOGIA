@@ -22,7 +22,7 @@ import { appInstallationPolicy } from "../../shared/appInstallationPolicy";
 
 export const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
 export const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
-export const ARCADE_DOWNLOADS_KEY = "hugo_arcade_downloaded_v1";
+const ARCADE_DOWNLOADS_KEY = "hugo_arcade_downloaded_v1";
 
 export const readStoredList = (key) => {
   try {
@@ -42,7 +42,7 @@ const writeStoredList = (key, list) => {
 };
 
 /** `arcade_chess` → `chess`, còn app thường thì null. */
-export const gameIdOf = (appId) => (
+const gameIdOf = (appId) => (
   String(appId || "").startsWith("arcade_") ? String(appId).slice("arcade_".length) : null
 );
 
@@ -53,7 +53,7 @@ export const readDownloadedGameAppIds = () => (
   ))
 );
 
-export const readInstalledApps = (bio) => appInstallationPolicy.normalizeInstalled([
+const readInstalledApps = (bio) => appInstallationPolicy.normalizeInstalled([
   ...(Array.isArray(bio?.installedUtilities) ? bio.installedUtilities : []),
   ...readStoredList(INSTALLED_APPS_KEY),
   ...readDownloadedGameAppIds(),
@@ -65,7 +65,7 @@ const rawHomeScreen = (bio) => [
   ...readDownloadedGameAppIds(),
 ];
 
-export const readHomeScreenApps = (bio, installed = readInstalledApps(bio)) =>
+const readHomeScreenApps = (bio, installed = readInstalledApps(bio)) =>
   appInstallationPolicy.normalizeHomeScreen(rawHomeScreen(bio), installed);
 
 /** Đẩy hai danh sách lên server. Hỏng thì im lặng: bản cục bộ vẫn dùng được. */

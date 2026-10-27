@@ -46,7 +46,7 @@ export function isAudioMuted() {
   return isMutedState;
 }
 
-export function setAudioMuted(muted) {
+function setAudioMuted(muted) {
   isMutedState = muted;
   try {
     localStorage.setItem("hugo_arcade_snake_muted", String(muted));
@@ -130,11 +130,6 @@ export function playMagnetWhoosh() {
 
   playTone({ freq: 280, endFreq: 880, type: "sine", dur: 0.26, vol: 0.2 });
   playTone({ freq: 440, endFreq: 1100, type: "triangle", dur: 0.28, vol: 0.16, delay: 0.06 });
-}
-
-/** Tiếng hoa quả bị hút vèo vèo vào miệng rắn */
-export function playMagnetSuck() {
-  playTone({ freq: 720, endFreq: 1200, type: "sine", dur: 0.07, vol: 0.14 });
 }
 
 /** Tiếng nhặt quả Sao Vàng Hoàng Kim (Fever Star) */

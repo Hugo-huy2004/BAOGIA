@@ -28,14 +28,14 @@ export const SUMMARY_FIELDS = [
   'draft',
 ];
 
-export function lessonSummary(course) {
+function lessonSummary(course) {
   return Object.fromEntries(
     SUMMARY_FIELDS.filter((key) => course[key] !== undefined).map((key) => [key, course[key]])
   );
 }
 
 // Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.
-export function publicCourse(course) {
+function publicCourse(course) {
   if (!course) return null;
   return { ...course, quiz: publicQuiz(course.quiz) };
 }

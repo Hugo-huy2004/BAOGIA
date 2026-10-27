@@ -32,7 +32,7 @@ export function getLocalBootstrapCache(email) {
 /**
  * Saves fresh eager bootstrap data to local storage
  */
-export function setLocalBootstrapCache(data, etag = null, email) {
+function setLocalBootstrapCache(data, etag = null, email) {
   try {
     const account = email || data?.bio?.email || data?.bio?.contactEmail;
     const cacheKey = scopedKey(BOOTSTRAP_CACHE_KEY, account);

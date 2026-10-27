@@ -57,7 +57,7 @@ export function splitPrincipal(loan, now = Date.now()) {
  * Cộng lãi cho một khoản. Idempotent theo NGÀY: gọi mười lần trong một ngày
  * cũng chỉ cộng một lần, vì mốc `lastAccruedAt` đã nhảy sang ngày mới.
  */
-export async function accrueOne(bio, now = Date.now()) {
+async function accrueOne(bio, now = Date.now()) {
   const loan = bio?.joyLoan;
   if (!loan || !(Number(loan.outstanding) > 0)) return null;
 

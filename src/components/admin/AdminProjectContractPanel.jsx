@@ -61,7 +61,7 @@ export function useProjectCall(project, onChange) {
   return { call, busy };
 }
 
-export const useMoney = (project) => {
+const useMoney = (project) => {
   const currency = marketOf(project.market).currency;
   return (n) => formatMoney(n, currency);
 };

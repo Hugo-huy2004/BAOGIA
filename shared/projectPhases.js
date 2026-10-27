@@ -93,7 +93,7 @@ export const GATES = {
 };
 
 /** Một điều kiện đã xong chưa: tự động theo dữ liệu, hoặc admin đã tích. */
-export function itemDone(project, id) {
+function itemDone(project, id) {
   const item = CHECK_ITEMS[id];
   if (!item) return true;
   if (item.when && !item.when(project)) return true;
@@ -101,7 +101,7 @@ export function itemDone(project, id) {
   return Boolean(item.manual && project.checklist?.[id]?.done);
 }
 
-export const itemApplies = (project, id) => !CHECK_ITEMS[id]?.when || CHECK_ITEMS[id].when(project);
+const itemApplies = (project, id) => !CHECK_ITEMS[id]?.when || CHECK_ITEMS[id].when(project);
 
 /** Trạng thái cổng vào `toStatus`: đủ chưa, thiếu những gì. */
 export function gateStatus(project, toStatus) {

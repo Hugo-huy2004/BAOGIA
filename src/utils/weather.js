@@ -10,10 +10,10 @@ const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const IP_GEO_URL = "https://ipwho.is/";
 
 // Sensible default if both GPS and IP lookup fail (Ho Chi Minh City).
-export const DEFAULT_COORDS = { lat: 10.7769, lon: 106.7009, city: "TP. Hồ Chí Minh" };
+const DEFAULT_COORDS = { lat: 10.7769, lon: 106.7009, city: "TP. Hồ Chí Minh" };
 
 // WMO weather codes -> a small set of visual "conditions" the background renders.
-export function codeToCondition(code) {
+function codeToCondition(code) {
   if (code === 0) return "clear";
   if (code === 1 || code === 2) return "partly-cloudy";
   if (code === 3) return "cloudy";

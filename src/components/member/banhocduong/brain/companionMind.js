@@ -61,7 +61,7 @@ const SIGNALS = {
   happy: ["vui", "on roi", "on hon", "tot", "nhe nhom", "hanh phuc", "tuyet", "dat roi", "xong roi", "do hon", "kha hon", "lam duoc", "duoc roi", "qua mon", "happy", "great"],
 };
 
-export function readSignal(text = "") {
+function readSignal(text = "") {
   const t = removeVietnameseTones(String(text)).toLowerCase();
   // Tự chê xét TRƯỚC: "tớ vô dụng" là người dùng tự làm đau mình, không phải mắng nhân vật.
   if (has(t, SIGNALS.selfInsult)) return "selfInsult";
@@ -138,8 +138,6 @@ export function feel(companion, mind, userText) {
 }
 
 export const emotionOf = (mind) => EMOTIONS[mind?.emotion] || EMOTIONS.binh;
-export const moodLabel = (mind) => emotionOf(mind).label;
-
 /** Avatar không có nét mặt — cảm xúc lộ qua dáng: nhún, tốc độ, độ tươi màu. */
 export function avatarMotion(mind) {
   switch (mind?.emotion) {
@@ -181,7 +179,7 @@ function userSnapshot(bio, historyLogs) {
 }
 
 /** Cứ 4 lượt nhân vật kể một mẩu chuyện của chính nó — có qua có lại mới là bạn. */
-export const shouldShare = (mind) => mind.turns > 0 && mind.turns % 4 === 0 && !["buon", "khoc"].includes(mind.emotion);
+const shouldShare = (mind) => mind.turns > 0 && mind.turns % 4 === 0 && !["buon", "khoc"].includes(mind.emotion);
 
 // Đã thử thật với Qwen3.5-0.8B: lời nhắc dài nhiều luật làm model nhỏ rối vai.
 // Giữ gọn: ai · cảm xúc · nhiệm vụ · đúng 2 câu.

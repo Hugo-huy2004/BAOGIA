@@ -5,7 +5,7 @@
 // Cả khoá xoay quanh MỘT sản phẩm: "Nhịp", mạng xã hội chia sẻ bài viết ngắn (trang
 // đăng bài + trang cá nhân), dựng từ trang HTML tĩnh tới bản PHP + MySQL chạy
 // thật trên Internet.
-export const STAGE_DEFS = [
+const STAGE_DEFS = [
   {
     id: "basic", tone: "blue", phaseNumber: 1, code: "CODE 101",
     title: "CODE 101 · Nền tảng lập trình và Web",

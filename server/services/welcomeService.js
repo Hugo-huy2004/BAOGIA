@@ -8,7 +8,7 @@ import { sendWelcomeEmail } from './lifecycleEmailService.js';
  * chào mừng, một lần trong đời tài khoản. Thư chào mừng là thư TÀI KHOẢN (không
  * quảng cáo) nên không cần đã đồng ý nhận email ưu đãi.
  */
-export async function maybeWelcome(email) {
+async function maybeWelcome(email) {
   const [webPush, nativePush] = await Promise.all([
     NotificationSubscription.exists({ email }),
     NativePushDevice.exists({ email }),

@@ -149,7 +149,7 @@ const formatClock = seconds => {
   return `${m}:${s}`;
 };
 
-export function squareName(row, col) {
+function squareName(row, col) {
   return `${FILES[col]}${8 - row}`;
 }
 

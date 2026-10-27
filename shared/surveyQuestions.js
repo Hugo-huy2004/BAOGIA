@@ -53,7 +53,7 @@ export const QUESTIONS_PER_ROUND = 3;
 const answers = (yes, no, unsure) => ({ yes, no, unsure });
 
 /** Nhãn ba nút — dùng chung cho mọi câu trừ khi template tự khai `labels`. */
-export const DEFAULT_LABELS = Object.freeze({
+const DEFAULT_LABELS = Object.freeze({
   vi: answers("Có", "Không", "Không chắc"),
   en: answers("Yes", "No", "Not sure"),
   zh: answers("是", "否", "不确定"),
@@ -64,7 +64,7 @@ export const DEFAULT_LABELS = Object.freeze({
  * chúng luôn đi cùng nhau: đổi giọng câu hỏi mà quên đổi nút bấm thì tấm khảo
  * sát nghe như hai người viết.
  */
-export const SURVEY_UI = Object.freeze({
+const SURVEY_UI = Object.freeze({
   vi: {
     title: "Đôi lời từ Quý thành viên",
     intro: "Ba câu hỏi ngắn, mỗi tháng một lần. Câu trả lời quyết định điều gì được cải thiện trước.",
@@ -317,7 +317,7 @@ function mulberry32(seed) {
 }
 
 /** Hạt giống ổn định từ một chuỗi bất kỳ (email + khoá tháng). */
-export function seedFrom(text) {
+function seedFrom(text) {
   let h = 2166136261;
   for (let i = 0; i < String(text).length; i += 1) {
     h ^= String(text).charCodeAt(i);

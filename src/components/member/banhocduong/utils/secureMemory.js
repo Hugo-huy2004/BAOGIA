@@ -94,7 +94,7 @@ export function saveSecureMemory(bio, memory) {
 }
 
 // Simple rule-based sentiment scoring: returns -1 (Negative), 0 (Neutral), or 1 (Positive)
-export function analyzeSentiment(text) {
+function analyzeSentiment(text) {
   const lowercase = text.toLowerCase();
   
   const negativeWords = [

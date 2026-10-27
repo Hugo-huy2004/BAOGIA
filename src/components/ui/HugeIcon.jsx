@@ -103,7 +103,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 // Bảng ánh xạ tên biểu tượng từ Material Symbols & Lucide sang Hugeicons
-export const HUGE_ICON_MAP = {
+const HUGE_ICON_MAP = {
   // Navigation & Actions
   search: Search01Icon,
   close: Cancel01Icon,
@@ -336,7 +336,7 @@ export default HugeIcon;
 /**
  * Helper tạo component wrapper tương thích với Lucide/chuẩn React
  */
-export function createHugeIcon(iconDef) {
+function createHugeIcon(iconDef) {
   return forwardRef(function CreatedHugeIcon(props, ref) {
     return <HugeIcon ref={ref} icon={iconDef} {...props} />;
   });
@@ -345,7 +345,6 @@ export function createHugeIcon(iconDef) {
 // ── Common drop-in Icon Components ──────────────────────────────────────────
 export const User = createHugeIcon(UserIcon);
 export const UserRound = createHugeIcon(UserIcon);
-export const UserX = createHugeIcon(UserBlock01Icon);
 export const Users = createHugeIcon(UserGroupIcon);
 export const Search = createHugeIcon(Search01Icon);
 export const X = createHugeIcon(Cancel01Icon);
@@ -365,18 +364,13 @@ export const ShieldCheck = createHugeIcon(ShieldCheckIcon);
 export const Palette = createHugeIcon(PaintBoardIcon);
 export const Globe = createHugeIcon(Globe02Icon);
 export const Bell = createHugeIcon(Notification01Icon);
-export const SlidersHorizontal = createHugeIcon(SlidersHorizontalIcon);
 export const ChevronRight = createHugeIcon(ChevronRightIcon);
 export const ChevronLeft = createHugeIcon(ChevronLeftIcon);
 export const ChevronDown = createHugeIcon(ChevronDownIcon);
-export const ChevronUp = createHugeIcon(ChevronUpIcon);
 export const ArrowRight = createHugeIcon(ArrowRight01Icon);
 export const ArrowLeft = createHugeIcon(ArrowLeft01Icon);
-export const LogOut = createHugeIcon(Logout01Icon);
-export const Share2 = createHugeIcon(Share01Icon);
 export const ExternalLink = createHugeIcon(ExternalLinkIcon);
 export const Copy = createHugeIcon(Copy01Icon);
-export const LinkIcon = createHugeIcon(Link01Icon);
 export const Check = createHugeIcon(Tick01Icon);
 export const CheckCircle = createHugeIcon(CheckmarkCircle02Icon);
 export const CheckCircle2 = createHugeIcon(CheckmarkCircle02Icon);
@@ -410,7 +404,6 @@ export const RotateCcw = createHugeIcon(RotateLeft01Icon);
 export const Smile = createHugeIcon(SmileIcon);
 export const Meh = createHugeIcon(MehIcon);
 export const Frown = createHugeIcon(FrownIcon);
-export const Loader2 = createHugeIcon(Loading01Icon);
 export const Terminal = createHugeIcon(TerminalIcon);
 export const Cpu = createHugeIcon(CpuIcon);
 export const Server = createHugeIcon(ServerIcon);

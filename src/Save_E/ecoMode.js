@@ -21,7 +21,7 @@ const listeners = new Set();
 
 export const MODES = ["off", "on", "auto"];
 
-export const isStandalonePwa = () =>
+const isStandalonePwa = () =>
   typeof window !== "undefined" && isStandalone();
 
 // Cửa hậu CHỈ để lập trình viên thử: mở ?eco=force một lần, nhớ trong phiên.

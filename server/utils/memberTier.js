@@ -5,9 +5,9 @@ import { bioAge, ADULT_AGE, MEMBER_MIN_AGE } from './memberAge.js';
  * từ ngày sinh mỗi lần đọc. Nhờ vậy Star-14 tự lên Star-18 đúng ngày sinh nhật
  * thứ 18 — không cần cron quét, không có cảnh tag cũ đọng lại vì job chạy lỗi.
  */
-export const STAR_14 = 'star14';
-export const STAR_18 = 'star18';
-export const STAR_VIP = 'starVip';
+const STAR_14 = 'star14';
+const STAR_18 = 'star18';
+const STAR_VIP = 'starVip';
 export const ECO = 'eco';
 
 export const STAR_MAX_AGE = 23; // Thành viên Star-18 đến hết tháng sinh nhật 23 tuổi
@@ -20,7 +20,7 @@ export const TIER_LABELS = {
 };
 
 /** Quà sinh nhật theo hạng. days = số ngày cộng thêm hạn dùng tài khoản. */
-export const TIER_BIRTHDAY_GIFTS = {
+const TIER_BIRTHDAY_GIFTS = {
   [STAR_14]: {
     days: 15,
     vouchers: [],

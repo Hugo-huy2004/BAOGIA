@@ -48,7 +48,7 @@ export function articleBelongsToEdition(article, language) {
   return domainBelongsToEdition(article?.url, resolveNewsEdition(language));
 }
 
-export function diversifyArticles(articles = []) {
+function diversifyArticles(articles = []) {
   const queues = new Map();
   for (const article of articles) {
     const source = article.source || 'News';
@@ -174,7 +174,7 @@ function stableId(article) {
 
 const EU_PRESS_COUNTRIES = new Set(['FR', 'ES', 'BE']);
 
-export function resolveNewsPolicy(country = 'US') {
+function resolveNewsPolicy(country = 'US') {
   const code = String(country || 'US').toUpperCase();
   if (EU_PRESS_COUNTRIES.has(code)) {
     return {
@@ -228,7 +228,7 @@ export function resolveNewsPolicy(country = 'US') {
 //     cộng ngay từ đầu (NASA, NSF, Bộ Năng lượng).
 //   • arXiv — chỉ phần tóm tắt (abstract) ở trang /abs. ĐỪNG trỏ sang PDF.
 // Thêm dòng mới ở đây = đã đọc giấy phép của nguồn đó, không phải "tải được".
-export const OPEN_LICENSE_SOURCES = Object.freeze({
+const OPEN_LICENSE_SOURCES = Object.freeze({
   arXiv: Object.freeze({
     license: 'arXiv (abstract)', licenseUrl: 'https://arxiv.org/help/license',
     basis: 'open-research-abstract', images: false,
@@ -369,7 +369,7 @@ function zonedLocalTimeToUtc(parts, timeZone) {
   return estimate;
 }
 
-export function getDailyEdition(now = new Date(), requestedTimeZone = 'UTC') {
+function getDailyEdition(now = new Date(), requestedTimeZone = 'UTC') {
   let timeZone = requestedTimeZone;
   try {
     new Intl.DateTimeFormat('en', { timeZone }).format(now);
@@ -394,7 +394,7 @@ export function getDailyEdition(now = new Date(), requestedTimeZone = 'UTC') {
   };
 }
 
-export class NewsProvider {
+class NewsProvider {
   constructor(name) {
     this.name = name;
   }
@@ -409,7 +409,7 @@ export class NewsProvider {
   }
 }
 
-export class GNewsProvider extends NewsProvider {
+class GNewsProvider extends NewsProvider {
   constructor(apiKey = process.env.GNEWS_API_KEY) {
     super('gnews');
     this.apiKey = apiKey;
@@ -629,7 +629,7 @@ export const PUBLISHER_FEEDS = Object.freeze({
   },
 });
 
-export class PublisherRssProvider extends NewsProvider {
+class PublisherRssProvider extends NewsProvider {
   constructor(feeds = PUBLISHER_FEEDS) {
     super('publisher-rss');
     this.feeds = feeds;
@@ -687,7 +687,7 @@ export class PublisherRssProvider extends NewsProvider {
   }
 }
 
-export const PUBLISHER_JSON_FEEDS = Object.freeze({
+const PUBLISHER_JSON_FEEDS = Object.freeze({
   th: Object.freeze({
     source: 'Thai PBS',
     url: 'https://www.thaipbs.or.th/api/public/page/v1/pages/path:news/content',
@@ -704,7 +704,7 @@ function thaiPbsCategory(article = {}) {
 
 // API trang tin chính thức của Thai PBS trả cùng một bài trong nhiều section.
 // Gom và loại trùng theo URL trước khi đưa vào pipeline chung.
-export function parseThaiPbsPayload(payload, category = 'all') {
+function parseThaiPbsPayload(payload, category = 'all') {
   const found = new Map();
   for (const section of payload?.sections || []) {
     for (const item of section?.data || []) {
@@ -728,7 +728,7 @@ export function parseThaiPbsPayload(payload, category = 'all') {
   return [...found.values()];
 }
 
-export class PublisherJsonProvider extends NewsProvider {
+class PublisherJsonProvider extends NewsProvider {
   constructor() {
     super('publisher-json');
   }
@@ -770,7 +770,7 @@ const HTML_LISTINGS = Object.freeze([
   },
 ]);
 
-export function parseHtmlListing(html, config) {
+function parseHtmlListing(html, config) {
   const found = new Map();
   for (const match of String(html).matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{0,600}?)<\/a>/gi)) {
     const [, href, inner] = match;
@@ -801,7 +801,7 @@ export function parseHtmlListing(html, config) {
     }));
 }
 
-export class CatholicHtmlProvider extends NewsProvider {
+class CatholicHtmlProvider extends NewsProvider {
   constructor(listings = HTML_LISTINGS) {
     super('catholic-html');
     this.listings = listings;
@@ -827,7 +827,7 @@ export class CatholicHtmlProvider extends NewsProvider {
   }
 }
 
-export class NewsApiProvider extends NewsProvider {
+class NewsApiProvider extends NewsProvider {
   constructor(apiKey = process.env.NEWS_API_KEY) {
     super('newsapi');
     this.apiKey = apiKey;
@@ -862,48 +862,6 @@ export class NewsApiProvider extends NewsProvider {
       imageUrl: article.urlToImage,
       publishedAt: article.publishedAt,
     }, { provider: this.name, language, country })).filter(Boolean);
-  }
-}
-
-export class ArxivProvider extends NewsProvider {
-  constructor() {
-    super('arxiv');
-  }
-
-  async fetchArticles({ language, category, limit }) {
-    if (language !== 'en') return [];
-    // Chuyên mục Công giáo là tin Giáo hội — nhét paper arXiv vào đó là lạc đề.
-    if (['community', 'world', 'catholic'].includes(category)) return [];
-    const search = category === 'technology'
-      ? 'cat:cs.AI OR cat:cs.HC OR cat:cs.CY'
-      : 'all:education OR all:student OR all:learning';
-    const params = new URLSearchParams({
-      search_query: search,
-      start: '0',
-      max_results: String(Math.min(limit, 8)),
-      sortBy: 'submittedDate',
-      sortOrder: 'descending',
-    });
-    const response = await fetch(`https://export.arxiv.org/api/query?${params}`, {
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (student news feed)' },
-    });
-    if (!response.ok) throw new Error(`arXiv API returned ${response.status}`);
-    const xml = await response.text();
-    return [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map((entryMatch) => {
-      const entry = entryMatch[1];
-      const read = (tag) => entry.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`))?.[1] || '';
-      const link = entry.match(/<link[^>]+href="([^"]+)"[^>]*rel="alternate"/)?.[1] || read('id');
-      return normalizeArticle({
-        title: read('title'),
-        description: read('summary'),
-        source: 'arXiv',
-        author: read('name'),
-        category: category === 'all' ? 'academic' : category,
-        url: link,
-        publishedAt: read('published'),
-      }, { provider: this.name });
-    }).filter(Boolean);
   }
 }
 
@@ -1002,7 +960,7 @@ function trimTrailingImages(blocks) {
   return blocks.slice(0, end);
 }
 
-export function extractBlocks(html = '', baseUrl = '') {
+function extractBlocks(html = '', baseUrl = '') {
   const cleaned = String(html)
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<(script|style|noscript|svg|form|iframe|aside)\b[\s\S]*?<\/\1>/gi, ' ');
@@ -1216,7 +1174,7 @@ function synthesizeInstantRewrite(article) {
   };
 }
 
-export class StudentNewsService {
+class StudentNewsService {
   constructor(providers = [
     new GNewsProvider(),
     new NewsApiProvider(),

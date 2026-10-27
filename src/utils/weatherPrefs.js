@@ -8,4 +8,3 @@ export const isWeatherBgEnabled = () => resolvePref("weatherBg");
 export const setWeatherBgEnabled = (on) => setPref("weatherBg", on ? "on" : "off");
 
 export const isWeatherAlertEnabled = () => resolvePref("weatherAlert");
-export const setWeatherAlertEnabled = (on) => setPref("weatherAlert", on ? "on" : "off");

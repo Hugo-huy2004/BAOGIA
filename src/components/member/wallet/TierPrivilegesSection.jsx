@@ -24,7 +24,7 @@ function financeBenefit(tier) {
   return `<b>${nom("Tài chính & Giao dịch:")}</b> ${fee[0].toUpperCase()}${fee.slice(1)}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
 }
 
-export const TIER_PRIVILEGES_MAP = {
+const TIER_PRIVILEGES_MAP = {
   star18: {
     tier: "star18",
     title: "Star-18",

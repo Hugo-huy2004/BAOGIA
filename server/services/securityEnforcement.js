@@ -7,7 +7,7 @@ import SecurityEvent from '../models/SecurityEvent.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { sendAlert } from '../utils/alert.js';
 
-export const SECURITY_BLOCK_DAYS = 30;
+const SECURITY_BLOCK_DAYS = 30;
 const BLOCK_MS = SECURITY_BLOCK_DAYS * 24 * 60 * 60 * 1000;
 const CONTENT_STRIKE_WINDOW_MS = 24 * 60 * 60 * 1000;
 // `strikes`: cảnh cáo lần 1 và 2, lần 3 trong 7 ngày mới khoá (chat nhân vật).
@@ -117,7 +117,7 @@ export async function revokeSecurityBlock(id) {
   return block;
 }
 
-export function securityBlockPayload(block) {
+function securityBlockPayload(block) {
   return {
     error: 'ACCESS_BLOCKED',
     message: block?.permanent
@@ -443,7 +443,7 @@ const REQUEST_RULES = [
 const MALICIOUS_KEYS = new Set(['__proto__', 'prototype', 'constructor', '$where', '$function', '$accumulator']);
 const SERVER_OWNED_JOY_KEYS = new Set(['joyBalance', 'balanceAfter', 'bonusChatTokens', 'bonusCallTokens', 'joyAwardedToday', 'completedLessons']);
 
-export function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
+function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
   const keys = collectKeys({ body, query });
   for (const key of keys) {
     if (MALICIOUS_KEYS.has(key) || key.startsWith('$')) {
@@ -607,7 +607,7 @@ export async function securityIpGate(req, res, next) {
 const netCache = new Map();
 const NET_CACHE_MS = 60 * 60 * 1000;
 
-export async function resolveNetwork(rawIp) {
+async function resolveNetwork(rawIp) {
   const ip = String(rawIp || '').replace(/^::ffff:/, '');
   if (!ip || ip === '127.0.0.1' || ip === '::1') return '';
   const hit = netCache.get(ip);

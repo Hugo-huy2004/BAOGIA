@@ -59,7 +59,7 @@ export const WEAPON_TIERS = {
   },
 };
 
-export const ENEMY_ARCHETYPES = {
+const ENEMY_ARCHETYPES = {
   tie: {
     type: "tie",
     nameVi: "Tiêm Kích Hắc Ám (TIE)",
@@ -89,7 +89,7 @@ export const ENEMY_ARCHETYPES = {
   },
 };
 
-export const BOSS_ARCHETYPES = [
+const BOSS_ARCHETYPES = [
   {
     id: "hyperspace_ring",
     nameVi: "Thống Soái Vòng Xuyên Không",
@@ -107,13 +107,6 @@ export const BOSS_ARCHETYPES = [
     radius: 4.6,
   },
 ];
-
-export const POWERUP_TYPES = {
-  core: { type: "core", label: "LÕI NÂNG CẤP LASER", color: "#facc15", symbol: "⚡" },
-  shield: { type: "shield", label: "KHIÊN NĂNG LƯỢNG", color: "#38bdf8", symbol: "🛡️" },
-  overdrive: { type: "overdrive", label: "NẠP SIÊU LASER", color: "#c084fc", symbol: "✦" },
-  repair: { type: "repair", label: "HỒI PHỤC THÂN TÀU", color: "#4ade80", symbol: "✚" },
-};
 
 export function choosePowerupDrop(currentHp, currentWeapon) {
   const roll = Math.random();
@@ -135,7 +128,7 @@ export function choosePowerupDrop(currentHp, currentWeapon) {
 
 // ── CẤU HÌNH TIẾN TRÌNH THEO CHẶNG (STAGE SYSTEM: N * X TÀU LÍNH, BOSS MÁU GẤP X) ──
 export const BASE_MINIONS_PER_STAGE = 8; // Chặng 1: N = 8 tàu nhỏ
-export const BASE_BOSS_HP = 60; // Chặng 1: Máu Boss = 60 HP
+const BASE_BOSS_HP = 60; // Chặng 1: Máu Boss = 60 HP
 
 export function getStageConfig(stage) {
   const currentStage = Math.max(1, stage || 1);
@@ -227,12 +220,3 @@ export function createStageBoss(stage) {
   };
 }
 
-// Fallback tương thích cho wave cũ
-export function generateWaveEnemies(waveNumber) {
-  const cfg = getStageConfig(waveNumber);
-  const enemies = [];
-  for (let i = 0; i < cfg.totalMinions; i++) {
-    enemies.push(createStageMinion(waveNumber, i));
-  }
-  return { isBoss: false, enemies, totalCount: cfg.totalMinions };
-}

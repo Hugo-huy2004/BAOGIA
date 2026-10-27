@@ -17,7 +17,7 @@ const PREFIX = '$enc$a256gcm$v1$';
  * Encrypts sensitive plain text string into an unreadable cipher string.
  * Result format: $enc$a256gcm$v1$<iv_hex>:$authTag_hex>:$ciphertext_hex>
  */
-export function sealField(plainText) {
+function sealField(plainText) {
   if (plainText === null || plainText === undefined) return plainText;
   const str = String(plainText);
   if (str.startsWith(PREFIX)) return str; // Already sealed
@@ -64,7 +64,7 @@ export function unsealField(cipherText) {
  * Deep seals an entire object or database record before export/dump.
  * All strings inside object fields become encrypted ciphertext.
  */
-export function sealObjectData(obj, sensitiveKeys = ['phone', 'address', 'identity', 'notes', 'ipAddress']) {
+function sealObjectData(obj, sensitiveKeys = ['phone', 'address', 'identity', 'notes', 'ipAddress']) {
   if (!obj || typeof obj !== 'object') return obj;
   
   if (Array.isArray(obj)) {
