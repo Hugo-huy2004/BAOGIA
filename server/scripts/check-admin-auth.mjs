@@ -11,15 +11,22 @@
  *
  * Chạy: npm run check:admin-auth
  */
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const serverDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFile(path.join(serverDir, p), "utf8");
+// Route admin đã tách theo miền: đọc mục lục + mọi tệp trong routes/admin/ như
+// một khối, để luật vẫn đúng dù một route chuyển sang tệp con nào.
+const readAdminRoutes = async () => {
+  const files = (await readdir(path.join(serverDir, "routes/admin"))).filter((f) => f.endsWith(".js")).sort();
+  const parts = await Promise.all(["routes/adminRoutes.js", ...files.map((f) => `routes/admin/${f}`)].map(read));
+  return parts.join("\n");
+};
 
 const [routes, middleware, model] = await Promise.all([
-  read("routes/adminRoutes.js"),
+  readAdminRoutes(),
   read("middleware/authMiddleware.js"),
   read("models/Admin.js"),
 ]);

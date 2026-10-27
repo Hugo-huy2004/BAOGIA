@@ -135,7 +135,9 @@ check(/150%/.test(enDocs) && /10% per year/.test(enDocs), 'quy chế tiếng Anh
 // ── 8. ĐƯỜNG TIỀN THỰC SỰ ĐỌC HẠNG ─────────────────────────────────────────
 // Trước đây `memberTier()` chỉ được dùng để phát quà sinh nhật; mọi lời hứa tài
 // chính đều không có nơi nào thi hành.
-const routes = read('server/routes/joyRoutes.js');
+// Route JOY đã tách theo miền: đọc mục lục + mọi tệp trong server/routes/joy/.
+const routes = [read('server/routes/joyRoutes.js'), ...fs.readdirSync(path.join(ROOT, 'server/routes/joy'))
+  .filter((f) => f.endsWith('.js')).sort().map((f) => read(`server/routes/joy/${f}`))].join('\n');
 check(routes.includes('transferFeeRateOf('), 'đường chuyển JOY đọc phí THEO HẠNG');
 check(routes.includes('dailyTransferCapOf('), 'đường chuyển JOY đọc trần ngày THEO HẠNG');
 check(!/const TRANSFER_FEE_RATE\s*=/.test(routes),
