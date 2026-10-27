@@ -32,8 +32,8 @@ const PUBLIC_ROUTES = {
   "emailRoutes.js GET /unsubscribe": "liên kết huỷ nhận thư trong email: người nhận bấm từ hộp thư, không thể đang có phiên đăng nhập. Xác thực bằng TOKEN ĐÃ KÝ trong query (verifyUnsubscribeToken), token hỏng hoặc hết hạn thì từ chối",
   "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
-  "adminRoutes.js POST /login": "cửa đăng nhập admin",
-  "adminRoutes.js POST /verify-otp": "bước 2 của 2FA admin",
+  "adminAuthRoutes.js POST /login": "cửa đăng nhập admin",
+  "adminAuthRoutes.js POST /verify-otp": "bước 2 của 2FA admin",
   "memberAuthRoutes.js POST /google": "đổi Google ID token lấy member JWT",
   "memberAuthRoutes.js POST /apple": "đổi Apple token lấy member JWT",
   "memberAuthRoutes.js POST /request-otp": "đăng nhập bằng OTP email, bước 1",
@@ -58,9 +58,9 @@ const PUBLIC_ROUTES = {
 
   // ── Nội dung công khai thật sự ───────────────────────────────────────────
   "partnerCampaignRoutes.js GET /:slug": "chỉ trả số quà công khai của chiến dịch (đã in sẵn trên trang partner) — không dữ liệu người dùng; nhận quà ở POST /:slug/claim có requireMember",
-  "bioRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
-  "bioRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
-  "bioRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
+  "bioPublicRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
+  "bioPublicRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
+  "bioPublicRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
   "profileRoutes.js GET /public/:slug": "hồ sơ công khai theo slug",
   "presenceRoutes.js GET /status-by-slug": "chấm online trên trang Bio công khai; tra bằng slug nên không lộ email",
   "partnerRoutes.js GET /:id/access": "kiểm quyền truy cập trình sửa Bio đối tác",
@@ -106,7 +106,7 @@ const PUBLIC_ROUTES = {
   // trên thẻ, không phải token ký, nên ai cũng dò được "mã → tên + ảnh". Route
   // đó đã bị gỡ; mã thẻ nay đi qua /resolve-member (requireMember + giới hạn
   // tần suất). Đừng thêm lại một dòng miễn cổng cho mã không ký.
-  "joyRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
+  "joyWalletRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
 
   // ── Công cụ tệp: cổng dùng thử 3 lượt/ngày theo IP (config/publicTools.js)
   "fileToolsRoutes.js POST /extract/upload": "HugoKit cho khách dùng thử; giới hạn theo IP",
@@ -124,7 +124,9 @@ const KNOWN_GUARDS = /require[A-Z]\w+|rejectMinorActor|verifyRobotAuth/;
 
 const problems = [];
 const routesDir = path.join(serverDir, "routes");
-const files = (await readdir(routesDir)).filter((name) => name.endsWith(".js"));
+// Đệ quy: route đã tách theo miền nằm trong thư mục con (routes/admin/…). Chỉ
+// quét tầng trên cùng thì cả nhóm route đó lọt khỏi bộ canh này.
+const files = (await readdir(routesDir, { recursive: true })).filter((name) => name.endsWith(".js"));
 
 // Guard đặt ở MỨC MOUNT trong bản khai (vd /api/ai dùng requireAdultMember) che
 // cho mọi route trong tệp — bỏ qua bước này thì cả aiProxyRoutes bị báo nhầm.
@@ -133,9 +135,10 @@ const guardedAtMount = new Set(
 );
 
 const seen = new Set();
-for (const file of files) {
+for (let file of files) {
   if (guardedAtMount.has(file)) continue;
   const src = await readFile(path.join(routesDir, file), "utf8");
+  file = path.basename(file);
   const blanket = /router\.use\(\s*[a-zA-Z]*[Rr]equire\w+/.test(src);
 
   for (const match of src.matchAll(/router\.(get|post|put|delete|patch)\s*\(/g)) {

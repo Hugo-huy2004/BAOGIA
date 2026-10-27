@@ -66,7 +66,8 @@ check(!/jwt\.verify/.test(code), 'controller: không tự jwt.verify (cổng duy
 check(!/req\.cookies/.test(code), 'controller: không tự đọc cookie');
 
 // ── 3. Cổng phải được GẮN ở router, không chỉ "controller tự xử" ─────────────
-const routesSrc = await readFile(path.join(serverDir, 'routes/joyRoutes.js'), 'utf8');
+// Route ví nằm trong routes/joy/ từ khi joyRoutes.js tách theo miền.
+const routesSrc = await readFile(path.join(serverDir, 'routes/joy/joyWalletRoutes.js'), 'utf8');
 for (const [method, route] of [['get', '/wallet/overview'], ['post', '/wallet/claim-daily']]) {
   const re = new RegExp(`router\\.${method}\\(\\s*['"]${route}['"]\\s*,\\s*requireMember\\b`);
   check(re.test(routesSrc), `router: ${method.toUpperCase()} ${route} có requireMember ngay sau đường dẫn`);

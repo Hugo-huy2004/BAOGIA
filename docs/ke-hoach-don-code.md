@@ -34,9 +34,32 @@ không biết logic của một tính năng nằm ở đâu — đó là lý do 
 - Gộp ba bảng tải trước chunk lệch nhau thành mục lục app duy nhất
   `src/components/member/os/appIndex.js`.
 
+## Đợt 2 — xong (PR #10)
+
+Bỏ `export` của 301 khai báo không ai import, xoá 128 khai báo/import chết theo
+đó: −1.487 dòng trong 129 tệp.
+
+## Đợt 3 — bước 1 xong: tách ba tệp route lớn nhất theo miền
+
+| Trước | Sau |
+|---|---|
+| `routes/adminRoutes.js` 2.468 dòng | 21 dòng mục lục + `routes/admin/` (Auth, Users, Commerce, System, `adminShared.js`) |
+| `routes/bioRoutes.js` 2.220 dòng | 19 dòng mục lục + `routes/bio/` (Admin, Me, Public, Write, Identity, `bioShared.js`) |
+| `routes/joyRoutes.js` 1.866 dòng | 17 dòng mục lục + `routes/joy/` (Wallet, Later, Shop, Rewards, `joyShared.js`) |
+
+Cách làm: tách bằng trình phân tích cú pháp, giữ nguyên từng dòng code; hàm phụ
+và limiter vào `*Shared.js` (một bản duy nhất, chung trạng thái). Đã kiểm: bảng
+route cũ và mới trùng khớp (admin 62, joy 43, bio 32 — bio trùng cả THỨ TỰ toàn
+cục vì có route `/:id` xen giữa), nạp được mọi module, `check:guards` quét đệ
+quy thư mục con.
+
+**Bước 2 (còn lại):** chuyển luật nghiệp vụ trong thân route vào class
+`XxxService` (không biết Express), route chỉ còn đọc req → gọi service → trả res.
+Làm theo từng tệp con, mỗi lần một PR.
+
 ## Còn lại (đợt 2–4, làm SAU sự kiện, mỗi đợt một PR)
 
-**Đợt 2 — export thừa.** 460 export trong 169 tệp không ai import (nhiều nhất:
+**(đã làm ở đợt 2)** 460 export trong 169 tệp không ai import (nhiều nhất:
 `HugeIcon.jsx` 49, `studentNewsService.js` 19, `joyPrices.js` 11). Bỏ chữ
 `export` hoặc xoá hàm nếu trong tệp cũng không dùng. 17 tệp vừa `export const X`
 vừa `export default X` — chọn một kiểu.
