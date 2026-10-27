@@ -71,6 +71,10 @@
       "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
     {
+      "source": "/collab/hwagfu",
+      "destination": "/collab/hwagfu/index.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     },

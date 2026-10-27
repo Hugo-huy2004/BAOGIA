@@ -3,11 +3,14 @@
  * Tuân thủ Quy tắc 4 (Viblo): Cấu hình tập trung trong thư mục config/
  */
 import OAuthClient from '../models/OAuthClient.js';
+import { PARTNER_HOST } from '../../shared/partnerCampaigns.js';
 
 export const allowedOrigins = [
   ...((process.env.CLIENT_URLS || "").split(",")),
   "https://www.hugowishpax.studio",
   "https://hugowishpax.studio",
+  // Trang chiến dịch hợp tác: cùng bản build SPA, gọi API chéo origin như www.
+  `https://${PARTNER_HOST}`,
   // The App Store build is not served over http(s): WKWebView loads it from
   // `capacitor://localhost`, and that string is what lands in the Origin
   // header. It is a constant baked into Capacitor, not a host anyone can point

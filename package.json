@@ -73,7 +73,8 @@
     "build:portfolio": "vite build --config vite.portfolio.config.js && node scripts/generate-portfolio-seo.mjs",
     "preview:portfolio": "vite preview --config vite.portfolio.config.js",
     "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs",
-    "deploy:portfolio": "node scripts/deploy-portfolio.mjs"
+    "deploy:portfolio": "node scripts/deploy-portfolio.mjs",
+    "og:partner": "node scripts/generate-partner-og.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.3",
@@ -105,6 +106,7 @@
     "canvas-confetti": "^1.9.4",
     "chess.js": "^1.4.0",
     "clsx": "^2.1.1",
+    "driver.js": "1.9.0",
     "framer-motion": "^12.42.2",
     "fuse.js": "^7.4.2",
     "hls.js": "^1.6.16",

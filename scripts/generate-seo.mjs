@@ -28,6 +28,7 @@ import { priceCurrency, servicePackages } from "../src/data/servicePackages.js";
 import { SERVICE_ADDONS, addonPath } from "../src/data/serviceAddons.js";
 import { projects } from "../src/data/projects.js";
 import { profileSkills, skillsCopy } from "../src/data/profileSkills.js";
+import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../shared/partnerCampaigns.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const isPortfolio = process.env.SITE_TARGET === "portfolio";
@@ -725,6 +726,93 @@ for (const [route, meta] of Object.entries(isPortfolio ? {} : SHARE_PAGES)) {
   sharePaths.push(route);
 }
 
+// ── Trang chiến dịch hợp tác (/collab/<slug>) ────────────────────────────────
+// Mỗi chiến dịch trong shared/partnerCampaigns.js có một trang tĩnh mang đúng
+// tiêu đề, mô tả, ảnh chia sẻ và lời mời — để Google, Zalo, Facebook đọc được
+// thư mời mà không cần chạy JS. Chiến dịch đang đứng ở tên miền partner lấy
+// canonical là tên miền đó; tên miền ấy cũng có sitemap/robots riêng
+// (middleware.js ở gốc repo trỏ chúng về đây).
+const partnerRewrites = [];
+if (!isPortfolio) {
+  for (const campaign of Object.values(PARTNER_CAMPAIGNS)) {
+    const meta = campaign.copy.vi;
+    const route = `/collab/${campaign.slug}`;
+    const onPartnerHost = campaign.slug === PARTNER_HOST_CAMPAIGN;
+    const url = onPartnerHost ? campaign.publicUrl : ORIGIN + route;
+    const image = { url: `${ORIGIN}/og/partner-${campaign.slug}.jpg`, type: "image/jpeg", width: 1200, height: 630 };
+    let html = sourceTemplate
+      .replace(/<html lang="[^"]*"/, '<html lang="vi"')
+      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(meta.metaTitle)}</title>`)
+      .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(meta.metaDescription)}" />`)
+      .replace(/<meta\s+name="keywords"\s+content="[\s\S]*?"\s*\/>/, `<meta name="keywords" content="${escAttr(meta.keywords)}" />`)
+      .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />`);
+    for (const [attr, name, value] of [
+      ["property", "og:title", meta.metaTitle], ["property", "og:description", meta.metaDescription],
+      ["property", "og:url", url], ["property", "og:image:alt", meta.metaTitle],
+      ["name", "twitter:title", meta.metaTitle], ["name", "twitter:description", meta.metaDescription],
+      ["name", "twitter:image:alt", meta.metaTitle],
+    ]) {
+      html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
+    }
+    html = applyOgImage(html, image);
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      url,
+      name: meta.metaTitle,
+      description: meta.metaDescription,
+      inLanguage: "vi",
+      image: image.url,
+      publisher: { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+      about: [
+        { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+        { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
+      ],
+      mainEntity: {
+        "@type": "Offer",
+        name: meta.metaTitle,
+        description: meta.metaDescription,
+        url,
+        price: "0",
+        priceCurrency: "VND",
+        availability: "https://schema.org/LimitedAvailability",
+        offeredBy: [
+          { "@type": "Organization", name: "Hugo Studio", url: ORIGIN },
+          { "@type": "Organization", name: campaign.partnerName, url: campaign.partnerUrl },
+        ],
+      },
+    };
+    html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
+    const perks = [
+      "Đăng ký tài khoản chỉ với một nút Google.",
+      `Tặng ${campaign.bioDays} ngày duy trì tài khoản & trang Bio; thêm ${campaign.eduBonusDays} ngày nếu đã xác minh giáo dục.`,
+      "Trải nghiệm các dịch vụ thành viên hoàn toàn miễn phí.",
+      `Ví JOY được tặng ${campaign.joy.toLocaleString("vi-VN")} JOY và có thể tham gia các dự án phi lợi nhuận tại Hugo Team.`,
+      "Số lượng có hạn, mỗi người nhận một lần.",
+    ];
+    const body =
+      `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6">` +
+      `<p>${escAttr(meta.eyebrow)}</p><h1>${escAttr(meta.metaTitle)}</h1><p>${escAttr(meta.lede)}</p>` +
+      `<ul>${perks.map((perk) => `<li>${escAttr(perk)}</li>`).join("")}</ul>` +
+      `<p><a href="${campaign.partnerUrl}">${escAttr(campaign.partnerName)}</a> · <a href="${ORIGIN}/">Hugo Studio</a></p></div>`;
+    html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
+    const out = path.join(DIST, route.replace(/^\//, ""));
+    fs.mkdirSync(out, { recursive: true });
+    fs.writeFileSync(path.join(out, "index.html"), html);
+    partnerRewrites.push({ source: route, destination: `${route}/index.html` });
+
+    if (onPartnerHost) {
+      const origin = campaign.publicUrl.replace(/\/$/, "");
+      fs.writeFileSync(path.join(DIST, "partner-sitemap.xml"),
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${origin}/</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`);
+      fs.writeFileSync(path.join(DIST, "partner-robots.txt"), `User-agent: *\nAllow: /\nDisallow: /member\nDisallow: /api\n\nSitemap: ${origin}/sitemap.xml\n`);
+      // Tên miền partner trỏ `/`, sitemap, robots về các file trên qua middleware.js
+      // (rewrite trong vercel.json thua file tĩnh cùng đường dẫn).
+    }
+  }
+}
+
 // ── sitemap.xml ───────────────────────────────────────────────────────────────
 // Chỉ xuất bản một trang ở ngôn ngữ khác khi nội dung THẬT SỰ khác bản tiếng
 // Việt. Trang chưa dịch mà vẫn đẻ ra /en/... thì đó là nội dung trùng lặp:
@@ -822,6 +910,7 @@ fs.writeFileSync(
 const vercelPath = path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json");
 const vercel = JSON.parse(fs.readFileSync(vercelPath, "utf8"));
 const generated = [
+  ...partnerRewrites,
   ...perLocale.flatMap(({ prefix, routes: list }) =>
     list.map((r) => ({ source: `${prefix}${r.path}`, destination: `${prefix}${r.path === "/" ? "" : r.path}/index.html` })),
   ),
@@ -837,8 +926,10 @@ const generatedSources = new Set(generated.map((r) => r.source));
 // lần build là quy tắc đó biến mất, và mọi đường dẫn phía client — /admin/…,
 // /member/… — mở trực tiếp hoặc tải lại trang sẽ không khớp quy tắc nào.
 const isGeneratedPageRule = (r) => r.destination === `${r.source === "/" ? "" : r.source.replace(/\/$/, "")}/index.html`;
+// Quy tắc theo tên miền partner cũng do script này sinh ra — nhận theo `has`.
+const isPartnerHostRule = (r) => r.has?.some((h) => h.type === "host" && h.value === PARTNER_HOST);
 const kept = vercel.rewrites.filter(
-  (r) => !generatedSources.has(r.source) && !isGeneratedPageRule(r),
+  (r) => isPartnerHostRule(r) ? false : (r.has || (!generatedSources.has(r.source) && !isGeneratedPageRule(r))),
 );
 // Vercel lấy quy tắc KHỚP ĐẦU TIÊN, nên chèn trước quy tắc bắt-tất-cả.
 // Nhận theo MẪU nguồn "/((?!…" chứ đừng theo đích: đích đã đổi từ /index.html

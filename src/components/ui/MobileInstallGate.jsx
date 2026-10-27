@@ -1,165 +1,154 @@
 /**
  * MobileInstallGate.jsx
  *
- * Màn hình chuẩn phong cách SwiftUI Liquid Glass (@expo/ui/swift-ui)
- * Hướng dẫn cài đặt PWA theo đúng nền tảng (iOS Safari, Android Chrome, Samsung Internet...)
- * đồng thời cung cấp tuỳ chọn "Tiếp tục trên trình duyệt" để không chặn người dùng hay lập trình viên thử nghiệm.
+ * Màn hướng dẫn cài PWA trên điện thoại, theo ngôn ngữ trang hỗ trợ của Apple:
+ * nền trơn, chữ hệ thống, video hướng dẫn ở giữa, danh sách bước dạng nhóm
+ * (inset grouped), biểu tượng một màu. Các bước theo đúng nền tảng (Safari,
+ * trình duyệt trong Zalo/Facebook, Chrome, Samsung Internet, Firefox).
+ *
+ * Mặc định là cổng của khu thành viên. Trang khác dùng lại được:
+ *   title/lede     — lời riêng (vd. trang chiến dịch partner)
+ *   copyPath       — đường sẽ chép vào clipboard
+ *   allowBypass    — false: bắt buộc dùng app, ẩn "Tiếp tục trên trình duyệt"
+ *   onClose        — có thì hiện nút quay lại
  */
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { detectInstallTarget } from "../../config/platform";
 import { usePWA } from "../../hooks/usePWA";
-import { SwiftUIButton } from "./swiftui";
 
 // Video hướng dẫn có ba bản (render từ artifacts/pwa-install-guide/source).
 // Chữ Nôm dùng bản Việt; ngôn ngữ khác chưa có bản riêng thì xem bản Anh.
-function installVideoLang(language = "") {
+function installLang(language = "") {
   const base = language.slice(0, 2);
   if (base === "vi" || language.startsWith("nom")) return "vi";
   return base === "zh" ? "zh" : "en";
 }
 
-const SAFARI_STEPS = [
-  {
-    icon: "ios_share",
-    tint: "from-blue-500 to-indigo-600",
-    title: "Nhấn nút Chia sẻ",
-    desc: "Ô vuông có mũi tên hướng lên, nằm giữa thanh công cụ dưới cùng của Safari.",
+const COPY = {
+  vi: {
+    title: "Cài app để tiếp tục",
+    lede: "Khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài — mở toàn màn hình, nhanh và gọn.",
+    guideFor: (device) => `Hướng dẫn cho ${device}`,
+    installNow: "Cài đặt",
+    stepsHeader: "Các bước",
+    copyLink: "Sao chép liên kết",
+    copied: "Đã sao chép",
+    bypass: "Tiếp tục trên trình duyệt",
+    recheck: "Tôi đã cài xong",
+    back: "Quay lại",
+    footer: "Trên máy tính, Hugo Studio vẫn dùng bình thường trong trình duyệt.",
+    steps: {
+      openInSafariInApp: ["Mở bằng Safari", "Trình duyệt trong Zalo hay Facebook không cài được app. Chạm ••• rồi chọn “Mở trong Safari”."],
+      openInChromeInApp: ["Mở bằng Chrome", "Trình duyệt trong Zalo hay Facebook không cài được app. Chạm ⋮ rồi chọn “Mở bằng trình duyệt khác” → Chrome."],
+      switchToSafari: ["Chuyển sang Safari", "Trên iPhone, chỉ Safari cài app ổn định. Sao chép liên kết rồi dán vào Safari."],
+      share: ["Chạm nút Chia sẻ", "Ô vuông có mũi tên hướng lên, ở thanh dưới cùng của Safari."],
+      addHome: ["Chọn “Thêm vào Màn hình chính”", "Kéo danh sách lên nếu chưa thấy."],
+      webApp: ["Bật “Mở dưới dạng ứng dụng web”, chạm Thêm", "Công tắc này giúp app mở toàn màn hình."],
+      openIcon: ["Mở từ màn hình chính", "Chạm biểu tượng Hugo Studio vừa tạo."],
+      chromeMenu: ["Chạm ⋮ ở góc trên bên phải", "Menu của Chrome hoặc Edge."],
+      chromeInstall: ["Chọn “Cài đặt ứng dụng”, rồi xác nhận", "Một số máy ghi là “Thêm vào màn hình chính”."],
+      samsungMenu: ["Chạm ☰ ở góc dưới bên phải", "Thanh công cụ của Samsung Internet."],
+      samsungAdd: ["Chọn “Thêm trang vào” → “Màn hình chính”", "Rồi chạm Thêm."],
+      firefoxMenu: ["Chạm ⋮ ở góc trên bên phải", "Menu của Firefox."],
+      firefoxAdd: ["Chọn “Thêm vào Màn hình chính”", "Giữ nguyên tên rồi xác nhận."],
+    },
   },
-  {
-    icon: "add_box",
-    tint: "from-purple-500 to-pink-600",
-    title: 'Chọn "Thêm vào MH chính"',
-    desc: 'Vuốt danh sách lên tới mục "Thêm vào Màn hình chính" (Add to Home Screen).',
+  en: {
+    title: "Install the app to continue",
+    lede: "The member area is built for the installed Hugo Studio app — full screen, fast and clean.",
+    guideFor: (device) => `Guide for ${device}`,
+    installNow: "Install",
+    stepsHeader: "Steps",
+    copyLink: "Copy link",
+    copied: "Copied",
+    bypass: "Continue in the browser",
+    recheck: "I've installed it",
+    back: "Back",
+    footer: "On a computer, Hugo Studio works as usual in the browser.",
+    steps: {
+      openInSafariInApp: ["Open in Safari", "In-app browsers like Zalo or Facebook can't install apps. Tap ••• and choose “Open in Safari”."],
+      openInChromeInApp: ["Open in Chrome", "In-app browsers like Zalo or Facebook can't install apps. Tap ⋮ and choose “Open in another browser” → Chrome."],
+      switchToSafari: ["Switch to Safari", "On iPhone, only Safari installs apps reliably. Copy the link and paste it into Safari."],
+      share: ["Tap Share", "The square with an arrow pointing up, in Safari's bottom bar."],
+      addHome: ["Choose “Add to Home Screen”", "Scroll the list up if you don't see it."],
+      webApp: ["Turn on “Open as Web App”, tap Add", "This switch makes the app open full screen."],
+      openIcon: ["Open it from your home screen", "Tap the new Hugo Studio icon."],
+      chromeMenu: ["Tap ⋮ in the top right", "The Chrome or Edge menu."],
+      chromeInstall: ["Choose “Install app”, then confirm", "Some phones say “Add to Home screen”."],
+      samsungMenu: ["Tap ☰ in the bottom right", "Samsung Internet's toolbar."],
+      samsungAdd: ["Choose “Add page to” → “Home screen”", "Then tap Add."],
+      firefoxMenu: ["Tap ⋮ in the top right", "The Firefox menu."],
+      firefoxAdd: ["Choose “Add to Home screen”", "Keep the name and confirm."],
+    },
   },
-  {
-    icon: "check_circle",
-    tint: "from-emerald-500 to-teal-600",
-    title: 'Nhấn "Thêm"',
-    desc: "Nút ở góc trên bên phải. Icon Hugo Studio xuất hiện ngay trên màn hình chính.",
+  zh: {
+    title: "安装 App 以继续",
+    lede: "会员区专为已安装的 Hugo Studio App 优化——全屏、流畅、简洁。",
+    guideFor: (device) => `${device} 安装指南`,
+    installNow: "安装",
+    stepsHeader: "步骤",
+    copyLink: "拷贝链接",
+    copied: "已拷贝",
+    bypass: "继续在浏览器中使用",
+    recheck: "我已安装",
+    back: "返回",
+    footer: "在电脑上，Hugo Studio 仍可在浏览器中正常使用。",
+    steps: {
+      openInSafariInApp: ["用 Safari 打开", "Zalo、Facebook 内置浏览器无法安装 App。点按 •••，选择“在 Safari 中打开”。"],
+      openInChromeInApp: ["用 Chrome 打开", "Zalo、Facebook 内置浏览器无法安装 App。点按 ⋮，选择“用其他浏览器打开”→ Chrome。"],
+      switchToSafari: ["切换到 Safari", "在 iPhone 上，只有 Safari 能稳定安装 App。拷贝链接后粘贴到 Safari。"],
+      share: ["点按“共享”", "Safari 底部栏中带向上箭头的方框。"],
+      addHome: ["选择“添加到主屏幕”", "没看到的话，把列表往上滑。"],
+      webApp: ["打开“作为网页 App 打开”，点按添加", "这样 App 会全屏打开。"],
+      openIcon: ["从主屏幕打开", "点按新建的 Hugo Studio 图标。"],
+      chromeMenu: ["点按右上角的 ⋮", "Chrome 或 Edge 的菜单。"],
+      chromeInstall: ["选择“安装应用”并确认", "部分手机显示为“添加到主屏幕”。"],
+      samsungMenu: ["点按右下角的 ☰", "Samsung Internet 的工具栏。"],
+      samsungAdd: ["选择“添加页面到”→“主屏幕”", "然后点按添加。"],
+      firefoxMenu: ["点按右上角的 ⋮", "Firefox 的菜单。"],
+      firefoxAdd: ["选择“添加到主屏幕”", "保留名称并确认。"],
+    },
   },
-  {
-    icon: "touch_app",
-    tint: "from-sky-500 to-cyan-600",
-    title: "Mở app từ màn hình chính",
-    desc: "Thoát Safari và mở bằng icon vừa tạo — từ đây app chạy full màn hình.",
-  },
-];
+};
 
-function stepsFor({ iOS, android, inApp, browser }) {
-  const openInSystemBrowser = {
-    icon: "open_in_new",
-    tint: "from-amber-500 to-orange-600",
-    title: iOS ? "Mở lại bằng Safari" : "Mở lại bằng Chrome",
-    desc: iOS
-      ? 'Trình duyệt bên trong Zalo/Facebook không cài được app. Nhấn "..." ở góc màn hình rồi chọn "Mở trong Safari", hoặc sao chép liên kết bên dưới và dán vào Safari.'
-      : 'Trình duyệt bên trong Zalo/Facebook không cài được app. Nhấn "⋮" ở góc màn hình rồi chọn "Mở bằng trình duyệt khác" → Chrome, hoặc sao chép liên kết bên dưới và dán vào Chrome.',
-  };
-
+/** Danh sách khoá bước theo đúng nền tảng/trình duyệt đang dùng. */
+function stepKeys({ iOS, android, inApp, browser }) {
   if (iOS) {
-    const steps = [...SAFARI_STEPS];
-    if (inApp) return [openInSystemBrowser, ...steps];
-    if (browser !== "safari") {
-      return [
-        {
-          icon: "open_in_new",
-          tint: "from-blue-500 to-sky-600",
-          title: "Chuyển sang Safari",
-          desc: "Trên iPhone chỉ Safari cài app ổn định. Sao chép liên kết bên dưới, mở Safari và dán vào thanh địa chỉ.",
-        },
-        ...steps,
-      ];
-    }
-    return steps;
+    const safari = ["share", "addHome", "webApp", "openIcon"];
+    if (inApp) return ["openInSafariInApp", ...safari];
+    if (browser !== "safari") return ["switchToSafari", ...safari];
+    return safari;
   }
-
-  if (inApp) {
-    return [
-      openInSystemBrowser,
-      {
-        icon: "install_mobile",
-        tint: "from-blue-500 to-indigo-600",
-        title: 'Chọn "Cài đặt ứng dụng"',
-        desc: "Chrome sẽ tự hiện thanh mời cài. Nếu không thấy, mở menu ⋮ ở góc trên bên phải.",
-      },
-    ];
-  }
-
-  if (android && browser === "samsung") {
-    return [
-      {
-        icon: "menu",
-        tint: "from-purple-500 to-indigo-600",
-        title: "Nhấn nút ☰ ở góc dưới bên phải",
-        desc: "Thanh công cụ của Samsung Internet nằm ở cạnh dưới màn hình.",
-      },
-      {
-        icon: "add_to_home_screen",
-        tint: "from-cyan-500 to-blue-600",
-        title: 'Chọn "Thêm trang vào"',
-        desc: 'Rồi chọn tiếp "Màn hình chính".',
-      },
-      {
-        icon: "check_circle",
-        tint: "from-emerald-500 to-teal-600",
-        title: 'Nhấn "Thêm"',
-        desc: "Icon Hugo Studio xuất hiện trên màn hình chính.",
-      },
-    ];
-  }
-
-  if (android && browser === "firefox") {
-    return [
-      {
-        icon: "more_vert",
-        tint: "from-orange-500 to-amber-600",
-        title: "Nhấn nút ⋮ ở góc trên bên phải",
-        desc: "Menu của Firefox cho Android.",
-      },
-      {
-        icon: "add_to_home_screen",
-        tint: "from-blue-500 to-indigo-600",
-        title: 'Chọn "Thêm vào Màn hình chính"',
-        desc: "Firefox sẽ hỏi tên icon, giữ nguyên rồi xác nhận.",
-      },
-    ];
-  }
-
-  return [
-    {
-      icon: "more_vert",
-      tint: "from-blue-500 to-indigo-600",
-      title: "Nhấn nút ⋮ ở góc trên bên phải",
-      desc: "Menu của Chrome/Edge cho Android.",
-    },
-    {
-      icon: "install_mobile",
-      tint: "from-purple-500 to-pink-600",
-      title: 'Chọn "Cài đặt ứng dụng"',
-      desc: 'Một số máy hiển thị là "Thêm vào Màn hình chính".',
-    },
-    {
-      icon: "check_circle",
-      tint: "from-emerald-500 to-teal-600",
-      title: 'Nhấn "Cài đặt" để xác nhận',
-      desc: "Icon Hugo Studio xuất hiện trên màn hình chính.",
-    },
-  ];
+  if (inApp) return ["openInChromeInApp", "chromeMenu", "chromeInstall", "openIcon"];
+  if (android && browser === "samsung") return ["samsungMenu", "samsungAdd", "openIcon"];
+  if (android && browser === "firefox") return ["firefoxMenu", "firefoxAdd", "openIcon"];
+  return ["chromeMenu", "chromeInstall", "openIcon"];
 }
 
-export default function MobileInstallGate({ onBypass }) {
+const linkClass = "text-[17px] text-[#0071e3] dark:text-[#2997ff] active:opacity-60";
+
+export default function MobileInstallGate({
+  onBypass,
+  title,
+  lede,
+  copyPath = "/member/today",
+  allowBypass = true,
+  onClose,
+}) {
   const target = detectInstallTarget();
   const { i18n } = useTranslation();
-  const videoLang = installVideoLang(i18n.resolvedLanguage || i18n.language);
+  const lang = installLang(i18n.resolvedLanguage || i18n.language);
+  const t = COPY[lang];
   const { canInstall, install } = usePWA();
   const [copied, setCopied] = useState(false);
-  const steps = stepsFor(target);
-  const deviceLabel = target.iOS ? "iPhone / iPad" : "Android";
+  const steps = stepKeys(target).map((key) => t.steps[key]);
+  const device = target.iOS ? "iPhone & iPad" : "Android";
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.origin + "/member/today");
+      await navigator.clipboard.writeText(window.location.origin + copyPath);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
@@ -170,141 +159,103 @@ export default function MobileInstallGate({ onBypass }) {
   const handleBypassWeb = () => {
     try {
       sessionStorage.setItem("pwa_gate_dismissed", "true");
-    } catch {}
-    if (onBypass) {
-      onBypass();
-    } else {
-      window.location.reload();
-    }
+    } catch { /* storage bị chặn */ }
+    if (onBypass) onBypass();
+    else window.location.reload();
   };
 
   return (
-    <div className="relative min-h-[100dvh] flex flex-col items-center justify-center bg-background px-4 py-8 text-foreground overflow-x-hidden">
-      {/* Ambient background glow & mesh lights */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] bg-primary/15 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[280px] h-[280px] bg-sky-500/10 rounded-full blur-[90px] pointer-events-none" />
+    <div className="min-h-[100dvh] bg-[#f5f5f7] text-[#1d1d1f] dark:bg-black dark:text-[#f5f5f7] antialiased">
+      <div className="mx-auto w-full max-w-md px-5 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+        {onClose ? (
+          <button type="button" onClick={onClose} className={`-ml-1 inline-flex h-11 items-center gap-0.5 ${linkClass}`}>
+            <span className="material-symbols-outlined text-[26px]" aria-hidden="true">chevron_left</span>
+            {t.back}
+          </button>
+        ) : (
+          <div className="h-11" />
+        )}
 
-      <div className="relative z-10 w-full max-w-md mx-auto space-y-5 text-left">
-        {/* Header Hero Card with Liquid Glass */}
-        <div className="swiftui-liquid-glass p-6 text-center flex flex-col items-center">
-          {/* iOS App Icon Squircle */}
-          <div className="relative mb-4">
-            <div className="size-16 rounded-[22%] bg-gradient-to-tr from-primary to-sky-400 p-[1px] shadow-xl flex items-center justify-center">
-              <div className="size-full rounded-[21%] bg-card flex items-center justify-center backdrop-blur-md">
-                <span className="material-symbols-outlined text-[32px] text-primary">
-                  install_mobile
-                </span>
-              </div>
-            </div>
-            <span className="absolute -bottom-1 -right-1 size-5 rounded-full bg-emerald-500 border-2 border-card flex items-center justify-center shadow-xs">
-              <span className="material-symbols-outlined text-white text-[13px] font-black">
-                arrow_downward
-              </span>
-            </span>
-          </div>
-
-          <h1 className="text-2xl font-black tracking-tight text-foreground">
-            Cài app để tiếp tục
+        <header className="mt-4 flex flex-col items-center text-center">
+          <img
+            src="/favicon/web-app-manifest-512x512.png"
+            alt=""
+            width="76"
+            height="76"
+            className="size-[76px] rounded-[22%] shadow-[0_8px_24px_-10px_rgba(0,0,0,.35)]"
+          />
+          <h1 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.02em] [text-wrap:balance]">
+            {title || t.title}
           </h1>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground max-w-sm">
-            Để có trải nghiệm mượt mà với hiệu năng native, khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài.
+          <p className="mt-2 max-w-[22rem] text-[17px] leading-snug text-[#6e6e73] dark:text-[#a1a1a6]">
+            {lede || t.lede}
           </p>
-
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1 swiftui-glass text-primary text-[13px] font-semibold border border-primary/20">
-            <span className="material-symbols-outlined text-[16px]">
-              {target.iOS ? "phone_iphone" : "phone_android"}
-            </span>
-            <span>Hướng dẫn cho {deviceLabel}</span>
-          </div>
-        </div>
+        </header>
 
         <video
-          key={videoLang}
-          src={`/video/pwa-install/${videoLang}.mp4`}
-          poster={`/video/pwa-install/${videoLang}.jpg`}
+          key={lang}
+          src={`/video/pwa-install/${lang}.mp4`}
+          poster={`/video/pwa-install/${lang}.jpg`}
           controls
           playsInline
           preload="none"
-          className="mx-auto block aspect-[9/16] max-h-[70dvh] w-full max-w-[320px] rounded-2xl bg-black object-contain"
+          className="mx-auto mt-7 block aspect-[9/16] w-full max-w-[300px] rounded-[28px] bg-white object-cover shadow-[0_20px_50px_-24px_rgba(0,0,0,.35)] dark:bg-[#1c1c1e]"
         />
 
-        {/* 1-Tap Quick Install Button (if browser supports BeforeInstallPrompt) */}
         {canInstall && (
-          <SwiftUIButton
-            variant="prominent"
-            size="lg"
-            className="w-full font-bold shadow-lg"
+          <button
+            type="button"
             onClick={install}
-            icon="download"
+            className="mt-7 flex h-[52px] w-full items-center justify-center rounded-full bg-[#0071e3] text-[17px] font-semibold text-white active:opacity-80"
           >
-            Cài đặt ngay (1 chạm)
-          </SwiftUIButton>
+            {t.installNow}
+          </button>
         )}
 
-        {/* Step-by-step Installation Inset Grouped Section */}
-        <div className="swiftui-grouped-card divide-y divide-border/40">
-          <div className="px-4 py-3 bg-muted/30 border-b border-border/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-            Các bước cài đặt ({steps.length} bước)
+        <section className="mt-8" aria-labelledby="install-steps">
+          <div className="flex items-baseline justify-between px-4 pb-2">
+            <h2 id="install-steps" className="text-[13px] font-normal uppercase tracking-[0.02em] text-[#6e6e73] dark:text-[#8e8e93]">
+              {t.stepsHeader}
+            </h2>
+            <span className="text-[13px] text-[#6e6e73] dark:text-[#8e8e93]">{t.guideFor(device)}</span>
           </div>
-
-          {steps.map((step, i) => (
-            <div key={step.title} className="flex items-start gap-3.5 p-4 hover:bg-muted/20 transition-colors">
-              <div className={`size-8 shrink-0 rounded-xl bg-gradient-to-tr ${step.tint || "from-primary to-sky-500"} text-white flex items-center justify-center text-[13px] font-bold shadow-xs mt-0.5`}>
-                {i + 1}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 text-[15px] font-bold text-foreground">
-                  <span className="material-symbols-outlined text-[18px] text-muted-foreground">
-                    {step.icon}
-                  </span>
-                  <span>{step.title}</span>
+          <ol className="overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e]">
+            {steps.map(([stepTitle, desc], index) => (
+              <li key={stepTitle} className="flex gap-3.5 px-4 py-3.5 [&+&]:border-t [&+&]:border-black/[.08] dark:[&+&]:border-white/10">
+                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-[#e8e8ed] text-[14px] font-semibold dark:bg-[#2c2c2e]">
+                  {index + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[17px] font-medium leading-snug">{stepTitle}</p>
+                  <p className="mt-0.5 text-[15px] leading-snug text-[#6e6e73] dark:text-[#a1a1a6]">{desc}</p>
                 </div>
-                <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-                  {step.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-        {/* Action Controls */}
-        <div className="space-y-2.5 pt-1">
-          <SwiftUIButton
-            variant="bordered"
-            size="md"
-            className="w-full font-semibold"
-            onClick={copyLink}
-            icon={copied ? "check" : "content_copy"}
-          >
-            {copied ? "Đã sao chép liên kết" : "Sao chép liên kết"}
-          </SwiftUIButton>
-
-          {/* Bypass Button: Allows web browsing without barrier */}
-          <SwiftUIButton
-            variant="tinted"
-            size="md"
-            className="w-full font-semibold"
-            onClick={handleBypassWeb}
-            icon="open_in_browser"
-          >
-            Tiếp tục trên trình duyệt (Dùng thử Web)
-          </SwiftUIButton>
-        </div>
-
-        {/* Re-check trigger */}
-        <div className="text-center pt-2">
+        <div className="mt-6 overflow-hidden rounded-2xl bg-white dark:bg-[#1c1c1e]">
+          <button type="button" onClick={copyLink} className={`flex h-12 w-full items-center justify-between px-4 ${linkClass}`}>
+            {copied ? t.copied : t.copyLink}
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{copied ? "check" : "content_copy"}</span>
+          </button>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="text-[13px] font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+            className={`flex h-12 w-full items-center justify-between border-t border-black/[.08] px-4 dark:border-white/10 ${linkClass}`}
           >
-            Tôi đã cài xong — kiểm tra lại
+            {t.recheck}
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
           </button>
         </div>
 
-        <p className="text-center text-[13px] leading-relaxed text-muted-foreground/75 px-2">
-          Máy tính vẫn dùng được bình thường qua trình duyệt. Cần hỗ trợ, nhắn cho Hugo Studio từ trang chủ.
-        </p>
+        {allowBypass && (
+          <button type="button" onClick={handleBypassWeb} className="mx-auto mt-5 block text-[15px] text-[#6e6e73] underline-offset-4 active:opacity-60 dark:text-[#a1a1a6]">
+            {t.bypass}
+          </button>
+        )}
+
+        <p className="mt-6 px-4 text-center text-[13px] leading-snug text-[#86868b]">{t.footer}</p>
       </div>
     </div>
   );

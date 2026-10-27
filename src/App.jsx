@@ -38,6 +38,8 @@ import ScreenProtection from "./components/security/ScreenProtection";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
+import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../shared/partnerCampaigns";
+import { isPartnerWelcomed } from "./utils/partnerWelcome";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
@@ -79,6 +81,7 @@ const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
 const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
+const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/PartnerCollabPage"));
 
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
@@ -139,6 +142,11 @@ function AppContent() {
     !hostname.endsWith("hugowishpax.studio") &&
     !hostname.endsWith("vercel.app")
   );
+  // Trang chiến dịch hợp tác: /collab/<slug> trên mọi tên miền, và trang gốc
+  // của partner.hugowishpax.studio. Các đường khác trên tên miền partner vẫn là
+  // app bình thường — nhờ vậy liên kết /member/... sau khi nhận quà giữ nguyên phiên.
+  const isPartnerHost = hostname === PARTNER_HOST;
+  const isCollabRoute = location.pathname.startsWith("/collab/") || (isPartnerHost && location.pathname === "/");
   const isBioRoute = location.pathname.startsWith('/bio/') || location.pathname.startsWith('/b/') || isCustomDomainHost;
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
@@ -188,6 +196,18 @@ function AppContent() {
     }
   });
 
+  // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
+  // chào mừng của chiến dịch trên máy này → đưa về trang nhận quà trước.
+  if (
+    isPartnerHost &&
+    isPWA &&
+    location.pathname.startsWith("/member") &&
+    new URLSearchParams(location.search).get("source") === "pwa" &&
+    !isPartnerWelcomed(PARTNER_HOST_CAMPAIGN)
+  ) {
+    return <Navigate to="/" replace />;
+  }
+
   // Trên điện thoại, khu vực thành viên ưu tiên chạy trong app đã cài:
   // Nếu chưa cài và chưa bấm tiếp tục trên web, hiện màn hướng dẫn SwiftUI.
   // Miễn trừ ?embed=true, ?preview=true hoặc khi người dùng đã bấm tiếp tục trên web.
@@ -210,6 +230,17 @@ function AppContent() {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
         <BioPublicPage />
+      </Suspense>
+    );
+  }
+
+  if (isCollabRoute) {
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-[#0d0b1a]"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div></div>}>
+        <Routes>
+          <Route path="/" element={<PartnerCollabPage />} />
+          <Route path="/collab/:slug" element={<PartnerCollabPage />} />
+        </Routes>
       </Suspense>
     );
   }
