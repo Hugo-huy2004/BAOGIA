@@ -25,6 +25,17 @@ function memberEmail(req) {
   }
 }
 
+/**
+ * Khoá đếm cho limiter của từng route: tài khoản (requireMember đã gắn, hoặc
+ * token hợp lệ), không có thì mới tới IP. Lượt đi www → Vercel → api mà chưa có
+ * chữ ký edge thì IP là IP Vercel, cả trăm người chung một bucket — đếm theo IP
+ * ở đó là một lớp học 200 người cùng đọc bài nhận 429 hàng loạt.
+ */
+export function accountOrIpKey(req) {
+  const email = req.memberEmail || req.limiterEmail || memberEmail(req);
+  return email ? `m:${String(email).toLowerCase()}` : ipKeyGenerator(req.ip);
+}
+
 function subjectKey(req) {
   req.limiterEmail = memberEmail(req);
   return req.limiterEmail ? `m:${req.limiterEmail}` : ipKeyGenerator(req.ip);
@@ -46,7 +57,10 @@ setInterval(() => {
 
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isDev ? 0 : 1500, // 0 = unlimited in dev; 1500/15 min (1.67 req/s avg) in prod
+  // Thành viên đếm theo tài khoản: 1500/15 phút. Khách ẩn danh đếm theo IP mà IP
+  // có thể là của Vercel (chung cho mọi người chưa đăng nhập) nên trần rộng hơn;
+  // lũ thật do khiên tải (loadShield) chặn theo tổng lưu lượng.
+  max: (req) => (isDev ? 0 : req.limiterEmail ? 1500 : 6000),
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || trustedIp(req.ip) || req.originalUrl.startsWith('/api/ops'),

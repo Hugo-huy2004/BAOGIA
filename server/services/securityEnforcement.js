@@ -1,3 +1,4 @@
+import { signedClientIp } from '../utils/clientIp.js';
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import dns from 'node:dns/promises';
@@ -679,6 +680,10 @@ async function maybeAutoBlock(req, network) {
   if (!threshold || threshold < 1) return;
   const ip = String(req.ip || '').replace(/^::ffff:/, '');
   if (!ip) return;
+  // Lượt Vercel chuyển tiếp mà thiếu chữ ký edge: req.ip là IP Vercel, dùng
+  // chung cho mọi khách đi qua www. Chặn nó là chặn cả web 7 ngày — kẻ xấu chỉ
+  // cần dò 8 lần qua www. Chỉ ghi sổ, không tự chặn.
+  if (req.headers['x-vercel-id'] && !signedClientIp(req)) return;
 
   const now = Date.now();
   for (const [k, at] of autoBlocked) if (now - at > 60 * 60 * 1000) autoBlocked.delete(k);

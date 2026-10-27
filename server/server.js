@@ -258,6 +258,10 @@ const server = http.createServer(app);
 // (mặc định Node là 60 giây / 5 phút). Chỉ đo chiều GỬI LÊN — luồng SSE trả về của AI không bị cắt.
 server.headersTimeout = 15_000;
 server.requestTimeout = 60_000;
+// Giữ kết nối rảnh lâu hơn proxy phía trước (Render/Cloudflare ~60 giây). Mặc
+// định 5 giây của Node làm proxy tái dùng một socket mà Node vừa đóng — lúc
+// đông người, đó là những lỗi 502 lác đác không tái hiện được.
+server.keepAliveTimeout = 65_000;
 
 // WebSocket servers & upgrade dispatcher — quản lý tập trung trong services/websocketServer.js (Quy tắc 2).
 // Phục vụ các kênh WS: '/ws' (realtime) và '/ws/chess' (cờ vua).

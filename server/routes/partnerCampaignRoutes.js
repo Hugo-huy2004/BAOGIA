@@ -46,11 +46,14 @@ const slotsUsed = async (slug) => (await Counter.findById(slotKey(slug)).lean())
 // (cộng cache CDN ở route): lũ request dừng ở đây, DB chỉ thấy vài lượt/phút.
 const OPEN_CACHE_MS = 15 * 1000;
 const openCache = new Map();
-const cachedSlotsUsed = async (slug) => {
+// Giữ lời hứa chứ không giữ con số: hết hạn giữa lúc đông thì cả trăm request
+// chờ chung MỘT lượt đếm thay vì mỗi người một truy vấn.
+const cachedSlotsUsed = (slug) => {
   const hit = openCache.get(slug);
   if (hit && Date.now() - hit.at < OPEN_CACHE_MS) return hit.used;
-  const used = await slotsUsed(slug);
+  const used = slotsUsed(slug);
   openCache.set(slug, { at: Date.now(), used });
+  used.catch(() => openCache.delete(slug));
   return used;
 };
 

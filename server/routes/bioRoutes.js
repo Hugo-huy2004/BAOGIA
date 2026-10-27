@@ -38,6 +38,7 @@ import { maskEmail } from '../utils/piiMasker.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import InAppNotification from '../models/InAppNotification.js';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { accountOrIpKey } from '../config/limiter.js';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import redisSlugService from '../services/redisSlugService.js';
@@ -49,6 +50,7 @@ import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../utils/studentRewar
 import { fetchTelegramFile } from '../services/telegramService.js';
 
 const checkLocationLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 5 * 60 * 1000,
   max: 10,
   message: { error: 'Bạn đang cập nhật vị trí quá nhanh. Vui lòng đợi vài phút.' }

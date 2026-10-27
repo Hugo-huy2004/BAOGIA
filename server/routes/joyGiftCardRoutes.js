@@ -4,6 +4,7 @@ import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import rateLimit from 'express-rate-limit';
+import { accountOrIpKey } from '../config/limiter.js';
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ function generateCode() {
 
 const GIFT_CARD_VALIDITY_MS = 365 * 24 * 60 * 60 * 1000;
 const redeemLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === 'production' ? 10 : 1000,
   standardHeaders: true,

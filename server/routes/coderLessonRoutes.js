@@ -1,5 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import { accountOrIpKey } from '../config/limiter.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import {
   getLessonList,
@@ -12,6 +13,7 @@ import {
 const router = express.Router();
 
 const gradeLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 60_000,
   max: 20,
   standardHeaders: true,
@@ -19,6 +21,7 @@ const gradeLimiter = rateLimit({
 });
 
 const feedbackLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 10 * 60_000,
   max: 5,
   standardHeaders: true,
@@ -29,6 +32,7 @@ const feedbackLimiter = rateLimit({
 // lessonController) và thêm giới hạn tần suất đọc để không ai cào cả khoá bằng
 // script. Giới hạn rộng rãi nên người học bình thường không bao giờ chạm tới.
 const readLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
   windowMs: 60_000,
   max: 90,
   standardHeaders: true,

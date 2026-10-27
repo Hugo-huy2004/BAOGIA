@@ -1,26 +1,17 @@
 import { lazy, Suspense, useEffect } from "react";
-import MemberNomTab from "./nom/MemberNomTab";
 import { useTranslation } from "react-i18next";
 import { changeAppLanguage } from "../../i18n/config";
 import { psychologyGate } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import { trackOpen } from "./os/appUsage";
+import { APP_COMPONENTS, resolveAppId } from "./os/appIndex";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
 import { useIsMobile } from "../../hooks/useIsMobile";
-
-const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
-const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
-const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
-const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
-const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
-const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
-const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
-const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
-const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
-const JoyWalletApp = lazy(() => import("./wallet/JoyWalletApp"));
 import BackButton, { CLOSE_BUTTON_EDGE } from "./shared/BackButton";
 import LazyBoundary from "./os/LazyBoundary";
+
+const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -68,6 +59,31 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     ? psychologyGate(i18n.resolvedLanguage || i18n.language, bio)
     : null;
 
+  // Mọi app nạp qua mục lục chung os/appIndex.js; ở đây chỉ còn việc trao
+  // props. Phần chung đi cho mọi app, phần riêng theo id.
+  const appId = selectedUtility ? resolveAppId(selectedUtility) : null;
+  const ActiveApp = appId ? APP_COMPONENTS[appId] : null;
+  const close = () => onSelectUtility(null);
+  const sharedProps = { bio, showToast, onBack: close, onBioUpdate };
+  const routeProps = { route: appRoute, onRouteChange: onAppRouteChange };
+  const appProps = {
+    // Màn đang mở của HugoKit đọc từ URL (/member/utilities/handle/<toolId>):
+    // tải lại trang, back của máy hay dán link đều về đúng công cụ đó.
+    handle: { ...sharedProps, ...routeProps, publicLink, setFormData, handleSave },
+    psychology: {
+      ...sharedProps, route: appRoute || "chat", onRouteChange: onAppRouteChange,
+      defaultPresetTest: defaultPsychologyPresetTest, setFormData, handleSave, sleepAutoDetect,
+    },
+    joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
+    study: { ...sharedProps, studyRoute, studySub },
+    team: sharedProps,
+    arcade: sharedProps,
+    nom: { onBack: close, ...routeProps },
+    aura: { ...sharedProps, ...routeProps },
+    bio: { ...sharedProps, ...routeProps, publicLink, renderAccountForm, handleSave },
+    store: { ...sharedProps, ...routeProps, onOpenUtility: onSelectUtility },
+  }[appId] || sharedProps;
+
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden relative" : "space-y-6 animate-fadeIn relative"}>
       {/* ── Nút Đóng / Thoát Ứng Dụng Chuẩn Hoá Toàn Cục (Top-Right Red X Circle) ── */}
@@ -103,115 +119,12 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {selectedUtility !== null && (
         <LazyBoundary resetKey={selectedUtility} onBack={() => onSelectUtility(null)}>
-          {/* HugoKit — QR/NFC, chữ ký email, link bảo mật và xử lý tệp gộp làm một.
-              Id cũ "helpdesk" vẫn mở app này để bookmark và icon đã cài không hỏng. */}
-          {["handle", "helpdesk"].includes(selectedUtility) && (
-            <HugoKitApp
-          bio={bio}
-          publicLink={publicLink}
-          showToast={showToast}
-          onBack={() => onSelectUtility(null)}
-          setFormData={setFormData}
-          handleSave={handleSave}
-          /* Màn đang mở đọc từ URL (/member/utilities/handle/<toolId>) chứ không
-             giữ trong state: tải lại trang, bấm back của máy, hay dán link đều
-             về đúng công cụ đó. */
-          route={appRoute}
-          onRouteChange={onAppRouteChange}
-        />
-      )}
-
-      {/* HugoPSY chỉ soạn bằng tiếng Việt (kể cả đường dây nóng là số Việt Nam) */}
-      {psyGate === "language" && (
-        <VietnameseOnlyNotice onBack={() => onSelectUtility(null)} />
-      )}
-
-      {/* HugoPSY chỉ dành cho thành viên từ 18 tuổi. Màn này để nguyên tiếng
-          Việt là đúng: cổng ngôn ngữ ở trên đã lọc trước nó. */}
-      {psyGate === "minor" && (
-        <AdultOnlyNotice onBack={() => onSelectUtility(null)} />
-      )}
-
-      {/* Psychology Advisor Tool - HugoPSY */}
-      {psyGate === "open" && (
-        <BanhocduongTab
-          onBack={() => onSelectUtility(null)}
-          route={appRoute || "chat"}
-          onRouteChange={onAppRouteChange}
-          defaultPresetTest={defaultPsychologyPresetTest}
-          bio={bio}
-          showToast={showToast}
-          setFormData={setFormData}
-          handleSave={handleSave}
-          sleepAutoDetect={sleepAutoDetect}
-        />
-      )}
-
-      {/* Ví JOY — ứng dụng riêng chuẩn React.ts Apple Wallet, toàn màn hình. */}
-      {selectedUtility === "joy_wallet" && (
-        <JoyWalletApp
-          bio={bio}
-          publicLink={publicLink}
-          onBack={() => onSelectUtility(null)}
-          showToast={showToast}
-          onBioUpdate={onBioUpdate}
-          onOpenParticleModal={onOpenParticleModal}
-          onSelectUtility={onSelectUtility}
-        />
-      )}
-
-      {/* Study with Hugo — cổng học tập chung. Hai ID cũ vẫn mở đúng nội dung
-          để bookmark và liên kết đã chia sẻ không bị hỏng. */}
-      {["study", "ide", "hugoso"].includes(selectedUtility) && (
-        <StudyWithHugoApp
-          onBack={() => onSelectUtility(null)}
-          bio={bio}
-          showToast={showToast}
-          onBioUpdate={onBioUpdate}
-          studyRoute={studyRoute}
-          studySub={studySub}
-        />
-      )}
-
-      {/* Học Từ Vựng — tiếng Trung theo thẻ, có test xếp lớp + test đầu ra */}
-
-      {/* Hugo Team — Recruitment */}
-      {selectedUtility === "team" && (
-        <HugoTeamTab onBack={() => onSelectUtility(null)} bio={bio} onBioUpdate={onBioUpdate} />
-      )}
-
-      {/* HugoArcade */}
-      {selectedUtility === "arcade" && (
-        <HugoArcadeTab bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} onBack={() => onSelectUtility(null)} />
-      )}
-
-      {/* 𡨸喃 — dạy chữ Nôm. Học liệu lấy từ chính bản dịch Nôm của hệ thống. */}
-      {selectedUtility === "nom" && (
-        <MemberNomTab onBack={() => onSelectUtility(null)} route={appRoute} onRouteChange={onAppRouteChange} />
-      )}
-
-      {/* HugoAura Focus */}
-      {selectedUtility === "aura" && (
-        <MemberAuraTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} route={appRoute} onRouteChange={onAppRouteChange} />
-      )}
-
-      {/* Trang Bio — public bio preview (edit via Settings) */}
-      {selectedUtility === "bio" && (
-        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} route={appRoute} onRouteChange={onAppRouteChange} />
-      )}
-
-      {/* Hugo Store */}
-      {selectedUtility === "store" && (
-        <HugoStoreTab
-          bio={bio}
-          showToast={showToast}
-          onBioUpdate={onBioUpdate}
-          onBack={() => onSelectUtility(null)}
-          route={appRoute}
-          onRouteChange={onAppRouteChange}
-          onOpenUtility={onSelectUtility}
-        />
-      )}
+          {/* HugoPSY chỉ soạn bằng tiếng Việt (kể cả đường dây nóng là số Việt
+              Nam) và chỉ dành cho thành viên từ 18 tuổi. Màn "minor" để nguyên
+              tiếng Việt là đúng: cổng ngôn ngữ đã lọc trước nó. */}
+          {psyGate === "language" && <VietnameseOnlyNotice onBack={close} />}
+          {psyGate === "minor" && <AdultOnlyNotice onBack={close} />}
+          {ActiveApp && psyGate !== "language" && psyGate !== "minor" && <ActiveApp {...appProps} />}
         </LazyBoundary>
       )}
       </Suspense>
