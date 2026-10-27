@@ -1,4 +1,4 @@
-# Chống DDoS — 12 tầng
+# Chống DDoS — 13 tầng
 
 Đo trên prod ngày 27/10/2026. Đường đi của một request API từ web:
 
@@ -17,12 +17,13 @@ WebSocket không qua Vercel: trình duyệt nối thẳng `api.` nên Cloudflare
 | 4 | WAF chặn dò quét ở edge | Cloudflare Custom Rules | **bấm tay** |
 | 5 | IP thật của người dùng | `utils/clientIp.js` + Transform Rule | code ✅ + **bấm tay** |
 | 6 | Cache CDN cho API công khai | Cloudflare Cache Rule | **bấm tay** |
-| 7 | Trần lượt theo tài khoản/IP, không khoá nhầm | `config/limiter.js` | code ✅ |
+| 7 | Trần lượt theo tài khoản/IP, không khoá nhầm (đăng nhập, đọc bài, điểm, quà đếm theo tài khoản) | `config/limiter.js`, `accountOrIpKey` | code ✅ |
 | 8 | Trần body 1mb (10mb chỉ cho route upload) + trần thao tác nặng | `server.js`, `config/limiter.js` | code ✅ |
 | 9 | Cổng xác thực (`requireMember`, `check:guards`) | server | có sẵn |
 | 10 | Trần WebSocket (12/IP, 6/tài khoản, 30 lần upgrade/phút, 120 tin) | `services/websocketServer.js` | có sẵn |
 | 11 | DB thất bại nhanh (`waitQueueTimeoutMS`, `maxTimeMS`) + timeout HTTP | `config/database.js`, `server.js` | code ✅ + env |
 | 12 | Khiên tải: phát hiện bất thường, cắt khách ẩn danh | `middleware/loadShield.js` | code ✅ |
+| 13 | Chốt chặn truy vấn ở tầng Mongoose: cấm `$where`/`$function`/`$accumulator`, khoá prototype | `config/mongooseGuards.js` | code ✅ |
 
 ---
 
