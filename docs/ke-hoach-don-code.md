@@ -27,9 +27,10 @@ không biết logic của một tính năng nằm ở đâu — đó là lý do 
   `ui/swiftui` + `LiquidGlassCard`, cụm EditionMark (và script sinh dữ liệu cho
   nó), 4 hook admin cũ, `joyWalletController` bản trùng trong `modules/joy`, 5
   script server trỏ vào model `VocabCard` đã xoá.
-- Gỡ 8 thư viện không còn được import: `@liquidglass/react`,
+- Gỡ 7 thư viện không còn được import: `@liquidglass/react`,
   `@use-gesture/react`, `@vercel/speed-insights`, `hugo-music`, `img-fx`,
-  `metal-fx`, `react-quill-new`, `patch-package`.
+  `metal-fx`, `react-quill-new`. Giữ `patch-package`: không ai import nó nhưng
+  bước cài đặt của `@ybouane/liquidglass` gọi lệnh này — knip báo "thừa" là sai.
 - Gộp ba bảng tải trước chunk lệch nhau thành mục lục app duy nhất
   `src/components/member/os/appIndex.js`.
 
@@ -66,4 +67,5 @@ với một `index` duy nhất.
 - Thêm route API: một dòng ở `server/services.manifest.js`; luật nghiệp vụ vào
   `XxxService`, không vào tệp route.
 - Gỡ tính năng thì gỡ luôn tệp và thư viện của nó trong cùng PR; chạy
-  `npx knip` trước khi mở PR.
+  `npx knip` trước khi mở PR, và gỡ thư viện xong thì chạy `npm ci` sạch (thư
+  viện có thể chỉ được dùng trong script cài đặt của thư viện khác).
