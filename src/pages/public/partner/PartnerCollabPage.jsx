@@ -16,6 +16,7 @@ import { markPartnerWelcomed } from "../../../utils/partnerWelcome";
 import { detectInstallTarget, IS_NATIVE } from "../../../config/platform";
 import { useStandalone } from "../../../hooks/usePWA";
 import MobileInstallGate from "../../../components/ui/MobileInstallGate";
+import { useServicesFonts } from "../../../hooks/useServicesFonts";
 import { getPartnerCampaign, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
 import "./partner-collab.css";
 
@@ -150,6 +151,7 @@ function GoogleButton({ onCredential, ui }) {
 export default function PartnerCollabPage() {
   const params = useParams();
   const { i18n } = useTranslation();
+  useServicesFonts();
   const lang = String(i18n.language || "vi").startsWith("vi") ? "vi" : "en";
   const ui = COLLAB_COPY[lang];
 
@@ -313,6 +315,7 @@ export default function PartnerCollabPage() {
     <main className="collab" lang={lang}>
       {/* ── Mở màn: phim ─────────────────────────────────────────────────── */}
       <section className="collab-cinema" aria-label={copy.headline}>
+        <div className="collab-cinema__bg" aria-hidden="true"><i /><i /><i /></div>
         <header className="collab-cinema__top">
           <Lockup mark={mark} />
           <span className="collab-type collab-cinema__eyebrow" aria-hidden="true">{copy.eyebrow}</span>
@@ -341,17 +344,24 @@ export default function PartnerCollabPage() {
         </div>
       </section>
 
+      <div className="collab-marquee" aria-hidden="true">
+        <div className="collab-marquee__track">
+          {[...ui.marquee(campaign), ...ui.marquee(campaign)].map((item, index) => <span key={index}><i />{item}</span>)}
+        </div>
+      </div>
+
       {/* ── Khám phá ưu đãi ─────────────────────────────────────────────── */}
       <section ref={offerRef} id="uu-dai" className="collab-offer" aria-labelledby="collab-offer-title">
         <div className="collab-shell">
-          <p className="collab-type collab-eyebrow">{ui.offerEyebrow} · {campaign.partnerName} × Hugo Studio</p>
-          <h2 id="collab-offer-title" className="collab-title">{ui.offerTitle}</h2>
+          <p className="collab-marker collab-reveal"><span>01</span>{ui.offerEyebrow} · {campaign.partnerName} × Hugo Studio</p>
+          <h2 id="collab-offer-title" className="collab-title collab-reveal">{ui.offerTitle[0]}<br /><em>{ui.offerTitle[1]}</em></h2>
           <p className="collab-lede">{ui.offerLede}</p>
 
           <PerkCards campaign={campaign} ui={ui} lang={lang} reduced={reduced} />
 
           <div className="collab-claim" id="nhan-uu-dai">
             <div className="collab-claim__copy">
+              <p className="collab-marker"><span>02</span>{ui.claimMarker}</p>
               <h2 className="collab-title collab-title--sm">{ui.claimTitle}</h2>
               <p className="collab-lede">{ui.claimLede}</p>
             </div>
@@ -389,9 +399,6 @@ export default function PartnerCollabPage() {
               ) : (
                 <GoogleButton onCredential={onCredential} ui={ui} />
               )}
-              <p className="collab-note collab-note--small">
-                <span className="material-symbols-outlined" aria-hidden="true">verified_user</span> {ui.fairPlay}
-              </p>
             </div>
           </div>
         </div>
@@ -428,7 +435,7 @@ export default function PartnerCollabPage() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div className="collab-welcome__scroll">
               <motion.section className="collab-welcome__card" initial={{ y: 32, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
-                <p className="collab-type collab-eyebrow">{ui.welcomeEyebrow}</p>
+                <p className="collab-marker">{ui.welcomeEyebrow}</p>
                 <h2 id="collab-welcome-title" className="collab-title">
                   {ui.welcomeTitle(result.displayName || session?.displayName || "")}
                 </h2>

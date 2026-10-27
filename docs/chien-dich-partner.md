@@ -56,18 +56,19 @@ gọi lại sau lỗi cũng không cộng trùng.
 
 ## Chống một người nhiều Gmail
 
-| Tín hiệu | Luật |
-| --- | --- |
-| Email chuẩn hoá (Gmail bỏ `.` và `+...`) | Chỉ mục duy nhất `{campaign, emailKey}` |
-| Số điện thoại (bắt buộc trong hồ sơ) | Trùng với lượt đã nhận → chặn |
-| Mã thiết bị (localStorage + cookie 400 ngày) | Trùng → chặn |
-| Vân tay thiết bị **+ cùng mạng /24** | Trùng → chặn (vân tay một mình có thể trùng giữa hai máy cùng đời) |
-| IP đã được edge ký | ≥ `maxPerIpPerDay` lượt/24h → chặn |
-| Vị trí đã xác minh (ô ~11 m) | ≥ `maxPerLocation` lượt → chặn |
+Mỗi lượt nhận được đối chiếu ngầm với các lượt đã nhận (email chuẩn hoá và một
+số dấu hiệu thiết bị/mạng/hồ sơ, chỉ lưu dạng HMAC). **Trang không nói kiểm tra
+gì**, và người bị từ chối chỉ thấy một câu chung — lý do thật nằm ở
+`PartnerClaim.reason` và log, admin xem qua API bên dưới. Đừng ghi lý do cụ thể
+ra giao diện hay thông báo.
 
-Ba luật đầu còn có chỉ mục duy nhất một phần (chỉ lượt `granted`) làm chốt
-chặn cuối khi hai tài khoản cùng máy bấm nhận cùng một giây. Mọi tín hiệu chỉ
-lưu dạng HMAC (`securityHash`), không giữ số điện thoại, IP hay toạ độ thô.
+Repo công khai, nên ngưỡng đang dùng đặt bằng env trên Render (thiếu thì dùng
+mặc định trong `antiAbuse`): `PARTNER_MAX_PER_IP_DAY`, `PARTNER_MAX_PER_LOCATION`.
+
+Gia cố chống quá tải cho riêng các route này: `GET /:slug` cache 15 giây trong
+tiến trình + `s-maxage=30` cho CDN (không đọc DB mỗi lượt); `/me` và `/claim`
+có trần lượt theo tài khoản (sau `requireMember`); mã thiết bị chỉ nhận đúng
+định dạng client sinh ra.
 
 Tài khoản bị chặn được ghi thành lượt `rejected` (giữ chỗ email đó). Người thật
 bị chặn nhầm thì admin gỡ:
@@ -88,8 +89,7 @@ bị chặn nhầm thì admin gỡ:
    Google không hiện.
 3. **Cloudflare** → Transform Rule gắn `x-hugo-client-ip` + `x-hugo-edge-auth`
    (như của www, xem `docs/chong-ddos-12-tang.md`) cho cả tên miền partner.
-   Thiếu thì luật IP và luật "vân tay + cùng mạng" tự bỏ qua (an toàn: không
-   chặn nhầm), chỉ còn điện thoại, mã thiết bị và vị trí.
+   Thiếu thì các luật dựa trên mạng tự bỏ qua (an toàn: không chặn nhầm).
 4. **Backend (Render)**: deploy lại để có `https://partner.hugowishpax.studio`
    trong danh sách CORS (`server/config/cors.js`). Thiếu bước này trình duyệt
    chặn mọi lời gọi `api.hugowishpax.studio` từ tên miền partner.

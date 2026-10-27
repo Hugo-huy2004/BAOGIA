@@ -9,6 +9,7 @@ import { awardJoy } from '../utils/joyService.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { signedClientIp } from '../utils/clientIp.js';
 import { securityHash } from '../services/securityEnforcement.js';
+import { normalizePhone } from '../utils/identityCheck.js';
 import { getPartnerCampaign, isPartnerCampaignOpen, extendFrom } from '../../shared/partnerCampaigns.js';
 
 // ==========================================
@@ -21,17 +22,37 @@ import { getPartnerCampaign, isPartnerCampaignOpen, extendFrom } from '../../sha
 const router = express.Router();
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const claimLimiter = rateLimit({
+// Trần lượt theo TÀI KHOẢN (đặt sau requireMember): IP ở đây là IP của edge
+// (Cloudflare/Vercel), dùng chung cho cả nghìn người — đếm theo IP vừa chặn
+// nhầm người thật vừa để kẻ xoay tài khoản lọt. Trần chung theo IP thật vẫn do
+// globalLimiter ở server.js lo.
+const memberLimiter = (max) => rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 20 : 1000,
+  max: process.env.NODE_ENV === 'production' ? max : 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => `partner:${req.memberEmail}`,
   message: { error: 'Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.' },
 });
+const claimLimiter = memberLimiter(10);
+const meLimiter = memberLimiter(60);
 
 const slotKey = (slug) => `partner-campaign:${slug}:slots`;
 
 const slotsUsed = async (slug) => (await Counter.findById(slotKey(slug)).lean())?.seq || 0;
+
+// GET /:slug không cần đăng nhập — ai cũng gọi được, nên không để mỗi lượt gọi
+// thành một lượt đọc DB. Trạng thái "còn suất" giữ 15 giây trong tiến trình
+// (cộng cache CDN ở route): lũ request dừng ở đây, DB chỉ thấy vài lượt/phút.
+const OPEN_CACHE_MS = 15 * 1000;
+const openCache = new Map();
+const cachedSlotsUsed = async (slug) => {
+  const hit = openCache.get(slug);
+  if (hit && Date.now() - hit.at < OPEN_CACHE_MS) return hit.used;
+  const used = await slotsUsed(slug);
+  openCache.set(slug, { at: Date.now(), used });
+  return used;
+};
 
 // Giữ một suất — nguyên tử: chỉ tăng khi còn dưới trần, nên 250 người bấm cùng
 // giây cũng không vượt. Trả false khi đã hết.
@@ -48,8 +69,8 @@ const releaseSlot = (campaign) => Counter.updateOne({ _id: slotKey(campaign.slug
 
 // Số suất còn lại KHÔNG công bố ra ngoài — trang chỉ cần biết còn mở hay không.
 // Hết suất người ta vẫn đăng nhập được, chỉ không nhận quà chiến dịch.
-const publicCampaign = async (campaign) => {
-  const used = await slotsUsed(campaign.slug);
+const publicCampaign = async (campaign, { fresh = false } = {}) => {
+  const used = fresh ? await slotsUsed(campaign.slug) : await cachedSlotsUsed(campaign.slug);
   return {
     slug: campaign.slug,
     partnerName: campaign.partnerName,
@@ -65,7 +86,7 @@ const publicCampaign = async (campaign) => {
 // Riêng cho admin: kèm số suất đã dùng / còn lại.
 const adminCampaign = async (campaign) => {
   const used = await slotsUsed(campaign.slug);
-  return { ...(await publicCampaign(campaign)), maxClaims: campaign.maxClaims, used, remaining: Math.max(0, campaign.maxClaims - used) };
+  return { ...(await publicCampaign(campaign, { fresh: true })), maxClaims: campaign.maxClaims, used, remaining: Math.max(0, campaign.maxClaims - used) };
 };
 
 const findBio = async (email) => (await Bio.findOne({ email })) || Bio.findOne({ contactEmail: email });
@@ -80,9 +101,11 @@ export const emailKeyOf = (email) => {
   return `${local.split('+')[0]}@${domain}`;
 };
 
-const cleanToken = (value, max = 128) => {
-  const text = String(value || '').trim();
-  return /^[A-Za-z0-9_-]{16,}$/.test(text) ? text.slice(0, max) : '';
+// Chỉ nhận đúng định dạng client sinh ra (src/utils/deviceSignals.js): mã
+// thiết bị 48 hex, vân tay SHA-256 64 hex. Chuỗi khác coi như không gửi.
+const hexToken = (value, length) => {
+  const text = String(value || '').trim().toLowerCase();
+  return new RegExp(`^[a-f0-9]{${length}}$`).test(text) ? text : '';
 };
 
 // Mạng /24 (IPv4) hoặc /48 (IPv6): một nhà, một quán cà phê. Đủ hẹp để "cùng
@@ -105,11 +128,16 @@ const identitySignals = (req, bio) => {
   // Chỉ IP đã được edge ký mới đáng tin để đếm (xem signedClientIp). Thiếu chữ
   // ký thì bỏ qua hai luật dựa trên mạng, vẫn còn điện thoại + thiết bị + vị trí.
   const ip = signedClientIp(req);
-  const deviceId = cleanToken(req.body?.deviceId);
-  const deviceFp = cleanToken(req.body?.deviceFp);
+  const deviceId = hexToken(req.body?.deviceId, 48);
+  const deviceFp = hexToken(req.body?.deviceFp, 64);
+  // "0912 345 678" và "+84 912-345-678" là một số: chuẩn hoá rồi mới băm.
+  const phone = normalizePhone(bio.phone);
   const location = locationCellOf(bio);
   return {
-    phoneHash: securityHash('phone', bio.phone) || null,
+    phoneHash: phone ? securityHash('partner-phone', phone) : null,
+    // Mã băm kiểu cũ (số thô) — chỉ để so trùng với lượt nhận trước bản chuẩn
+    // hoá; không có trong schema nên PartnerClaim.create bỏ qua, không lưu.
+    legacyPhoneHash: securityHash('phone', bio.phone) || null,
     deviceIdHash: deviceId ? securityHash('partner-device', deviceId) : null,
     deviceFpHash: deviceFp ? securityHash('partner-fp', deviceFp) : null,
     deviceNetHash: deviceFp && ip ? securityHash('partner-fpnet', `${deviceFp}|${networkOf(ip)}`) : null,
@@ -118,20 +146,24 @@ const identitySignals = (req, bio) => {
   };
 };
 
-const REJECT_COPY = {
-  duplicate_phone: 'Số điện thoại này đã được dùng để nhận ưu đãi bằng một tài khoản khác.',
-  duplicate_device: 'Thiết bị này đã nhận ưu đãi bằng một tài khoản khác. Mỗi người chỉ nhận một lần.',
-  ip_limit: 'Mạng bạn đang dùng đã có quá nhiều tài khoản nhận ưu đãi hôm nay.',
-  location_limit: 'Địa chỉ đã xác minh này đã có tài khoản nhận ưu đãi.',
-};
+// Người dùng chỉ thấy MỘT câu chung, không biết dấu hiệu nào khớp — nói rõ
+// "trùng thiết bị" hay "trùng mạng" là chỉ đường cho người cố lách. Lý do thật
+// nằm ở PartnerClaim.reason + log, admin xem qua GET /admin/:slug/claims.
+const REJECT_MESSAGE = 'Tài khoản này chưa đủ điều kiện nhận ưu đãi.';
 
 // Một người, một lần. Trả lý do từ chối hoặc '' nếu không thấy trùng.
 const findDuplicate = async (campaign, signals) => {
   const granted = { campaign: campaign.slug, status: 'granted' };
-  if (signals.phoneHash && await PartnerClaim.exists({ ...granted, phoneHash: signals.phoneHash })) return 'duplicate_phone';
+  // So cả mã băm kiểu cũ (số thô, trước khi chuẩn hoá) để không bỏ lọt lượt đã nhận trước bản này.
+  const phoneHashes = [signals.phoneHash, signals.legacyPhoneHash].filter(Boolean);
+  if (phoneHashes.length && await PartnerClaim.exists({ ...granted, phoneHash: { $in: phoneHashes } })) return 'duplicate_phone';
   if (signals.deviceIdHash && await PartnerClaim.exists({ ...granted, deviceIdHash: signals.deviceIdHash })) return 'duplicate_device';
   if (signals.deviceNetHash && await PartnerClaim.exists({ ...granted, deviceNetHash: signals.deviceNetHash })) return 'duplicate_device';
-  const { maxPerIpPerDay, maxPerLocation } = campaign.antiAbuse || {};
+  // Ngưỡng thật đặt bằng env trên server (repo công khai — đừng để số đang
+  // dùng nằm trong mã); giá trị trong shared/partnerCampaigns.js chỉ là mặc định.
+  const envNumber = (name, fallback) => (Number(process.env[name]) > 0 ? Number(process.env[name]) : fallback);
+  const maxPerIpPerDay = envNumber('PARTNER_MAX_PER_IP_DAY', campaign.antiAbuse?.maxPerIpPerDay);
+  const maxPerLocation = envNumber('PARTNER_MAX_PER_LOCATION', campaign.antiAbuse?.maxPerLocation);
   if (signals.ipHash && maxPerIpPerDay) {
     const sameIp = await PartnerClaim.countDocuments({ ...granted, ipHash: signals.ipHash, createdAt: { $gte: new Date(Date.now() - DAY_MS) } });
     if (sameIp >= maxPerIpPerDay) return 'ip_limit';
@@ -150,13 +182,13 @@ const rejectClaim = async (res, { campaign, bio, signals, reason }) => {
     if (error?.code !== 11000) console.error('[partner claim reject log]', error.message);
   }
   console.warn(`[partner-campaign] ${campaign.slug}: từ chối ${reason}`);
-  return res.status(403).json({ code: 'DUPLICATE_PERSON', reason, error: REJECT_COPY[reason] || 'Tài khoản này không đủ điều kiện nhận ưu đãi.' });
+  return res.status(403).json({ code: 'DUPLICATE_PERSON', error: REJECT_MESSAGE });
 };
 
 const claimView = (claim, bio) => ({
   claimed: claim?.status === 'granted' && Boolean(claim.daysApplied && claim.joyApplied),
   rejected: claim?.status === 'rejected',
-  rejectReason: claim?.status === 'rejected' ? (REJECT_COPY[claim.reason] || '') : '',
+  rejectReason: claim?.status === 'rejected' ? REJECT_MESSAGE : '',
   claimedAt: claim?.createdAt || null,
   eduBonusApplied: Boolean(claim?.eduBonusApplied),
   isEduVerified: Boolean(bio?.isEduVerified),
@@ -205,6 +237,9 @@ router.delete('/admin/:slug/claims/:id', requireAdmin, loadCampaign, async (req,
 // GET /:slug — thông tin công khai của chiến dịch (số quà, còn mở hay không).
 router.get('/:slug', loadCampaign, async (req, res) => {
   try {
+    // Công khai, không gắn người dùng: cho CDN giữ 30 giây (cachePolicy tự đổi
+    // sang no-store nếu request có cookie/token).
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
     return res.json({ campaign: await publicCampaign(req.campaign) });
   } catch (error) {
     console.error('GET /partner-campaigns/:slug error:', error.message);
@@ -213,7 +248,7 @@ router.get('/:slug', loadCampaign, async (req, res) => {
 });
 
 // GET /:slug/me — người đang đăng nhập đã nhận chưa, hồ sơ còn thiếu gì.
-router.get('/:slug/me', requireMember, loadCampaign, async (req, res) => {
+router.get('/:slug/me', requireMember, meLimiter, loadCampaign, async (req, res) => {
   try {
     const bio = await findBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
@@ -293,7 +328,7 @@ const createGrantedClaim = async (req, res, campaign, bio) => {
 
 // POST /:slug/claim  { deviceId, deviceFp } — nhận quà. Gọi lại an toàn: đã
 // nhận thì chỉ cộng nốt phần giáo dục nếu tài khoản vừa được xác minh.
-router.post('/:slug/claim', claimLimiter, requireMember, loadCampaign, async (req, res) => {
+router.post('/:slug/claim', requireMember, claimLimiter, loadCampaign, async (req, res) => {
   const { campaign } = req;
   try {
     const bio = await findBio(req.memberEmail);
@@ -310,7 +345,7 @@ router.post('/:slug/claim', claimLimiter, requireMember, loadCampaign, async (re
 
     let claim = await PartnerClaim.findOne({ campaign: campaign.slug, emailKey: emailKeyOf(bio.email) });
     if (claim?.status === 'rejected') {
-      return res.status(403).json({ code: 'DUPLICATE_PERSON', reason: claim.reason, error: REJECT_COPY[claim.reason] || 'Tài khoản này không đủ điều kiện nhận ưu đãi.' });
+      return res.status(403).json({ code: 'DUPLICATE_PERSON', error: REJECT_MESSAGE });
     }
     if (!claim) {
       claim = await createGrantedClaim(req, res, campaign, bio);
