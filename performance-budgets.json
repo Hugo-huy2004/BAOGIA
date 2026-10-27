@@ -60,6 +60,11 @@
       "maxBytes": 50000
     }
   ],
+  "largeChunks": {
+    "maxBytes": 1000000,
+    "allowContaining": ["mlc-ai"],
+    "note": "Mọi chunk JS phải dưới 1 MB. Ngoại lệ duy nhất là @mlc-ai/web-llm (AI trên máy của HugoPSY, nạp lười khi mở ChatTab) — vite.config.js đặt chunkSizeWarningLimit cao vì nó, nên trần thật nằm ở đây."
+  },
   "forbiddenAssets": [
     {
       "pattern": "^lessons-.*\\.js$",

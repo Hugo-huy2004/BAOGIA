@@ -283,7 +283,11 @@ export default defineConfig(({ mode }) => {
   build: {
     minify: 'oxc',
     cssMinify: 'lightningcss',
-    chunkSizeWarningLimit: 1000,
+    // Chỉ @mlc-ai/web-llm (AI chạy trên máy của HugoPSY, ~6 MB, nạp lười khi mở
+    // ChatTab + trong brain.worker) vượt 1 MB — một thư viện, cắt nhỏ không
+    // nhanh hơn. Trần 1 MB cho MỌI chunk khác do check:performance chặn
+    // (performance-budgets.json → largeChunks), nên ở đây chỉ tắt tiếng ồn.
+    chunkSizeWarningLimit: 6200,
     sourcemap: sentryBuildEnabled ? 'hidden' : false,
     rollupOptions: {
       output: {

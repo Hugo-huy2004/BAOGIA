@@ -632,7 +632,7 @@ const VISUALS = {
       <line x1="270" y1="24" x2="270" y2="168" stroke="currentColor" strokeOpacity="0.3" />
       <Label x={50} y={16} bold size={10}>app.js</Label>
       <Label x={270} y={16} bold size={10}>like.php</Label>
-      <Label x={56} y={40} anchor="start" size={9} muted>bấm ♥ · preventDefault()</Label>
+      <Label x={56} y={40} anchor="start" size={9} muted>bấm Thích · preventDefault()</Label>
       <Arrow x1={52} y1={60} x2={268} y2={60} label="fetch POST · Accept: application/json" />
       <Label x={264} y={84} anchor="end" size={9} muted>toggle_like()</Label>
       <Arrow x1={268} y1={104} x2={52} y2={104} label='200 {"liked":true,"likes":5}' dashed />

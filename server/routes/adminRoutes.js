@@ -31,6 +31,10 @@ const sha256 = (message) => crypto.createHash('sha256').update(message).digest('
 export const isBcrypt = (h) => typeof h === 'string' && h.startsWith('$2');
 
 // Exported so password migration logic stays reusable across admin flows.
+// Mã băm bcrypt (cost 12) của một chuỗi vô nghĩa — chỉ để so khớp cho có khi
+// không tìm thấy tài khoản, giữ thời gian phản hồi bằng nhánh có tài khoản.
+const TIMING_PAD_HASH = '$2b$12$qKHZeAUGgUCfhfemMzSrwu3B39G8u8eZgiJNYAKuVpouztnWBw9Yu';
+
 export async function verifyAndUpgrade(admin, plainPassword) {
   if (isBcrypt(admin.password)) {
     return bcrypt.compare(plainPassword, admin.password);
@@ -152,8 +156,12 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
         cleanUser,
       ])];
       const adminCandidate = await Admin.findOne({ username: { $in: lookups } });
-      if (adminCandidate?.active !== false && (await verifyAndUpgrade(adminCandidate, password))) {
-        matchingAdmin = adminCandidate;
+      if (adminCandidate && adminCandidate.active !== false) {
+        if (await verifyAndUpgrade(adminCandidate, password)) matchingAdmin = adminCandidate;
+      } else {
+        // Không có tài khoản (hoặc đã khoá): vẫn tốn đúng một lượt bcrypt như
+        // khi có, để thời gian phản hồi không lộ tên đăng nhập nào là thật.
+        await bcrypt.compare(String(password), TIMING_PAD_HASH);
       }
     } else {
       // Bắt buộc có tên đăng nhập. Nhánh cũ bỏ trống username thì duyệt MỌI
@@ -359,6 +367,12 @@ router.patch('/accounts/:id', requireAdmin, ownerOnly, async (req, res) => {
     if (!admin) return res.status(404).json({ error: 'Không tìm thấy tài khoản quản trị.' });
     const role = req.body?.role === undefined ? admin.role : String(req.body.role);
     if (!ADMIN_ROLES[role]) return res.status(400).json({ error: 'Vai trò không hợp lệ.' });
+    // Danh sách rỗng chỉ hợp lệ khi đổi vai trò (= dùng mặc định của vai trò mới).
+    // Bỏ hết quyền mà giữ vai trò thì resolveAdminPermissions sẽ hiểu thành "mặc
+    // định" và cấp lại đủ quyền — ngược hẳn ý người bấm.
+    if (req.body?.role === undefined && Array.isArray(req.body?.permissions) && req.body.permissions.length === 0 && role !== 'owner') {
+      return res.status(400).json({ error: 'Tài khoản cần ít nhất một quyền. Muốn chặn hẳn, hãy khóa tài khoản.' });
+    }
     if (String(admin._id) === String(req.admin.id) && (role !== 'owner' || req.body?.active === false)) {
       return res.status(400).json({ error: 'Bạn không thể tự hạ quyền hoặc khóa tài khoản đang đăng nhập.' });
     }
@@ -1985,13 +1999,17 @@ router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
       </div>
     `;
 
-    await sendCustomEmail(bio.email, finalSubject, emailHtml);
+    const mail = await sendCustomEmail(bio.email, finalSubject, emailHtml);
 
     logAdminAuditAction(req, 'SEND_VOUCHER', bio._id, bio.email, `Gửi Voucher "${voucherCode || 'GIFT'}" (+${giftJoy} JOY) cho ${bio.displayName} (Tự động dịch: ${lang.toUpperCase()})`);
 
+    // JOY đã cộng ở trên; email hỏng thì vẫn báo rõ để admin biết người nhận chưa có thư.
     res.json({
       success: true,
-      message: `Đã gửi voucher và ${giftJoy > 0 ? `tặng +${giftJoy.toLocaleString()} JOY` : ''} cho ${bio.displayName} (Đã dịch tự động sang ${lang.toUpperCase()})`
+      emailSent: Boolean(mail?.success),
+      message: mail?.success
+        ? `Đã gửi voucher và ${giftJoy > 0 ? `tặng +${giftJoy.toLocaleString()} JOY` : ''} cho ${bio.displayName} (Đã dịch tự động sang ${lang.toUpperCase()})`
+        : `${giftJoy > 0 ? `Đã tặng +${giftJoy.toLocaleString()} JOY cho ${bio.displayName}, nhưng ` : ''}email voucher CHƯA gửi được: ${mail?.error || 'không rõ lỗi'}`,
     });
   } catch (err) {
     console.error('Error sending voucher to user:', err);

@@ -12,13 +12,19 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 export const isEmailDeliverable = () =>
   Boolean(process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.'));
 
-// Email templates
+/** Chữ người dùng gõ → an toàn để chèn vào HTML email (chặn chèn thẻ/liên kết giả). */
+export const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const e = escapeHtml;
+
+// Email templates — mọi giá trị đến từ người dùng đều đi qua e().
 const templates = {
   hugoTeamApplyConfirm: (name, email) => ({
     subject: '✅ Đơn đăng ký Hugo Team đã nhận được',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Chào ${name}!</h2>
+        <h2 style="color: #333;">Chào ${e(name)}!</h2>
         <p style="color: #666;">Cảm ơn bạn đã nộp đơn đăng ký tham gia <strong>Hugo Team</strong>.</p>
         <p style="color: #666;">Tôi đã nhận được CV của bạn và sẽ xem xét trong <strong>3-5 ngày</strong>.</p>
         <p style="color: #666;">Bạn sẽ nhận được email thông báo kết quả (phê duyệt hoặc từ chối).</p>
@@ -32,7 +38,7 @@ const templates = {
     subject: '🎉 Chúc mừng! Bạn được phê duyệt tham gia Hugo Team',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #22c55e;">Chúc mừng ${name}! 🎉</h2>
+        <h2 style="color: #22c55e;">Chúc mừng ${e(name)}! 🎉</h2>
         <p style="color: #666;">Bạn đã được phê duyệt tham gia <strong>Hugo Team</strong>!</p>
         <p style="color: #666;">Tôi sẽ liên hệ với bạn qua email trong <strong>24-48 giờ</strong> để hướng dẫn:</p>
         <ul style="color: #666;">
@@ -52,7 +58,7 @@ const templates = {
     subject: '📝 Kết quả đơn đăng ký Hugo Team',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Chào ${name},</h2>
+        <h2 style="color: #333;">Chào ${e(name)},</h2>
         <p style="color: #666;">Cảm ơn bạn đã nộp đơn đăng ký tham gia <strong>Hugo Team</strong>.</p>
         <p style="color: #666;">Sau khi xem xét, hiện tại chúng tôi chưa có thể phê duyệt đơn của bạn.</p>
         <p style="color: #666;">Bạn vẫn có thể nộp lại sau này khi bạn có thêm kinh nghiệm lập trình.</p>
@@ -64,15 +70,15 @@ const templates = {
   }),
 
   contactForm: (name, email, subject, message) => ({
-    subject: `📨 Tin nhắn từ ${name}: ${subject}`,
+    subject: `📨 Tin nhắn từ ${String(name).replace(/[\r\n]+/g, ' ')}: ${String(subject).replace(/[\r\n]+/g, ' ')}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <p><strong>Từ:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Chủ đề:</strong> ${subject}</p>
+        <p><strong>Từ:</strong> ${e(name)}</p>
+        <p><strong>Email:</strong> ${e(email)}</p>
+        <p><strong>Chủ đề:</strong> ${e(subject)}</p>
         <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
         <p><strong>Nội dung:</strong></p>
-        <p>${message.replace(/\n/g, '<br>')}</p>
+        <p>${e(message).replace(/\n/g, '<br>')}</p>
       </div>
     `
   }),
@@ -96,6 +102,12 @@ export const sendCustomEmail = async (
   if (attachments?.length) msg.attachments = attachments;
 
   if (!isEmailDeliverable()) {
+    // Mô phỏng chỉ hợp lệ ở dev. Production thiếu khoá thì thư KHÔNG đi —
+    // phải báo thất bại thật, đừng để nơi gọi tưởng đã gửi (mã OTP, voucher…).
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`❌ SENDGRID_API_KEY chưa cấu hình — không gửi được tới ${to}`);
+      return { success: false, simulated: true, error: 'SENDGRID_API_KEY chưa cấu hình trên máy chủ.' };
+    }
     console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
     return { success: true, simulated: true, message: `Email đã được mô phỏng gửi tới ${to} (SENDGRID_API_KEY chưa cấu hình).` };
   }
