@@ -122,7 +122,7 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
     // thì mỗi tin nhắn người dùng là một lần — đầy 512MB của Atlas gói Free.
     if (Date.now() - lastCapAlertAt > 5 * 60_000) {
       lastCapAlertAt = Date.now();
-      sendAlert('Gemini daily cap reached — AI paused until tomorrow', q);
+      sendAlert(lowPriority ? 'Gemini quota saturated (dropped low-priority call)' : 'Gemini daily cap reached — AI paused until tomorrow', q);
     }
     return null;
   }
