@@ -12,6 +12,10 @@ import { API_BASE } from "../../../config/apiBase";
 import { getMemberSession, loginMemberWithGoogle, logoutAuth } from "../../../services/api/core/authSession";
 import { loadGoogleIdentity } from "../../../utils/loadGoogleIdentity";
 import { getDeviceFingerprint, getDeviceId } from "../../../utils/deviceSignals";
+import { markPartnerWelcomed } from "../../../utils/partnerWelcome";
+import { detectInstallTarget, IS_NATIVE } from "../../../config/platform";
+import { useStandalone } from "../../../hooks/usePWA";
+import MobileInstallGate from "../../../components/ui/MobileInstallGate";
 import { getPartnerCampaign, PARTNER_HOST_CAMPAIGN } from "../../../../shared/partnerCampaigns";
 import "./partner-collab.css";
 
@@ -157,6 +161,11 @@ export default function PartnerCollabPage() {
   useCampaignMeta(campaign, copy, canonical);
 
   const [reduced] = useState(prefersReducedMotion);
+  // Điện thoại phải nhận quà trong app đã cài (PWA); máy tính dùng trình duyệt.
+  const isPWA = useStandalone();
+  const [isMobile] = useState(() => detectInstallTarget().isMobile);
+  const mustInstall = isMobile && !isPWA && !IS_NATIVE;
+  const [showInstall, setShowInstall] = useState(false);
   const [filmDone, setFilmDone] = useState(false);
   const [session, setSession] = useState(() => getMemberSession());
   const [stage, setStage] = useState("offer"); // offer | profile | claiming | welcome
@@ -241,9 +250,10 @@ export default function PartnerCollabPage() {
   // Pháo hoa khi chào mừng — chỉ khi vừa nhận quà thật, không phải lần ghé lại.
   useEffect(() => {
     if (stage !== "welcome") return undefined;
+    markPartnerWelcomed(slug);
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
     return result?.alreadyClaimed || result?.soldOut ? undefined : fireworks(reduced);
-  }, [stage, result?.alreadyClaimed, result?.soldOut, reduced]);
+  }, [stage, result?.alreadyClaimed, result?.soldOut, reduced, slug]);
 
   const startTour = useCallback(async () => {
     const [{ driver }] = await Promise.all([import("driver.js"), import("driver.js/dist/driver.css")]);
@@ -359,7 +369,14 @@ export default function PartnerCollabPage() {
                   )}
                 </div>
               )}
-              {stage === "claiming" ? (
+              {mustInstall ? (
+                <div className="collab-claim__session">
+                  <button type="button" className="collab-btn collab-btn--glow" onClick={() => setShowInstall(true)}>
+                    {ui.installCta}<span className="material-symbols-outlined" aria-hidden="true">install_mobile</span>
+                  </button>
+                  <p className="collab-note collab-note--small">{ui.installNote}</p>
+                </div>
+              ) : stage === "claiming" ? (
                 <p className="collab-note"><span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span> {ui.claiming}</p>
               ) : session ? (
                 <div className="collab-claim__session">
@@ -391,6 +408,13 @@ export default function PartnerCollabPage() {
           </nav>
         </div>
       </footer>
+
+      {/* ── Điện thoại: hướng dẫn cài app (video + từng bước), bắt buộc ──── */}
+      {showInstall && mustInstall && (
+        <div className="collab-install" role="dialog" aria-modal="true">
+          <MobileInstallGate title={ui.installTitle} lede={ui.installLede} copyPath="/" allowBypass={false} onClose={() => setShowInstall(false)} />
+        </div>
+      )}
 
       {/* ── Hồ sơ: hỏi đúng những mục còn thiếu ─────────────────────────── */}
       {stage === "profile" && session && (

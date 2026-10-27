@@ -148,7 +148,21 @@ function stepsFor({ iOS, android, inApp, browser }) {
   ];
 }
 
-export default function MobileInstallGate({ onBypass }) {
+/**
+ * Mặc định là cổng của khu thành viên. Trang khác dùng lại được:
+ *   title/lede     — lời riêng (vd. trang chiến dịch partner)
+ *   copyPath       — đường sẽ chép vào clipboard
+ *   allowBypass    — false: bắt buộc dùng app, ẩn "Tiếp tục trên trình duyệt"
+ *   onClose        — có thì hiện nút quay lại
+ */
+export default function MobileInstallGate({
+  onBypass,
+  title = "Cài app để tiếp tục",
+  lede = "Để có trải nghiệm mượt mà với hiệu năng native, khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài.",
+  copyPath = "/member/today",
+  allowBypass = true,
+  onClose,
+}) {
   const target = detectInstallTarget();
   const { i18n } = useTranslation();
   const videoLang = installVideoLang(i18n.resolvedLanguage || i18n.language);
@@ -159,7 +173,7 @@ export default function MobileInstallGate({ onBypass }) {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.origin + "/member/today");
+      await navigator.clipboard.writeText(window.location.origin + copyPath);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
@@ -185,6 +199,16 @@ export default function MobileInstallGate({ onBypass }) {
       <div className="absolute bottom-1/4 right-1/4 w-[280px] h-[280px] bg-sky-500/10 rounded-full blur-[90px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md mx-auto space-y-5 text-left">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-1 text-[15px] font-medium text-primary"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_back</span>
+            Quay lại
+          </button>
+        )}
         {/* Header Hero Card with Liquid Glass */}
         <div className="swiftui-liquid-glass p-6 text-center flex flex-col items-center">
           {/* iOS App Icon Squircle */}
@@ -204,10 +228,10 @@ export default function MobileInstallGate({ onBypass }) {
           </div>
 
           <h1 className="text-2xl font-black tracking-tight text-foreground">
-            Cài app để tiếp tục
+            {title}
           </h1>
           <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground max-w-sm">
-            Để có trải nghiệm mượt mà với hiệu năng native, khu vực thành viên được tối ưu cho ứng dụng Hugo Studio đã cài.
+            {lede}
           </p>
 
           <div className="mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1 swiftui-glass text-primary text-[13px] font-semibold border border-primary/20">
@@ -280,6 +304,7 @@ export default function MobileInstallGate({ onBypass }) {
           </SwiftUIButton>
 
           {/* Bypass Button: Allows web browsing without barrier */}
+          {allowBypass && (
           <SwiftUIButton
             variant="tinted"
             size="md"
@@ -289,6 +314,7 @@ export default function MobileInstallGate({ onBypass }) {
           >
             Tiếp tục trên trình duyệt (Dùng thử Web)
           </SwiftUIButton>
+          )}
         </div>
 
         {/* Re-check trigger */}

@@ -38,7 +38,8 @@ import ScreenProtection from "./components/security/ScreenProtection";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
-import { PARTNER_HOST } from "../shared/partnerCampaigns";
+import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../shared/partnerCampaigns";
+import { isPartnerWelcomed } from "./utils/partnerWelcome";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
@@ -194,6 +195,18 @@ function AppContent() {
       return false;
     }
   });
+
+  // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
+  // chào mừng của chiến dịch trên máy này → đưa về trang nhận quà trước.
+  if (
+    isPartnerHost &&
+    isPWA &&
+    location.pathname.startsWith("/member") &&
+    new URLSearchParams(location.search).get("source") === "pwa" &&
+    !isPartnerWelcomed(PARTNER_HOST_CAMPAIGN)
+  ) {
+    return <Navigate to="/" replace />;
+  }
 
   // Trên điện thoại, khu vực thành viên ưu tiên chạy trong app đã cài:
   // Nếu chưa cài và chưa bấm tiếp tục trên web, hiện màn hướng dẫn SwiftUI.
