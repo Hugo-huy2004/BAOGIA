@@ -561,6 +561,8 @@ router.get('/me/profile-options/ethnicities', requireMember, async (req, res) =>
   }
 });
 
+const PHONE_TAKEN_ERROR = 'Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.';
+
 // POST /me/onboarding — ghi những thông tin client vừa điền (mục nào gửi thì
 // ghi mục đó), sinh mã giới thiệu và áp mã người giới thiệu nếu có.
 router.post('/me/onboarding', requireMember, async (req, res) => {
@@ -578,6 +580,13 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       applyProfileValues(bio, req.body);
     } catch (validationError) {
       return res.status(400).json({ error: validationError.message });
+    }
+
+    // Mỗi số điện thoại chỉ thuộc một tài khoản (index unique `phone`, nền của
+    // "gửi JOY qua số điện thoại"). Kiểm TRƯỚC khi lưu để trả lời rõ ràng thay
+    // vì để MongoDB ném E11000 thành lỗi 500.
+    if (bio.isModified('phone') && await Bio.exists({ phone: bio.phone, _id: { $ne: bio._id } })) {
+      return res.status(409).json({ error: PHONE_TAKEN_ERROR, field: 'phone' });
     }
 
     const referralCode = await ensureReferralCode(bio);
@@ -629,6 +638,10 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
   } catch (error) {
     // safeServerErrors che nội dung lỗi 500 với client, nên ghi lại ở đây —
     // không có dòng này thì log Render trống, không lần ra được nguyên nhân.
+    // Hai request cùng lúc vẫn có thể lọt qua bước kiểm ở trên.
+    if (error?.code === 11000 && error.keyPattern?.phone) {
+      return res.status(409).json({ error: PHONE_TAKEN_ERROR, field: 'phone' });
+    }
     console.error('POST /me/onboarding error:', error.name, error.message, error.errors ? Object.keys(error.errors) : '');
     res.status(500).json({ error: error.message });
   }

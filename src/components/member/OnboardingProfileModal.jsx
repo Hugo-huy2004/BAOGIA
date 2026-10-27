@@ -178,7 +178,13 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
         }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || t("memberPortal.onboarding.genericError"));
+      if (!r.ok) {
+        // Server chỉ ra ô sai (vd. số điện thoại đã thuộc tài khoản khác): quay
+        // về đúng bước đó để sửa, thay vì kẹt ở bước cuối.
+        const badStep = data.field ? steps.findIndex((s) => s.key === data.field) : -1;
+        if (badStep >= 0) setStepIndex(badStep);
+        throw new Error(data.error || t("memberPortal.onboarding.genericError"));
+      }
       // Server vẫn báo thiếu thì hỏi tiếp đúng phần còn thiếu, quay về bước đầu.
       if (Array.isArray(data.missing) && data.missing.length) {
         setMissing(data.missing);
