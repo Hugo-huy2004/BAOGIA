@@ -4,26 +4,7 @@ import adminBrainApi from '../../services/api/modules/adminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
 import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency';
-import { maskPhone } from '../../utils/phoneSecurity';
-import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from '../../lib/profileDisplay';
-
-const pad2 = (n) => String(n).padStart(2, '0');
-
-/** Ngày sinh khoá (birthDay/Month/Year) → giá trị cho <input type="date">. */
-const toBirthDateInput = (bio) => (bio?.birthYear && bio?.birthMonth && bio?.birthDay
-  ? `${bio.birthYear}-${pad2(bio.birthMonth)}-${pad2(bio.birthDay)}`
-  : '');
-
-function ageOf(bio) {
-  if (!bio?.birthYear || !bio?.birthMonth || !bio?.birthDay) return null;
-  const now = new Date();
-  let age = now.getFullYear() - bio.birthYear;
-  if (now.getMonth() + 1 < bio.birthMonth || (now.getMonth() + 1 === bio.birthMonth && now.getDate() < bio.birthDay)) age -= 1;
-  return age;
-}
-
-const LANGUAGE_NAMES = { vi: 'Tiếng Việt', en: 'English', zh: '中文' };
-const formatDate = (value) => (value && !isNaN(new Date(value).getTime()) ? new Date(value).toLocaleDateString('vi-VN') : '—');
+import ProfileExpiryTab from './user/ProfileExpiryTab';
 
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
@@ -33,15 +14,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
   // những việc đó nằm chờ mà không ai thấy.
   const [activeTab, setActiveTab] = useState('overview'); // overview | profile | joy | orders | tickets | email | security
 
-  // Profile Edit & Expiration Extension State
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [showFullPhone, setShowFullPhone] = useState(false);
-  const [profileForm, setProfileForm] = useState({
-    displayName: '', headline: '', phone: '', address: '', jobTitle: '', education: '',
-    countryCode: '', adminArea: '', locality: '', exactAddress: '', verifiedLatitude: '',
-    verifiedLongitude: '', locationVerifiedAt: '', ethnicity: '', religion: '',
-    birthDate: '', birthday: '', language: '', contactEmail: '', bio: ''
-  });
+  // Lưu hồ sơ / gia hạn (form nằm trong ProfileExpiryTab)
   const [savingProfile, setSavingProfile] = useState(false);
 
   // JOY Adjustment Form State
@@ -95,37 +68,13 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
   // Order Refund State
   const [refundingOrderId, setRefundingOrderId] = useState(null);
 
-  const fetchDetails = async () => {
+  // `silent`: tải lại sau khi lưu/gia hạn mà không thay cả cửa sổ bằng vòng xoay.
+  const fetchDetails = async ({ silent = false } = {}) => {
     if (!user?._id) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const data = await adminBrainApi.getUserDetails(user._id);
       setDetails(data);
-      if (data?.bio) {
-        setProfileForm({
-          displayName: data.bio.displayName || '',
-          headline: data.bio.headline || '',
-          phone: data.bio.phone || '',
-          address: data.bio.address || '',
-          jobTitle: data.bio.jobTitle || '',
-          education: data.bio.education || '',
-          countryCode: data.bio.countryCode || '',
-          adminArea: data.bio.adminArea || '',
-          locality: data.bio.locality || '',
-          exactAddress: data.bio.exactAddress || '',
-          verifiedLatitude: data.bio.verifiedLatitude || '',
-          verifiedLongitude: data.bio.verifiedLongitude || '',
-          locationVerifiedAt: data.bio.locationVerifiedAt || '',
-          ethnicity: data.bio.ethnicity || '',
-          religion: data.bio.religion || '',
-          joyDenom: data.bio.joyDenom || 'vi',
-          birthDate: toBirthDateInput(data.bio),
-          birthday: data.bio.birthday || '',
-          language: data.bio.language || '',
-          contactEmail: data.bio.contactEmail || '',
-          bio: data.bio.bio || ''
-        });
-      }
       fetchReconciliation();
     } catch (err) {
       notify.error(err.message || 'Lỗi khi tải chi tiết người dùng');
@@ -167,37 +116,38 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
     fetchDetails();
   }, [user]);
 
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
+  /** Chỉ nhận những ô đã đổi (ProfileExpiryTab tự so). Trả true khi lưu xong. */
+  const handleSaveProfile = async (changes) => {
     setSavingProfile(true);
     try {
-      const { birthDate, ...rest } = profileForm;
-      const [birthYear = 0, birthMonth = 0, birthDay = 0] = birthDate ? birthDate.split('-').map(Number) : [];
-      const res = await adminBrainApi.updateUserProfileAndExpiration(user._id, { ...rest, birthDay, birthMonth, birthYear });
-      notify.success(res.message || 'Đã cập nhật hồ sơ thành công');
-      setEditingProfile(false);
-      fetchDetails();
+      const res = await adminBrainApi.updateUserProfileAndExpiration(user._id, changes);
+      notify.success(res.message || 'Đã cập nhật hồ sơ');
+      await fetchDetails({ silent: true });
       if (onRefresh) onRefresh();
+      return true;
     } catch (err) {
       notify.error(err.message || 'Lỗi cập nhật hồ sơ');
+      return false;
     } finally {
       setSavingProfile(false);
     }
   };
 
-  const handleExtendExpiration = async (addDays) => {
+  const updateExpiry = async (payload, successText) => {
     setSavingProfile(true);
     try {
-      const res = await adminBrainApi.updateUserProfileAndExpiration(user._id, { addDays });
-      notify.success(res.message || `Đã gia hạn thêm ${addDays} ngày HSD`);
-      fetchDetails();
+      await adminBrainApi.updateUserProfileAndExpiration(user._id, payload);
+      notify.success(successText);
+      await fetchDetails({ silent: true });
       if (onRefresh) onRefresh();
     } catch (err) {
-      notify.error(err.message || 'Lỗi gia hạn HSD');
+      notify.error(err.message || 'Lỗi cập nhật thời hạn');
     } finally {
       setSavingProfile(false);
     }
   };
+  const handleExtendExpiration = (addDays) => updateExpiry({ addDays }, `Đã gia hạn thêm ${addDays} ngày`);
+  const handleSetExpiry = (expiresAt) => updateExpiry({ expiresAt }, `Đã đặt hạn đến ${new Date(expiresAt).toLocaleDateString('vi-VN')}`);
 
   const handleAdjustJoy = async (e) => {
     e.preventDefault();
@@ -309,9 +259,6 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
 
   if (!user) return null;
   const bio = details?.bio || user;
-  const privateAddress = formatFullAddress(profileForm, 'vi');
-  const hasVerifiedCoordinates = Number.isFinite(Number(profileForm.verifiedLatitude))
-    && Number.isFinite(Number(profileForm.verifiedLongitude));
 
   const calculatedBaseJoy = parseJoyInput(joyAmount, joyUnit);
   const currentBalance = bio?.joyBalance ?? 0;
@@ -465,389 +412,16 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
               )}
 
               {activeTab === 'profile' && (
-                <div className="space-y-6">
-                  {/* Top Key Metrics */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
-                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Thời hạn sử dụng (HSD)</div>
-                      <div className="text-sm font-black text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-base">event</span>
-                        <span>{new Date(bio.expiresAt).toLocaleDateString('vi-VN')}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
-                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Trạng thái Ví JOY</div>
-                      <div className={`text-sm font-black mt-1 flex items-center gap-1.5 ${bio.isJoyWalletFrozen ? 'text-rose-500' : 'text-emerald-500'}`}>
-                        <span className="material-symbols-outlined text-base">{bio.isJoyWalletFrozen ? 'ac_unit' : 'check_circle'}</span>
-                        <span>{bio.isJoyWalletFrozen ? 'Đang Đóng Băng' : 'Hoạt động Bình thường'}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
-                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Kiểm tra thông tin định kỳ</div>
-                      {(() => {
-                        const ic = bio.identityCheck || {};
-                        const failed = (ic.failStreak || 0) > 0;
-                        const overdue = ic.nextDueAt && new Date(ic.nextDueAt) <= new Date();
-                        return (
-                          <>
-                            <div className={`text-sm font-black mt-1 flex items-center gap-1.5 ${failed ? 'text-rose-500' : overdue ? 'text-amber-500' : 'text-emerald-500'}`}>
-                              <span className="material-symbols-outlined text-base">{failed ? 'gpp_bad' : overdue ? 'pending' : 'verified_user'}</span>
-                              <span>{failed ? `Đã trượt ${ic.failStreak} đợt` : overdue ? 'Đang chờ trả lời' : 'Bình thường'}</span>
-                            </div>
-                            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              {ic.lastVerifiedAt
-                                ? `Xác minh gần nhất: ${new Date(ic.lastVerifiedAt).toLocaleDateString('vi-VN')}${ic.lastField ? ` (${ic.lastField})` : ''}`
-                                : 'Chưa từng xác minh'}
-                              {ic.nextDueAt ? ` · Đợt kế: ${new Date(ic.nextDueAt).toLocaleDateString('vi-VN')}` : ''}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-
-                    <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
-                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Ưu đãi Sinh viên EDU</div>
-                      <div className={`text-sm font-black mt-1 flex items-center gap-1.5 ${bio.isEduVerified ? 'text-indigo-500' : 'text-slate-400'}`}>
-                        <span className="material-symbols-outlined text-base">school</span>
-                        <span>{bio.isEduVerified ? 'Đã Xác minh EDU' : 'Chưa Xác minh'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Expiration Direct Extension Bar */}
-                  <div className="p-5 rounded-3xl bg-blue-500/10 border border-blue-500/30 space-y-3 shadow-md">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-black uppercase tracking-widest text-blue-800 dark:text-blue-300 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-blue-500">add_moderator</span> Gia hạn Ngày hết hạn HSD nhanh
-                      </h4>
-                      <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
-                        HSD hiện tại: <strong className="text-blue-600 dark:text-blue-400">{new Date(bio.expiresAt).toLocaleDateString('vi-VN')}</strong>
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleExtendExpiration(7)}
-                        disabled={savingProfile}
-                        className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
-                      >
-                        +7 Ngày
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleExtendExpiration(30)}
-                        disabled={savingProfile}
-                        className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
-                      >
-                        +30 Ngày (1 Tháng)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleExtendExpiration(90)}
-                        disabled={savingProfile}
-                        className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
-                      >
-                        +90 Ngày (3 Tháng)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleExtendExpiration(365)}
-                        disabled={savingProfile}
-                        className="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold transition-all shadow-md active:scale-95"
-                      >
-                        +365 Ngày (1 Năm)
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Profile Edit Form / View */}
-                  <form onSubmit={handleSaveProfile} className="p-5 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 space-y-4 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span className="material-symbols-outlined text-blue-500 text-lg">badge</span> Thông tin cá nhân &amp; Chỉnh sửa
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={() => setEditingProfile(!editingProfile)}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                      >
-                        {editingProfile ? 'Đóng chỉnh sửa' : 'Bật chỉnh sửa'}
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                      {!editingProfile && (
-                        <div className="md:col-span-2 grid grid-cols-2 gap-x-4 gap-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3 dark:border-white/10 dark:bg-white/5">
-                          {[
-                            ['Email đăng nhập (Google)', bio.email || '—'],
-                            ['Ngày sinh', bio.birthYear ? `${pad2(bio.birthDay)}/${pad2(bio.birthMonth)}/${bio.birthYear} · ${ageOf(bio)} tuổi` : 'Chưa khai'],
-                            ['Sinh nhật (tự ghi)', bio.birthday || '—'],
-                            ['Đồng ý của giám hộ', bio.guardianConsentAt ? formatDate(bio.guardianConsentAt) : '—'],
-                            ['Ngôn ngữ', LANGUAGE_NAMES[bio.language] || bio.language || '—'],
-                            ['Email liên hệ', bio.contactEmail || 'Dùng email đăng nhập'],
-                            ['Mã giới thiệu', bio.referralCode || '—'],
-                            ['Người giới thiệu', bio.referredBy || '—'],
-                            ['Onboarding', bio.onboardingCompleted ? 'Đã xong' : 'Chưa xong'],
-                            ['Ngày tạo tài khoản', formatDate(bio.createdAt)],
-                          ].map(([label, value]) => (
-                            <div key={label} className="min-w-0">
-                              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">{label}</p>
-                              <p className="mt-0.5 select-text truncate text-[13px] font-bold text-slate-900 dark:text-white" title={String(value)}>{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {editingProfile && (
-                        <>
-                          <div className="md:col-span-2">
-                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Email đăng nhập (Google) — gắn với tài khoản Google, không sửa được</label>
-                            <input
-                              type="text"
-                              readOnly
-                              value={bio.email || ''}
-                              className="w-full select-all rounded-full border border-slate-200 bg-slate-100 px-3.5 py-2 font-mono font-bold text-slate-900 outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Ngày sinh (khoá với thành viên — để trống để bắt khai lại)</label>
-                            <input
-                              type="date"
-                              value={profileForm.birthDate}
-                              max={new Date().toISOString().slice(0, 10)}
-                              onChange={(e) => setProfileForm((p) => ({ ...p, birthDate: e.target.value }))}
-                              className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Ngôn ngữ chính</label>
-                            <select
-                              value={profileForm.language}
-                              onChange={(e) => setProfileForm((p) => ({ ...p, language: e.target.value }))}
-                              className="w-full cursor-pointer rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
-                            >
-                              <option value="">— Chưa chọn —</option>
-                              {Object.entries(LANGUAGE_NAMES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
-                            </select>
-                          </div>
-                          {[
-                            ['birthday', 'Sinh nhật (chuỗi tự ghi trên Bio)'],
-                            ['contactEmail', 'Email liên hệ (chỉ khi khác email đăng nhập)'],
-                          ].map(([field, label]) => (
-                            <div key={field}>
-                              <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">{label}</label>
-                              <input
-                                type="text"
-                                value={profileForm[field] || ''}
-                                onChange={(e) => setProfileForm((current) => ({ ...current, [field]: e.target.value }))}
-                                className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
-                              />
-                            </div>
-                          ))}
-                          <div className="md:col-span-2">
-                            <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">Giới thiệu bản thân</label>
-                            <textarea
-                              rows={3}
-                              value={profileForm.bio}
-                              onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
-                              className="w-full rounded-3xl border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
-                            />
-                          </div>
-                        </>
-                      )}
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tên hiển thị</label>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={profileForm.displayName}
-                          onChange={(e) => setProfileForm(p => ({ ...p, displayName: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tiêu đề (Headline)</label>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={profileForm.headline}
-                          onChange={(e) => setProfileForm(p => ({ ...p, headline: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                            Số điện thoại <span className="text-[10px] text-emerald-500 font-extrabold">(Bảo Mật)</span>
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => setShowFullPhone(!showFullPhone)}
-                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                          >
-                            <span className="material-symbols-outlined text-xs">{showFullPhone ? 'visibility_off' : 'visibility'}</span>
-                            <span>{showFullPhone ? 'Che Số' : 'Hiện Số Thật'}</span>
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={editingProfile || showFullPhone ? profileForm.phone : maskPhone(profileForm.phone)}
-                          onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono font-bold outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Địa điểm công khai trên Bio</label>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={profileForm.address}
-                          onChange={(e) => setProfileForm(p => ({ ...p, address: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      {!editingProfile && (
-                        <div className="md:col-span-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
-                          <div className="flex items-start gap-3">
-                            <span className="material-symbols-outlined mt-0.5 text-blue-500">home_pin</span>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Địa chỉ riêng tư đã xác minh</p>
-                              <p className="mt-1 text-sm font-bold leading-relaxed text-slate-900 dark:text-white">{privateAddress || 'Chưa cung cấp'}</p>
-                              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
-                                <span><strong>Dân tộc:</strong> {profileAnswerDisplayName(profileForm.ethnicity, 'vi') || '—'}</span>
-                                <span><strong>Tôn giáo:</strong> {religionDisplayName(profileForm.religion, 'vi') || '—'}</span>
-                              </div>
-                              {hasVerifiedCoordinates && (
-                                <a
-                                  href={`https://www.openstreetmap.org/?mlat=${profileForm.verifiedLatitude}&mlon=${profileForm.verifiedLongitude}#map=18/${profileForm.verifiedLatitude}/${profileForm.verifiedLongitude}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:underline dark:text-blue-400"
-                                >
-                                  <span className="material-symbols-outlined text-sm">location_on</span>
-                                  Xem vị trí đã xác minh trên bản đồ
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {editingProfile && [
-                        ['countryCode', 'Mã quốc gia ISO'],
-                        ['adminArea', 'Tỉnh / Thành phố / Bang'],
-                        ['locality', 'Phường / Xã / Khu vực'],
-                        ['exactAddress', 'Số nhà, đường, tòa nhà'],
-                        ['verifiedLatitude', 'Vĩ độ đã xác minh'],
-                        ['verifiedLongitude', 'Kinh độ đã xác minh'],
-                        ['ethnicity', 'Dân tộc / bản sắc sắc tộc'],
-                        ['religion', 'Mã tôn giáo / hệ phái'],
-                      ].map(([field, label]) => (
-                        <div key={field}>
-                          <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">{label}</label>
-                          <input
-                            type="text"
-                            value={profileForm[field] || ''}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, [field]: e.target.value }))}
-                            className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
-                          />
-                        </div>
-                      ))}
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Chức danh / Công việc</label>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={profileForm.jobTitle}
-                          onChange={(e) => setProfileForm(p => ({ ...p, jobTitle: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Học vấn</label>
-                        <input
-                          type="text"
-                          disabled={!editingProfile}
-                          value={profileForm.education}
-                          onChange={(e) => setProfileForm(p => ({ ...p, education: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm">payments</span> Đơn vị JOY Hiển Thị
-                        </label>
-                        <select
-                          disabled={!editingProfile}
-                          value={profileForm.joyDenom || 'vi'}
-                          onChange={(e) => setProfileForm(p => ({ ...p, joyDenom: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-purple-500/40 text-purple-700 dark:text-purple-300 font-extrabold outline-none disabled:opacity-80 cursor-pointer"
-                        >
-                          {Object.entries(JOY_DENOMS).map(([key, denom]) => (
-                            <option key={key} value={key} className="dark:bg-slate-900 text-slate-900 dark:text-white">
-                              {denom.code} — {denom.name} (Hệ số: x{denom.factor})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    {editingProfile && (
-                      <button
-                        type="submit"
-                        disabled={savingProfile}
-                        className="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition-all shadow-md active:scale-95 disabled:opacity-50"
-                      >
-                        Lưu thay đổi hồ sơ
-                      </button>
-                    )}
-                  </form>
-
-                  {/* Advanced Executive Admin Controls */}
-                  <div className="p-5 rounded-3xl bg-blue-500/10 border border-blue-500/30 space-y-4 shadow-md">
-                    <h4 className="text-xs font-black uppercase tracking-widest text-blue-800 dark:text-blue-300 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-blue-500">settings_remote</span> Bộ công cụ Điều khiển Thành viên Chuyên sâu
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <button
-                        type="button"
-                        onClick={handleToggleWalletFreeze}
-                        className={`p-3 rounded-2xl border text-xs font-extrabold flex flex-col items-center gap-1.5 transition-all shadow-sm ${
-                          bio.isJoyWalletFrozen
-                            ? 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
-                            : 'bg-slate-200/80 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-900 dark:text-white border-slate-300 dark:border-white/10'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-lg">{bio.isJoyWalletFrozen ? 'ac_unit' : 'lock_open'}</span>
-                        <span>{bio.isJoyWalletFrozen ? 'Mở Đóng Băng Ví JOY' : 'Đóng Băng Ví JOY'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleToggleEduStatus}
-                        className={`p-3 rounded-2xl border text-xs font-extrabold flex flex-col items-center gap-1.5 transition-all shadow-sm ${
-                          bio.isEduVerified
-                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                            : 'bg-slate-200/80 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-900 dark:text-white border-slate-300 dark:border-white/10'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-lg">school</span>
-                        <span>{bio.isEduVerified ? 'Thu hồi Ưu đãi EDU' : 'Xác minh Sinh viên EDU'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleRevokeSession}
-                        className="p-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white border border-rose-600 text-xs font-extrabold flex flex-col items-center gap-1.5 transition-all shadow-md active:scale-95"
-                      >
-                        <span className="material-symbols-outlined text-lg">logout</span>
-                        <span>Đăng xuất Cưỡng chế</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ProfileExpiryTab
+                  bio={bio}
+                  saving={savingProfile}
+                  onSave={handleSaveProfile}
+                  onExtend={handleExtendExpiration}
+                  onSetExpiry={handleSetExpiry}
+                  onToggleWalletFreeze={handleToggleWalletFreeze}
+                  onToggleEdu={handleToggleEduStatus}
+                  onRevokeSession={handleRevokeSession}
+                />
               )}
 
               {/* TAB 2: JOY WALLET MANAGEMENT & RECONCILIATION */}

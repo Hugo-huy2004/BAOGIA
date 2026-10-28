@@ -536,7 +536,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom,
       countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude,
       locationVerifiedAt, ethnicity, religion,
-      birthDay, birthMonth, birthYear, birthday, language, contactEmail, bio: bioText,
+      birthDay, birthMonth, birthYear, birthday, language, contactEmail, bio: bioText, avatarUrl,
     } = req.body;
     const Bio = (await import('../../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
@@ -560,6 +560,23 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (ethnicity !== undefined) bio.ethnicity = ethnicity;
     if (religion !== undefined) bio.religion = religion;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;
+    // Ảnh đại diện: data:image → tải lên Cloudinary (thay ảnh cũ), '' → xoá.
+    // Admin được vượt khoá chống giả mạo (antiDeepfakeLock) — khoá đó chặn kẻ
+    // chiếm tài khoản đổi ảnh, không chặn người kiểm duyệt gỡ ảnh vi phạm.
+    if (avatarUrl !== undefined) {
+      if (typeof avatarUrl === 'string' && avatarUrl.startsWith('data:image/')) {
+        const { uploadAvatar } = await import('../../utils/cloudinary.js');
+        bio.avatarUrl = await uploadAvatar(avatarUrl, bio.email, bio.avatarUrl);
+      } else if (avatarUrl === '') {
+        if (bio.avatarUrl) {
+          const { deleteAvatar } = await import('../../utils/cloudinary.js');
+          await deleteAvatar(bio.avatarUrl).catch((error) => console.warn('[admin avatar delete]', error.message));
+        }
+        bio.avatarUrl = '';
+      } else {
+        return res.status(400).json({ error: 'Ảnh đại diện phải là ảnh tải lên hoặc rỗng để xoá.' });
+      }
+    }
     if (birthday !== undefined) bio.birthday = String(birthday).slice(0, 60);
     if (contactEmail !== undefined) bio.contactEmail = String(contactEmail).trim().toLowerCase().slice(0, 200);
     if (bioText !== undefined) bio.bio = String(bioText).slice(0, 2000);
@@ -591,12 +608,24 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     }
     const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion, birthDay, birthMonth, birthYear, language].some((value) => value !== undefined);
 
+    // Hạn dùng HIỆU LỰC: tài khoản chưa xác minh giáo dục đi theo hạn dùng thử
+    // (trialExpiresAt) — cổng thành viên và lịch tự xoá tài khoản đọc hạn đó.
+    // Trước đây chỉ dời expiresAt, nên admin gia hạn xong tài khoản vẫn bị khoá
+    // và xoá đúng hạn cũ. Dời cả hai, giống extendAccess của chiến dịch partner.
+    const followsTrial = !bio.isEduVerified && Boolean(bio.trialExpiresAt);
+    const setAccessUntil = (date) => {
+      bio.expiresAt = date;
+      if (followsTrial) bio.trialExpiresAt = date;
+    };
     if (addDays && !isNaN(Number(addDays))) {
-      const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
+      const effective = followsTrial ? bio.trialExpiresAt : bio.expiresAt;
+      const currentExp = effective ? new Date(effective).getTime() : Date.now();
       const baseTime = Math.max(Date.now(), currentExp);
-      bio.expiresAt = new Date(baseTime + Number(addDays) * 24 * 60 * 60 * 1000);
+      setAccessUntil(new Date(baseTime + Number(addDays) * 24 * 60 * 60 * 1000));
     } else if (expiresAt) {
-      bio.expiresAt = new Date(expiresAt);
+      const date = new Date(expiresAt);
+      if (Number.isNaN(date.getTime())) return res.status(400).json({ error: 'Ngày hết hạn không hợp lệ.' });
+      setAccessUntil(date);
     }
 
     if (!Array.isArray(bio.history)) {
@@ -617,7 +646,8 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
     const changedFields = bio.modifiedPaths().filter((path) => !path.includes('.') && path !== 'history');
     await bio.save({ validateModifiedOnly: true });
-    if (memberGateChanged) invalidateMemberGate(bio.email);
+    // Hạn dùng cũng nằm trong cổng thành viên (đã cache) — làm mới luôn.
+    if (memberGateChanged || addDays || expiresAt) invalidateMemberGate(bio.email);
 
     // Ghi TÊN trường đã sửa (không ghi giá trị: nhật ký không được thành bản
     // sao thứ hai của dữ liệu nhạy cảm).
