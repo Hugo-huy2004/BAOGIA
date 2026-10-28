@@ -7,6 +7,20 @@ export const CODER_STAGE_SEQUENCE = Object.freeze(
 
 const lessonIdFor = (number) => `step${number}`;
 
+// ── HugoTeam dùng CHÍNH chương trình Coding ──────────────────────────────────
+// Trước đây HugoTeam tự đếm "16 step" riêng (cắt ngang chặng CODE 202) và lưu
+// tiến độ ở chỗ riêng, nên hai bên lệch số, lệch kết quả. Giờ cả hai đọc cùng
+// `bio.completedLessons`; HugoTeam chỉ cần biết tổng số step và thời hạn.
+export const CODER_TOTAL_STEPS = CODER_STAGE_SEQUENCE.at(-1)?.to || 0;
+/** Thời hạn hoàn tất phần Coding của HugoTeam (ngày). */
+export const HUGOTEAM_CODING_DAYS = 30;
+
+/** Các step Coding đã hoàn tất (step1…stepN), không trùng, theo thứ tự. */
+export function completedCoderSteps(completedLessons) {
+  const done = new Set(Array.isArray(completedLessons) ? completedLessons : []);
+  return Array.from({ length: CODER_TOTAL_STEPS }, (_, index) => lessonIdFor(index + 1)).filter((id) => done.has(id));
+}
+
 function getCoderStage(stageId) {
   return CODER_STAGE_SEQUENCE.find((stage) => stage.id === stageId) || null;
 }

@@ -5,6 +5,7 @@
 import LessonFeedback from '../../models/LessonFeedback.js';
 import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
+import { HUGOTEAM_CODING_DAYS } from '../../../shared/coderProgression.js';
 import { requireMember } from '../../middleware/authMiddleware.js';
 import { canReadCoderStage } from '../../utils/appPlanService.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
@@ -92,13 +93,18 @@ export async function getLessonDetail(req, res) {
   }
   return requireMember(req, res, async () => {
     try {
+      // HugoTeam học CHÍNH chương trình Coding (đủ mọi step): thành viên đang ở
+      // giai đoạn Coding còn hạn được đọc mọi bài, mở từ HugoTeam hay từ Coding.
+      const teamDev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: 'coding' }).select('codingStartedAt').lean();
+      const teamActive = Boolean(teamDev) && !(teamDev.codingStartedAt
+        && Date.now() - new Date(teamDev.codingStartedAt).getTime() > HUGOTEAM_CODING_DAYS * 24 * 60 * 60 * 1000);
       if (req.query.program === 'hugoteam') {
-        const dev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: 'coding' }).select('_id').lean();
-        if (!dev || index >= 16) {
-          return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Step này không thuộc chương trình Coding hiện tại của HugoTeam.' });
+        if (!teamActive) {
+          return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam (hoặc đã quá hạn).' });
         }
         return res.json({ lesson: publicCourse(course) });
       }
+      if (teamActive) return res.json({ lesson: publicCourse(course) });
       if (!req.isAdminActor) {
         const fields = 'hugoCoderAll7Lifetime hugoCoderBasicLifetime hugoCoderIntermediateLifetime hugoCoderAdvancedLifetime '
           + 'hugoCoderSecurityLifetime hugoCoderExamLifetime hugoCoderOptimizeLifetime hugoCoderUltimateLifetime '

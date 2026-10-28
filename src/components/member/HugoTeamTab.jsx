@@ -11,6 +11,7 @@ import { localeForLanguage, languageCode } from "../../i18n/languages";
 import { canTranslate, guessLanguage, translateText } from "../../lib/textTranslator";
 import { useJoyStore } from "../../stores/joyStore";
 import "../../styles/hugoTeam.css";
+import { CODER_TOTAL_STEPS, HUGOTEAM_CODING_DAYS, completedCoderSteps } from "../../../shared/coderProgression";
 
 const HugoCoderHub = lazy(() => import("./hugoCoder/HugoCoderHub"));
 
@@ -308,9 +309,10 @@ function CodingStageDashboard({ me, onBack, reload, bio, onBioUpdate }) {
       if (data?.stage && data.stage !== me?.assessmentStage) reload();
     }).catch(() => {});
   }, [me?.assessmentStage, reload]);
-  const daysLeft = me?.codingDeadline ? Math.max(0, Math.ceil((new Date(me.codingDeadline) - Date.now()) / 86400000)) : 30;
-  const completed = me?.codingCompletedSteps?.length || 0;
-  return <TeamShell onBack={onBack}><div className="space-y-5"><StageCard eyebrow="HUGOTEAM · BƯỚC 2/4" title="Coding HugoTeam"><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Đây là chương trình riêng của HugoTeam, được quản lý độc lập với ứng dụng Coding. Hoàn tất step tại đây vẫn được công nhận đồng thời trong Coding.</p><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-emerald-500/10 p-4"><p className="text-2xl font-bold text-emerald-600">{completed}/16</p><p className="text-sm text-muted-foreground">Step HugoTeam đã hoàn tất</p></div><div className="rounded-2xl bg-primary/10 p-4"><p className="text-2xl font-bold text-primary">{daysLeft} ngày</p><p className="text-sm text-muted-foreground">Còn lại trong 30 ngày</p></div><div className="rounded-2xl bg-muted/50 p-4"><p className="text-2xl font-bold text-foreground">Không yêu cầu</p><p className="text-sm text-muted-foreground">Dự án cuối ở bước này</p></div></div><div className="mt-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-relaxed text-amber-800">Quá 14 ngày chưa hoàn tất sẽ phải thi lại và reset tiến độ HugoTeam. Tiến độ đã được công nhận trong Coding không bị xóa vì hai chương trình độc lập.</div><div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-muted-foreground">Hoàn tất đủ 16 step sẽ chuyển sang Mentor. Dự án cuối được thực hiện và đánh giá trong giai đoạn Mentor.</div></StageCard><div className="overflow-hidden rounded-3xl border border-border/60 bg-card"><Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải chương trình Coding HugoTeam…</div>}><HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={me?.codingCompletedSteps || []} maxSteps={16} onLessonChange={setSelectedStep} onProgramProgress={reload} /></Suspense></div></div></TeamShell>;
+  const daysLeft = me?.codingDeadline ? Math.max(0, Math.ceil((new Date(me.codingDeadline) - Date.now()) / 86400000)) : HUGOTEAM_CODING_DAYS;
+  // Cùng một nguồn với ứng dụng Coding: số step đã xong ở đây = ở Coding.
+  const completed = completedCoderSteps(bio?.completedLessons).length;
+  return <TeamShell onBack={onBack}><div className="space-y-5"><StageCard eyebrow="HUGOTEAM · BƯỚC 2/4" title="Coding HugoTeam"><p className="mt-3 text-sm leading-relaxed text-muted-foreground">HugoTeam dùng chính chương trình Coding: cùng {CODER_TOTAL_STEPS} step, cùng 6 chặng, cùng kết quả. Step đã xong ở Coding được tính ở đây và ngược lại.</p><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-emerald-500/10 p-4"><p className="text-2xl font-bold text-emerald-600">{completed}/{CODER_TOTAL_STEPS}</p><p className="text-sm text-muted-foreground">Step Coding đã hoàn tất</p></div><div className="rounded-2xl bg-primary/10 p-4"><p className="text-2xl font-bold text-primary">{daysLeft} ngày</p><p className="text-sm text-muted-foreground">Còn lại trong {HUGOTEAM_CODING_DAYS} ngày</p></div><div className="rounded-2xl bg-muted/50 p-4"><p className="text-2xl font-bold text-foreground">Không yêu cầu</p><p className="text-sm text-muted-foreground">Dự án cuối ở bước này</p></div></div><div className="mt-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-relaxed text-amber-800">Quá {HUGOTEAM_CODING_DAYS} ngày chưa hoàn tất thì phải làm lại bài đánh giá HugoTeam. Tiến độ Coding của bạn vẫn được giữ nguyên.</div><div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-muted-foreground">Hoàn tất đủ {CODER_TOTAL_STEPS} step (6 chặng CODE 101 → CODE 302) sẽ chuyển sang Mentor.</div></StageCard><div className="overflow-hidden rounded-3xl border border-border/60 bg-card"><Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải chương trình Coding HugoTeam…</div>}><HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={bio?.completedLessons || []} onLessonChange={setSelectedStep} onProgramProgress={reload} /></Suspense></div></div></TeamShell>;
 }
 
 function StageCard({ title, eyebrow, children }) {
@@ -543,7 +545,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
             <b>01</b><div><h3>Đánh giá năng lực</h3><p>{t("memberPortal.team.process1")}</p></div><span>18 câu · 250 JOY</span>
           </li>
           <li className="ht-journey-step">
-            <b>02</b><div><h3>Coding HugoTeam</h3><p>{t("memberPortal.team.process2")}</p></div><span>16 step · tối đa 30 ngày</span>
+            <b>02</b><div><h3>Coding HugoTeam</h3><p>{t("memberPortal.team.process2")}</p></div><span>{CODER_TOTAL_STEPS} step Coding · tối đa {HUGOTEAM_CODING_DAYS} ngày</span>
           </li>
           <li className="ht-journey-step">
             <b>03</b><div><h3>Mentor và dự án cuối</h3><p>{t("memberPortal.team.process3")}</p></div><span>30 ngày đồng hành</span>

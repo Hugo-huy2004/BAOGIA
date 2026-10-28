@@ -14,7 +14,7 @@ import {
   createLessonEvidence,
   privateEvidenceDto,
 } from '../../services/learningEvidenceService.js';
-import { getCoderLessonGate, getCoderStageCompletion } from '../../../shared/coderProgression.js';
+import { getCoderLessonGate, getCoderStageCompletion, CODER_TOTAL_STEPS, HUGOTEAM_CODING_DAYS, completedCoderSteps } from '../../../shared/coderProgression.js';
 import { CODER_LESSON_IDS, FOCUS_DAILY_JOY_CAP, todayStr, BIRTHDAY_PRIZES, birthdaySpinStatus } from './joyShared.js';
 
 const router = express.Router();
@@ -35,40 +35,46 @@ router.post('/award-learning', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
+    // HugoTeam học CHÍNH chương trình Coding: một tiến độ (bio.completedLessons),
+    // một bộ điểm. Thành viên đang ở giai đoạn Coding của HugoTeam được học mọi
+    // step (không qua cổng trả phí), dù mở từ HugoTeam hay từ ứng dụng Coding.
     const isHugoTeam = program === 'hugoteam';
-    let teamDev = null;
+    let teamDev = await HugoTeamDev.findOne({ email, assessmentStage: 'coding' });
+    const teamExpired = Boolean(teamDev?.codingStartedAt && Date.now() - new Date(teamDev.codingStartedAt).getTime() > HUGOTEAM_CODING_DAYS * 24 * 60 * 60 * 1000);
     if (isHugoTeam) {
-      teamDev = await HugoTeamDev.findOne({ email, assessmentStage: 'coding' });
       if (!teamDev) return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam.' });
-      if (teamDev.codingStartedAt && Date.now() - new Date(teamDev.codingStartedAt).getTime() > 14 * 24 * 60 * 60 * 1000) {
-        return res.status(409).json({ code: 'HUGOTEAM_CODING_EXPIRED', error: 'Đã quá 14 ngày. Mở lại HugoTeam để reset lộ trình và làm lại bài đánh giá.' });
+      if (teamExpired) {
+        return res.status(409).json({ code: 'HUGOTEAM_CODING_EXPIRED', error: `Đã quá ${HUGOTEAM_CODING_DAYS} ngày. Mở lại HugoTeam để làm lại bài đánh giá; tiến độ Coding vẫn được giữ.` });
       }
-      if (lessonIndex >= 16) return res.status(403).json({ code: 'HUGOTEAM_PROGRAM_COMPLETE', error: 'Chương trình Coding HugoTeam gồm 16 step; dự án cuối thực hiện trong giai đoạn Mentor.' });
     }
+    if (teamExpired) teamDev = null;
 
     if (!bio.completedLessons) {
       bio.completedLessons = [];
     }
-    const programProgress = isHugoTeam ? (teamDev.codingCompletedSteps || []) : bio.completedLessons;
+    const programProgress = bio.completedLessons;
+    const teamView = (steps) => (teamDev ? { program: 'hugoteam', completedCount: steps.length, requiredSteps: CODER_TOTAL_STEPS, nextStage: steps.length >= CODER_TOTAL_STEPS ? 'mentor' : 'coding' } : {});
+    // Chép tiến độ sang hồ sơ HugoTeam (cho admin/mentor) và lên Mentor khi đủ step.
+    const syncTeam = async (completedLessons) => {
+      if (!teamDev) return [];
+      const steps = completedCoderSteps(completedLessons);
+      const update = { $set: { codingCompletedSteps: steps } };
+      if (steps.length >= CODER_TOTAL_STEPS) update.$set.assessmentStage = 'mentor';
+      await HugoTeamDev.updateOne({ _id: teamDev._id, assessmentStage: 'coding' }, update);
+      return steps;
+    };
 
     // Học lại step đã qua: vẫn chấm để người học thấy kết quả, nhưng không ghi điểm.
     if (programProgress.includes(lessonId)) {
       const review = gradeStepQuiz(lessonId, evidence.answers);
-      if (isHugoTeam) {
-        const teamScore = teamDev.codingStepScores?.[lessonId];
-        const codingUpdate = { $addToSet: { completedLessons: lessonId } };
-        if (teamScore && !bio.hugoCoderExamScores?.[lessonId]) {
-          codingUpdate.$set = { [`hugoCoderExamScores.${lessonId}`]: teamScore };
-        }
-        await Bio.updateOne({ _id: bio._id }, codingUpdate);
-      }
+      const steps = await syncTeam(programProgress);
       return res.json({
         success: true,
         alreadyCompleted: true,
         balance: bio.joyBalance,
         ...review,
         passPercent: PASS_PERCENT,
-        ...(isHugoTeam ? { program: 'hugoteam', completedCount: programProgress.length, requiredSteps: 16, nextStage: programProgress.length >= 16 ? 'mentor' : 'coding' } : {}),
+        ...teamView(steps),
       });
     }
 
@@ -86,7 +92,7 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
     // Step ngoài phần học thử chỉ được tính khi có quyền đọc chính step đó —
     // nếu không, ai cũng đoán đáp án mà "qua" được step trả phí.
-    if (!isHugoTeam && lessonIndex >= PUBLIC_TOOLS.study.previewLessons && !canReadCoderStage(bio, lessonGate.stage.id)) {
+    if (!teamDev && lessonIndex >= PUBLIC_TOOLS.study.previewLessons && !canReadCoderStage(bio, lessonGate.stage.id)) {
       return res.status(403).json({
         code: 'COURSE_ACCESS_REQUIRED',
         error: 'Step này thuộc phần trả phí. Mở khóa Coding hoặc chặng chứa step để học tiếp.',
@@ -100,7 +106,7 @@ router.post('/award-learning', requireMember, async (req, res) => {
     }
     // Giữ điểm cho chứng chỉ chặng: `firstTry` chỉ ghi một lần — nó nói đúng
     // năng lực lúc học xong, còn `best` thì lên dần qua mỗi lần làm lại.
-    const previous = isHugoTeam ? (teamDev.codingStepScores?.[lessonId] || {}) : (bio.hugoCoderExamScores?.[lessonId] || {});
+    const previous = bio.hugoCoderExamScores?.[lessonId] || {};
     const scoreEntry = {
       best: Math.max(Number(previous.best || 0), graded.score),
       firstTry: previous.firstTry ?? graded.score,
@@ -108,16 +114,8 @@ router.post('/award-learning', requireMember, async (req, res) => {
       attempts: Number(previous.attempts || 0) + 1,
       at: new Date().toISOString(),
     };
-    const codingPrevious = bio.hugoCoderExamScores?.[lessonId] || {};
-    const codingScoreEntry = isHugoTeam ? {
-      best: Math.max(Number(codingPrevious.best || 0), graded.score),
-      firstTry: codingPrevious.firstTry ?? graded.score,
-      last: graded.score,
-      attempts: Number(codingPrevious.attempts || 0) + 1,
-      at: new Date().toISOString(),
-    } : scoreEntry;
-    await Bio.updateOne({ _id: bio._id }, { $set: { [`hugoCoderExamScores.${lessonId}`]: codingScoreEntry } });
-    if (isHugoTeam) {
+    await Bio.updateOne({ _id: bio._id }, { $set: { [`hugoCoderExamScores.${lessonId}`]: scoreEntry } });
+    if (teamDev) {
       await HugoTeamDev.updateOne({ _id: teamDev._id }, { $set: { [`codingStepScores.${lessonId}`]: scoreEntry } });
     }
     if (!graded.passed) {
@@ -148,18 +146,9 @@ router.post('/award-learning', requireMember, async (req, res) => {
       { $addToSet: { completedLessons: lessonId } },
     );
 
-    if (isHugoTeam) {
-      const updatedTeam = await HugoTeamDev.findOneAndUpdate(
-        { _id: teamDev._id, assessmentStage: 'coding' },
-        { $addToSet: { codingCompletedSteps: lessonId } },
-        { new: true },
-      );
-      const completedCount = updatedTeam?.codingCompletedSteps?.length || 0;
-      if (completedCount >= 16) {
-        updatedTeam.assessmentStage = 'mentor';
-        await updatedTeam.save();
-      }
-      return res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, program: 'hugoteam', completedCount, requiredSteps: 16, nextStage: completedCount >= 16 ? 'mentor' : 'coding' });
+    if (teamDev) {
+      const steps = await syncTeam([...programProgress, lessonId]);
+      return res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, ...teamView(steps) });
     }
 
     res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT });

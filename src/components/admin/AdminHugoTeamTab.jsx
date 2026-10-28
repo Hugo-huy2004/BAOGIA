@@ -3,6 +3,7 @@ import { Check, X } from "lucide-react";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
 import "../../styles/adminHugoTeam.css";
+import { CODER_TOTAL_STEPS } from "../../../shared/coderProgression";
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "—");
 
@@ -344,7 +345,7 @@ function DevDetail({ dev, refresh }) {
 
       <div className="ht-admin-progress-grid">
         <article><span className="material-symbols-outlined">psychology</span><small>Đánh giá</small><strong>{dev.assessmentAttempts}/3 lượt</strong><p>{scores ? `${scores.logic}% Logic · ${scores.creativity}% Sáng tạo · ${scores.eq}% EQ` : "Chưa có kết quả"}</p></article>
-        <article><span className="material-symbols-outlined">code</span><small>Coding HugoTeam ↔ Coding</small><strong>{dev.codingCompletedSteps?.length || 0}/16 step</strong><p>{dev.codingDeadline ? `Hạn ${fmtDate(dev.codingDeadline)} · tự đồng bộ Coding` : "Chưa bắt đầu"}</p></article>
+        <article><span className="material-symbols-outlined">code</span><small>Tiến độ Coding (chung)</small><strong>{dev.codingCompletedSteps?.length || 0}/{CODER_TOTAL_STEPS} step</strong><p>{dev.codingDeadline ? `Hạn ${fmtDate(dev.codingDeadline)} · tự đồng bộ Coding` : "Chưa bắt đầu"}</p></article>
         <article><span className="material-symbols-outlined">supervisor_account</span><small>Mentor</small><strong>{dev.mentor?.name || "Chưa phân"}</strong><p>{dev.mentorEndsAt ? `Kết thúc ${fmtDate(dev.mentorEndsAt)}` : "Chu kỳ 30 ngày"}</p></article>
         <article><span className="material-symbols-outlined">groups</span><small>Team</small><strong>{dev.teamId || "Chưa có team"}</strong><p>{dev.teamId ? `${dev.teamRole} · ${dev.contributionScore}/100 đóng góp` : "Chờ đủ điều kiện"}</p></article>
       </div>

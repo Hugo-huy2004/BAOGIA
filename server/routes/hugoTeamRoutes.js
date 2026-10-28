@@ -14,6 +14,7 @@ import {
   sendHugoTeamRejected,
   sendCustomEmail,
 } from "../services/emailService.js";
+import { CODER_TOTAL_STEPS, HUGOTEAM_CODING_DAYS, completedCoderSteps } from "../../shared/coderProgression.js";
 
 const router = express.Router();
 
@@ -49,9 +50,28 @@ const notifyByEmail = (to, subject, html) =>
 const ASSESSMENT_PRICE = 250;
 const ASSESSMENT_LIMIT = 3;
 const ASSESSMENT_PASS = { logic: 70, creativity: 65, eq: 65, overall: 68 };
-const CODING_MAX_DAYS = 30;
-const CODING_RETEST_AFTER_DAYS = 14;
+// Một thời hạn duy nhất (trước đây hạn hiển thị 30 ngày nhưng máy chủ reset ở 14).
+const CODING_MAX_DAYS = HUGOTEAM_CODING_DAYS;
+const CODING_RETEST_AFTER_DAYS = HUGOTEAM_CODING_DAYS;
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Tiến độ Coding của HugoTeam = tiến độ trong ứng dụng Coding (bio.completedLessons),
+ * không còn sổ riêng. Chép lại vào HugoTeamDev chỉ để màn admin/mentor đọc nhanh;
+ * đủ toàn bộ step thì lên Mentor. Gọi mỗi khi cần số liệu mới nhất.
+ */
+async function syncTeamCoding(dev) {
+  if (!dev?.email) return dev;
+  const bio = await Bio.findOne({ $or: [{ email: dev.email }, { contactEmail: dev.email }] }).select("completedLessons hugoCoderExamScores").lean();
+  const steps = completedCoderSteps(bio?.completedLessons);
+  const scores = Object.fromEntries(steps.filter((id) => bio?.hugoCoderExamScores?.[id]).map((id) => [id, bio.hugoCoderExamScores[id]]));
+  const changed = steps.length !== (dev.codingCompletedSteps || []).length;
+  dev.codingCompletedSteps = steps;
+  dev.codingStepScores = scores;
+  if (dev.assessmentStage === "coding" && steps.length >= CODER_TOTAL_STEPS) dev.assessmentStage = "mentor";
+  if (changed || dev.isModified?.("assessmentStage")) await dev.save();
+  return dev;
+}
 
 const shuffle = (items) => items.map((item) => [randomInt(1_000_000), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item);
 const logicQuestions = () => {
@@ -144,6 +164,7 @@ router.get("/me", requireMember, async (req, res) => {
   try {
     const dev = await HugoTeamDev.findOne({ email: req.memberEmail });
     if (!dev) return res.json({ status: null });
+    if (dev.assessmentStage === "coding") await syncTeamCoding(dev);
     if (dev.status !== "approved") {
       const latestAttempt = dev.assessmentAttempts[dev.assessmentAttempts.length - 1];
       return res.json({
@@ -358,7 +379,7 @@ router.get("/assessment/status", requireMember, async (req, res) => {
       dev.assessmentAttempts = [];
       dev.assessmentStage = "none";
       dev.codingResetAt = new Date();
-      dev.codingResetReason = "Quá 14 ngày chưa hoàn tất Coding — cần làm lại bài đánh giá.";
+      dev.codingResetReason = `Quá ${CODING_RETEST_AFTER_DAYS} ngày chưa hoàn tất Coding — cần làm lại bài đánh giá. Tiến độ trong Coding vẫn được giữ.`;
       dev.codingStartedAt = null;
       dev.codingDeadline = null;
       dev.codingCompletedSteps = [];
@@ -366,13 +387,10 @@ router.get("/assessment/status", requireMember, async (req, res) => {
       codingReset = true;
       await dev.save();
     }
+    if (dev?.assessmentStage === "coding") await syncTeamCoding(dev);
     const attempts = dev?.assessmentAttempts || [];
     const latest = attempts[attempts.length - 1];
-    const codingComplete = (dev?.codingCompletedSteps || []).length >= 16;
-    if (dev?.assessmentStage === "coding" && codingComplete) {
-      dev.assessmentStage = "mentor";
-      await dev.save();
-    }
+    const codingComplete = (dev?.codingCompletedSteps || []).length >= CODER_TOTAL_STEPS;
     res.json({
       attemptsUsed: attempts.filter((attempt) => attempt.completedAt).length,
       attemptsRemaining: Math.max(0, ASSESSMENT_LIMIT - attempts.filter((attempt) => attempt.completedAt).length),
@@ -383,7 +401,7 @@ router.get("/assessment/status", requireMember, async (req, res) => {
       codingStartedAt: dev?.codingStartedAt || null,
       codingDeadline: dev?.codingDeadline || null,
       codingCompletedSteps: dev?.codingCompletedSteps || [],
-      codingRequiredSteps: 16,
+      codingRequiredSteps: CODER_TOTAL_STEPS,
       codingReset,
       codingResetReason: dev?.codingResetReason || "",
       thresholds: ASSESSMENT_PASS,
@@ -444,6 +462,8 @@ router.post("/assessment/submit", requireMember, async (req, res) => {
       dev.codingStepScores = {};
     }
     await dev.save();
+    // Step đã học trong Coding từ trước được tính ngay (cùng một chương trình).
+    if (scores.passed) await syncTeamCoding(dev);
     res.json({ success: true, scores, passed: scores.passed, thresholds: ASSESSMENT_PASS, advice: buildDevelopmentAdvice(scores), securityViolation: violationReason || null, next: scores.passed ? "coding" : "retry" });
   } catch (error) {
     console.error("POST assessment submit error:", error);
