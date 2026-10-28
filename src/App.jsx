@@ -50,8 +50,11 @@ import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 // behind a lazy route, so pairing the two loads puts the dictionary inside the
 // Suspense boundary that already exists — no screen can render before its
 // strings are there, and nothing flashes raw `a.b.c` keys.
+// Mạng điện thoại chập chờn làm hỏng một lần tải chunk là chuyện thường: thử
+// lại một lần sau 800 ms trước khi để ErrorBoundary xử lý (tải lại trang).
+const retryOnce = (loader) => loader().catch(() => new Promise((resolve) => setTimeout(resolve, 800)).then(loader));
 const lazyRoute = (loader) =>
-  lazy(() => Promise.all([loader(), ensureTranslations()]).then(([mod]) => mod));
+  lazy(() => Promise.all([retryOnce(loader), ensureTranslations()]).then(([mod]) => mod));
 
 const PortfolioRedirect = lazyRoute(() => import("./components/PortfolioRedirect"));
 const ProjectsPage = lazyRoute(() => import("./pages/public/ProjectsPage"));

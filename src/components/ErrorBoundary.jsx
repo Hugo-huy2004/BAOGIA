@@ -7,6 +7,25 @@ const RELOAD_FLAG = 'chunk_reload_attempted';
 // componentDidMount can't clear the guard: the boundary mounts (Suspense
 // fallback) before the lazy chunk fails, so a cleared flag meant reload loops.
 const RELOAD_COOLDOWN_MS = 60_000;
+const HARD_RESET_FLAG = 'chunk_hard_reset_attempted';
+
+/**
+ * Tải lại thường không cứu được khi chính service worker hay bộ nhớ đệm giữ
+ * index.html cũ: trang tải lại vẫn trỏ vào file JS đã bị thay sau deploy, và
+ * Safari báo "Importing a module script failed" lần nữa. Lần thứ hai thì gỡ
+ * service worker, xoá cache rồi mới tải lại — một lần mỗi phiên.
+ */
+async function hardResetAndReload() {
+  try {
+    const registrations = await navigator.serviceWorker?.getRegistrations?.() || [];
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+  } catch { /* ignore */ }
+  try {
+    const keys = await window.caches?.keys?.() || [];
+    await Promise.all(keys.map((key) => window.caches.delete(key)));
+  } catch { /* ignore */ }
+  window.location.reload();
+}
 
 function isChunkLoadError(error) {
   return CHUNK_ERROR_PATTERN.test(error?.message || '');
@@ -40,6 +59,14 @@ export class ErrorBoundary extends React.Component {
         sessionStorage.setItem(RELOAD_FLAG, String(Date.now()));
         this.setState({ autoReloading: true });
         window.location.reload();
+        return;
+      }
+      let hardResetDone = true;
+      try { hardResetDone = sessionStorage.getItem(HARD_RESET_FLAG) === '1'; } catch { /* ignore */ }
+      if (!hardResetDone) {
+        try { sessionStorage.setItem(HARD_RESET_FLAG, '1'); } catch { /* ignore */ }
+        this.setState({ autoReloading: true });
+        hardResetAndReload();
         return;
       }
     }
