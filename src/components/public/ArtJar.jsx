@@ -52,7 +52,12 @@ export default function ArtJar({ messages }) {
 
       // Thả theo cột ngay trên miệng lọ, hàng sau rơi sau, lệch nhẹ cho tự nhiên.
       const cols = Math.max(1, Math.floor(width / cardW));
-      const bodies = cardRefs.current.slice(0, messages.length).map((node, index) => {
+      // Giữ BẢN CHỤP các thẻ lúc dựng. Đọc thẳng cardRefs.current trong vòng vẽ
+      // là hỏng: khi danh sách đổi, React gán ref = null ngay lúc commit nhưng
+      // dọn effect này muộn hơn, một khung rAF chen giữa sẽ gặp null
+      // ("null is not an object (evaluating 'r.current[t].style')" trên Safari).
+      const nodes = cardRefs.current.slice(0, messages.length).filter(Boolean);
+      const bodies = nodes.map((node, index) => {
         node.style.width = `${cardW}px`;
         node.style.height = `${cardH}px`;
         const col = index % cols;
@@ -82,7 +87,7 @@ export default function ArtJar({ messages }) {
       const paint = () => {
         bodies.forEach((body, index) => {
           const { x, y } = body.position;
-          cardRefs.current[index].style.transform = `translate(${x - cardW / 2}px, ${y - cardH / 2}px) rotate(${body.angle}rad)`;
+          nodes[index].style.transform = `translate(${x - cardW / 2}px, ${y - cardH / 2}px) rotate(${body.angle}rad)`;
         });
       };
 
@@ -119,7 +124,7 @@ export default function ArtJar({ messages }) {
       };
       const onDown = (event) => {
         askMotion();
-        const index = cardRefs.current.indexOf(event.target.closest(".svc-jar__card"));
+        const index = nodes.indexOf(event.target.closest(".svc-jar__card"));
         if (index < 0) return;
         const body = bodies[index];
         const point = toLocal(event);

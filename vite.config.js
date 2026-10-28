@@ -305,6 +305,12 @@ export default defineConfig(({ mode }) => {
             if (id.includes('i18next') || id.includes('react-i18next')) return 'i18n';
             if (id.includes('zustand') || id.includes('swr')) return 'state';
             if (id.includes('react-dom') || id.includes('react-router-dom') || id.includes('/react/')) return 'vendor';
+            // framer-motion đã nằm trong đồ thị của trang đầu (MotionConfig ở
+            // App.jsx). Để rolldown tự đặt tên thì ra "is-prop-valid_framer-
+            // motion-*.js", và đúng file đó không tải được trên một số iPhone
+            // (Telegram báo 28/10: preload hỏng kéo theo entry hỏng, trang kẹt
+            // ở bản chữ thô). Gom về một chunk tên trung tính.
+            if (/[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils|@emotion[\\/]is-prop-valid)[\\/]/.test(id)) return 'motion';
           }
           // Do NOT manually chunk app-source folders (demos, banhocduong):
           // forcing a whole folder into one named chunk made rolldown hoist it
