@@ -187,10 +187,14 @@ html:not(.dark) .edu-feature h3 { background-image: linear-gradient(100deg, var(
 }
 /* "Hugo Edu+" luôn một hàng: hai chữ cùng cỡ, không xuống dòng. Hai cột thì
    cỡ theo bề rộng màn (cột chữ chỉ ~55%), một cột thì to hơn. */
-.edu-hero h1 { white-space: nowrap; font-size: min(7.5rem, 8.5vw); }
-.edu-hero h1 > span:first-child, .edu-hero h1 > span:last-child { display: inline; font-size: inherit; }
-.edu-hero h1 > span:first-child { margin-right: .22em; }
-@media (max-width: 767px) { .edu-hero h1 { font-size: 14vw; } }
+/* Cỡ chữ đo theo CHÍNH cột chữ (container query), không theo màn hình: "Hugo
+   Edu+" rộng ~5em, nên 19cqi luôn vừa cột ở mọi bề rộng. Bản cũ dùng vw và
+   còn bị luật `.svc-hero h1 > span` (14vw) của trang Dịch vụ đè vì nạp sau,
+   nên chữ ~200px tràn ra sau ba điện thoại. `.svc-hero.edu-hero` đủ mạnh để thắng. */
+.edu-hero__copy { container-type: inline-size; min-width: 0; }
+.svc-hero.edu-hero h1 { white-space: nowrap; font-size: min(7.5rem, 8.5vw); font-size: min(7.5rem, 19cqi); }
+.svc-hero.edu-hero h1 > span:first-child, .svc-hero.edu-hero h1 > span:last-child { display: inline; font-size: inherit; }
+.svc-hero.edu-hero h1 > span:first-child { margin-right: .22em; }
 
 /* Chế độ sáng: nền mở màn trong trẻo — quầng màu nhạt, biểu tượng mờ hẳn. */
 html:not(.dark) .edu-hero .svc-hero__bg > i { opacity: .12; }
