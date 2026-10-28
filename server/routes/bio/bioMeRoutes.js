@@ -9,6 +9,7 @@ import { clearCache } from '../../utils/cacheHelper.js';
 import { decryptText, comparePassword } from '../../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../../utils/birthdayAutomation.js';
 import { ensureReferralCode, applyReferral } from '../../utils/referralService.js';
+import { checkPinAgainstAddress } from '../../utils/reverseGeocode.js';
 import { isEduEmail } from '../../utils/eduEmail.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
 import InAppNotification from '../../models/InAppNotification.js';
@@ -17,7 +18,7 @@ import redisSlugService from '../../services/redisSlugService.js';
 import VerificationEvidence from '../../models/VerificationEvidence.js';
 import { generateRaw } from '../../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../../utils/studentRewards.js';
-import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, studentRewardLimiter, studentVerificationLimiter, verificationAppealLimiter, receiveStudentVerification, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, TWELVE_MONTHS_MS, SEVEN_DAYS_MS, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, removeDuplicateIdentityAccounts, stripSchoolLevelPrefix, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
+import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, pinCheckLimiter, studentRewardLimiter, studentVerificationLimiter, verificationAppealLimiter, receiveStudentVerification, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, TWELVE_MONTHS_MS, SEVEN_DAYS_MS, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, removeDuplicateIdentityAccounts, stripSchoolLevelPrefix, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
 
 const router = express.Router();
 
@@ -561,6 +562,28 @@ router.get('/me/profile-options/ethnicities', requireMember, async (req, res) =>
   }
 });
 
+const PIN_COUNTRY_ERROR = 'Điểm ghim trên bản đồ nằm ở quốc gia khác với quốc gia bạn đã khai. Hãy định vị lại tại nơi ở hoặc sửa lại quốc gia.';
+
+// GET /me/location-check?lat=&lng=&country=&area= — modal hỏi ngay sau khi
+// định vị: bản đồ ghi nhận điểm này thuộc đâu, có khớp địa chỉ đã khai không.
+router.get('/me/location-check', requireMember, pinCheckLimiter, async (req, res) => {
+  try {
+    const latitude = Number(req.query.lat);
+    const longitude = Number(req.query.lng);
+    if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 || !Number.isFinite(longitude) || Math.abs(longitude) > 180) {
+      return res.status(400).json({ error: 'Toạ độ không hợp lệ.' });
+    }
+    const result = await checkPinAgainstAddress({
+      latitude, longitude,
+      countryCode: String(req.query.country || '').slice(0, 2),
+      adminArea: String(req.query.area || '').slice(0, 120),
+    });
+    res.json({ status: result.status, place: result.place });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PHONE_TAKEN_ERROR = 'Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.';
 const PHONE_TAKEN = { error: PHONE_TAKEN_ERROR, code: 'PHONE_TAKEN', field: 'phone' };
 
@@ -595,6 +618,19 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       applyProfileValues(bio, req.body);
     } catch (validationError) {
       return res.status(400).json({ error: validationError.message });
+    }
+
+    // Điểm ghim mới: đối chiếu với bản đồ trước khi lưu. Khác quốc gia là chặn;
+    // khác tỉnh (OSM có thể còn tên tỉnh cũ sau sáp nhập) hoặc không tra được
+    // thì vẫn lưu, kèm cờ để admin xem.
+    if (bio.isModified('verifiedLatitude') || bio.isModified('verifiedLongitude')) {
+      const pin = await checkPinAgainstAddress({
+        latitude: req.body.verifiedLatitude, longitude: req.body.verifiedLongitude,
+        countryCode: bio.countryCode, adminArea: bio.adminArea,
+      });
+      if (pin.status === 'country') return res.status(400).json({ error: PIN_COUNTRY_ERROR, code: 'PIN_COUNTRY_MISMATCH', field: 'locationVerification' });
+      bio.locationMatch = pin.status;
+      bio.locationGeocode = pin.place?.label || '';
     }
 
     // Mỗi số điện thoại chỉ thuộc một tài khoản (index unique `phone`, nền của

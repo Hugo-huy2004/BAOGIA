@@ -216,6 +216,12 @@ const BioSchema = new mongoose.Schema(
     verifiedLatitude: { type: String, default: '' },
     verifiedLongitude: { type: String, default: '' },
     locationVerifiedAt: { type: Date, default: null },
+    // Độ chính xác GPS (mét) lúc ghim, địa chỉ OpenStreetMap của điểm ghim và kết
+    // quả đối chiếu với địa chỉ đã khai (utils/reverseGeocode.js):
+    // 'match' | 'area' (khác tỉnh — admin xem) | 'unchecked' (chưa tra được).
+    locationAccuracy: { type: Number, default: 0 },
+    locationGeocode: { type: String, default: '' },
+    locationMatch: { type: String, default: '' },
     religion: { type: String, default: '' },
     ethnicity: { type: String, default: '' },
     education: {
@@ -859,6 +865,7 @@ const SENSITIVE_FIELDS = [
   'locality',
   'verifiedLatitude',
   'verifiedLongitude',
+  'locationGeocode',
   'religion',
   'ethnicity'
 ];

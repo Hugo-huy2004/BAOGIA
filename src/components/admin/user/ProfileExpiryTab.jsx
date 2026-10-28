@@ -371,7 +371,9 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
           <Row label="Tỉnh / Thành phố / Bang">{text("adminArea")}</Row>
           <Row label="Phường / Xã / Khu vực">{text("locality")}</Row>
           <Row label="Số nhà, đường, toà nhà">{text("exactAddress")}</Row>
-          <Row label="Toạ độ đã xác minh" wide hint={!editing && bio.locationVerifiedAt ? `Xác minh ngày ${formatDate(bio.locationVerifiedAt)}` : null}>
+          <Row label="Toạ độ đã xác minh" wide hint={!editing && bio.locationVerifiedAt
+            ? `Xác minh ngày ${formatDate(bio.locationVerifiedAt)}${bio.locationAccuracy ? ` · sai số ±${bio.locationAccuracy} m` : ""}`
+            : null}>
             {editing ? (
               <span className="grid grid-cols-2 gap-2">
                 <input id="admin-profile-lat" className={inputClass} placeholder="Vĩ độ" value={form.verifiedLatitude} onChange={set("verifiedLatitude")} />
@@ -384,6 +386,17 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
               </a>
             ) : <Empty />}
           </Row>
+          {!editing && hasCoords && (
+            <Row label="Đối chiếu với bản đồ" wide>
+              <span className={`mr-2 rounded-full px-2 py-0.5 text-[11px] font-black ${
+                bio.locationMatch === "match" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  : bio.locationMatch === "area" ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                    : "bg-slate-500/15 text-slate-600 dark:text-slate-300"}`}>
+                {{ match: "Khớp tỉnh/thành", area: "Khác tỉnh — cần xem", admin: "Admin nhập tay" }[bio.locationMatch] || "Chưa đối chiếu"}
+              </span>
+              <span className="font-normal">{bio.locationGeocode || ""}</span>
+            </Row>
+          )}
         </Section>
 
         <Section icon="shield_person" title="Thông tin nhạy cảm (tuỳ chọn)">

@@ -19,6 +19,7 @@ dịch vụ nào bên dưới — không có thẻ thì không dịch vụ nào 
 | Sentry | Theo dõi lỗi | Developer | 5.000 lỗi/tháng | Ngừng nhận lỗi tới tháng sau |
 | Telegram, Google OAuth, Web Push | Bot admin, đăng nhập, thông báo | Miễn phí | — | — |
 | NewsAPI / GNews / IPinfo | Tin tức, vị trí | Free | Theo ngày | Bản tin trống, không tính tiền |
+| OpenStreetMap Nominatim | Đối chiếu điểm ghim địa chỉ với bản đồ (`server/utils/reverseGeocode.js`) | Miễn phí, không khoá | 1 lượt/giây (code tự giãn 1,1 s + cache 24h) | Trả `unchecked`, vẫn lưu, admin thấy cờ |
 
 ## Chốt chặn trong code để không vượt gói
 

@@ -96,3 +96,48 @@ export async function getCachedGeolocation({ fresh = false, ask = false } = {}) 
 
   return pendingPromise;
 }
+
+/**
+ * Định vị để XÁC MINH địa chỉ: theo dõi GPS tối đa `maxWaitMs`, giữ lần đo có
+ * sai số nhỏ nhất, dừng sớm khi đã đạt `goodEnoughM`. Lần đo đầu của điện thoại
+ * thường là wifi/cell (sai vài trăm mét); vài giây sau GPS mới chốt — lấy ngay
+ * lần đầu như getCachedGeolocation là lấy đúng lần kém nhất.
+ * Trả { latitude, longitude, accuracy } hoặc ném lỗi (từ chối quyền, hết giờ).
+ */
+export function getPreciseLocation({ maxWaitMs = 15000, goodEnoughM = 20, onProgress } = {}) {
+  return new Promise((resolve, reject) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      reject(new Error("Geolocation not supported by this browser"));
+      return;
+    }
+    let best = null;
+    let watchId = null;
+    const finish = () => {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      clearTimeout(timer);
+      if (best) resolve(best);
+      else reject(Object.assign(new Error("Location timeout"), { code: 3 }));
+    };
+    const timer = setTimeout(finish, maxWaitMs);
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const reading = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy };
+        if (!best || reading.accuracy < best.accuracy) {
+          best = reading;
+          onProgress?.(best);
+        }
+        if (best.accuracy <= goodEnoughM) finish();
+      },
+      (err) => {
+        if (err?.code === err?.PERMISSION_DENIED) {
+          try { sessionStorage.setItem("pwa_location_denied", "true"); } catch { /* ignore */ }
+          clearTimeout(timer);
+          if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+          reject(err);
+        }
+        // Lỗi tạm (chưa bắt được GPS): chờ tiếp tới hết giờ.
+      },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: maxWaitMs },
+    );
+  });
+}

@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import { JOY_DENOMS, denomKey } from "../../../shared/joyCurrency";
 import { languageLabel, persistAppLanguage, SELECTABLE_LANGUAGES } from "../../i18n/languages";
 import { countryDisplayName, formatFullAddress, RELIGION_LABELS } from "../../lib/profileDisplay";
-import { getCachedGeolocation } from "../../utils/geoCache";
+import { getPreciseLocation } from "../../utils/geoCache";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
+// Phải khớp MAX_PIN_ACCURACY_M ở server/utils/reverseGeocode.js.
+const MAX_PIN_ACCURACY_M = 100;
 
 // Quà khi nhập mã người giới thiệu — khớp với phần server cộng vào.
 const REFERRAL_BONUS = 10;
@@ -122,20 +124,41 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     i18n.changeLanguage(code);
   };
 
+  const vi = i18n.language?.startsWith("vi");
+  const [pinCheck, setPinCheck] = useState(null); // { status, place } từ /me/location-check
+  const [liveAccuracy, setLiveAccuracy] = useState(null);
+
+  // Định vị để xác minh: lấy mẫu GPS tới khi đủ chính xác, rồi hỏi máy chủ
+  // điểm đó thuộc đâu trên bản đồ để đối chiếu với địa chỉ vừa khai.
   const locateMember = async () => {
     setLocating(true);
     setError("");
+    setPinCheck(null);
+    setLiveAccuracy(null);
     try {
-      const pos = await getCachedGeolocation({ fresh: true, ask: true });
+      const pos = await getPreciseLocation({ onProgress: (best) => setLiveAccuracy(Math.round(best.accuracy)) });
+      const accuracy = Math.round(pos.accuracy);
+      if (accuracy > MAX_PIN_ACCURACY_M) {
+        setValues((current) => ({ ...current, verifiedLatitude: undefined, verifiedLongitude: undefined, locationAccuracy: undefined, locationConfirmed: false }));
+        setError(vi
+          ? `Vị trí mới chính xác trong khoảng ±${accuracy} m — chưa đủ để xác minh (cần dưới ${MAX_PIN_ACCURACY_M} m). Hãy dùng điện thoại, bật "Vị trí chính xác", ra gần cửa sổ hoặc ngoài trời rồi định vị lại.`
+          : `Your location is only accurate to ±${accuracy} m — not enough to verify (needs under ${MAX_PIN_ACCURACY_M} m). Use a phone with precise location on, move near a window or outdoors, and try again.`);
+        return;
+      }
       setValues((current) => ({
         ...current,
-        verifiedLatitude: pos.coords.latitude,
-        verifiedLongitude: pos.coords.longitude,
-        locationAccuracy: Math.round(pos.coords.accuracy),
+        verifiedLatitude: pos.latitude,
+        verifiedLongitude: pos.longitude,
+        locationAccuracy: accuracy,
         locationConfirmed: false,
       }));
-    } catch {
-      setError(i18n.language?.startsWith("vi") ? "Không thể lấy vị trí. Hãy cấp quyền định vị rồi thử lại." : "Could not get your location. Allow location access and try again.");
+      const query = new URLSearchParams({ lat: String(pos.latitude), lng: String(pos.longitude), country: values.countryCode || "", area: values.adminArea || "" });
+      const check = await fetch(`${apiBase}/bios/me/location-check?${query}`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      if (check) setPinCheck(check);
+    } catch (err) {
+      setError(err?.code === 1
+        ? (vi ? "Bạn đã chặn quyền định vị. Hãy cho phép vị trí cho trang này trong cài đặt trình duyệt rồi thử lại." : "Location permission is blocked. Allow location for this site in your browser settings and try again.")
+        : (vi ? "Chưa bắt được vị trí. Hãy bật định vị, ra gần cửa sổ hoặc ngoài trời rồi thử lại." : "Could not get a location fix. Turn on location services, move near a window or outdoors, and try again."));
     } finally {
       setLocating(false);
     }
@@ -146,7 +169,8 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     if (field.type === "referral") return true;            // không bắt buộc
     if (field.type === "birthDate") return Boolean(values.birthDay && values.birthMonth && values.birthYear);
     if (field.type === "checkbox") return values[field.key] === true;
-    if (field.type === "locationVerification") return values.locationConfirmed === true && Number.isFinite(values.verifiedLatitude) && Number.isFinite(values.verifiedLongitude);
+    if (field.type === "locationVerification") return values.locationConfirmed === true && Number.isFinite(values.verifiedLatitude) && Number.isFinite(values.verifiedLongitude)
+      && values.locationAccuracy <= MAX_PIN_ACCURACY_M && pinCheck?.status !== "country";
     if (field.key === "religion" && values.religion === "self_describe") return Boolean(String(values.religionDetail || "").trim());
     if (field.key === "ethnicity" && values.ethnicity === "self_describe") return Boolean(String(values.ethnicityDetail || "").trim());
     return Boolean(String(values[field.key] || "").trim());
@@ -392,8 +416,10 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
                   <button type="button" onClick={locateMember} disabled={locating} className="flex min-h-[56px] w-full items-center justify-center gap-2 rounded-2xl bg-foreground px-4 text-[16px] font-bold text-background disabled:opacity-50">
                     <span className="material-symbols-outlined" aria-hidden="true">my_location</span>
                     {locating
-                      ? (i18n.language?.startsWith("vi") ? "Đang lấy vị trí…" : "Getting location…")
-                      : (i18n.language?.startsWith("vi") ? "Định vị vị trí hiện tại" : "Locate me")}
+                      ? (liveAccuracy
+                        ? (vi ? `Đang chốt vị trí… ±${liveAccuracy} m` : `Refining… ±${liveAccuracy} m`)
+                        : (vi ? "Đang lấy vị trí…" : "Getting location…"))
+                      : (vi ? "Định vị vị trí hiện tại" : "Locate me")}
                   </button>
                 ) : (
                   <>
@@ -409,6 +435,21 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
                         {Number(values.verifiedLatitude).toFixed(6)}, {Number(values.verifiedLongitude).toFixed(6)}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 rounded-2xl bg-muted/45 px-4 py-3 text-[13px] font-semibold text-foreground">
+                      <span className="material-symbols-outlined text-[20px] text-emerald-600" aria-hidden="true">gps_fixed</span>
+                      {vi ? `Sai số khoảng ±${values.locationAccuracy} m` : `Accurate to about ±${values.locationAccuracy} m`}
+                    </div>
+                    {pinCheck?.place && (
+                      <div className={`rounded-2xl border p-4 text-[13px] leading-relaxed ${
+                        pinCheck.status === "country" ? "border-destructive/40 bg-destructive/10 text-destructive"
+                          : pinCheck.status === "area" ? "border-amber-500/40 bg-amber-500/10 text-foreground"
+                            : "border-border bg-muted/45 text-foreground"}`}>
+                        <small className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{vi ? "Bản đồ ghi nhận điểm ghim tại" : "The map places this pin at"}</small>
+                        <span className="mt-1 block font-medium">{pinCheck.place.label}</span>
+                        {pinCheck.status === "country" && <span className="mt-2 block font-bold">{vi ? "Khác quốc gia bạn đã khai. Hãy định vị lại tại nơi ở hoặc quay lại sửa quốc gia." : "This is a different country from the one you entered. Locate again at your home or go back and fix the country."}</span>}
+                        {pinCheck.status === "area" && <span className="mt-2 block">{vi ? "Tỉnh/thành trên bản đồ khác với tỉnh bạn khai. Nếu bạn đang ở nhà, hãy quay lại kiểm tra địa chỉ; tên tỉnh mới sau sáp nhập có thể khác tên trên bản đồ." : "The province on the map differs from the one you entered. If you are at home, go back and check your address."}</span>}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between gap-3 text-[12px] text-muted-foreground">
                       <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">© OpenStreetMap</a>
                       <button type="button" onClick={locateMember} className="font-bold text-foreground">{i18n.language?.startsWith("vi") ? "Định vị lại" : "Locate again"}</button>

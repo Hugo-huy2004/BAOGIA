@@ -1,4 +1,5 @@
 import { ageFromBirth, bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from './memberAge.js';
+import { MAX_PIN_ACCURACY_M } from './reverseGeocode.js';
 
 // Onboarding chỉ cung cấp ba ngôn ngữ giao diện đã được duyệt nội dung.
 // JOY_DENOMS có cả mã locale cũ để tương thích với dữ liệu ví, không phải danh
@@ -197,6 +198,13 @@ export const PROFILE_FIELDS = [
       if (value?.locationConfirmed !== true || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
         throw new Error('Vui lòng định vị và xác nhận đúng điểm trên bản đồ.');
       }
+      // Định vị theo wifi/IP (máy tính) lệch hàng trăm mét tới cả cây số — không
+      // dùng để xác minh địa chỉ được. Chỉ nhận điểm có sai số đủ nhỏ.
+      const accuracy = Number(value?.locationAccuracy);
+      if (!Number.isFinite(accuracy) || accuracy <= 0 || accuracy > MAX_PIN_ACCURACY_M) {
+        throw new Error(`Vị trí chưa đủ chính xác (cần sai số dưới ${MAX_PIN_ACCURACY_M} m). Hãy dùng điện thoại, bật định vị chính xác và đứng ngoài trời hoặc gần cửa sổ rồi định vị lại.`);
+      }
+      bio.locationAccuracy = Math.round(accuracy);
       bio.verifiedLatitude = latitude.toFixed(6);
       bio.verifiedLongitude = longitude.toFixed(6);
       bio.locationVerifiedAt = new Date();

@@ -44,6 +44,15 @@ export const phoneCheckLimiter = rateLimit({
   message: { error: 'Bạn kiểm tra số điện thoại quá nhiều lần. Vui lòng đợi vài phút.' }
 });
 
+// Đối chiếu điểm ghim với bản đồ (Nominatim, tối đa 1 lượt/giây cho cả máy
+// chủ) — mỗi tài khoản vài lượt là đủ cho một lần onboarding.
+export const pinCheckLimiter = rateLimit({
+  keyGenerator: accountOrIpKey,
+  windowMs: 15 * 60 * 1000,
+  max: 12,
+  message: { error: 'Bạn kiểm tra vị trí quá nhiều lần. Vui lòng đợi vài phút.' }
+});
+
 export const checkLocationLimiter = rateLimit({
   keyGenerator: accountOrIpKey,
   windowMs: 5 * 60 * 1000,

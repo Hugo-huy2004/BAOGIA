@@ -557,6 +557,12 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (verifiedLatitude !== undefined) bio.verifiedLatitude = verifiedLatitude;
     if (verifiedLongitude !== undefined) bio.verifiedLongitude = verifiedLongitude;
     if (locationVerifiedAt !== undefined) bio.locationVerifiedAt = locationVerifiedAt ? new Date(locationVerifiedAt) : null;
+    // Toạ độ do admin nhập tay: không có số đo GPS hay kết quả bản đồ đi kèm.
+    if (verifiedLatitude !== undefined || verifiedLongitude !== undefined) {
+      bio.locationMatch = verifiedLatitude || verifiedLongitude ? 'admin' : '';
+      bio.locationAccuracy = 0;
+      bio.locationGeocode = '';
+    }
     if (ethnicity !== undefined) bio.ethnicity = ethnicity;
     if (religion !== undefined) bio.religion = religion;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;

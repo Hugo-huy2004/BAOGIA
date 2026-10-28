@@ -79,6 +79,7 @@ const PROFILE_SETUP_ROUTES = [
   '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
   '/api/bios/me/onboarding',   // nơi ghi lựa chọn
   '/api/bios/me/phone-available', // form kiểm số điện thoại ngay ở bước nhập
+  '/api/bios/me/location-check',  // form đối chiếu điểm ghim với bản đồ
   '/api/bios/me/profile-options/ethnicities',
   '/api/bios/me/verification',
 ];
