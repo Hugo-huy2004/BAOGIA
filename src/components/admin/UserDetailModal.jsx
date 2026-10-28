@@ -330,7 +330,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'overview' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'overview' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">radar</span> Toàn cảnh
@@ -340,7 +340,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('profile')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'profile' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'profile' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">person</span> Hồ sơ &amp; HSD
@@ -350,7 +350,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('joy')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'joy' ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'joy' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">account_balance_wallet</span> Ví JOY &amp; Đối soát
@@ -360,7 +360,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('orders')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'orders' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'orders' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">shopping_bag</span> Đơn hàng Store ({(details?.orders || []).length})
@@ -370,7 +370,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('tickets')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'tickets' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'tickets' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">support_agent</span> Tickets ({(details?.tickets || []).length})
@@ -380,7 +380,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('email')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'email' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'email' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">mail</span> Gửi Email
@@ -390,7 +390,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
             type="button"
             onClick={() => setActiveTab('security')}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'security' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              activeTab === 'security' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <span className="material-symbols-outlined text-base">shield</span> An ninh ({details?.securityCount || 0})

@@ -28,8 +28,9 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
         bookingApi.getBookings(),
         supportTicketApi.getTickets({ limit: 100 }) // Fetching up to 100 tickets to manage locally for simplicity in split-pane
       ]);
-      setBookings(bookingsData || []);
-      setSupportTickets(ticketsData?.tickets || []);
+      // Dữ liệu sai hình (lỗi máy chủ trả về object) không được làm sập cả khu admin.
+      setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      setSupportTickets(Array.isArray(ticketsData?.tickets) ? ticketsData.tickets : []);
     } catch (err) {
       console.error(err);
       showNotification("Lỗi khi tải dữ liệu liên hệ & hỗ trợ", "error");

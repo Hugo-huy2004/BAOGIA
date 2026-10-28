@@ -293,7 +293,9 @@ function AppContent() {
   // In the installed PWA we want a focused, app-like dashboard: never show the
   // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
   const isMemberRoute = location.pathname.startsWith("/member");
-  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute || location.pathname.startsWith('/oauth');
+  // Admin có khung riêng (thanh bên + đầu trang); thanh menu trang công khai
+  // trước đây đè lên đầu khu quản trị.
+  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute || location.pathname.startsWith('/oauth') || location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -457,6 +459,11 @@ export default function App() {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     
     const handleChange = (e) => {
+      // Khu quản trị luôn sáng (AdminPanel) — đổi chế độ tối của máy không lật nó.
+      if (window.location.pathname.startsWith("/admin")) {
+        root.classList.remove("dark");
+        return;
+      }
       if (e.matches) {
         root.classList.add("dark");
       } else {

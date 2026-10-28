@@ -30,6 +30,8 @@ import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentin
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
 import { hasAdminPermission } from "../../../shared/adminAccess";
+import "../../styles/admin.css";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
 
 function HugoNoticeToast({ open, message, zIndex = 150 }) {
   if (!open) return null;
@@ -84,6 +86,17 @@ export default function AdminPanel() {
 
   // `/admin` trần và `?tab=` kiểu cũ đều chuẩn hoá về đường dẫn thật, để địa chỉ
   // trên thanh URL luôn khớp thứ đang hiện.
+  // Khu quản trị luôn dùng giao diện sáng: trước đây đầu trang trắng mà thẻ
+  // nội dung theo chế độ tối của máy, nửa sáng nửa tối rất khó đọc. App.jsx
+  // cũng bỏ qua /admin khi máy đổi chế độ; rời admin thì trả lại theo máy.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("dark");
+    return () => {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) root.classList.add("dark");
+    };
+  }, []);
+
   useEffect(() => {
     const seg = location.pathname.replace(/^\/admin\/?/, "").split("/")[0];
     if (!isValidDestination(seg, adminSession.permissions)) navigate(`/admin/${activeTab}`, { replace: true });
@@ -546,7 +559,7 @@ export default function AdminPanel() {
 
   return (
     <div
-      className="h-[100dvh] min-h-[100dvh] bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
+      className="admin-ui h-[100dvh] min-h-[100dvh] bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <SosOverlay alerts={crisisAlerts} />
@@ -653,7 +666,8 @@ export default function AdminPanel() {
         <section className="flex-1 overflow-y-auto bg-[#f5f6f8] p-4 pb-24 sm:p-6 md:p-8 md:pb-8 relative min-h-0">
         
         {/* ── HUB 1: DASHBOARD & COMMAND ANALYTICS ── */}
-          {renderTab()}
+          {/* Mỗi tab một vùng chặn lỗi: tab hỏng không kéo sập cả khu quản trị. */}
+          <ErrorBoundary key={activeTab}>{renderTab()}</ErrorBoundary>
 
         </section>
       </div>

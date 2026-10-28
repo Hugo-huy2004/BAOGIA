@@ -276,7 +276,7 @@ const AdminUsersTab = ({
           </div>
         </div>
       </div>
-      <div className="bg-slate-900/70 dark:bg-[#12131e]/90 backdrop-blur-3xl rounded-[28px] border border-slate-200/40 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-300">
+      <div className="bg-white rounded-[28px] border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200/40 dark:border-white/10 bg-slate-100/30 dark:bg-white/[0.03] flex justify-between items-center">
           <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-500 text-base">group</span>

@@ -1053,7 +1053,7 @@ export default function AdminDashboard({
       {/* ── AI INTERACTIVE TERMINAL ── */}
       <div 
         onClick={handleTerminalClick}
-        className="bg-black text-emerald-500 font-mono p-5 rounded-3xl border border-slate-900 shadow-2xl h-[520px] flex flex-col justify-between overflow-hidden cursor-text select-text relative"
+        className="admin-raw bg-black text-emerald-500 font-mono p-5 rounded-3xl border border-slate-900 shadow-2xl h-[340px] flex flex-col justify-between overflow-hidden cursor-text select-text relative"
       >
         {/* Terminal Header Bar */}
         <div className="flex items-center justify-between border-b border-slate-900 pb-2 mb-2 shrink-0 select-none">
