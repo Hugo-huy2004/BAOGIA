@@ -290,8 +290,16 @@ function MemberPortalPage() {
   // Bị server chặn vì chưa chọn đơn vị JOY → mở ngay hộp thoại hồ sơ. Không có
   // đường nào khác đi tiếp: modal này chỉ cho "để sau" khi không còn mục bắt buộc
   // nào thiếu, nên đây đúng là chặn bắt buộc chứ không phải nhắc nhở.
+  // Chặn vòng lặp: nếu server chặn mà form lại thấy "không thiếu gì" (hai bên
+  // lệch luật), form tự đóng, app gọi lại, bị chặn, form mở… và dội /profile-gaps
+  // tới khi chạm giới hạn. Mỗi 30 giây chỉ mở lại form theo sự kiện này một lần.
+  const lastProfileBlockRef = useRef(0);
   useEffect(() => {
-    const onBlocked = () => setShowOnboarding(true);
+    const onBlocked = () => {
+      if (Date.now() - lastProfileBlockRef.current < 30_000) return;
+      lastProfileBlockRef.current = Date.now();
+      setShowOnboarding(true);
+    };
     window.addEventListener("hugo:profile-incomplete", onBlocked);
     return () => window.removeEventListener("hugo:profile-incomplete", onBlocked);
   }, []);

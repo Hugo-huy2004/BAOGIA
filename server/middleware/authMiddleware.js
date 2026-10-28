@@ -5,6 +5,7 @@ import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
+import { missingProfileFields } from '../utils/profileRequirements.js';
 import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 import { hasAdminPermission, resolveAdminPermissions } from '../../shared/adminAccess.js';
 
@@ -77,6 +78,7 @@ const PROFILE_SETUP_ROUTES = [
   '/api/bios/me/bootstrap',    // portal nạp hồ sơ thiếu để mở onboarding
   '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
   '/api/bios/me/onboarding',   // nơi ghi lựa chọn
+  '/api/bios/me/phone-available', // form kiểm số điện thoại ngay ở bước nhập
   '/api/bios/me/profile-options/ethnicities',
   '/api/bios/me/verification',
 ];
@@ -138,7 +140,7 @@ async function readMemberGate(email) {
   const [bio, deletedAccount] = await Promise.all([
     Bio.findOne(
     { email },
-      'locationAnomaly countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity isEduVerified trialExpiresAt expiresAt sessionsValidFrom',
+      'locationAnomaly language birthDay birthMonth birthYear guardianConsentAt phone countryCode adminArea locality exactAddress isEduVerified trialExpiresAt expiresAt sessionsValidFrom',
     ).select('+deletionStartedAt').lean(),
     isDeletedMemberAccount(email),
   ]);
@@ -148,9 +150,12 @@ async function readMemberGate(email) {
       locationAnomaly: !!bio.locationAnomaly,
       isEduVerified: !!bio.isEduVerified,
       accessExpiresAt: bio.isEduVerified || !bio.trialExpiresAt ? bio.expiresAt : bio.trialExpiresAt,
-      profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
-        || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
-        || !bio.religion || !bio.ethnicity,
+      // CÙNG một luật với form hồ sơ (utils/profileRequirements.js). Bản cũ tự
+      // liệt kê và bắt cả toạ độ, tôn giáo, dân tộc — những mục form cho bỏ
+      // trống. Kết quả: cổng trả 403, modal hỏi /profile-gaps thấy "không thiếu
+      // gì" nên tự đóng, app gọi lại, 403 lần nữa… vòng lặp tới khi chạm giới
+      // hạn và bị bot an ninh báo nhầm là tấn công (28/10/2026).
+      profileIncomplete: missingProfileFields(bio).length > 0,
       sessionsValidFrom: bio.sessionsValidFrom || null,
     } : null;
 
