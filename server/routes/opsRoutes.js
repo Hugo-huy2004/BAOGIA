@@ -93,7 +93,13 @@ router.post('/client-event', telemetryLimiter, (req, res) => {
     }
 
     if ((event.type !== 'web-vital' && event.type !== 'api-summary') || event.rating === 'poor') {
-      console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '', event.name === 'boot-failure' ? `${event.message} · ${event.stack}` : '');
+      console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '', event.name === 'boot-failure'
+        ? `${event.message} · ${event.stack}`
+        // Lỗi giao diện: in luôn nội dung, không thì log chỉ còn "react-error-boundary /"
+        // và phải đi lục Telegram mới biết lỗi gì.
+        : ['runtime-error', 'unhandled-rejection', 'react-error-boundary'].includes(event.type)
+          ? `${event.name}: ${event.message} · ${event.stack.split(' at ').slice(0, 3).join(' at ')}`
+          : '');
     }
     res.status(204).end();
 
