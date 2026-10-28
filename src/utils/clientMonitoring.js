@@ -145,6 +145,10 @@ function installApiSummaryReporter() {
 
 function installGlobalErrorHandlers() {
   window.addEventListener("error", (event) => {
+    // "Script error." không kèm file/dòng = lỗi của script KHÁC nguồn (Google
+    // đăng nhập, Cloudflare, tiện ích trình duyệt). Trình duyệt giấu hết chi
+    // tiết nên không chẩn đoán được gì — chỉ thành báo động rỗng trên Telegram.
+    if (event.message === "Script error." && !event.filename && !event.error) return;
     reportClientEvent({
       type: "runtime-error",
       name: event.error?.name || "Error",

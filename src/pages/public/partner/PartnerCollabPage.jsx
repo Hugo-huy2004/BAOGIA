@@ -234,7 +234,9 @@ export default function PartnerCollabPage() {
 
   // Ngôn ngữ: đường dẫn /vi|/en|/zh thắng tất cả (link chia sẻ phải mở đúng
   // bản). Không có thì dùng lựa chọn đã lưu; lần đầu thì hỏi, gợi ý theo vùng.
-  const urlLang = isPartnerLang(params.lang) ? params.lang : null;
+  // Tiêu đề link ghi "/EN", "/ZH" nên người ta hay gõ chữ hoa: nhận cả hai,
+  // rồi effect bên dưới đưa về đường dẫn chữ thường.
+  const urlLang = isPartnerLang(String(params.lang || "").toLowerCase()) ? String(params.lang).toLowerCase() : null;
   const [suggested] = useState(detectCollabLang);
   const [savedLang, setSavedLang] = useState(getSavedCollabLang);
   const [pickerOpen, setPickerOpen] = useState(() => !urlLang && !getSavedCollabLang());
@@ -252,7 +254,7 @@ export default function PartnerCollabPage() {
   // Đã chọn ở lần trước mà mở link gốc → đưa về đúng bản, khỏi hỏi lại.
   // Link sai mã ngôn ngữ (/collab/x/fr) cũng về bản hợp lệ thay vì 404.
   useEffect(() => {
-    if (!campaign || urlLang || pickerOpen) return;
+    if (!campaign || (urlLang && params.lang === urlLang) || pickerOpen) return;
     if (params.lang || savedLang) navigate(`${partnerCampaignPath(slug, lang)}${location.search}${location.hash}`, { replace: true });
   }, [campaign, urlLang, pickerOpen, params.lang, savedLang, slug, lang, navigate, location.search, location.hash]);
 
