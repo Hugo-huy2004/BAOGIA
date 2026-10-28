@@ -60,3 +60,6 @@ const renderApp = () => {
 // Mount the shell immediately so a large translation file never blocks the
 // first paint; the eager core bundle covers the navbar/footer shown meanwhile.
 renderApp()
+// Báo cho "gác khởi động" trong index.html biết bundle đã chạy tới đây.
+window.__hugoBooted = true
+try { sessionStorage.removeItem('hugo_boot_retry') } catch { /* ignore */ }

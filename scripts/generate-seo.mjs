@@ -21,6 +21,7 @@
  * Outputs: dist/<route>/index.html, dist/sitemap.xml, dist/llms.txt
  */
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
@@ -88,6 +89,21 @@ const xDefault = (p) => ((publishedLocalePaths.get(p) || LOCALES).some((l) => l.
 let publishedLocalePaths = new Map();
 
 const sourceTemplate = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+
+// ── Guard: CSP phải cho phép đúng script nội tuyến trong index.html ──────────
+// vercel.json chỉ cho chạy script nội tuyến có hash khớp. Sửa script trong
+// index.html mà quên đổi hash thì trình duyệt chặn nó trong im lặng: mất chế
+// độ tối lúc đầu, mất cả "gác khởi động". Dừng build ngay thay vì deploy hỏng.
+{
+  const csp = JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json"), "utf8")).headers);
+  for (const [, body] of sourceTemplate.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+    const hash = `sha256-${createHash("sha256").update(body).digest("base64")}`;
+    if (!csp.includes(hash)) {
+      console.error(`SEO: script nội tuyến trong index.html có hash ${hash} nhưng CSP trong vercel.json chưa có. Thay hash cũ trong Content-Security-Policy (vercel.json và deploy/portfolio.vercel.json) bằng giá trị này.`);
+      process.exit(1);
+    }
+  }
+}
 const template = isPortfolio
   ? sourceTemplate.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "")
   : sourceTemplate;

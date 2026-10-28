@@ -69,6 +69,9 @@ function Portfolio() {
   );
 }
 
+// Báo cho "gác khởi động" trong index.html biết bundle đã chạy (đặt TRƯỚC
+// await: sự kiện `load` không chờ top-level await, chờ render là báo nhầm).
+window.__hugoBooted = true;
 await i18n.changeLanguage(prefix.slice(1) || "vi");
 createRoot(document.getElementById("root")).render(
   <React.StrictMode><BrowserRouter basename={prefix || undefined}><Portfolio /></BrowserRouter></React.StrictMode>,

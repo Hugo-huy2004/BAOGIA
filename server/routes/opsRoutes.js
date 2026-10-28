@@ -93,7 +93,7 @@ router.post('/client-event', telemetryLimiter, (req, res) => {
     }
 
     if ((event.type !== 'web-vital' && event.type !== 'api-summary') || event.rating === 'poor') {
-      console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '');
+      console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '', event.name === 'boot-failure' ? `${event.message} · ${event.stack}` : '');
     }
     res.status(204).end();
 

@@ -121,6 +121,53 @@
           document.documentElement.classList.toggle("ios-launch-blank", document.hidden);
         });
       }
+      // Gác khởi động: trang tĩnh cho Google (#seo-static) chỉ là bản chữ thô,
+      // React phải thay nó ngay khi chạy. Hết sự kiện `load` (mọi script đã chạy)
+      // mà main.jsx chưa bật cờ __hugoBooted thì app không lên được — thường do
+      // bộ nhớ đệm giữ HTML cũ trỏ tới file JS đã bị thay sau deploy. Gom lỗi,
+      // báo về máy chủ, dọn service worker + cache rồi tải lại MỘT lần.
+      (function () {
+        var errors = [];
+        window.addEventListener("error", function (e) {
+          var t = e.target;
+          if (t && t !== window && (t.tagName === "SCRIPT" || t.tagName === "LINK")) errors.push("load " + (t.src || t.href));
+          else if (e.message) errors.push(String(e.message).slice(0, 160));
+        }, true);
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e.reason;
+          errors.push("rejection " + String((r && r.message) || r).slice(0, 160));
+        });
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            if (window.__hugoBooted) return;
+            var key = "hugo_boot_retry", retried = false;
+            try { retried = sessionStorage.getItem(key) === "1"; sessionStorage.setItem(key, "1"); } catch (_) {}
+            try {
+              fetch("/api/ops/client-event", {
+                method: "POST", keepalive: true, headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: "runtime-error", name: "boot-failure", source: "web",
+                  message: (retried ? "[after reload] " : "") + (errors.join(" | ") || "app did not start"),
+                  stack: navigator.userAgent, path: location.pathname, page: location.pathname,
+                }),
+              }).catch(function () {});
+            } catch (_) {}
+            if (retried) return;
+            var jobs = [];
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              jobs.push(navigator.serviceWorker.getRegistrations().then(function (list) {
+                return Promise.all(list.map(function (r) { return r.unregister(); }));
+              }));
+            }
+            if (window.caches && caches.keys) {
+              jobs.push(caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              }));
+            }
+            Promise.all(jobs).catch(function () {}).then(function () { location.reload(); });
+          }, 1500);
+        });
+      })();
     </script>
 
     <!-- Google Fonts & Resource Hints -->
