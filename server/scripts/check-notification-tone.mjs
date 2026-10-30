@@ -9,6 +9,7 @@
 //
 // Chạy: npm run check:notification-tone
 import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
+import '../../shared/pushText.js'; // gộp khoá push.* để soát cả chữ push
 
 let failed = 0;
 const fail = (lang, key, text, why) => {

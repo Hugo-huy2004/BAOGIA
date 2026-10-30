@@ -43,6 +43,8 @@ const LABELS = {
   source: "Nguồn", refId: "Mã tham chiếu", title: "Tiêu đề", type: "Loại", stageId: "Chặng", pinned: "Ghim", url: "Liên kết", body: "Nội dung",
   year: "Năm", views: "Lượt xem", authorEmail: "Người đăng", text: "Nội dung", likeCount: "Thích", replyCount: "Trả lời",
   subjectType: "Đối tượng", reasonCode: "Lý do", permanent: "Vĩnh viễn", lockCount: "Số lần khoá", caseId: "Mã vụ việc", severity: "Mức độ",
+  lastActiveAt: "Dùng lần cuối", "push.sent": "Push đã gửi", "push.opened": "Push được mở", "push.ignored": "Bỏ qua liên tiếp",
+  "push.lastSentAt": "Push gần nhất", hours: "Giờ hay dùng", apps: "Khu hay dùng", days: "Ngày có dùng",
   action: "Hành động", path: "Đường dẫn", level: "Mức", stack: "Chi tiết lỗi", adminUsername: "Admin", targetEmail: "Tác động lên", details: "Chi tiết",
 };
 const label = (name) => LABELS[name] || name;

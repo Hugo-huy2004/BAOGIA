@@ -58,7 +58,7 @@ export default function AdminDashboard({ permissions = ["*"], onNavigate, crisis
               {crisisAlerts.length ? `Có ${crisisAlerts.length} tín hiệu SOS cần gọi ngay.` : brief.headline}
             </h2>
             <p className="mt-1 text-[15px] text-muted-foreground">
-              {brief.numbers.members.toLocaleString("vi-VN")} thành viên · {brief.numbers.newMembers} người mới trong 24 giờ · cập nhật {new Date(brief.at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+              {brief.numbers.members.toLocaleString("vi-VN")} thành viên · {brief.numbers.newMembers} người mới · {brief.numbers.activeToday} người dùng trong 24 giờ{brief.numbers.pushOpenRate != null && ` · ${brief.numbers.pushOpenRate}% quay lại nhờ thông báo`} · cập nhật {new Date(brief.at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
             </p>
           </div>
         </div>

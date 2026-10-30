@@ -253,7 +253,6 @@ app.use((err, req, res, next) => {
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initCompanionScheduler } from './utils/companionScheduler.js';
-import { initProactivePushService } from './services/proactivePushService.js';
 import { initOnboardingReminderService } from './services/onboardingReminderService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
@@ -332,8 +331,6 @@ server.listen(PORT, () => {
   // Initialize companion daily reminder push scheduler (07:30, 15:00, 20:30)
   initCompanionScheduler();
 
-  // Initialize AI Proactive Push Notifications scheduler
-  initProactivePushService();
 
   // Nhắc hoàn tất hồ sơ bằng push (10:00) cho tài khoản còn thiếu thông tin
   initOnboardingReminderService();

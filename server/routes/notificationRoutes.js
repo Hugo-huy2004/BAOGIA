@@ -5,8 +5,6 @@ import {
   subscribeWebPush,
   unsubscribeWebPush,
   sendTestNotification,
-  testProactivePush,
-  triggerSmartPush,
   broadcastAllNotifications,
   subscribeNativeDevice,
   unsubscribeNativeDevice,
@@ -46,14 +44,6 @@ router.post('/native/unsubscribe', requireMember, async (req, res) => {
 // --- 4. Quản trị viên: Gửi thử nghiệm & Tác vụ Push AI ---
 router.post('/send-test', requireAdmin, async (req, res) => {
   return sendTestNotification(req, res);
-});
-
-router.post('/test-proactive', requireAdmin, async (req, res) => {
-  return testProactivePush(req, res);
-});
-
-router.post('/trigger-smart-push', requireAdmin, async (req, res) => {
-  return triggerSmartPush(req, res);
 });
 
 router.post('/broadcast-all', requireAdmin, async (req, res) => {

@@ -7,6 +7,7 @@ import { missingProfileFields } from '../utils/profileRequirements.js';
 import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 import { hasAdminPermission, resolveAdminPermissions } from '../../shared/adminAccess.js';
 import { memberAuth, adminAuth, readSession, carriesSession } from '../auth/betterAuth.js';
+import { touchActivity } from '../services/memberActivity.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
@@ -269,6 +270,7 @@ export const requireMember = async (req, res, next) => {
       // Phiên còn hạn chưa chắc tài khoản còn được phép: sổ đen vĩnh viễn vẫn chặn.
       const securityBlock = await findActiveSecurityBlock({ email });
       if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+      touchActivity(email, req.originalUrl);
       const memberState = await readMemberGate(email);
 
       // Note: User-Agent headers fluctuate dynamically across browser reloads,

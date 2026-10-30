@@ -1,7 +1,8 @@
 import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import { vapidKeys } from '../routes/notificationRoutes.js';
-import { renderNotification, notificationLanguage } from '../../shared/notificationText.js';
+import { notificationLanguage } from '../../shared/notificationText.js';
+import { renderNotification } from '../../shared/pushText.js';
 import { denomKey } from '../../shared/joyCurrency.js';
 import Bio from '../models/Bio.js';
 

@@ -5,28 +5,15 @@ import Bio from '../models/Bio.js';
 import CompanionHistory from '../models/CompanionHistory.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import InAppNotification from '../models/InAppNotification.js';
-import { sendPushToUser, isQuietHours, askPushAI } from './pushGuard.js';
-import { notificationLanguage, renderNotification } from '../../shared/notificationText.js';
+import MemberActivity from '../models/MemberActivity.js';
+import { sendPushToUser, isQuietHours, askPushAI, PRIME_SLOTS } from './pushGuard.js';
+import { planPush } from './memberActivity.js';
+import { notificationLanguage } from '../../shared/notificationText.js';
+import { renderNotification } from '../../shared/pushText.js';
 
-// Khung giờ vàng (giờ VN) — khớp PRIME_SLOTS trong pushGuard. 15:30 là của
-// proactivePushService. Giữa hai mốc liền nhau luôn ≥ 2 giờ 30, rộng hơn khoảng
-// chờ 90 phút, nên các job không đạp nhau.
-const SCHEDULES = {
-  wake_check:     '30 7 * * *',   // 07:30 — vừa dậy, đang trên đường đi học/làm
-  wellness_noon:  '15 12 * * *',  // 12:15 — nghỉ trưa, lướt điện thoại nhiều nhất
-  streak_check:   '30 18 * * *',  // 18:30 — tan tầm, còn đủ giờ giữ chuỗi ngày
-  sleep_reminder: '0 21 * * *',   // 21:00 — trước giờ yên lặng 22:00
-};
-
-// Câu soạn sẵn cho từng mốc — dùng khi AI hỏng hoặc chê không đáng gửi, để
-// không mốc nào trôi qua im lặng.
-const CONTEXT_KEY = {
-  wake_cheer: 'push.wake',
-  wellness_nudge: 'push.noon',
-  streak_protect: 'push.streak',
-  sleep_reminder: 'push.sleep',
-};
-
+// Mỗi khung giờ vàng (PRIME_SLOTS) chạy một lượt; planPush quyết định với từng
+// người có gửi không và gửi gì. Trước 31/10 cả 5 mốc đều phát cùng một câu cho
+// mọi người — người nhận 5 push/ngày bất kể họ dùng app thế nào.
 /**
  * Ngôn ngữ để AI viết thông báo: lấy từ thiết bị đã đăng ký push gần nhất.
  * Không có thiết bị nào thì rơi về tiếng Việt.
@@ -122,55 +109,65 @@ async function runScheduledCompanionPushes() {
   }
 }
 
-async function runSmartPushJob(contextHint) {
+async function runContextPushJob(slot) {
   const subscriptions = await NotificationSubscription.find({}).lean();
   if (!subscriptions.length) return;
 
-  // Group by email
   const emailMap = new Map();
   for (const sub of subscriptions) {
     if (!emailMap.has(sub.email)) emailMap.set(sub.email, []);
     emailMap.get(sub.email).push(sub);
   }
+  const emails = [...emailMap.keys()];
+  const weekAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const [activities, unreadRows, sleepers] = await Promise.all([
+    MemberActivity.find({ email: { $in: emails } }).lean(),
+    InAppNotification.aggregate([{ $match: { email: { $in: emails }, read: false } }, { $group: { _id: '$email', n: { $sum: 1 } } }]),
+    SleepLog.distinct('email', { email: { $in: emails }, date: { $gte: weekAgo } }),
+  ]);
+  const activityOf = new Map(activities.map((a) => [a.email, a]));
+  const unreadOf = new Map(unreadRows.map((r) => [r._id, r.n]));
+  const sleeperSet = new Set(sleepers);
 
-  const entries = Array.from(emailMap.entries());
-
-  await pMap(entries, 5, async ([email, subs]) => {
+  await pMap([...emailMap.entries()], 5, async ([email, subs]) => {
     try {
-      const [bio, sleepData, history] = await Promise.all([
-        Bio.findOne({ email }).lean(),
-        SleepLog.find({ email }).sort({ date: -1 }).limit(14).lean(),
-        CompanionHistory.findOne({ email }).lean(),
-      ]);
-
-      const streak = computeStreak(history?.historyLogs || []);
-      const lastCheckin = history?.historyLogs?.slice(-1)[0]?.date || null;
-
+      const plan = planPush(activityOf.get(email), slot, { unread: unreadOf.get(email) || 0, sleepTracker: sleeperSet.has(email) });
+      if (!plan) return;
       const language = languageOf(subs);
-      const ai = await askPushAI('/api/notifications/smart-push', {
-        bio: bio || {},
-        sleepLogs: sleepData || [],
-        historyLogs: (history?.historyLogs || []).slice(-15),
-        streak,
-        lastCheckin,
-        pendingActions: [contextHint],
-        language,
-      });
+      const text = renderNotification(plan.key, plan.params || {}, language);
 
-      // Mốc nào cũng gửi: AI viết được và thấy đáng gửi thì dùng chữ của AI (cá
-      // nhân hoá), còn lại dùng câu soạn sẵn của đúng mốc giờ đó.
-      const aiResult = ai?.should_send && ai.title ? ai : {};
-      const fallback = renderNotification(CONTEXT_KEY[contextHint] || 'event.wellnessNudge', {}, language);
+      // Câu hỏi thăm chung để AI viết riêng theo nhật ký; các tình huống cụ thể
+      // (chưa đọc, lâu không ghé, giữ chuỗi) dùng câu soạn sẵn có số liệu thật.
+      let ai = null;
+      if (plan.ai) {
+        const [bio, sleepData, history] = await Promise.all([
+          Bio.findOne({ email }).lean(),
+          SleepLog.find({ email }).sort({ date: -1 }).limit(14).lean(),
+          CompanionHistory.findOne({ email }).lean(),
+        ]);
+        const logs = history?.historyLogs || [];
+        ai = await askPushAI('/api/notifications/smart-push', {
+          bio: bio || {},
+          sleepLogs: sleepData || [],
+          historyLogs: logs.slice(-15),
+          streak: computeStreak(logs),
+          lastCheckin: logs.slice(-1)[0]?.date || null,
+          pendingActions: [plan.key],
+          language,
+        });
+        if (!(ai?.should_send && ai.title)) ai = null;
+      }
+
       await sendPushToUser(email, subs, {
-        title: aiResult.title || fallback.title,
-        body:  aiResult.body  || fallback.message,
-        icon:  '/image/avt7.png',
+        title: ai?.title || text.title,
+        body: ai?.body || text.message,
+        icon: '/image/avt7.png',
         badge: '/image/badge.png',
-        url:   aiResult.url  || '/member/utilities/psychology',
-        tag:   contextHint,
+        url: ai?.url || plan.url,
+        tag: plan.tag,
       });
     } catch (err) {
-      console.error(`[SmartPush] Error for ${email}:`, err.message);
+      console.error(`[ContextPush] Error for ${email}:`, err.message);
     }
   });
 }
@@ -191,33 +188,16 @@ function computeStreak(logs) {
 
 export function initSmartNotificationService() {
   const tz = { timezone: 'Asia/Ho_Chi_Minh' };
-
-  cron.schedule(SCHEDULES.sleep_reminder, () => {
-    runSmartPushJob('sleep_reminder').catch(console.error);
-  }, tz);
-
-  cron.schedule(SCHEDULES.wake_check, () => {
-    runSmartPushJob('wake_cheer').catch(console.error);
-  }, tz);
-
-  cron.schedule(SCHEDULES.wellness_noon, () => {
-    runSmartPushJob('wellness_nudge').catch(console.error);
-  }, tz);
-
-  cron.schedule(SCHEDULES.streak_check, () => {
-    runSmartPushJob('streak_protect').catch(console.error);
-  }, tz);
+  PRIME_SLOTS.forEach(([h, m], slot) => {
+    cron.schedule(`${m} ${h} * * *`, () => { runContextPushJob(slot).catch(console.error); }, tz);
+  });
 
   // Quét các thông báo đẩy AI lập lịch sau 24h (chạy mỗi 10 phút)
   cron.schedule('*/10 * * * *', () => {
     runScheduledCompanionPushes().catch(console.error);
   }, tz);
 
-  console.log('SmartNotification service initialized (wake 7:30, noon 12:15, streak 18:30, sleep 21:00, queue 10min)');
-}
-
-export async function triggerSmartPushNow(contextHint = 'wellness_nudge') {
-  await runSmartPushJob(contextHint);
+  console.log('SmartNotification service initialized (context push at each prime slot, queue 10min)');
 }
 
 export { runScheduledCompanionPushes };

@@ -12,8 +12,6 @@ import NativePushDevice from '../../models/NativePushDevice.js';
 import Bio from '../../models/Bio.js';
 import InAppNotification, { pruneNotifications } from '../../models/InAppNotification.js';
 import { welcomeInBackground } from '../../services/welcomeService.js';
-import { triggerSmartPushNow } from '../../services/smartNotificationService.js';
-import { triggerProactivePushNow } from '../../services/proactivePushService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -181,34 +179,6 @@ export async function sendTestNotification(req, res) {
 
     await Promise.all(sendPromises);
     return res.json({ success: true, message: `Đã phát thông báo mẫu tới ${subscriptions.length} thiết bị.` });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-
-/**
- * [Admin] Kích hoạt thủ công tiến trình AI Proactive Push
- */
-export async function testProactivePush(req, res) {
-  try {
-    triggerProactivePushNow();
-    return res.json({
-      success: true,
-      message: 'Đã kích hoạt trình kích hoạt AI Proactive Push thủ công thành công. Tiến trình sẽ chạy ngầm.',
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-
-/**
- * [Admin] Kích hoạt nhắc nhở thông minh Smart Push Nudge
- */
-export async function triggerSmartPush(req, res) {
-  try {
-    const { contextHint = 'wellness_nudge' } = req.body;
-    await triggerSmartPushNow(contextHint);
-    return res.json({ success: true, message: `Đã gửi nudge "${contextHint}" thành công cho tất cả thành viên active.` });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

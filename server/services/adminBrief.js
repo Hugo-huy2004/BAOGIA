@@ -19,10 +19,10 @@ const oldest = (items) => items.reduce((min, i) => (i.createdAt && (!min || i.cr
 
 export async function buildAdminBrief() {
   const since = new Date(Date.now() - 24 * HOUR);
-  const [Bio, ErrorLog, SecurityModeration, SecurityBlock, SecurityEvent, TodayPost] = await Promise.all(
-    ['Bio', 'ErrorLog', 'SecurityModeration', 'SecurityBlock', 'SecurityEvent', 'TodayPost'].map(load),
+  const [Bio, ErrorLog, SecurityModeration, SecurityBlock, SecurityEvent, TodayPost, MemberActivity] = await Promise.all(
+    ['Bio', 'ErrorLog', 'SecurityModeration', 'SecurityBlock', 'SecurityEvent', 'TodayPost', 'MemberActivity'].map(load),
   );
-  const [{ queue }, members, newMembers, errors, topError, moderation, autoBlocks, rejected, hiddenPosts] = await Promise.all([
+  const [{ queue }, members, newMembers, errors, topError, moderation, autoBlocks, rejected, hiddenPosts, activeToday, [push], quieted] = await Promise.all([
     buildWorkQueue({ limit: 200 }),
     Bio.estimatedDocumentCount(),
     Bio.countDocuments({ createdAt: { $gte: since } }),
@@ -32,6 +32,9 @@ export async function buildAdminBrief() {
     SecurityBlock.countDocuments({ lastLockedAt: { $gte: since } }),
     SecurityEvent.countDocuments({ createdAt: { $gte: since } }),
     TodayPost.countDocuments({ 'removed.at': { $gte: since } }),
+    MemberActivity.countDocuments({ lastActiveAt: { $gte: since } }),
+    MemberActivity.aggregate([{ $group: { _id: null, sent: { $sum: '$push.sent' }, opened: { $sum: '$push.opened' } } }]),
+    MemberActivity.countDocuments({ 'push.ignored': { $gte: 3 } }),
   ]);
   const quota = getQuotaStatus();
   const rssMb = Math.round(process.memoryUsage().rss / 1024 / 1024);
@@ -58,6 +61,7 @@ export async function buildAdminBrief() {
     [rejected, 'security', `Chặn ${rejected} yêu cầu tấn công hoặc lạm dụng.`],
     [autoBlocks, 'block', `Tự khoá ${autoBlocks} địa chỉ / tài khoản vi phạm.`],
     [hiddenPosts, 'visibility_off', `Ẩn ${hiddenPosts} bài Today vi phạm (khôi phục được).`],
+    [quieted, 'notifications_paused', `Gửi thông báo thưa lại cho ${quieted} người hay bỏ qua, để họ không tắt hẳn.`],
   ].filter(([n]) => n > 0).map(([, icon, text]) => ({ icon, text }));
 
   const bad = items.filter((i) => i.level === 'bad').length;
@@ -66,7 +70,11 @@ export async function buildAdminBrief() {
     headline: bad ? `Có ${bad} việc gấp cần bạn ngay.` : items.length ? `Có ${items.length} việc cần bạn hôm nay.` : 'Mọi thứ đang ổn. Không có việc gì cần bạn.',
     items,
     auto,
-    numbers: { members, newMembers },
+    numbers: {
+      members, newMembers, activeToday,
+      // Tỷ lệ push được mở app trong 2 giờ sau khi gửi — thước đo push có kéo người quay lại không.
+      pushOpenRate: push?.sent >= 20 ? Math.round((push.opened / push.sent) * 100) : null,
+    },
     at: new Date().toISOString(),
   };
 }

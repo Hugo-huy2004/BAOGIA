@@ -75,6 +75,10 @@ const RESOURCES = {
     model: 'SecurityAppeal', label: 'Kháng nghị', permission: 'security', ops: 'r', search: ['email', 'caseId'],
     list: ['email', 'caseId', 'status', 'createdAt'], show: ['imageUrl', 'decidedBy', 'decidedAt'],
   },
+  'member-activity': {
+    model: 'MemberActivity', label: 'Tương tác', permission: 'users', ops: 'r', search: ['email'],
+    list: ['email', 'lastActiveAt', 'push.sent', 'push.opened', 'push.ignored'], show: ['push.lastSentAt', 'hours', 'apps', 'days'],
+  },
   'security-events': {
     model: 'SecurityEvent', label: 'Sự kiện an ninh', permission: 'security', ops: 'r', search: ['caseId', 'path'],
     list: ['category', 'severity', 'action', 'path', 'createdAt'], show: ['caseId', 'ruleId', 'method', 'network'],

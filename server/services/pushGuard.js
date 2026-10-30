@@ -2,6 +2,7 @@ import webpush from 'web-push';
 import Bio from '../models/Bio.js';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import ScheduledPush from '../models/ScheduledPush.js';
+import { markPushSent } from './memberActivity.js';
 
 // Shared by every push cron (proactive, smart, scheduled companion)
 // so a sleepy/insomniac user never gets woken up by a "mindless" reminder,
@@ -84,6 +85,7 @@ async function deliver(email, subs, payload) {
     }
   }
   await Bio.updateOne({ email }, { $set: { lastPushSentAt: new Date() } });
+  await markPushSent(email);
 }
 
 /**
