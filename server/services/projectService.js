@@ -48,7 +48,7 @@ function historyEntry({ actor, actorName = '', action, fromStatus = '', toStatus
 /**
  * Admin mở một dự án mới. Mã sinh ở đây, không nhận từ client.
  */
-export async function createProject({ name, customer = {}, packageId = '', market = 'domestic', actorName = 'admin' }) {
+export async function createProject({ name, customer = {}, packageId = '', market = 'domestic', note = '', actorName = 'admin' }) {
   const period = projectIdPeriod();
   const seq = await nextSequence(period);
   const projectId = formatProjectId(period, seq);
@@ -71,7 +71,7 @@ export async function createProject({ name, customer = {}, packageId = '', marke
     },
     history: [historyEntry({
       actor: 'admin', actorName, action: 'Mở hồ sơ dự án', toStatus: 'draft',
-      note: `Cấp mã ${projectId} · ${(MARKETS[market] || MARKETS.domestic).label}`,
+      note: [`Cấp mã ${projectId} · ${(MARKETS[market] || MARKETS.domestic).label}`, note].filter(Boolean).join('\n'),
     })],
   });
 }

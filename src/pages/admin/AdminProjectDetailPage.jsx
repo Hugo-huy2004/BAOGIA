@@ -6,6 +6,7 @@ import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
 import { getPackageFacts, marketOf } from "../../../shared/projectPackages";
 import { phaseOf } from "../../../shared/projectPhases";
 import { MoneySummary, MoneyTab, WorklogTab, HandoverTab, CareTab, ContractTab, TerminateTab, btn } from "../../components/admin/AdminProjectContractPanel";
+import ProjectLinkSheet from "../../components/admin/ProjectLinkSheet";
 import { PhaseStepper, PhaseWork, BriefView, HistoryList, ProjectChat } from "../../components/admin/AdminProjectWorkspace";
 
 /**
@@ -41,6 +42,7 @@ export default function AdminProjectDetailPage() {
   const go = useCallback((id) => { setParams(id === "work" ? {} : { tab: id }, { replace: true }); }, [setParams]);
   const [project, setProject] = useState(null);
   const [unread, setUnread] = useState(0);
+  const [showLink, setShowLink] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -64,16 +66,6 @@ export default function AdminProjectDetailPage() {
   const phase = phaseOf(project.status);
   const showCare = pkg?.id === "hugo-flow-plus" || project.maintenance?.active;
   const tabs = TABS.filter(([id]) => id !== "care" || showCare);
-  const copyLink = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/share`, { credentials: "include" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      await navigator.clipboard.writeText(`${window.location.origin}${data.path}`);
-      notify.success("Đã sao chép link cổng dự án cho khách");
-    } catch (err) { notify.error(err.message); }
-  };
-
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 text-foreground sm:px-6">
       {/* 1 — Đầu trang */}
@@ -92,7 +84,7 @@ export default function AdminProjectDetailPage() {
             </span>
           </div>
         </div>
-        <button type="button" onClick={copyLink} className={`${btn} border border-border`}>
+        <button type="button" onClick={() => setShowLink(true)} className={`${btn} border border-border`}>
           <span aria-hidden className="material-symbols-outlined text-[18px]">link</span>Link cho khách
         </button>
       </header>
@@ -132,6 +124,7 @@ export default function AdminProjectDetailPage() {
         {tab === "contract" && <ContractTab project={project} />}
         {tab === "terminate" && <TerminateTab project={project} onChange={setProject} />}
       </main>
+      {showLink && <ProjectLinkSheet project={project} onClose={() => setShowLink(false)} />}
     </div>
   );
 }

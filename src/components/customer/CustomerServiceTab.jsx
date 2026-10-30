@@ -1,205 +1,122 @@
-import { useTranslation } from 'react-i18next';
-import { estimateDelivery, getPackageFacts, warrantyUntil } from '../../../shared/projectPackages';
-
-const STATUS_STEPS = [
-  'Đang liên hệ',
-  'Đang lên thiết kế',
-  'Đang thực hiện',
-  'Đang Kiểm tra',
-  'Hoàn tất'
-];
-
-// Ghi chú tiến độ có thể mang trạng thái "Hỗ trợ và bảo trì" — đó là giai đoạn
-// sau khi bàn giao, không phải một bước thứ sáu, nên quy về bước cuối.
-const AFTER_HANDOVER = 'Hỗ trợ và bảo trì';
-const normalize = (status) => (status === AFTER_HANDOVER ? 'Hoàn tất' : status);
+import { PROJECT_STATUSES } from '../../../shared/projectWorkflow';
+import { PHASES, phaseOf } from '../../../shared/projectPhases';
 
 /**
- * Tab "Dịch vụ" của cổng khách hàng.
+ * Tab "Tổng quan" của cổng khách hàng — trả lời đúng ba câu khách mở trang để hỏi:
+ *   1. Dự án đang ở đâu?            → tên bước + một câu giải thích
+ *   2. Tôi cần làm gì?              → MỘT thẻ việc, bấm là tới đúng chỗ làm
+ *   3. Bao giờ xong, đã làm những gì? → ngày dự kiến + 7 giai đoạn + nhật ký
  *
- * Câu hỏi duy nhất khách mở trang này để hỏi là: dự án của tôi đang ở đâu, và
- * lần cuối nó nhúc nhích là khi nào. Nên mỗi bước hiện KÈM NGÀY đạt tới, lấy
- * từ ghi chú tiến độ sớm nhất mang trạng thái đó — trước đây thanh tiến trình
- * chỉ tô màu, khách không biết mình đứng yên ở đó ba ngày hay ba tuần.
+ * Mọi thứ đọc thẳng từ máy trạng thái (shared/projectWorkflow.js) và giai đoạn
+ * (shared/projectPhases.js). Bản trước so với 5 nhãn tiếng Việt cũ nên thanh tiến
+ * độ không bao giờ tô bước nào.
  */
-export default function CustomerServiceTab({ project }) {
-  const { t } = useTranslation();
-  const notes = project.progressNotes || [];
-  const currentStatus = normalize(project.status);
-  const currentStepIndex = STATUS_STEPS.indexOf(currentStatus);
-  const isCompleted = currentStatus === 'Hoàn tất';
 
-  // Ngày đạt tới từng bước: ghi chú SỚM NHẤT mang trạng thái đó.
-  const stepDates = STATUS_STEPS.map((step) => {
-    const first = notes
-      .filter((n) => normalize(n.status) === step)
-      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))[0];
-    return first ? new Date(first.createdAt) : null;
-  });
+const CLOSED = ['closed', 'terminated', 'cancelled'];
 
-  const lastNote = [...notes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+// Việc khách cần làm ở từng trạng thái. Không có dòng ở đây = khách chỉ việc chờ.
+function nextAction(project) {
+  const needsContract = (project.contract?.version || 0) > (project.contract?.acceptedVersion || 0);
+  if (project.status === 'awaiting_requirements' || project.status === 'draft') {
+    return { tab: 'brief', title: 'Điền phiếu yêu cầu', body: 'Khoảng 10 phút. Ô nào chưa rõ cứ bỏ trống, Hugo Studio sẽ hỏi lại.', cta: 'Bắt đầu điền' };
+  }
+  if (needsContract && !CLOSED.includes(project.status)) {
+    return { tab: 'contract', title: 'Xem và xác nhận hợp đồng', body: `Hợp đồng có phiên bản mới (v${project.contract.version}). Đọc rồi gõ họ tên để xác nhận.`, cta: 'Mở hợp đồng' };
+  }
+  if (project.status === 'client_review') {
+    return { tab: 'requests', title: 'Dùng thử và góp ý', body: 'Bản chạy thử đã sẵn sàng. Ghi lại chỗ cần sửa ở mục Trao đổi.', cta: 'Gửi góp ý' };
+  }
+  if (project.status === 'addons') {
+    return { tab: 'contract', title: 'Chọn dịch vụ đi kèm', body: 'Không bắt buộc. Bấm “Không cần thêm” nếu bạn không cần.', cta: 'Xem lựa chọn' };
+  }
+  if (project.status === 'feedback') {
+    return { tab: 'requests', title: 'Cho Hugo Studio biết cảm nhận', body: 'Vài dòng ở mục Trao đổi là đủ.', cta: 'Viết cảm nhận' };
+  }
+  return null;
+}
 
-  // Những con số dưới đây SUY RA từ gói và từ ngày mở dự án, không ai phải gõ:
-  // cửa sổ bàn giao dự kiến, hạn bảo hành, và các đợt thanh toán của gói.
-  const facts = getPackageFacts(project.servicePackage);
-  const startedAt = stepDates[0] || project.createdAt;
-  const delivery = estimateDelivery(project.servicePackage, startedAt);
-  const completedAt = stepDates[STATUS_STEPS.length - 1];
-  const warrantyEnd = warrantyUntil(project.servicePackage, completedAt);
-  const daysLeft = warrantyEnd ? Math.ceil((warrantyEnd - new Date()) / 86400000) : null;
-  // Đợt thanh toán nào đã tới: mốc chia đều theo số bước đã đi qua.
-  const paidStages = facts?.payments
-    ? Math.min(facts.payments.length, Math.max(1, Math.ceil(((currentStepIndex + 1) / STATUS_STEPS.length) * facts.payments.length)))
-    : 0;
-  const fmtDate = (d) => d?.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const fmtFull = (d) => d?.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '');
 
-  const html = (text) => {
-    if (!text) return '';
-    return /<[a-z][\s\S]*>/i.test(text) ? text : text.replace(/\n/g, '<br />');
-  };
+export default function CustomerServiceTab({ project, onGo }) {
+  const status = PROJECT_STATUSES[project.status] || { label: project.status, blurb: '' };
+  const current = phaseOf(project.status);
+  const stopped = ['terminated', 'cancelled'].includes(project.status);
+  const done = project.status === 'closed';
+  const action = nextAction(project);
+
+  // Ngày bước vào từng giai đoạn = lần chuyển trạng thái SỚM NHẤT vào giai đoạn đó.
+  const reachedAt = Object.fromEntries(PHASES.map((ph) => [ph.id,
+    (project.history || []).filter((h) => ph.statuses.includes(h.toStatus)).map((h) => h.at).sort()[0] || null]));
+  const worklog = [...(project.worklog || [])].sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 8);
+  const due = project.estimate?.dueAt;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
-      {/* ── Đang ở đâu ─────────────────────────────────────── */}
-      <section className="rounded-[1.5rem] border border-border bg-card p-6 sm:p-8">
-        <p className="text-sm font-medium text-muted-foreground">{project.servicePackage}</p>
-        <h2 className="mt-2 text-[clamp(1.6rem,1.2rem+1.4vw,2.2rem)] font-semibold leading-tight tracking-[-.035em]">
-          {currentStatus}
-        </h2>
-        {lastNote && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            Cập nhật lần cuối {fmtFull(new Date(lastNote.createdAt))}
+    <div className="mx-auto max-w-3xl space-y-4">
+      {/* 1 — Đang ở đâu */}
+      <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+        <p className="text-sm text-muted-foreground">{current ? `Giai đoạn ${current.no}/${PHASES.length} · ${current.label}` : 'Dự án'}</p>
+        <h2 className="mt-1 text-[clamp(1.6rem,1.2rem+1.4vw,2.2rem)] font-semibold leading-tight tracking-[-.03em]">{status.label}</h2>
+        <p className="mt-2 text-[15px] leading-7 text-muted-foreground">{status.blurb}</p>
+        {due && !done && !stopped ? (
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-3.5 py-1.5 text-sm font-medium">
+            <span aria-hidden className="material-symbols-outlined text-[18px]">event</span>Dự kiến xong {fmtDate(due)}
           </p>
-        )}
+        ) : null}
+      </section>
 
-        <div className="mt-8 border-t border-border">
-          {STATUS_STEPS.map((step, index) => {
-            // Dự án đã hoàn tất thì bước cuối cũng là bước ĐÃ XONG, không phải
-            // bước "đang diễn ra" — trước đây nó hiện số 5 thay vì dấu tích.
-            const active = index === currentStepIndex;
-            const done = index < currentStepIndex || (isCompleted && active);
-            const date = stepDates[index];
+      {/* 2 — Việc của bạn */}
+      {action ? (
+        <section className="flex flex-col gap-4 rounded-3xl bg-foreground p-6 text-background sm:flex-row sm:items-center sm:p-8">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm opacity-70">Việc của bạn</p>
+            <h3 className="mt-1 text-xl font-semibold tracking-[-.02em]">{action.title}</h3>
+            <p className="mt-1 text-[15px] leading-6 opacity-80">{action.body}</p>
+          </div>
+          <button type="button" onClick={() => onGo(action.tab)}
+            className="min-h-11 shrink-0 rounded-full bg-background px-6 text-[15px] font-semibold text-foreground">
+            {action.cta}
+          </button>
+        </section>
+      ) : !done && !stopped ? (
+        <p className="px-2 text-[15px] text-muted-foreground">Bạn chưa cần làm gì. Có bước mới, Hugo Studio sẽ gửi email cho bạn.</p>
+      ) : null}
+
+      {/* 3 — Bảy giai đoạn */}
+      <section className="rounded-3xl border border-border bg-card px-6 py-2 sm:px-8">
+        <ol>
+          {PHASES.map((ph) => {
+            const isNow = current?.id === ph.id && !done;
+            const isDone = done || (current && ph.no < current.no);
             return (
-              <div key={step} className="flex items-center gap-4 border-b border-border py-4">
-                <span
-                  className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold ${
-                    done || active ? 'bg-foreground text-background' : 'border border-border text-muted-foreground'
-                  }`}
-                >
-                  {done ? <span className="material-symbols-outlined text-[16px]">check</span> : index + 1}
+              <li key={ph.id} className="flex items-center gap-4 border-b border-border py-4 last:border-0" aria-current={isNow ? 'step' : undefined}>
+                <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${isDone || isNow ? 'bg-foreground text-background' : 'border border-border text-muted-foreground'}`}>
+                  {isDone ? <span aria-hidden className="material-symbols-outlined text-[18px]">check</span> : ph.no}
                 </span>
-                <span className={`flex-1 text-sm ${active ? 'font-semibold text-foreground' : done ? 'text-foreground/80' : 'text-muted-foreground'}`}>
-                  {step}
+                <span className={`min-w-0 flex-1 text-[15px] ${isNow ? 'font-semibold' : isDone ? '' : 'text-muted-foreground'}`}>{ph.label}</span>
+                <span className="shrink-0 text-sm text-muted-foreground">
+                  {isNow ? 'Đang làm' : reachedAt[ph.id] && isDone ? fmtDate(reachedAt[ph.id]) : ''}
                 </span>
-                <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                  {date ? fmtDate(date) : active ? 'đang diễn ra' : '—'}
-                </span>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </section>
 
-      {/* ── Những thứ suy ra từ gói ────────────────────────── */}
-      {(delivery || warrantyEnd || facts?.payments) && (
-        <section className="grid gap-px overflow-hidden rounded-[1.5rem] border border-border bg-border sm:grid-cols-2">
-          {delivery && !isCompleted && (
-            <div className="bg-card p-6">
-              <p className="text-xs font-medium text-muted-foreground">Dự kiến bàn giao</p>
-              <p className="mt-2 text-lg font-semibold tracking-[-.02em]">
-                {fmtDate(delivery.from)} – {fmtDate(delivery.to)}
-              </p>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Tính theo thời gian thực hiện của gói, kể từ ngày mở dự án. Thiếu nội dung từ bạn thì đồng hồ dừng.
-              </p>
-            </div>
-          )}
-
-          {isCompleted && warrantyEnd && (
-            <div className="bg-card p-6">
-              <p className="text-xs font-medium text-muted-foreground">Bảo hành</p>
-              <p className="mt-2 text-lg font-semibold tracking-[-.02em]">
-                {daysLeft > 0 ? `Còn ${daysLeft} ngày` : 'Đã hết hạn'}
-              </p>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Đến {fmtDate(warrantyEnd)} · {facts?.warrantyDays} ngày kể từ lúc bàn giao.
-              </p>
-            </div>
-          )}
-
-          {facts?.payments && (
-            <div className="bg-card p-6">
-              <p className="text-xs font-medium text-muted-foreground">Đợt thanh toán</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {facts.payments.map((percent, index) => (
-                  <span
-                    key={index}
-                    className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${
-                      index < paidStages ? 'border-foreground bg-foreground text-background' : 'border-border text-muted-foreground'
-                    }`}
-                  >
-                    {percent}%
-                  </span>
-                ))}
-              </div>
-              <p className="mt-3 text-xs leading-5 text-muted-foreground">
-                Đợt tô đậm là phần đã tới theo tiến độ. Con số cuối cùng luôn theo báo giá đã ký.
-              </p>
-            </div>
-          )}
-
-          {facts?.recurring && (
-            <div className="bg-card p-6">
-              <p className="text-xs font-medium text-muted-foreground">Hình thức</p>
-              <p className="mt-2 text-lg font-semibold tracking-[-.02em]">Theo tháng</p>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">Gói này chạy liên tục, không có ngày bàn giao cuối.</p>
-            </div>
-          )}
-        </section>
-      )}
-
-      {/* ── Người phụ trách ────────────────────────────────── */}
-      <section className="rounded-[1.5rem] border border-border bg-card p-6 sm:p-8">
-        <h3 className="text-sm font-semibold tracking-[-.01em]">Người phụ trách dự án</h3>
-        <p className="mt-3 text-base font-medium">{project.handlerName || 'Đang cập nhật'}</p>
-        {project.handlerPhone && (
-          <a href={`tel:${project.handlerPhone}`} className="link-more mt-2 inline-flex items-center gap-1.5 text-sm">
-            <span className="material-symbols-outlined text-[16px]">call</span>
-            {project.handlerPhone}
-          </a>
-        )}
-      </section>
-
-      {/* ── Nhật ký tiến độ ────────────────────────────────── */}
-      {notes.length > 0 && (
-        <section className="rounded-[1.5rem] border border-border bg-card p-6 sm:p-8">
-          <h3 className="text-sm font-semibold tracking-[-.01em]">Nhật ký tiến độ</h3>
-          <div className="mt-6 border-t border-border">
-            {[...notes].reverse().map((note, idx) => (
-              <article key={`${note.createdAt}-${idx}`} className="border-b border-border py-5">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="text-sm font-semibold tracking-[-.01em]">{normalize(note.status)}</span>
-                  <span className="font-mono text-xs text-muted-foreground">{fmtFull(new Date(note.createdAt))}</span>
+      {/* 4 — Đã làm gì */}
+      {worklog.length > 0 && (
+        <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+          <h3 className="text-base font-semibold">Hugo Studio đã làm</h3>
+          <ul className="mt-3">
+            {worklog.map((w) => (
+              <li key={w._id || `${w.at}-${w.title}`} className="border-b border-border py-3 last:border-0">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-[15px] font-medium">{w.title}</span>
+                  <span className="shrink-0 text-sm text-muted-foreground">{fmtDate(w.at)}</span>
                 </div>
-                <div
-                  className="prose prose-sm mt-2 max-w-none text-sm leading-7 text-muted-foreground dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: html(note.note) }}
-                />
-              </article>
+                {w.detail ? <p className="mt-1 whitespace-pre-line text-sm leading-6 text-muted-foreground">{w.detail}</p> : null}
+              </li>
             ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Lời kết khi đã bàn giao ────────────────────────── */}
-      {isCompleted && project.finalNote && (
-        <section className="rounded-[1.5rem] border border-border bg-card p-6 sm:p-8">
-          <h3 className="text-sm font-semibold tracking-[-.01em]">{t('customerPortal.service.summary')}</h3>
-          <div
-            className="prose prose-sm mt-4 max-w-none text-sm leading-7 text-muted-foreground dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: html(project.finalNote) }}
-          />
+          </ul>
         </section>
       )}
     </div>

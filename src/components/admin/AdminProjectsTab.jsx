@@ -1,488 +1,211 @@
 import { useState, useEffect, useMemo } from 'react';
-import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
-import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts, listPrice, formatMoney } from "../../../shared/projectPackages";
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { PROJECT_STATUSES } from "../../../shared/projectWorkflow";
+import { phaseOf } from "../../../shared/projectPhases";
+import { PROJECT_PACKAGE_GROUPS, estimateDelivery, getPackageFacts, listPrice, formatMoney } from "../../../shared/projectPackages";
 import { API_BASE } from '../../config/apiBase';
+import { notify } from '../../lib/notify';
+import ProjectLinkSheet from './ProjectLinkSheet';
 
-// Bộ lọc lấy thẳng từ máy trạng thái; danh sách chép tay trước đây là chữ tiếng
-// Việt cũ, không khớp mã máy nên lọc ra rỗng.
+/**
+ * Dự án khách hàng: bên trái mở dự án mới, bên phải danh sách.
+ * Tạo xong là hiện ngay thẻ link gửi khách — khách mở link thì dự án tự rời
+ * "nháp" (server tự tích "đã gửi link"), admin không phải bấm thêm bước nào.
+ */
+
 const STATUS_OPTIONS = Object.entries(PROJECT_STATUSES).map(([id, s]) => ({ id, label: s.adminLabel }));
+const DEFAULT_PACKAGE = PROJECT_PACKAGE_GROUPS[0].options[0].id;
+const EMPTY = { fullName: '', market: 'domestic', servicePackage: DEFAULT_PACKAGE, phone: '', email: '', firstNote: '' };
 
-const STATUS_COLORS = {
-  'Đang liên hệ': 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-  'Đang lên thiết kế': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  'Đang thực hiện': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-  'Đang Kiểm tra': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  'Hoàn tất': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-};
+const field = "w-full min-h-11 rounded-xl border border-border bg-background px-3 text-[15px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40";
+const label = "block text-sm font-medium text-muted-foreground mb-1";
+const chip = "rounded-full bg-muted px-2.5 py-1 text-xs font-medium";
 
-export default function AdminProjectsTab({ showNotification }) {
-  const { t } = useTranslation();
+function PackagePreview({ id, market }) {
+  const p = getPackageFacts(id);
+  if (!p) return null;
+  const eta = estimateDelivery(id, new Date());
+  const price = listPrice(p.id, '', market);
+  const fmt = (d) => d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {eta && <span className={chip}>Bàn giao ~ {fmt(eta.from)} – {fmt(eta.to)}</span>}
+      {price > 0 && <span className={chip}>{p.priceFrom ? 'Từ ' : ''}{formatMoney(price, market === 'international' ? 'usd' : 'vnd')}{p.recurring ? ' / tháng' : ''}</span>}
+      {p.warranty === 'lifetime' ? <span className={chip}>Bảo hành trọn đời</span> : p.warrantyDays > 0 ? <span className={chip}>Bảo hành {p.warrantyDays} ngày</span> : null}
+      {p.payments && <span className={chip}>Thanh toán {p.payments.join('/')}%</span>}
+      {p.free && <span className={chip}>Miễn phí</span>}
+    </div>
+  );
+}
+
+export default function AdminProjectsTab() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  // Delete modal state
+  const [form, setForm] = useState(EMPTY);
+  const [creating, setCreating] = useState(false);
+  const [linkFor, setLinkFor] = useState(null); // { project, path? }
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // New Project Form
-  // Gói mặc định lấy từ danh mục dùng chung, không gõ tay tên gói vào đây nữa.
-  const DEFAULT_PACKAGE = PROJECT_PACKAGE_GROUPS[0].options[0].id;
-  const EMPTY_PROJECT = {
-    fullName: '',
-    // Chọn TRƯỚC khi tạo: trong nước lấy giá VNĐ + hợp đồng gốc tiếng Việt,
-    // quốc tế lấy giá USD + bản gốc tiếng Anh. Không đổi được sau khi tạo.
-    market: 'domestic',
-    servicePackage: DEFAULT_PACKAGE,
-    phone: '',
-    handlerName: '',
-    handlerPhone: '',
-    email: '',
-    address: '',
-    firstNote: ''
-  };
-  const [newProject, setNewProject] = useState(EMPTY_PROJECT);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const fetchProjects = async () => {
     try {
-      const res = await fetch(`${API_BASE}/customer-projects`, {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
-      });
-      const data = await res.json();
-      setProjects(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      const res = await fetch(`${API_BASE}/customer-projects`, { credentials: 'include' });
+      setProjects(res.ok ? await res.json() : []);
+    } catch { notify.error('Không tải được danh sách dự án'); }
+    finally { setLoading(false); }
   };
+  useEffect(() => { fetchProjects(); }, []);
 
-  // Removed fetchMessages
-
-  const handleCreateProject = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
+    setCreating(true);
     try {
       const res = await fetch(`${API_BASE}/customer-projects`, {
-        method: 'POST',
+        method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(newProject)
+        body: JSON.stringify(form),
       });
-      if (res.ok) {
-        const created = await res.json();
-        // Mã truy cập chỉ trả về đúng lần tạo — sao chép link gửi khách luôn.
-        if (created.portalPath) {
-          await navigator.clipboard.writeText(`${window.location.origin}${created.portalPath}`).catch(() => {});
-          showNotification(`${t("admin.texts.txt_77")} · ${created.projectId} — link gửi khách đã được sao chép`);
-        } else {
-          showNotification(t("admin.texts.txt_77"));
-        }
-        setNewProject(EMPTY_PROJECT);
-        fetchProjects();
-      } else {
-        const errorData = await res.json();
-        showNotification(errorData.error || t("admin.texts.txt_78"), 'error');
-      }
-    } catch {
-      showNotification(t("admin.texts.txt_79"), 'error');
-    }
-  };
-
-  const handleDeleteClick = (e, project) => {
-    e.stopPropagation();
-    setDeleteTarget(project);
-    setDeletePassword('');
-    setDeleteError('');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Không tạo được dự án');
+      notify.success(`Đã mở dự án ${data.projectId}`);
+      setForm(EMPTY);
+      setLinkFor({ project: data, path: data.portalPath });
+      fetchProjects();
+    } catch (err) { notify.error(err.message); }
+    finally { setCreating(false); }
   };
 
   const handleConfirmDelete = async (e) => {
     e.preventDefault();
-    if (!deletePassword) {
-      setDeleteError(t("admin.texts.txt_80"));
-      return;
-    }
-    
     setDeleteError('');
     setIsDeleting(true);
-    
     try {
-      // Verify admin password
-      const verifyRes = await fetch(`${API_BASE}/admin/verify-password`, {
-        method: 'POST',
+      const verify = await fetch(`${API_BASE}/admin/verify-password`, {
+        method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ password: deletePassword })
+        body: JSON.stringify({ password: deletePassword }),
       });
-      
-      const verifyData = await verifyRes.json();
-      if (!verifyRes.ok) {
-        setDeleteError(verifyData.error || t("admin.texts.txt_81"));
-        setIsDeleting(false);
-        return;
-      }
-      
-      // Proceed to delete
-      const res = await fetch(`${API_BASE}/customer-projects/${deleteTarget._id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (res.ok) {
-        showNotification(t("admin.texts.txt_82"));
-        fetchProjects();
-        setDeleteTarget(null);
-        setDeletePassword('');
-      } else {
-        showNotification(t("admin.texts.txt_83"), 'error');
-      }
-    } catch {
-      setDeleteError(t("admin.texts.txt_84"));
-    } finally {
-      setIsDeleting(false);
-    }
+      if (!verify.ok) { setDeleteError((await verify.json()).error || 'Sai mật khẩu'); return; }
+      const res = await fetch(`${API_BASE}/customer-projects/${deleteTarget._id}`, { method: 'DELETE', credentials: 'include' });
+      if (!res.ok) throw new Error();
+      notify.success('Đã xoá dự án');
+      setDeleteTarget(null);
+      fetchProjects();
+    } catch { setDeleteError('Không xoá được, thử lại'); }
+    finally { setIsDeleting(false); }
   };
 
-  // Link khách bấm là vào thẳng cổng dự án. Mã truy cập là bí mật nên phải xin
-  // server (route chỉ admin gọi được); đừng dựng link từ mã HG-… — đó là mã công
-  // khai, không mở được gì.
-  const handleCopyLink = async (e, project) => {
-    e.stopPropagation();
-    try {
-      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/share`, { credentials: 'include' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      await navigator.clipboard.writeText(`${window.location.origin}${data.path}`);
-      showNotification(t("admin.texts.txt_85"));
-    } catch (err) {
-      showNotification(err.message || t("admin.texts.txt_85"), 'error');
-    }
-  };
-
-  const handleOpenDetail = (project) => {
-    navigate(`/admin/projects/${project._id}`);
-  };
-
-  const filteredProjects = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return projects.filter(p => {
-      const matchesQuery = !q ||
-        (p.customer?.fullName || p.name)?.toLowerCase().includes(q) ||
-        p.phone?.toLowerCase().includes(q) ||
-        p.projectId?.toLowerCase().includes(q);
-      const matchesStatus = !statusFilter || p.status === statusFilter;
-      return matchesQuery && matchesStatus;
-    });
+    return projects.filter((p) =>
+      (!statusFilter || p.status === statusFilter) &&
+      (!q || [p.customer?.fullName, p.name, p.customer?.phone, p.projectId].some((v) => v?.toLowerCase().includes(q))));
   }, [projects, search, statusFilter]);
 
-  useEffect(() => { setCurrentPage(1); }, [search, statusFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / ITEMS_PER_PAGE));
-  const currentProjects = filteredProjects.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
   return (
-    <div className="animate-fadeIn">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Create Form */}
-        <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-base">add_business</span>
-            Thêm Khách Hàng Mới
-          </h3>
-          <form onSubmit={handleCreateProject} className="space-y-4">
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_72")}</label>
-              <input type="text" required value={newProject.fullName} onChange={e => setNewProject({...newProject, fullName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Thị trường (quyết định giá và hợp đồng)</label>
-              <div className="grid grid-cols-2 gap-2">
-                {[['domestic', 'Trong nước · VNĐ'], ['international', 'Quốc tế · USD']].map(([id, label]) => (
-                  <button key={id} type="button" onClick={() => setNewProject({ ...newProject, market: id })}
-                    className={`rounded-md border p-3 text-xs font-semibold ${newProject.market === id ? 'border-primary bg-primary/10 text-primary' : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'}`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_73")}</label>
-              <select value={newProject.servicePackage} onChange={e => setNewProject({...newProject, servicePackage: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
-                {PROJECT_PACKAGE_GROUPS.map(group => (
-                  <optgroup key={group.id} label={group.label}>
-                    {group.options.map(option => (
-                      <option key={option.id} value={option.id}>{option.label}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              {(() => {
-                // Xem trước những gì gói này kéo theo, tính ngay tại đây — admin
-                // khỏi phải mở lại trang dịch vụ để nhớ bảo hành bao nhiêu ngày.
-                const picked = getPackageFacts(newProject.servicePackage);
-                if (!picked) return null;
-                const eta = estimateDelivery(newProject.servicePackage, new Date());
-                const fmt = (d) => d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-                return (
-                  <div className="space-y-1 pt-1">
-                    <p className="text-[10px] leading-4 text-slate-500">{picked.hint}</p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {eta && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          Bàn giao ~ {fmt(eta.from)} – {fmt(eta.to)}
-                        </span>
-                      )}
-                      {listPrice(picked.id, '', newProject.market) > 0 && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          {picked.priceFrom ? 'Từ ' : ''}{formatMoney(listPrice(picked.id, '', newProject.market), newProject.market === 'international' ? 'usd' : 'vnd')}{picked.recurring ? ' / tháng' : ''}
-                        </span>
-                      )}
-                      {picked.warranty === 'lifetime' && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          Bảo hành trọn đời
-                        </span>
-                      )}
-                      {picked.warrantyDays > 0 && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          Bảo hành {picked.warrantyDays} ngày
-                        </span>
-                      )}
-                      {picked.payments && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          Thanh toán {picked.payments.join('/')}%
-                        </span>
-                      )}
-                      {picked.free && (
-                        <span className="rounded border border-emerald-300 dark:border-emerald-800 px-2 py-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
-                          Miễn phí
-                        </span>
-                      )}
-                      {picked.recurring && (
-                        <span className="rounded border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                          Chạy theo tháng
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_74")}</label>
-              <input type="text" value={newProject.phone} onChange={e => setNewProject({...newProject, phone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_75")}</label>
-              <input type="text" value={newProject.handlerName} onChange={e => setNewProject({...newProject, handlerName: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t("admin.texts.txt_76")}</label>
-              <input type="text" value={newProject.handlerPhone} onChange={e => setNewProject({...newProject, handlerPhone: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Email khách</label>
-              <input type="email" value={newProject.email} onChange={e => setNewProject({...newProject, email: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Địa chỉ</label>
-              <input type="text" value={newProject.address} onChange={e => setNewProject({...newProject, address: e.target.value})} className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Ghi chú mở dự án</label>
-              <textarea rows={3} value={newProject.firstNote} onChange={e => setNewProject({...newProject, firstNote: e.target.value})} placeholder="Phạm vi đã chốt, hẹn gọi lại, thứ khách cần gửi…" className="w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-              <p className="pt-1 text-[10px] leading-4 text-slate-500">Hiện ở dòng đầu nhật ký tiến độ bên cổng khách. Bỏ trống thì dùng câu mặc định.</p>
-            </div>
-            <button type="submit" className="w-full flex items-center justify-center gap-1.5 py-3 rounded-md bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm transition-all">
-              <span className="material-symbols-outlined text-sm">add</span> Tạo Dự Án
-            </button>
-          </form>
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,380px)_1fr]">
+      <form onSubmit={handleCreate} className="space-y-4 rounded-3xl border border-border bg-card p-6">
+        <h2 className="text-lg font-semibold">Mở dự án mới</h2>
+        <div>
+          <label className={label} htmlFor="np-name">Tên khách hàng</label>
+          <input id="np-name" required value={form.fullName} onChange={set('fullName')} className={field} />
         </div>
-
-        {/* Project List */}
-        <div className="bg-white dark:bg-background rounded-md p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm flex flex-col h-full min-h-[600px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 shrink-0">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2 shrink-0">
-              <span className="material-symbols-outlined text-emerald-500 text-base">view_list</span>
-              Danh Sách Khách Hàng ({filteredProjects.length})
-            </h3>
-          </div>
-
-          {/* Search + Status filter */}
-          <div className="flex flex-col sm:flex-row gap-2 mb-4 shrink-0">
-            <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t("adminProjects.tab.searchPlaceholder")}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs py-3 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
-              />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs py-3 px-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold shrink-0"
-            >
-              <option value="">{t("adminProjects.tab.statusAll")}</option>
-              {STATUS_OPTIONS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-            </select>
-          </div>
-
-          <div className="flex-1 space-y-3 overflow-y-auto pr-2">
-            {currentProjects.map(p => (
-              <div key={p._id} onClick={() => handleOpenDetail(p)} className="cursor-pointer bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 p-4 rounded-xl border border-border/50 transition-colors">
-                <div className="flex justify-between items-start gap-3">
-                  <div className="min-w-0">
-                    <div className="font-bold text-sm text-foreground flex items-center gap-2 flex-wrap">
-                      <button type="button" onClick={() => navigate(`/admin/projects/${p.projectId}`)} className="truncate text-left hover:underline">{p.customer?.fullName || p.name}</button>
-                      {p.unreadCount > 0 && (
-                        <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse shrink-0">
-                          {p.unreadCount} {t("adminProjects.tab.newMsg")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold truncate">{p.servicePackage}</div>
-                    <div className="text-xs font-mono font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-800/50 inline-block mt-2">
-                      MÃ: {p.projectId}
-                    </div>
-                  </div>
-                  <span className={`text-[10px] px-2 py-1 rounded-md font-bold shrink-0 text-center ${STATUS_COLORS[p.status] || "bg-slate-500/10 text-slate-500"}`}>
-                    {PROJECT_STATUSES[p.status]?.adminLabel || p.status}
-                  </span>
-                </div>
-
-                {/* Always-visible action row — no hover-only controls so this works on touch devices */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/40">
-                  <button
-                    onClick={(e) => handleCopyLink(e, p)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">share</span>
-                    {t("admin.texts.txt_87")}
-                  </button>
-                  <button
-                    onClick={(e) => handleDeleteClick(e, p)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-500 dark:text-rose-400 text-[10px] font-bold uppercase transition-colors"
-                    title={t("admin.texts.txt_88")}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">delete</span>
-                  </button>
-                </div>
-              </div>
+        <div>
+          <span className={label}>Thị trường · không đổi được sau khi tạo</span>
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1" role="radiogroup">
+            {[['domestic', 'Trong nước · VNĐ'], ['international', 'Quốc tế · USD']].map(([id, text]) => (
+              <button key={id} type="button" role="radio" aria-checked={form.market === id} onClick={() => setForm({ ...form, market: id })}
+                className={`min-h-10 rounded-lg text-sm font-medium ${form.market === id ? 'bg-card shadow-sm' : 'text-muted-foreground'}`}>{text}</button>
             ))}
-            {currentProjects.length === 0 && !loading && (
-              <div className="text-center text-xs text-slate-500 italic py-4">{t("adminProjects.tab.empty")}</div>
-            )}
           </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800/50 flex justify-center items-center gap-2 shrink-0">
-              <button 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="w-8 h-8 flex items-center justify-center rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm">chevron_left</span>
-              </button>
-              
-              {Array.from({ length: totalPages }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentPage(idx + 1)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-md border text-xs font-bold transition-colors ${
-                    currentPage === idx + 1 
-                      ? 'border-indigo-600 bg-indigo-600 text-white' 
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-
-              <button 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="w-8 h-8 flex items-center justify-center rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <span className="material-symbols-outlined text-sm">chevron_right</span>
-              </button>
-            </div>
-          )}
         </div>
-      </div>
-
-      {/* Delete Confirmation Modal */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-background w-full max-w-sm rounded-md p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all scale-100">
-            <div className="flex flex-col items-center text-center space-y-3 mb-6">
-              <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400 rounded-full flex items-center justify-center mb-1">
-                <span className="material-symbols-outlined text-3xl">warning</span>
-              </div>
-              <h3 className="text-lg font-black text-foreground">{t("adminProjects.tab.deleteTitle")}</h3>
-              <p className="text-xs text-muted-foreground px-2 leading-relaxed">
-                {t("adminProjects.tab.deleteDesc")} <strong className="text-slate-700 dark:text-slate-300">{deleteTarget.customer?.fullName || deleteTarget.name}</strong>. Bao gồm dự án, mã đăng nhập và toàn bộ tin nhắn. 
-                <span className="block mt-1 text-rose-500 font-semibold">{t("adminProjects.tab.deleteWarn")}</span>
-              </p>
-            </div>
-            
-            <form onSubmit={handleConfirmDelete} className="space-y-4">
-              <div className="space-y-1.5 text-left">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">{t("adminProjects.tab.deletePassLabel")}</label>
-                <input 
-                  type="password" 
-                  autoFocus
-                  required
-                  placeholder={t("adminProjects.tab.deletePassPlaceholder")}
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-black/20 border border-border/50 rounded-md px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all dark:text-white placeholder-slate-400"
-                />
-                {deleteError && (
-                  <p className="text-[11px] text-rose-500 font-medium pl-1 animate-fadeIn">{deleteError}</p>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setDeleteTarget(null)}
-                  disabled={isDeleting}
-                  className="py-3 rounded-md font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 transition-colors text-xs"
-                >
-                  {t("adminProjects.tab.deleteCancel")}
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isDeleting}
-                  className="py-3 rounded-md font-bold text-white bg-rose-500 hover:bg-rose-600 flex items-center justify-center gap-2 transition-colors text-xs disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-rose-500/20"
-                >
-                  {isDeleting ? (
-                    <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                  ) : (
-                    <span className="material-symbols-outlined text-sm">delete_forever</span>
-                  )}
-                  {isDeleting ? t("adminProjects.tab.deleting") : t("adminProjects.tab.deleteConfirm")}
-                </button>
-              </div>
-            </form>
+        <div>
+          <label className={label} htmlFor="np-pkg">Gói dịch vụ</label>
+          <select id="np-pkg" value={form.servicePackage} onChange={set('servicePackage')} className={field}>
+            {PROJECT_PACKAGE_GROUPS.map((g) => (
+              <optgroup key={g.id} label={g.label}>
+                {g.options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </optgroup>
+            ))}
+          </select>
+          <PackagePreview id={form.servicePackage} market={form.market} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={label} htmlFor="np-phone">Điện thoại</label>
+            <input id="np-phone" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} className={field} />
           </div>
+          <div>
+            <label className={label} htmlFor="np-email">Email</label>
+            <input id="np-email" type="email" value={form.email} onChange={set('email')} className={field} />
+          </div>
+        </div>
+        <p className="-mt-2 text-xs text-muted-foreground">Có email thì khách nhận thư báo mỗi khi dự án sang bước mới.</p>
+        <div>
+          <label className={label} htmlFor="np-note">Ghi chú mở dự án</label>
+          <textarea id="np-note" rows={3} value={form.firstNote} onChange={set('firstNote')} placeholder="Phạm vi đã nói, thứ khách cần gửi…" className={`${field} py-2`} />
+        </div>
+        <button type="submit" disabled={creating} className="min-h-11 w-full rounded-xl bg-foreground text-[15px] font-semibold text-background disabled:opacity-50">
+          {creating ? 'Đang tạo…' : 'Tạo dự án và lấy link'}
+        </button>
+      </form>
+
+      <section className="rounded-3xl border border-border bg-card p-6">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Tìm tên, SĐT, mã HG-…" className={`${field} flex-1`} aria-label="Tìm dự án" />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`${field} sm:w-56`} aria-label="Lọc trạng thái">
+            <option value="">Mọi trạng thái</option>
+            {STATUS_OPTIONS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">{filtered.length} dự án</p>
+        <ul className="mt-2 divide-y divide-border">
+          {filtered.map((p) => {
+            const phase = phaseOf(p.status);
+            return (
+              <li key={p._id} className="flex items-center gap-3 py-3">
+                <button type="button" onClick={() => navigate(`/admin/projects/${p._id}`)} className="min-w-0 flex-1 text-left">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-[15px] font-semibold">{p.customer?.fullName || p.name}</span>
+                    {p.unreadCount > 0 && <span className="shrink-0 rounded-full bg-destructive px-2 text-xs font-semibold text-white">{p.unreadCount}</span>}
+                  </span>
+                  <span className="block truncate text-sm text-muted-foreground">
+                    {p.projectId} · {phase ? `GĐ ${phase.no} · ` : ''}{PROJECT_STATUSES[p.status]?.adminLabel || p.status}
+                  </span>
+                </button>
+                <button type="button" onClick={() => setLinkFor({ project: p })} aria-label="Link cho khách" className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-muted">
+                  <span aria-hidden className="material-symbols-outlined text-[20px]">link</span>
+                </button>
+                <button type="button" onClick={() => { setDeleteTarget(p); setDeletePassword(''); setDeleteError(''); }} aria-label="Xoá dự án" className="grid size-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                  <span aria-hidden className="material-symbols-outlined text-[20px]">delete</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {!loading && filtered.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Chưa có dự án nào khớp.</p>}
+      </section>
+
+      {linkFor && <ProjectLinkSheet project={linkFor.project} path={linkFor.path} onClose={() => setLinkFor(null)} />}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={() => setDeleteTarget(null)}>
+          <form role="dialog" aria-modal="true" onSubmit={handleConfirmDelete} onClick={(e) => e.stopPropagation()} className="w-full max-w-sm space-y-4 rounded-3xl bg-card p-6 text-foreground shadow-2xl">
+            <h2 className="text-lg font-semibold">Xoá dự án {deleteTarget.projectId}?</h2>
+            <p className="text-sm text-muted-foreground">Xoá hẳn dự án của <strong className="text-foreground">{deleteTarget.customer?.fullName || deleteTarget.name}</strong>, link của khách và mọi tin nhắn. Không hoàn tác được.</p>
+            <input type="password" autoFocus required value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} placeholder="Mật khẩu admin" className={field} aria-label="Mật khẩu admin" />
+            {deleteError && <p role="alert" className="text-sm text-destructive">{deleteError}</p>}
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setDeleteTarget(null)} className="min-h-11 rounded-xl bg-muted text-sm font-semibold">Huỷ</button>
+              <button type="submit" disabled={isDeleting} className="min-h-11 rounded-xl bg-destructive text-sm font-semibold text-white disabled:opacity-50">{isDeleting ? 'Đang xoá…' : 'Xoá'}</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

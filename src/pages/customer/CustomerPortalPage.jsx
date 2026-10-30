@@ -52,7 +52,7 @@ export default function CustomerPortalPage() {
       if (!res.ok) { setState('invalid'); return; }
       const data = await res.json();
       setProject(withLegacyFields(data));
-      setActiveTab((tab) => tab || (data.status === 'awaiting_requirements' ? 'brief' : 'service'));
+      setActiveTab((tab) => tab || 'service');
       setState('ready');
     } catch {
       setState('invalid');
@@ -96,9 +96,9 @@ export default function CustomerPortalPage() {
   if (!project) return null;
 
   const tabs = [
+    { id: 'service', label: t('customerPortal.tabs.overview', 'Tổng quan') },
     { id: 'brief', label: t('customerPortal.tabs.brief', 'Yêu cầu dự án') },
     { id: 'contract', label: t('customerPortal.tabs.contract', 'Hợp đồng'), badge: project.contract?.version > (project.contract?.acceptedVersion || 0) ? '!' : 0 },
-    { id: 'service', label: t('customerPortal.tabs.service') },
     { id: 'requests', label: t('customerPortal.tabs.requests'), badge: unreadCount },
     { id: 'profile', label: t('customerPortal.tabs.profile') },
   ];
@@ -132,7 +132,7 @@ export default function CustomerPortalPage() {
 
         {activeTab === 'brief' && <RequirementForm project={project} onSaved={(p) => setProject(withLegacyFields(p))} />}
         {activeTab === 'contract' && <CustomerContractTab project={project} onChange={(p) => setProject(withLegacyFields(p))} />}
-        {activeTab === 'service' && <CustomerServiceTab project={project} />}
+        {activeTab === 'service' && <CustomerServiceTab project={project} onGo={setActiveTab} />}
         {activeTab === 'requests' && <CustomerRequestsTab project={project} />}
         {activeTab === 'profile' && <CustomerProfileTab project={project} setProject={setProject} />}
       </main>

@@ -292,7 +292,7 @@ export default function AdminPanel() {
 
   const handleLogout = () => {
     logoutAuth();
-    window.location.href = "/login";
+    window.location.href = "/admin";
   };
 
   // Fetch Overview Counts for Dashboard Stats

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import AdminLogin from './AdminLogin';
 import { clearAdminSession, isAdminAuthenticated, updateAdminSession } from '../../services/api/core/authSession';
 
 export default function AdminProtectedRoute({ children }) {
@@ -78,7 +78,7 @@ export default function AdminProtectedRoute({ children }) {
 
   // Thất bại
   if (isAuthenticated === false) {
-    return <Navigate to="/login" replace />;
+    return <AdminLogin onSuccess={() => { setIsAuthenticated(null); setAttempt(value => value + 1); }} />;
   }
 
   // Thành công, hiển thị nội dung Admin

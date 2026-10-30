@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/api/core/authSession";
+import { loginMember, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
@@ -32,17 +32,6 @@ export default function LoginPage() {
   const memberRedirectRef = useRef(memberRedirect);
   memberRedirectRef.current = memberRedirect;
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
-  const [adminSubmitting, setAdminSubmitting] = useState(false);
-  const [rememberAdmin, setRememberAdmin] = useState(true);
-  const [adminUsername, setAdminUsername] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  // 2FA OTP (POST /api/admin/login -> requireOtp)
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [tempToken, setTempToken] = useState("");
-  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
-  const [otpError, setOtpError] = useState("");
-  const [otpSecondsLeft, setOtpSecondsLeft] = useState(0);
-  const [otpSubmitting, setOtpSubmitting] = useState(false);
   const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
@@ -78,7 +67,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!allowRegistration && activeMode === "member") {
-      setActiveMode("admin");
+      setActiveMode("customer");
     }
   }, [allowRegistration, activeMode]);
 
@@ -215,78 +204,10 @@ export default function LoginPage() {
     showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
-  // Đăng nhập quản trị = mật khẩu ĐÚNG rồi mới tới OTP Telegram (hai yếu tố).
-  //
-  // Trước đây form này chỉ có một cái nút: gọi thẳng /admin/request-otp, một
-  // endpoint không xác thực gì cả. Nghĩa là toàn bộ bảo mật admin rút gọn
-  // thành đoán 6 chữ số, mà trần chặn lại tính theo IP — với một pool proxy
-  // vài nghìn địa chỉ thì đoán ra trong vài giờ. Mật khẩu không nằm trên
-  // đường tấn công vì kẻ tấn công không cần đi qua nó.
-  const handleAdminLogin = async (e) => {
-    e.preventDefault();
-    setToast({ message: "", type: "" });
-    setAdminSubmitting(true);
-    try {
-      const res = await loginAdmin({ username: adminUsername.trim(), password: adminPassword });
-      if (!res.tempToken) {
-        showToast(
-          res.error === "network" ? t("loginPage.toast.adminNetworkError")
-            : res.error === "invalid_credentials" ? t("loginPage.toast.adminInvalid", "Tên đăng nhập hoặc mật khẩu không đúng.")
-            : res.error || t("loginPage.toast.adminServerError"),
-          "error"
-        );
-        return;
-      }
-      setTempToken(res.tempToken);
-      setOtpDigits(["", "", "", "", "", ""]);
-      setOtpError("");
-      setOtpSecondsLeft(res.expiresIn || 30);
-      setOtpModalOpen(true);
-      setAdminPassword("");
-      showToast(res.message || t("loginPage.adminForm.otpSent"), res.otpDelivered ? "info" : "error");
-    } finally {
-      setAdminSubmitting(false);
-    }
-  };
-
-  // Mã OTP chỉ sống 30 giây. Không đếm ngược thì người dùng gõ xong mới biết
-  // mã đã chết, và lỗi trông y hệt "nhập sai mã".
-  useEffect(() => {
-    if (!otpModalOpen || otpSecondsLeft <= 0) return undefined;
-    const timer = window.setInterval(() => setOtpSecondsLeft((n) => Math.max(0, n - 1)), 1000);
-    return () => window.clearInterval(timer);
-  }, [otpModalOpen, otpSecondsLeft]);
-
-  const handleVerifyAdminOtp = async (e) => {
-    e?.preventDefault();
-    setOtpError("");
-    const fullOtp = otpDigits.join("").trim();
-    if (fullOtp.length !== 6) {
-      setOtpError("Vui lòng nhập đủ 6 chữ số mã OTP.");
-      return;
-    }
-    if (otpSecondsLeft <= 0) {
-      setOtpError("Mã đã hết hạn (30 giây). Đóng cửa sổ này và bấm gửi lại mã.");
-      return;
-    }
-    setOtpSubmitting(true);
-    try {
-      const { session, error } = await verifyAdminOtp(tempToken, fullOtp, { remember: rememberAdmin });
-      if (!session) {
-        setOtpError(error || "Mã OTP không chính xác.");
-        return;
-      }
-      showToast("Xác thực 2FA thành công! 🔐", "success");
-      navigate("/admin");
-    } finally {
-      setOtpSubmitting(false);
-    }
-  };
-
   const handleCustomerLogin = async (e) => {
     e.preventDefault();
     setToast({ message: "", type: "" });
-    if (!customerCode || customerCode.trim().length !== 6) {
+    if (!customerCode || customerCode.trim().length < 6) {
       showToast(t("loginPage.toast.codeLength"), "error");
       return;
     }
@@ -387,11 +308,11 @@ export default function LoginPage() {
 
           <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight leading-[1.1] transition-all">
             <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
-              {activeMode === "customer" ? t("loginPage.header.titleCustomer") : activeMode === "member" ? t("loginPage.header.titleMember") : t("loginPage.header.titleAdmin")}
+              {activeMode === "customer" ? t("loginPage.header.titleCustomer") : t("loginPage.header.titleMember")}
             </span>
           </h1>
           <p className="text-[13px] text-muted-foreground font-medium leading-relaxed">
-            {activeMode === "customer" ? t("loginPage.header.descCustomer") : activeMode === "member" ? t("loginPage.header.descMember") : t("loginPage.header.descAdmin")}
+            {activeMode === "customer" ? t("loginPage.header.descCustomer") : t("loginPage.header.descMember")}
           </p>
         </div>
 
@@ -401,7 +322,6 @@ export default function LoginPage() {
             const tabs = [
               { id: 'customer', label: t("loginPage.tabs.customer") },
               ...(allowRegistration ? [{ id: 'member', label: t("loginPage.tabs.member") }] : []),
-              { id: 'admin', label: t("loginPage.tabs.admin") }
             ];
             const activeIndex = tabs.findIndex(t => t.id === activeMode);
             const tabWidth = 100 / tabs.length;
@@ -472,7 +392,7 @@ export default function LoginPage() {
                 </div>
               </div>
             </form>
-          ) : activeMode === "member" ? (
+          ) : (
             <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
               <div className="text-center space-y-1">
                 <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.memberForm.title")}</h2>
@@ -529,182 +449,10 @@ export default function LoginPage() {
                 </div>
               </div>
             </form>
-          ) : (
-            <form key="form-admin" onSubmit={handleAdminLogin} className="space-y-5">
-              <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.adminForm.title")}</h2>
-                <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
-              </div>
-
-              {/* Hai yếu tố: mật khẩu (biết) + mã Telegram (sở hữu). Bỏ ô mật
-                  khẩu đi thì yếu tố duy nhất còn lại là một số 6 chữ số gõ vào
-                  một endpoint công khai — đoán được. */}
-              <div className="space-y-3">
-                <label className="block">
-                  <span className="mb-1 block pl-1 text-[11px] font-medium text-muted-foreground">
-                    {t("loginPage.adminForm.usernameLabel")}
-                  </span>
-                  <input
-                    type="text"
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    autoComplete="username"
-                    required
-                    className="w-full rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-1 block pl-1 text-[11px] font-medium text-muted-foreground">
-                    {t("loginPage.adminForm.passwordLabel")}
-                  </span>
-                  <input
-                    type="password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    autoComplete="current-password"
-                    required
-                    className="w-full rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </label>
-                <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-muted/40 p-3">
-                  <span className="material-symbols-outlined text-[18px] text-muted-foreground">send</span>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    {t("loginPage.adminForm.otpDesc")}
-                  </p>
-                </div>
-              </div>
-
-              <label className="flex items-center gap-2 pl-1 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rememberAdmin}
-                  onChange={(e) => setRememberAdmin(e.target.checked)}
-                  className="w-3.5 h-3.5 rounded accent-primary"
-                />
-                <span className="text-[11px] text-muted-foreground font-medium">{t("loginPage.adminForm.remember")}</span>
-              </label>
-
-              <button
-                type="submit"
-                disabled={adminSubmitting}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all text-xs sm:text-sm shadow-lg shadow-primary/25 mt-2 flex items-center justify-center gap-2 disabled:opacity-60 disabled:pointer-events-none"
-              >
-                {adminSubmitting && (
-                  <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-                )}
-                {adminSubmitting ? t("loginPage.adminForm.otpSending") : t("loginPage.adminForm.otpBtn")}
-              </button>
-
-              <p className="text-[10px] text-center text-muted-foreground">{t("loginPage.adminForm.https")}</p>
-            </form>
           )}
         </div>
       </section>
 
-      {/* ── 2FA OTP MODAL ── */}
-      {otpModalOpen && (
-        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fadeIn">
-          <motion.div
-            initial={{ scale: 0.94, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-full max-w-sm sm:max-w-md bg-zinc-950/95 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center relative overflow-hidden text-white font-sans"
-          >
-            {/* Ambient Frosted Glow */}
-            <div className="absolute -top-20 -left-20 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Lock Icon */}
-            <div className="mx-auto w-14 h-14 rounded-2xl bg-zinc-900 border border-white/15 shadow-xl flex items-center justify-center text-emerald-400">
-              <span className="material-symbols-outlined text-2xl">shield_lock</span>
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
-                XÁC THỰC BẢO MẬT 2FA
-              </h3>
-              <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-                Mã OTP <strong className="text-emerald-400 font-bold">6 chữ số</strong> đã được gửi đến Boss.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs font-bold font-sans border border-white/10 text-zinc-300">
-              <span className="material-symbols-outlined text-xs text-emerald-400">timer</span>
-              <span>{otpSecondsLeft > 0 ? `Mã hết hạn sau ${otpSecondsLeft}s` : "Mã hết hạn — Hãy gửi lại mã"}</span>
-            </div>
-
-            <form onSubmit={handleVerifyAdminOtp} className="space-y-5">
-              {/* 6 OTP Input Boxes - Perfectly Aligned Square-ish Rounded Rectangles */}
-              <div className="flex justify-center gap-2 sm:gap-2.5">
-                {[0, 1, 2, 3, 4, 5].map((idx) => (
-                  <input
-                    key={idx}
-                    id={`otp-input-${idx}`}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={otpDigits[idx]}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      const next = [...otpDigits];
-                      next[idx] = val;
-                      setOtpDigits(next);
-                      if (val && idx < 5) {
-                        const nextEl = document.getElementById(`otp-input-${idx + 1}`);
-                        if (nextEl) nextEl.focus();
-                      }
-                    }}
-                    onPaste={(e) => {
-                      const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-                      if (!pasted) return;
-                      e.preventDefault();
-                      const next = ["", "", "", "", "", ""];
-                      pasted.split("").forEach((digit, i) => { next[i] = digit; });
-                      setOtpDigits(next);
-                      document.getElementById(`otp-input-${Math.min(5, pasted.length - 1)}`)?.focus();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Backspace" && !otpDigits[idx] && idx > 0) {
-                        const prevEl = document.getElementById(`otp-input-${idx - 1}`);
-                        if (prevEl) prevEl.focus();
-                      }
-                    }}
-                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black tabular-nums bg-zinc-900/90 border border-white/15 rounded-xl text-white outline-none focus:border-emerald-500 focus:bg-zinc-900 transition-all duration-200 shadow-sm"
-                  />
-                ))}
-              </div>
-
-              {otpError && (
-                <p className="text-xs text-rose-400 font-semibold animate-pulse">{otpError}</p>
-              )}
-
-              <div className="space-y-2.5 pt-1">
-                <button
-                  type="submit"
-                  disabled={otpSubmitting}
-                  className="h-12 w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40"
-                >
-                  {otpSubmitting ? (
-                    <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-lg">verified_user</span>
-                      <span>XÁC THỰC 2FA & VÀO ADMIN</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setOtpModalOpen(false)}
-                  className="text-xs text-zinc-400 hover:text-white font-bold transition-colors block mx-auto py-1"
-                >
-                  Hủy bỏ & Nhập lại mật khẩu
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }

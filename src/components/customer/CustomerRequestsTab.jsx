@@ -10,7 +10,7 @@ export default function CustomerRequestsTab({ project }) {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
-  const isCompleted = project.status === 'Hoàn tất';
+  const isCompleted = ['closed', 'terminated', 'cancelled'].includes(project.status);
 
   const fetchMessages = async () => {
     try {

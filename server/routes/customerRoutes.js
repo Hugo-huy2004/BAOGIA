@@ -64,6 +64,13 @@ router.post('/auth', authLimiter, async (req, res) => {
     // Mã truy cập là bí mật nên `select: false` trong schema — phải xin lại rõ ràng.
     const project = await CustomerProject.findOne({ accessCode: loginCode.trim().toUpperCase() }).select('+accessCode');
     if (!project) return res.status(401).json({ error: 'Mã đăng nhập không hợp lệ hoặc không tồn tại' });
+    // Khách đã cầm link = đã nhận phiếu: rời "nháp" luôn, admin khỏi bấm tay.
+    if (project.status === 'draft') {
+      project.checklist = { ...(project.checklist || {}), linkSent: { done: true, at: new Date(), by: 'system' } };
+      project.markModified('checklist');
+      await transitionProject(project, 'awaiting_requirements', { actor: 'system', note: 'Khách mở cổng dự án lần đầu.' })
+        .catch((e) => console.warn('[customer auth] draft → awaiting:', e.message));
+    }
 
     res.cookie('customer_jwt', signCustomerToken(project._id), CUSTOMER_COOKIE);
     res.json({ project: stripSecrets(project) });
@@ -291,7 +298,7 @@ router.get('/', requireAdmin, async (req, res) => {
 // Create new project
 router.post('/', requireAdmin, async (req, res) => {
   try {
-    const { fullName, servicePackage, phone, email, market } = req.body;
+    const { fullName, servicePackage, phone, email, market, firstNote } = req.body;
 
     // Tên gói phải nằm trong danh mục dùng chung với trang quản trị. Không có
     // bước này thì một lần gõ nhầm sẽ nằm vĩnh viễn trong cơ sở dữ liệu và
@@ -309,6 +316,7 @@ router.post('/', requireAdmin, async (req, res) => {
       packageId: servicePackage || '',
       market: market === 'international' ? 'international' : 'domestic',
       customer: { fullName, email, phone },
+      note: String(firstNote || '').trim().slice(0, 2000),
       actorName: req.admin?.id || 'admin',
     });
 
