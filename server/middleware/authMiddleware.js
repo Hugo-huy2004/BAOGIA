@@ -24,6 +24,8 @@ const sendAuthFailure = (res, error, authRole = 'member') => {
 const SELF_ADMIN_ROUTES = /^\/api\/admin\/verify-session(?:\/|$)/;
 const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/accounts(?:\/|$)/, 'access'],
+  // Từng bảng tự kiểm quyền riêng trong adminDataRoutes.js.
+  [/^\/api\/admin\/data(?:\/|$)/, 'overview'],
   [/^\/api\/admin\/(?:queue|joylater)(?:\/|$)/, 'queue'],
   [/^\/api\/admin\/ai-support(?:\/|$)/, 'support'],
   [/^\/api\/admin\/users(?:\/|$)/, 'users'],

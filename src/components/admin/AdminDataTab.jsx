@@ -1,0 +1,131 @@
+import { useEffect, useState } from "react";
+import {
+  Admin, Resource, List, Datagrid, Edit, Create, Show, SimpleForm, SimpleShowLayout, Labeled,
+  TextField, NumberField, BooleanField, DateField, FunctionField, SearchInput,
+  TextInput, NumberInput, BooleanInput, DateTimeInput, SelectInput,
+  BulkDeleteButton, EditButton, ShowButton, DeleteButton, TopToolbar, CreateButton,
+  fetchUtils, mergeTranslations, useResourceDefinitions, defaultTheme,
+} from "react-admin";
+import { NavLink, useLocation } from "react-router-dom";
+import simpleRestProvider from "ra-data-simple-rest";
+import polyglotI18nProvider from "ra-i18n-polyglot";
+import englishMessages from "ra-language-english";
+import vietnameseMessages from "ra-language-vietnamese";
+import { API_BASE } from "../../config/apiBase";
+
+/**
+ * Dữ liệu — CRUD cho mọi bảng mà server cho phép (server/routes/admin/adminDataRoutes.js).
+ * Cột, ô sửa, quyền đều do server trả về theo vai trò; thêm bảng thì sửa ở server,
+ * không sửa ở đây. Bản tiếng Việt của react-admin là bản v3, khoá thiếu rơi về tiếng Anh.
+ */
+const BASE = "/admin/data";
+const httpClient = (url, options = {}) => fetchUtils.fetchJson(url, { ...options, credentials: "include" });
+const dataProvider = simpleRestProvider(`${API_BASE}/admin/data`, httpClient);
+const i18nProvider = polyglotI18nProvider(() => mergeTranslations(englishMessages, vietnameseMessages), "vi", [], { allowMissing: true });
+const theme = {
+  ...defaultTheme,
+  shape: { borderRadius: 12 },
+  typography: { fontFamily: "inherit" },
+  components: { ...defaultTheme.components, MuiButton: { defaultProps: { disableElevation: true } } },
+};
+
+const LONG = new Set(["description", "body", "adminReply", "notes", "adminNote", "issue", "message", "text", "stack"]);
+
+const Field = ({ f }) => {
+  const props = { source: f.name, label: f.name };
+  if (f.type === "number") return <NumberField {...props} />;
+  if (f.type === "bool") return <BooleanField {...props} />;
+  if (f.type === "date") return <DateField {...props} showTime locales="vi-VN" />;
+  if (f.type === "json") return <FunctionField {...props} render={(r) => <pre className="max-w-xl whitespace-pre-wrap text-xs">{JSON.stringify(r[f.name], null, 2)}</pre>} />;
+  return <TextField {...props} sx={LONG.has(f.name) ? { whiteSpace: "pre-wrap" } : { maxWidth: 320, display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} />;
+};
+
+const Input = ({ f }) => {
+  const props = { source: f.name, label: f.name, fullWidth: true };
+  if (f.options) return <SelectInput {...props} choices={f.options.map((id) => ({ id, name: id }))} emptyText="—" />;
+  if (f.type === "number") return <NumberInput {...props} />;
+  if (f.type === "bool") return <BooleanInput {...props} />;
+  if (f.type === "date") return <DateTimeInput {...props} />;
+  return <TextInput {...props} multiline={LONG.has(f.name)} minRows={LONG.has(f.name) ? 3 : undefined} />;
+};
+
+const ReadOnly = ({ fields }) => fields.map((f) => <Labeled key={f.name} label={f.name} fullWidth><Field f={f} /></Labeled>);
+
+const views = (r) => {
+  const can = (op) => r.ops.includes(op);
+  const list = () => (
+    <List perPage={25} sort={{ field: "id", order: "DESC" }} filters={[<SearchInput key="q" source="q" alwaysOn />]}
+      actions={<TopToolbar>{can("c") && <CreateButton />}</TopToolbar>}>
+      <Datagrid rowClick={can("u") ? "edit" : "show"} bulkActionButtons={can("d") ? <BulkDeleteButton mutationMode="pessimistic" /> : false}>
+        {r.list.map((f) => <Field key={f.name} f={f} />)}
+      </Datagrid>
+    </List>
+  );
+  const form = (
+    <SimpleForm>
+      {r.edit.map((f) => <Input key={f.name} f={f} />)}
+    </SimpleForm>
+  );
+  const readOnly = [...r.list, ...r.show].filter((f) => !r.edit.some((e) => e.name === f.name));
+  return {
+    list,
+    show: () => (
+      <Show actions={<TopToolbar>{can("u") && <EditButton />}{can("d") && <DeleteButton mutationMode="pessimistic" />}</TopToolbar>}>
+        <SimpleShowLayout>{[...r.list, ...r.show, ...r.edit].filter((f, i, a) => a.findIndex((x) => x.name === f.name) === i).map((f) => <Field key={f.name} f={f} />)}</SimpleShowLayout>
+      </Show>
+    ),
+    edit: can("u") ? () => (
+      <Edit mutationMode="pessimistic" actions={<TopToolbar><ShowButton />{can("d") && <DeleteButton mutationMode="pessimistic" />}</TopToolbar>}>
+        <SimpleForm>
+          <ReadOnly fields={readOnly} />
+          {r.edit.map((f) => <Input key={f.name} f={f} />)}
+        </SimpleForm>
+      </Edit>
+    ) : undefined,
+    create: can("c") ? () => <Create redirect="list">{form}</Create> : undefined,
+  };
+};
+
+// Bố cục gọn: một hàng chip chọn bảng thay cho AppBar + menu của react-admin
+// (bảng quản trị đã có thanh bên riêng).
+function Layout({ children }) {
+  const resources = useResourceDefinitions();
+  const { pathname } = useLocation();
+  return (
+    <div className="mx-auto max-w-6xl space-y-4">
+      <nav aria-label="Bảng dữ liệu" className="flex gap-2 overflow-x-auto pb-1">
+        {Object.values(resources).map((r) => {
+          const on = pathname.startsWith(`${BASE}/${r.name}`);
+          return (
+            <NavLink key={r.name} to={`${BASE}/${r.name}`}
+              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${on ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}>
+              {r.options?.label || r.name}
+            </NavLink>
+          );
+        })}
+      </nav>
+      {children}
+    </div>
+  );
+}
+
+export default function AdminDataTab() {
+  const [resources, setResources] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    httpClient(`${API_BASE}/admin/data/_resources`)
+      .then(({ json }) => setResources(json))
+      .catch((err) => setError(err.message || "Không tải được danh sách bảng."));
+  }, []);
+
+  if (error) return <p role="alert" className="p-10 text-center text-sm text-destructive">{error}</p>;
+  if (!resources) return <p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>;
+  if (!resources.length) return <p className="p-10 text-center text-sm text-muted-foreground">Vai trò của bạn chưa được xem bảng dữ liệu nào.</p>;
+
+  return (
+    <Admin basename={BASE} dataProvider={dataProvider} i18nProvider={i18nProvider} theme={theme} layout={Layout} disableTelemetry>
+      {resources.map((r) => <Resource key={r.id} name={r.id} options={{ label: r.label }} {...views(r)} />)}
+    </Admin>
+  );
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useVisiblePoll from "../../hooks/useVisiblePoll";
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,7 @@ import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
+const AdminDataTab = lazy(() => import("../../components/admin/AdminDataTab"));
 import { hasAdminPermission } from "../../../shared/adminAccess";
 import "../../styles/admin.css";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
@@ -540,6 +541,8 @@ export default function AdminPanel() {
             handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete} triggerConfirm={triggerConfirm}
           />
         );
+      case "data":
+        return <Suspense fallback={<p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>}><AdminDataTab /></Suspense>;
       case "access":
         return <AdminAccessTab currentAdminId={adminSession.id} />;
       default:

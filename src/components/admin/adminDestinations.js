@@ -20,6 +20,7 @@ export const ADMIN_DESTINATIONS = [
   { id: "sentinel", group: "control", label: "An ninh", sub: "Cảnh báo và kiểm duyệt", icon: "shield", permission: "security" },
   { id: "monitor", group: "control", label: "Hệ thống", sub: "Sức khỏe và lỗi", icon: "monitor_heart", permission: "system" },
   { id: "audit", group: "control", label: "Nhật ký", sub: "Dấu vết thao tác", icon: "history", permission: "audit" },
+  { id: "data", group: "control", label: "Dữ liệu", sub: "Xem, sửa mọi bảng", icon: "table_view", permission: "overview" },
   { id: "settings", group: "control", label: "Cấu hình", sub: "Thiết lập nền tảng", icon: "tune", permission: "system" },
   { id: "access", group: "control", label: "Quyền quản trị", sub: "Tài khoản và vai trò", icon: "admin_panel_settings", permission: "access" },
 ];
