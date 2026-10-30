@@ -42,7 +42,8 @@ import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
 import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../shared/partnerCampaigns";
-import { isPartnerWelcomed } from "./utils/partnerWelcome";
+import { isPartnerWelcomed, markPartnerWelcomed } from "./utils/partnerWelcome";
+import { redeemInstallHandoff } from "./utils/appHandoff";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
@@ -200,6 +201,20 @@ function AppContent() {
       return false;
     }
   });
+
+  // App vừa cài mở bằng start_url có ?handoff= (utils/appHandoff.js): đổi mã lấy
+  // phiên trước khi xét cổng nào, để người dùng không phải đăng nhập lại. Mã chỉ
+  // được phát sau khi đã nhận quà partner, nên nhận được phiên = đã qua màn chào.
+  const [handoffPending, setHandoffPending] = useState(() => new URLSearchParams(location.search).has("handoff"));
+  useEffect(() => {
+    if (!handoffPending) return;
+    redeemInstallHandoff()
+      .then((ok) => { if (ok && isPartnerHost) markPartnerWelcomed(PARTNER_HOST_CAMPAIGN); })
+      .finally(() => { refreshSession(); setHandoffPending(false); });
+  }, [handoffPending, isPartnerHost]);
+  if (handoffPending) {
+    return <div className="flex min-h-[100dvh] items-center justify-center bg-background"><span aria-label="Đang đăng nhập" className="material-symbols-outlined animate-spin text-3xl text-muted-foreground">progress_activity</span></div>;
+  }
 
   // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
   // chào mừng của chiến dịch trên máy này → đưa về trang nhận quà trước.

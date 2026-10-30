@@ -2,14 +2,20 @@ import { useState } from "react";
 import { OTPInput, REGEXP_ONLY_DIGITS } from "input-otp";
 import { sendAdminCode, verifyAdminCode } from "../../services/api/core/authSession";
 
+const EMAIL_KEY = "hugo-admin-email";
+const rememberedEmail = () => { try { return localStorage.getItem(EMAIL_KEY) || ""; } catch { return ""; } };
+
 /**
  * Đăng nhập quản trị — chỉ sống ở /admin. Không mật khẩu: nhập email, nhận mã 6 số
  * gửi về chính email đó. Email không phải tài khoản quản trị thì không nhận được mã
  * (máy chủ vẫn trả "đã gửi" để không lộ ai là admin).
+ *
+ * Tự động hết mức: nhớ email lần trước, ô mã nhận gợi ý "Từ Mail" của iOS/Android
+ * (autocomplete one-time-code, tiêu đề thư có sẵn mã), dán hay điền đủ 6 số là tự vào.
  */
 export default function AdminLogin({ onSuccess }) {
   const [step, setStep] = useState("email"); // email | code
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(rememberedEmail);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,6 +38,7 @@ export default function AdminLogin({ onSuccess }) {
     const { session, error: err } = await verifyAdminCode(email, value);
     setBusy(false);
     if (!session) { setError(err); setCode(""); return; }
+    try { localStorage.setItem(EMAIL_KEY, email.trim().toLowerCase()); } catch { /* storage bị chặn */ }
     onSuccess();
   };
 
@@ -46,9 +53,9 @@ export default function AdminLogin({ onSuccess }) {
 
         {step === "email" ? (
           <form onSubmit={sendCode} className="mt-6 space-y-3">
-            <input className={field} type="email" autoComplete="email" inputMode="email" placeholder="Email quản trị" aria-label="Email quản trị" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            <input className={field} type="email" autoComplete="email" inputMode="email" placeholder="Email quản trị" aria-label="Email quản trị" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus={!email} />
             {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-            <button disabled={busy} className={primary}>{busy ? "Đang gửi…" : "Gửi mã đăng nhập"}</button>
+            <button disabled={busy} autoFocus={Boolean(email)} className={primary}>{busy ? "Đang gửi…" : "Gửi mã đăng nhập"}</button>
             <p className="text-center text-xs text-muted-foreground">Mã 6 số gửi về email này, dùng trong 5 phút.</p>
           </form>
         ) : (

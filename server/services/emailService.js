@@ -263,7 +263,7 @@ export const sendMagicLinkOtp = async (to, code, purpose = 'login') => {
       ? 'Hugo Studio đang kiểm tra định kỳ xem hòm thư này có đúng là của bạn không. Nhập mã dưới đây vào ứng dụng để hoàn tất.'
       : 'Bạn vừa yêu cầu đăng nhập bằng mã dùng một lần. Nhập mã dưới đây vào ứng dụng.'}</p>
       <p style="margin:20px 0;text-align:center;"><span style="display:inline-block;padding:14px 26px;border-radius:12px;background:#f1f6ff;border:1px solid #cfe0ff;font-family:Menlo,Consolas,monospace;font-size:30px;font-weight:800;letter-spacing:6px;color:#0b1220;">${e(code)}</span></p>
-      <p style="margin:0;font-size:13px;color:#5f6368;">Mã có hiệu lực <b>10 phút</b> và chỉ dùng được <b>1 lần</b>. Nếu bạn không yêu cầu mã này, hãy bỏ qua thư — tài khoản của bạn vẫn an toàn.</p>`,
+      <p style="margin:0;font-size:13px;color:#5f6368;">Mã có hiệu lực <b>${purpose === 'admin' ? 5 : 10} phút</b> và chỉ dùng được <b>1 lần</b>. Nếu bạn không yêu cầu mã này, hãy bỏ qua thư — tài khoản của bạn vẫn an toàn.</p>`,
     reason: 'Bạn nhận thư này vì có yêu cầu mã xác thực cho tài khoản Hugo Studio dùng địa chỉ email này.',
   });
   return sendCustomEmail(to, subject, html);

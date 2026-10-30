@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { detectInstallTarget } from "../../config/platform";
 import { usePWA } from "../../hooks/usePWA";
+import { prepareInstallHandoff, withHandoff } from "../../utils/appHandoff";
 
 // Video hướng dẫn có ba bản (render từ artifacts/pwa-install-guide/source).
 // Chữ Nôm dùng bản Việt; ngôn ngữ khác chưa có bản riêng thì xem bản Anh.
@@ -265,12 +266,15 @@ export default function MobileInstallGate({
   const t = COPY[lang];
   const { canInstall, install } = usePWA();
   const [copied, setCopied] = useState(false);
+  // Đã đăng nhập thì app sắp cài (và link chép sang Safari) mang sẵn phiên theo.
+  const [handoff, setHandoff] = useState("");
+  useEffect(() => { prepareInstallHandoff().then(setHandoff); }, []);
   const steps = stepKeys(target).map((key) => t.steps[key]);
   const device = target.iOS ? "iPhone & iPad" : "Android";
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.origin + copyPath);
+      await navigator.clipboard.writeText(window.location.origin + withHandoff(copyPath, handoff));
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {

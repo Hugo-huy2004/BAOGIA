@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/client";
-import { emailOTPClient, adminClient } from "better-auth/client/plugins";
+import { emailOTPClient, adminClient, oneTimeTokenClient } from "better-auth/client/plugins";
 import { passkeyClient } from "@better-auth/passkey/client";
 import { API_BASE } from "../config/apiBase";
 
@@ -16,7 +16,7 @@ const base = { baseURL: api.origin, fetchOptions: { credentials: "include", cust
 export const memberAuthClient = createAuthClient({
   ...base,
   basePath: `${api.pathname.replace(/\/$/, "")}/auth`,
-  plugins: [emailOTPClient(), passkeyClient()],
+  plugins: [passkeyClient(), oneTimeTokenClient()],
 });
 
 export const adminAuthClient = createAuthClient({

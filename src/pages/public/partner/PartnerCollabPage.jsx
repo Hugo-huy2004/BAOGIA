@@ -269,7 +269,9 @@ export default function PartnerCollabPage() {
   useCampaignMeta(campaign, copy, canonical, baseUrl);
 
   const [reduced] = useState(prefersReducedMotion);
-  // Điện thoại phải nhận quà trong app đã cài (PWA); máy tính dùng trình duyệt.
+  // Điện thoại: đăng nhập + nhận quà ngay trên web trước, cài app là "còn một
+  // bước nữa" ở màn chào mừng (phiên theo sang app, xem utils/appHandoff.js).
+  // Trước đây bắt cài app trước tiên — đa số người bỏ đi ngay lần ghé đầu.
   const isPWA = useStandalone();
   const [isMobile] = useState(() => detectInstallTarget().isMobile);
   const mustInstall = isMobile && !isPWA && !IS_NATIVE;
@@ -492,14 +494,7 @@ export default function PartnerCollabPage() {
                   )}
                 </div>
               )}
-              {mustInstall ? (
-                <div className="collab-claim__session">
-                  <button type="button" className="collab-btn collab-btn--glow" onClick={() => setShowInstall(true)}>
-                    {ui.installCta}<span className="material-symbols-outlined" aria-hidden="true">install_mobile</span>
-                  </button>
-                  <p className="collab-note collab-note--small">{ui.installNote}</p>
-                </div>
-              ) : stage === "claiming" ? (
+              {stage === "claiming" ? (
                 <p className="collab-note"><span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span> {ui.claiming}</p>
               ) : session ? (
                 <div className="collab-claim__session">
@@ -531,10 +526,10 @@ export default function PartnerCollabPage() {
 
       {pickerOpen && <LangPicker suggested={suggested} onChoose={chooseLang} />}
 
-      {/* ── Điện thoại: hướng dẫn cài app (video + từng bước), bắt buộc ──── */}
+      {/* ── Điện thoại: bước cuối — cài app (video + từng bước), phiên theo sang ── */}
       {showInstall && mustInstall && (
         <div className="collab-install" role="dialog" aria-modal="true">
-          <MobileInstallGate title={ui.installTitle} lede={ui.installLede} copyPath="/" allowBypass={false} onClose={() => setShowInstall(false)} />
+          <MobileInstallGate title={ui.installTitle} lede={ui.installLede} copyPath="/member/today" allowBypass={false} onClose={() => setShowInstall(false)} />
         </div>
       )}
 
@@ -590,9 +585,15 @@ export default function PartnerCollabPage() {
                   <button type="button" className="collab-btn" onClick={startTour}>
                     <span className="material-symbols-outlined" aria-hidden="true">explore</span>{ui.startTour}
                   </button>
-                  <Link id="collab-enter" className="collab-btn collab-btn--glow" to="/member/today">
-                    {ui.enterPortal}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                  </Link>
+                  {mustInstall ? (
+                    <button id="collab-enter" type="button" className="collab-btn collab-btn--glow" onClick={() => setShowInstall(true)}>
+                      {ui.installCta}<span className="material-symbols-outlined" aria-hidden="true">install_mobile</span>
+                    </button>
+                  ) : (
+                    <Link id="collab-enter" className="collab-btn collab-btn--glow" to="/member/today">
+                      {ui.enterPortal}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                    </Link>
+                  )}
                 </div>
               </motion.section>
 

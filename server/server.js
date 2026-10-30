@@ -34,6 +34,7 @@ import {
 import { setupWebSocketServers } from './services/websocketServer.js';
 import { toNodeHandler } from 'better-auth/node';
 import { memberAuth, adminAuth } from './auth/betterAuth.js';
+import { PWA_MANIFEST } from '../shared/pwaManifest.js';
 
 dotenv.config();
 
@@ -82,6 +83,18 @@ let adminHandler;
 const withIp = (req) => { req.headers['x-hugo-client-ip'] = req.ip || ''; return req; };
 app.all('/api/auth/*', (req, res) => (memberHandler ||= toNodeHandler(memberAuth()))(withIp(req), res));
 app.all('/api/admin-auth/*', (req, res) => (adminHandler ||= toNodeHandler(adminAuth()))(withIp(req), res));
+
+// Manifest PWA mang mã chuyển phiên trong start_url: app iOS vừa cài mở ra là đã
+// đăng nhập (src/utils/appHandoff.js). Chỉ chép mã vào URL, không đọc phiên nào.
+app.get('/api/pwa-manifest', (req, res) => {
+  const handoff = /^[A-Za-z0-9_-]{16,64}$/.test(String(req.query.handoff || '')) ? req.query.handoff : '';
+  res.set('Cache-Control', 'no-store').type('application/manifest+json').json({
+    ...PWA_MANIFEST,
+    start_url: handoff ? `/member/today?source=pwa&handoff=${handoff}` : PWA_MANIFEST.start_url,
+    icons: PWA_MANIFEST.icons.map((icon) => ({ ...icon, src: `/${icon.src}` })),
+    shortcuts: PWA_MANIFEST.shortcuts.map((s) => ({ ...s, icons: s.icons.map((icon) => ({ ...icon, src: `/${icon.src}` })) })),
+  });
+});
 
 // Body 10mb chỉ cho những route thật sự nhận ảnh base64 (ảnh quảng cáo, ảnh
 // sản phẩm, selfie kháng nghị, avatar trong hồ sơ, admin). Mọi route khác 1mb:

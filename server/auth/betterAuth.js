@@ -20,7 +20,7 @@ import mongoose from 'mongoose';
 import { betterAuth, APIError } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { fromNodeHeaders } from 'better-auth/node';
-import { admin, bearer, emailOTP } from 'better-auth/plugins';
+import { admin, bearer, emailOTP, oneTimeToken } from 'better-auth/plugins';
 import { createAccessControl } from 'better-auth/plugins/access';
 import { defaultStatements, adminAc } from 'better-auth/plugins/admin/access';
 import { passkey } from '@better-auth/passkey';
@@ -41,8 +41,8 @@ const trustedOrigins = (request) => {
   return local ? [...allowedOrigins, origin] : allowedOrigins;
 };
 
-const sendOtp = async ({ email, otp }) => {
-  const sent = await sendMagicLinkOtp(email, otp);
+const sendOtp = async ({ email, otp }, purpose) => {
+  const sent = await sendMagicLinkOtp(email, otp, purpose);
   // Gửi hỏng thì nói thật — "đã gửi" là bắt người dùng chờ một mã không bao giờ tới.
   if (!sent?.success) throw new APIError('BAD_GATEWAY', { message: 'Chưa gửi được email chứa mã. Vui lòng thử lại sau.' });
 };
@@ -54,7 +54,17 @@ const shared = (db, client) => ({
   database: mongodbAdapter(db, { client, transaction: false }),
   trustedOrigins,
   session: { expiresIn: 14 * DAY, updateAge: DAY, cookieCache: { enabled: true, maxAge: 5 * 60 } },
-  rateLimit: { enabled: true, window: 60, max: 30, storage: 'memory' },
+  // Chống dội thư / dò mã: đường gửi mã và đổi mã lấy phiên chặt hơn hẳn mức chung.
+  // ponytail: đếm trong RAM theo IP (free tier, một process); chuyển storage 'database' nếu chạy nhiều instance.
+  rateLimit: {
+    enabled: true, window: 60, max: 30, storage: 'memory',
+    customRules: {
+      '/email-otp/send-verification-otp': { window: 300, max: 3 },
+      '/sign-in/email-otp': { window: 300, max: 6 },
+      '/one-time-token/verify': { window: 300, max: 6 },
+      '/one-time-token/generate': { window: 300, max: 10 },
+    },
+  },
   advanced: {
     // server.js chép req.ip (IP thật, utils/clientIp.js) vào header này trước khi gọi Better Auth.
     ipAddress: { ipAddressHeaders: ['x-hugo-client-ip'] },
@@ -111,8 +121,9 @@ const buildMemberAuth = (base) => betterAuth({
     },
   },
   account: { accountLinking: { enabled: true, trustedProviders: ['google', 'email-otp'] } },
+  // Không có emailOTP cho thành viên: giao diện chỉ dùng Google + passkey, để endpoint
+  // gửi mã mở ra là cho người lạ dội thư vào email bất kỳ (và đốt quota email miễn phí).
   plugins: [
-    emailOTP({ sendVerificationOTP: sendOtp, otpLength: 6, expiresIn: 600, allowedAttempts: 5 }),
     passkey({
       rpID: process.env.PASSKEY_RP_ID || (isProd ? 'hugowishpax.studio' : 'localhost'),
       rpName: 'Hugo Studio',
@@ -120,6 +131,9 @@ const buildMemberAuth = (base) => betterAuth({
     }),
     // App Capacitor không gửi được cookie khác origin: nhận phiên qua Bearer.
     bearer(),
+    // Chuyển phiên từ Safari sang app vừa cài (iOS tách kho cookie): mã dùng một lần,
+    // lưu dạng băm, sống 30 phút — đủ để xem video hướng dẫn và cài xong.
+    oneTimeToken({ expiresIn: 30, storeToken: 'hashed' }),
   ],
   databaseHooks: {
     user: { create: { after: (user) => createBio(user).catch((e) => console.error('[auth] tạo Bio:', e.message)) } },
@@ -145,7 +159,7 @@ const buildAdminAuth = (base) => betterAuth({
   verification: { modelName: 'admin_verification' },
   plugins: [
     // Chỉ tài khoản owner đã tạo mới nhận được mã — không ai tự đăng ký làm admin.
-    emailOTP({ sendVerificationOTP: sendOtp, otpLength: 6, expiresIn: 300, allowedAttempts: 5, disableSignUp: true }),
+    emailOTP({ sendVerificationOTP: (data) => sendOtp(data, 'admin'), otpLength: 6, expiresIn: 300, allowedAttempts: 5, disableSignUp: true }),
     admin({ ac, roles: adminRoles, defaultRole: 'viewer', adminRoles: ['owner'] }),
     bearer(),
   ],
