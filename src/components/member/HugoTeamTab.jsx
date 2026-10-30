@@ -112,7 +112,7 @@ function TeamShell({ onBack, children }) {
   );
 }
 
-function CodingStageDashboard({ onBack, reload, bio, onBioUpdate }) {
+function CodingStageDashboard({ reload, bio, onBioUpdate }) {
   const [selectedStep, setSelectedStep] = useState(null);
   // Cùng một nguồn với ứng dụng Coding: số step đã xong ở đây = ở Coding.
   const hub = (
@@ -123,7 +123,21 @@ function CodingStageDashboard({ onBack, reload, bio, onBioUpdate }) {
   // Đang học một step: trình phát chiếm trọn màn, KHÔNG nằm trong TeamShell —
   // nếu không, Sheet quy chế và nút của khung sẽ đè lên bài học.
   if (selectedStep) return hub;
-  return <TeamShell onBack={onBack}>{hub}</TeamShell>;
+  // Bản đồ tràn trọn màn, không khung app: nền trên/dưới cùng màu cỏ của bản
+  // đồ để không lộ viền. Lối ra là nút X chung của MemberUtilitiesTab — phần đệm
+  // trên chừa chỗ cho nút đó. Đệm dưới bù margin âm của .cmap (viết cho AppFrame).
+  return (
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden overscroll-contain"
+      style={{
+        background: "linear-gradient(#9be15d 50%, #58c13d 50%)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 60px)",
+        paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
+      }}
+    >
+      {hub}
+    </div>
+  );
 }
 
 function StageCard({ title, eyebrow, children }) {
@@ -228,7 +242,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
   if (startError) return <TeamShell onBack={onBack}><p className="py-16 text-center text-sm text-destructive">{startError}</p></TeamShell>;
   // Học xong mới nhận lời mời; chấp nhận xong mới vào Mentor/Team.
   if (me?.role === "mentor") return <MentorDashboard onBack={onBack} />;
-  if (me?.assessmentStage === "coding") return <CodingStageDashboard onBack={onBack} reload={loadMe} bio={bio} onBioUpdate={onBioUpdate} />;
+  if (me?.assessmentStage === "coding") return <CodingStageDashboard reload={loadMe} bio={bio} onBioUpdate={onBioUpdate} />;
   if (me?.assessmentStage === "passed") return <TeamInvitation me={me} onBack={onBack} reload={loadMe} />;
   if (me?.assessmentStage === "mentor") return <TeamShell onBack={onBack}><MentorMonthDashboard me={me} /></TeamShell>;
   if (me?.assessmentStage === "team") return <TeamShell onBack={onBack}><TeamDashboard me={me} /></TeamShell>;
