@@ -415,11 +415,15 @@ function AppContent() {
                 <AdminProjectDetailPage />
               </AdminProtectedRoute>
             } />
-            <Route path="/admin/*" element={
-              <AdminProtectedRoute>
-                <AdminPanel />
-              </AdminProtectedRoute>
-            } />
+            {/* Khai báo riêng: không có dòng này thì `/:tool/:page/:sub` bên dưới thắng
+                `/admin/*` với `/admin/data/bios` (3 đoạn) và đẩy về trang chủ. */}
+            {["/admin/data/*", "/admin/*"].map((path) => (
+              <Route key={path} path={path} element={
+                <AdminProtectedRoute>
+                  <AdminPanel />
+                </AdminProtectedRoute>
+              } />
+            ))}
             <Route path="/support-request" element={<SupportRequestPage />} />
             
             {/* Dynamic Public Utility Route */}

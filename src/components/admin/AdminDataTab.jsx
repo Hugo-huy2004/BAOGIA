@@ -29,10 +29,28 @@ const theme = {
   components: { ...defaultTheme.components, MuiButton: { defaultProps: { disableElevation: true } } },
 };
 
+// Tên cột tiếng Việt; trường chưa có ở đây thì hiện tên gốc.
+const LABELS = {
+  email: "Email", displayName: "Tên", fullName: "Họ tên", name: "Tên", phone: "Điện thoại", status: "Trạng thái",
+  createdAt: "Tạo lúc", updatedAt: "Cập nhật", expiresAt: "Hết hạn", trialExpiresAt: "Hết dùng thử", joyBalance: "Số dư JOY",
+  isEduVerified: "Đã xác minh HS-SV", starVip: "VIP", isJoyWalletFrozen: "Khoá ví", profilePublic: "Hồ sơ công khai", headline: "Giới thiệu ngắn",
+  issue: "Nội dung", adminReply: "Trả lời của admin", resolvedAt: "Xử lý lúc", contacted: "Đã liên hệ", notes: "Ghi chú", message: "Lời nhắn",
+  projectType: "Loại dự án", budget: "Ngân sách", timeline: "Thời hạn", voucherCode: "Mã ưu đãi", projectId: "Mã dự án", market: "Thị trường",
+  adminNote: "Ghi chú admin", duration: "Thời lượng", durationUnit: "Đơn vị", giftCode: "Mã quà", color: "Màu", description: "Mô tả",
+  priceJoy: "Giá JOY", category: "Danh mục", stock: "Tồn kho", active: "Đang bán", imageUrl: "Ảnh", productType: "Loại", productName: "Sản phẩm",
+  purchaseCode: "Mã mua", code: "Mã", discountType: "Kiểu giảm", discountValue: "Mức giảm", maxUses: "Lượt tối đa", usedCount: "Đã dùng",
+  minOrderJoy: "Đơn tối thiểu", amount: "Số JOY", redeemed: "Đã đổi", redeemedBy: "Người đổi", redeemedAt: "Đổi lúc", balanceAfter: "Số dư sau",
+  source: "Nguồn", refId: "Mã tham chiếu", title: "Tiêu đề", type: "Loại", stageId: "Chặng", pinned: "Ghim", url: "Liên kết", body: "Nội dung",
+  year: "Năm", views: "Lượt xem", authorEmail: "Người đăng", text: "Nội dung", likeCount: "Thích", replyCount: "Trả lời",
+  subjectType: "Đối tượng", reasonCode: "Lý do", permanent: "Vĩnh viễn", lockCount: "Số lần khoá", caseId: "Mã vụ việc", severity: "Mức độ",
+  action: "Hành động", path: "Đường dẫn", level: "Mức", stack: "Chi tiết lỗi", adminUsername: "Admin", targetEmail: "Tác động lên", details: "Chi tiết",
+};
+const label = (name) => LABELS[name] || name;
+
 const LONG = new Set(["description", "body", "adminReply", "notes", "adminNote", "issue", "message", "text", "stack"]);
 
 const Field = ({ f }) => {
-  const props = { source: f.name, label: f.name };
+  const props = { source: f.name, label: label(f.name) };
   if (f.type === "number") return <NumberField {...props} />;
   if (f.type === "bool") return <BooleanField {...props} />;
   if (f.type === "date") return <DateField {...props} showTime locales="vi-VN" />;
@@ -41,7 +59,7 @@ const Field = ({ f }) => {
 };
 
 const Input = ({ f }) => {
-  const props = { source: f.name, label: f.name, fullWidth: true };
+  const props = { source: f.name, label: label(f.name), fullWidth: true };
   if (f.options) return <SelectInput {...props} choices={f.options.map((id) => ({ id, name: id }))} emptyText="—" />;
   if (f.type === "number") return <NumberInput {...props} />;
   if (f.type === "bool") return <BooleanInput {...props} />;
@@ -49,7 +67,7 @@ const Input = ({ f }) => {
   return <TextInput {...props} multiline={LONG.has(f.name)} minRows={LONG.has(f.name) ? 3 : undefined} />;
 };
 
-const ReadOnly = ({ fields }) => fields.map((f) => <Labeled key={f.name} label={f.name} fullWidth><Field f={f} /></Labeled>);
+const ReadOnly = ({ fields }) => fields.map((f) => <Labeled key={f.name} label={label(f.name)} fullWidth><Field f={f} /></Labeled>);
 
 const views = (r) => {
   const can = (op) => r.ops.includes(op);
@@ -57,7 +75,7 @@ const views = (r) => {
     <List perPage={25} sort={{ field: "id", order: "DESC" }} filters={[<SearchInput key="q" source="q" alwaysOn />]}
       actions={<TopToolbar>{can("c") && <CreateButton />}</TopToolbar>}>
       <Datagrid rowClick={can("u") ? "edit" : "show"} bulkActionButtons={can("d") ? <BulkDeleteButton mutationMode="pessimistic" /> : false}>
-        {r.list.map((f) => <Field key={f.name} f={f} />)}
+        {r.list.map((f) => <Field key={f.name} source={f.name} label={label(f.name)} sortable={f.type !== "json"} f={f} />)}
       </Datagrid>
     </List>
   );
@@ -71,7 +89,7 @@ const views = (r) => {
     list,
     show: () => (
       <Show actions={<TopToolbar>{can("u") && <EditButton />}{can("d") && <DeleteButton mutationMode="pessimistic" />}</TopToolbar>}>
-        <SimpleShowLayout>{[...r.list, ...r.show, ...r.edit].filter((f, i, a) => a.findIndex((x) => x.name === f.name) === i).map((f) => <Field key={f.name} f={f} />)}</SimpleShowLayout>
+        <SimpleShowLayout>{[...r.list, ...r.show, ...r.edit].filter((f, i, a) => a.findIndex((x) => x.name === f.name) === i).map((f) => <Field key={f.name} source={f.name} label={label(f.name)} f={f} />)}</SimpleShowLayout>
       </Show>
     ),
     edit: can("u") ? () => (
@@ -123,6 +141,7 @@ export default function AdminDataTab() {
   if (!resources) return <p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>;
   if (!resources.length) return <p className="p-10 text-center text-sm text-muted-foreground">Vai trò của bạn chưa được xem bảng dữ liệu nào.</p>;
 
+  // App.jsx khai báo riêng route /admin/data/* để đường dẫn bên trong react-admin tính từ đây.
   return (
     <Admin basename={BASE} dataProvider={dataProvider} i18nProvider={i18nProvider} theme={theme} layout={Layout} disableTelemetry>
       {resources.map((r) => <Resource key={r.id} name={r.id} options={{ label: r.label }} {...views(r)} />)}

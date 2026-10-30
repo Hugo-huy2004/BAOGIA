@@ -117,7 +117,6 @@ export default function AdminPanel() {
     queue: 0
   });
 
-  const [loading, setLoading] = useState(false);
 
   // Crisis Alerts
   const [crisisAlerts, setCrisisAlerts] = useState([]);
@@ -331,7 +330,6 @@ export default function AdminPanel() {
 
   // Fetch Users
   const handleRefreshUsers = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await userApi.getBios({
         search: searchQuery,
@@ -355,7 +353,6 @@ export default function AdminPanel() {
     } catch (e) {
       console.error("Error fetching users:", e);
     } finally {
-      setLoading(false);
     }
   }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit]);
 
@@ -485,11 +482,8 @@ export default function AdminPanel() {
       case "dashboard":
         return (
           <AdminDashboard
-            stats={userStats}
-            totalProjects={counts.totalProjects}
-            totalPackages={counts.packages}
-            openTickets={counts.openTickets}
-            loading={loading}
+            permissions={adminSession.permissions}
+            onNavigate={setActiveTab}
             crisisAlerts={crisisAlerts}
             onResolveCrisisAlert={handleResolveCrisisAlert}
           />

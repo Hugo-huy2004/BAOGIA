@@ -456,7 +456,7 @@ function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
   // These authenticated authoring routes legitimately carry runnable examples.
   // Continue scanning their path/query and object keys, but do not mistake an
   // educational <script> snippet for an exploit sent to the application.
-  const bodyAllowsCode = /^\/api\/(?:coder-lessons|admin\/interpret-command)(?:\/|$)/.test(pathOnly);
+  const bodyAllowsCode = /^\/api\/coder-lessons(?:\/|$)/.test(pathOnly);
   const stringsToScan = bodyAllowsCode ? { query } : { body, query };
   const joined = `${pathOnly}\n${collectStrings(stringsToScan).join('\n')}`;
   for (const [ruleId, pattern] of REQUEST_RULES) {

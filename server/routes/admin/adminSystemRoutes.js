@@ -5,9 +5,9 @@ import { requireAdmin } from '../../middleware/authMiddleware.js';
 import path from 'path';
 import mongoose from 'mongoose';
 import Bio from '../../models/Bio.js';
-import { getQuotaStatus, generate } from '../../services/aiGateway.js';
+import { getQuotaStatus } from '../../services/aiGateway.js';
 import ErrorLog from '../../models/ErrorLog.js';
-import { getDirSize, localFallbackInterpret, logAdminAuditAction, __dirname } from './adminShared.js';
+import { getDirSize, logAdminAuditAction, __dirname } from './adminShared.js';
 
 const router = express.Router();
 
@@ -96,91 +96,6 @@ router.get('/system-overview', requireAdmin, async (req, res) => {
   }
 });
 
-// POST /admin/interpret-command (admin) - Sử dụng AI để hiểu câu lệnh tự nhiên của Admin
-router.post('/interpret-command', requireAdmin, async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: 'Nội dung câu lệnh trống' });
-    }
-
-    // Try local rule engine first to get instantaneous response (0ms) and save API quota
-    const localResult = localFallbackInterpret(text);
-    if (localResult && localResult.intent !== 'unknown') {
-      return res.json(localResult);
-    }
-
-    const systemInstruction = `You are a command parser AI for the Hugo Studio Admin Panel.
-Given a natural language input or command from the administrator, analyze their intent and extract the relevant arguments.
-Analyze the input text to map it to one of these intents:
-- "create-joy-voucher": to create a JOY gift card. Examples: "tạo voucher 1000", "tạo mã joy card 500".
-- "send-joy-direct": to send/award JOY points directly to a user's account by email. Examples: "gửi 500 joy trực tiếp đến phucphgcs230327@fpt.edu.vn", "gửi trực tiếp 2000 joy cho test@gmail.com".
-- "create-payment": to generate a PayOS checkout link. Examples: "tạo link thanh toán 50k", "tạo mã qr thanh toán 100000 cho phucphgcs230327@fpt.edu.vn", "tạo yêu cầu chuyển khoản đến phucphgcs230327@fpt.edu.vn 50k".
-- "create-package-template": to create a new service package template. Examples: "tạo gói dịch vụ VIP 30 ngày", "tạo gói mới Sinh Viên 12 tháng".
-- "send-package-user": to assign/send a service package to a user's Bio. Examples: "gửi gói VIP 30 ngày cho phucphgcs230327@fpt.edu.vn", "giao gói Premium 12 tháng đến test@gmail.com".
-- "delete-user": to delete a member profile. Examples: "xóa tài khoản phucphgcs230327@fpt.edu.vn", "xóa user phucphgcs230327@fpt.edu.vn".
-- "delete-package-template": to delete a service package template. Examples: "xóa gói dịch vụ VIP", "xóa gói VIP".
-- "delete-voucher": to delete a JOY voucher card. Examples: "xóa voucher BDAY-07-XYZ", "hủy voucher JOY-XYZ".
-- "delete-user-package": to remove an assigned package from a user. Examples: "xóa gói của user phucphgcs230327@fpt.edu.vn", "xóa gói VIP khỏi test@gmail.com".
-- "stats": to view system stats. Examples: "xem thông số", "stats", "thống kê hệ thống".
-- "users": to list or search users. Examples: "danh sách user", "tìm thành viên alice", "users".
-- "lock": to lock a member. Examples: "khóa tài khoản member@test.com", "lock phucphgcs230327@fpt.edu.vn".
-- "unlock": to unlock a member. Examples: "mở khóa tài khoản member@test.com", "unlock phucphgcs230327@fpt.edu.vn".
-- "clean-logs": to clear server-cached errors. Examples: "clean logs", "dọn dẹp logs", "xóa log sự cố".
-- "clear": to clear the terminal screen. Examples: "clear", "xóa màn hình".
-- "help": to view help. Examples: "help", "trợ giúp", "hướng dẫn".
-
-Return ONLY a valid JSON object matching the following structure (no markdown formatting, no code block tick marks):
-{
-  "intent": "create-joy-voucher" | "send-joy-direct" | "create-payment" | "create-package-template" | "send-package-user" | "delete-user" | "delete-package-template" | "delete-voucher" | "delete-user-package" | "stats" | "users" | "lock" | "unlock" | "bot" | "clean-logs" | "clear" | "help" | "unknown",
-  "amount": number, // (optional) extracted amount, value, or duration (in days or months) as integer. If "50k", convert to 50000. If "12 tháng", convert to 12. If "30 ngày", convert to 30.
-  "durationUnit": "days" | "months", // (optional) unit for package duration (default "days" if "ngày", "months" if "tháng")
-  "recipient": "string", // (optional) email, phone, slug or "All". Extract email address or phone or slug.
-  "reason": "string", // (optional) note, reason, or message for payment/voucher
-  "botState": "on" | "off", // (optional) state for bot
-  "query": "string" // (optional) search query, package name, or code to delete
-}
-
-Be smart:
-- For input "/create-joy-voucher1000/for-phucphgcs230327@fpt.edu.vn", intent is "create-joy-voucher", amount is 1000, recipient is "phucphgcs230327@fpt.edu.vn", reason is "Tạo cho phucphgcs230327@fpt.edu.vn".
-- For input "tạo voucher 1000", amount is 1000.
-- For input "gửi 500 joy trực tiếp đến phucphgcs230327@fpt.edu.vn", intent is "send-joy-direct", amount is 500, recipient is "phucphgcs230327@fpt.edu.vn".
-- For input "tạo gói dịch vụ VIP 30 ngày", intent is "create-package-template", query is "VIP", amount is 30, durationUnit is "days".
-- For input "gửi gói VIP 30 ngày cho phucphgcs230327@fpt.edu.vn", intent is "send-package-user", query is "VIP", amount is 30, recipient is "phucphgcs230327@fpt.edu.vn".
-- For input "xóa tài khoản test@gmail.com", intent is "delete-user", recipient is "test@gmail.com".
-- If you cannot recognize the intent, return "intent": "unknown".`;
-
-    let responseText;
-    try {
-      responseText = await generate(text, {
-        systemInstruction,
-        generationConfig: {
-          responseMimeType: 'application/json'
-        }
-      });
-    } catch (aiErr) {
-      console.warn('[AI CLI] Gemini call failed, falling back to local regex parser:', aiErr.message);
-    }
-
-    if (!responseText) {
-      // If AI fails and we haven't already returned the local result, return it now
-      console.log('[AI CLI Fallback] Result:', localResult);
-      return res.json(localResult);
-    }
-
-    const parsed = JSON.parse(responseText.trim());
-    res.json(parsed);
-  } catch (error) {
-    console.error('Interpret command error:', error);
-    try {
-      const fallbackResult = localFallbackInterpret(req.body.text);
-      console.log('[AI CLI Fallback after catch] Result:', fallbackResult);
-      return res.json(fallbackResult);
-    } catch {
-      res.status(500).json({ error: error.message });
-    }
-  }
-});
 
 // GET /admin/iot/devices (admin) - Danh sách thiết bị IoT
 router.get('/iot/devices', requireAdmin, async (req, res) => {
@@ -206,6 +121,14 @@ router.post('/iot/toggle', requireAdmin, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// GET /admin/brief — bản tin một màn bằng câu thường (services/adminBrief.js).
+router.get('/brief', requireAdmin, async (req, res, next) => {
+  try {
+    const { buildAdminBrief } = await import('../../services/adminBrief.js');
+    res.json(await buildAdminBrief());
+  } catch (err) { next(err); }
 });
 
 // GET /admin/queue — mọi việc đang chờ người duyệt, toàn hệ thống.
