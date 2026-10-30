@@ -523,12 +523,10 @@ export async function handlePendingInput(chatId, text) {
     }
     const [subject, ...rest] = String(text).split('\n');
     const body = rest.join('\n').trim() || subject;
-    const { sendCustomEmail } = await import('./emailService.js');
-    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0f172a;">`
-      + `<p>Chào ${bio.displayName || 'bạn'},</p>`
-      + `<p style="white-space:pre-wrap;">${body.replace(/</g, '&lt;')}</p>`
-      + `<p style="color:#64748b;font-size:12px;">— Hugo Studio</p></div>`;
-    const sent = await sendCustomEmail(bio.email, subject.slice(0, 120), html).catch((e) => ({ error: e.message }));
+    const { sendAdminLetter, escapeHtml } = await import('./emailService.js');
+    const html = `<p style="margin:0;">Kính gửi ${escapeHtml(bio.displayName || 'bạn')},</p>`
+      + `<p style="white-space:pre-wrap;">${escapeHtml(body)}</p>`;
+    const sent = await sendAdminLetter(bio.email, subject.slice(0, 120), html).catch((e) => ({ error: e.message }));
     await AdminAuditLog.create({
       adminId: 'TELEGRAM_BOT_ADMIN', adminUsername: 'SuperAdmin_Telegram',
       action: 'telegram_send_email', targetEmail: bio.email, details: { subject: subject.slice(0, 120) },

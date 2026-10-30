@@ -5,7 +5,7 @@ import SecurityBlock from '../models/SecurityBlock.js';
 import SupportTicket from '../models/SupportTicket.js';
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
-import { sendCustomEmail } from './emailService.js';
+import { escapeHtml, sendAdminLetter } from './emailService.js';
 
 /**
  * Service trung tâm cho "Bộ Não Máy Tính Admin" (Executive Autonomous Computer Brain)
@@ -182,8 +182,8 @@ Hãy soạn một email HTML hoàn chỉnh, đẹp mắt theo chủ đề và ch
 - Tiêu đề mong muốn: "${subject}"
 - Yêu cầu/Chỉ thị nội dung: "${instructions}"
 
-Email cần có cấu trúc HTML chuẩn inline CSS (font Arial, tông màu dark/slate thanh lịch, có nút bấm call-to-action nếu phù hợp, và chữ ký từ ${fromName}).
-Chỉ trả về nội dung HTML chính giữa cặp thẻ <div>...</div>. Không đính kèm markdown codeblock.
+Chỉ viết PHẦN THÂN thư bằng HTML đơn giản (<p>, <ul>, <b>), nền sáng, KHÔNG tự thêm logo, đầu thư, lời ký hay chân thư — hệ thống tự bọc khung thư chính thức có logo, lời ký và quy định.
+Không đính kèm markdown codeblock.
 `;
 
     let htmlContent = await generate(prompt, {
@@ -192,21 +192,13 @@ Chỉ trả về nội dung HTML chính giữa cặp thẻ <div>...</div>. Khôn
     });
 
     if (!htmlContent) {
-      htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0f172a; color: #f8fafc; border-radius: 16px;">
-          <h2 style="color: #38bdf8;">Thông báo từ ${fromName}</h2>
-          <p>Chào ${displayName},</p>
-          <p>${instructions}</p>
-          <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0;">
-          <p style="color: #94a3b8; font-size: 12px;">Trân trọng,<br>${fromName}</p>
-        </div>
-      `;
+      htmlContent = `<p style="margin:0;">Kính gửi ${escapeHtml(displayName)},</p><p style="white-space:pre-wrap;">${escapeHtml(instructions)}</p>`;
     } else {
       // Clean up markdown block tags if AI accidentally added them
       htmlContent = htmlContent.replace(/```html/g, '').replace(/```/g, '').trim();
     }
 
-    const emailResult = await sendCustomEmail(toEmail, subject, htmlContent);
+    const emailResult = await sendAdminLetter(toEmail, subject, htmlContent, { team: fromName });
 
     return {
       success: emailResult.success,

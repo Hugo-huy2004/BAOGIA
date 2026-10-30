@@ -188,7 +188,7 @@ function TeamView() {
         <div className="ht-admin-members">
           <aside className="ht-admin-roster">
             <div className="ht-admin-filters"><label><span className="material-symbols-outlined">search</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên, email hoặc team" /></label><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="all">Mọi giai đoạn</option><option value="coding">Đang học</option><option value="passed">Đã mời</option><option value="mentor">Mentor</option><option value="team">Team</option><option value="official">Chính thức</option><option value="rejected">Đình chỉ</option></select></div>
-            <div className="ht-admin-roster-list">{filtered.map((dev) => <button type="button" key={dev.email} onClick={() => setSelected(dev.email)} className={selected === dev.email ? "is-active" : ""}><span className="ht-admin-avatar">{dev.name?.[0]?.toUpperCase() || "?"}</span><span className="min-w-0"><b>{dev.name}</b><small>{dev.email}</small><em>{dev.assessmentStage || dev.status}{dev.teamId ? ` · ${dev.teamId}` : ""}</em></span>{(dev.unreadMessages || dev.submittedTasks || dev.pendingLogs) ? <i /> : null}</button>)}{!filtered.length && <p className="ht-admin-no-result">Không có hồ sơ phù hợp.</p>}</div>
+            <div className="ht-admin-roster-list">{filtered.map((dev) => <button type="button" key={dev.email} onClick={() => setSelected(dev.email)} className={selected === dev.email ? "is-active" : ""}><span className="ht-admin-avatar">{dev.name?.[0]?.toUpperCase() || "?"}</span><span className="min-w-0"><b>{dev.name}</b><small>{dev.email}</small><em className={dev.role === "mentor" ? "is-mentor" : ""}>{dev.role === "mentor" ? "Mentor" : dev.assessmentStage || dev.status}{dev.teamId ? ` · ${dev.teamId}` : ""}</em></span>{(dev.unreadMessages || dev.submittedTasks || dev.pendingLogs) ? <i /> : null}</button>)}{!filtered.length && <p className="ht-admin-no-result">Không có hồ sơ phù hợp.</p>}</div>
           </aside>
           <main>{detail ? <DevDetail dev={detail} refresh={refresh} /> : <div className="ht-admin-empty"><span className="material-symbols-outlined">person_search</span><h3>Chọn một thành viên</h3><p>Chi tiết hồ sơ, quyền, nhiệm vụ, giờ công và trao đổi sẽ hiển thị tại đây.</p></div>}</main>
         </div>
@@ -335,6 +335,17 @@ function DevDetail({ dev, refresh }) {
     }
   };
 
+  const learning = dev.assessmentStage === "coding";
+  const doneSteps = new Set(dev.codingCompletedSteps || []);
+  const toggleStep = async (lessonId) => {
+    const done = !doneSteps.has(lessonId);
+    const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/steps`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ lessonId, done }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return notify.error(data.error || "Không thể cập nhật step");
+    notify.success(done ? `Đã hoàn tất ${lessonId}` : `Đã bỏ hoàn tất ${lessonId}`);
+    refresh();
+  };
+
   const removeTeam = async () => {
     const ok = await notify.confirm({ title: `Xoá ${dev.name} khỏi team?`, message: "Hồ sơ HugoTeam vẫn được giữ lại, chỉ xoá phân công team hiện tại.", danger: true });
     if (!ok) return;
@@ -352,8 +363,8 @@ function DevDetail({ dev, refresh }) {
     <div className="ht-admin-profile">
       <div className="ht-admin-profile-head">
         <div>
-          <p>Hồ sơ thành viên</p>
-          <h3>{dev.name}</h3>
+          <p>{dev.role === "mentor" ? "Mentor · thành viên Hugo Studio" : "Hồ sơ thành viên"}</p>
+          <h3>{dev.name}{dev.role === "mentor" && <span className="ht-admin-role-badge"><span className="material-symbols-outlined">supervisor_account</span>Mentor</span>}</h3>
           <span>{dev.email}{dev.school ? ` · ${dev.school}` : ""} · tham gia {fmtDate(dev.approvedAt)}</span>
         </div>
         <div className="ht-admin-hours">
@@ -365,7 +376,7 @@ function DevDetail({ dev, refresh }) {
       <div className="ht-admin-progress-grid">
         <article><span className="material-symbols-outlined">school</span><small>Giai đoạn</small><strong>{dev.assessmentStage === "passed" ? "Đã mời" : dev.assessmentStage === "coding" ? "Đang học" : dev.assessmentStage}</strong><p>Không có bài kiểm tra đầu vào</p></article>
         <article><span className="material-symbols-outlined">code</span><small>Tiến độ Coding (chung)</small><strong>{dev.codingCompletedSteps?.length || 0}/{CODER_TOTAL_STEPS} step</strong><p>{dev.codingDeadline ? `Hạn ${fmtDate(dev.codingDeadline)} · tự đồng bộ Coding` : "Chưa bắt đầu"}</p></article>
-        <article><span className="material-symbols-outlined">supervisor_account</span><small>Mentor</small><strong>{dev.mentor?.name || "Chưa phân"}</strong><p>{dev.mentorEndsAt ? `Kết thúc ${fmtDate(dev.mentorEndsAt)}` : "Chu kỳ 30 ngày"}</p></article>
+        <article><span className="material-symbols-outlined">supervisor_account</span><small>Mentor</small><strong>{learning ? "Sau giai đoạn học" : dev.mentor?.name || "Chưa phân"}</strong><p>{learning ? "Đang học tự cá nhân hoá theo tương tác" : dev.mentorEndsAt ? `Kết thúc ${fmtDate(dev.mentorEndsAt)}` : "Chu kỳ 30 ngày"}</p></article>
         <article><span className="material-symbols-outlined">groups</span><small>Team</small><strong>{dev.teamId || "Chưa có team"}</strong><p>{dev.teamId ? `${dev.teamRole} · ${dev.contributionScore}/100 đóng góp` : "Chờ đủ điều kiện"}</p></article>
       </div>
 
@@ -377,7 +388,16 @@ function DevDetail({ dev, refresh }) {
           <label><span>Team</span><input defaultValue={dev.teamId || ""} onBlur={(event) => { if (event.target.value !== (dev.teamId || "")) update({ teamId: event.target.value }); }} placeholder="Chưa có team" /></label>
           <label><span>Điểm đóng góp</span><input type="number" min="0" max="100" defaultValue={dev.contributionScore || 0} onBlur={(event) => update({ contributionScore: event.target.value })} /></label>
         </div>
-        <div className="ht-admin-mentor-form"><input value={mentorName} onChange={(event) => setMentorName(event.target.value)} placeholder="Tên Mentor" /><input value={mentorEmail} onChange={(event) => setMentorEmail(event.target.value)} placeholder="Email Mentor" type="email" /><button type="button" onClick={() => postAction("mentor", "Đã phân công Mentor")}>Phân Mentor</button></div>
+        {learning && (
+          <div className="ht-admin-command-bar" aria-label="Hoàn tất step">
+            {Array.from({ length: CODER_TOTAL_STEPS }, (_, index) => `step${index + 1}`).map((id, index) => (
+              <button key={id} type="button" className={doneSteps.has(id) ? "is-success" : ""} onClick={() => toggleStep(id)} title={doneSteps.has(id) ? "Bấm để bỏ hoàn tất" : "Bấm để cho hoàn tất"}>
+                <span className="material-symbols-outlined">{doneSteps.has(id) ? "check_circle" : "radio_button_unchecked"}</span>Step {index + 1}
+              </button>
+            ))}
+          </div>
+        )}
+        {!learning && <div className="ht-admin-mentor-form"><input value={mentorName} onChange={(event) => setMentorName(event.target.value)} placeholder="Tên Mentor" /><input value={mentorEmail} onChange={(event) => setMentorEmail(event.target.value)} placeholder="Email Mentor" type="email" /><button type="button" onClick={() => postAction("mentor", "Đã phân công Mentor")}>Phân Mentor</button></div>}
         <div className="ht-admin-command-bar">
           {dev.assessmentStage === "team" && <button type="button" className="is-success" onClick={() => postAction("officialize", "Đã công nhận thành viên chính thức", { title: `Công nhận ${dev.name}?`, message: "Hệ thống sẽ tặng 10.000 JOY và 365 ngày duy trì tài khoản." })}><span className="material-symbols-outlined">verified</span>Công nhận chính thức</button>}
           <button type="button" onClick={() => postAction("reset-assessment", "Đã đặt lại toàn bộ lộ trình", { title: "Đặt lại toàn bộ lộ trình?", message: "Tiến độ học, Mentor, team và điểm đóng góp sẽ bị xoá.", danger: true })}><span className="material-symbols-outlined">restart_alt</span>Reset lộ trình</button>

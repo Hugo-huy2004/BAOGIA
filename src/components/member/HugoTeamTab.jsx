@@ -9,7 +9,6 @@ import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage, languageCode } from "../../i18n/languages";
 import { canTranslate, guessLanguage, translateText } from "../../lib/textTranslator";
 import "../../styles/hugoTeam.css";
-import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../../shared/coderProgression";
 
 const HugoCoderHub = lazy(() => import("./hugoCoder/HugoCoderHub"));
 
@@ -116,8 +115,15 @@ function TeamShell({ onBack, children }) {
 function CodingStageDashboard({ onBack, reload, bio, onBioUpdate }) {
   const [selectedStep, setSelectedStep] = useState(null);
   // Cùng một nguồn với ứng dụng Coding: số step đã xong ở đây = ở Coding.
-  const completed = completedCoderSteps(bio?.completedLessons).length;
-  return <TeamShell onBack={onBack}><div className="space-y-5"><StageCard eyebrow="HUGO TEAM · HỌC" title="Học ngay, không cần kiểm tra đầu vào"><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Hugo Team dùng một chương trình duy nhất: {CODER_TOTAL_STEPS} step, 6 chặng và một tiến độ. Bạn có thể bắt đầu từ bài đầu tiên ngay bây giờ.</p><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-emerald-500/10 p-4"><p className="text-2xl font-bold text-emerald-600">{completed}/{CODER_TOTAL_STEPS}</p><p className="text-sm text-muted-foreground">Step đã hoàn tất</p></div><div className="rounded-2xl bg-primary/10 p-4"><p className="text-2xl font-bold text-primary">Lời mời</p><p className="text-sm text-muted-foreground">Hoàn tất lộ trình để được mời tham gia đội ngũ Hugo Team</p></div></div></StageCard><div className="overflow-hidden rounded-3xl border border-border/60 bg-card"><Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải bài học Hugo Team…</div>}><HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={bio?.completedLessons || []} onLessonChange={setSelectedStep} onProgramProgress={reload} /></Suspense></div></div></TeamShell>;
+  const hub = (
+    <Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải bài học Hugo Team…</div>}>
+      <HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={bio?.completedLessons || []} onLessonChange={setSelectedStep} onProgramProgress={reload} />
+    </Suspense>
+  );
+  // Đang học một step: trình phát chiếm trọn màn, KHÔNG nằm trong TeamShell —
+  // nếu không, Sheet quy chế và nút của khung sẽ đè lên bài học.
+  if (selectedStep) return hub;
+  return <TeamShell onBack={onBack}>{hub}</TeamShell>;
 }
 
 function StageCard({ title, eyebrow, children }) {

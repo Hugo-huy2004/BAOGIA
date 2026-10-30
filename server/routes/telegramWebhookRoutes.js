@@ -348,19 +348,16 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
       }
 
       // Đòi giấy tờ: gửi thư cho chính thành viên, Boss không phải tự soạn.
-      const { sendCustomEmail } = await import('../services/emailService.js');
+      const { sendAdminLetter } = await import('../services/emailService.js');
       const html = `
-        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0f172a;">
-          <h2 style="margin-top:0;">Yêu cầu xác minh thông tin tài khoản</h2>
-          <p>Tài khoản <strong>${targetEmail}</strong> đang tạm khoá vì thông tin khai báo không khớp trong đợt kiểm tra định kỳ.</p>
+          <p style="margin-top:0;">Tài khoản <strong>${targetEmail}</strong> đang tạm khoá vì thông tin khai báo không khớp trong đợt kiểm tra định kỳ.</p>
           <p>Để mở khoá, vui lòng trả lời email này kèm:</p>
           <ul>
             <li>Ảnh giấy tờ tuỳ thân có ngày sinh (che số định danh, chỉ để lộ họ tên và ngày sinh);</li>
             <li>Số điện thoại đang dùng, và lý do thông tin trước đó không đúng.</li>
           </ul>
-          <p style="color:#475569;font-size:13px;">Mã hồ sơ: <code>${caseId}</code>. Chúng tôi chỉ dùng giấy tờ để đối chiếu và xoá sau khi xác minh xong.</p>
-        </div>`;
-      await sendCustomEmail(targetEmail, 'Yêu cầu xác minh thông tin tài khoản Hugo Studio', html);
+          <p style="color:#475569;font-size:13px;">Mã hồ sơ: <code>${caseId}</code>. Chúng tôi chỉ dùng giấy tờ để đối chiếu và xoá sau khi xác minh xong.</p>`;
+      await sendAdminLetter(targetEmail, 'Yêu cầu xác minh thông tin tài khoản Hugo Studio', html, { office: 'An ninh tài khoản' });
       await AdminAuditLog.create({
         adminId: 'TELEGRAM_BOT_ADMIN',
         adminUsername: 'SuperAdmin_Telegram',

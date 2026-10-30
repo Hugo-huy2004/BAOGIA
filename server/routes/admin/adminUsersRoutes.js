@@ -345,7 +345,7 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
     const emailPromises = [];
     const pushPromises = [];
 
-    const { sendCustomEmail } = await import('../../services/emailService.js');
+    const { sendAdminLetter } = await import('../../services/emailService.js');
     const InAppNotification = (await import('../../models/InAppNotification.js')).default;
 
     for (const bio of recipients) {
@@ -386,7 +386,7 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
         );
         // Send email through the configured provider.
         pushPromises.push(
-          sendCustomEmail(bio.email, userSubject, userHtml).catch(err => console.error(`Error sending email to ${bio.email}:`, err.message))
+          sendAdminLetter(bio.email, userSubject, userHtml).catch(err => console.error(`Error sending email to ${bio.email}:`, err.message))
         );
       }
     }
@@ -777,7 +777,7 @@ router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
     const { voucherCode, joyReward, message } = req.body;
     const Bio = (await import('../../models/Bio.js')).default;
     const { awardJoy } = await import('../../utils/joyService.js');
-    const { sendCustomEmail } = await import('../../services/emailService.js');
+    const { sendAdminLetter, escapeHtml } = await import('../../services/emailService.js');
 
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
@@ -824,18 +824,12 @@ router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
     const t = translations[lang] || translations.vi;
     const finalSubject = t.subject;
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #0f172a; color: #f8fafc; border-radius: 20px;">
-        <h2 style="color: #fbbf24;">${finalSubject}</h2>
-        <p>${t.greeting}</p>
-        <p>${t.body}</p>
-        ${giftJoy > 0 ? `<div style="padding: 12px 16px; background: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; border-radius: 12px; color: #fbbf24; font-weight: bold; font-size: 16px; margin: 16px 0;">${t.giftText}</div>` : ''}
-        ${message ? `<p style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;"><strong>${t.msgLabel}</strong><br>${message}</p>` : ''}
-        <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0;">
-        <p style="color: #94a3b8; font-size: 12px;">Email này được tự động gửi và dịch theo ngôn ngữ của thành viên (${lang.toUpperCase()}).</p>
-      </div>
-    `;
+        <p style="margin:0;">${escapeHtml(t.greeting)}</p>
+        <p>${escapeHtml(t.body)}</p>
+        ${giftJoy > 0 ? `<p style="margin:16px 0;padding:14px 16px;background:#f1f6ff;border:1px solid #cfe0ff;border-radius:12px;font-size:17px;font-weight:800;color:#0b1220;">${escapeHtml(t.giftText)}</p>` : ''}
+        ${message ? `<p style="padding:14px 16px;background:#f6f7f9;border-radius:10px;"><strong>${escapeHtml(t.msgLabel)}</strong><br>${escapeHtml(message)}</p>` : ''}`;
 
-    const mail = await sendCustomEmail(bio.email, finalSubject, emailHtml);
+    const mail = await sendAdminLetter(bio.email, finalSubject, emailHtml);
 
     logAdminAuditAction(req, 'SEND_VOUCHER', bio._id, bio.email, `Gửi Voucher "${voucherCode || 'GIFT'}" (+${giftJoy} JOY) cho ${bio.displayName} (Tự động dịch: ${lang.toUpperCase()})`);
 
@@ -886,7 +880,7 @@ router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
     }
 
     const Bio = (await import('../../models/Bio.js')).default;
-    const { sendCustomEmail } = await import('../../services/emailService.js');
+    const { sendAdminLetter, escapeHtml } = await import('../../services/emailService.js');
 
     const bio = await Bio.findById(req.params.id).lean();
     if (!bio || !bio.email) {
@@ -894,16 +888,10 @@ router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
     }
 
     const bodyContent = htmlMessage || `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0f172a; color: #f8fafc; border-radius: 16px;">
-        <h2 style="color: #38bdf8;">${subject}</h2>
-        <p>Chào <strong>${bio.displayName || bio.email}</strong>,</p>
-        <p>${instructions || 'Bạn có một thông báo mới từ Quản trị viên Hugo Studio.'}</p>
-        <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0;">
-        <p style="color: #94a3b8; font-size: 12px;">Email này được gửi trực tiếp từ Ban Quản Trị Hugo Studio.</p>
-      </div>
-    `;
+        <p style="margin:0;">Kính gửi <strong>${escapeHtml(bio.displayName || bio.email)}</strong>,</p>
+        <p style="white-space:pre-wrap;">${escapeHtml(instructions || 'Bạn có một thông báo mới từ Ban Quản trị Hugo Studio.')}</p>`;
 
-    const result = await sendCustomEmail(bio.email, subject, bodyContent);
+    const result = await sendAdminLetter(bio.email, subject, bodyContent);
     if (!result.success) {
       return res.status(500).json({ error: result.error || 'Gửi email thất bại' });
     }

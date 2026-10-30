@@ -198,40 +198,6 @@ router.post('/joylater/:caseId', requireAdmin, async (req, res) => {
   }
 });
 
-// Lifecycle marketing chỉ tới thành viên đã opt-in. Admin quản lý lịch chung,
-// xem quy mô audience và có thể chủ động chạy một lượt đã được giới hạn sẵn.
-router.get('/marketing-email', requireAdmin, async (_req, res) => {
-  try {
-    const { getLifecycleEmailStatus } = await import('../../services/lifecycleEmailService.js');
-    return res.json({ success: true, ...(await getLifecycleEmailStatus()) });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-router.patch('/marketing-email', requireAdmin, async (req, res) => {
-  if (typeof req.body?.enabled !== 'boolean') return res.status(400).json({ error: 'enabled must be a boolean' });
-  try {
-    const { setLifecycleEmailEnabled } = await import('../../services/lifecycleEmailService.js');
-    const status = await setLifecycleEmailEnabled(req.body.enabled);
-    await logAdminAuditAction(req, 'MARKETING_EMAIL_TOGGLE', null, '', `Lifecycle email ${req.body.enabled ? 'enabled' : 'disabled'}`);
-    return res.json({ success: true, ...status });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/marketing-email/run', requireAdmin, async (req, res) => {
-  try {
-    const { runLifecycleEmailJob } = await import('../../services/lifecycleEmailService.js');
-    const result = await runLifecycleEmailJob();
-    await logAdminAuditAction(req, 'MARKETING_EMAIL_RUN', null, '', `Lifecycle email: ${result.sent || 0} sent`, result);
-    return res.json({ success: true, ...result });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
 // GET /admin/store/products - Lấy toàn bộ sản phẩm Utility Store cho Admin (kèm sản phẩm ẩn)
 router.get('/store/products', requireAdmin, async (req, res) => {
   try {

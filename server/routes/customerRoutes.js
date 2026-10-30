@@ -6,7 +6,7 @@ import CustomerProject from '../models/CustomerProject.js';
 import { createProject, transitionProject, historyEntry, saveRequirements, toCustomerView } from '../services/projectService.js';
 import { PROJECT_ID_PATTERN } from '../../shared/projectWorkflow.js';
 import CustomerMessage from '../models/CustomerMessage.js';
-import { isEmailDeliverable, sendCustomEmail } from '../services/emailService.js';
+import { isEmailDeliverable, sendAdminLetter } from '../services/emailService.js';
 import crypto from 'crypto';
 import { isValidProjectPackage } from '../../shared/projectPackages.js';
 import { CHECK_ITEMS, generateBacklog } from '../../shared/projectPhases.js';
@@ -493,7 +493,7 @@ router.post('/:id/terminate', requireAdmin, projectAction(async (project, req, a
   let emailSent = false;
   if (isEmailDeliverable() && project.customer?.email) {
     try {
-      await sendCustomEmail(project.customer.email, intl ? `Notice of termination — ${project.projectId}` : `Thông báo chấm dứt hợp đồng — ${project.projectId}`, `<p>${notice.replace(/</g, '&lt;')}</p>`);
+      await sendAdminLetter(project.customer.email, intl ? `Notice of termination — ${project.projectId}` : `Thông báo chấm dứt hợp đồng — ${project.projectId}`, `<p>${notice.replace(/</g, '&lt;')}</p>`, { office: 'Quản lý dự án' });
       emailSent = true;
     } catch (err) { console.error('Termination email failed:', err.message); }
   }

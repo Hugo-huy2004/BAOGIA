@@ -17,7 +17,6 @@ import { originLock } from './middleware/originLock.js';
 import { clientIp } from './utils/clientIp.js';
 import { loadShield, loadShieldStatus } from './middleware/loadShield.js';
 import { mountServices } from './services.manifest.js';
-import { initLifecycleEmailService } from './services/lifecycleEmailService.js';
 import {
   requestThreatGuard,
   safeServerErrors,
@@ -318,9 +317,6 @@ server.listen(PORT, () => {
   // Initialize Duolingo-style smart push (sleep, wellness, streak)
   initSmartNotificationService();
 
-  // Marketing chỉ gửi cho thành viên đã tự opt-in; lịch chạy ở đây để tuân thủ
-  // cùng công tắc RUN_CRON với các tác vụ có tác dụng phụ khác.
-  initLifecycleEmailService();
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();

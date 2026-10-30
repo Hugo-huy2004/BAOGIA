@@ -12,6 +12,9 @@ import {
   sendHugoTeamApproved,
   sendHugoTeamRejected,
   sendCustomEmail,
+  sendAdminLetter,
+  sendHugoTeamStage,
+  brandEmail,
   escapeHtml,
 } from "../services/emailService.js";
 import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../shared/coderProgression.js";
@@ -57,8 +60,14 @@ async function syncTeamCoding(dev) {
   const bio = await Bio.findOne({ $or: [{ email: dev.email }, { contactEmail: dev.email }] }).select("completedLessons hugoCoderExamScores").lean();
   const steps = completedCoderSteps(bio?.completedLessons);
   const scores = Object.fromEntries(steps.filter((id) => bio?.hugoCoderExamScores?.[id]).map((id) => [id, bio.hugoCoderExamScores[id]]));
-  const changed = steps.length !== (dev.codingCompletedSteps || []).length;
+  let changed = steps.length !== (dev.codingCompletedSteps || []).length;
   dev.codingCompletedSteps = steps;
+  // Quy định: Mentor chỉ có SAU giai đoạn học — ai đang học mà còn Mentor thì gỡ.
+  if (dev.assessmentStage === "coding" && dev.mentor?.email) {
+    dev.mentor = { name: "", email: "", assignedAt: null };
+    dev.mentorEndsAt = null;
+    changed = true;
+  }
   dev.codingStepScores = scores;
   const shouldInvite = dev.assessmentStage === "coding" && steps.length >= CODER_TOTAL_STEPS;
   if (shouldInvite) {
@@ -66,11 +75,11 @@ async function syncTeamCoding(dev) {
     dev.teamInvitedAt ||= new Date();
   }
   if (changed || dev.isModified?.("assessmentStage")) await dev.save();
-  if (shouldInvite) notifyByEmail(dev.email, "Mời bạn tham gia Hugo Team", devEmailWrap(`
-    <h2>Chúc mừng ${escapeHtml(dev.name)}!</h2>
-    <p>Bạn đã hoàn tất chương trình học Hugo Team và đã đủ điều kiện nhận lời mời tham gia đội ngũ.</p>
-    <p>Mở <strong>Hugo Team</strong> trong Member Portal để chấp nhận lời mời.</p>
-  `));
+  if (shouldInvite) sendHugoTeamStage(dev.email, 3, {
+    subject: "Mời bạn tham gia Hugo Team",
+    title: `Chúc mừng ${dev.name}, bạn đã hoàn tất chương trình học`,
+    body: "<p style=\"margin:0;\">Bạn đã hoàn tất toàn bộ chương trình Coding và đủ điều kiện nhận lời mời vào đội. Mở <b>Hugo Team</b> trong ứng dụng để chấp nhận lời mời.</p>",
+  }).catch(() => {});
   return dev;
 }
 
@@ -84,12 +93,15 @@ async function resetCodingProgress(email) {
   await bio.save();
 }
 
-const devEmailWrap = (inner) => `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    ${inner}
-    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-    <p style="color: #999; font-size: 12px;">HugoTeam — mở tab Hugo Team trong Member Portal để xem chi tiết.</p>
-  </div>`;
+// Thư công việc của Hugo Team (task, phản hồi) — cùng khung thư chung.
+const devEmailWrap = (inner) => brandEmail({
+  body: inner,
+  eyebrow: "Hugo Team",
+  team: "Hugo Team",
+  office: "Điều phối công việc",
+  cta: { label: "Mở Hugo Team", href: `${(process.env.APP_URL || "https://www.hugowishpax.studio").replace(/\/$/, "")}/member/utilities/team` },
+  reason: "Bạn nhận thư này vì đang tham gia chương trình Hugo Team.",
+});
 
 /* ─────────────────────────── Public ─────────────────────────── */
 
@@ -207,6 +219,11 @@ router.post("/invitation/accept", requireMember, async (req, res) => {
     if (!dev || dev.codingCompletedSteps.length < CODER_TOTAL_STEPS) return res.status(409).json({ error: "Bạn chưa hoàn tất chương trình học." });
     dev.assessmentStage = "mentor";
     await dev.save();
+    sendHugoTeamStage(dev.email, 4, {
+      subject: "Bạn đã chính thức vào giai đoạn Mentor",
+      title: "Lời mời đã được chấp nhận",
+      body: "<p style=\"margin:0;\">Bạn đang chờ phân công Mentor cho chặng đồng hành 30 ngày. Khi có Mentor, bạn sẽ nhận thư kèm tên và cách liên hệ.</p>",
+    }).catch(() => {});
     res.json({ success: true, stage: dev.assessmentStage });
   } catch (error) {
     console.error("POST invitation accept error:", error);
@@ -395,15 +412,31 @@ router.post("/apply", requireAdultMember, upload.single("cv"), async (req, res) 
 
 /* ─────────────────────────── Admin ─────────────────────────── */
 
+// Quy định: Mentor PHẢI là thành viên Hugo Studio (có tài khoản Bio).
+const isStudioMember = async (email) => Boolean(await Bio.exists({ $or: [{ email }, { contactEmail: email }] }));
+const NOT_MEMBER = "Mentor phải là thành viên Hugo Studio — email này chưa có tài khoản thành viên.";
+
+// Cấp quyền Mentor → thư chính thức báo vai trò mới.
+const sendMentorGranted = (dev) => sendAdminLetter(dev.email, "Bạn được cấp quyền Mentor Hugo Team", `<p style="margin:0;">Kính gửi ${escapeHtml(dev.name)},</p><p>Ban điều hành Hugo Team cấp cho bạn vai trò <b>Mentor</b>. Từ nay, khi mở Hugo Team bạn sẽ thấy <b>Bảng điều khiển Mentor</b>: danh sách mentee, nhịp đồng hành và đánh giá đóng góp. Mỗi Mentor đồng hành tối đa 100 thành viên trong một chu kỳ 30 ngày.</p>`, { team: "Hugo Team", office: "Ban điều hành" }).catch(() => {});
+
 router.post("/admin/mentors/:email/toggle", requireAdmin, async (req, res) => {
   try {
     const mentor = await HugoTeamDev.findOne({ email: req.params.email });
     if (!mentor) return res.status(404).json({ error: "Không tìm thấy thành viên" });
+    if (mentor.role !== "mentor" && !(await isStudioMember(mentor.email))) return res.status(409).json({ error: NOT_MEMBER });
     mentor.role = mentor.role === "mentor" ? "member" : "mentor";
     await mentor.save();
+    if (mentor.role === "mentor") sendMentorGranted(mentor);
     res.json({ success: true, role: mentor.role });
   } catch (error) { console.error("POST mentor toggle error:", error); res.status(500).json({ error: "Không thể cập nhật vai trò Mentor" }); }
 });
+
+
+const sendMentorAssigned = (dev) => sendHugoTeamStage(dev.email, 4, {
+  subject: "Bạn đã có Mentor đồng hành",
+  title: `Mentor của bạn: ${dev.mentor.name}`,
+  body: `<p style="margin:0;">Mentor <b>${escapeHtml(dev.mentor.name)}</b> (${escapeHtml(dev.mentor.email)}) sẽ đồng hành cùng bạn tới <b>${new Date(dev.mentorEndsAt).toLocaleDateString("vi-VN")}</b>. Dự án cuối, tiêu chí và cách phối hợp do Mentor giao trong chặng này.</p>`,
+}).catch(() => {});
 
 router.post("/admin/assign-next-mentor", requireAdmin, async (req, res) => {
   try {
@@ -417,9 +450,17 @@ router.post("/admin/assign-next-mentor", requireAdmin, async (req, res) => {
     candidate.mentor = { name: mentor.name, email: mentor.email, assignedAt: new Date() };
     candidate.mentorEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await candidate.save();
+    sendMentorAssigned(candidate);
     res.json({ success: true, candidate: candidate.email, mentor: mentor.email, mentorEndsAt: candidate.mentorEndsAt });
   } catch (error) { console.error("POST assign mentor error:", error); res.status(500).json({ error: "Không thể tự phân công Mentor" }); }
 });
+
+
+const sendTeamAssigned = (dev) => sendHugoTeamStage(dev.email, 5, {
+  subject: "Bạn đã được xếp vào Team",
+  title: `Team ${dev.teamId}`,
+  body: `<p style="margin:0;">Bạn đã hoàn tất chặng Mentor và được xếp vào team <b>${escapeHtml(dev.teamId)}</b>${dev.teamRole === "teamlead" ? " với vai trò <b>Trưởng nhóm</b>" : ""}. Nhiệm vụ, giờ công và đóng góp của cả team được ghi nhận minh bạch trong Hugo Team.</p>`,
+}).catch(() => {});
 
 router.post("/admin/auto-build-teams", requireAdmin, async (req, res) => {
   try {
@@ -433,6 +474,7 @@ router.post("/admin/auto-build-teams", requireAdmin, async (req, res) => {
         member.teamRole = memberIndex === 0 ? "teamlead" : "member";
         member.assessmentStage = "team";
         await member.save();
+        sendTeamAssigned(member);
       }
       teamIds.push({ teamId, count: group.length });
     }
@@ -445,14 +487,16 @@ router.post("/admin/devs/:email/mentor", requireAdmin, async (req, res) => {
     const mentorEmail = String(req.body.mentorEmail || "").trim().toLowerCase();
     const mentorName = String(req.body.mentorName || mentorEmail).trim().slice(0, 120);
     if (!mentorEmail) return res.status(400).json({ error: "Thiếu mentorEmail" });
+    if (!(await HugoTeamDev.exists({ email: mentorEmail, role: "mentor" }))) return res.status(409).json({ error: "Email này chưa được cấp quyền Mentor. Cấp quyền trước (người đó phải là thành viên Hugo Studio)." });
     const activeCount = await HugoTeamDev.countDocuments({ "mentor.email": mentorEmail, mentorEndsAt: { $gt: new Date() } });
     if (activeCount >= 100) return res.status(409).json({ error: "Mentor đã đủ 100 thành viên trong đợt này." });
-    const dev = await HugoTeamDev.findOne({ email: req.params.email, assessmentStage: { $in: ["mentor", "coding"] } });
+    const dev = await HugoTeamDev.findOne({ email: req.params.email, assessmentStage: "mentor" });
     if (!dev) return res.status(404).json({ error: "Ứng viên chưa đủ điều kiện Mentor" });
     dev.mentor = { name: mentorName, email: mentorEmail, assignedAt: new Date() };
     dev.mentorEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     dev.assessmentStage = "mentor";
     await dev.save();
+    sendMentorAssigned(dev);
     res.json({ success: true, mentor: dev.mentor, mentorEndsAt: dev.mentorEndsAt });
   } catch (error) { console.error("POST mentor assignment error:", error); res.status(500).json({ error: "Không thể phân công mentor" }); }
 });
@@ -462,7 +506,14 @@ router.post("/admin/teams/assign", requireAdmin, async (req, res) => {
     const emails = [...new Set((Array.isArray(req.body.emails) ? req.body.emails : []).map((email) => String(email).trim().toLowerCase()).filter(Boolean))];
     const teamId = String(req.body.teamId || `team-${Date.now()}`).trim().slice(0, 80);
     if (!emails.length || emails.length > 10) return res.status(400).json({ error: "Mỗi team cần từ 1 đến 10 thành viên." });
-    const result = await HugoTeamDev.updateMany({ email: { $in: emails }, assessmentStage: "mentor", mentorEndsAt: { $lte: new Date() } }, { $set: { teamId, assessmentStage: "team" } });
+    const eligible = await HugoTeamDev.find({ email: { $in: emails }, assessmentStage: "mentor", mentorEndsAt: { $lte: new Date() } });
+    for (const dev of eligible) {
+      dev.teamId = teamId;
+      dev.assessmentStage = "team";
+      await dev.save();
+      sendTeamAssigned(dev);
+    }
+    const result = { modifiedCount: eligible.length };
     res.json({ success: true, teamId, assigned: result.modifiedCount });
   } catch (error) { console.error("POST team assignment error:", error); res.status(500).json({ error: "Không thể phân bổ team" }); }
 });
@@ -480,6 +531,11 @@ router.post("/admin/devs/:email/officialize", requireAdmin, async (req, res) => 
     dev.approvedAt = dev.approvedAt || new Date();
     dev.rewardMembershipEndsAt = dev.rewardMembershipEndsAt || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
     await dev.save();
+    sendHugoTeamStage(dev.email, 6, {
+      subject: "Bạn là thành viên chính thức của Hugo Team",
+      title: `Chào mừng ${dev.name}, thành viên chính thức`,
+      body: "<p style=\"margin:0;\">Bạn đã đi hết lộ trình Hugo Team. Quà ghi nhận gồm <b>10.000 JOY</b> và <b>365 ngày</b> duy trì tài khoản đã được ghi vào ví.</p>",
+    }).catch(() => {});
     res.json({ success: true, status: dev.status, assessmentStage: dev.assessmentStage });
   } catch (error) { console.error("POST officialize error:", error); res.status(400).json({ error: error.message || "Không thể công nhận thành viên" }); }
 });
@@ -548,11 +604,13 @@ router.post("/admin/mentors", requireAdmin, async (req, res) => {
     const email = String(req.body.email || "").trim().toLowerCase();
     const name = String(req.body.name || "").trim().slice(0, 120);
     if (!email || !name) return res.status(400).json({ error: "Cần email và tên Mentor" });
+    if (!(await isStudioMember(email))) return res.status(409).json({ error: NOT_MEMBER });
     const mentor = await HugoTeamDev.findOneAndUpdate(
       { email },
       { $set: { email, name, status: "approved", role: "mentor", assessmentStage: "official", approvedAt: new Date() }, $setOnInsert: { tasks: [], hourLogs: [], messages: [] } },
       { upsert: true, new: true, runValidators: true }
     );
+    sendMentorGranted(mentor);
     res.json({ success: true, mentor: { email: mentor.email, name: mentor.name, role: mentor.role } });
   } catch (error) { console.error("POST admin mentor error:", error); res.status(500).json({ error: "Không thể thêm Mentor" }); }
 });
@@ -560,6 +618,8 @@ router.post("/admin/mentors", requireAdmin, async (req, res) => {
 router.get("/admin/devs", requireAdmin, async (req, res) => {
   try {
     const devs = await HugoTeamDev.find({}).sort({ updatedAt: -1 });
+    // ponytail: mỗi người đang học một truy vấn Bio — đổi sang 1 truy vấn $in khi danh sách lên hàng trăm.
+    await Promise.all(devs.filter((d) => d.assessmentStage === "coding").map(syncTeamCoding));
     res.json({
       devs: devs.map((d) => ({
         email: d.email,
@@ -597,6 +657,8 @@ router.get("/admin/devs/:email", requireAdmin, async (req, res) => {
   try {
     const dev = await HugoTeamDev.findOne({ email: req.params.email });
     if (!dev) return res.status(404).json({ error: "Dev not found" });
+    // Số step đọc tươi từ Coding, không tin bản chép cũ (chỉ cập nhật khi member mở app).
+    if (dev.assessmentStage === "coding") await syncTeamCoding(dev);
     res.json({
       dev: {
         email: dev.email,
@@ -634,19 +696,47 @@ router.patch("/admin/devs/:email", requireAdmin, async (req, res) => {
   try {
     const dev = await HugoTeamDev.findOne({ email: req.params.email });
     if (!dev) return res.status(404).json({ error: "Không tìm thấy thành viên" });
-    const { name, school, status, role, assessmentStage, teamId, teamRole, contributionScore, mentorEmail, mentorName } = req.body || {};
+    const { name, school, status, role, assessmentStage, teamId, teamRole, contributionScore } = req.body || {};
     if (typeof name === "string" && name.trim()) dev.name = name.trim().slice(0, 120);
     if (typeof school === "string") dev.school = school.slice(0, 200);
     if (["pending", "approved", "rejected"].includes(status)) dev.status = status;
-    if (["member", "mentor"].includes(role)) dev.role = role;
+    if (role === "mentor" && dev.role !== "mentor") {
+      if (!(await isStudioMember(dev.email))) return res.status(409).json({ error: NOT_MEMBER });
+      dev.role = role;
+    } else if (role === "member") dev.role = role;
+    const granted = dev.isModified("role") && dev.role === "mentor";
     if (["none", "in_progress", "passed", "coding", "mentor", "team", "official"].includes(assessmentStage)) dev.assessmentStage = assessmentStage;
     if (typeof teamId === "string") dev.teamId = teamId.slice(0, 80);
     if (["member", "teamlead"].includes(teamRole)) dev.teamRole = teamRole;
     if (Number.isFinite(Number(contributionScore))) dev.contributionScore = Math.max(0, Math.min(100, Math.round(Number(contributionScore))));
-    if (mentorEmail !== undefined) dev.mentor = { email: String(mentorEmail).trim().toLowerCase(), name: String(mentorName || mentorEmail).trim().slice(0, 120), assignedAt: new Date() };
+    if (dev.assessmentStage === "coding") {
+      dev.mentor = { name: "", email: "", assignedAt: null };
+      dev.mentorEndsAt = null;
+    }
+    // Phân Mentor chỉ qua POST /admin/devs/:email/mentor — nơi kiểm Mentor hợp lệ.
     await dev.save();
+    if (granted) sendMentorGranted(dev);
     res.json({ success: true, dev: { email: dev.email, name: dev.name, status: dev.status, role: dev.role, assessmentStage: dev.assessmentStage, teamId: dev.teamId, teamRole: dev.teamRole, mentor: dev.mentor } });
   } catch (error) { console.error("PATCH admin dev error:", error); res.status(500).json({ error: "Không thể cập nhật thành viên" }); }
+});
+
+// Admin đánh dấu hoàn tất / bỏ hoàn tất bất kỳ step nào. Ghi thẳng vào Coding
+// (bio.completedLessons) — nguồn duy nhất — rồi đồng bộ lại (đủ step thì tự mời).
+router.post("/admin/devs/:email/steps", requireAdmin, async (req, res) => {
+  try {
+    const lessonId = String(req.body?.lessonId || "");
+    if (!completedCoderSteps([lessonId]).length) return res.status(400).json({ error: "Step không hợp lệ" });
+    const dev = await HugoTeamDev.findOne({ email: req.params.email });
+    if (!dev) return res.status(404).json({ error: "Không tìm thấy thành viên" });
+    const bio = await Bio.findOne({ $or: [{ email: dev.email }, { contactEmail: dev.email }] });
+    if (!bio) return res.status(404).json({ error: "Thành viên chưa có hồ sơ Bio" });
+    const done = new Set(bio.completedLessons || []);
+    if (req.body?.done === false) done.delete(lessonId); else done.add(lessonId);
+    bio.completedLessons = [...done];
+    await bio.save();
+    await syncTeamCoding(dev);
+    res.json({ success: true, codingCompletedSteps: dev.codingCompletedSteps, assessmentStage: dev.assessmentStage });
+  } catch (error) { console.error("POST admin step error:", error); res.status(500).json({ error: "Không thể cập nhật step" }); }
 });
 
 router.post("/admin/devs/:email/remove-team", requireAdmin, async (req, res) => {
@@ -867,16 +957,9 @@ router.post(
           }]
         : null;
 
-      const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #333; line-height: 1.7;">
-          <div style="white-space: pre-wrap;">${body
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-          ${req.file ? `<p style="color:#666;font-size:13px;margin-top:16px;">📎 Văn bản đính kèm: <strong>${req.file.originalname}</strong></p>` : ""}
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 24px 0;">
-          <p style="color: #999; font-size: 12px;">Thư được gửi từ hệ thống HugoTeam — Hugo Studio. Bạn có thể phản hồi trực tiếp email này hoặc trao đổi trên tab Hugo Team trong Member Portal.</p>
-        </div>`;
+      const html = `<div style="white-space:pre-wrap;">${escapeHtml(body)}</div>${req.file ? `<p style="color:#5f6368;font-size:13px;margin-top:16px;">Văn bản đính kèm: <strong>${escapeHtml(req.file.originalname)}</strong></p>` : ""}`;
 
-      const result = await sendCustomEmail(dev.email, subject, html, null, null, attachments);
+      const result = await sendAdminLetter(dev.email, subject, html, { team: "Hugo Team", office: "Ban điều hành", attachments });
       if (!result.success) {
         return res.status(502).json({ error: "Gửi email thất bại: " + (result.error || "unknown") });
       }

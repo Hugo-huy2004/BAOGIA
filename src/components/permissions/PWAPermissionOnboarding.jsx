@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BellRing, Check, ChevronRight, LocateFixed, Mail, MapPin, ShieldCheck, X } from "lucide-react";
+import { BellRing, Check, ChevronRight, LocateFixed, MapPin, ShieldCheck, X } from "lucide-react";
 import { pwaPermissionService } from "../../services/pwaPermissionService";
-import { getMemberToken } from "../../services/api/core/authSession";
 import "../../styles/pwaPermissionOnboarding.css";
 
 const EMPTY_SNAPSHOT = {
@@ -12,48 +11,20 @@ const EMPTY_SNAPSHOT = {
   standalone: false,
 };
 
-const apiBase = import.meta.env.VITE_API_URL || "/api";
-
-// Email cập nhật nằm ở UserProfile.marketing — cùng endpoint với công tắc trong Cài đặt.
-async function marketingRequest(method, body) {
-  const res = await fetch(`${apiBase}/profile/me/marketing`, {
-    method,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${getMemberToken()}` },
-    credentials: "include",
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) throw new Error(`marketing ${method} failed`);
-  return Boolean((await res.json()).enabled);
-}
 
 /**
  * Thông báo ứng dụng là BẮT BUỘC (chở tin bảo mật + biến động JOY): thiếu là tấm
  * này hiện mỗi lần mở portal, không có nút đóng. Bật lần đầu → server gửi push +
- * thư chào mừng (welcomeService).
- *
- * Email ưu đãi thì KHÔNG được ép: NĐ 13/2023 đòi đồng ý tự nguyện, NĐ 91/2020 cấm
- * gửi quảng cáo khi chưa đồng ý. Nên chỉ mời — tối đa EMAIL_ASKS lần, cách nhau
- * EMAIL_ASK_GAP — và luôn đóng được. Vị trí vẫn hỏi một lần như cũ.
+ * thư chào mừng (welcomeService). Email ưu đãi đã bỏ hẳn (30/10/2026) nên không
+ * còn mời nhận email. Vị trí vẫn hỏi một lần như cũ.
  */
-const EMAIL_ASKS = 3;
-const EMAIL_ASK_GAP = 7 * 86_400_000;
 
-function readEmailAsks(key) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) || { count: 0, last: 0 };
-  } catch {
-    return { count: 0, last: 0 };
-  }
-}
 export default function PWAPermissionOnboarding({ email, enabled = true }) {
   const { t } = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
-  const [emailOn, setEmailOn] = useState(null);
-  const emailOnRef = useRef(null);
-  emailOnRef.current = emailOn;
 
   // localStorage, not sessionStorage: every PWA launch is a fresh session, so a
   // session-scoped key re-asked on each open. Đây là cờ ĐÃ HỎI, không phải cờ
@@ -63,12 +34,11 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
     () => `hugo:permission-primer:${String(email || "").toLowerCase()}`,
     [email],
   );
-  const emailAskKey = `hugo:email-offer-asks:${String(email || "").toLowerCase()}`;
 
   const refresh = useCallback(async () => {
     const next = await pwaPermissionService.getSnapshot();
     setSnapshot(next);
-    if (next.complete && emailOnRef.current !== false) setVisible(false);
+    if (next.complete) setVisible(false);
     return next;
   }, []);
 
@@ -77,21 +47,10 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
     let cancelled = false;
     const stopWatching = pwaPermissionService.watch(() => refresh().catch(() => {}));
     const timer = window.setTimeout(async () => {
-      const [next, mail] = await Promise.all([
-        refresh().catch(() => EMPTY_SNAPSHOT),
-        marketingRequest("GET").catch(() => null),
-      ]);
+      const next = await refresh().catch(() => EMPTY_SNAPSHOT);
       if (cancelled) return;
-      setEmailOn(mail);
       const pushMissing = next.push.supported && !next.push.ready;
-      const asks = readEmailAsks(emailAskKey);
-      const offerEmail = mail === false && asks.count < EMAIL_ASKS && Date.now() - asks.last > EMAIL_ASK_GAP;
-      if (offerEmail) {
-        try {
-          localStorage.setItem(emailAskKey, JSON.stringify({ count: asks.count + 1, last: Date.now() }));
-        } catch { /* không lưu được thì lần sau hỏi lại — vẫn có trần ở phía người dùng đóng */ }
-      }
-      if (!pushMissing && !offerEmail && (next.complete || localStorage.getItem(askedKey) === "true")) return;
+      if (!pushMissing && (next.complete || localStorage.getItem(askedKey) === "true")) return;
       // Đánh dấu ngay lúc hiện, không đợi tới lúc bấm nút: người dùng đóng bằng
       // cách nào — nút X, "Để sau", hay tắt app — cũng không bị hỏi lại.
       localStorage.setItem(askedKey, "true");
@@ -106,7 +65,7 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
       window.clearTimeout(timer);
       stopWatching();
     };
-  }, [askedKey, emailAskKey, email, enabled, refresh]);
+  }, [askedKey, email, enabled, refresh]);
 
   // Mở lại theo yêu cầu (hàng "Quyền truy cập" trong Cài đặt) — bỏ qua cờ đã hỏi
   // vì đây là hành động chủ động của người dùng.
@@ -117,7 +76,6 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
       // không phản ứng". Mở thủ công phải luôn hiện để xem/đổi trạng thái quyền.
       setVisible(true);
       pwaPermissionService.getSnapshot().then(setSnapshot).catch(() => {});
-      marketingRequest("GET").then(setEmailOn).catch(() => {});
     };
     window.addEventListener("hugo:show-permission-primer", open);
     return () => window.removeEventListener("hugo:show-permission-primer", open);
@@ -138,18 +96,6 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
     } catch {
       setError(t("memberPortal.permissions.pushError"));
       await refresh();
-    } finally {
-      setBusy("");
-    }
-  };
-
-  const enableEmail = async () => {
-    setBusy("email");
-    setError("");
-    try {
-      setEmailOn(await marketingRequest("PATCH", { enabled: true }));
-    } catch {
-      setError(t("memberPortal.permissions.emailError"));
     } finally {
       setBusy("");
     }
@@ -222,24 +168,6 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
                     : pushBlocked
                       ? t("memberPortal.permissions.viewGuide")
                       : t("memberPortal.permissions.enable")}
-                <ChevronRight aria-hidden="true" />
-              </button>
-            )}
-          </article>
-
-          <article className={emailOn ? "is-ready" : ""}>
-            <div className="pwa-permission-option-icon is-push">
-              <Mail aria-hidden="true" />
-            </div>
-            <div className="pwa-permission-option-copy">
-              <h3>{t("memberPortal.permissions.emailTitle")}</h3>
-              <p>{t("memberPortal.permissions.emailDescription")}</p>
-            </div>
-            {emailOn ? (
-              <span className="pwa-permission-ready"><Check aria-hidden="true" /></span>
-            ) : (
-              <button type="button" onClick={enableEmail} disabled={Boolean(busy)}>
-                {busy === "email" ? t("memberPortal.permissions.enabling") : t("memberPortal.permissions.enable")}
                 <ChevronRight aria-hidden="true" />
               </button>
             )}

@@ -16,7 +16,6 @@ import { useJoy } from "../../lib/joyDisplay";
 import { fetchJoyPerks, fetchChallengeStatus } from "../../services/api/modules/joyApi";
 import { isVoucherActive } from "./joy/voucherStatus";
 import EcoToggle from "../../Save_E/EcoToggle";
-import { getMemberToken } from "../../services/api/core/authSession";
 
 const BiometricLoginCard = React.lazy(() => import("./BiometricLoginCard"));
 const SecurityCenter = React.lazy(() => import("./account/SecurityCenter"));
@@ -24,7 +23,6 @@ const AccountSheet = React.lazy(() => import("./account/AccountSheet"));
 const AccountThemeSheet = React.lazy(() => import("./account/AccountThemeSheet"));
 const PersonalInfoSubTab = React.lazy(() => import("./PersonalInfoSubTab"));
 const MemberDocReader = React.lazy(() => import("./account/MemberDocReader"));
-const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 const SheetFallback = () => {
   const { t } = useTranslation();
@@ -138,8 +136,6 @@ export default function MemberSettingsTab({
   const [activeSheet, setActiveSheet] = useState(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
-  const [marketingEnabled, setMarketingEnabled] = useState(false);
-  const [marketingBusy, setMarketingBusy] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
 
   const joy = useJoy();
@@ -163,17 +159,6 @@ export default function MemberSettingsTab({
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
     setBiometricSupported(typeof window !== "undefined" && typeof window.PublicKeyCredential === "function");
-    const token = getMemberToken();
-    if (!token) return;
-    fetch(`${apiBase}/profile/me/marketing`, {
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: "include",
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setMarketingEnabled(Boolean(data.enabled));
-      })
-      .catch(() => {});
   }, []);
 
   // Chỉ tải lại khi đổi tài khoản. Phụ thuộc cả object `bio` thì mỗi lần hồ sơ
@@ -253,27 +238,6 @@ export default function MemberSettingsTab({
       showToast?.(t("memberPortal.settings.pushErrorToast", nom("Không thể cài đặt thông báo")), "error");
     } finally {
       setPushBusy(false);
-    }
-  };
-
-  const handleToggleMarketing = async () => {
-    setMarketingBusy(true);
-    try {
-      const token = getMemberToken();
-      const next = !marketingEnabled;
-      const res = await fetch(`${apiBase}/profile/me/marketing`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        credentials: "include",
-        body: JSON.stringify({ enabled: next }),
-      });
-      if (!res.ok) throw new Error("marketing preference failed");
-      setMarketingEnabled(next);
-      showToast?.(next ? nom("Đã bật email cập nhật Hugo Studio") : nom("Đã tắt email cập nhật Hugo Studio"), "success");
-    } catch {
-      showToast?.(nom("Không thể cập nhật tùy chọn email"), "error");
-    } finally {
-      setMarketingBusy(false);
     }
   };
 
@@ -439,7 +403,6 @@ export default function MemberSettingsTab({
 
           <Section title={nom("Thông báo")}>
             <Row icon="bell" title={nom("Thông báo ứng dụng")} subtitle={nom("Bảo mật và biến động số dư")} trailing={<ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={nom("Thông báo ứng dụng")} />} />
-            <Row icon="mail" title={nom("Email cập nhật Hugo")} subtitle={nom("Mẹo thành viên và tư vấn website")} trailing={<ToggleSwitch checked={marketingEnabled} onChange={handleToggleMarketing} disabled={marketingBusy} label={nom("Email cập nhật")} />} />
           </Section>
 
           <Section title={nom("Văn bản & quy ước")}>
