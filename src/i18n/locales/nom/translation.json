@@ -1234,15 +1234,12 @@
     "header": {
       "titleCustomer": "管治預案",
       "titleMember": "激活 Student Bio",
-      "titleAdmin": "登入管治",
       "descCustomer": "蹺唯進渡 & 管理役務𧵑貴客",
-      "descMember": "造張 Bio Link 蹺𢰳印個人完全免費",
-      "descAdmin": "追及系統榜調遣𧵑茹發展"
+      "descMember": "造張 Bio Link 蹺𢰳印個人完全免費"
     },
     "tabs": {
       "customer": "會員",
-      "member": "生員 (.edu)",
-      "admin": "管治"
+      "member": "生員 (.edu)"
     },
     "customerForm": {
       "title": "追及管治預案",
@@ -1260,18 +1257,6 @@
       "gisLoading": "當載成分 Google...",
       "reqTitle": "要求 Email 教育 (.edu)",
       "reqDesc": "系統自動檢查吧只執認財款使用 email 教育𧵑場學."
-    },
-    "adminForm": {
-      "title": "登入管治",
-      "desc": "入通信確實茹發展",
-      "remember": "記𢘾登入𨕭設備尼",
-      "https": "同步安全過 HTTPS",
-      "otpBtn": "寄碼 OTP",
-      "otpSending": "當寄碼…",
-      "otpSent": "㐌寄碼.",
-      "usernameLabel": "𠸜登入",
-      "passwordLabel": "密口",
-      "otpDesc": "入𠸜登入吧密口 — 𣛠主𠱊寄碼確明 6 𡨸數, 有效 30 𦀊."
     }
   },
   "customerPortal": {
@@ -2745,10 +2730,7 @@
       },
       "next": "接俗",
       "stepOf": "𨀈 {{current}}/{{total}}",
-      "errors": {
-        "PHONE_TAKEN": "Số điện thoại này đã được dùng cho một tài khoản Hugo Studio khác. Vui lòng nhập số khác.",
-        "PHONE_INVALID": "Số điện thoại không hợp lệ."
-      }
+      "errors": {}
     },
     "birthdaySurprise": {
       "monthTitle": "𣎃生日.",

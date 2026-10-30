@@ -174,7 +174,7 @@ console.log(`🚪 Cổng API: đã mount ${mounted.length} service`);
 // Đứng ngoài bản khai: đây là MỘT handler ở đường tuyệt đối, không phải router
 // gắn theo prefix — không có gì cho nginx định tuyến.
 app.get('/.well-known/oauth-authorization-server', oauthMetadata);
-// Bot Telegram của admin (OTP 2FA + điều khiển từ xa). Gọi tường minh ở đây
+// Bot Telegram của admin (cảnh báo + điều khiển từ xa). Gọi tường minh ở đây
 // thay vì tự khởi động lúc import: import ESM chạy TRƯỚC dotenv.config() nên
 // khi đó process.env.TELEGRAM_BOT_TOKEN còn rỗng và bot im lặng chết.
 // Cũng chỉ MỘT process: hai nơi cùng long-polling thì Telegram trả 409 mỗi

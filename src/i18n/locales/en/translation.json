@@ -1346,15 +1346,12 @@
     "header": {
       "titleCustomer": "Project Management",
       "titleMember": "Activate Student Bio",
-      "titleAdmin": "Admin Login",
       "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descMember": "Create an exclusive Bio Link completely free"
     },
     "tabs": {
       "customer": "Client",
-      "member": "Student (.edu)",
-      "admin": "Admin"
+      "member": "Student (.edu)"
     },
     "customerForm": {
       "title": "Access Project Management",
@@ -1373,18 +1370,6 @@
       "gisLoading": "Loading Google component...",
       "reqTitle": "Educational Email Requirement (.edu)",
       "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
-    },
-    "adminForm": {
-      "title": "Admin Login",
-      "desc": "Enter developer credentials",
-      "remember": "Remember me on this device",
-      "https": "Secure synchronization via HTTPS",
-      "otpBtn": "Send OTP",
-      "otpSending": "Sending code…",
-      "otpSent": "Code sent.",
-      "usernameLabel": "Username",
-      "passwordLabel": "Password",
-      "otpDesc": "Enter your username and password — the server sends a 6-digit verification code, valid for 30 seconds."
     }
   },
   "customerPortal": {

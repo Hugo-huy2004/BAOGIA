@@ -1250,7 +1250,7 @@ router.get('/status', requireAdmin, async (req, res) => {
       success: true,
       configured: false,
       mode: 'off',
-      hint: 'Thiếu TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID trong server/.env — OTP 2FA sẽ không tới được Telegram.',
+      hint: 'Thiếu TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID trong server/.env — cảnh báo sẽ không tới được Telegram.',
     });
   }
   try {
@@ -1278,7 +1278,7 @@ router.get('/status', requireAdmin, async (req, res) => {
 // POST /api/telegram/test — bắn 1 tin thật về máy Boss để biết đường dây còn sống.
 router.post('/test', requireAdmin, async (req, res) => {
   const result = await sendTelegramAlert(
-    `✅ <b>[KIỂM TRA KẾT NỐI]</b>\nAdmin Dashboard vừa gửi thử một tin lúc <b>${new Date().toLocaleString('vi-VN')}</b>.\nBoss đọc được tin này nghĩa là đường gửi OTP 2FA đang thông.`
+    `✅ <b>[KIỂM TRA KẾT NỐI]</b>\nAdmin Dashboard vừa gửi thử một tin lúc <b>${new Date().toLocaleString('vi-VN')}</b>.\nBoss đọc được tin này nghĩa là đường gửi cảnh báo đang thông.`
   );
   res.json({ success: Boolean(result.success && !result.simulated), ...result });
 });
@@ -1300,7 +1300,7 @@ export async function initTelegramBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token || token.includes('YOUR_')) {
     currentMode = 'off';
-    console.warn('⚠️ Telegram bot TẮT: thiếu TELEGRAM_BOT_TOKEN trong server/.env — không nhận lệnh, không gửi được OTP 2FA admin.');
+    console.warn('⚠️ Telegram bot TẮT: thiếu TELEGRAM_BOT_TOKEN trong server/.env — không nhận lệnh, không gửi được cảnh báo.');
     return currentMode;
   }
   if (!process.env.TELEGRAM_CHAT_ID) {
@@ -1349,7 +1349,7 @@ export async function initTelegramBot() {
   }
 
   currentMode = 'send-only';
-  console.log('🤖 Telegram bot: chỉ GỬI (OTP 2FA + cảnh báo). Nhận lệnh tắt ở máy dev — bật bằng TELEGRAM_ENABLE_POLLING=true.');
+  console.log('🤖 Telegram bot: chỉ GỬI cảnh báo. Nhận lệnh tắt ở máy dev — bật bằng TELEGRAM_ENABLE_POLLING=true.');
   return currentMode;
 }
 
@@ -1361,7 +1361,7 @@ let lastPollErrorLog = 0;
 export function startTelegramLongPolling() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token || token.includes('YOUR_')) {
-    console.warn('⚠️ Telegram bot TẮT: thiếu TELEGRAM_BOT_TOKEN trong server/.env — không nhận lệnh, không gửi được OTP 2FA admin.');
+    console.warn('⚠️ Telegram bot TẮT: thiếu TELEGRAM_BOT_TOKEN trong server/.env — không nhận lệnh, không gửi được cảnh báo.');
     return;
   }
   if (isPollingStarted) return;

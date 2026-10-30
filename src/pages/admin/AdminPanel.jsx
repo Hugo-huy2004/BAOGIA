@@ -520,7 +520,7 @@ export default function AdminPanel() {
         return <AdminHugoTeamTab />;
 
       case "projects":
-        return <AdminProjectsTab showNotification={showNotification} />;
+        return <AdminProjectsTab />;
       case "services":
         return <AdminServicesTab triggerConfirm={triggerConfirm} />;
       case "store":

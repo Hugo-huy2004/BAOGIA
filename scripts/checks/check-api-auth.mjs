@@ -98,13 +98,14 @@ const storage = () => {
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
 };
 const local = storage(), session = storage();
-const auth = browserModule('src/services/api/core/authSession.js', ['loginMember', 'loginAdmin', 'getAdminSession'], {
+const auth = browserModule('src/services/api/core/authSession.js', ['loginMember', 'getMemberSession'], {
   localStorage: local, sessionStorage: session, isCrossOriginApi: false, API_BASE: '/api',
   fetch: async () => Response.json({success: true}),
 });
-local.setItem('price-doc-admin-session', JSON.stringify({username: 'old'}));
-await auth.loginAdmin({username: 'new', password: 'example'}, {remember: false});
-assert.equal(auth.getAdminSession().username, 'new', 'sessionStorage login replaces stale persistent login');
+session.setItem('price-doc-member-session', JSON.stringify({email: 'old@example.com'}));
+auth.loginMember({email: 'new@example.com', token: 'secret'});
+assert.equal(auth.getMemberSession().email, 'new@example.com', 'new login replaces a stale session');
+assert.equal(auth.getMemberSession().token, '', 'same-origin web never keeps the token in JS storage');
 
 let currentToken = 'old', adminSession = null, adminCleared = false, pending;
 const win = {
@@ -199,21 +200,17 @@ const plainTab = browserModule('src/config/platform.js', ['isStandalone'], {wind
 mode = 'fullscreen';
 assert.equal(plainTab.isStandalone(), false, 'fullscreen mobile browser is still web');
 
-const {requireMemberSession, requireMember, signMemberToken} = await import('../../server/middleware/authMiddleware.js');
-const {default: SecurityBlock} = await import('../../server/models/SecurityBlock.js');
-const findOne = SecurityBlock.findOne;
-try {
-  SecurityBlock.findOne = () => ({lean: async () => {throw new Error('simulated database outage');}});
-  for (const middleware of [requireMemberSession, requireMember]) {
-    for (const [token, expected] of [[signMemberToken('regression@example.com'), 503], ['broken-token', 401]]) {
-      const res = {status(code) {this.statusCode = code; return this;}, json(body) {this.body = body; return this;}};
-      await middleware({headers: {authorization: `Bearer ${token}`}}, res, () => assert.fail('unverified request passed'));
-      assert.equal(res.statusCode, expected, 'only invalid JWTs return 401; DB failures return 503');
-      assert.equal(res.body.code, expected === 401 ? 'AUTH_SESSION_INVALID' : 'AUTH_UNAVAILABLE');
-      if (expected === 401) assert.equal(res.body.authRole, 'member');
-    }
+const {requireMemberSession, requireMember} = await import('../../server/middleware/authMiddleware.js');
+// Chưa nối DB ở đây: request MANG phiên phải nhận 503 (thử lại), không phải 401
+// (401 làm client xoá phiên). Request không mang phiên thì 401 mà không chạm DB.
+for (const middleware of [requireMemberSession, requireMember]) {
+  for (const [headers, expected] of [[{authorization: 'Bearer some-session-token'}, 503], [{}, 401]]) {
+    const res = {status(code) {this.statusCode = code; return this;}, json(body) {this.body = body; return this;}, setHeader() {}};
+    await middleware({headers, originalUrl: '/api/bios/me'}, res, () => assert.fail('unverified request passed'));
+    assert.equal(res.statusCode, expected, 'only missing/invalid sessions return 401; DB failures return 503');
+    assert.equal(res.body.code, expected === 401 ? 'AUTH_SESSION_INVALID' : 'AUTH_UNAVAILABLE');
   }
-} finally {SecurityBlock.findOne = findOne;}
+}
 console.log('check-api-auth: session races, permission failures, display modes and database outages passed.');
 
 const serverSource = readFileSync(new URL('../../server/server.js', import.meta.url), 'utf8');

@@ -6,7 +6,7 @@ import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
 import { missingProfileFields } from '../utils/profileRequirements.js';
 import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 import { hasAdminPermission, resolveAdminPermissions } from '../../shared/adminAccess.js';
-import { memberAuth, adminAuth, readSession } from '../auth/betterAuth.js';
+import { memberAuth, adminAuth, readSession, carriesSession } from '../auth/betterAuth.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
@@ -71,10 +71,13 @@ const loadAdminClaims = (user, req) => {
 };
 
 /** Admin của request, hoặc null / { forbidden }. */
-const adminFromRequest = async (req) => loadAdminClaims((await readSession(adminAuth(), req))?.user, req);
+const adminFromRequest = async (req) => (carriesSession(req, 'hugo-admin')
+  ? loadAdminClaims((await readSession(adminAuth(), req))?.user, req)
+  : null);
 
 /** Email thành viên của request (đã viết thường), hoặc null. */
 export const memberEmailFromRequest = async (req) => {
+  if (!carriesSession(req, 'hugo')) return null;
   const email = (await readSession(memberAuth(), req))?.user?.email;
   return email ? email.toLowerCase() : null;
 };

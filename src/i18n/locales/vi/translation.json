@@ -1346,15 +1346,12 @@
     "header": {
       "titleCustomer": "Quản trị dự án",
       "titleMember": "Kích Hoạt Student Bio",
-      "titleAdmin": "Đăng Nhập Quản Trị",
       "descCustomer": "Theo dõi tiến độ & quản lý dịch vụ của Quý khách",
-      "descMember": "Tạo trang Bio Link theo dấu ấn cá nhân hoàn toàn miễn phí",
-      "descAdmin": "Truy cập hệ thống bảng điều khiển của nhà phát triển"
+      "descMember": "Tạo trang Bio Link theo dấu ấn cá nhân hoàn toàn miễn phí"
     },
     "tabs": {
       "customer": "Hội Viên",
-      "member": "Sinh Viên (.edu)",
-      "admin": "Quản Trị"
+      "member": "Sinh Viên (.edu)"
     },
     "customerForm": {
       "title": "Truy cập Quản trị dự án",
@@ -1373,18 +1370,6 @@
       "gisLoading": "Đang tải thành phần Google...",
       "reqTitle": "Yêu cầu Email Giáo Dục (.edu)",
       "reqDesc": "Hệ thống tự động kiểm tra và chỉ chấp nhận tài khoản sử dụng email giáo dục của trường học."
-    },
-    "adminForm": {
-      "title": "Đăng nhập Quản trị",
-      "desc": "Nhập thông tin xác thực nhà phát triển",
-      "remember": "Ghi nhớ đăng nhập trên thiết bị này",
-      "https": "Đồng bộ an toàn qua HTTPS",
-      "otpBtn": "Gửi mã OTP",
-      "otpSending": "Đang gửi mã…",
-      "otpSent": "Đã gửi mã.",
-      "usernameLabel": "Tên đăng nhập",
-      "passwordLabel": "Mật khẩu",
-      "otpDesc": "Nhập tên đăng nhập và mật khẩu — máy chủ sẽ gửi mã xác thực 6 chữ số, có hiệu lực trong 30 giây."
     }
   },
   "customerPortal": {

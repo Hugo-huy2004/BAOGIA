@@ -238,7 +238,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meLoaded, me?.assessmentStage]);
 
-  if (!meLoaded || starting) return <TeamShell onBack={onBack}><p className="py-16 text-center text-sm text-muted-foreground">Đang mở bài học Hugo Team…</p></TeamShell>;
+  if (!meLoaded || starting) return <TeamShell onBack={onBack}><p role="status" className="flex flex-col items-center gap-3 py-16 text-center text-sm text-muted-foreground"><span aria-hidden className="material-symbols-outlined animate-spin text-[28px]">progress_activity</span>Đang mở bài học Hugo Team…</p></TeamShell>;
   if (startError) return <TeamShell onBack={onBack}><p className="py-16 text-center text-sm text-destructive">{startError}</p></TeamShell>;
   // Học xong mới nhận lời mời; chấp nhận xong mới vào Mentor/Team.
   if (me?.role === "mentor") return <MentorDashboard onBack={onBack} />;

@@ -10,7 +10,6 @@ const CHECKS = [
   { name: 'check:app-standard', cmd: 'npm', args: ['run', 'check:app-standard'] },
   { name: 'check:gateway', cmd: 'npm', args: ['run', 'check:gateway'] },
   { name: 'check:guards', cmd: 'npm', args: ['run', 'check:guards'] },
-  { name: 'check:admin-auth', cmd: 'npm', args: ['run', 'check:admin-auth'] },
   { name: 'check:api-auth', cmd: 'npm', args: ['run', 'check:api-auth'] },
   { name: 'check:telegram', cmd: 'npm', args: ['run', 'check:telegram'] },
   { name: 'check:money', cmd: 'npm', args: ['run', 'check:money'] },

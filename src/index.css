@@ -1012,9 +1012,6 @@
 /* CSS .apple-account-* chuyển sang ./components/member/apple-account.css —
    đi cùng PersonalInfoSubTab (React.lazy) thay vì nằm trong CSS toàn cục. */
 
-/* CSS .today-* chuyển sang ./components/member/member-today.css — đi cùng
-   MemberTodayTab thay vì nằm trong CSS toàn cục. */
-
 /* CSS của trình đọc bài TODAY chuyển sang ./components/member/today-article.css
    — nó đi cùng TodayArticleReader (React.lazy) nên chỉ tải khi mở bài báo,
    thay vì nằm trong CSS toàn cục mà mọi khách vào /services đều phải tải. */

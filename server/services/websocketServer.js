@@ -25,7 +25,7 @@ const MAX_UPGRADES_PER_MINUTE = 30;
 async function getMemberEmail(request, requestUrl) {
   const token = requestUrl.searchParams.get('token');
   const headers = token ? { ...request.headers, authorization: `Bearer ${token}` } : request.headers;
-  return (await memberEmailFromRequest({ headers })) || '';
+  return (await memberEmailFromRequest({ headers }).catch(() => '')) || '';
 }
 
 function rejectUpgrade(socket, status, message) {

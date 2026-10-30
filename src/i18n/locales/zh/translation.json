@@ -5784,15 +5784,12 @@
     "header": {
       "titleCustomer": "项目管理",
       "titleMember": "激活学生个人简介",
-      "titleAdmin": "管理员登录",
       "descCustomer": "跟踪进度并管理您的服务",
-      "descMember": "创建一个完全免费的专属个人简介链接",
-      "descAdmin": "访问开发者控制台系统"
+      "descMember": "创建一个完全免费的专属个人简介链接"
     },
     "tabs": {
       "customer": "Client",
-      "member": "学生 (.edu)",
-      "admin": "管理员"
+      "member": "学生 (.edu)"
     },
     "customerForm": {
       "title": "管理项目，跟踪进度并与团队沟通。",
@@ -5811,18 +5808,6 @@
       "gisLoading": "加载 Google 组件...",
       "reqTitle": "教育邮箱要求 (.edu)",
       "reqDesc": "系统会自动检查，并仅接受使用学校教育邮箱的账户。"
-    },
-    "adminForm": {
-      "title": "管理员登录",
-      "desc": "输入开发者凭证",
-      "remember": "记住本设备上的登录信息",
-      "https": "通过HTTPS进行安全同步",
-      "otpBtn": "发送验证码",
-      "otpSending": "正在发送…",
-      "otpSent": "验证码已发送。",
-      "usernameLabel": "用户名",
-      "passwordLabel": "密码",
-      "otpDesc": "请输入用户名和密码 — 服务器会发送 6 位验证码，有效期 30 秒。"
     }
   },
   "customerPortal": {

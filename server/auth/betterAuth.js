@@ -161,9 +161,20 @@ const base = () => {
 export const memberAuth = () => (memberInstance ||= buildMemberAuth(base()));
 export const adminAuth = () => (adminInstance ||= buildAdminAuth(base()));
 
-/** Phiên của request (cookie hoặc Bearer). null nếu không có / hết hạn. */
+/**
+ * Phiên của request (cookie hoặc Bearer). null nếu không có / hết hạn.
+ * KHÔNG nuốt lỗi: DB chập chờn phải thành 503, không phải 401 — 401 làm client
+ * xoá phiên, tức là một lần Atlas hắt hơi đăng xuất cả loạt người dùng.
+ */
 export const readSession = (instance, req) =>
-  instance.api.getSession({ headers: fromNodeHeaders(req.headers) }).catch(() => null);
+  instance.api.getSession({ headers: fromNodeHeaders(req.headers) });
+
+/** Request có mang phiên nào không (cookie của hệ `prefix` hoặc Bearer) — khách thì khỏi hỏi DB. */
+export const carriesSession = (req, prefix) => {
+  if (String(req.headers?.authorization || '').startsWith('Bearer ')) return true;
+  const cookie = String(req.headers?.cookie || '');
+  return cookie.includes(`${prefix}.session_token=`);
+};
 
 /** Xoá tài khoản đăng nhập của một thành viên (phiên, liên kết Google, passkey). */
 export async function deleteMemberLogin(email) {
