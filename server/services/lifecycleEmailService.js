@@ -134,7 +134,7 @@ const welcomeCampaign = () => ({ key: 'welcome', subject: 'Chào mừng bạn đ
  * Thư chào mừng tài khoản (welcomeService gọi khi thành viên bật thông báo lần
  * đầu). Là thư hệ thống, không quảng cáo → gửi cả khi chưa nhận email ưu đãi,
  * chân thư nói đúng lý do. Gửi được thì đánh dấu để cron không gửi lại bản
- * chào mừng; SendGrid chưa sẵn sàng thì người đã nhận ưu đãi vẫn được cron gửi bù.
+ * chào mừng; nhà cung cấp email chưa sẵn sàng thì cron vẫn gửi bù sau.
  */
 export async function sendWelcomeEmail(email) {
   const campaign = welcomeCampaign();
@@ -177,7 +177,7 @@ export async function runLifecycleEmailJob(now = new Date()) {
   const config = await lifecycleConfig();
   if (!config.enabled) return { scanned: 0, sent: 0, disabled: true };
   if (!isEmailDeliverable()) {
-    const error = 'SENDGRID_API_KEY chưa hợp lệ; email đang ở chế độ mô phỏng.';
+    const error = 'Resend và SMTP chưa được cấu hình; email đang ở chế độ mô phỏng.';
     await Data.updateOne({ userId: 'default' }, {
       $set: { 'systemSettings.marketingEmail.lastRunAt': now, 'systemSettings.marketingEmail.lastSentCount': 0, 'systemSettings.marketingEmail.lastError': error },
     }, { upsert: true });
@@ -220,7 +220,7 @@ export async function runLifecycleEmailJob(now = new Date()) {
       $set: {
         'systemSettings.marketingEmail.lastRunAt': now,
         'systemSettings.marketingEmail.lastSentCount': sent,
-        'systemSettings.marketingEmail.lastError': simulated ? 'SendGrid không chấp nhận một hoặc nhiều email; không người dùng nào bị đánh dấu đã nhận thư.' : '',
+        'systemSettings.marketingEmail.lastError': simulated ? 'Nhà cung cấp email không chấp nhận một hoặc nhiều thư; không người dùng nào bị đánh dấu đã nhận thư.' : '',
       },
     }, { upsert: true });
   } catch (error) {

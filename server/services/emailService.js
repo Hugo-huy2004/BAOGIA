@@ -1,16 +1,15 @@
-import sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const resendConfigured = () => Boolean(process.env.RESEND_API_KEY?.startsWith('re_'));
+const smtpConfigured = () => Boolean(process.env.EMAIL_SMTP_USER && process.env.EMAIL_SMTP_PASS);
 
-// Email chỉ tới người dùng thật khi SendGrid có key thật; nếu không, sendCustomEmail
-// im lặng "mô phỏng" và trả success. Lớp xác thực tiền phải BIẾT điều này để
-// không bao giờ coi một mã OTP không hề được gửi là đã gửi.
+// Resend là kênh chính; SMTP/Nodemailer là dự phòng.
 export const isEmailDeliverable = () =>
-  Boolean(process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.'));
+  resendConfigured() || smtpConfigured();
 
 /** Chữ người dùng gõ → an toàn để chèn vào HTML email (chặn chèn thẻ/liên kết giả). */
 export const escapeHtml = (value) => String(value ?? '')
@@ -84,44 +83,68 @@ const templates = {
   }),
 };
 
-// MỘT đường gửi thật duy nhất. Mọi hàm gửi bên dưới đều đi qua đây nên luật
-// "mô phỏng khi chưa có khoá / báo lỗi thật khi đã có khoá" chỉ nằm MỘT chỗ.
-//
-// NGHIÊM TRỌNG đã sửa (27/10/2026): trước đây hàm này nuốt MỌI lỗi SendGrid rồi
-// trả { success: true, simulated: true }. Admin bấm gửi, thấy "thành công",
-// nhưng người nhận không bao giờ nhận được — người gửi chưa verify, khoá sai,
-// 401… đều bị giấu. Giờ: CHƯA có khoá thật → mô phỏng (chỉ hợp lệ ở dev); ĐÃ có
-// khoá → lỗi gửi thật phải lộ ra ({ success: false, error }), không báo giả.
+const normalizeAttachments = (attachments = []) => attachments.map((attachment) => ({
+  filename: attachment.filename,
+  content: Buffer.isBuffer(attachment.content)
+    ? attachment.content
+    : Buffer.from(attachment.content || '', 'base64'),
+  contentType: attachment.type || attachment.contentType,
+}));
+
+const sendWithResend = async (message) => {
+  const { data, error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
+    ...message,
+    attachments: message.attachments?.map(({ filename, content }) => ({ filename, content })),
+  });
+  if (error) throw new Error(error.message || 'Resend rejected the email');
+  return data?.id;
+};
+
+const sendWithSmtp = (message) => nodemailer.createTransport({
+  host: process.env.EMAIL_SMTP_HOST || 'smtp.gmail.com',
+  port: Number(process.env.EMAIL_SMTP_PORT || 587),
+  secure: process.env.EMAIL_SMTP_SECURE === 'true' || String(process.env.EMAIL_SMTP_PORT || '587') === '465',
+  auth: { user: process.env.EMAIL_SMTP_USER, pass: process.env.EMAIL_SMTP_PASS },
+}).sendMail(message);
+
+// Một cổng gửi duy nhất: Resend trước, Nodemailer/SMTP fallback.
 export const sendCustomEmail = async (
   to, subject, html, cc = null, fromEmail = null, attachments = null, replyTo = null,
 ) => {
-  const sender = fromEmail || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
-  const msg = { from: sender, to, subject, html };
+  const sender = fromEmail || process.env.EMAIL_FROM || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
+  const msg = { from: sender, to, subject: String(subject).replace(/[\r\n]+/g, ' '), html };
   if (cc) msg.cc = cc;
   if (replyTo) msg.replyTo = replyTo;
-  if (attachments?.length) msg.attachments = attachments;
+  if (attachments?.length) msg.attachments = normalizeAttachments(attachments);
 
   if (!isEmailDeliverable()) {
-    // Mô phỏng chỉ hợp lệ ở dev. Production thiếu khoá thì thư KHÔNG đi —
-    // phải báo thất bại thật, đừng để nơi gọi tưởng đã gửi (mã OTP, voucher…).
     if (process.env.NODE_ENV === 'production') {
-      console.error(`❌ SENDGRID_API_KEY chưa cấu hình — không gửi được tới ${to}`);
-      return { success: false, simulated: true, error: 'SENDGRID_API_KEY chưa cấu hình trên máy chủ.' };
+      return { success: false, simulated: true, error: 'Resend và SMTP chưa được cấu hình.' };
     }
     console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
-    return { success: true, simulated: true, message: `Email đã được mô phỏng gửi tới ${to} (SENDGRID_API_KEY chưa cấu hình).` };
+    return { success: true, simulated: true, message: `Email đã được mô phỏng gửi tới ${to}.` };
   }
 
-  try {
-    await sgMail.send(msg);
-    console.log(`✅ Email sent to ${to}`);
-    return { success: true };
-  } catch (error) {
-    // SendGrid gói chi tiết lỗi (sender chưa verify, 401…) trong response.body.
-    const detail = error.response?.body?.errors?.map((e) => e.message).join('; ') || error.message;
-    console.error(`❌ SendGrid gửi tới ${to} thất bại:`, detail);
-    return { success: false, error: detail };
+  const errors = [];
+  if (resendConfigured()) {
+    try {
+      const id = await sendWithResend(msg);
+      return { success: true, provider: 'resend', id };
+    } catch (error) {
+      errors.push(`Resend: ${error.message}`);
+    }
   }
+  if (smtpConfigured()) {
+    try {
+      const info = await sendWithSmtp(msg);
+      return { success: true, provider: 'smtp', id: info.messageId };
+    } catch (error) {
+      errors.push(`SMTP: ${error.message}`);
+    }
+  }
+  const detail = errors.join('; ') || 'Không có kênh email khả dụng';
+  console.error(`❌ Gửi email tới ${to} thất bại:`, detail);
+  return { success: false, error: detail };
 };
 
 // Email sending functions — tất cả ủy thác cho sendCustomEmail để dùng chung

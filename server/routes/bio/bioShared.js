@@ -75,7 +75,7 @@ export const identityAnswerLimiter = rateLimit({
 
 // Gửi mã xác minh: mỗi lần bấm là một email thật rời máy chủ. Không chặn thì
 // một vòng lặp gọi API biến hòm thư của thành viên thành bãi rác — và đốt sạch
-// hạn mức SendGrid.
+// hạn mức nhà cung cấp email.
 export const identityOtpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 3,

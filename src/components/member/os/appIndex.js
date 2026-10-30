@@ -17,7 +17,6 @@ const APP_LOADERS = {
   handle: () => import("../hugoKit/HugoKitApp"),
   psychology: () => import("../banhocduong/BanhocduongTab"),
   joy_wallet: () => import("../wallet/JoyWalletApp"),
-  study: () => import("../study/StudyWithHugoApp"),
   team: () => import("../HugoTeamTab"),
   arcade: () => import("../arcade/HugoArcadeTab"),
   nom: () => import("../nom/MemberNomTab"),
@@ -29,8 +28,9 @@ const APP_LOADERS = {
 // Id đã nghỉ hưu vẫn mở app kế nhiệm: bookmark và icon đã cài không được hỏng.
 const APP_ALIASES = {
   helpdesk: "handle",
-  ide: "study",
-  hugoso: "study",
+  study: "team",
+  ide: "team",
+  hugoso: "team",
 };
 
 export const resolveAppId = (appId) => APP_ALIASES[appId] || appId;

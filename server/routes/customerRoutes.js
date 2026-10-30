@@ -476,7 +476,7 @@ router.post('/:id/maintenance', requireAdmin, projectAction((project, req, actor
 /**
  * Chấm dứt do khách vi phạm. Điều 428 BLDS: bên chấm dứt phải THÔNG BÁO NGAY cho
  * bên kia — nên thông báo luôn được đăng vào cổng dự án (có dấu thời gian), và
- * gửi thêm email nếu SendGrid đã cấu hình. Trả về kênh nào đã gửi, để admin biết
+ * gửi thêm email nếu nhà cung cấp đã cấu hình. Trả về kênh nào đã gửi, để admin biết
  * có cần báo thêm qua Zalo/email thủ công hay không.
  */
 router.post('/:id/terminate', requireAdmin, projectAction(async (project, req, actorName) => {

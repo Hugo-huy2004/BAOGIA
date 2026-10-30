@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { Check, X } from "lucide-react";
 import { notify } from "../../lib/notify";
 import { API_BASE } from "../../config/apiBase";
+import AdminCoderResourcesTab from "./AdminCoderResourcesTab";
+import AdminCoderSubmissionsTab from "./AdminCoderSubmissionsTab";
+import AdminLearnersTab from "./AdminLearnersTab";
 import "../../styles/adminHugoTeam.css";
 import { CODER_TOTAL_STEPS } from "../../../shared/coderProgression";
 
@@ -30,7 +33,24 @@ function Chip({ meta }) {
 }
 
 export default function AdminHugoTeamTab() {
-  return <TeamView />;
+  const [area, setArea] = useState("team");
+  const areas = [
+    ["team", "Thành viên & Team"],
+    ["learners", "Người học"],
+    ["submissions", "Bài nộp"],
+    ["resources", "Học liệu"],
+  ];
+  return (
+    <div className="space-y-5">
+      <nav className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-2" aria-label="Quản trị Hugo Team">
+        {areas.map(([id, label]) => <button key={id} type="button" onClick={() => setArea(id)} className={`rounded-xl px-4 py-2 text-xs font-bold ${area === id ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>{label}</button>)}
+      </nav>
+      {area === "team" && <TeamView />}
+      {area === "learners" && <AdminLearnersTab />}
+      {area === "submissions" && <AdminCoderSubmissionsTab />}
+      {area === "resources" && <AdminCoderResourcesTab />}
+    </div>
+  );
 }
 
 /* ───────────────────────── Quản lý team ───────────────────────── */
@@ -114,8 +134,8 @@ function TeamView() {
     return matchesQuery && (stage === "all" || dev.assessmentStage === stage || dev.status === stage);
   });
   const pipeline = [
-    ["Đánh giá", devs.filter((dev) => ["none", "in_progress", "passed"].includes(dev.assessmentStage)).length, "psychology"],
-    ["Coding", devs.filter((dev) => dev.assessmentStage === "coding").length, "code"],
+    ["Đang học", devs.filter((dev) => ["none", "in_progress", "coding"].includes(dev.assessmentStage)).length, "school"],
+    ["Đã mời", devs.filter((dev) => dev.assessmentStage === "passed").length, "mark_email_read"],
     ["Mentor", devs.filter((dev) => dev.assessmentStage === "mentor").length, "supervisor_account"],
     ["Team", devs.filter((dev) => dev.assessmentStage === "team").length, "groups"],
     ["Chính thức", devs.filter((dev) => dev.assessmentStage === "official").length, "verified"],
@@ -129,7 +149,7 @@ function TeamView() {
         <div>
           <p className="ht-admin-kicker">HugoTeam Control Center</p>
           <h2>Điều hành toàn bộ hành trình thành viên.</h2>
-          <p>Một nơi để theo dõi đánh giá, Coding, Mentor, team, nhiệm vụ và mọi trạng thái cần xử lý.</p>
+          <p>Một nơi để theo dõi học tập, lời mời, Mentor, team, nhiệm vụ và mọi trạng thái cần xử lý.</p>
         </div>
         <button type="button" onClick={refresh} className="ht-admin-refresh"><span className="material-symbols-outlined">refresh</span>Làm mới</button>
       </header>
@@ -148,7 +168,7 @@ function TeamView() {
       </nav>
 
       {devs.length === 0 ? (
-        <div className="ht-admin-empty"><span className="material-symbols-outlined">group_off</span><h3>Chưa có hồ sơ HugoTeam</h3><p>Hồ sơ sẽ xuất hiện tại đây ngay khi thành viên bắt đầu bài đánh giá.</p></div>
+        <div className="ht-admin-empty"><span className="material-symbols-outlined">group_off</span><h3>Chưa có hồ sơ Hugo Team</h3><p>Hồ sơ sẽ xuất hiện ngay khi thành viên mở bài học đầu tiên.</p></div>
       ) : section === "overview" ? (
         <div className="ht-admin-overview">
           <section className="ht-admin-panel ht-admin-panel-wide">
@@ -167,7 +187,7 @@ function TeamView() {
       ) : section === "members" ? (
         <div className="ht-admin-members">
           <aside className="ht-admin-roster">
-            <div className="ht-admin-filters"><label><span className="material-symbols-outlined">search</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên, email hoặc team" /></label><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="all">Mọi giai đoạn</option><option value="none">Chưa đánh giá</option><option value="coding">Coding</option><option value="mentor">Mentor</option><option value="team">Team</option><option value="official">Chính thức</option><option value="rejected">Đình chỉ</option></select></div>
+            <div className="ht-admin-filters"><label><span className="material-symbols-outlined">search</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tìm tên, email hoặc team" /></label><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="all">Mọi giai đoạn</option><option value="coding">Đang học</option><option value="passed">Đã mời</option><option value="mentor">Mentor</option><option value="team">Team</option><option value="official">Chính thức</option><option value="rejected">Đình chỉ</option></select></div>
             <div className="ht-admin-roster-list">{filtered.map((dev) => <button type="button" key={dev.email} onClick={() => setSelected(dev.email)} className={selected === dev.email ? "is-active" : ""}><span className="ht-admin-avatar">{dev.name?.[0]?.toUpperCase() || "?"}</span><span className="min-w-0"><b>{dev.name}</b><small>{dev.email}</small><em>{dev.assessmentStage || dev.status}{dev.teamId ? ` · ${dev.teamId}` : ""}</em></span>{(dev.unreadMessages || dev.submittedTasks || dev.pendingLogs) ? <i /> : null}</button>)}{!filtered.length && <p className="ht-admin-no-result">Không có hồ sơ phù hợp.</p>}</div>
           </aside>
           <main>{detail ? <DevDetail dev={detail} refresh={refresh} /> : <div className="ht-admin-empty"><span className="material-symbols-outlined">person_search</span><h3>Chọn một thành viên</h3><p>Chi tiết hồ sơ, quyền, nhiệm vụ, giờ công và trao đổi sẽ hiển thị tại đây.</p></div>}</main>
@@ -289,7 +309,6 @@ function DevDetail({ dev, refresh }) {
 
   const pendingLogs = dev.hourLogs.filter((l) => l.status === "pending").length;
   const unread = dev.messages.filter((m) => m.from === "dev" && !m.readByAdmin).length;
-  const scores = dev.latestAssessment;
 
   const update = async (body) => {
     const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) });
@@ -344,7 +363,7 @@ function DevDetail({ dev, refresh }) {
       </div>
 
       <div className="ht-admin-progress-grid">
-        <article><span className="material-symbols-outlined">psychology</span><small>Đánh giá</small><strong>{dev.assessmentAttempts}/3 lượt</strong><p>{scores ? `${scores.logic}% Logic · ${scores.creativity}% Sáng tạo · ${scores.eq}% EQ` : "Chưa có kết quả"}</p></article>
+        <article><span className="material-symbols-outlined">school</span><small>Giai đoạn</small><strong>{dev.assessmentStage === "passed" ? "Đã mời" : dev.assessmentStage === "coding" ? "Đang học" : dev.assessmentStage}</strong><p>Không có bài kiểm tra đầu vào</p></article>
         <article><span className="material-symbols-outlined">code</span><small>Tiến độ Coding (chung)</small><strong>{dev.codingCompletedSteps?.length || 0}/{CODER_TOTAL_STEPS} step</strong><p>{dev.codingDeadline ? `Hạn ${fmtDate(dev.codingDeadline)} · tự đồng bộ Coding` : "Chưa bắt đầu"}</p></article>
         <article><span className="material-symbols-outlined">supervisor_account</span><small>Mentor</small><strong>{dev.mentor?.name || "Chưa phân"}</strong><p>{dev.mentorEndsAt ? `Kết thúc ${fmtDate(dev.mentorEndsAt)}` : "Chu kỳ 30 ngày"}</p></article>
         <article><span className="material-symbols-outlined">groups</span><small>Team</small><strong>{dev.teamId || "Chưa có team"}</strong><p>{dev.teamId ? `${dev.teamRole} · ${dev.contributionScore}/100 đóng góp` : "Chờ đủ điều kiện"}</p></article>
@@ -354,14 +373,14 @@ function DevDetail({ dev, refresh }) {
         <div className="ht-admin-panel-head"><div><p>Quyền quản trị</p><h3>Trạng thái và phân công</h3></div><span className={`ht-admin-status ${dev.status === "approved" ? "is-approved" : ""}`}>{dev.status === "approved" ? "Đang hoạt động" : dev.status === "rejected" ? "Đã đình chỉ" : "Chờ xử lý"}</span></div>
         <div className="ht-admin-control-grid">
           <label><span>Trạng thái tài khoản</span><select value={dev.status} onChange={(event) => update({ status: event.target.value })}><option value="pending">Chờ xử lý</option><option value="approved">Đang hoạt động</option><option value="rejected">Đình chỉ</option></select></label>
-          <label><span>Giai đoạn</span><select value={dev.assessmentStage || "none"} onChange={(event) => update({ assessmentStage: event.target.value })}><option value="none">Đánh giá</option><option value="coding">Coding</option><option value="mentor">Mentor 30 ngày</option><option value="team">Team</option><option value="official">Chính thức</option></select></label>
+          <label><span>Giai đoạn</span><select value={dev.assessmentStage || "none"} onChange={(event) => update({ assessmentStage: event.target.value })}><option value="coding">Đang học</option><option value="passed">Đã mời vào Team</option><option value="mentor">Mentor 30 ngày</option><option value="team">Team</option><option value="official">Chính thức</option></select></label>
           <label><span>Team</span><input defaultValue={dev.teamId || ""} onBlur={(event) => { if (event.target.value !== (dev.teamId || "")) update({ teamId: event.target.value }); }} placeholder="Chưa có team" /></label>
           <label><span>Điểm đóng góp</span><input type="number" min="0" max="100" defaultValue={dev.contributionScore || 0} onBlur={(event) => update({ contributionScore: event.target.value })} /></label>
         </div>
         <div className="ht-admin-mentor-form"><input value={mentorName} onChange={(event) => setMentorName(event.target.value)} placeholder="Tên Mentor" /><input value={mentorEmail} onChange={(event) => setMentorEmail(event.target.value)} placeholder="Email Mentor" type="email" /><button type="button" onClick={() => postAction("mentor", "Đã phân công Mentor")}>Phân Mentor</button></div>
         <div className="ht-admin-command-bar">
           {dev.assessmentStage === "team" && <button type="button" className="is-success" onClick={() => postAction("officialize", "Đã công nhận thành viên chính thức", { title: `Công nhận ${dev.name}?`, message: "Hệ thống sẽ tặng 10.000 JOY và 365 ngày duy trì tài khoản." })}><span className="material-symbols-outlined">verified</span>Công nhận chính thức</button>}
-          <button type="button" onClick={() => postAction("reset-assessment", "Đã đặt lại toàn bộ lộ trình", { title: "Đặt lại toàn bộ lộ trình?", message: "Kết quả test, Coding, Mentor, team và điểm đóng góp sẽ bị xoá.", danger: true })}><span className="material-symbols-outlined">restart_alt</span>Reset đánh giá</button>
+          <button type="button" onClick={() => postAction("reset-assessment", "Đã đặt lại toàn bộ lộ trình", { title: "Đặt lại toàn bộ lộ trình?", message: "Tiến độ học, Mentor, team và điểm đóng góp sẽ bị xoá.", danger: true })}><span className="material-symbols-outlined">restart_alt</span>Reset lộ trình</button>
           <button type="button" onClick={() => postAction("reset-coding", "Đã đặt lại Coding HugoTeam", { title: "Đặt lại Coding HugoTeam?", message: "Chỉ tiến độ Coding HugoTeam, Mentor và team bị đặt lại.", danger: true })}><span className="material-symbols-outlined">history</span>Reset Coding</button>
           <button type="button" onClick={removeTeam} disabled={!dev.teamId}><span className="material-symbols-outlined">group_remove</span>Xoá khỏi team</button>
           <button type="button" onClick={() => update({ role: dev.role === "mentor" ? "member" : "mentor" })}><span className="material-symbols-outlined">manage_accounts</span>{dev.role === "mentor" ? "Gỡ quyền Mentor" : "Cấp quyền Mentor"}</button>
@@ -565,6 +584,15 @@ function AdminTasks({ dev, refresh }) {
     }
   };
 
+  const deleteTask = async (task) => {
+    const ok = await notify.confirm({ title: `Xoá task "${task.title}"?`, message: "Thao tác này không thể hoàn tác.", danger: true });
+    if (!ok) return;
+    const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/tasks/${task._id}`, { method: "DELETE", credentials: "include" });
+    if (!res.ok) return notify.error((await res.json()).error || "Không thể xoá task");
+    notify.success("Đã xoá task");
+    refresh();
+  };
+
   return (
     <div className="space-y-4">
       {/* Giao task mới */}
@@ -677,6 +705,8 @@ function AdminTasks({ dev, refresh }) {
                   Hủy task
                 </button>
               )}
+              {["done", "cancelled"].includes(t.status) && <button type="button" onClick={() => updateTask(t._id, { status: "doing" }, "Đã trả task về để làm tiếp")} className="px-3 py-1.5 rounded-lg bg-warning/20 text-warning text-xs font-bold">Trả lại làm tiếp</button>}
+              <button type="button" onClick={() => deleteTask(t)} className="ml-2 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive text-xs font-bold">Xoá</button>
             </div>
           ))}
         </div>
@@ -695,7 +725,7 @@ function AdminHours({ dev, refresh }) {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Lỗi duyệt giờ");
-      notify.success(status === "approved" ? "Đã duyệt giờ" : "Đã từ chối giờ");
+      notify.success(status === "approved" ? "Đã duyệt giờ" : status === "rejected" ? "Đã từ chối giờ" : "Đã trả lại hàng chờ duyệt");
       refresh();
     } catch (e) {
       notify.error(e.message);
@@ -739,6 +769,7 @@ function AdminHours({ dev, refresh }) {
               </button>
             </div>
           )}
+          {l.status !== "pending" && <button type="button" onClick={() => review(l._id, "pending")} className="grid h-8 w-8 place-items-center rounded-lg bg-warning/20 text-warning" aria-label="Trả lại chờ duyệt" title="Trả lại chờ duyệt"><span className="material-symbols-outlined text-[17px]">undo</span></button>}
         </div>
       ))}
     </div>

@@ -70,7 +70,7 @@ export async function checkMoneyStepUp({ senderBio, amountBaseJoy, pin = '', otp
   }
   clearPinFails(email);
 
-  // Lớp 2: OTP email — chỉ khi email THẬT SỰ gửi được. Nếu SendGrid chưa bật,
+  // Lớp 2: OTP email — chỉ khi email THẬT SỰ gửi được. Nếu chưa có nhà cung cấp,
   // bỏ qua bước này thay vì bắt người dùng chờ một mã không bao giờ tới.
   const { isEmailDeliverable } = await import('./emailService.js');
   if (isEmailDeliverable()) {

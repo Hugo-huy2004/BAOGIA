@@ -4,7 +4,6 @@ import { bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from "../utils/memberAge
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { randomInt, randomUUID } from "node:crypto";
 import HugoTeamDev from "../models/HugoTeamDev.js";
 import Bio from "../models/Bio.js";
 import { awardJoy } from "../utils/joyService.js";
@@ -13,8 +12,9 @@ import {
   sendHugoTeamApproved,
   sendHugoTeamRejected,
   sendCustomEmail,
+  escapeHtml,
 } from "../services/emailService.js";
-import { CODER_TOTAL_STEPS, HUGOTEAM_CODING_DAYS, completedCoderSteps } from "../../shared/coderProgression.js";
+import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../shared/coderProgression.js";
 
 const router = express.Router();
 
@@ -47,18 +47,10 @@ const upload = multer({
 const notifyByEmail = (to, subject, html) =>
   sendCustomEmail(to, subject, html).catch(() => {});
 
-const ASSESSMENT_PRICE = 250;
-const ASSESSMENT_LIMIT = 3;
-const ASSESSMENT_PASS = { logic: 70, creativity: 65, eq: 65, overall: 68 };
-// Một thời hạn duy nhất (trước đây hạn hiển thị 30 ngày nhưng máy chủ reset ở 14).
-const CODING_MAX_DAYS = HUGOTEAM_CODING_DAYS;
-const CODING_RETEST_AFTER_DAYS = HUGOTEAM_CODING_DAYS;
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 /**
  * Tiến độ Coding của HugoTeam = tiến độ trong ứng dụng Coding (bio.completedLessons),
  * không còn sổ riêng. Chép lại vào HugoTeamDev chỉ để màn admin/mentor đọc nhanh;
- * đủ toàn bộ step thì lên Mentor. Gọi mỗi khi cần số liệu mới nhất.
+ * đủ toàn bộ step thì gửi lời mời vào Team. Gọi mỗi khi cần số liệu mới nhất.
  */
 async function syncTeamCoding(dev) {
   if (!dev?.email) return dev;
@@ -68,72 +60,29 @@ async function syncTeamCoding(dev) {
   const changed = steps.length !== (dev.codingCompletedSteps || []).length;
   dev.codingCompletedSteps = steps;
   dev.codingStepScores = scores;
-  if (dev.assessmentStage === "coding" && steps.length >= CODER_TOTAL_STEPS) dev.assessmentStage = "mentor";
+  const shouldInvite = dev.assessmentStage === "coding" && steps.length >= CODER_TOTAL_STEPS;
+  if (shouldInvite) {
+    dev.assessmentStage = "passed";
+    dev.teamInvitedAt ||= new Date();
+  }
   if (changed || dev.isModified?.("assessmentStage")) await dev.save();
+  if (shouldInvite) notifyByEmail(dev.email, "Mời bạn tham gia Hugo Team", devEmailWrap(`
+    <h2>Chúc mừng ${escapeHtml(dev.name)}!</h2>
+    <p>Bạn đã hoàn tất chương trình học Hugo Team và đã đủ điều kiện nhận lời mời tham gia đội ngũ.</p>
+    <p>Mở <strong>Hugo Team</strong> trong Member Portal để chấp nhận lời mời.</p>
+  `));
   return dev;
 }
 
-const shuffle = (items) => items.map((item) => [randomInt(1_000_000), item]).sort((a, b) => a[0] - b[0]).map(([, item]) => item);
-const logicQuestions = () => {
-  const n = randomInt(10, 40);
-  return [
-    { text: `Dãy số ${n}, ${n + 2}, ${n + 4}, ?`, options: [n + 6, n + 5, n + 8, n + 4], scores: [100, 35, 15, 0] },
-    { text: `Số nào khác nhóm: 2, 4, 6, 9?`, options: [`9`, `6`, `4`, `2`], scores: [100, 30, 15, 0] },
-    { text: `Bạn có 12 quả táo và cho đi 5 quả. Bạn còn lại bao nhiêu quả?`, options: [`7 quả`, `8 quả`, `6 quả`, `5 quả`], scores: [100, 35, 15, 0] },
-    { text: `Nếu A đứng trước B, và B đứng trước C, ai đứng cuối?`, options: [`C`, `B`, `A`, `Không thể biết`], scores: [100, 35, 15, 0] },
-    { text: `Mỗi hình vuông có 4 cạnh. Hai hình vuông có tất cả bao nhiêu cạnh?`, options: [`8`, `6`, `4`, `10`], scores: [100, 35, 15, 0] },
-    { text: `Nếu hôm nay là thứ Ba, 7 ngày nữa là thứ mấy?`, options: [`Thứ Ba`, `Thứ Tư`, `Thứ Hai`, `Chủ Nhật`], scores: [100, 35, 15, 0] },
-  ];
-};
-const creativeQuestions = () => [
-  { text: "Bạn thấy một chiếc hộp rỗng. Cách dùng nào thể hiện tư duy mở nhất?", options: ["Biến thành bộ khuếch đại âm thanh", "Đựng đồ", "Bỏ đi", "Để nguyên trên bàn"], scores: [100, 55, 10, 25] },
-  { text: "Một nhóm bị trễ deadline vì yêu cầu thay đổi. Bạn ưu tiên gì?", options: ["Dựng nhanh bản thử nghiệm để kiểm chứng hướng mới", "Làm thêm giờ không hỏi lại", "Đổ lỗi người đổi yêu cầu", "Huỷ toàn bộ dự án"], scores: [100, 55, 10, 20] },
-  { text: "Câu trả lời nào cho thấy khả năng tạo nhiều góc nhìn?", options: ["Nêu 3 giả thuyết và cách kiểm tra từng giả thuyết", "Chọn ý đầu tiên", "Chờ người khác quyết định", "Bảo vệ ý kiến cũ bằng mọi giá"], scores: [100, 60, 25, 5] },
-  { text: "Khi sản phẩm chưa có ngân sách marketing, ý tưởng phù hợp nhất là:", options: ["Tạo thử thách cộng đồng có thể chia sẻ", "Mua quảng cáo ngay", "Không làm gì", "Sao chép đối thủ"], scores: [100, 55, 20, 0] },
-  { text: "Bạn nhận phản hồi mâu thuẫn từ hai người dùng. Bạn sẽ:", options: ["Tìm nhu cầu chung rồi thử nghiệm hai phiên bản nhỏ", "Chọn người nói to hơn", "Bỏ qua cả hai", "Tranh luận để chứng minh mình đúng"], scores: [100, 30, 15, 0] },
-  { text: "Một giải pháp sáng tạo tốt thường:", options: ["Mới, hữu ích và có thể kiểm chứng", "Chỉ cần mới", "Chỉ cần đẹp", "Không cần đo lường"], scores: [100, 55, 35, 10] },
-];
-const eqQuestions = () => [
-  { text: "Một đồng đội im lặng trong cuộc họp. Phản hồi tốt nhất là:", options: ["Hỏi riêng với sự tò mò và lắng nghe", "Ép họ phát biểu ngay", "Bỏ qua", "Kết luận họ không đóng góp"], scores: [100, 45, 20, 0] },
-  { text: "Bạn nhận góp ý gay gắt về code. Bạn nên:", options: ["Tách cảm xúc khỏi nội dung và hỏi ví dụ cụ thể", "Phản công ngay", "Im lặng rồi bỏ việc", "Xoá góp ý"], scores: [100, 20, 35, 0] },
-  { text: "Khi căng thẳng tăng, bước đầu tiên hữu ích là:", options: ["Gọi tên cảm xúc và tạm dừng để điều chỉnh", "Gửi tin nhắn trong lúc nóng", "Đổ lỗi", "Giả vờ không có gì"], scores: [100, 15, 5, 45] },
-  { text: "Hai thành viên tranh luận. Người điều phối nên:", options: ["Tóm tắt nhu cầu của cả hai và đưa về tiêu chí chung", "Chọn bên thân hơn", "Cắt lời cả hai", "Để tranh luận kéo dài"], scores: [100, 10, 25, 35] },
-  { text: "Bạn mắc lỗi ảnh hưởng deadline. Cách chịu trách nhiệm tốt nhất:", options: ["Báo sớm, nêu tác động và đề xuất kế hoạch sửa", "Che giấu", "Đổ cho công cụ", "Chờ bị phát hiện"], scores: [100, 0, 15, 25] },
-  { text: "Đồng cảm trong teamwork nghĩa là:", options: ["Hiểu cảm xúc và nhu cầu của người khác mà không cần đồng ý mọi thứ", "Luôn đồng ý", "Tránh mọi xung đột", "Làm thay phần người khác"], scores: [100, 55, 25, 20] },
-];
-const makeAssessment = () => {
-  const groups = [
-    ["logic", logicQuestions()],
-    ["creativity", creativeQuestions()],
-    ["eq", eqQuestions()],
-  ];
-  return shuffle(groups.flatMap(([dimension, questions]) => shuffle(questions).map((question, index) => ({
-    id: `${dimension}-${index}-${randomUUID().slice(0, 8)}`,
-    dimension,
-    text: question.text,
-    timeLimit: dimension === "logic" ? 25 : 10,
-    options: shuffle(question.options.map((text, optionIndex) => ({ text, score: question.scores[optionIndex] }))),
-  }))));
-};
-const publicAssessment = (questions) => questions.map(({ id, dimension, text, timeLimit, options }) => ({ id, dimension, text, timeLimit, options: options.map(({ text }) => text) }));
-const calculateScores = (questions, answers) => {
-  const totals = { logic: [], creativity: [], eq: [] };
-  questions.forEach((question) => {
-    const choice = Number(answers?.[question.id]);
-    if (Number.isInteger(choice) && question.options[choice]) totals[question.dimension].push(question.options[choice].score);
-  });
-  const score = (values) => Math.round(values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1));
-  const scores = { logic: score(totals.logic), creativity: score(totals.creativity), eq: score(totals.eq) };
-  scores.overall = Math.round((scores.logic + scores.creativity + scores.eq) / 3);
-  scores.passed = scores.logic >= ASSESSMENT_PASS.logic && scores.creativity >= ASSESSMENT_PASS.creativity && scores.eq >= ASSESSMENT_PASS.eq && scores.overall >= ASSESSMENT_PASS.overall;
-  return scores;
-};
-const buildDevelopmentAdvice = (scores) => ({
-  logic: scores.logic < 70 ? "Luyện pattern, phân rã bài toán và kiểm tra giả thuyết bằng các bài logic ngắn mỗi ngày." : "Tiếp tục thử bài toán mở và giải thích rõ cách suy luận để tăng độ chắc chắn.",
-  creativity: scores.creativity < 65 ? "Mỗi vấn đề hãy viết ít nhất 3 hướng giải quyết trước khi chọn một hướng để thử nghiệm." : "Đưa ý tưởng vào prototype nhỏ và đo phản hồi thay vì chỉ dừng ở ý tưởng.",
-  eq: scores.eq < 65 ? "Luyện lắng nghe chủ động, gọi tên cảm xúc và phản hồi bằng nhu cầu/sự kiện cụ thể." : "Thực hành facilitation và phản hồi xây dựng trong các buổi teamwork.",
-  next: scores.passed ? "Bạn có thể chuyển sang Coding bắt buộc; kết quả này là sàng lọc nội bộ, không phải chẩn đoán IQ/EQ." : "Hãy xem đây là bản đồ luyện tập. Bạn còn lượt thử theo giới hạn tài khoản và nên cải thiện trục thấp nhất trước.",
-});
+async function resetCodingProgress(email) {
+  const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] });
+  if (!bio) return;
+  const coderSteps = new Set(completedCoderSteps(bio.completedLessons));
+  bio.completedLessons = (bio.completedLessons || []).filter((id) => !coderSteps.has(id));
+  bio.hugoCoderExamScores = Object.fromEntries(Object.entries(bio.hugoCoderExamScores || {}).filter(([id]) => !coderSteps.has(id)));
+  bio.markModified("hugoCoderExamScores");
+  await bio.save();
+}
 
 const devEmailWrap = (inner) => `
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -222,6 +171,46 @@ router.get("/me", requireMember, async (req, res) => {
   } catch (error) {
     console.error("GET me error:", error);
     res.status(500).json({ error: "Failed to load dashboard" });
+  }
+});
+
+// Vào thẳng bài học; bài đánh giá cũ không còn là cổng vào.
+router.post("/learning/start", requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const name = String(req.body.name || email.split("@")[0]).trim().slice(0, 120);
+    let dev = await HugoTeamDev.findOne({ email });
+    if (!dev) {
+      dev = await HugoTeamDev.create({ email, name, status: "pending", assessmentStage: "coding", codingStartedAt: new Date() });
+    } else if (["none", "in_progress"].includes(dev.assessmentStage)) {
+      dev.assessmentStage = "coding";
+      dev.codingStartedAt ||= new Date();
+      dev.codingDeadline = null;
+      dev.codingResetReason = "";
+      await dev.save();
+    }
+    await syncTeamCoding(dev);
+    res.json({ success: true, stage: dev.assessmentStage });
+  } catch (error) {
+    console.error("POST learning start error:", error);
+    res.status(500).json({ error: "Không thể bắt đầu bài học" });
+  }
+});
+
+router.post("/invitation/accept", requireMember, async (req, res) => {
+  try {
+    const bio = await Bio.findOne({ $or: [{ email: req.memberEmail }, { contactEmail: req.memberEmail }] });
+    const age = bioAge(bio);
+    if (age === null || age < MEMBER_MIN_AGE) return res.status(403).json({ error: "Hugo Team dành cho thành viên từ 14 tuổi và cần hoàn tất ngày sinh." });
+    if (age < GUARDIAN_CONSENT_AGE && !bio.guardianConsentAt) return res.status(403).json({ error: "Tài khoản 14–15 tuổi cần xác nhận của phụ huynh/người giám hộ." });
+    const dev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: "passed" });
+    if (!dev || dev.codingCompletedSteps.length < CODER_TOTAL_STEPS) return res.status(409).json({ error: "Bạn chưa hoàn tất chương trình học." });
+    dev.assessmentStage = "mentor";
+    await dev.save();
+    res.json({ success: true, stage: dev.assessmentStage });
+  } catch (error) {
+    console.error("POST invitation accept error:", error);
+    res.status(500).json({ error: "Không thể chấp nhận lời mời" });
   }
 });
 
@@ -365,112 +354,6 @@ router.post("/me/messages/read", requireMember, async (req, res) => {
   }
 });
 
-// Assessment-first admission flow. The answer key stays server-side in the attempt.
-router.get("/assessment/status", requireMember, async (req, res) => {
-  try {
-    const dev = await HugoTeamDev.findOne({ email: req.memberEmail });
-    let codingReset = false;
-    if (dev?.assessmentStage === "coding" && !dev.codingStartedAt) {
-      dev.codingStartedAt = dev.updatedAt || new Date();
-      dev.codingDeadline = new Date(new Date(dev.codingStartedAt).getTime() + CODING_MAX_DAYS * DAY_MS);
-      await dev.save();
-    }
-    if (dev?.assessmentStage === "coding" && dev.codingStartedAt && Date.now() - new Date(dev.codingStartedAt).getTime() > CODING_RETEST_AFTER_DAYS * DAY_MS) {
-      dev.assessmentAttempts = [];
-      dev.assessmentStage = "none";
-      dev.codingResetAt = new Date();
-      dev.codingResetReason = `Quá ${CODING_RETEST_AFTER_DAYS} ngày chưa hoàn tất Coding — cần làm lại bài đánh giá. Tiến độ trong Coding vẫn được giữ.`;
-      dev.codingStartedAt = null;
-      dev.codingDeadline = null;
-      dev.codingCompletedSteps = [];
-      dev.codingStepScores = {};
-      codingReset = true;
-      await dev.save();
-    }
-    if (dev?.assessmentStage === "coding") await syncTeamCoding(dev);
-    const attempts = dev?.assessmentAttempts || [];
-    const latest = attempts[attempts.length - 1];
-    const codingComplete = (dev?.codingCompletedSteps || []).length >= CODER_TOTAL_STEPS;
-    res.json({
-      attemptsUsed: attempts.filter((attempt) => attempt.completedAt).length,
-      attemptsRemaining: Math.max(0, ASSESSMENT_LIMIT - attempts.filter((attempt) => attempt.completedAt).length),
-      active: latest && !latest.completedAt ? { id: latest.id, questions: publicAssessment(latest.questions) } : null,
-      latest: latest?.completedAt ? { scores: latest.scores, passed: latest.passed, completedAt: latest.completedAt } : null,
-      stage: codingComplete && dev?.assessmentStage === "coding" ? "mentor" : (dev?.assessmentStage || "none"),
-      codingComplete,
-      codingStartedAt: dev?.codingStartedAt || null,
-      codingDeadline: dev?.codingDeadline || null,
-      codingCompletedSteps: dev?.codingCompletedSteps || [],
-      codingRequiredSteps: CODER_TOTAL_STEPS,
-      codingReset,
-      codingResetReason: dev?.codingResetReason || "",
-      thresholds: ASSESSMENT_PASS,
-    });
-  } catch (error) {
-    console.error("GET assessment status error:", error);
-    res.status(500).json({ error: "Không tải được trạng thái đánh giá" });
-  }
-});
-
-router.post("/assessment/start", requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    let dev = await HugoTeamDev.findOne({ email });
-    if (!dev) dev = await HugoTeamDev.create({ email, name: String(req.body.name || email.split("@")[0]).trim() });
-    const used = dev.assessmentAttempts.filter((attempt) => attempt.completedAt).length;
-    if (used >= ASSESSMENT_LIMIT) return res.status(409).json({ error: "Bạn đã dùng hết 3 lượt đánh giá." });
-    const active = dev.assessmentAttempts.find((attempt) => !attempt.completedAt);
-    if (active) return res.json({ attemptId: active.id, questions: publicAssessment(active.questions), price: ASSESSMENT_PRICE });
-    const balanceBio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] });
-    if (!balanceBio) return res.status(404).json({ error: "Không tìm thấy hồ sơ ví JOY." });
-    const age = bioAge(balanceBio);
-    if (age === null || age < MEMBER_MIN_AGE) return res.status(403).json({ error: "HugoTeam dành cho thành viên từ 14 tuổi và cần hoàn tất ngày sinh." });
-    if (age < GUARDIAN_CONSENT_AGE && !balanceBio.guardianConsentAt) return res.status(403).json({ error: "Tài khoản 14–15 tuổi cần xác nhận của phụ huynh/người giám hộ trước khi tham gia." });
-    const attempt = { id: randomUUID(), questions: makeAssessment() };
-    await awardJoy(email, -ASSESSMENT_PRICE, "hugoteam_assessment", "Lệ phí bài đánh giá năng lực HugoTeam", { refId: attempt.id });
-    dev.assessmentAttempts.push(attempt);
-    dev.assessmentStage = "in_progress";
-    await dev.save();
-    res.json({ attemptId: attempt.id, questions: publicAssessment(attempt.questions), price: ASSESSMENT_PRICE });
-  } catch (error) {
-    console.error("POST assessment start error:", error);
-    const code = String(error.message || "ASSESSMENT_START_FAILED");
-    const status = code === "INSUFFICIENT_JOY" ? 402 : code.startsWith("JOY_WALLET_FROZEN") ? 403 : 400;
-    const message = code === "INSUFFICIENT_JOY" ? `Bạn cần 250 JOY để bắt đầu bài đánh giá.` : code.startsWith("JOY_WALLET_FROZEN") ? "Ví JOY đang bị tạm khóa, chưa thể thanh toán bài đánh giá." : (error.message || "Không thể bắt đầu bài đánh giá");
-    res.status(status).json({ code, error: message });
-  }
-});
-
-router.post("/assessment/submit", requireMember, async (req, res) => {
-  try {
-    const dev = await HugoTeamDev.findOne({ email: req.memberEmail });
-    const attempt = dev?.assessmentAttempts.find((item) => item.id === req.body.attemptId);
-    if (!attempt || attempt.completedAt) return res.status(404).json({ error: "Lượt đánh giá không còn hợp lệ" });
-    const violationReason = String(req.body.violationReason || "").slice(0, 120);
-    const scores = violationReason ? { logic: 0, creativity: 0, eq: 0, overall: 0, passed: false } : calculateScores(attempt.questions, req.body.answers || {});
-    attempt.scores = scores;
-    attempt.passed = scores.passed;
-    attempt.violationReason = violationReason;
-    attempt.completedAt = new Date();
-    dev.assessmentStage = scores.passed ? "coding" : "none";
-    if (scores.passed) {
-      dev.codingStartedAt = new Date();
-      dev.codingDeadline = new Date(Date.now() + CODING_MAX_DAYS * DAY_MS);
-      dev.codingResetAt = null;
-      dev.codingResetReason = "";
-      dev.codingCompletedSteps = [];
-      dev.codingStepScores = {};
-    }
-    await dev.save();
-    // Step đã học trong Coding từ trước được tính ngay (cùng một chương trình).
-    if (scores.passed) await syncTeamCoding(dev);
-    res.json({ success: true, scores, passed: scores.passed, thresholds: ASSESSMENT_PASS, advice: buildDevelopmentAdvice(scores), securityViolation: violationReason || null, next: scores.passed ? "coding" : "retry" });
-  } catch (error) {
-    console.error("POST assessment submit error:", error);
-    res.status(400).json({ error: "Không thể chấm bài đánh giá" });
-  }
-});
-
 // Submit CV application.
 router.post("/apply", requireAdultMember, upload.single("cv"), async (req, res) => {
   try {
@@ -489,7 +372,7 @@ router.post("/apply", requireAdultMember, upload.single("cv"), async (req, res) 
     }
 
     // Re-application after rejection overwrites the old doc.
-    const dev = await HugoTeamDev.findOneAndUpdate(
+    await HugoTeamDev.findOneAndUpdate(
       { email },
       {
         email,
@@ -779,7 +662,7 @@ router.post("/admin/devs/:email/reset-assessment", requireAdmin, async (req, res
     const dev = await HugoTeamDev.findOne({ email: req.params.email });
     if (!dev) return res.status(404).json({ error: "Không tìm thấy thành viên" });
     dev.assessmentAttempts = [];
-    dev.assessmentStage = "none";
+    dev.assessmentStage = "coding";
     dev.codingStartedAt = null;
     dev.codingDeadline = null;
     dev.codingCompletedSteps = [];
@@ -791,6 +674,8 @@ router.post("/admin/devs/:email/reset-assessment", requireAdmin, async (req, res
     dev.teamId = "";
     dev.teamRole = "member";
     dev.contributionScore = 0;
+    dev.teamInvitedAt = null;
+    await resetCodingProgress(dev.email);
     await dev.save();
     res.json({ success: true, assessmentStage: dev.assessmentStage });
   } catch (error) {
@@ -803,11 +688,9 @@ router.post("/admin/devs/:email/reset-coding", requireAdmin, async (req, res) =>
   try {
     const dev = await HugoTeamDev.findOne({ email: req.params.email });
     if (!dev) return res.status(404).json({ error: "Không tìm thấy thành viên" });
-    const passed = dev.assessmentAttempts.some((attempt) => attempt.passed);
-    if (!passed) return res.status(409).json({ error: "Thành viên chưa vượt qua bài đánh giá" });
     dev.assessmentStage = "coding";
     dev.codingStartedAt = new Date();
-    dev.codingDeadline = new Date(Date.now() + CODING_MAX_DAYS * DAY_MS);
+    dev.codingDeadline = null;
     dev.codingCompletedSteps = [];
     dev.codingStepScores = {};
     dev.codingResetAt = new Date();
@@ -816,6 +699,8 @@ router.post("/admin/devs/:email/reset-coding", requireAdmin, async (req, res) =>
     dev.mentorEndsAt = null;
     dev.teamId = "";
     dev.teamRole = "member";
+    dev.teamInvitedAt = null;
+    await resetCodingProgress(dev.email);
     await dev.save();
     res.json({ success: true, assessmentStage: dev.assessmentStage, codingDeadline: dev.codingDeadline });
   } catch (error) {
@@ -862,6 +747,7 @@ router.patch("/admin/devs/:email/tasks/:taskId", requireAdmin, async (req, res) 
     const task = dev?.tasks.id(req.params.taskId);
     if (!task) return res.status(404).json({ error: "Task not found" });
 
+    const previousStatus = task.status;
     const { title, guide, deadline, status, adminNote } = req.body;
     if (title?.trim()) task.title = title.trim().slice(0, 200);
     if (typeof guide === "string") task.guide = guide.slice(0, 5000);
@@ -872,9 +758,14 @@ router.patch("/admin/devs/:email/tasks/:taskId", requireAdmin, async (req, res) 
         return res.status(400).json({ error: "Invalid status" });
       }
       task.status = status;
-      task.doneAt = status === "done" ? new Date() : task.doneAt;
+      task.doneAt = status === "done" ? new Date() : null;
     }
     await dev.save();
+    if (status === "doing" && previousStatus !== "doing") notifyByEmail(
+      dev.email,
+      `Nhiệm vụ cần tiếp tục: ${task.title}`,
+      devEmailWrap(`<p>Admin đã trả nhiệm vụ <strong>${escapeHtml(task.title)}</strong> về trạng thái đang làm.</p>${task.adminNote ? `<p>Nhận xét: ${escapeHtml(task.adminNote)}</p>` : ""}`),
+    );
     res.json({ success: true, task });
   } catch (error) {
     console.error("PATCH admin task error:", error);
@@ -882,18 +773,32 @@ router.patch("/admin/devs/:email/tasks/:taskId", requireAdmin, async (req, res) 
   }
 });
 
+router.delete("/admin/devs/:email/tasks/:taskId", requireAdmin, async (req, res) => {
+  try {
+    const dev = await HugoTeamDev.findOne({ email: req.params.email });
+    const task = dev?.tasks.id(req.params.taskId);
+    if (!task) return res.status(404).json({ error: "Task not found" });
+    task.deleteOne();
+    await dev.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error("DELETE admin task error:", error);
+    res.status(500).json({ error: "Failed to delete task" });
+  }
+});
+
 // Approve / reject an hour log.
 router.patch("/admin/devs/:email/hours/:logId", requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
-    if (!["approved", "rejected"].includes(status)) {
+    if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
     }
     const dev = await HugoTeamDev.findOne({ email: req.params.email });
     const log = dev?.hourLogs.id(req.params.logId);
     if (!log) return res.status(404).json({ error: "Log not found" });
     log.status = status;
-    log.reviewedAt = new Date();
+    log.reviewedAt = status === "pending" ? null : new Date();
     await dev.save();
     res.json({ success: true, approvedHours: dev.approvedHours(), hourLogs: dev.hourLogs });
   } catch (error) {

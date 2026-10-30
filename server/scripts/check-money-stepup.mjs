@@ -38,13 +38,15 @@ for (let i = 0; i < 5; i++) await checkMoneyStepUp({ senderBio: bioPin(victim), 
 check((await checkMoneyStepUp({ senderBio: bioPin(victim), amountBaseJoy: T, pin: PIN })).code === 'PIN_LOCKED',
   `≥ ngưỡng + sai PIN 5 lần → PIN_LOCKED (kể cả sau đó nhập đúng)`);
 
-// Email KHÔNG gửi được (SendGrid tắt): bỏ qua OTP, PIN đúng là xong.
-delete process.env.SENDGRID_API_KEY;
+// Email KHÔNG gửi được: bỏ qua OTP, PIN đúng là xong.
+delete process.env.RESEND_API_KEY;
+delete process.env.EMAIL_SMTP_USER;
+delete process.env.EMAIL_SMTP_PASS;
 check((await checkMoneyStepUp({ senderBio: bioPin('d@x.vn'), amountBaseJoy: T, pin: PIN })).ok,
   `≥ ngưỡng + PIN đúng + email TẮT → cho qua (không treo chờ OTP)`);
 
 // Email GỬI ĐƯỢC: PIN đúng nhưng chưa có OTP → OTP_SENT; nhập đúng OTP → qua.
-process.env.SENDGRID_API_KEY = 'SG.real-key-for-test';
+process.env.RESEND_API_KEY = 're_test_key';
 let captured = '';
 const sendOtp = async (_email, code) => { captured = code; };
 const r1 = await checkMoneyStepUp({ senderBio: bioPin('e@x.vn'), amountBaseJoy: T, pin: PIN, sendOtp });

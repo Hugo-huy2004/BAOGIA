@@ -1,5 +1,4 @@
 import { lazy, Suspense, useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
 import AppFrame from "./os/AppFrame";
@@ -9,22 +8,10 @@ import { getMemberSession } from "../../services/api/core/authSession";
 import { API_BASE } from "../../config/apiBase";
 import { localeForLanguage, languageCode } from "../../i18n/languages";
 import { canTranslate, guessLanguage, translateText } from "../../lib/textTranslator";
-import { useJoyStore } from "../../stores/joyStore";
 import "../../styles/hugoTeam.css";
-import { CODER_TOTAL_STEPS, HUGOTEAM_CODING_DAYS, completedCoderSteps } from "../../../shared/coderProgression";
+import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../../shared/coderProgression";
 
 const HugoCoderHub = lazy(() => import("./hugoCoder/HugoCoderHub"));
-
-// Sáu lợi ích của thành viên HugoTeam. Chỉ giữ icon + khoá dịch: chữ nằm ở
-// memberPortal.team.benefit* nên đổi ngôn ngữ là đổi theo, không phải sửa code.
-const BENEFITS = [
-  { icon: "school", key: "benefit1" },
-  { icon: "co_present", key: "benefit2" },
-  { icon: "work_history", key: "benefit3" },
-  { icon: "workspace_premium", key: "benefit4" },
-  { icon: "schedule", key: "benefit5" },
-  { icon: "diversity_3", key: "benefit6" },
-];
 
 const fetchHugoTeamRead = async (url) => {
   let response;
@@ -37,7 +24,7 @@ const fetchHugoTeamRead = async (url) => {
 };
 
 /**
- * Quy chế làm việc của HugoTeam. Nội dung nằm trong i18n (memberPortal.team.rules)
+ * Quy chế làm việc của Hugo Team. Nội dung nằm trong i18n (memberPortal.team.rules)
  * nên nó theo ngôn ngữ đang chọn như mọi phần khác, và mỗi điều đều bám đúng cơ
  * chế hệ thống đang chạy — bốn trạng thái task, luật ghi giờ, mốc 500 giờ.
  */
@@ -90,7 +77,7 @@ function TeamShell({ onBack, children }) {
   return (
     <AppFrame
       appId="team"
-      title="HugoTeam"
+      title="Hugo Team"
       contentMaxWidth="1180px"
       onBack={onBack}
       paletteVars={{
@@ -126,197 +113,34 @@ function TeamShell({ onBack, children }) {
   );
 }
 
-function AssessmentExam({ active, onFinish }) {
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [seconds, setSeconds] = useState(active.questions[0].timeLimit || 10);
-  const [locked, setLocked] = useState(false);
-  const question = active.questions[index];
-
-  const finish = (nextAnswers = answers, violationReason = "") => {
-    if (locked) return;
-    setLocked(true);
-    onFinish(nextAnswers, violationReason);
-  };
-  const advance = (nextAnswers) => {
-    if (index >= active.questions.length - 1) finish(nextAnswers);
-    else { setIndex((value) => value + 1); setSeconds(active.questions[index + 1].timeLimit || 10); }
-  };
-  useEffect(() => {
-    const onVisibility = () => { if (document.hidden) finish(answers, "tab_switch"); };
-    const onContext = (event) => event.preventDefault();
-    const onKeyDown = (event) => { if ((event.ctrlKey || event.metaKey) && ["c", "u", "s", "p"].includes(event.key.toLowerCase())) event.preventDefault(); if (event.key === "F12" || (event.ctrlKey && event.shiftKey && ["i", "j"].includes(event.key.toLowerCase()))) event.preventDefault(); };
-    document.addEventListener("visibilitychange", onVisibility);
-    document.addEventListener("contextmenu", onContext);
-    document.addEventListener("keydown", onKeyDown);
-    document.body.classList.add("overflow-hidden");
-    document.documentElement.requestFullscreen?.().catch(() => {});
-    return () => { document.removeEventListener("visibilitychange", onVisibility); document.removeEventListener("contextmenu", onContext); document.removeEventListener("keydown", onKeyDown); document.body.classList.remove("overflow-hidden"); if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {}); };
-  }, [answers]);
-  useEffect(() => {
-    const timeLimit = question.timeLimit || 10;
-    const timer = window.setInterval(() => setSeconds((value) => {
-      if (value <= 1) { const next = { ...answers, [question.id]: Number.isInteger(answers[question.id]) ? answers[question.id] : -1 }; window.clearInterval(timer); advance(next); return timeLimit; }
-      return value - 1;
-    }), 1000);
-    return () => window.clearInterval(timer);
-  }, [index, question.id, answers]);
-  const choose = (optionIndex) => { const next = { ...answers, [question.id]: optionIndex }; setAnswers(next); window.setTimeout(() => advance(next), 180); };
-  const progress = ((index + 1) / active.questions.length) * 100;
-  const dimensionLabel = question.dimension === "logic"
-    ? "Logic / IQ · 25 giây"
-    : question.dimension === "creativity"
-      ? "Tư duy sáng tạo · 10 giây"
-      : "EQ · 10 giây";
-
-  return createPortal(
-    <div className="ht-exam fixed inset-0 z-[2147483000] h-[100dvh] w-screen overflow-y-auto text-white">
-      <div className="mx-auto flex min-h-[100dvh] w-full max-w-5xl flex-col px-5 py-5 sm:px-10 sm:py-8">
-        <header className="flex items-start justify-between gap-5 border-b border-white/10 pb-5">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#c8f45b]">HugoTeam Assessment</p>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/60">Không rời tab hoặc sao chép. Đáp án được chấm và xác thực tại máy chủ.</p>
-          </div>
-          <div aria-label={`Còn ${seconds} giây`} className={`grid h-16 w-16 shrink-0 place-items-center rounded-2xl border text-xl font-black ${seconds <= 3 ? "animate-pulse border-rose-400 bg-rose-500" : "border-white/15 bg-white/[.07]"}`}>{seconds}s</div>
-        </header>
-
-        <div className="mt-6 flex items-center justify-between text-sm font-semibold text-white/60">
-          <span>Câu {index + 1} / {active.questions.length}</span>
-          <span>{Math.round(progress)}% hoàn tất</span>
-        </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-[#24c7d9] transition-all" style={{ width: `${progress}%` }} />
-        </div>
-
-        <main className="my-auto py-10 sm:py-14">
-          <p className="mb-5 inline-flex rounded-lg bg-white/[.08] px-3 py-2 text-sm font-black uppercase tracking-wider text-cyan-200">{dimensionLabel}</p>
-          <h1 className="max-w-4xl text-3xl font-black leading-[1.08] tracking-[-0.035em] sm:text-5xl">{question.text}</h1>
-          <div className="mt-8 grid gap-3 sm:mt-10">
-            {question.options.map((option, optionIndex) => (
-              <button type="button" key={option} onClick={() => choose(optionIndex)} className="group flex min-h-16 items-center gap-4 rounded-2xl border border-white/10 bg-white/[.055] p-4 text-left text-base transition hover:-translate-y-0.5 hover:border-[#24c7d9] hover:bg-[#24c7d9]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c8f45b] sm:p-5 sm:text-lg">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sm font-black text-white/70 group-hover:bg-[#c8f45b] group-hover:text-[#071525]">{String.fromCharCode(65 + optionIndex)}</span>
-                <span>{option}</span>
-              </button>
-            ))}
-          </div>
-        </main>
-
-        <footer className="flex flex-col gap-1 border-t border-white/10 pt-4 text-sm text-white/45 sm:flex-row sm:justify-between">
-          <span>Rời trang sẽ kết thúc lượt làm bài.</span>
-          <span>Logic 25 giây · Sáng tạo và EQ 10 giây.</span>
-        </footer>
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-function AssessmentPanel({ userStatus, onPassed }) {
-  const { t } = useTranslation();
-  const joyBalance = useJoyStore((store) => store.balance);
-  const walletLoaded = useJoyStore((store) => store.loaded);
-  const fetchBalance = useJoyStore((store) => store.fetchBalance);
-  const [state, setState] = useState(null);
-  const [answers, setAnswers] = useState({});
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState(null);
-  const [examOpen, setExamOpen] = useState(false);
-
-  const load = async () => {
-    try {
-      const session = await getMemberSession();
-      if (session?.email) await fetchBalance(session.email);
-      const res = await fetchHugoTeamRead(`${API_BASE}/hugoteam/assessment/status`);
-      if (res.ok) {
-        const data = await res.json();
-        setState(data);
-        if (data.active) setExamOpen(true);
-      }
-    } catch (error) { console.error("Failed to load assessment:", error); }
-  };
-  useEffect(() => { load(); }, []);
-
-  const start = async () => {
-    setBusy(true);
-    try {
-      const session = await getMemberSession();
-      if (session?.email) {
-        await fetchBalance(session.email, undefined, { force: true });
-        const currentBalance = useJoyStore.getState().balance;
-        if (currentBalance < 250) {
-          notify.error(`Bạn cần 250 JOY để bắt đầu bài đánh giá (hiện có ${currentBalance} JOY).`);
-          return;
-        }
-      }
-      const res = await fetch(`${API_BASE}/hugoteam/assessment/start`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: session?.displayName || session?.name || "" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể bắt đầu bài đánh giá");
-      setState((current) => ({ ...(current || {}), active: data }));
-      setAnswers({}); setResult(null); setExamOpen(true);
-    } catch (error) { notify.error(error.message); } finally { setBusy(false); }
-  };
-  const submitExam = async (examAnswers, violationReason = "") => {
-    if (!state?.active) return;
-    setBusy(true);
-    try {
-      const res = await fetch(`${API_BASE}/hugoteam/assessment/submit`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId: state.active.attemptId || state.active.id, answers: examAnswers, violationReason }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không thể chấm bài");
-      setResult(data); setState((current) => ({ ...(current || {}), active: null, latest: data })); setExamOpen(false);
-      if (data.passed || data.scores?.passed) await onPassed?.();
-    } catch (error) { notify.error(error.message); } finally { setBusy(false); }
-  };
-
-  const active = state?.active;
-  const latest = result || state?.latest;
-  const latestPassed = latest?.passed ?? latest?.scores?.passed ?? false;
-  return (
-    <div className="ht-assessment">
-      <div className="ht-assessment-head">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-2xl font-black tracking-tight">Đánh giá năng lực</h2>
-          <span className="rounded-lg bg-[#c8f45b] px-3 py-2 text-sm font-black text-[#071525]">250 JOY</span>
-        </div>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">18 câu hỏi sinh mới mỗi lượt, đo Logic/IQ, tư duy sáng tạo và EQ. Đây là chỉ số sàng lọc nội bộ, không phải chẩn đoán lâm sàng.</p>
-      </div>
-      <div className="ht-assessment-body space-y-5">
-      <div className="grid grid-cols-3 gap-2 text-center text-sm"><div className="rounded-xl bg-muted/60 p-3"><b className="block text-xl text-foreground">6</b>Logic</div><div className="rounded-xl bg-muted/60 p-3"><b className="block text-xl text-foreground">6</b>Sáng tạo</div><div className="rounded-xl bg-muted/60 p-3"><b className="block text-xl text-foreground">6</b>EQ</div></div>
-      <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4"><p className="text-sm font-bold uppercase tracking-widest text-primary">Ngưỡng cần đạt</p><div className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4"><span className="rounded-xl bg-card px-3 py-2 text-center"><b className="block text-foreground">≥70%</b><small className="text-muted-foreground">Logic</small></span><span className="rounded-xl bg-card px-3 py-2 text-center"><b className="block text-foreground">≥65%</b><small className="text-muted-foreground">Sáng tạo</small></span><span className="rounded-xl bg-card px-3 py-2 text-center"><b className="block text-foreground">≥65%</b><small className="text-muted-foreground">EQ</small></span><span className="rounded-xl bg-card px-3 py-2 text-center"><b className="block text-foreground">≥68%</b><small className="text-muted-foreground">Tổng</small></span></div></div>
-      {active && examOpen ? <AssessmentExam active={active} onFinish={submitExam} /> : active ? (
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Bạn đang có một lượt làm bài chưa hoàn tất.</p><button type="button" onClick={() => setExamOpen(true)} className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">Tiếp tục bài test</button>
-        </div>
-      ) : latest ? (
-        <div className="space-y-5"><div className={`rounded-2xl p-5 ${latestPassed ? "bg-emerald-500/10" : "bg-amber-500/10"}`}><p className="text-lg font-bold leading-snug text-foreground">{latest.securityViolation ? "Lượt test đã bị kết thúc vì rời tab" : latestPassed ? "Bạn đã vượt qua vòng đánh giá" : "Bạn chưa đạt ngưỡng vòng này"}</p><p className="mt-2 text-sm leading-7 text-muted-foreground">{latest.advice?.next || (latestPassed ? (state?.codingComplete ? "Coding đã hoàn tất. Hồ sơ đang chờ chuyển sang Mentor 30 ngày." : "Bước bắt buộc tiếp theo: hoàn tất Coding để vào giai đoạn Mentor 30 ngày.") : "Bạn có thể luyện tập và dùng lượt còn lại để thử lại.")}</p></div><div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">{[["Logic", latest.scores.logic], ["Sáng tạo", latest.scores.creativity], ["EQ", latest.scores.eq], ["Tổng", latest.scores.overall]].map(([label, value]) => <div key={label} className="rounded-2xl border border-border/50 bg-muted/50 p-4"><b className="block text-2xl text-foreground">{value}%</b><span className="mt-1 block text-sm text-muted-foreground">{label}</span></div>)}</div>{latest.advice && <div className="grid grid-cols-1 gap-3 text-sm leading-7 text-muted-foreground sm:grid-cols-3"><p className="rounded-2xl border border-border/50 bg-muted/50 p-4"><b className="mb-1 block text-base text-foreground">Logic</b>{latest.advice.logic}</p><p className="rounded-2xl border border-border/50 bg-muted/50 p-4"><b className="mb-1 block text-base text-foreground">Sáng tạo</b>{latest.advice.creativity}</p><p className="rounded-2xl border border-border/50 bg-muted/50 p-4"><b className="mb-1 block text-base text-foreground">EQ</b>{latest.advice.eq}</p></div>}{!latestPassed && !latest.securityViolation && (state?.attemptsRemaining || 0) > 0 && <button type="button" onClick={start} disabled={busy} className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">Thi lại · còn {state.attemptsRemaining} lượt</button>}</div>
-      ) : (
-        <div className="space-y-4"><ul className="space-y-2 text-sm text-muted-foreground"><li>• Mỗi thành viên tối đa 3 lượt.</li><li>• Logic/tính toán có 25 giây; Sáng tạo và EQ có 10 giây.</li><li>• Rời tab hoặc chuyển cửa sổ sẽ kết thúc lượt.</li><li>• Đạt bài test chưa là thành viên chính thức; cần hoàn tất Coding và Mentor.</li></ul>{walletLoaded && <p className={`rounded-2xl px-4 py-3 text-sm ${joyBalance >= 250 ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}>Ví hiện có <b>{joyBalance} JOY</b> · cần 250 JOY/lượt{joyBalance < 250 ? ` · còn thiếu ${250 - joyBalance} JOY` : ""}</p>}<button type="button" onClick={start} disabled={busy || state?.attemptsRemaining === 0 || (walletLoaded && joyBalance < 250)} className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">{busy ? "Đang tạo đề…" : walletLoaded && joyBalance < 250 ? "Cần nạp thêm JOY để bắt đầu" : `Bắt đầu đánh giá · ${state?.attemptsRemaining ?? 3} lượt còn lại`}</button></div>
-      )}
-      </div>
-    </div>
-  );
-}
-
-function CodingStageDashboard({ me, onBack, reload, bio, onBioUpdate }) {
+function CodingStageDashboard({ onBack, reload, bio, onBioUpdate }) {
   const [selectedStep, setSelectedStep] = useState(null);
-  useEffect(() => {
-    fetch(`${API_BASE}/hugoteam/assessment/status`).then((res) => res.ok && res.json()).then((data) => {
-      if (data?.stage && data.stage !== me?.assessmentStage) reload();
-    }).catch(() => {});
-  }, [me?.assessmentStage, reload]);
-  const daysLeft = me?.codingDeadline ? Math.max(0, Math.ceil((new Date(me.codingDeadline) - Date.now()) / 86400000)) : HUGOTEAM_CODING_DAYS;
   // Cùng một nguồn với ứng dụng Coding: số step đã xong ở đây = ở Coding.
   const completed = completedCoderSteps(bio?.completedLessons).length;
-  return <TeamShell onBack={onBack}><div className="space-y-5"><StageCard eyebrow="HUGOTEAM · BƯỚC 2/4" title="Coding HugoTeam"><p className="mt-3 text-sm leading-relaxed text-muted-foreground">HugoTeam dùng chính chương trình Coding: cùng {CODER_TOTAL_STEPS} step, cùng 6 chặng, cùng kết quả. Step đã xong ở Coding được tính ở đây và ngược lại.</p><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl bg-emerald-500/10 p-4"><p className="text-2xl font-bold text-emerald-600">{completed}/{CODER_TOTAL_STEPS}</p><p className="text-sm text-muted-foreground">Step Coding đã hoàn tất</p></div><div className="rounded-2xl bg-primary/10 p-4"><p className="text-2xl font-bold text-primary">{daysLeft} ngày</p><p className="text-sm text-muted-foreground">Còn lại trong {HUGOTEAM_CODING_DAYS} ngày</p></div><div className="rounded-2xl bg-muted/50 p-4"><p className="text-2xl font-bold text-foreground">Không yêu cầu</p><p className="text-sm text-muted-foreground">Dự án cuối ở bước này</p></div></div><div className="mt-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm leading-relaxed text-amber-800">Quá {HUGOTEAM_CODING_DAYS} ngày chưa hoàn tất thì phải làm lại bài đánh giá HugoTeam. Tiến độ Coding của bạn vẫn được giữ nguyên.</div><div className="mt-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed text-muted-foreground">Hoàn tất đủ {CODER_TOTAL_STEPS} step (6 chặng CODE 101 → CODE 302) sẽ chuyển sang Mentor.</div></StageCard><div className="overflow-hidden rounded-3xl border border-border/60 bg-card"><Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải chương trình Coding HugoTeam…</div>}><HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={bio?.completedLessons || []} onLessonChange={setSelectedStep} onProgramProgress={reload} /></Suspense></div></div></TeamShell>;
+  return <TeamShell onBack={onBack}><div className="space-y-5"><StageCard eyebrow="HUGO TEAM · HỌC" title="Học ngay, không cần kiểm tra đầu vào"><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Hugo Team dùng một chương trình duy nhất: {CODER_TOTAL_STEPS} step, 6 chặng và một tiến độ. Bạn có thể bắt đầu từ bài đầu tiên ngay bây giờ.</p><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-emerald-500/10 p-4"><p className="text-2xl font-bold text-emerald-600">{completed}/{CODER_TOTAL_STEPS}</p><p className="text-sm text-muted-foreground">Step đã hoàn tất</p></div><div className="rounded-2xl bg-primary/10 p-4"><p className="text-2xl font-bold text-primary">Lời mời</p><p className="text-sm text-muted-foreground">Hoàn tất lộ trình để được mời tham gia đội ngũ Hugo Team</p></div></div></StageCard><div className="overflow-hidden rounded-3xl border border-border/60 bg-card"><Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Đang tải bài học Hugo Team…</div>}><HugoCoderHub bio={bio} onBioUpdate={onBioUpdate} onBack={() => setSelectedStep(null)} urlLessonId={selectedStep} framed={!selectedStep} program="hugoteam" programProgress={bio?.completedLessons || []} onLessonChange={setSelectedStep} onProgramProgress={reload} /></Suspense></div></div></TeamShell>;
 }
 
 function StageCard({ title, eyebrow, children }) {
   return <div className="ht-stage-card"><p>{eyebrow}</p><h2>{title}</h2>{children}</div>;
+}
+
+function TeamInvitation({ me, onBack, reload }) {
+  const [busy, setBusy] = useState(false);
+  const accept = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch(`${API_BASE}/hugoteam/invitation/accept`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Không thể chấp nhận lời mời");
+      notify.success("Đã chấp nhận lời mời tham gia Hugo Team");
+      await reload();
+    } catch (error) {
+      notify.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return <TeamShell onBack={onBack}><StageCard eyebrow="HUGO TEAM · LỜI MỜI" title={`Chúc mừng ${me?.name || "bạn"}!`}><p className="mt-3 text-sm leading-relaxed text-muted-foreground">Bạn đã hoàn tất toàn bộ chương trình. Hugo Team mời bạn tham gia giai đoạn Mentor và làm việc cùng đội ngũ.</p><button type="button" onClick={accept} disabled={busy} className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:opacity-50">{busy ? "Đang xử lý…" : "Chấp nhận lời mời"}</button></StageCard></TeamShell>;
 }
 
 function MentorMonthDashboard({ me }) {
@@ -347,37 +171,13 @@ function MentorDashboard({ onBack }) {
 export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
-  const [developers, setDevelopers] = useState([]);
-  /*
-   * ĐANG tải danh sách, khác với ĐÃ tải xong mà rỗng.
-   *
-   * Trước đây chỉ có `developers` khởi tạo `[]`, nên trong lúc chờ mạng app hiện
-   * nguyên khối "chưa có lập trình viên nào" rồi mới nháy sang danh sách thật —
-   * người dùng đọc được một thông báo SAI trong khoảnh khắc đầu. Phải phân biệt
-   * hai trạng thái đó thì mới nói đúng.
-   */
-  const [devsLoading, setDevsLoading] = useState(true);
   const [me, setMe] = useState(null); // GET /me payload — status + dashboard data
+  const [meLoaded, setMeLoaded] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState("");
   const userStatus = me?.status ?? null;
 
-  useEffect(() => {
-    loadDevelopers();
-    loadMe();
-  }, []);
-
-  const loadDevelopers = async () => {
-    try {
-      const res = await fetchHugoTeamRead(`${API_BASE}/hugoteam/developers`);
-      if (res.ok) {
-        const data = await res.json();
-        setDevelopers(data.developers || []);
-      }
-    } catch (error) {
-      console.error("Failed to load developers:", error);
-    } finally {
-      setDevsLoading(false);
-    }
-  };
+  useEffect(() => { loadMe(); }, []);
 
   const loadMe = async () => {
     try {
@@ -387,16 +187,43 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
       if (res.ok) setMe(await res.json());
     } catch (error) {
       console.error("Failed to load hugoteam profile:", error);
+    } finally {
+      setMeLoaded(true);
     }
   };
 
-  const handleAssessmentPassed = async () => {
-    await loadMe();
-  };
+  useEffect(() => {
+    if (!meLoaded || starting || (me?.assessmentStage && !["none", "in_progress"].includes(me.assessmentStage))) return;
+    let active = true;
+    setStarting(true);
+    getMemberSession().then((session) => fetch(`${API_BASE}/hugoteam/learning/start`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: session?.displayName || session?.name || "" }),
+    })).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Không thể mở bài học");
+      if (active) {
+        setStarting(false);
+        await loadMe();
+      }
+    }).catch((error) => {
+      if (active) {
+        setStartError(error.message);
+        setStarting(false);
+      }
+    });
+    return () => { active = false; };
+    // `starting` chỉ là trạng thái hiển thị; thêm nó vào deps sẽ huỷ request vừa bắt đầu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meLoaded, me?.assessmentStage]);
 
-  // Dev đã được duyệt → HugoTeam trở thành workspace: task, giờ đồng hành, trao đổi.
+  if (!meLoaded || starting) return <TeamShell onBack={onBack}><p className="py-16 text-center text-sm text-muted-foreground">Đang mở bài học Hugo Team…</p></TeamShell>;
+  if (startError) return <TeamShell onBack={onBack}><p className="py-16 text-center text-sm text-destructive">{startError}</p></TeamShell>;
+  // Học xong mới nhận lời mời; chấp nhận xong mới vào Mentor/Team.
   if (me?.role === "mentor") return <MentorDashboard onBack={onBack} />;
-  if (me?.assessmentStage === "coding") return <CodingStageDashboard me={me} onBack={onBack} reload={loadMe} bio={bio} onBioUpdate={onBioUpdate} />;
+  if (me?.assessmentStage === "coding") return <CodingStageDashboard onBack={onBack} reload={loadMe} bio={bio} onBioUpdate={onBioUpdate} />;
+  if (me?.assessmentStage === "passed") return <TeamInvitation me={me} onBack={onBack} reload={loadMe} />;
   if (me?.assessmentStage === "mentor") return <TeamShell onBack={onBack}><MentorMonthDashboard me={me} /></TeamShell>;
   if (me?.assessmentStage === "team") return <TeamShell onBack={onBack}><TeamDashboard me={me} /></TeamShell>;
   if (userStatus === "approved") {
@@ -414,239 +241,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
     );
   }
 
-  return (
-    <TeamShell onBack={onBack}>
-      <div className="hugo-team-marketing">
-
-      <div>
-      <div>
-      {/* Hero */}
-      <div className="ht-hero">
-        <div className="relative z-[1]">
-          <div className="ht-kicker"><span className="material-symbols-outlined text-lg">hub</span> HugoTeam · cộng đồng phát triển</div>
-          <h1>Học thật. Làm thật. Lớn lên cùng một team.</h1>
-          <p className="ht-hero-copy">Dành cho thành viên từ 14 tuổi muốn rèn tư duy, kỹ năng lập trình và teamwork qua một lộ trình minh bạch: đánh giá năng lực, Coding HugoTeam, Mentor và team dự án.</p>
-          <div className="ht-hero-actions">
-            <a href="#hugo-team-assessment" className="ht-button ht-button-primary">Bắt đầu đánh giá <span className="material-symbols-outlined text-lg">arrow_downward</span></a>
-            <a href="#hugo-team-roadmap" className="ht-button ht-button-secondary">Xem lộ trình</a>
-          </div>
-        </div>
-        <div className="ht-hero-facts">
-          <div className="ht-hero-fact"><strong>4 chặng</strong><span>Từ đánh giá đến teamwork</span></div>
-          <div className="ht-hero-fact"><strong>30 ngày</strong><span>Đồng hành trực tiếp cùng Mentor</span></div>
-          <div className="ht-hero-fact"><strong>10 người</strong><span>Tối đa trong mỗi team</span></div>
-        </div>
-      </div>
-
-      {/* Benefits */}
-      <div className="ht-section">
-        <div className="ht-section-head">
-          <div className="ht-kicker text-[#087f8c]">Quyền lợi thực tế</div>
-          <h2>{t("memberPortal.team.benefitsTitle")}</h2>
-          <p>{t("memberPortal.team.benefitsDesc")}</p>
-        </div>
-        <div className="ht-benefits">
-          {BENEFITS.map((b) => (
-            <div key={b.key} className="ht-benefit">
-              <span className="material-symbols-outlined">{b.icon}</span>
-              <h3>{t(`memberPortal.team.${b.key}Title`)}</h3>
-              <p>{t(`memberPortal.team.${b.key}Desc`)}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* How Hugo Studio takes care of members */}
-      <div className="ht-section ht-split">
-        <div className="ht-panel">
-        <h2 className="text-lg font-semibold text-foreground mb-4">{t("memberPortal.team.careTitle")}</h2>
-        <div className="grid gap-3 text-sm leading-relaxed text-muted-foreground max-w-3xl sm:grid-cols-2">
-          <p>
-            <span className="font-semibold text-foreground">{t("memberPortal.team.careWeek1Label")}</span> {t("memberPortal.team.careWeek1")}
-          </p>
-          <p>
-            <span className="font-semibold text-foreground">{t("memberPortal.team.careWeeklyLabel")}</span> {t("memberPortal.team.careWeekly")}
-          </p>
-          <p>
-            <span className="font-semibold text-foreground">{t("memberPortal.team.careStuckLabel")}</span> {t("memberPortal.team.careStuck")}
-          </p>
-          <p>
-            <span className="font-semibold text-foreground">{t("memberPortal.team.careHoursLabel")}</span> {t("memberPortal.team.careHours")}
-          </p>
-        </div>
-        </div>
-
-      {/* Membership & 500-hour milestone */}
-      <div>
-        <div className="ht-panel ht-panel-dark">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <span className="material-symbols-outlined text-[24px]">military_tech</span>
-            </span>
-            <h2 className="text-lg font-semibold text-foreground">{t("memberPortal.team.loyaltyTitle")}</h2>
-          </div>
-
-          {/* Membership info */}
-          <div className="bg-muted/50 rounded-xl p-3.5 space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="material-symbols-outlined text-base text-primary">verified</span>
-              <span className="font-semibold text-foreground">{t("memberPortal.team.membershipLine")}</span>
-            </div>
-            <p className="text-[13px] text-muted-foreground">{t("memberPortal.team.membershipDesc")}</p>
-          </div>
-
-          <p className="text-sm leading-relaxed text-muted-foreground">{t("memberPortal.team.loyaltyText")}</p>
-          <div className="ht-rewards">
-            <div className="ht-reward"><strong>365 ngày</strong><span>quyền lợi sau hoàn tất</span></div>
-            <div className="ht-reward"><strong>10.000 JOY</strong><span>quà gia nhập dự kiến</span></div>
-            <div className="ht-reward"><strong>75% OFF</strong><span>khi giới thiệu 4 bạn</span></div>
-          </div>
-          <div className="bg-muted/50 rounded-xl p-3.5 space-y-2">
-            <p className="text-sm font-semibold text-foreground">{t("memberPortal.team.milestone500Title")}</p>
-            <ul className="text-[13px] text-muted-foreground space-y-1 ml-4">
-              <li>• {t("memberPortal.team.milestone500a")}</li>
-              <li>• {t("memberPortal.team.milestone500b")}</li>
-              <li>• {t("memberPortal.team.milestone500c")}</li>
-              <li>• {t("memberPortal.team.milestone500d")}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      </div>
-
-      {/* Requirements */}
-      <div className="ht-section ht-panel">
-        <h2>{t("memberPortal.team.reqTitle")}</h2>
-        <div className="space-y-3 text-sm">
-          <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqAudienceLabel")}</span>
-            <span className="text-muted-foreground">{t("memberPortal.team.reqAudience")}</span>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqWorkLabel")}</span>
-            <span className="text-muted-foreground">{t("memberPortal.team.reqWork")}</span>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqTimeLabel")}</span>
-            <span className="text-muted-foreground">{t("memberPortal.team.reqTime")}</span>
-          </div>
-          <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqNatureLabel")}</span>
-            <span className="text-muted-foreground">{t("memberPortal.team.reqNature")}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Info about process */}
-      <div id="hugo-team-roadmap" className="ht-section">
-        <div className="ht-section-head"><div className="ht-kicker text-[#087f8c]">Lộ trình minh bạch</div><h2>{t("memberPortal.team.processTitle")}</h2><p>Mỗi chặng có điều kiện hoàn tất riêng và dashboard tự thay đổi theo trạng thái của thành viên.</p></div>
-        <ol className="ht-journey">
-          <li className="ht-journey-step">
-            <b>01</b><div><h3>Đánh giá năng lực</h3><p>{t("memberPortal.team.process1")}</p></div><span>18 câu · 250 JOY</span>
-          </li>
-          <li className="ht-journey-step">
-            <b>02</b><div><h3>Coding HugoTeam</h3><p>{t("memberPortal.team.process2")}</p></div><span>{CODER_TOTAL_STEPS} step Coding · tối đa {HUGOTEAM_CODING_DAYS} ngày</span>
-          </li>
-          <li className="ht-journey-step">
-            <b>03</b><div><h3>Mentor và dự án cuối</h3><p>{t("memberPortal.team.process3")}</p></div><span>30 ngày đồng hành</span>
-          </li>
-          <li className="ht-journey-step">
-            <b>04</b><div><h3>Teamwork chính thức</h3><p>{t("memberPortal.team.process4")}</p></div><span>Tối đa 10 người/team</span>
-          </li>
-        </ol>
-      </div>
-
-      </div>{/* end left column */}
-
-      </div>{/* end 2-column grid */}
-
-      {/* Full-width below the grid */}
-      <div>
-      {/* Developers List — nâng cấp */}
-      <div className="ht-section">
-        <div className="ht-section-head">
-          <div className="ht-kicker text-[#087f8c]">Cộng đồng hiện tại</div>
-          <h2>{t("memberPortal.team.devsTitle", { count: developers.length })}</h2>
-          <p>{t("memberPortal.team.devsDesc")}</p>
-        </div>
-        {devsLoading ? (
-          /* Khung xương đúng dáng thẻ thật để nội dung không nhảy khi dữ liệu về. */
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" aria-busy="true" aria-label={t("memberPortal.team.devsTitle", { count: 0 })}>
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-[168px] animate-pulse rounded-2xl border border-border/40 bg-muted/40" />
-            ))}
-          </div>
-        ) : developers.length === 0 ? (
-          <div className="p-8 rounded-2xl border border-dashed border-border/50 text-center">
-            <span className="material-symbols-outlined text-3xl text-muted-foreground block mb-2">groups</span>
-            <p className="text-sm text-muted-foreground">{t("memberPortal.team.devsEmpty")}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {developers.map((dev) => (
-              <div key={dev.id} className="ht-benefit relative">
-                {/* Developer Badge */}
-                <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[13px] font-medium">
-                  {t("memberPortal.team.devBadge")}
-                </div>
-
-                {/* Avatar + Name */}
-                <div className="flex items-start gap-3 pt-1">
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#0b2138] text-lg font-semibold text-[#c8f45b]">
-                    {dev.name[0]?.toUpperCase() || "?"}
-                  </div>
-                  <div className="flex-1 min-w-0 pr-16">
-                    <p className="font-semibold text-foreground text-sm leading-tight break-words">{dev.name}</p>
-                    {dev.school && <p className="text-[13px] text-muted-foreground mt-0.5 break-words">{dev.school}</p>}
-                  </div>
-                </div>
-
-                {/* Membership Status */}
-                <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
-                  <span className="material-symbols-outlined text-sm">verified</span>
-                  <span>{t("memberPortal.team.membership3y")}</span>
-                </div>
-
-                {/* Verified Check */}
-                <div className="flex items-center pt-1">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[13px] font-medium">
-                    <span className="material-symbols-outlined text-[13px]">check_circle</span>
-                    {t("memberPortal.team.approved")}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Contact */}
-      <div className="ht-section border-t border-border pt-8 text-center space-y-2">
-        <p className="text-sm text-muted-foreground">{t("memberPortal.team.contactTitle")}</p>
-        <div className="flex flex-wrap items-center justify-center gap-4 text-[13px] font-semibold">
-          <a href="mailto:education@hugowishpax.studio?subject=%5BHugo%20Team%5D%20Th%E1%BA%AFc%20m%E1%BA%AFc%20%C4%90%C3%A0o%20t%E1%BA%A1o%20%26%20Tuy%E1%BB%83n%20d%E1%BB%A5ng" className="text-primary hover:underline flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px]">school</span>
-            Đào tạo & Ứng tuyển: education@hugowishpax.studio
-          </a>
-          <span className="text-muted-foreground/40">·</span>
-          <a href="mailto:support@hugowishpax.studio?subject=%5BHugo%20Team%5D%20H%E1%BB%97%20tr%E1%BB%A3%20k%E1%BB%B9%20thu%E1%BA%ADt%20th%C3%A0nh%20vi%C3%AAn" className="text-primary hover:underline flex items-center gap-1">
-            <span className="material-symbols-outlined text-[15px]">support_agent</span>
-            Hỗ trợ kỹ thuật: support@hugowishpax.studio
-          </a>
-        </div>
-      </div>
-      <section className="ht-section" aria-labelledby="hugo-team-assessment">
-        <div className="ht-section-head">
-          <div className="ht-kicker text-[#087f8c]">Bước đầu tiên</div>
-          <h2 id="hugo-team-assessment">Sẵn sàng kiểm tra năng lực?</h2>
-          <p>Khi đã hiểu rõ lộ trình, bạn có thể bắt đầu bài đánh giá toàn màn hình. Logic có 25 giây; Sáng tạo và EQ có 10 giây mỗi câu.</p>
-        </div>
-        <div><AssessmentPanel userStatus={userStatus} onPassed={handleAssessmentPassed} /></div>
-      </section>
-      </div>
-      </div>
-    </TeamShell>
-  );
+  return <TeamShell onBack={onBack}><div className="py-16 text-center"><p className="text-sm text-muted-foreground">Không thể xác định trạng thái Hugo Team.</p><button type="button" onClick={loadMe} className="mt-4 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Tải lại</button></div></TeamShell>;
 }
 
 /* ───────────────────────── Dev Workspace (đã được duyệt) ───────────────────────── */

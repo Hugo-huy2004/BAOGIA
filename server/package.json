@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@payos/node": "^2.0.5",
-    "@sendgrid/mail": "^8.1.6",
     "@sentry/node": "^10.70.0",
     "@simplewebauthn/server": "^10.0.1",
     "adm-zip": "^0.6.0",
@@ -35,7 +34,9 @@
     "multer": "^2.2.0",
     "node-cache": "^5.1.2",
     "node-cron": "^4.5.0",
+    "nodemailer": "^10.3.1",
     "rate-limit-redis": "^4.2.0",
+    "resend": "^6.35.0",
     "sharp": "^0.35.5",
     "web-push": "^3.6.7",
     "ws": "^8.18.0"

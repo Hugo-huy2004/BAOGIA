@@ -1,16 +1,20 @@
 # Email Service Documentation
 
 ## Overview
-Automatic email service for sending transactional emails via Gmail SMTP.
+Transactional email uses Resend first and falls back to SMTP through Nodemailer.
 
 ## Configuration
 
 ### Environment Variables (.env)
 ```
+RESEND_API_KEY=
+EMAIL_FROM=Hugo <contact@hugowishpax.studio>
+
 EMAIL_SMTP_USER=contact@hugowishpax.studio
-EMAIL_SMTP_PASS=mjuu xwhk ymtd cwwg
+EMAIL_SMTP_PASS=
 EMAIL_SMTP_HOST=smtp.gmail.com
 EMAIL_SMTP_PORT=587
+EMAIL_SMTP_SECURE=false
 
 EMAIL_SUPPORT=support@hugowishpax.studio
 EMAIL_CONTACT=contact@hugowishpax.studio
@@ -180,7 +184,7 @@ To test email service manually:
 npm run dev
 
 # Send test contact email via curl
-curl -X POST http://localhost:8081/api/email/contact \
+curl -X POST http://localhost:8099/api/email/contact \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Test User",
@@ -194,6 +198,7 @@ curl -X POST http://localhost:8081/api/email/contact \
 
 - Emails are sent asynchronously
 - Failed emails are logged but don't crash the server
-- Gmail SMTP requires "Less secure app access" enabled or App Password
-- Check Gmail's SMTP logs if emails aren't sending
+- Set `RESEND_API_KEY` for the primary provider; configure both SMTP credentials for fallback
+- Gmail SMTP requires an App Password
+- Check Resend activity and SMTP logs if emails aren't sending
 - All emails include reply-to address for proper threading

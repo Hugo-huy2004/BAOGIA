@@ -21,7 +21,7 @@ router.get('/unsubscribe', async (req, res) => {
 });
 
 // ── Bốn biểu mẫu công khai: liên hệ, hỗ trợ, giáo dục, quảng cáo ────────────
-// Không cần đăng nhập, nên mỗi lượt gửi là một email thật tốn hạn mức SendGrid.
+// Không cần đăng nhập, nên mỗi lượt gửi là một email thật tốn hạn mức nhà cung cấp.
 // Ba lớp chặn: kiểm & cắt dữ liệu, trần lượt theo người gửi, trần chung theo giờ.
 
 const FORM_WINDOW_MS = 15 * 60 * 1000;
@@ -71,7 +71,7 @@ const readForm = (body = {}, { nameRequired = false } = {}) => {
 
 const FAILED = 'Chưa gửi được thư lúc này. Vui lòng thử lại sau ít phút.';
 
-/** Khuôn chung: kiểm → trần giờ → gửi → trả lời. Lỗi SendGrid chỉ vào log, không ra client. */
+/** Khuôn chung: kiểm → trần giờ → gửi → trả lời. Lỗi nhà cung cấp chỉ vào log, không ra client. */
 const formRoute = (label, send, options) => async (req, res) => {
   try {
     const { form, error } = readForm(req.body, options);

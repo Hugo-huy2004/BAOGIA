@@ -86,6 +86,7 @@ const hugoTeamDevSchema = new mongoose.Schema(
     codingStepScores: { type: mongoose.Schema.Types.Mixed, default: {} },
     codingResetAt: { type: Date, default: null },
     codingResetReason: { type: String, default: "" },
+    teamInvitedAt: { type: Date, default: null },
     mentor: { name: { type: String, default: "" }, email: { type: String, default: "" }, assignedAt: { type: Date, default: null } },
     mentorEndsAt: { type: Date, default: null },
     teamId: { type: String, default: "" },

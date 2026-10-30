@@ -151,7 +151,7 @@ export async function requestMemberOtp(req, res) {
     }
     const code = issueEmailOtp(cleanEmail, 'login');
     const sent = await sendMagicLinkOtp(cleanEmail, code);
-    // Gửi hỏng (SendGrid từ chối, thiếu khoá ở production) thì nói thật — báo
+    // Gửi hỏng (nhà cung cấp từ chối, thiếu khoá ở production) thì nói thật — báo
     // "đã gửi" là để người dùng ngồi chờ một mã không bao giờ tới.
     if (!sent?.success) {
       console.error('[member otp] gửi email thất bại:', sent?.error);

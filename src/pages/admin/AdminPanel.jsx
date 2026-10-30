@@ -21,9 +21,6 @@ import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
-import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissionsTab";
-import AdminCoderResourcesTab from "../../components/admin/AdminCoderResourcesTab";
-import AdminLearnersTab from "../../components/admin/AdminLearnersTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
@@ -530,13 +527,6 @@ export default function AdminPanel() {
         return <AdminUtilityStoreTab />;
       case "joylater":
         return <AdminJoyLendingTab />;
-
-      case "submissions":
-        return <AdminCoderSubmissionsTab />;
-      case "resources":
-        return <AdminCoderResourcesTab />;
-      case "learners":
-        return <AdminLearnersTab />;
 
       case "sentinel":
         return <AdminSecuritySentinelTab token={adminToken} onShowToast={(msg) => showNotification(msg)} />;

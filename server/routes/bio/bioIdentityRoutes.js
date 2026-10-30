@@ -77,7 +77,7 @@ router.post('/me/identity-check/send-otp', requireMember, identityOtpLimiter, as
     const code = issueEmailOtp(bio.email, 'identity');
     const mail = await sendMagicLinkOtp(bio.email, code, 'identity');
 
-    // Thư CHỈ được mô phỏng (chưa cấu hình SendGrid) hoặc gửi hỏng: tuyệt đối
+    // Thư CHỈ được mô phỏng (chưa cấu hình nhà cung cấp) hoặc gửi hỏng: tuyệt đối
     // không được để đợt này chạy tiếp. Người dùng sẽ không bao giờ nhận được mã,
     // gõ sai hai lần rồi bị khoá tài khoản vì một lá thư chưa từng rời máy chủ.
     // Đổi sang mục khác để đợt kiểm tra vẫn diễn ra, chỉ là hỏi thứ khác.

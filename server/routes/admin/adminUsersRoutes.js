@@ -384,7 +384,7 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
         pushPromises.push(
           sendPushNotification(bio.email, userSubject, userPushText, '/member/activity').catch(() => {})
         );
-        // Send email via SendGrid
+        // Send email through the configured provider.
         pushPromises.push(
           sendCustomEmail(bio.email, userSubject, userHtml).catch(err => console.error(`Error sending email to ${bio.email}:`, err.message))
         );

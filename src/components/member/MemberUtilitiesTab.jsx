@@ -14,7 +14,7 @@ import AppLaunchLayer from "./os/AppLaunchLayer";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, appRoute, onAppRouteChange, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -76,7 +76,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       defaultPresetTest: defaultPsychologyPresetTest, setFormData, handleSave, sleepAutoDetect,
     },
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
-    study: { ...sharedProps, studyRoute, studySub },
     team: sharedProps,
     arcade: sharedProps,
     nom: { onBack: close, ...routeProps },
