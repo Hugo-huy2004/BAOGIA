@@ -51,8 +51,7 @@ class Boundary extends Component {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="inline-flex min-h-[44px] items-center rounded-full px-5 text-[15px] font-semibold"
-            style={{ background: "var(--ax, currentColor)", color: "#fff" }}
+            className="inline-flex min-h-[44px] items-center rounded-full bg-foreground px-5 text-[15px] font-semibold text-background"
           >
             {t("os.reload")}
           </button>

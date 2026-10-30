@@ -187,7 +187,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
 
   const loadMe = async () => {
     try {
-      const session = await getMemberSession();
+      const session = getMemberSession();
       if (!session?.email) return;
       const res = await fetchHugoTeamRead(`${API_BASE}/hugoteam/me`);
       if (res.ok) setMe(await res.json());
@@ -202,7 +202,7 @@ export default function HugoTeamTab({ onBack, bio, onBioUpdate }) {
     if (!meLoaded || starting || (me?.assessmentStage && !["none", "in_progress"].includes(me.assessmentStage))) return;
     let active = true;
     setStarting(true);
-    getMemberSession().then((session) => fetch(`${API_BASE}/hugoteam/learning/start`, {
+    Promise.resolve(getMemberSession()).then((session) => fetch(`${API_BASE}/hugoteam/learning/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: session?.displayName || session?.name || "" }),
