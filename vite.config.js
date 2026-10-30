@@ -6,6 +6,8 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 
+const QUERY_STRING = { find: /^query-string$/, replacement: new URL('./node_modules/query-string/base.js', import.meta.url).pathname }
+
 /* Cổng backend cục bộ. KHÔNG dùng 8081: đó là cổng mặc định của Metro/Expo, nên
    bất cứ dự án React Native nào đang mở cũng chiếm mất — và Metro trả về HTML
    kèm status 200 cho mọi đường dẫn, nên `/api/*` "thành công" với một trang web
@@ -87,8 +89,11 @@ export default defineConfig(({ mode }) => {
   resolve: {
     // The virtual module ships with the PWA plugin; without it the import in
     // PWAUpdatePrompt cannot resolve, so point it at an inert stub.
+    // react-admin imports { parse, stringify } from query-string 7, which pulls a
+    // vulnerable decode-uri-component. package.json overrides it to 9, whose
+    // index.js only has a default export; base.js holds the same named exports.
     alias: isNative
-      ? { "virtual:pwa-register/react": "/src/config/pwaRegisterStub.js" }
+      ? [{ find: "virtual:pwa-register/react", replacement: "/src/config/pwaRegisterStub.js" }, QUERY_STRING]
       // Every @capacitor/* import in src/ is behind IS_NATIVE, so none of it is
       // reachable here — but the plugins registerPlugin() at module scope, and
       // a side-effectful module survives tree-shaking, so Rollup emitted an
@@ -99,7 +104,7 @@ export default defineConfig(({ mode }) => {
       // distinct module id again.
       // @capgo/* is a Capacitor plugin too (native Google sign-in) and is
       // imported the same guarded way, so it gets the same treatment.
-      : [{ find: /^@(capacitor|capgo)\/.*/, replacement: "/src/config/capacitorStub.js" }],
+      : [{ find: /^@(capacitor|capgo)\/.*/, replacement: "/src/config/capacitorStub.js" }, QUERY_STRING],
   },
   plugins: [
     react(),
