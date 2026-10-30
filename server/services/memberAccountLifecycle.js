@@ -5,7 +5,7 @@ import LearningEvidence from '../models/LearningEvidence.js';
 import InAppNotification from '../models/InAppNotification.js';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import NativePushDevice from '../models/NativePushDevice.js';
-import WebAuthnCredential from '../models/WebAuthnCredential.js';
+import { deleteMemberLogin } from '../auth/betterAuth.js';
 import OAuthToken from '../models/OAuthToken.js';
 import OAuthAuthorizationCode from '../models/OAuthAuthorizationCode.js';
 import UserProfile from '../models/UserProfile.js';
@@ -100,7 +100,7 @@ const removeMemberData = async (bio) => {
     InAppNotification.deleteMany(emailFilter),
     NotificationSubscription.deleteMany(emailFilter),
     NativePushDevice.deleteMany(emailFilter),
-    WebAuthnCredential.deleteMany(emailFilter),
+    deleteMemberLogin(email),
     OAuthToken.deleteMany(memberEmailFilter),
     OAuthAuthorizationCode.deleteMany(memberEmailFilter),
     UserProfile.deleteMany(emailFilter),

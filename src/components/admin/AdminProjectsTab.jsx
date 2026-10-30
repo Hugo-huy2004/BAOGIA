@@ -47,10 +47,6 @@ export default function AdminProjectsTab() {
   const [form, setForm] = useState(EMPTY);
   const [creating, setCreating] = useState(false);
   const [linkFor, setLinkFor] = useState(null); // { project, path? }
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deletePassword, setDeletePassword] = useState('');
-  const [deleteError, setDeleteError] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const fetchProjects = async () => {
@@ -81,24 +77,17 @@ export default function AdminProjectsTab() {
     finally { setCreating(false); }
   };
 
-  const handleConfirmDelete = async (e) => {
-    e.preventDefault();
-    setDeleteError('');
-    setIsDeleting(true);
-    try {
-      const verify = await fetch(`${API_BASE}/admin/verify-password`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: deletePassword }),
-      });
-      if (!verify.ok) { setDeleteError((await verify.json()).error || 'Sai mật khẩu'); return; }
-      const res = await fetch(`${API_BASE}/customer-projects/${deleteTarget._id}`, { method: 'DELETE', credentials: 'include' });
-      if (!res.ok) throw new Error();
-      notify.success('Đã xoá dự án');
-      setDeleteTarget(null);
-      fetchProjects();
-    } catch { setDeleteError('Không xoá được, thử lại'); }
-    finally { setIsDeleting(false); }
+  const handleDelete = async (p) => {
+    const ok = await notify.confirm({
+      title: `Xoá dự án ${p.projectId}?`,
+      message: `Xoá hẳn dự án của ${p.customer?.fullName || p.name}, link của khách và mọi tin nhắn. Không hoàn tác được.`,
+      confirmText: 'Xoá', danger: true,
+    });
+    if (!ok) return;
+    const res = await fetch(`${API_BASE}/customer-projects/${p._id}`, { method: 'DELETE', credentials: 'include' });
+    if (!res.ok) { notify.error('Không xoá được, thử lại'); return; }
+    notify.success('Đã xoá dự án');
+    fetchProjects();
   };
 
   const filtered = useMemo(() => {
@@ -182,7 +171,7 @@ export default function AdminProjectsTab() {
                 <button type="button" onClick={() => setLinkFor({ project: p })} aria-label="Link cho khách" className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-muted">
                   <span aria-hidden className="material-symbols-outlined text-[20px]">link</span>
                 </button>
-                <button type="button" onClick={() => { setDeleteTarget(p); setDeletePassword(''); setDeleteError(''); }} aria-label="Xoá dự án" className="grid size-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                <button type="button" onClick={() => handleDelete(p)} aria-label="Xoá dự án" className="grid size-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
                   <span aria-hidden className="material-symbols-outlined text-[20px]">delete</span>
                 </button>
               </li>
@@ -194,20 +183,6 @@ export default function AdminProjectsTab() {
 
       {linkFor && <ProjectLinkSheet project={linkFor.project} path={linkFor.path} onClose={() => setLinkFor(null)} />}
 
-      {deleteTarget && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={() => setDeleteTarget(null)}>
-          <form role="dialog" aria-modal="true" onSubmit={handleConfirmDelete} onClick={(e) => e.stopPropagation()} className="w-full max-w-sm space-y-4 rounded-3xl bg-card p-6 text-foreground shadow-2xl">
-            <h2 className="text-lg font-semibold">Xoá dự án {deleteTarget.projectId}?</h2>
-            <p className="text-sm text-muted-foreground">Xoá hẳn dự án của <strong className="text-foreground">{deleteTarget.customer?.fullName || deleteTarget.name}</strong>, link của khách và mọi tin nhắn. Không hoàn tác được.</p>
-            <input type="password" autoFocus required value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} placeholder="Mật khẩu admin" className={field} aria-label="Mật khẩu admin" />
-            {deleteError && <p role="alert" className="text-sm text-destructive">{deleteError}</p>}
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => setDeleteTarget(null)} className="min-h-11 rounded-xl bg-muted text-sm font-semibold">Huỷ</button>
-              <button type="submit" disabled={isDeleting} className="min-h-11 rounded-xl bg-destructive text-sm font-semibold text-white disabled:opacity-50">{isDeleting ? 'Đang xoá…' : 'Xoá'}</button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 }

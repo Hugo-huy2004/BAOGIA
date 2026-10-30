@@ -151,7 +151,8 @@ export function installApiAuthInterceptor() {
         adminSessionMarker = getAdminSession()?.loginAt || null;
         const parsed = parseRequestUrl(url);
         isAdminRoute = parsed?.pathname === "/api/admin"
-          || parsed?.pathname.startsWith("/api/admin/");
+          || parsed?.pathname.startsWith("/api/admin/")
+          || parsed?.pathname.startsWith("/api/admin-auth/");
 
         // Trong portal thành viên, token thành viên phải thắng token admin cũ
         // còn lưu trong trình duyệt. Route admin vẫn ưu tiên đúng phiên admin;

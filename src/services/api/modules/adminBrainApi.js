@@ -414,23 +414,6 @@ export const adminBrainApi = {
   },
 
   /**
-   * Cập nhật cài đặt tài khoản Admin & Đổi mật khẩu
-   */
-  async updateAdminAccountSettings(data) {
-    const res = await fetch(`${API_BASE}/admin/account-settings`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Không thể cập nhật tài khoản Admin');
-    }
-    return res.json();
-  },
-
-  /**
    * Chỉnh sửa thông tin thành viên và gia hạn thời hạn sử dụng (expiresAt)
    */
   async updateUserProfileAndExpiration(userId, updateData) {

@@ -41,9 +41,7 @@ export const SERVICES = Object.freeze([
   { id: "ota", prefix: "/api/ota", module: "./routes/otaRoutes.js", public: true },
 
   // ── Danh tính ─────────────────────────────────────────────────────────────
-  { id: "auth", prefix: "/api/auth/member", module: "./routes/memberAuthRoutes.js", public: true },
   { id: "oauth", prefix: "/api/oauth", module: "./routes/oauthRoutes.js", public: true },
-  { id: "webauthn", prefix: "/api/webauthn", module: "./routes/webauthnRoutes.js", public: true },
 
   // ── Hồ sơ & nội dung công khai ────────────────────────────────────────────
   { id: "member-progress", prefix: "/api/member/progress", module: "./routes/memberProgressRoutes.js" },

@@ -1,4 +1,5 @@
 import express from 'express';
+import { signedSessionRole } from '../auth/betterAuth.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
@@ -26,11 +27,7 @@ const DEMO_USES_PER_DAY = 3;
 const demoUsage = new Map(); // ip -> { day, count }
 const demoDay = () => new Date().toISOString().slice(0, 10);
 
-const hasAuthToken = (req) => Boolean(
-  req.headers.authorization?.startsWith('Bearer ')
-  || req.cookies?.member_jwt
-  || req.cookies?.jwt
-);
+const hasAuthToken = (req) => Boolean(req.headers.authorization?.startsWith('Bearer ') || signedSessionRole(req));
 
 // consume=true cho thao tác tốn tài nguyên (upload ZIP, nén); các bước phụ
 // (tải từng tệp, dọn dẹp) chỉ cần danh tính demo để khớp chủ sở hữu file tạm.

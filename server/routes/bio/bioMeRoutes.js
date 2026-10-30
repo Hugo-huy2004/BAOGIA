@@ -730,8 +730,11 @@ router.post('/me/revoke-sessions', requireMember, async (req, res) => {
 
     await Bio.updateOne(
       { email },
-      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false, sessionsValidFrom: new Date() } }
+      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } }
     );
+    const { memberAuth } = await import('../../auth/betterAuth.js');
+    const { fromNodeHeaders } = await import('better-auth/node');
+    await memberAuth().api.revokeOtherSessions({ headers: fromNodeHeaders(req.headers) });
     // Cache cổng chặn giữ 30s — xoá ngay để lần gọi kế tiếp thấy cờ đã tắt.
     invalidateMemberGate(req.memberEmail);
 

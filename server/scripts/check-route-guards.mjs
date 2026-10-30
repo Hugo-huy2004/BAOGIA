@@ -32,16 +32,6 @@ const PUBLIC_ROUTES = {
   "emailRoutes.js GET /unsubscribe": "liên kết huỷ nhận thư trong email: người nhận bấm từ hộp thư, không thể đang có phiên đăng nhập. Xác thực bằng TOKEN ĐÃ KÝ trong query (verifyUnsubscribeToken), token hỏng hoặc hết hạn thì từ chối",
   "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
-  "adminAuthRoutes.js POST /login": "cửa đăng nhập admin",
-  "adminAuthRoutes.js POST /verify-otp": "bước 2 của 2FA admin",
-  "memberAuthRoutes.js POST /google": "đổi Google ID token lấy member JWT",
-  "memberAuthRoutes.js POST /apple": "đổi Apple token lấy member JWT",
-  "memberAuthRoutes.js POST /request-otp": "đăng nhập bằng OTP email, bước 1",
-  "memberAuthRoutes.js POST /verify-otp": "đăng nhập bằng OTP email, bước 2",
-  "memberAuthRoutes.js POST /logout": "xoá cookie",
-  "memberAuthRoutes.js POST /dev-login": "chỉ dev — handler trả 404 khi NODE_ENV=production",
-  "webauthnRoutes.js POST /login-options": "thử thách WebAuthn, phát trước khi có phiên",
-  "webauthnRoutes.js POST /login-verify": "xác minh chữ ký WebAuthn rồi mới cấp token",
   "customerRoutes.js POST /auth": "cửa đăng nhập cổng khách hàng",
 
   // ── OAuth: chuẩn quy định các endpoint này xác thực bằng client credentials

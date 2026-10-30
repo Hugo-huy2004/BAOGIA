@@ -60,14 +60,14 @@ export async function buildUserOverview(email, memberId) {
   const [
     JoyLedger, JoyCreditProfile, JoyDefaultRecord, PendingTransfer, JoyGiftCard,
     Booking, SupportTicket, CustomerProject, UtilityOrder,
-    SecurityEvent, SecurityBlock, SecurityAppeal, WebAuthnCredential,
+    SecurityEvent, SecurityBlock, SecurityAppeal,
     NativePushDevice, NotificationSubscription, InAppNotification,
     SurveyResponse, SleepLog, ReadingSession, LessonFeedback, LearningEvidence,
     StockPosition, StockTrade, ArcadeScore, ChessRating, CheckinRecord,
   ] = await Promise.all([
     'JoyLedger', 'JoyCreditProfile', 'JoyDefaultRecord', 'PendingTransfer', 'JoyGiftCard',
     'Booking', 'SupportTicket', 'CustomerProject', 'UtilityOrder',
-    'SecurityEvent', 'SecurityBlock', 'SecurityAppeal', 'WebAuthnCredential',
+    'SecurityEvent', 'SecurityBlock', 'SecurityAppeal',
     'NativePushDevice', 'NotificationSubscription', 'InAppNotification',
     'SurveyResponse', 'SleepLog', 'ReadingSession', 'LessonFeedback', 'LearningEvidence',
     'StockPosition', 'StockTrade', 'ArcadeScore', 'ChessRating', 'CheckinRecord',
@@ -101,7 +101,6 @@ export async function buildUserOverview(email, memberId) {
       eventCount: await count(SecurityEvent, { emailHash: hash }),
       blocks: await recent(SecurityBlock, { $or: [{ email }, { emailHash: hash }] }, 10),
       appeals: await recent(SecurityAppeal, byEmail, 10),
-      passkeys: await recent(WebAuthnCredential, byEmail, 10),
     })),
 
     // ── Thiết bị và thông báo ────────────────────────────────────────────

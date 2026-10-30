@@ -3,143 +3,15 @@
  * adminRoutes.js cũ — mỗi thứ chỉ có MỘT bản ở đây nên các router con dùng chung
  * trạng thái (bộ đếm limiter, cache) như khi còn chung một tệp.
  */
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
-import rateLimit from 'express-rate-limit';
 import fs from 'fs/promises';
 import path from 'path';
 import AdminAuditLog from '../../models/AdminAuditLog.js';
-import { resolveAdminPermissions } from '../../../shared/adminAccess.js';
 import { CODER_STAGE_SEQUENCE } from '../../../shared/coderProgression.js';
 import { fileURLToPath } from 'url';
 
 
 // Thư mục của adminRoutes.js gốc: đường dẫn tương đối cũ ('../../public') giữ nguyên nghĩa.
 export const __dirname = path.dirname(fileURLToPath(new URL('../adminRoutes.js', import.meta.url)));
-
-// Username is hashed only as a lookup key (not a secret). Passwords used to be
-// unsalted SHA-256 — fast and brute-forceable if the DB ever leaked. They're now
-// bcrypt; verifyAndUpgrade() checks either scheme and transparently re-hashes a
-// legacy SHA-256 record to bcrypt the first time its owner logs in.
-export const sha256 = (message) => crypto.createHash('sha256').update(message).digest('hex');
-
-export const isBcrypt = (h) => typeof h === 'string' && h.startsWith('$2');
-
-// Exported so password migration logic stays reusable across admin flows.
-// Mã băm bcrypt (cost 12) của một chuỗi vô nghĩa — chỉ để so khớp cho có khi
-// không tìm thấy tài khoản, giữ thời gian phản hồi bằng nhánh có tài khoản.
-export const TIMING_PAD_HASH = '$2b$12$qKHZeAUGgUCfhfemMzSrwu3B39G8u8eZgiJNYAKuVpouztnWBw9Yu';
-
-export async function verifyAndUpgrade(admin, plainPassword) {
-  if (isBcrypt(admin.password)) {
-    return bcrypt.compare(plainPassword, admin.password);
-  }
-  // Legacy unsalted SHA-256 hex — constant-time compare, then upgrade on success.
-  const legacy = sha256(plainPassword);
-  const stored = admin.password || '';
-  const ok = legacy.length === stored.length &&
-    crypto.timingSafeEqual(Buffer.from(legacy), Buffer.from(stored));
-  if (ok) {
-    admin.password = await bcrypt.hash(plainPassword, 12);
-    await admin.save();
-  }
-  return ok;
-}
-
-// Admin login is directly brute-forceable (unlike Google login) — cap attempts
-// per IP. Kept loose in dev where the Vite proxy collapses every request to one IP.
-export const adminLoginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 10 : 1000,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 15 phút.' }
-});
-
-// Trần đoán OTP. Trước đây /verify-otp không có limiter nào: chặn duy nhất là
-// bộ đếm 5 lần/token, nên chỉ cần xin token mới là đoán tiếp. Limiter này chặn
-// luôn ở tầng IP để một máy không thể vừa xin token vừa đoán liên tục.
-export const otpVerifyLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 20 : 1000,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Quá nhiều lần nhập mã. Vui lòng thử lại sau 15 phút.' }
-});
-
-/**
- * Phát một mã OTP mới cho tài khoản quản trị và gửi qua Telegram.
- *
- * Mã 6 chữ số (trước là 4): từ khi bỏ bước mật khẩu, OTP là lớp bảo vệ DUY
- * NHẤT, nên không gian đoán phải đủ rộng. Kèm theo đó là `attempts`: sai 5 lần
- * là huỷ mã, để không ai dò hết 10^6 khả năng trong 5 phút.
- */
-export const OTP_TTL_MS = 30 * 1000;
-
-export async function issueAdminOtp(admin) {
-  const otpCode = String(crypto.randomInt(100000, 1000000));
-  const tempToken = crypto.randomBytes(24).toString('hex');
-
-  if (!global.ADMIN_2FA_OTPS) global.ADMIN_2FA_OTPS = new Map();
-  // Quét rác trước khi thêm: mã hết hạn mà không ai gọi verify-otp thì nằm lại
-  // trong Map vĩnh viễn. Trên máy 512MB của Render free đó là rò bộ nhớ chậm.
-  const nowMs = Date.now();
-  for (const [key, entry] of global.ADMIN_2FA_OTPS) {
-    if (entry.expiresAt <= nowMs) global.ADMIN_2FA_OTPS.delete(key);
-  }
-  global.ADMIN_2FA_OTPS.set(tempToken, {
-    adminId: admin._id,
-    adminUsername: admin.username || 'admin',
-    otpCode,
-    attempts: 0,
-    // 30 giây theo yêu cầu của chủ hệ thống: mã bị đọc lỏm trên màn hình khoá
-    // điện thoại thì gần như không kịp dùng lại. Đổi số ở ĐÂY thôi — client đọc
-    // hạn dùng từ `expiresIn` máy chủ trả về, không tự chép hằng số.
-    expiresAt: Date.now() + OTP_TTL_MS,
-  });
-
-  const { sendTelegramAlert } = await import('../../services/telegramService.js');
-  const otpHtml = `
-🔑 <b>[HUGO ADMIN OTP]</b>
-
-Mã đăng nhập Admin Dashboard: <b>${otpCode}</b>
-
-⏱️ <i>Hiệu lực 30 giây. Không chia sẻ mã này cho bất kỳ ai. Nếu không phải bạn yêu cầu, hãy bỏ qua.</i>
-  `.trim();
-
-  // ponytail: không nuốt lỗi — Telegram hỏng mà vẫn báo "đã gửi" thì Boss ngồi
-  // chờ mã không bao giờ tới. Mã vẫn nằm trong log server để cứu hộ.
-  const sent = await sendTelegramAlert(otpHtml).catch((e) => ({ success: false, error: e.message }));
-  const delivered = Boolean(sent.success && !sent.simulated);
-  if (!delivered) {
-    console.warn(`⚠️ Admin OTP không gửi được qua Telegram (${sent.error || 'chưa cấu hình TELEGRAM_BOT_TOKEN/CHAT_ID'}). Mã: ${otpCode}`);
-  }
-  return { tempToken, delivered, expiresIn: Math.round(OTP_TTL_MS / 1000) };
-}
-
-export const ownerOnly = (req, res, next) => req.admin?.adminRole === 'owner'
-  ? next()
-  : res.status(403).json({ code: 'ADMIN_OWNER_REQUIRED', error: 'Chỉ Chủ hệ thống được quản lý tài khoản quản trị.' });
-
-export const publicAdmin = (admin) => ({
-  id: admin._id,
-  displayName: admin.displayName || 'Quản trị viên',
-  role: admin.role || 'owner',
-  permissions: resolveAdminPermissions(admin.role || 'owner', admin.permissions || []),
-  customPermissions: admin.permissions || [],
-  active: admin.active !== false,
-  createdAt: admin.createdAt,
-  updatedAt: admin.updatedAt,
-});
-
-export const auditAdminAccount = (req, action, target) => AdminAuditLog.create({
-  adminId: String(req.admin.id),
-  adminUsername: req.admin.displayName || req.admin.id,
-  action,
-  targetEmail: String(target || ''),
-  ipAddress: req.ip || '',
-  userAgent: req.headers['user-agent'] || '',
-}).catch((error) => console.error('[admin account audit]', error.message));
 
 export async function getDirSize(dirPath) {
   let size = 0;

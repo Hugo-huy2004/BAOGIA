@@ -72,9 +72,15 @@ The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-
 
 ### Auth (do not bypass)
 
-- **Member**: Google ID token → `POST /api/auth/member/google` → server-verified → member JWT (HttpOnly cookie `member_jwt` + Bearer fallback, auto-attached by `src/services/api/core/authInterceptor.js`). Every member route uses `requireMember` (`server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param. WebAuthn issues the same token type.
-- **Admin**: separate JWT in cookie `jwt`, `requireAdmin` middleware.
-- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`server/utils/secrets.js`). Env: root `.env` (frontend `VITE_*`), `server/.env` (backend).
+Better Auth (`server/auth/betterAuth.js`), two separate instances — never merge them:
+
+- **Member**: `/api/auth/*`, cookie `hugo.*`, collections `user/session/account/verification/passkey`. Google ID token (`sign-in/social` with `idToken`), email OTP, passkey; `bearer()` for the Capacitor app. Creating a user creates its Bio (`databaseHooks`). Every member route uses `requireMember` (`server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param.
+- **Admin**: `/api/admin-auth/*`, cookie `hugo-admin.*`, collections `admin_*`. No passwords, no Telegram: a 6-digit code to the admin's own email (`emailOTP`, sign-up disabled). Roles come from `shared/adminAccess.js` through the admin plugin; one admin may hold several (`"support,finance"`), permissions are their union. `requireAdmin` sets `req.admin`. Only owners manage accounts. First owner: set `ADMIN_SEED_EMAIL` and start the server once.
+- Customer portal keeps its own JWT (`customer_jwt`, `requireCustomer`).
+- Hot paths (load shield, IP gate) only check the session cookie's signature (`signedSessionRole`), no DB.
+- Frontend: keep using `src/services/api/core/authSession.js`; the Better Auth clients live in `src/lib/authClient.js` (import it dynamically).
+- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: root `.env` (frontend `VITE_*`), `server/.env` (backend).
+- `server/.env` points `MONGODB_URI` at the **real Atlas DB**. Run local experiments with `MONGODB_URI=mongodb://localhost:27017/hugo_wishpax`.
 
 ### Conventions
 

@@ -1,57 +1,42 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OTPInput, REGEXP_ONLY_DIGITS } from "input-otp";
-import { loginAdmin, verifyAdminOtp } from "../../services/api/core/authSession";
+import { sendAdminCode, verifyAdminCode } from "../../services/api/core/authSession";
 
 /**
- * Đăng nhập quản trị — chỉ sống ở /admin, không còn là một thẻ trên /login của
- * thành viên. Hai yếu tố: mật khẩu đúng rồi mới tới mã Telegram 30 giây.
+ * Đăng nhập quản trị — chỉ sống ở /admin. Không mật khẩu: nhập email, nhận mã 6 số
+ * gửi về chính email đó. Email không phải tài khoản quản trị thì không nhận được mã
+ * (máy chủ vẫn trả "đã gửi" để không lộ ai là admin).
  */
 export default function AdminLogin({ onSuccess }) {
-  const [step, setStep] = useState("password"); // password | otp
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [tempToken, setTempToken] = useState("");
-  const [otp, setOtp] = useState("");
-  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [step, setStep] = useState("email"); // email | code
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    if (step !== "otp" || secondsLeft <= 0) return undefined;
-    const timer = setTimeout(() => setSecondsLeft((n) => n - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [step, secondsLeft]);
-
-  const submitPassword = async (e) => {
-    e.preventDefault();
+  const sendCode = async (e) => {
+    e?.preventDefault();
     setError("");
     setBusy(true);
-    const res = await loginAdmin({ username: username.trim(), password });
+    const { error: err } = await sendAdminCode(email);
     setBusy(false);
-    if (!res.tempToken) {
-      setError(res.error === "network" ? "Chưa kết nối được máy chủ." : res.error === "invalid_credentials" ? "Tên đăng nhập hoặc mật khẩu không đúng." : res.error || "Máy chủ báo lỗi.");
-      return;
-    }
-    setTempToken(res.tempToken);
-    setPassword("");
-    setOtp("");
-    setSecondsLeft(res.expiresIn || 30);
-    setStep("otp");
-    if (!res.otpDelivered) setError(res.message || "Chưa gửi được mã qua Telegram.");
+    if (err) { setError(err); return; }
+    setCode("");
+    setStep("code");
   };
 
-  const submitOtp = async (code) => {
-    if (code.length !== 6 || busy) return;
-    if (secondsLeft <= 0) { setError("Mã đã hết hạn. Bấm “Gửi lại” để nhận mã mới."); return; }
+  const submitCode = async (value) => {
+    if (value.length !== 6 || busy) return;
     setError("");
     setBusy(true);
-    const { session, error: err } = await verifyAdminOtp(tempToken, code, { remember: true });
+    const { session, error: err } = await verifyAdminCode(email, value);
     setBusy(false);
-    if (!session) { setError(err || "Mã không đúng."); setOtp(""); return; }
+    if (!session) { setError(err); setCode(""); return; }
     onSuccess();
   };
 
   const field = "w-full min-h-12 rounded-xl border border-border bg-background px-4 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/40";
+  const primary = "min-h-12 w-full rounded-xl bg-foreground text-[15px] font-semibold text-background disabled:opacity-50";
 
   return (
     <main className="grid min-h-screen place-items-center bg-background px-4 text-foreground">
@@ -59,27 +44,24 @@ export default function AdminLogin({ onSuccess }) {
         <span aria-hidden className="material-symbols-outlined text-[36px] text-muted-foreground">admin_panel_settings</span>
         <h1 className="mt-2 text-2xl font-semibold tracking-[-.02em]">Quản trị Hugo Studio</h1>
 
-        {step === "password" ? (
-          <form onSubmit={submitPassword} className="mt-6 space-y-3">
-            <input className={field} autoComplete="username" placeholder="Tên đăng nhập" aria-label="Tên đăng nhập" value={username} onChange={(e) => setUsername(e.target.value)} required />
-            <input className={field} type="password" autoComplete="current-password" placeholder="Mật khẩu" aria-label="Mật khẩu" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        {step === "email" ? (
+          <form onSubmit={sendCode} className="mt-6 space-y-3">
+            <input className={field} type="email" autoComplete="email" inputMode="email" placeholder="Email quản trị" aria-label="Email quản trị" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
             {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-            <button disabled={busy} className="min-h-12 w-full rounded-xl bg-foreground text-[15px] font-semibold text-background disabled:opacity-50">
-              {busy ? "Đang kiểm tra…" : "Tiếp tục"}
-            </button>
-            <p className="text-center text-xs text-muted-foreground">Bước sau: mã 6 số gửi qua Telegram.</p>
+            <button disabled={busy} className={primary}>{busy ? "Đang gửi…" : "Gửi mã đăng nhập"}</button>
+            <p className="text-center text-xs text-muted-foreground">Mã 6 số gửi về email này, dùng trong 5 phút.</p>
           </form>
         ) : (
           <div className="mt-6 space-y-4">
-            <p className="text-[15px] text-muted-foreground">Nhập mã 6 số vừa gửi qua Telegram.</p>
+            <p className="text-[15px] text-muted-foreground">Nhập mã vừa gửi tới <span className="font-medium text-foreground">{email}</span>. Không thấy thư thì xem mục Spam.</p>
             <OTPInput
               maxLength={6}
               pattern={REGEXP_ONLY_DIGITS}
-              value={otp}
-              onChange={setOtp}
-              onComplete={submitOtp}
+              value={code}
+              onChange={setCode}
+              onComplete={submitCode}
               autoFocus
-              aria-label="Mã xác thực 6 số"
+              aria-label="Mã đăng nhập 6 số"
               containerClassName="flex justify-between"
               render={({ slots }) => slots.map((slot, i) => (
                 <div key={i} className={`grid h-14 w-12 place-items-center rounded-xl border text-xl font-semibold tabular-nums ${slot.isActive ? "border-foreground" : "border-border"}`}>
@@ -87,14 +69,14 @@ export default function AdminLogin({ onSuccess }) {
                 </div>
               ))}
             />
-            <p className="text-sm text-muted-foreground">{secondsLeft > 0 ? `Mã hết hạn sau ${secondsLeft} giây` : "Mã đã hết hạn"}</p>
             {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-            <button type="button" disabled={busy || otp.length !== 6} onClick={() => submitOtp(otp)} className="min-h-12 w-full rounded-xl bg-foreground text-[15px] font-semibold text-background disabled:opacity-50">
-              {busy ? "Đang xác thực…" : "Vào trang quản trị"}
+            <button type="button" disabled={busy || code.length !== 6} onClick={() => submitCode(code)} className={primary}>
+              {busy ? "Đang kiểm tra…" : "Vào trang quản trị"}
             </button>
-            <button type="button" onClick={() => { setStep("password"); setError(""); }} className="min-h-11 w-full text-sm font-medium text-muted-foreground">
-              Gửi lại mã (nhập lại mật khẩu)
-            </button>
+            <div className="flex justify-between text-sm font-medium text-muted-foreground">
+              <button type="button" onClick={() => { setStep("email"); setError(""); }} className="min-h-11">Đổi email</button>
+              <button type="button" disabled={busy} onClick={sendCode} className="min-h-11">Gửi lại mã</button>
+            </div>
           </div>
         )}
       </div>

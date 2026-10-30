@@ -2,6 +2,7 @@
  * lessonController.js
  * Controller tập trung toàn bộ logic nghiệp vụ bài giảng, chấm bài tập và ghi nhận phản hồi bài học HugoCoder.
  */
+import { signedSessionRole } from '../../auth/betterAuth.js';
 import LessonFeedback from '../../models/LessonFeedback.js';
 import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
@@ -88,7 +89,7 @@ export async function getLessonDetail(req, res) {
 
   // Bài trả phí: không bao giờ vào cache dùng chung, kể cả phản hồi lỗi.
   res.setHeader('Cache-Control', 'private, no-store');
-  if (!req.headers.authorization && !req.cookies?.member_jwt && !req.cookies?.jwt) {
+  if (!req.headers.authorization && !signedSessionRole(req)) {
     return res.status(401).json({ code: 'LOGIN_REQUIRED', error: 'Đăng nhập để học bài này.' });
   }
   return requireMember(req, res, async () => {

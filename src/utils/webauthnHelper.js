@@ -1,62 +1,36 @@
-// PWAQuickLogin is eager in App.jsx, so a static import here put the whole
-// @simplewebauthn bundle in the entry chunk for every visitor — including the
-// ones who never touch biometrics. Only the two ceremony functions actually
-// need it, and both are already async.
-const sdk = () => import('@simplewebauthn/browser');
+// Passkey (vân tay / Face ID) qua Better Auth. Client auth nạp động: PWAQuickLogin
+// nằm trong gói đầu, không được kéo cả thư viện WebAuthn theo.
+import { loginMemberWithPasskey } from '../services/api/core/authSession';
 
-const apiBase = import.meta.env.VITE_API_URL || '/api';
-
-async function postJSON(path, body) {
-  const res = await fetch(`${apiBase}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw Object.assign(new Error(data.error || 'Request failed'), { code: data.error });
-  return data;
-}
+const client = async () => (await import('../lib/authClient')).memberAuthClient;
 
 export const webauthnHelper = {
-  // Callers use this synchronously (a useState initializer on the login
-  // screen), so it cannot await the SDK. This is the same check
-  // browserSupportsWebAuthn() performs.
+  // Gọi đồng bộ (useState initializer) nên không await được.
   isSupported: () =>
     typeof window !== 'undefined' && typeof window.PublicKeyCredential === 'function',
 
-  // Registers the current device's fingerprint/Face ID as a new login method.
-  async registerDevice(email, deviceName, baseDeviceName) {
-    const options = await postJSON('/webauthn/register-options', { email });
-    const { startRegistration } = await sdk();
-    const response = await startRegistration(options);
-    return postJSON('/webauthn/register-verify', { email, response, deviceName, baseDeviceName });
+  async registerDevice(_email, deviceName) {
+    const { error } = await (await client()).passkey.addPasskey({ name: deviceName });
+    if (error) throw Object.assign(new Error(error.message || 'Không thêm được passkey'), { name: error.code === 'ERROR_CEREMONY_ABORTED' ? 'NotAllowedError' : 'Error' });
   },
 
-  // Returns the member profile to feed into loginMember() on success.
-  async loginWithBiometric(email) {
-    const options = await postJSON('/webauthn/login-options', { email });
-    const { startAuthentication } = await sdk();
-    const response = await startAuthentication(options);
-    const result = await postJSON('/webauthn/login-verify', { email, response });
-    return result.member;
+  // Trả hồ sơ thành viên như bản cũ; phiên đã được lưu trong loginMemberWithPasskey.
+  async loginWithBiometric() {
+    const { session, error } = await loginMemberWithPasskey();
+    if (!session) throw new Error(error);
+    return session;
   },
 
-  async listDevices(email) {
-    const res = await fetch(`${apiBase}/webauthn/credentials/${encodeURIComponent(email)}`);
-    const data = await res.json().catch(() => ({}));
-    return data.credentials || [];
+  async listDevices() {
+    const { data } = await (await client()).passkey.listUserPasskeys();
+    return (data || []).map((p) => ({ _id: p.id, deviceName: p.name || 'Passkey', createdAt: p.createdAt }));
   },
 
-  async removeDevice(id, email) {
-    const res = await fetch(`${apiBase}/webauthn/credentials/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    return res.ok;
+  async removeDevice(id) {
+    const { error } = await (await client()).passkey.deletePasskey({ id });
+    return !error;
   },
 
-  // True if this device already has a saved credential ID for biometric login.
   hasSavedDeviceFlag(email) {
     return localStorage.getItem(`hugo_webauthn_${email}`) === '1';
   },

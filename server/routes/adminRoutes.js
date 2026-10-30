@@ -10,7 +10,6 @@ import adminSystemRoutes from './admin/adminSystemRoutes.js';
 import adminCommerceRoutes from './admin/adminCommerceRoutes.js';
 
 // Được nơi khác import từ tệp này từ trước khi tách — giữ nguyên lối vào.
-export { isBcrypt, verifyAndUpgrade } from './admin/adminShared.js';
 
 const router = express.Router();
 router.use(adminAuthRoutes);

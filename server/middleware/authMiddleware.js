@@ -1,6 +1,4 @@
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import Admin from '../models/Admin.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
@@ -8,6 +6,7 @@ import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
 import { missingProfileFields } from '../utils/profileRequirements.js';
 import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 import { hasAdminPermission, resolveAdminPermissions } from '../../shared/adminAccess.js';
+import { memberAuth, adminAuth, readSession } from '../auth/betterAuth.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
@@ -22,7 +21,7 @@ const sendAuthFailure = (res, error, authRole = 'member') => {
   return res.status(503).json({ code: 'AUTH_UNAVAILABLE', error: 'Máy chủ tạm thời không thể xác thực. Vui lòng thử lại.' });
 };
 
-const SELF_ADMIN_ROUTES = /^\/api\/admin\/(?:verify-session|logout|verify-password|change-password|account-settings)(?:\/|$)/;
+const SELF_ADMIN_ROUTES = /^\/api\/admin\/verify-session(?:\/|$)/;
 const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/accounts(?:\/|$)/, 'access'],
   [/^\/api\/admin\/(?:queue|joylater)(?:\/|$)/, 'queue'],
@@ -51,21 +50,33 @@ const permissionForAdminRequest = (req) => {
   return ADMIN_PERMISSION_RULES.find(([pattern]) => pattern.test(path))?.[1] || 'access';
 };
 
-const loadAdminClaims = async (decoded, req) => {
-  const admin = await Admin.findById(decoded.id)
-    .select({ sessionsValidFrom: 1, displayName: 1, role: 1, permissions: 1, active: 1 })
-    .lean();
-  if (!admin || admin.active === false) return null;
-  const permissions = resolveAdminPermissions(admin.role || 'owner', admin.permissions || []);
+// Quyền = hợp các vai trò (Better Auth admin plugin lưu "support,finance").
+const loadAdminClaims = (user, req) => {
+  if (!user || user.banned) return null;
+  const roles = String(user.role || 'viewer').split(',').map((r) => r.trim()).filter(Boolean);
+  const permissions = roles.includes('owner')
+    ? ['*']
+    : [...new Set(roles.flatMap((role) => resolveAdminPermissions(role)))];
   const needed = permissionForAdminRequest(req);
   if (needed && !hasAdminPermission(permissions, needed)) return { forbidden: true };
   return {
-    ...decoded,
-    adminRole: admin.role || 'owner',
-    displayName: admin.displayName || 'Quản trị viên',
+    id: user.id,
+    email: user.email,
+    username: user.email,
+    adminRole: roles.includes('owner') ? 'owner' : roles[0],
+    roles,
+    displayName: user.name || 'Quản trị viên',
     permissions,
-    sessionsValidFrom: admin.sessionsValidFrom || null,
   };
+};
+
+/** Admin của request, hoặc null / { forbidden }. */
+const adminFromRequest = async (req) => loadAdminClaims((await readSession(adminAuth(), req))?.user, req);
+
+/** Email thành viên của request (đã viết thường), hoặc null. */
+export const memberEmailFromRequest = async (req) => {
+  const email = (await readSession(memberAuth(), req))?.user?.email;
+  return email ? email.toLowerCase() : null;
 };
 
 // Những route CẦN gọi được khi hồ sơ chưa xong — nếu chặn cả mấy đường này thì
@@ -86,7 +97,7 @@ const PROFILE_SETUP_ROUTES = [
 // Riêng đăng nhập/đăng xuất thì theo tiền tố: người dùng phải thoát ra được.
 const isProfileSetupRoute = (url = '') => {
   const path = String(url).split('?')[0].replace(/\/+$/, '') || '/';
-  return PROFILE_SETUP_ROUTES.includes(path) || path.startsWith('/api/auth/member');
+  return PROFILE_SETUP_ROUTES.includes(path) || path.startsWith('/api/auth/');
 };
 
 const extractToken = (req, cookieName) => {
@@ -141,7 +152,7 @@ async function readMemberGate(email) {
   const [bio, deletedAccount] = await Promise.all([
     Bio.findOne(
     { email },
-      'locationAnomaly language birthDay birthMonth birthYear guardianConsentAt phone countryCode adminArea locality exactAddress isEduVerified trialExpiresAt expiresAt sessionsValidFrom',
+      'locationAnomaly language birthDay birthMonth birthYear guardianConsentAt phone countryCode adminArea locality exactAddress isEduVerified trialExpiresAt expiresAt',
     ).select('+deletionStartedAt').lean(),
     isDeletedMemberAccount(email),
   ]);
@@ -157,7 +168,6 @@ async function readMemberGate(email) {
       // gì" nên tự đóng, app gọi lại, 403 lần nữa… vòng lặp tới khi chạm giới
       // hạn và bị bot an ninh báo nhầm là tấn công (28/10/2026).
       profileIncomplete: missingProfileFields(bio).length > 0,
-      sessionsValidFrom: bio.sessionsValidFrom || null,
     } : null;
 
   if (gateCache.size >= GATE_CACHE_MAX) {
@@ -169,110 +179,35 @@ async function readMemberGate(email) {
 }
 
 export const requireAdmin = async (req, res, next) => {
-  const token = extractToken(req, 'jwt');
-
-  if (!token) {
-    return invalidSession(res, 'admin');
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'admin') {
-      return invalidSession(res, 'admin');
-    }
-
-    // UA Fingerprint Binding Verification (if signed into token)
-    if (decoded.uaHash) {
-      const currentUa = req.headers['user-agent'] || '';
-      const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
-      if (decoded.uaHash !== currentUaHash) {
-        return invalidSession(res, 'admin', 'Phiên quản trị không còn hợp lệ trên thiết bị này.');
-      }
-    }
-
-    // Thu hồi phiên. JWT tự nó không rút lại được, nên đăng xuất chỉ xoá cookie
-    // ở trình duyệt — token đã bị chép ra vẫn sống hết 14 ngày. Đối chiếu thời
-    // điểm phát token (iat) với mốc sessionsValidFrom trên bản ghi Admin: đăng
-    // xuất hoặc đổi mật khẩu đẩy mốc lên, mọi token cũ chết ngay.
-    //
-    // ponytail: đọc thẳng DB, không đệm. Lưu lượng admin là một người và vài
-    // dashboard 15 giây/lần — vài chục truy vấn mỗi phút. Đệm ở đây chỉ đổi
-    // lấy một cửa sổ mà token đã thu hồi vẫn dùng được, không đáng.
-    const admin = await loadAdminClaims(decoded, req);
-    if (!admin) {
-      return invalidSession(res, 'admin');
-    }
+    const admin = await adminFromRequest(req);
+    if (!admin) return invalidSession(res, 'admin');
     if (admin.forbidden) {
       return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền thực hiện thao tác này.' });
     }
-    // So theo GIÂY, không theo mili-giây: `iat` của JWT chỉ có độ phân giải một
-    // giây. Đăng xuất lúc 12:00:00.700 rồi đăng nhập lại lúc 12:00:00.900 sẽ
-    // sinh token có iat = 12:00:00.000 — so bằng mili-giây thì token vừa phát
-    // bị coi là cũ hơn mốc và người dùng bị đá ra ngay sau khi đăng nhập.
-    // Đổi lại: token phát trong CÙNG GIÂY với lúc đăng xuất thì sống sót. Cửa
-    // sổ đó tối đa một giây, và đây là cách thu hồi theo iat vẫn thường làm.
-    if (admin.sessionsValidFrom) {
-      const revokedAtSec = Math.floor(new Date(admin.sessionsValidFrom).getTime() / 1000);
-      if (decoded.iat < revokedAtSec) {
-        return invalidSession(res, 'admin', 'Phiên quản trị đã bị thu hồi. Vui lòng đăng nhập lại.');
-      }
-    }
-
     req.admin = admin;
-
-    // Admin Security Armor Response Headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-
     next();
   } catch (error) {
     return sendAuthFailure(res, error, 'admin');
   }
 };
 
-// Signs the session token handed to a member after a server-verified login
-// (Google ID token exchange or WebAuthn assertion).
-export const signMemberToken = (email, req = null) => {
-  let uaHash = '';
-  if (req) {
-    const ua = req.headers['user-agent'] || '';
-    uaHash = crypto.createHash('sha256').update(ua).digest('hex');
-  }
-  return jwt.sign(
-    { email: String(email).toLowerCase(), role: 'member', uaHash },
-    JWT_SECRET,
-    { expiresIn: MEMBER_TOKEN_TTL }
-  );
-};
-
 // OAuth consent chỉ cần biết người đang đăng nhập là ai. Không dùng
 // requireMember ở đây vì cổng hồ sơ/đơn vị JOY không liên quan đến việc một
-// người cho phép app khác đọc tên/email của họ. Middleware này vẫn kiểm JWT và
+// người cho phép app khác đọc tên/email của họ. Middleware này vẫn kiểm phiên và
 // danh sách khoá vĩnh viễn, đồng thời tuyệt đối không cho token admin giả làm
 // một thành viên.
 export const requireMemberSession = async (req, res, next) => {
-  // Consent accepts the member cookie even when a stale admin Bearer is present.
-  const token = req.cookies?.member_jwt || extractToken(req, 'member_jwt');
-  if (!token) {
-    return invalidSession(res, 'member');
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'member' || !decoded.email) {
-      return invalidSession(res, 'member');
-    }
-    const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
+    const email = await memberEmailFromRequest(req);
+    if (!email) return invalidSession(res, 'member');
+    const securityBlock = await findActiveSecurityBlock({ email });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
-    const memberState = await readMemberGate(decoded.email);
-    if (memberState?.sessionsValidFrom
-      && decoded.iat < Math.floor(new Date(memberState.sessionsValidFrom).getTime() / 1000)) {
-      return invalidSession(res, 'member', 'Phiên thành viên đã bị thu hồi. Vui lòng đăng nhập lại.');
-    }
-    req.memberEmail = decoded.email;
-    req.member = decoded;
+    req.memberEmail = email;
+    req.member = { email, role: 'member' };
     return next();
   } catch (error) {
     return sendAuthFailure(res, error, 'member');
@@ -290,23 +225,20 @@ export const signCustomerToken = (projectId) =>
 // route may touch) and req.customerRole ('customer' | 'admin'). Studio admins
 // are accepted too and act on the project named in the URL.
 export const requireCustomer = async (req, res, next) => {
-  const token = extractToken(req, 'jwt') || extractToken(req, 'customer_jwt');
-  if (!token) {
-    return invalidSession(res, 'customer');
-  }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role === 'admin') {
-      const admin = await loadAdminClaims(decoded, req);
-      if (!admin) return invalidSession(res, 'admin');
-      if (admin.forbidden) {
-        return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền truy cập dự án này.' });
-      }
+    const admin = await adminFromRequest(req);
+    if (admin?.forbidden) {
+      return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền truy cập dự án này.' });
+    }
+    if (admin) {
       req.customerRole = 'admin';
       req.admin = admin;
       req.projectId = req.params.id;
       return next();
     }
+    const token = extractToken(req, 'customer_jwt');
+    if (!token) return invalidSession(res, 'customer');
+    const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role === 'customer' && decoded.projectId) {
       req.customerRole = 'customer';
       req.projectId = decoded.projectId;
@@ -323,27 +255,16 @@ export const requireCustomer = async (req, res, next) => {
 // Admin tokens are also accepted (admin tools act on behalf of users); in that
 // case the client-supplied email is trusted and req.isAdminActor is set.
 export const requireMember = async (req, res, next) => {
-  const token = extractToken(req, 'member_jwt') || extractToken(req, 'jwt');
-
-  if (!token) {
-    return invalidSession(res, 'member');
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role === 'member' && decoded.email) {
-      req.memberEmail = decoded.email;
-      req.member = decoded;
+    const email = await memberEmailFromRequest(req);
+    if (email) {
+      req.memberEmail = email;
+      req.member = { email, role: 'member' };
 
-      // JWT validity is not account validity. A permanently blacklisted email
-      // must stay blocked even if an old 14-day token is still valid.
-      const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
+      // Phiên còn hạn chưa chắc tài khoản còn được phép: sổ đen vĩnh viễn vẫn chặn.
+      const securityBlock = await findActiveSecurityBlock({ email });
       if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
-      const memberState = await readMemberGate(decoded.email);
-      if (memberState?.sessionsValidFrom
-        && decoded.iat < Math.floor(new Date(memberState.sessionsValidFrom).getTime() / 1000)) {
-        return invalidSession(res, 'member', 'Phiên thành viên đã bị thu hồi. Vui lòng đăng nhập lại.');
-      }
+      const memberState = await readMemberGate(email);
 
       // Note: User-Agent headers fluctuate dynamically across browser reloads,
       // DevTools toggles, and SW requests. We log req.memberEmail without destroying valid sessions.
@@ -352,7 +273,7 @@ export const requireMember = async (req, res, next) => {
       const bypassRoutes = [
         '/api/bios/me/reset-trusted-location',
         '/api/joy/verify-pin',
-        '/api/auth/member/logout'
+        '/api/auth/sign-out'
       ];
       const isBypass = bypassRoutes.some(route => req.originalUrl?.startsWith(route));
       if (!isBypass) {
@@ -369,8 +290,8 @@ export const requireMember = async (req, res, next) => {
             if (!bio.isEduVerified) {
               let deleted = false;
               try {
-                deleted = await deleteExpiredMemberAccount(decoded.email);
-                invalidateMemberGate(decoded.email);
+                deleted = await deleteExpiredMemberAccount(email);
+                invalidateMemberGate(email);
               } catch (error) {
                 console.error('[member account expiry deletion]', error.message);
                 return res.status(503).json({
@@ -384,7 +305,7 @@ export const requireMember = async (req, res, next) => {
                   error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
                 });
               }
-              bio = await readMemberGate(decoded.email);
+              bio = await readMemberGate(email);
               if (!bio || bio.deletedAccount) {
                 return res.status(410).json({
                   code: 'ACCOUNT_DELETED',
@@ -429,20 +350,16 @@ export const requireMember = async (req, res, next) => {
 
       return next();
     }
-    if (decoded.role === 'admin') {
-      const admin = await loadAdminClaims(decoded, req);
-      if (!admin) return invalidSession(res, 'admin');
-      if (admin.forbidden) {
-        return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền thực hiện thao tác này.' });
-      }
-      req.isAdminActor = true;
-      req.admin = admin;
-      // Admin acts on the account named by the request payload (may be absent
-      // on /:id-style routes where the target is identified by document id).
-      req.memberEmail = String(req.body?.email || req.query?.email || '').toLowerCase() || null;
-      return next();
+    const admin = await adminFromRequest(req);
+    if (!admin) return invalidSession(res, 'member');
+    if (admin.forbidden) {
+      return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền thực hiện thao tác này.' });
     }
-    return res.status(403).json({ error: 'Forbidden - Invalid role' });
+    req.isAdminActor = true;
+    req.admin = admin;
+    // Admin thao tác thay thành viên được nêu trong payload (có thể trống ở route /:id).
+    req.memberEmail = String(req.body?.email || req.query?.email || '').toLowerCase() || null;
+    return next();
   } catch (error) {
     return sendAuthFailure(res, error);
   }
@@ -487,15 +404,14 @@ export const requireAdultMember = [
 /** Tiện ích cho route công khai (donate…): chặn nếu người gọi ĐANG đăng nhập
  *  bằng tài khoản vị thành niên. Khách vãng lai không đăng nhập vẫn qua. */
 export const rejectMinorActor = async (req, res, next) => {
-  const token = extractToken(req, 'member_jwt') || extractToken(req, 'jwt');
-  if (!token) return next();
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'member' || !decoded.email) return next();
-    const age = await getMemberAge(decoded.email);
-    if (isMinorAge(age)) return ageError(res, age);
+    const email = await memberEmailFromRequest(req);
+    if (email) {
+      const age = await getMemberAge(email);
+      if (isMinorAge(age)) return ageError(res, age);
+    }
   } catch {
-    // Token hỏng/hết hạn thì coi như khách vãng lai — route tự lo phần còn lại.
+    // Không đọc được phiên thì coi như khách vãng lai — route tự lo phần còn lại.
   }
   next();
 };

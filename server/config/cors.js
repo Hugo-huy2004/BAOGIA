@@ -51,4 +51,6 @@ export const appCorsOptions = {
     return callback(null, false);
   },
   credentials: true,
+  // App native nhận token phiên Better Auth qua header này (plugin bearer).
+  exposedHeaders: ['set-auth-token'],
 };

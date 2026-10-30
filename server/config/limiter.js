@@ -3,8 +3,7 @@
  * Tuân thủ Quy tắc 4 (Viblo): Cấu hình tập trung trong thư mục config/
  */
 import rateLimit, { ipKeyGenerator, MemoryStore } from 'express-rate-limit';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../utils/secrets.js';
+import crypto from 'crypto';
 import { recordSecurityViolation } from '../services/securityEnforcement.js';
 import { RedisStore } from 'rate-limit-redis';
 import redis from './redis.js';
@@ -69,19 +68,15 @@ export function limiterStore(prefix) {
 }
 export const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 
-// Đếm theo tài khoản khi có token hợp lệ: IP sau proxy (Vercel → Cloudflare) không
-// phải IP người dùng, và kẻ tấn công xoay IP dân cư nhưng không xoay được tài khoản.
-// Chỉ verify chữ ký, không chạm DB — token bị thu hồi vẫn bị requireMember chặn sau.
-function memberEmail(req) {
+// Đếm theo PHIÊN khi có: IP sau proxy (Vercel → Cloudflare) không phải IP người
+// dùng. Chỉ băm token phiên, không chạm DB — phiên giả thì requireMember chặn sau.
+// ponytail: khoá theo phiên chứ không theo email (email cần một lượt đọc DB); đổi
+// sang email nếu thấy kẻ tấn công xoay phiên.
+function sessionKey(req) {
   const auth = req.headers.authorization || '';
-  const token = req.cookies?.member_jwt || (auth.startsWith('Bearer ') ? auth.slice(7) : '');
-  if (!token) return '';
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.role === 'member' && decoded.email ? String(decoded.email).toLowerCase() : '';
-  } catch {
-    return '';
-  }
+  const token = req.cookies?.['hugo.session_token'] || req.cookies?.['__Secure-hugo.session_token']
+    || (auth.startsWith('Bearer ') ? auth.slice(7) : '');
+  return token ? crypto.createHash('sha256').update(token).digest('hex').slice(0, 24) : '';
 }
 
 /**
@@ -91,13 +86,14 @@ function memberEmail(req) {
  * ở đó là một lớp học 200 người cùng đọc bài nhận 429 hàng loạt.
  */
 export function accountOrIpKey(req) {
-  const email = req.memberEmail || req.limiterEmail || memberEmail(req);
-  return email ? `m:${String(email).toLowerCase()}` : ipKeyGenerator(req.ip);
+  if (req.memberEmail) return `m:${String(req.memberEmail).toLowerCase()}`;
+  const session = req.limiterSession || sessionKey(req);
+  return session ? `s:${session}` : ipKeyGenerator(req.ip);
 }
 
 function subjectKey(req) {
-  req.limiterEmail = memberEmail(req);
-  return req.limiterEmail ? `m:${req.limiterEmail}` : ipKeyGenerator(req.ip);
+  req.limiterSession = sessionKey(req);
+  return req.limiterSession ? `s:${req.limiterSession}` : ipKeyGenerator(req.ip);
 }
 
 // TRUSTED_IPS="1.2.3.4,5.6.7.8": IP public của hội trường/văn phòng — cả trăm người
@@ -123,7 +119,7 @@ export const globalLimiter = rateLimit({
   // Thành viên đếm theo tài khoản: 1500/15 phút. Khách ẩn danh đếm theo IP mà IP
   // có thể là của Vercel (chung cho mọi người chưa đăng nhập) nên trần rộng hơn;
   // lũ thật do khiên tải (loadShield) chặn theo tổng lưu lượng.
-  max: (req) => (isDev ? 0 : req.limiterEmail ? 1500 : 6000),
+  max: (req) => (isDev ? 0 : req.limiterSession ? 1500 : 6000),
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || trustedIp(req.ip) || req.originalUrl.startsWith('/api/ops'),
@@ -134,12 +130,11 @@ export const globalLimiter = rateLimit({
   // nện là cả trăm người mất trang đăng nhập. Ghi sổ đúng MỘT lần mỗi cửa sổ:
   // ghi Mongo cho từng lượt bị từ chối là biến cơn lũ thành lũ vào pool DB.
   handler: (req, res, _next, options) => {
-    const key = req.limiterEmail ? `m:${req.limiterEmail}` : req.ip;
+    const key = req.limiterSession ? `s:${req.limiterSession}` : req.ip;
     if (!flagged.has(key)) {
       flagged.set(key, Date.now());
       recordSecurityViolation({
         req,
-        email: req.limiterEmail,
         category: 'availability_attack',
         severity: 'high',
         ruleId: 'global_rate_limit_repeated',

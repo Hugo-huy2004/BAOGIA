@@ -11,7 +11,7 @@ import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
  * màn này phải trả lời ba câu trước khi hỏi: liên kết để được gì, lấy những gì
  * của tôi, và ai đứng sau.
  *
- * TÀI KHOẢN VẪN LÀ MỘT: nút Google gọi đúng `POST /api/auth/member/google` mà
+ * TÀI KHOẢN VẪN LÀ MỘT: nút Google gọi đúng `POST /api/auth/sign-in/social` mà
  * Hugo Studio dùng; máy chủ xác minh token và phát JWT thành viên. Không có
  * đường xác thực thứ hai — thêm một đường là thêm một chỗ để thủng.
  */

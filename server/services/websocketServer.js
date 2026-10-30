@@ -3,14 +3,12 @@
  * Tuân thủ Quy tắc 2 (Viblo): Tách logic nâng cấp WebSocket và xử lý kết nối khỏi server.js
  */
 import { WebSocketServer } from 'ws';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../utils/secrets.js';
+import { memberEmailFromRequest } from '../middleware/authMiddleware.js';
 import { initChessWS } from './chessWS.js';
 import { findActiveSecurityBlock } from './securityEnforcement.js';
 import { originAllowed } from '../middleware/originLock.js';
 import { clientIp as getClientIp } from '../utils/clientIp.js';
 import { allowedOrigins, isDev, localOriginRegex } from '../config/cors.js';
-import Bio from '../models/Bio.js';
 
 let realtimeWss = null;
 let acceptedConnections = 0;
@@ -22,37 +20,12 @@ const MAX_CONNECTIONS_PER_IP = 12;
 const MAX_CONNECTIONS_PER_MEMBER = 6;
 const MAX_UPGRADES_PER_MINUTE = 30;
 
-function getMemberToken(request, requestUrl) {
-  const cookie = String(request.headers.cookie || '')
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith('member_jwt='));
-
-  if (cookie) {
-    try {
-      return decodeURIComponent(cookie.slice('member_jwt='.length));
-    } catch {
-      return '';
-    }
-  }
-
-  // Keep older installed clients working while they update to cookie auth.
-  return requestUrl.searchParams.get('token') || '';
-}
-
-async function getMemberEmail(token) {
-  if (!token) return '';
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'member' || !decoded.email) return '';
-    const email = String(decoded.email).toLowerCase();
-    const bio = await Bio.findOne({ email }, 'sessionsValidFrom').lean();
-    if (bio?.sessionsValidFrom
-      && decoded.iat < Math.floor(new Date(bio.sessionsValidFrom).getTime() / 1000)) return '';
-    return email;
-  } catch {
-    return '';
-  }
+// Phiên Better Auth từ cookie; app native không gửi được cookie nên đưa token
+// phiên qua ?token= và ta coi nó như Bearer.
+async function getMemberEmail(request, requestUrl) {
+  const token = requestUrl.searchParams.get('token');
+  const headers = token ? { ...request.headers, authorization: `Bearer ${token}` } : request.headers;
+  return (await memberEmailFromRequest({ headers })) || '';
 }
 
 function rejectUpgrade(socket, status, message) {
@@ -131,7 +104,7 @@ export function setupWebSocketServers(server) {
     let email = '';
     let subject = '';
     try {
-      email = await getMemberEmail(getMemberToken(request, requestUrl));
+      email = await getMemberEmail(request, requestUrl);
       request.memberEmail = email;
       subject = email ? `m:${email}` : clientIp;
       const cap = email ? MAX_CONNECTIONS_PER_MEMBER : MAX_CONNECTIONS_PER_IP;

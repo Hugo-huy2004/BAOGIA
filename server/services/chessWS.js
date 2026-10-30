@@ -1,4 +1,5 @@
 import { WebSocketServer } from 'ws';
+import { memberEmailFromRequest } from '../middleware/authMiddleware.js';
 import { Chess } from 'chess.js';
 import { randomUUID } from 'crypto';
 import ChessRating from '../models/ChessRating.js';
@@ -359,25 +360,23 @@ function createRoom({ white, black, timeControl, friendRoomId = null, mode = 'fr
 async function handleAuth(ws, msg) {
   const client = clientMap.get(ws);
   if (!client) return;
-  // Member identity must be proven with the session JWT — a bare email would
+  // Member identity must be proven with the session — a bare email would
   // let anyone play (and lose JOY/ELO) as any member. No/invalid token → guest.
   client.email = null;
-  if (msg.token) {
-    try {
-      const { default: jwt } = await import('jsonwebtoken');
-      const { JWT_SECRET } = await import('../utils/secrets.js');
-      const decoded = jwt.verify(msg.token, JWT_SECRET);
-      if (decoded.role === 'member' && decoded.email) {
-        const block = await findActiveSecurityBlock({ email: decoded.email });
-        if (block) {
-          send(ws, { type: 'error', code: 'ACCESS_BLOCKED', message: 'Truy cập đã bị chặn theo tiêu chuẩn an toàn.' });
-          ws.close(4003, 'Access blocked');
-          return;
-        }
-        client.email = decoded.email;
+  try {
+    // Phiên Better Auth: cookie của lượt nâng cấp WS, hoặc token phiên (app native) như Bearer.
+    const headers = msg.token ? { ...client.headers, authorization: `Bearer ${msg.token}` } : client.headers;
+    const email = await memberEmailFromRequest({ headers });
+    if (email) {
+      const block = await findActiveSecurityBlock({ email });
+      if (block) {
+        send(ws, { type: 'error', code: 'ACCESS_BLOCKED', message: 'Truy cập đã bị chặn theo tiêu chuẩn an toàn.' });
+        ws.close(4003, 'Access blocked');
+        return;
       }
-    } catch { /* fall through as guest */ }
-  }
+      client.email = email;
+    }
+  } catch { /* fall through as guest */ }
   client.displayName = msg.displayName || 'Guest';
   client.guestId = msg.guestId || client.guestId;
   client.avatarUrl = msg.avatarUrl || '';
@@ -804,7 +803,7 @@ function handleDisconnect(ws) {
 export function initChessWS(options) {
   const wss = new WebSocketServer(options);
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, request) => {
     let messageCount = 0;
     let messageWindowStartedAt = Date.now();
     const client = {
@@ -817,6 +816,7 @@ export function initChessWS(options) {
       color: null,
       timeControl: null,
       avatarUrl: '',
+      headers: request?.headers || {},
     };
     clientMap.set(ws, client);
 

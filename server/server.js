@@ -32,6 +32,8 @@ import {
   heavyLimiter,
 } from './config/index.js';
 import { setupWebSocketServers } from './services/websocketServer.js';
+import { toNodeHandler } from 'better-auth/node';
+import { memberAuth, adminAuth } from './auth/betterAuth.js';
 
 dotenv.config();
 
@@ -71,6 +73,15 @@ app.use(securityIpGate);
 
 // Reject abusive API traffic before spending CPU and memory parsing its body.
 app.use('/api', globalLimiter, heavyLimiter);
+
+// Better Auth tự đọc body thô nên phải đứng TRƯỚC express.json. Thành viên ở
+// /api/auth, quản trị ở /api/admin-auth — hai hệ phiên tách hẳn (auth/betterAuth.js).
+let memberHandler;
+let adminHandler;
+// IP thật (đã tính ở trên) đi qua header nội bộ, ghi đè để client không tự đặt được.
+const withIp = (req) => { req.headers['x-hugo-client-ip'] = req.ip || ''; return req; };
+app.all('/api/auth/*', (req, res) => (memberHandler ||= toNodeHandler(memberAuth()))(withIp(req), res));
+app.all('/api/admin-auth/*', (req, res) => (adminHandler ||= toNodeHandler(adminAuth()))(withIp(req), res));
 
 // Body 10mb chỉ cho những route thật sự nhận ảnh base64 (ảnh quảng cáo, ảnh
 // sản phẩm, selfie kháng nghị, avatar trong hồ sơ, admin). Mọi route khác 1mb:

@@ -4,7 +4,6 @@
  */
 import mongoose from 'mongoose';
 import { redisSlugService } from '../services/redisSlugService.js';
-import Admin from '../models/Admin.js';
 import Bio from '../models/Bio.js';
 
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
@@ -42,29 +41,17 @@ export async function connectDatabase() {
       console.error('Valid-slug set error:', err);
     }
 
-    // Seed admin if none exists
+    // Chưa có admin nào thì tạo Chủ hệ thống từ ADMIN_SEED_EMAIL — đăng nhập bằng mã gửi về email đó.
     try {
-      const count = await Admin.countDocuments();
-      if (count === 0) {
-        const seedUser = process.env.ADMIN_SEED_USERNAME;
-        const seedPass = process.env.ADMIN_SEED_PASSWORD;
-        if (seedUser && seedPass) {
-          const cryptoMod = await import('crypto');
-          const bcryptMod = (await import('bcryptjs')).default;
-          const usernameHash = cryptoMod.createHash('sha256').update(seedUser).digest('hex');
-          await Admin.create({
-            username: usernameHash,
-            password: await bcryptMod.hash(seedPass, 12),
-            displayName: 'Chủ hệ thống',
-            role: 'owner',
-          });
-          console.log('👥 Admin account seeded from ADMIN_SEED_* env vars');
-        } else {
-          console.warn('⚠️  No admin account exists and ADMIN_SEED_USERNAME/ADMIN_SEED_PASSWORD are not set — admin login unavailable until seeded.');
-        }
+      const seedEmail = String(process.env.ADMIN_SEED_EMAIL || '').trim().toLowerCase();
+      const admins = mongoose.connection.db.collection('admin_user');
+      if (seedEmail && !(await admins.estimatedDocumentCount())) {
+        const { adminAuth } = await import('../auth/betterAuth.js');
+        await adminAuth().api.createUser({ body: { email: seedEmail, name: 'Chủ hệ thống', role: 'owner' } });
+        console.log(`👥 Admin owner seeded: ${seedEmail}`);
       }
     } catch (err) {
-      console.error('Error seeding admin account:', err);
+      console.error('Error seeding admin account:', err.message);
     }
   } catch (err) {
     console.error(' MongoDB connection failed:', err);

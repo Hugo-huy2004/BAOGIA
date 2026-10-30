@@ -6,6 +6,7 @@ import SecurityBlock from '../models/SecurityBlock.js';
 import SecurityEvent from '../models/SecurityEvent.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { sendAlert } from '../utils/alert.js';
+import { signedSessionRole } from '../auth/betterAuth.js';
 
 const SECURITY_BLOCK_DAYS = 30;
 const BLOCK_MS = SECURITY_BLOCK_DAYS * 24 * 60 * 60 * 1000;
@@ -559,24 +560,21 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 //      thẳng qua `securityIpGate`. Nghĩa là MỌI lệnh khoá theo IP đều gỡ được
 //      bằng một dòng header bịa, kể cả khoá 30 ngày vừa ban ra.
 //   2. Hai tên cookie đó không tồn tại ở đâu trong repo — cookie thật là
-//      `member_jwt` / `jwt` / `customer_jwt`. Nhánh cookie chưa từng chạy đúng.
+//      khác hẳn. Nhánh cookie chưa từng chạy đúng.
 // Giờ giải mã thật: có chữ ký của mình mới tính là người, và biết luôn là ai.
-const ACTOR_COOKIES = ['member_jwt', 'jwt', 'customer_jwt'];
-
+// Better Auth: cookie phiên có chữ ký của mình (auth/betterAuth.js). Cổng khách
+// hàng vẫn là JWT riêng `customer_jwt`.
 export function verifiedActor(req) {
-  const authHeader = String(req.headers?.authorization || '');
-  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  const cookies = req.cookies || {};
-  for (const token of [bearer, ...ACTOR_COOKIES.map((name) => cookies[name])]) {
-    if (!token) continue;
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      return { email: decoded.email || '', role: decoded.role || '' };
-    } catch {
-      // chữ ký sai / hết hạn → thử nguồn tiếp theo, cuối cùng coi là khách lạ
-    }
+  const role = signedSessionRole(req);
+  if (role) return { email: '', role };
+  const token = req.cookies?.customer_jwt;
+  if (!token) return null;
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return { email: '', role: decoded.role || '' };
+  } catch {
+    return null;
   }
-  return null;
 }
 
 export async function securityIpGate(req, res, next) {
