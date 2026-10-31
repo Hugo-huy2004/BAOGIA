@@ -1,6 +1,7 @@
 import express from 'express';
 import { recordHeartbeat, getOnlineStatuses, isOnline, getDailyActiveCount, todayStr } from '../utils/presenceService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { tagMember } from '../services/visitorTracker.js';
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ router.post('/heartbeat', requireMember, async (req, res) => {
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
     await recordHeartbeat(email);
+    tagMember(req, email);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -35,7 +35,7 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/(?:audit-logs)(?:\/|$)/, 'audit'],
   [/^\/api\/admin\/(?:security|brain\/auto-moderator)(?:\/|$)/, 'security'],
   [/^\/api\/admin\/(?:system-overview|brief)(?:\/|$)/, 'overview'],
-  [/^\/api\/admin\/(?:system-storage|error-logs|iot|send-ai-notification)(?:\/|$)/, 'system'],
+  [/^\/api\/admin\/(?:system-storage|error-logs|iot|send-ai-notification|control)(?:\/|$)/, 'system'],
   [/^\/api\/hugoteam\/admin(?:\/|$)/, 'hugoteam'],
   [/^\/api\/(?:coder-resources|coder-lessons)(?:\/|$)/, 'learning'],
   [/^\/api\/(?:support|bookings)(?:\/|$)/, 'support'],

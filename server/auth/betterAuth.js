@@ -170,7 +170,16 @@ const buildMemberAuth = (base) => betterAuth({
     oneTimeToken({ expiresIn: 30, storeToken: 'hashed' }),
   ],
   databaseHooks: {
-    user: { create: { after: (user) => createBio(user).catch((e) => console.error('[auth] tạo Bio:', e.message)) } },
+    user: { create: {
+      // Công tắc "Cho đăng ký thành viên" ở Trung Tâm Điều Khiển.
+      before: async () => {
+        const { getSystemSettings } = await import('../utils/systemSettings.js');
+        if ((await getSystemSettings()).allowRegistration === false) {
+          throw new APIError('FORBIDDEN', { message: 'Hugo Studio đang tạm ngừng nhận thành viên mới.' });
+        }
+      },
+      after: (user) => createBio(user).catch((e) => console.error('[auth] tạo Bio:', e.message)),
+    } },
     session: { create: {
       before: stampMemberSession,
       after: (session, ctx) => alertNewDevice(session, ctx).catch((e) => console.error('[auth] báo máy mới:', e.message)),

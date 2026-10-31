@@ -6,6 +6,7 @@
 // qua joyService. Ghi bằng doc.save() để hook mã hoá của model (Bio) vẫn chạy.
 import express from 'express';
 import mongoose from 'mongoose';
+import { readdir } from 'node:fs/promises';
 import { requireAdmin } from '../../middleware/authMiddleware.js';
 import { hasAdminPermission } from '../../../shared/adminAccess.js';
 import { logAdminAuditAction } from './adminShared.js';
@@ -96,6 +97,39 @@ const RESOURCES = {
 const models = {};
 const modelOf = async (name) => (models[name] ||= (await import(`../../models/${name}.js`)).default);
 
+// Chủ hệ thống: mọi model còn lại tự thành bảng, cột suy từ schema. Trường bí
+// mật không bao giờ ra ngoài; sổ tiền chỉ xem (đổi số dư phải qua joyService);
+// trò chuyện trị liệu không mở cho ai đọc.
+const HIDDEN_MODELS = new Set(['OAuthToken', 'OAuthAuthorizationCode', 'OAuthClient', 'TelegramState', 'Counter', 'CompanionHistory', 'Data']);
+const MONEY_MODELS = new Set(['PendingTransfer', 'StockPosition', 'StockTrade', 'JoyCreditProfile', 'JoyDefaultRecord', 'PaymentLink']);
+const SECRET_FIELD = /pass|secret|token|hash|otp|pin|cipher|encrypt|salt|(^|\.)iv$|key$|(^|\.)keys?(\.|$)|auth$|account(number|holder)|bank/i;
+const SCALAR = new Set(['String', 'Number', 'Boolean', 'Date', 'ObjectId']);
+
+async function addAutoResources() {
+  const curated = new Set(Object.values(RESOURCES).map((r) => r.model));
+  const dir = new URL('../../models/', import.meta.url);
+  for (const file of (await readdir(dir)).filter((f) => f.endsWith('.js')).sort()) {
+    const name = file.slice(0, -3);
+    if (curated.has(name) || HIDDEN_MODELS.has(name)) continue;
+    let Model;
+    try { Model = await modelOf(name); } catch { continue; }
+    if (!Model?.schema) continue;
+    const paths = Object.entries(Model.schema.paths)
+      .filter(([f]) => !['_id', '__v'].includes(f) && !SECRET_FIELD.test(f) && !f.includes('.$'))
+      .map(([f, p]) => ({ f, scalar: SCALAR.has(p.instance), str: p.instance === 'String' }));
+    const scalars = paths.filter((p) => p.scalar && p.f !== 'createdAt' && p.f !== 'updatedAt');
+    RESOURCES[`all-${name.toLowerCase()}`] = {
+      model: name, label: name, permission: 'access', auto: true,
+      ops: MONEY_MODELS.has(name) ? 'r' : 'crud',
+      search: paths.filter((p) => p.str).slice(0, 3).map((p) => p.f),
+      list: [...scalars.slice(0, 5).map((p) => p.f), ...('createdAt' in Model.schema.paths ? ['createdAt'] : [])],
+      edit: MONEY_MODELS.has(name) ? [] : scalars.map((p) => p.f),
+      show: paths.filter((p) => !p.scalar).map((p) => p.f),
+    };
+  }
+}
+const autoReady = addAutoResources().catch((e) => console.error('[admin data] bảng tự động:', e.message));
+
 const fieldSpec = (Model, name) => {
   const p = Model.schema.paths[name];
   const type = { String: 'text', Number: 'number', Boolean: 'bool', Date: 'date' }[p?.instance] || 'json';
@@ -103,15 +137,14 @@ const fieldSpec = (Model, name) => {
 };
 
 const readable = (r) => [...new Set([...r.list, ...(r.edit || []), ...(r.show || [])])];
-const toRecord = (doc, fields) => {
-  const obj = doc.toObject ? doc.toObject() : doc;
-  return Object.fromEntries([['id', String(obj._id)], ...fields.map((f) => [f, obj[f] ?? null])]);
-};
+// doc.get đọc được cả trường lồng ("push.sent"); obj[f] thì không.
+const toRecord = (doc, fields) => Object.fromEntries([['id', String(doc._id)], ...fields.map((f) => [f, doc.get(f) ?? null])]);
 const parse = (raw, fallback) => { try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } };
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // Gắn tài nguyên + quyền; thao tác không có trong `ops` trả 405.
 const resource = (op) => async (req, res, next) => {
+  await autoReady;
   const r = RESOURCES[req.params.resource];
   if (!r || !hasAdminPermission(req.admin.permissions, r.permission)) return res.status(404).json({ error: 'Không có bảng này.' });
   if (!r.ops.includes(op)) return res.status(405).json({ error: 'Bảng này không cho thao tác đó.' });
@@ -127,11 +160,12 @@ const router = express.Router();
 
 router.get('/data/_resources', requireAdmin, async (req, res, next) => {
   try {
+    await autoReady;
     const out = [];
     for (const [id, r] of Object.entries(RESOURCES)) {
       if (!hasAdminPermission(req.admin.permissions, r.permission)) continue;
       const Model = await modelOf(r.model);
-      out.push({ id, label: r.label, ops: r.ops, list: r.list.map((f) => fieldSpec(Model, f)), edit: (r.edit || []).map((f) => fieldSpec(Model, f)), show: (r.show || []).map((f) => fieldSpec(Model, f)) });
+      out.push({ id, label: r.label, auto: Boolean(r.auto), ops: r.ops, list: r.list.map((f) => fieldSpec(Model, f)), edit: (r.edit || []).map((f) => fieldSpec(Model, f)), show: (r.show || []).map((f) => fieldSpec(Model, f)) });
     }
     res.json(out);
   } catch (err) { next(err); }
@@ -145,7 +179,7 @@ router.get('/data/:resource', requireAdmin, resource('r'), async (req, res, next
     const { q, id, ...rest } = parse(req.query.filter, {});
     const query = {};
     if (id) query._id = { $in: [].concat(id).filter((x) => mongoose.isValidObjectId(x)) };
-    if (q) query.$or = r.search.map((f) => ({ [f]: { $regex: escapeRe(String(q).slice(0, 100)), $options: 'i' } }));
+    if (q && r.search.length) query.$or = r.search.map((f) => ({ [f]: { $regex: escapeRe(String(q).slice(0, 100)), $options: 'i' } }));
     for (const [f, v] of Object.entries(rest)) if (r.list.includes(f)) query[f] = v;
     const sortBy = sortField === 'id' ? '_id' : (r.list.includes(sortField) ? sortField : '_id');
     const limit = Math.min(Math.max(end - start + 1, 1), 100);

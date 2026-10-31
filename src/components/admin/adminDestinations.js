@@ -17,16 +17,13 @@ export const ADMIN_DESTINATIONS = [
   { id: "store", group: "business", label: "Cửa hàng", sub: "Sản phẩm và đơn hàng", icon: "storefront", permission: "commerce" },
   { id: "joylater", group: "business", label: "Tài chính JOY", sub: "Dư nợ và hạn mức", icon: "account_balance_wallet", permission: "commerce" },
   { id: "hugoteam", group: "community", label: "Hugo Team", sub: "Học tập, bài nộp, mentor và team", icon: "diversity_3", permission: "hugoteam" },
-  { id: "sentinel", group: "control", label: "An ninh", sub: "Cảnh báo và kiểm duyệt", icon: "shield", permission: "security" },
-  { id: "monitor", group: "control", label: "Hệ thống", sub: "Sức khỏe và lỗi", icon: "monitor_heart", permission: "system" },
-  { id: "audit", group: "control", label: "Nhật ký", sub: "Dấu vết thao tác", icon: "history", permission: "audit" },
-  { id: "data", group: "control", label: "Dữ liệu", sub: "Xem, sửa mọi bảng", icon: "table_view", permission: "overview" },
-  { id: "settings", group: "control", label: "Cấu hình", sub: "Thiết lập nền tảng", icon: "tune", permission: "system" },
+  { id: "control", group: "control", label: "Điều khiển", sub: "Khách thật, an ninh, công tắc", icon: "radar", permission: "system" },
+  { id: "data", group: "control", label: "Dữ liệu", sub: "Thêm, sửa, xoá mọi bảng", icon: "table_view", permission: "overview" },
   { id: "access", group: "control", label: "Quyền quản trị", sub: "Tài khoản và vai trò", icon: "admin_panel_settings", permission: "access" },
 ];
 
 export const DEFAULT_DESTINATION = "dashboard";
-export const LEGACY_TAB_ALIASES = { ai_sentinel: "sentinel", ecosystem: "store", system: "settings", submissions: "hugoteam", learners: "hugoteam", resources: "hugoteam" };
+export const LEGACY_TAB_ALIASES = { ai_sentinel: "control", sentinel: "control", monitor: "control", audit: "control", settings: "control", ecosystem: "store", system: "control", submissions: "hugoteam", learners: "hugoteam", resources: "hugoteam" };
 
 export const destinationsForPermissions = (permissions = ["*"]) =>
   ADMIN_DESTINATIONS.filter((destination) => hasAdminPermission(permissions, destination.permission));

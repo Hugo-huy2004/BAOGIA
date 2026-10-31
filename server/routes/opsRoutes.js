@@ -8,6 +8,7 @@ import {
   specialistForClientEvent,
 } from '../services/aiIncidentResponseService.js';
 import { telemetryBuffer } from '../services/telemetryRingBuffer.js';
+import { recordVisit } from '../services/visitorTracker.js';
 
 const router = express.Router();
 const events = [];
@@ -66,6 +67,12 @@ function normalizeEvent(body = {}, req) {
     createdAt: new Date().toISOString(),
   };
 }
+
+// Lượt xem trang — bản đồ khách ở Trung Tâm Điều Khiển (services/visitorTracker.js).
+router.post('/visit', telemetryLimiter, (req, res) => {
+  recordVisit(req, cleanPath(req.body?.page));
+  res.status(204).end();
+});
 
 router.post('/client-event', telemetryLimiter, (req, res) => {
   try {

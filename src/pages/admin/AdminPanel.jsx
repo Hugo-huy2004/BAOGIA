@@ -15,18 +15,15 @@ import AdminWorkQueueTab from "../../components/admin/AdminWorkQueueTab";
 import AdminJoyLendingTab from "../../components/admin/AdminJoyLendingTab";
 import { ADMIN_DESTINATIONS, DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, destinationsForPermissions, isValidDestination } from "../../components/admin/adminDestinations";
 import { adminBrainApi } from "../../services/api/modules/adminBrainApi";
-import AdminSystemTab from "../../components/admin/AdminSystemTab";
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
-import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
-import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
-import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
 const AdminDataTab = lazy(() => import("../../components/admin/AdminDataTab"));
+const AdminControlCenter = lazy(() => import("../../components/admin/AdminControlCenter"));
 import { hasAdminPermission } from "../../../shared/adminAccess";
 import "../../styles/admin.css";
 import { ErrorBoundary } from "../../components/ErrorBoundary";
@@ -48,10 +45,8 @@ export default function AdminPanel() {
   const { t } = useTranslation();
   const [adminSession] = useState(() => getAdminSession() || { permissions: ["*"] });
   const availableDestinations = useMemo(() => destinationsForPermissions(adminSession.permissions), [adminSession.permissions]);
-  // Lấy thẳng từ DataContext. Trước đây nhận qua prop, nhưng App.jsx render
-  // <AdminPanel /> không kèm prop nào — nên `data` là undefined và mọi công
-  // tắc trong tab Cài đặt ném "updateSystemSettings is not a function".
-  const { data = {}, updateSystemSettings = () => {}, updateAdvertisement = () => {} } = useData() || {};
+  // Lấy thẳng từ DataContext: App.jsx render <AdminPanel /> không kèm prop nào.
+  const { data = {}, updateAdvertisement = () => {} } = useData() || {};
   // Hàng đợi bấm "Mở hồ sơ" thì chuyển sang tab Thành viên và bật sẵn modal
   // của đúng người đó. Dọn về null sau khi đã mở để lần sau còn mở lại được.
   const [queueUserId, setQueueUserId] = useState(null);
@@ -103,7 +98,6 @@ export default function AdminPanel() {
 
   const [authChecking, setAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminToken, setAdminToken] = useState("");
 
   // Counts & Stats
   const [counts, setCounts] = useState({
@@ -369,9 +363,6 @@ export default function AdminPanel() {
     const session = getAdminSession();
     if (session) {
       setIsAuthenticated(true);
-      if (session.token) {
-        setAdminToken(session.token);
-      }
     }
     setAuthChecking(false);
   }, []);
@@ -488,9 +479,6 @@ export default function AdminPanel() {
             onResolveCrisisAlert={handleResolveCrisisAlert}
           />
         );
-      case "audit":
-        return <AdminAuditLogTab />;
-
       case "users":
         return (
           <AdminUsersTab
@@ -523,17 +511,15 @@ export default function AdminPanel() {
       case "joylater":
         return <AdminJoyLendingTab />;
 
-      case "sentinel":
-        return <AdminSecuritySentinelTab token={adminToken} onShowToast={(msg) => showNotification(msg)} />;
-      case "monitor":
-        return <AdminSystemTab showNotification={showNotification} />;
-      case "settings":
+      case "control":
         return (
-          <AdminSettingsTab
-            data={data} updateSystemSettings={updateSystemSettings} updateAdvertisement={updateAdvertisement}
-            showNotification={showNotification} handleLogout={handleLogout} uploadingAd={uploadingAd}
-            handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete} triggerConfirm={triggerConfirm}
-          />
+          <Suspense fallback={<p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>}>
+            <AdminControlCenter
+              data={data} updateAdvertisement={updateAdvertisement} uploadingAd={uploadingAd}
+              handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete}
+              onOpenMember={(email) => { setSearchInput(email); setActiveTab("users"); }}
+            />
+          </Suspense>
         );
       case "data":
         return <Suspense fallback={<p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>}><AdminDataTab /></Suspense>;

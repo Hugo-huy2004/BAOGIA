@@ -89,6 +89,7 @@ const PUBLIC_ROUTES = {
   "emailRoutes.js POST /adv": "biểu mẫu liên hệ quảng cáo/đối tác công khai (cùng khuôn /contact, chịu globalLimiter của /api)",
   "supportRoutes.js POST /tickets": "gửi yêu cầu hỗ trợ khi chưa đăng nhập được",
   "opsRoutes.js POST /client-event": "telemetry từ trình duyệt, gồm cả khách vãng lai",
+  "opsRoutes.js POST /visit": "lượt xem trang cho bản đồ khách truy cập, gồm cả khách vãng lai",
 
   // ── Mã QR/NFC ký bằng HMAC — bản thân mã là chứng cứ ─────────────────────
   // Chỉ mã QR mới được miễn cổng, vì bản thân token đã là chứng cứ do máy chủ

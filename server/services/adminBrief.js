@@ -54,12 +54,12 @@ export async function buildAdminBrief() {
     waiting(queue.appeals, 'kháng nghị mở khoá tài khoản', 'queue', 'gavel'),
     waiting(queue.tickets, 'yêu cầu hỗ trợ chưa trả lời', 'support', 'support_agent'),
     waiting(queue.joylater, 'hồ sơ nợ JOY chờ quyết định cấm', 'queue', 'block'),
-    [moderation > 0, 'warn', 'shield', `${moderation} nội dung bị máy nghi ngờ, cần người xem lại.`, 'sentinel'],
-    [quota.saturated, 'bad', 'smart_toy', 'AI đã dùng hết lượt miễn phí hôm nay. Các tính năng AI tự tạm dừng và tự chạy lại khi sang ngày mới — không cần làm gì.', 'monitor'],
-    [!quota.saturated && !quota.healthy, 'warn', 'smart_toy', 'AI đang gần hết lượt miễn phí hoặc trả lỗi liên tục. Hệ thống đã tự giảm tải.', 'monitor'],
-    [errors >= 100, 'bad', 'error', `Máy chủ báo ${errors} lỗi trong 24 giờ${topError[0] ? `, nhiều nhất ở "${topError[0]._id}"` : ''}. Nên báo kỹ thuật.`, 'monitor'],
-    [errors >= 20 && errors < 100, 'warn', 'error', `Máy chủ báo ${errors} lỗi trong 24 giờ${topError[0] ? `, nhiều nhất ở "${topError[0]._id}"` : ''}.`, 'monitor'],
-    [rssMb > 450, 'warn', 'memory', `Máy chủ đang dùng ${rssMb} MB bộ nhớ (gói miễn phí có 512 MB).`, 'monitor'],
+    [moderation > 0, 'warn', 'shield', `${moderation} nội dung bị máy nghi ngờ, cần người xem lại.`, 'control'],
+    [quota.saturated, 'bad', 'smart_toy', 'AI đã dùng hết lượt miễn phí hôm nay. Các tính năng AI tự tạm dừng và tự chạy lại khi sang ngày mới — không cần làm gì.', 'control'],
+    [!quota.saturated && !quota.healthy, 'warn', 'smart_toy', 'AI đang gần hết lượt miễn phí hoặc trả lỗi liên tục. Hệ thống đã tự giảm tải.', 'control'],
+    [errors >= 100, 'bad', 'error', `Máy chủ báo ${errors} lỗi trong 24 giờ${topError[0] ? `, nhiều nhất ở "${topError[0]._id}"` : ''}. Nên báo kỹ thuật.`, 'control'],
+    [errors >= 20 && errors < 100, 'warn', 'error', `Máy chủ báo ${errors} lỗi trong 24 giờ${topError[0] ? `, nhiều nhất ở "${topError[0]._id}"` : ''}.`, 'control'],
+    [rssMb > 450, 'warn', 'memory', `Máy chủ đang dùng ${rssMb} MB bộ nhớ (gói miễn phí có 512 MB).`, 'control'],
   ];
   const items = signals.filter(([on]) => on).map(([, level, icon, text, tab]) => ({ level, icon, text, tab }));
 

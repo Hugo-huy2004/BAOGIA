@@ -45,6 +45,10 @@ router.get('/', requireAdmin, async (req, res) => {
 // POST: Submit a new booking
 router.post('/', async (req, res) => {
   try {
+    const { getSystemSettings } = await import('../utils/systemSettings.js');
+    if ((await getSystemSettings()).allowBooking === false) {
+      return res.status(403).json({ error: 'Hugo Studio đang tạm ngừng nhận lịch tư vấn mới.' });
+    }
     const fullName = String(req.body.fullName || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();
     const phone = String(req.body.phone || '').trim();

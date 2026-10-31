@@ -6,7 +6,7 @@ import {
   BulkDeleteButton, EditButton, ShowButton, DeleteButton, TopToolbar, CreateButton,
   fetchUtils, mergeTranslations, useResourceDefinitions, defaultTheme,
 } from "react-admin";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import simpleRestProvider from "ra-data-simple-rest";
 import polyglotI18nProvider from "ra-i18n-polyglot";
 import englishMessages from "ra-language-english";
@@ -109,20 +109,28 @@ const views = (r) => {
 // Bố cục gọn: một hàng chip chọn bảng thay cho AppBar + menu của react-admin
 // (bảng quản trị đã có thanh bên riêng).
 function Layout({ children }) {
-  const resources = useResourceDefinitions();
+  const resources = Object.values(useResourceDefinitions());
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const current = resources.find((r) => pathname.startsWith(`${BASE}/${r.name}/`) || pathname === `${BASE}/${r.name}`);
+  const curated = resources.filter((r) => !r.options?.auto);
+  const raw = resources.filter((r) => r.options?.auto);
   return (
     <div className="mx-auto max-w-6xl space-y-4">
-      <nav aria-label="Bảng dữ liệu" className="flex gap-2 overflow-x-auto pb-1">
-        {Object.values(resources).map((r) => {
-          const on = pathname.startsWith(`${BASE}/${r.name}`);
-          return (
-            <NavLink key={r.name} to={`${BASE}/${r.name}`}
-              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${on ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}>
-              {r.options?.label || r.name}
-            </NavLink>
-          );
-        })}
+      <nav aria-label="Bảng dữ liệu" className="flex flex-wrap items-center gap-2">
+        {curated.map((r) => (
+          <NavLink key={r.name} to={`${BASE}/${r.name}`}
+            className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${current?.name === r.name ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}>
+            {r.options?.label || r.name}
+          </NavLink>
+        ))}
+        {raw.length > 0 && (
+          <select aria-label="Mọi bảng khác" value={current?.options?.auto ? current.name : ""} onChange={(e) => e.target.value && navigate(`${BASE}/${e.target.value}`)}
+            className={`min-h-9 rounded-full border px-3 text-sm ${current?.options?.auto ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground"}`}>
+            <option value="">Mọi bảng khác ({raw.length})…</option>
+            {raw.map((r) => <option key={r.name} value={r.name}>{r.options?.label || r.name}</option>)}
+          </select>
+        )}
       </nav>
       {children}
     </div>
@@ -146,7 +154,7 @@ export default function AdminDataTab() {
   // App.jsx khai báo riêng route /admin/data/* để đường dẫn bên trong react-admin tính từ đây.
   return (
     <Admin basename={BASE} dataProvider={dataProvider} i18nProvider={i18nProvider} theme={theme} layout={Layout} disableTelemetry>
-      {resources.map((r) => <Resource key={r.id} name={r.id} options={{ label: r.label }} {...views(r)} />)}
+      {resources.map((r) => <Resource key={r.id} name={r.id} options={{ label: r.label, auto: r.auto }} {...views(r)} />)}
     </Admin>
   );
 }

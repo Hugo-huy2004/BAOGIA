@@ -274,21 +274,7 @@ export const adminBrainApi = {
     return res.json();
   },
 
-  /**
-   * Lấy danh sách nhật ký kiểm toán thao tác quản trị viên (Admin Audit Logs)
-   */
-  async getAuditLogs(limit = 50) {
-    const res = await fetch(`${API_BASE}/admin/audit-logs?limit=${limit}`, {
-      credentials: 'include'
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Không thể lấy nhật ký kiểm toán');
-    }
-    return res.json();
-  },
-
-  /**
+    /**
    * Lấy danh sách toàn bộ sản phẩm Store cho Admin
    */
   async getStoreProducts() {

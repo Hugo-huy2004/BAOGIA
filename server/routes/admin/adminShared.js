@@ -53,7 +53,7 @@ export async function logAdminAuditAction(req, action, targetUserId, targetUserE
     const AdminAuditLog = (await import('../../models/AdminAuditLog.js')).default;
     await AdminAuditLog.create({
       adminId: String(req.admin?.id || 'admin'),
-      adminUsername: req.admin?.id || 'admin',
+      adminUsername: req.admin?.email || req.admin?.id || 'admin',
       action,
       targetEmail: targetUserEmail || '',
       ipAddress: req.ip || '',

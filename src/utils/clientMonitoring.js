@@ -169,9 +169,37 @@ function installGlobalErrorHandlers() {
   });
 }
 
+// Lượt xem trang cho bản đồ khách ở Trung Tâm Điều Khiển. SPA đổi trang bằng
+// history nên bọc pushState/replaceState; trang /admin không tính.
+function installPageViews() {
+  let last = "";
+  const send = () => {
+    const page = window.location.pathname;
+    if (!runtimeEnabled || page === last || page.startsWith("/admin")) return;
+    last = page;
+    fetch(`${API_BASE}/ops/visit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page }),
+      keepalive: true,
+    }).catch(() => {});
+  };
+  for (const name of ["pushState", "replaceState"]) {
+    const original = history[name];
+    history[name] = function patched(...args) {
+      const result = original.apply(this, args);
+      setTimeout(send, 0);
+      return result;
+    };
+  }
+  window.addEventListener("popstate", send);
+  send();
+}
+
 export function installClientMonitoring() {
   if (installed || typeof window === "undefined") return;
   installed = true;
+  installPageViews();
   installWebVitals();
   installGlobalErrorHandlers();
   installApiSummaryReporter();
