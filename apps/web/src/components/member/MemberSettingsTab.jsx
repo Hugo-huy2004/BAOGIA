@@ -432,6 +432,7 @@ export default function MemberSettingsTab({
             wide
           >
             <PersonalInfoSubTab
+              inSheet
               formData={formData}
               handleFieldChange={handleFieldChange}
               handleSave={async (event) => {
@@ -469,10 +470,8 @@ export default function MemberSettingsTab({
 
       {activeSheet?.startsWith("doc:") && (
         <AccountSheet
-          title={
-            STANDARDIZED_DOCS[activeSheet.replace("doc:", "")]?.defaultTitle ||
-            t("memberPortal.accountProfile.memberDocuments", nom("Tài liệu quy chuẩn"))
-          }
+          // Tên tài liệu đã là tiêu đề lớn trong MemberDocReader; đầu sheet chỉ nói loại.
+          title={t("memberPortal.accountProfile.memberDocuments", nom("Tài liệu quy chuẩn"))}
           onClose={closeSheet}
           wide
         >

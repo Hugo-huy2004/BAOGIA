@@ -5,12 +5,18 @@ import { useTranslation } from "react-i18next";
 import { MotionConfig, motion, useScroll, useSpring } from "motion/react";
 import i18n, { ensureTranslations } from "../i18n/config";
 import { SERVICES_ORIGIN, cvPdf } from "../config/publicSites";
+import HugoLogo from "../components/HugoLogo";
 import "../index.css";
 import "./portfolio.css";
 
 const Introduction = lazy(() => import("../pages/public/IntroductionPage"));
 const Projects = lazy(() => import("../pages/public/ProjectsPage"));
 const Project = lazy(() => import("../pages/public/ProjectDetailPage"));
+const LANGS = [
+  { code: "vi", short: "VI", name: "Tiếng Việt" },
+  { code: "en", short: "EN", name: "English" },
+  { code: "zh", short: "中", name: "中文" },
+];
 const prefix = window.location.pathname.match(/^\/(en|zh)(?=\/|$)/)?.[0] || "";
 
 function ScrollPosition() {
@@ -38,22 +44,30 @@ function Portfolio() {
       <header className="portfolio-nav-wrap">
         <nav aria-label="Portfolio" className="portfolio-nav">
           <Link to="/" className="portfolio-wordmark" aria-label="Hugo Wishpax — Portfolio">
-            <span aria-hidden="true">H</span> Hugo Wishpax
+            <HugoLogo className="h-7 w-7" aria-hidden="true" /> Hugo Wishpax
           </Link>
           <div className="portfolio-nav-links">
-            <Link to="/#projects">{t("projectsPage.title", "Dự án")}</Link>
+            <Link to="/#projects">{t("projectsPage.navLabel", "Dự Án")}</Link>
             <Link to="/#about">{t("intro.story.profile.kicker", "Hồ sơ")}</Link>
             <Link to="/#skills">{language.language.startsWith("vi") ? "Kỹ năng" : language.language.startsWith("zh") ? "技能" : "Skills"}</Link>
             <a href="/cv/index.html">CV</a>
           </div>
-          <div className="portfolio-languages" aria-label="Language">
-            {["vi", "en", "zh"].map((code) => (
-              <a key={code} href={`${code === "vi" ? "" : `/${code}`}${pathname}`}
-                aria-current={language.language.startsWith(code) ? "page" : undefined}>
-                {code === "zh" ? "中" : code.toUpperCase()}
-              </a>
-            ))}
-          </div>
+          {/* Một nút gọn thay ba nút: trên điện thoại ba ô ngôn ngữ chiếm gần nửa
+              thanh và đẩy Hồ sơ/Kỹ năng ra ngoài. <details> là menu bản địa, không cần JS. */}
+          <details className="portfolio-languages">
+            <summary aria-label="Language">
+              <span className="material-symbols-outlined" aria-hidden="true">language</span>
+              {LANGS.find((l) => language.language.startsWith(l.code))?.short || "VI"}
+            </summary>
+            <div role="menu">
+              {LANGS.map(({ code, name }) => (
+                <a key={code} role="menuitem" href={`${code === "vi" ? "" : `/${code}`}${pathname}`}
+                  aria-current={language.language.startsWith(code) ? "page" : undefined}>
+                  {name}
+                </a>
+              ))}
+            </div>
+          </details>
         </nav>
       </header>
       <main id="top">

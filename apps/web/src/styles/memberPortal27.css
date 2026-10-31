@@ -1302,7 +1302,6 @@
 
 .portal-safe-modal {
   padding-top: max(12px, env(safe-area-inset-top, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .portal-safe-modal .apple-account-shell {
@@ -1312,7 +1311,7 @@
 /* Trong sheet, thanh lưu dính đáy phần cuộn chứ không dính đáy màn hình. */
 .portal-safe-modal .apple-account-savebar {
   bottom: 0;
-  margin-bottom: env(safe-area-inset-bottom, 0px);
+  background: hsl(var(--card));
 }
 
 .ios-sheet-panel { padding-bottom: env(safe-area-inset-bottom, 0px); }

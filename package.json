@@ -74,7 +74,8 @@
     "preview:portfolio": "npm run --workspace apps/web preview:portfolio",
     "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs",
     "deploy:portfolio": "node scripts/deploy-portfolio.mjs",
-    "og:partner": "node scripts/generate-partner-og.mjs"
+    "og:partner": "node scripts/generate-partner-og.mjs",
+    "gen:coder-buddy": "node scripts/generate-coder-buddy.mjs"
   },
   "devDependencies": {
     "eslint": "^9.15.0",

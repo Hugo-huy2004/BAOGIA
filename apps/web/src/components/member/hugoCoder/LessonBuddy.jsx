@@ -1,21 +1,9 @@
 import { useMemo } from "react";
 
 /**
- * Hugo — nhân vật đồng hành trong bài học, vẽ 100% bằng SVG.
- *
- * Bản đầu tôi vẽ hỏng: bàn tay là một hình trôi lơ lửng cạnh đầu mà không có
- * cánh tay nối vào, tóc vẽ hai lớp đè lên mặt, thân áo bắt đầu ở y=82 trong
- * khung cao 104 nên bị cắt cụt. Bản này dựng theo thứ tự giải phẫu và mọi toạ
- * độ đều nằm trong khung:
- *
- *   khung 120×120 · đầu tâm (60,52) bán kính 28 · cổ 74→92 · vai từ y=92
- *
- * Thứ tự vẽ: nền → cổ → thân → đầu → tóc → kính → má → miệng → tay.
- * Cổ vẽ trước thân và đầu nên hai bên tự che hai đầu cổ, không lộ mối nối.
- *
- * Giữ ba nét nhận dạng của mascot đã có: tóc đen dày, kính râm tối màu, miệng
- * cười rộng. Mascot màu là ngoại lệ CÓ CHỦ ĐÍCH của quy ước icon đơn sắc — quy
- * ước đó áp cho biểu tượng chức năng, không áp cho nhân vật.
+ * Hugo — nhân vật đồng hành trong bài học. Mascot màu là ngoại lệ CÓ CHỦ ĐÍCH
+ * của quy ước icon đơn sắc — quy ước đó áp cho biểu tượng chức năng, không áp
+ * cho nhân vật.
  */
 const MOODS = {
   learn: {
@@ -64,35 +52,8 @@ const MOODS = {
   },
 };
 
-/** Miệng mang biểu cảm — mắt bị kính râm che nên không dùng được. */
-function Mouth({ mood }) {
-  if (mood === "correct" || mood === "done") {
-    return <path className="buddy-mouth-open" d="M49 62 Q60 77 71 62 Q60 68 49 62 Z" />;
-  }
-  if (mood === "wrong") {
-    return <path className="buddy-mouth-line" d="M52 68 Q60 63 68 68" />;
-  }
-  return <path className="buddy-mouth-line" d="M51 63 Q60 71 69 63" />;
-}
-
-/** Cánh tay nối từ vai lên — có vai, có tay, không phải hình trôi lơ lửng. */
-function Arm({ mood }) {
-  if (mood !== "correct" && mood !== "done") return null;
-  const raised = mood === "done";
-  return (
-    <g className="buddy-arm">
-      <path
-        className="buddy-sleeve"
-        d={raised ? "M92 104 Q104 96 100 76" : "M92 104 Q102 98 99 84"}
-        strokeWidth="13"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <circle className="buddy-hand" cx={raised ? 100 : 99} cy={raised ? 72 : 80} r="8.5" />
-      {!raised && <path className="buddy-thumb" d="M99 72 v-7" strokeWidth="5" strokeLinecap="round" />}
-    </g>
-  );
-}
+// Ảnh dựng sẵn bằng DiceBear: scripts/generate-coder-buddy.mjs.
+const avatarFor = (mood) => `/coder/buddy-${MOODS[mood] ? mood : "learn"}.svg`;
 
 export default function LessonBuddy({ mood = "learn", size = "sm", seed = 0 }) {
   const config = MOODS[mood] || MOODS.learn;
@@ -105,46 +66,7 @@ export default function LessonBuddy({ mood = "learn", size = "sm", seed = 0 }) {
 
   return (
     <div className={`lesson-buddy is-${size} is-${mood}`}>
-      <svg className="lesson-buddy-art" viewBox="0 0 120 120" role="img" aria-label={config.alt}>
-        <defs>
-          {/* Thân cắt theo vòng nền để vai không tràn ra ngoài khung tròn. */}
-          <clipPath id="buddy-disc-clip"><circle cx="60" cy="60" r="58" /></clipPath>
-        </defs>
-
-        <circle className="buddy-disc" cx="60" cy="60" r="58" />
-
-        <g clipPath="url(#buddy-disc-clip)">
-          <rect className="buddy-skin" x="52" y="72" width="16" height="22" rx="7" />
-          <path className="buddy-shirt" d="M18 120 Q18 92 60 92 Q102 92 102 120 Z" />
-          <path className="buddy-collar" d="M50 93 L60 102 L70 93" fill="none" strokeWidth="3" />
-
-          <circle className="buddy-skin" cx="60" cy="52" r="28" />
-
-          {/* Tóc: một vành mũ ôm nửa trên của đầu, cộng một món tóc phía trước. */}
-          <path className="buddy-hair" d="M31 55 A29 29 0 0 1 89 55 Q83 38 60 38 Q37 38 31 55 Z" />
-          <path className="buddy-hair" d="M60 38 Q46 39 39 50 Q46 42 60 42 Q74 42 81 50 Q74 39 60 38 Z" />
-
-          <g className="buddy-glasses">
-            <rect x="37" y="44" width="20" height="14" rx="6.5" />
-            <rect x="63" y="44" width="20" height="14" rx="6.5" />
-            <path d="M57 50 h6" strokeWidth="3" />
-          </g>
-
-          <circle className="buddy-blush" cx="40" cy="64" r="4.5" />
-          <circle className="buddy-blush" cx="80" cy="64" r="4.5" />
-
-          <g className="buddy-mouth"><Mouth mood={mood} /></g>
-
-          <Arm mood={mood} />
-        </g>
-
-        {(mood === "correct" || mood === "done") && (
-          <g className="buddy-spark">
-            <path d="M20 34 v10 M15 39 h10" strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M101 30 v8 M97 34 h8" strokeWidth="3" strokeLinecap="round" />
-          </g>
-        )}
-      </svg>
+      <img className="lesson-buddy-art" src={avatarFor(mood)} alt={config.alt} draggable="false" />
 
       <p className="lesson-buddy-bubble">{line}</p>
     </div>

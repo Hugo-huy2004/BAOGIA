@@ -57,9 +57,9 @@ export default function AccountSheet({ title, subtitle, onClose, children, wide 
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`ios-sheet-panel flex max-h-[92dvh] w-full flex-col rounded-t-[36px] border-t border-border/70 bg-card/95 backdrop-blur-xl text-left shadow-2xl sm:max-h-[88vh] sm:rounded-[32px] sm:border ${closing ? "account-sheet-slide-down" : "animate-slideUp"} ${wide ? "sm:max-w-2xl" : "sm:max-w-lg"}`}
+        className={`ios-sheet-panel flex max-h-[92dvh] w-full flex-col rounded-t-[36px] border-t border-border/70 bg-card text-left shadow-2xl sm:max-h-[88vh] sm:rounded-[32px] sm:border ${closing ? "account-sheet-slide-down" : "animate-slideUp"} ${wide ? "sm:max-w-2xl" : "sm:max-w-lg"}`}
       >
-        <div className="shrink-0 px-6 pb-3 pt-3 border-b border-border/40 bg-muted/20">
+        <div className="shrink-0 px-6 pb-3 pt-3 border-b border-border/40">
           <span className="mx-auto mb-3 block h-1.5 w-12 rounded-full bg-foreground/20 sm:hidden" aria-hidden="true" />
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">

@@ -5290,6 +5290,7 @@
       "keywords": "网站项目咨询，网站咨询，个人作品集，小型企业网站，Hugo Studio"
     },
     "toast": {
+      "captcha": "请先完成防垃圾验证。",
       "success": "您的询问已收到。我将在一个工作日内回复您。",
       "error": "无法发送您的询问。请检查您的网络连接并尝试再次发送。",
       "networkError": "网络错误。请检查您的互联网连接并尝试再次操作。",
@@ -8169,6 +8170,7 @@
     "themePickerLabel": "选择 Bio 页面的界面"
   },
   "projectsPage": {
+    "navLabel": "项目",
     "backLink": "返回介绍页",
     "backToSource": "返回上一页",
     "kicker": "项目",

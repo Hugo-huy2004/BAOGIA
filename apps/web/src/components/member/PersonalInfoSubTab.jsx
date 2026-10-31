@@ -95,13 +95,13 @@ function BirthGateRow({ formData, onChange, t }) {
 function AccountGroup({ title, description, icon, children, optional = false }) {
   const content = (
     <>
-      <div className="apple-account-section-heading">
+      {title ? <div className="apple-account-section-heading">
         {icon ? <span className="material-symbols-outlined" aria-hidden="true">{icon}</span> : null}
         <span>
           <h3>{title}</h3>
           {description ? <p>{description}</p> : null}
         </span>
-      </div>
+      </div> : null}
       <div className="apple-account-group">{children}</div>
     </>
   );
@@ -128,6 +128,7 @@ function AccountGroup({ title, description, icon, children, optional = false }) 
 }
 
 export default function PersonalInfoSubTab({
+  inSheet = false,
   formData,
   handleFieldChange,
   handleSave,
@@ -244,8 +245,9 @@ export default function PersonalInfoSubTab({
       />
 
       <AccountGroup
-        title={t("memberPortal.account.personalInformation")}
-        description={t("memberPortal.account.personalInformationDescription")}
+        // Trong sheet, tiêu đề sheet đã nói đúng câu này — lặp lại là thừa.
+        title={inSheet ? undefined : t("memberPortal.account.personalInformation")}
+        description={inSheet ? undefined : t("memberPortal.account.personalInformationDescription")}
         icon="person"
       >
         <EditableRow

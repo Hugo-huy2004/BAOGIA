@@ -1012,6 +1012,7 @@
       "keywords": "trao đổi dự án website, tư vấn website, portfolio cá nhân, website thương điếm, Hugo Studio"
     },
     "toast": {
+      "captcha": "Vui lòng hoàn tất bước xác minh chống spam.",
       "success": "Đã gửi yêu cầu. Mình sẽ phản hồi trong vòng 24 giờ làm việc.",
       "error": "Chưa thể gửi yêu cầu. Vui lòng kiểm tra kết nối và thử lại.",
       "networkError": "Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.",
@@ -8016,6 +8017,7 @@
     "themePickerLabel": "Chọn giao diện trang Bio"
   },
   "projectsPage": {
+    "navLabel": "Dự Án",
     "backLink": "Về trang giới thiệu",
     "backToSource": "Quay lại trang trước",
     "kicker": "Dự án",

@@ -1012,6 +1012,7 @@
       "keywords": "hire freelance web developer, website project enquiry, website consultation, personal portfolio website, small business website"
     },
     "toast": {
+      "captcha": "Please complete the anti-spam check.",
       "success": "Your enquiry has been received. I shall respond within one business day.",
       "error": "Your enquiry could not be sent. Please check your connection and try again.",
       "networkError": "Connection error. Please check your internet and try again.",
@@ -7974,6 +7975,7 @@
     "themePickerLabel": "Choose a look for your Bio page"
   },
   "projectsPage": {
+    "navLabel": "Projects",
     "backLink": "Back to the introduction",
     "backToSource": "Back to previous page",
     "kicker": "Work",

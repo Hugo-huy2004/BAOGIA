@@ -162,7 +162,7 @@ function LessonDone({ course, stepCount, onExit, onNext }) {
 
       <LessonBuddy mood="done" size="lg" seed={stepCount} />
 
-      <h2>Hoàn thành step</h2>
+      <h2>Hoàn thành bài</h2>
       <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
       <span className="lesson-done-count">{stepCount} slide đã đi qua</span>
 
@@ -256,7 +256,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
       <div className="lesson-player">
         <div className="lesson-done">
           <LessonBuddy mood="learn" size="lg" seed={1} />
-          <h2>Step này đang được soạn</h2>
+          <h2>Bài này đang được soạn</h2>
           <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
           <div className="lesson-done-actions">
             <button type="button" onClick={onExit}>Trở về bản đồ</button>
@@ -399,7 +399,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
         <footer className="lesson-player-foot">
           <button type="button" onClick={next} disabled={!ready}>
             {step.kind === "result"
-              ? (result?.passed ? "Hoàn thành step" : "Nộp lại")
+              ? (result?.passed ? "Hoàn thành bài" : "Nộp lại")
               : steps[index + 1]?.kind === "result" ? "Nộp bài" : step.kind === "check" ? "Câu tiếp" : "Tiếp tục"}
             {step.kind === "check" ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
           </button>

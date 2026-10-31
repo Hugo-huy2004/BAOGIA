@@ -2,6 +2,7 @@ import express from 'express';
 import Booking from '../models/Booking.js';
 import Bio from '../models/Bio.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { verifyTurnstile } from '../utils/turnstile.js';
 
 const router = express.Router();
 const PROJECT_TYPES = new Set(['newWebsite', 'portfolio', 'improve', 'student', 'unsure']);
@@ -48,6 +49,9 @@ router.post('/', async (req, res) => {
     const { getSystemSettings } = await import('../utils/systemSettings.js');
     if ((await getSystemSettings()).allowBooking === false) {
       return res.status(403).json({ error: 'Hugo Studio đang tạm ngừng nhận lịch tư vấn mới.' });
+    }
+    if (!(await verifyTurnstile(req, 'booking'))) {
+      return res.status(403).json({ error: 'turnstile_failed' });
     }
     const fullName = String(req.body.fullName || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();

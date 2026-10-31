@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { API_BASE } from "../../config/apiBase";
+import Turnstile, { turnstileEnabled } from "./Turnstile";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/api/core/authSession";
 import { validateMessageContent } from "../../utils/contentFilter";
@@ -51,6 +52,8 @@ export default function ServicesBookingForm() {
   const [form, setForm] = useState(createInitialForm);
   const [step, setStep] = useState(0);
   const [sending, setSending] = useState(false);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaRound, setCaptchaRound] = useState(0);
   const [done, setDone] = useState(false);
 
   const stepId = STEPS[step];
@@ -111,6 +114,7 @@ export default function ServicesBookingForm() {
     const message = (validation.fixedMessage || form.message).trim();
     if (message !== form.message.trim()) update("message", message);
     if (!validation.isValid) return notify.error(validation.errorMessage);
+    if (turnstileEnabled && !captcha) return notify.error(t("bookingPage.toast.captcha"));
 
     const structuredMessage = [
       `${t("bookingPage.summary.age")}: ${t(`bookingPage.ageBands.${form.ageBand}.title`)}`,
@@ -130,6 +134,7 @@ export default function ServicesBookingForm() {
           projectType: form.projectType,
           notes: message,
           message: structuredMessage,
+          "cf-turnstile-response": captcha,
         }),
       });
       if (!response.ok) throw new Error(`Booking request failed: ${response.status}`);
@@ -140,6 +145,7 @@ export default function ServicesBookingForm() {
       notify.error(t("bookingPage.toast.error"));
     } finally {
       setSending(false);
+      setCaptchaRound((n) => n + 1);
     }
   };
 
@@ -213,6 +219,7 @@ export default function ServicesBookingForm() {
               <span className="sr-only">{t("bookingPage.steps.details.title")}</span>
               <textarea maxLength={1600} value={form.message} placeholder={t("bookingPage.form.messagePlaceholder")} onChange={(event) => update("message", event.target.value)} />
             </label>
+            <Turnstile action="booking" onToken={setCaptcha} resetKey={captchaRound} />
           </>
         )}
       </div>

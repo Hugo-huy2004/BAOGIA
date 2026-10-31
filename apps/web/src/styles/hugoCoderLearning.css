@@ -2206,6 +2206,9 @@
 
 /* ── Màn chúc mừng ──────────────────────────────────────────────────────── */
 .lesson-done {
+  /* .lesson-player là lưới 3 hàng (đầu · thân · chân); màn này đứng một mình
+     nên phải trải cả 3 hàng, nếu không nó nằm ở hàng đầu và lệch lên trên. */
+  grid-row: 1 / -1;
   display: grid;
   place-content: center;
   justify-items: center;
@@ -2280,31 +2283,22 @@
 .lesson-done-actions svg { width: 18px; height: 18px; }
 
 /* ── Hugo — nhân vật đồng hành ──────────────────────────────────────────────
-   Vẽ hoàn toàn bằng SVG: nhẹ gần bằng không, nét sắc ở mọi cỡ, đổi biểu cảm
-   bằng vài đường thay vì thêm một tấm ảnh. */
+   Ảnh SVG do DiceBear dựng (LessonBuddy.jsx); nền tròn tô ở đây theo màu chặng. */
 .lesson-buddy {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.lesson-buddy-art { flex: 0 0 auto; width: 64px; height: 64px; }
+.lesson-buddy-art {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--coder-blue) 14%, transparent);
+  user-select: none;
+}
 .lesson-buddy.is-lg .lesson-buddy-art { width: 132px; height: 132px; }
-
-.buddy-disc { fill: color-mix(in srgb, var(--coder-blue) 10%, transparent); }
-.buddy-hair { fill: #23252d; }
-.buddy-skin { fill: #ffd9b8; }
-.buddy-shirt { fill: #b9cbe8; }
-.buddy-collar { stroke: #97b0d6; }
-.buddy-sleeve { stroke: #b9cbe8; }
-.buddy-hand { fill: #ffd9b8; }
-.buddy-thumb { stroke: #ffd9b8; }
-.buddy-glasses rect { fill: #1f2330; }
-.buddy-glasses path { stroke: #1f2330; }
-.buddy-blush { fill: #ffb0a6; opacity: 0.75; }
-.buddy-mouth-line { stroke: #7a3b32; stroke-width: 3.4; stroke-linecap: round; fill: none; }
-.buddy-mouth-open { fill: #7a3b32; stroke: none; }
-.buddy-spark { stroke: #ffc531; fill: none; }
 
 /* Bong bóng thoại — mũi nhọn chỉ về phía nhân vật. */
 .lesson-buddy-bubble {
