@@ -4117,53 +4117,255 @@
           "有人赞了你的帖子",
           "有人关注了你",
           "你自己查看自己的帖子"
-        ]
+        ],
+        "why": "提到他人时也会生成通知；自己查看则不会。"
       },
       {
+        "q": "为什么创建帖子、添加标签和发送通知应放在同一个事务中？",
         "o": [
           "图快",
-          null,
-          "MySQL 必填"
-        ]
+          "任一步骤失败则全部回滚，不会留下缺少标签或通知的半成品帖子。",
+          "MySQL 必填",
+          "为了使用索引"
+        ],
+        "why": "事务保证原子性（Atomicity）。"
+      },
+      {
+        "q": "填写能在标签已存在时不报错的添加语句。",
+        "why": "INSERT IGNORE 会忽略 UNIQUE 唯一约束的重复错误。"
+      },
+      {
+        "q": "打开 /notifications 页面时，会对已读状态做什么？",
+        "o": [
+          "删除所有通知",
+          "列出并标记为已读，使下次角标回到 0",
+          "标记为未读",
+          "不做任何改变"
+        ],
+        "why": "本次显示未查看的内容，但降低下次加载时的角标。"
+      },
+      {
+        "q": "render_body 的哪一行出错，需要重新打开 XSS？",
+        "why": "必须在拼接链接之前先执行 e($body)；如果最后才转义，会把刚添加的 <a> 标签也转义掉，并且原始的 HTML 仍会残留在中间。"
       }
-    ]
+    ],
+    "title": "22. 通知、话题标签与提及"
   },
   "step23": {
     "duration": "150 分钟",
+    "summary": "使用 SQL 进行产品分析：定义指标（虚荣指标与行动指标的区别）、编写统计查询（按日、排行榜、互动率、安全信号），并构建带权限控制的 /stats 页面，使用纯 CSS 图表，遵守 CSP。",
     "slides": [
-      null,
       {
-        "title": "学习目标"
+        "title": "数据在讲述什么故事？",
+        "body": "Nhịp 已经跑起来了，而且很好看。但怎样知道它**是否在变好**？用户会不会回来？哪些主题受关注？有没有人在暴力破解密码？\n\n这些问题的答案**其实已经存放在数据库里**，只需要知道怎么去问。本步骤把原始数据变成帮助决策的**指标**和**图表**：接下来做什么，修什么，防范什么。\n\n这是最后一步，也就是“让产品面世”。会做分析，是“写完应用”和“能运营好产品”之间的分水岭。"
+      },
+      {
+        "title": "学习目标",
+        "body": "1。区分**虚荣指标**（vanity）和**可行动指标**（actionable）。\n2。编写统计查询：总览、按日、前 N 名、互动率。\n3。补全**所有日期**，包括没有数据的日子（0），这样图表才不会“跳格”。\n4。从日志中提取**安全信号**（`activity_log`）。\n5。搭建**带权限控制**的 `/stats` 页面（仅产品负责人可查看）。\n6。用**纯 CSS** 绘制柱状图：不用任何库，并且**遵守 CSP**（不使用内联 `style=\"\"`）。"
+      },
+      {
+        "title": "虚荣指标与可行动指标",
+        "body": "- **虚荣指标**：数字听起来很提气，却无助于做决定。“至今发布的帖子总数”只会增长，永远无法说明你做得好还是差。\n- **可行动指标**：会随你的行动而变化，并且**给出行动建议**。“每日新帖”连续三天下降，说明有问题，需要查明原因。\n\n区分小技巧：问自己 *“如果这个数字变了，我会做得不一样吗？”* 答不上来，就是虚荣指标。\n\nNhịp 需要跟踪：每日帖子数、每日发帖人数（DAU）、互动率（每帖点赞数）、发帖排行榜，以及每日登录失败次数（安全）。"
+      },
+      {
+        "title": "从原始数据到决策",
+        "body": "分析链路如下：\n\n1。**事件**在发生时即被记录：帖子（`posts.created_at`）、点赞（`likes`）、登录失败（`activity_log`）。\n2。**查询**把它们汇总为指标：`GROUP BY DATE(...)`、`COUNT`、`AVG`。\n3。**呈现**为易读的表格或图表。\n4。**决策**：发现异常就采取行动。\n\n前面已经做对的关键一点：为所有内容**记录时间戳**（`created_at`）。没有时间戳就无法按时间分析，这也是 Nhịp 的每张表都有 `created_at` 的原因。"
+      },
+      {
+        "title": "可行动指标",
+        "body": "“虚荣指标与可行动指标”这一概念由 Eric Ries 在 *The Lean Startup* 中推广：好的指标必须是 **可行动的**（actionable，能指向明确的行动）、**易理解的**（accessible）、以及 **可审计的**（auditable，能从原始数据中验证）。“总浏览量”是虚荣指标的典型例子。\n\n在衡量用户参与度方面，McClure 提出的 **AARRR** 框架（获取 Acquisition、激活 Activation、留存 Retention、推荐 Referral、营收 Revenue）是按用户生命周期各阶段选择指标的常用方法。对于 Nhịp 这样的学习项目，我们重点关注 **激活**（用户发出第一条帖子）和 **留存**（用户回来继续发帖）。\n\n> Ries, E. (2011) *The Lean Startup*. 纽约：Crown Business 出版社。\n>\n> McClure, D. (2007) *Startup Metrics for Pirates (AARRR)*. 访问地址：https://500hats.typepad.com/"
+      },
+      {
+        "title": "在 SQL 中按时间分组",
+        "body": "MySQL 文档介绍了日期函数 `DATE()`、`DATE_FORMAT()`，可将时间戳截断为分组单位（日、周、月），并介绍了用于分组求和的 `GROUP BY`。需要注意**时区**：`DATE(created_at)` 按服务器时间截断。服务面向多个时区的产品，必须先决定按哪个时区截断。\n\n关于分析数据的安全：即使只是汇总信息，如果统计页面不限制查看者，也属于 **A01 失效的访问控制**。因此 `/stats` 同样要检查权限，就像对待其他敏感页面一样。\n\n> Oracle (2025) *MySQL 8.4 参考手册：日期和时间函数；GROUP BY 修饰符*. 访问地址：https://dev.mysql.com/doc/refman/8.4/en/\n>\n> OWASP 基金会 (2025) *Authorization Cheat Sheet*. 访问地址：https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+      },
+      {
+        "title": "为 Nhịp 选择指标",
+        "body": "| 指标 | 查询 | 原因 |\n|---|---|---|\n| 每日新帖 | `GROUP BY DATE(created_at)` | 活跃度是否在增长？ |\n| 每日发帖人数 | `COUNT(DISTINCT user_id)` | 实际有多少人在用？ |\n| 每帖平均点赞数 | `likes / posts` | 内容是否获得回应？ |\n| 发帖排行榜 | `GROUP BY user ORDER BY count` | 谁是核心用户？ |\n| 每日登录失败次数 | `activity_log WHERE login_failed` | 是否有人在攻击？ |\n\n将查询保存到 `database/analytics.sql`，以便在 phpMyAdmin 中手动运行；并把几个核心指标放到 `/stats` 页面上。"
+      },
+      {
+        "title": "总览查询",
+        "body": "在一条 `SELECT` 语句中使用多个子查询，即可得到一行总览数据：\n\n~~~sql\nSELECT\n  (SELECT COUNT(*) FROM users)                         AS users,\n  (SELECT COUNT(*) FROM posts WHERE parent_id IS NULL) AS posts,\n  (SELECT COUNT(*) FROM likes)                         AS likes,\n  (SELECT COUNT(*) FROM follows)                       AS follows;\n~~~\n\n每个子查询运行一次，返回一个值。对于大表，`COUNT(*)` 在 InnoDB 上必须扫描，因此如果需要频繁且即时地获取，人们通常会预先保存计数器（代价是每次写入都要更新）。对于 Nhịp，直接计数就够了。"
+      },
+      {
+        "title": "按日统计 — 并补全空白日期",
+        "body": "~~~sql\nSELECT DATE(created_at) AS d, COUNT(*) AS n\nFROM posts WHERE created_at > (NOW() - INTERVAL 7 DAY)\nGROUP BY DATE(created_at);\n~~~\n\n该查询**只返回有帖子的日期**。如果22/10那天没有人发帖，它就会消失——图表会从21直接“跳”到23，造成误解。\n\n简单的修复方法（在PHP中完成）：把结果放入按日期组织的数组，然后**遍历全部7天**，缺失的日期补上0：\n\n~~~php\nfor ($i = 6; $i >= 0; $i--) {\n    $d = date('Y-m-d', strtotime(\"-$i day\"));\n    $series[] = ['day' => $d, 'n' => $byDay[$d] ?? 0];\n}\n~~~"
+      },
+      {
+        "title": "DISTINCT、AVG 和 Top N",
+        "body": "~~~sql\n-- Người đăng bài mỗi ngày (một dạng DAU)\nSELECT DATE(created_at), COUNT(DISTINCT user_id)\nFROM posts GROUP BY DATE(created_at);\n\n-- Tỷ lệ tương tác\nSELECT (SELECT COUNT(*) FROM likes) /\n       NULLIF((SELECT COUNT(*) FROM posts WHERE parent_id IS NULL), 0);\n\n-- Top 5 người đăng nhiều nhất\nSELECT u.username, COUNT(*) AS n\nFROM posts p JOIN users u ON u.id = p.user_id\nWHERE p.parent_id IS NULL\nGROUP BY u.id ORDER BY n DESC LIMIT 5;\n~~~\n\n- `COUNT(DISTINCT user_id)`：统计**不同的人**，而不是帖子数。\n- `NULLIF(x, 0)`：避免在还没有帖子时**除以0**——除以 NULL 结果为 NULL，而不是报错。"
+      },
+      {
+        "title": "来自日志的安全信号",
+        "body": "日志（`activity_log`，step 19）不只是为了追查事故——它还是**安全分析**的数据源：\n\n~~~sql\nSELECT DATE(created_at) AS ngay, COUNT(*) AS lan_sai\nFROM activity_log\nWHERE action = 'login_failed' AND created_at > (NOW() - INTERVAL 7 DAY)\nGROUP BY DATE(created_at);\n~~~\n\n某天突然出现数百条来自少数 IP 的`login_failed` → 这是暴力破解密码的迹象。这正是 **A09 Security Logging** 所针对的“发现”：记录日志还不够，必须去**查看**它。`/stats`页面会显示这个数字，并在超过阈值时作出标记。"
+      },
+      {
+        "title": "统计页面的权限控制",
+        "body": "统计页面会暴露产品的整体全貌——**并非**所有人都可以查看：\n\n~~~php\n$me = require_login();\nif ((int) $me['id'] !== STATS_OWNER_ID) {\n    abort(403, 'Chỉ chủ sản phẩm xem được trang này.');\n}\n~~~\n\nNhịp没有独立的“admin”角色，因此暂时将**第一个账号**（id 1）视为产品负责人。真实的系统会在`users`中设置`role`列，并检查`role = 'admin'`——但**在服务器端逐页校验权限**的原则是相同的（step 13，16）。"
+      },
+      {
+        "title": "纯 CSS 图表——以及 CSP",
+        "image": {
+          "alt": "统计页 Nhịp：六张数字卡片（6 位用户、103 篇原帖、6 条回复、17 次点赞、10 次关注、0.17 点赞/帖子），以及近 7 天新帖柱状图，柱子为 0,0,0,1,29,41,38",
+          "caption": "/stats —— 指标卡片与柱状图，均由原生 CSS 绘制，未使用任何图表库。"
+        },
+        "body": "无需任何 JavaScript 图表库即可绘图（记住 A03 Supply Chain——每个库都是一份风险）。每根柱子就是一个按比例设定高度的 `<div>`。\n\n**但是** Nhịp 的 CSP（`style-src 'self'`，第 17 步）**禁止内联 `style=\"\"`**——因此**无法**直接在每根柱子上设置 `style=\"height: 80px\"`。遵守 CSP 的做法：在 `style.css` 中预先定义一组**高度类**（`.bar-h-0` … `.bar-h-100`），再由 PHP 按比例选择对应的类：\n\n~~~php\n$pct = (int) (round($d['n'] / $peak * 20) * 5);   // làm tròn về bội số 5\necho '<div class=\"bar bar-h-' . $pct . '\">';\n~~~\n\n第 4 阶段的安全策略，正好决定了第 5 阶段界面的写法——安全与架构紧密相连。"
+      },
+      {
+        "title": "database/analytics.sql",
+        "body": "将全部分析查询保存到一个文件中，需要深入分析时可在 phpMyAdmin 中手动运行。"
+      },
+      {
+        "title": "src/stats.php",
+        "body": "分析函数。`posts_per_day` 补全空缺的日期；`NULLIF`/检查 0 以避免除以 0。"
+      },
+      {
+        "title": "控制器与图表",
+        "body": "`src/pages/stats.php` 先检查权限，再使用 `bar-h-NN` 类渲染数字卡片和图表。在 bootstrap 中添加路由 `/stats` 并加载 `stats.php`。"
+      },
+      {
+        "title": "分析练习",
+        "body": "在 `analytics.sql` 中补充以下内容并运行：\n\n1。**留存**：本周和上周都发过帖的人有多少？（提示：两个子查询 `user_id IN (...)`）。\n2。**热门话题**：使用最多的 5 个话题标签（`post_tags JOIN tags GROUP BY`）。\n3。**黄金时段**：帖子集中在哪个时段？（`GROUP BY HOUR(created_at)`）。\n4。**沉默用户**：有多少账号**从未**发过帖？（`LEFT JOIN ... WHERE p.id IS NULL`）。\n5。在 `/stats` 页面添加“每篇帖子的平均话题标签数”指标。"
+      },
+      {
+        "title": "验收步骤 23",
+        "body": "- [ ] `analytics.sql` 具备所需查询，并可在 phpMyAdmin 中运行。\n- [ ] `/stats` 仅产品负责人可查看（他人访问 → 403）。\n- [ ] 每日帖子图表补全 7 天，空缺日期显示 0。\n- [ ] 页面不违反 CSP（控制台无报错）——使用 CSS 类，而非 `style=\"\"`。\n- [ ] 能在 Nhịp 自身的数据上区分虚荣指标与可操作指标。\n- [ ] 能从 `activity_log` 中至少读出一个安全信号。"
       }
     ],
     "quiz": [
-      null,
       {
+        "q": "哪个是可操作指标，而非虚荣指标？",
+        "o": [
+          "截至目前的帖子总数",
+          "每日新增帖子（上升或下降趋势）",
+          "累计浏览量",
+          "代码行数"
+        ],
+        "why": "可操作指标会随你的操作而变化，并给出行动建议。"
+      },
+      {
+        "q": "为什么绘制按日期的图表时需要补全空缺日期（0）？",
         "o": [
           "为了美观",
-          null,
-          "MySQL 请求"
-        ]
+          "GROUP BY 只返回有数据的日期；缺失的日期会让图表跳跃，造成误解",
+          "MySQL 请求",
+          "为了更快"
+        ],
+        "why": "需要在 PHP 中生成完整的日期范围，并为没有数据的日期填充 0。"
       },
-      null,
-      null,
-      null,
-      null,
       {
+        "q": "COUNT(DISTINCT user_id) 统计的是什么？",
         "o": [
-          null,
-          null,
-          "更快"
-        ]
+          "帖子数",
+          "不同用户数",
+          "点赞数",
+          "天数"
+        ],
+        "why": "DISTINCT 去除重复，统计不同的用户数——用于 DAU。"
+      },
+      {
+        "q": "统计页面暴露了汇总信息，因此任何人都可以查看。",
+        "why": "未做权限检查就对外暴露，属于一种 Broken Access Control（失效的访问控制）；/stats 必须加以限制。"
+      },
+      {
+        "q": "比率公式中的 NULLIF(x, 0) 有什么用？",
+        "o": [
+          "四舍五入",
+          "避免除以 0 出错（除以 NULL 结果为 NULL）",
+          "转换类型",
+          "排序"
+        ],
+        "why": "当分母等于 0 时，NULLIF 会将其转为 NULL，从而避免报错。"
+      },
+      {
+        "q": "按时间分析数据需要数据满足什么条件？",
+        "o": [
+          "每张表都有 created_at",
+          "时间戳在事件发生时记录",
+          "知道按时区切分日期",
+          "必须有图表库"
+        ],
+        "why": "仅用 CSS 即可绘制图表，无需任何库。"
+      },
+      {
+        "q": "为什么 Nhịp 用 CSS bar-h-NN 类来绘制图表，而不用 style=\"height:..\"？",
+        "o": [
+          "更简洁",
+          "CSP 的 style-src 'self' 禁止内联样式；只有 CSS 文件中的类才被允许。",
+          "更快",
+          "HTML 的强制要求"
+        ],
+        "why": "4 阶段的安全策略决定了界面的编写方式。"
+      },
+      {
+        "q": "填入将时间戳截取为日期的函数，以便分组统计。",
+        "why": "DATE() 去掉时间部分，只保留日期。"
+      },
+      {
+        "q": "某一天突然出现数百条来自少数 IP 的 login_failed 记录，这意味着什么？",
+        "o": [
+          "用户经常忘记密码",
+          "暴力破解密码的迹象（攻击）——需要警惕",
+          "数据库错误",
+          "正常"
+        ],
+        "why": "这正是日志记录（A09）旨在发现的问题类型。"
+      },
+      {
+        "q": "根据《精益创业》，好的指标需要具备哪三个 A？",
+        "o": [
+          "Accurate, Acceptable, Available",
+          "Actionable, Accessible, Auditable",
+          "Automatic, Analog, Agile",
+          "Atomic, Async, API"
+        ],
+        "why": "可指导行动、易于理解、可根据原始数据验证。"
       }
-    ]
+    ],
+    "title": "23。产品与数据分析：需求、指标和统计查询"
   },
   "step24": {
     "duration": "150 分钟",
+    "summary": "将 Nhịp 免费发布到互联网：选择 PHP+MySQL 托管，规范化生产环境配置（关闭 debug、Secure Cookie、HTTPS），创建远程数据库，通过 FTP 上传代码，网站根目录为 public/，并在部署后进行测试。",
     "slides": [
-      null,
       {
-        "title": "学习目标"
+        "title": "从 localhost 走向世界",
+        "body": "Nhịp 已在你的电脑上完整运行。但“在 localhost 上运行”意味着**只有你自己**能访问。本步骤要把 Nhịp 部署到互联网上的真实服务器，让**任何人**都能通过一个链接打开。\n\n部署不只是“把文件复制上去”。生产环境与 localhost 在三个关键点上不同：**配置**（不同的数据库主机、真实密码）、**安全**（关闭调试、HTTPS、Secure cookie）和**资源限制**（托管资源有限）。任何一项出错，都会泄露机密或导致网站崩溃。"
+      },
+      {
+        "title": "学习目标",
+        "body": "1。理解 **localhost 与生产环境的区别**，以及需要改动哪些内容。\n2。为学习选择一个免费的 **PHP + MySQL** 托管服务。\n3。规范生产环境配置：`debug = false`、Secure cookie、**HTTPS**。\n4。创建远程数据库，并通过托管商的phpMyAdmin导入`schema.sql`。\n5。通过 **FTP** 上传代码，将网站根目录设为 `public/`，并确保 `config.php`/`src` 不在公开目录中。\n6。按固定清单进行**部署后测试**。"
+      },
+      {
+        "title": "localhost 与生产环境不同",
+        "body": "| | localhost | 生产环境 |\n|---|---|---|\n| 地址 | `localhost` | 真实域名，**HTTPS** |\n| 数据库主机 | `127.0.0.1` | 托管商提供的独立数据库服务器 |\n| 数据库密码 | 空（root） | 真正的强密码 |\n| `debug` | `true`（查看错误） | **`false`**（隐藏错误） |\n| Cookie `Secure` | `false`（HTTP） | **`true`**（仅 HTTPS） |\n| `X-Powered-By` | 显示 | 关闭（`expose_php`） |\n\n这些差异都集中在**同一个配置文件**（`config.php`）和少数几个响应头中，所以从 11 Nhịp 起就应把配置单独拆出来。"
+      },
+      {
+        "title": "网站根目录只是 public/",
+        "body": "在共享主机上，对外公开的目录通常名为 **`htdocs/`** 或 **`public_html/`**。规则如下（步骤 20）：\n\n- Nhịp 中 **`public/`** 目录的内容 → 放入托管商的网站根目录。\n- **`src/`、`config.php`、`database/`** → 放入**上级**目录（网站根目录之外）。\n\n如果托管商不允许把文件放在网站根目录之外，就把它们放在一个子目录中，并用 `.htaccess`（`Require all denied`）阻止访问。不变的目标是：**浏览器永远无法下载 `config.php`。**"
+      },
+      {
+        "title": "免费主机与HTTPS",
+        "body": "有许多同时提供 PHP+MySQL 的免费托管（InfinityFree、AwardSpace 等；000webhost 已于2024年关闭）。它们运行 **cPanel** 或类似的控制面板，提供 FTP、phpMyAdmin，以及来自 **Let's Encrypt** 的**免费 SSL** 证书。Let's Encrypt 是一家非营利机构，免费自动签发 TLS 证书，已在数亿个网站上推广了 HTTPS。\n\nHTTPS 不再是可选项：它加密传输通道（防止窃听密码和会话 cookie，即 STRIDE 中的 Spoofing，见步骤 16），也是 cookie 标记 `Secure` 生效的前提。\n\n> Internet Security Research Group（2025）*Let's Encrypt — How It Works*. Available at: https://letsencrypt.org/how-it-works/\n>\n> Mozilla（2025）*Transport Layer Security (TLS)*, MDN Web Docs. Available at: https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security"
+      },
+      {
+        "title": "安全的生产环境配置",
+        "body": "PHP 的安全文档建议公开服务器：**关闭 `display_errors`**（错误写入日志，不输出到浏览器），关闭 **`expose_php`**（从响应头中隐藏 PHP 版本号），并对所有敏感数据使用 HTTPS。暴露详细错误属于 **A02 Security Misconfiguration** 和 **A10 Mishandling of Exceptional Conditions**（OWASP Top 10:2025）——Nhịp 已通过 `debug = false` + 错误处理程序解决（步骤 19）。\n\n> The PHP Group (2025) *PHP Manual: Error Handling and Security; php.ini directives (display_errors, expose_php)*. Available at: https://www.php.net/manual/en/security.errors.php\n>\n> OWASP Foundation (2025) *A02:2025 – Security Misconfiguration*. Available at: https://top10.owasp.org/2025/"
+      },
+      {
+        "title": "上线前清单",
+        "body": "在接触托管之前，先在**本机**完成：\n\n- [ ] 在空数据库上重新运行 `database/schema.sql` ——确认它完整且正确。\n- [ ] 删除 `lab/` 目录（含有漏洞的代码，见步骤 17）。\n- [ ] `config.php`：`'debug' => false`。\n- [ ] `src/auth.php`：cookie `'secure' => true`。\n- [ ] 备份本地 localhost 数据库（phpMyAdmin → 导出），保留一份原始副本。\n\n所有内容都记入 `DEPLOY.md` ——项目的部署文档，方便下次（以及其他人）照做时无需凭记忆。"
+      },
+      {
+        "title": "第 1 步 · 创建账号和网站",
+        "image": {
+          "alt": "InfinityFree 首页：Free Website Hosting（免费网站托管），用 PHP、MySQL 和免费 SSL 证书托管你的网站，点击 Create Free Account 按钮，无需信用卡，永久免费，非试用",
+          "caption": "infinityfree.com——免费托管 PHP + MySQL + SSL，只需邮箱即可。截图 27/10/2026。"
+        },
+        "body": "1. 注册（只需邮箱，无需信用卡）。\n2. 创建一个使用**免费二级域名**的网站（例如 `nhip.infinityfreeapp.com`），如有自己的域名也可以绑定。\n3. 为域名开启**免费 SSL**——证书签发可能需要几分钟到几小时。\n\n其他托管（AwardSpace、000webhost 等）流程相同：创建账号 → 创建网站 → 开启 SSL。"
+      },
+      {
+        "title": "第 2 步 · 远程数据库"
       }
     ],
     "quiz": [
@@ -4201,7 +4403,14 @@
       null,
       null,
       null,
-      null,
+      {
+        "o": [
+          null,
+          null,
+          null,
+          "为了更快"
+        ]
+      },
       {
         "o": [
           "为了美观"
