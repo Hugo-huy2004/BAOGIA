@@ -81,7 +81,7 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 swiftui-liquid-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[136px] ${
+                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[136px] ${
                   isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
                 }`}
               >
@@ -188,7 +188,7 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 swiftui-liquid-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[260px] text-left ${
+                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[260px] text-left ${
                   isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
                 }`}
               >

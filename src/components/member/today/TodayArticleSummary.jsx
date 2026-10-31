@@ -178,7 +178,7 @@ export default function TodayArticleSummary({
       aria-labelledby="summary-article-title"
     >
       <BorderBeam size="md" colorVariant="colorful" strength={0.85} borderRadius={28} className="w-full">
-        <article className="swiftui-liquid-glass relative overflow-hidden rounded-[28px] backdrop-blur-3xl bg-white/65 dark:bg-white/[0.05] border border-white/70 dark:border-white/15 shadow-[0_12px_45px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.35)] p-3.5 sm:p-7 space-y-4 sm:space-y-5 transition-all text-left">
+        <article className="lg-glass relative overflow-hidden rounded-[28px] shadow-[0_12px_45px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_50px_rgba(0,0,0,0.35)] p-3.5 sm:p-7 space-y-4 sm:space-y-5 transition-all text-left">
           {/* Lớp nền hiệu ứng ánh sáng (gói gọn tuyệt đối để không bị ảnh hưởng bởi layout flow) */}
           <div className="!absolute inset-0 pointer-events-none overflow-hidden rounded-[inherit] -z-0">
             <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent" />

@@ -67,7 +67,6 @@
 }
 
 /* ── Nâng cấp các lớp nút/bề mặt dùng chung sẵn có ──────────────────────── */
-.swiftui-liquid-glass,
 .swiftui-btn-bordered,
 .apps-smart-search,
 .apps-library-search,
@@ -137,7 +136,6 @@
 
 @media (prefers-reduced-transparency: reduce) {
   .lg-glass,
-  .swiftui-liquid-glass,
   .swiftui-btn-bordered,
   .apps-smart-search,
   .hugo-home-recent__item {

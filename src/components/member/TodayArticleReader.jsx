@@ -82,7 +82,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
         <button
           type="button"
           onClick={handleBack}
-          className="today-article-back-btn swiftui-glass"
+          className="today-article-back-btn lg-glass"
           aria-label={t("memberPortal.today.backToFeed", "Quay lại danh sách")}
         >
           <HugeIcon name="arrow_back" size={16} />
@@ -91,7 +91,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
 
         {article ? (
           <a
-            className="today-article-origin-btn swiftui-glass"
+            className="today-article-origin-btn lg-glass"
             href={article.url}
             target="_blank"
             rel="noopener noreferrer external"
@@ -136,7 +136,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
 
           {/* 3 Điểm cốt lõi súc tích */}
           {articleInsight?.points?.length > 0 && (
-            <div className="today-article-highlights swiftui-liquid-glass">
+            <div className="today-article-highlights lg-glass">
               <h2 className="today-article-highlights-title">
                 <HugeIcon name="insights" size={18} className="text-primary" />
                 <span>Điểm tin cốt lõi</span>

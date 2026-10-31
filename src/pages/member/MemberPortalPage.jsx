@@ -19,6 +19,7 @@ import SurveySheet from "../../components/member/SurveySheet";
 import { useIdentityCheck, confirmIdentityCheck } from "../../hooks/useIdentityCheck";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
+import { useLiquidGlass } from "../../lib/liquidGlass/useLiquidGlass";
 import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
 import { isAuraThemeFree, resolveActivePortalTheme } from "../../data/auraThemes";
 import { useIsMobile } from "../../hooks/useIsMobile";
@@ -87,6 +88,12 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
   };
 }
 
+const NAV_GLASS = {
+  blurAmount: 0.18, refraction: 0.48, chromAberration: 0.025, edgeHighlight: 0.3,
+  specular: 0.22, fresnel: 0.72, opacity: 0.48, cornerRadius: 28, zRadius: 16,
+  saturation: 0.12, shadowOpacity: 0.2,
+};
+
 function MobilePortalNav({
   tabs,
   activeArea,
@@ -97,80 +104,7 @@ function MobilePortalNav({
   const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === activeArea));
   const navRef = useRef(null);
 
-  useEffect(() => {
-    let instance = null;
-    let isCancelled = false;
-    let scrollTimer = null;
-    let scrollTarget = null;
-
-    async function initGlass() {
-      const glassElement = navRef.current;
-      const root = glassElement?.parentElement;
-      if (typeof window === "undefined" || !glassElement || !root) return;
-      if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
-
-      try {
-        const { LiquidGlass } = await import("@ybouane/liquidglass");
-        if (isCancelled || !glassElement.isConnected || glassElement.parentElement !== root) return;
-
-        glassElement.dataset.config = JSON.stringify({
-          blurAmount: 0.18,
-          refraction: 0.48,
-          chromAberration: 0.025,
-          edgeHighlight: 0.3,
-          specular: 0.22,
-          fresnel: 0.72,
-          opacity: 0.48,
-          cornerRadius: 28,
-          zRadius: 16,
-          saturation: 0.12,
-          shadowOpacity: 0.2,
-        });
-
-        const glassInstance = await LiquidGlass.init({
-          root,
-          glassElements: [glassElement],
-          defaults: {
-            cornerRadius: 28,
-            zRadius: 16,
-            blurAmount: 0.18,
-            edgeHighlight: 0.3,
-            refraction: 0.48,
-            opacity: 0.48,
-          },
-        });
-        if (isCancelled) {
-          glassInstance.destroy();
-          return;
-        }
-        instance = glassInstance;
-
-        scrollTarget = root.querySelector(".mobile-portal-content");
-        scrollTarget?.addEventListener("scroll", handleContentScroll, { passive: true });
-      } catch (err) {
-        console.warn("ℹ️ [MobilePortalNav] LiquidGlass fallback to CSS backdrop-filter:", err?.message || err);
-      }
-    }
-
-    function handleContentScroll() {
-      window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(() => {
-        if (scrollTarget && instance) instance.markChanged(scrollTarget);
-      }, 120);
-    }
-
-    const timer = setTimeout(initGlass, 60);
-
-    return () => {
-      isCancelled = true;
-      clearTimeout(timer);
-      window.clearTimeout(scrollTimer);
-      scrollTarget?.removeEventListener("scroll", handleContentScroll);
-      try {
-        instance?.destroy();
-      } catch {}
-    };
-  }, []);
+  useLiquidGlass(navRef, NAV_GLASS, ".mobile-portal-content");
 
   return (
     <nav
@@ -179,8 +113,6 @@ function MobilePortalNav({
       className="mobile-portal-nav mobile-portal-nav__track"
       aria-label={navigationLabel}
     >
-      {/* LiquidGlass samples the scrolling content from the nav's parent and
-          paints the shader behind these controls, as required by the library. */}
       <div
         id="glass-tab-indicator"
         className="absolute top-1 bottom-1 rounded-[22px] bg-white/70 dark:bg-white/[0.16] backdrop-blur-xl shadow-[0_3px_12px_rgba(30,80,180,0.14),inset_0_1px_1.5px_#ffffff] pointer-events-none transition-transform duration-300 ease-out z-0 border border-white/90 dark:border-white/25"

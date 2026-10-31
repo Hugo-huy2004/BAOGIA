@@ -125,7 +125,7 @@ export default function LibraryCatalog({
               className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-all active:scale-95 ${
                 active
                   ? "swiftui-btn-prominent shadow-xs"
-                  : "swiftui-glass text-muted-foreground hover:text-foreground"
+                  : "lg-glass text-muted-foreground hover:text-foreground"
               }`}
             >
               {cat.label}
@@ -139,7 +139,7 @@ export default function LibraryCatalog({
           className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-all active:scale-95 ${
             activeTab === "installed"
               ? "swiftui-btn-prominent shadow-xs"
-              : "swiftui-glass text-muted-foreground hover:text-foreground"
+              : "lg-glass text-muted-foreground hover:text-foreground"
           }`}
         >
           {t("utilities.library.installedCount", { count: installedApps.length })}
@@ -157,7 +157,7 @@ export default function LibraryCatalog({
 
       {/* ── 6. CATALOG APP CARDS GRID (HUGO ARCADE GAMECARD STYLE) ────────────────── */}
       {filteredApps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 swiftui-liquid-glass rounded-3xl p-6">
+        <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 lg-glass rounded-3xl p-6">
           <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
             <span className="material-symbols-outlined text-2xl">search_off</span>
           </div>
@@ -247,7 +247,7 @@ export default function LibraryCatalog({
       {/* ── 8. MODAL SHEET: INSTALL LOCATION CHOICE ────────────────────────────── */}
       {pendingInstallApp && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-[600] p-4 text-center animate-fadeIn">
-          <div className="swiftui-liquid-glass rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
+          <div className="lg-glass rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
             <UtilityAppIcon app={pendingInstallApp} gradient={gradients[pendingInstallApp.tint] || gradients.indigo} size="medium" className="mx-auto" />
 
             <div className="text-center space-y-1">
@@ -292,7 +292,7 @@ export default function LibraryCatalog({
         <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 transition-opacity">
           <div className="absolute inset-0" onClick={() => setSelectedApp(null)} />
 
-          <div className="pwa-safe-sheet relative w-full sm:max-w-lg swiftui-liquid-glass rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[510] max-h-[90dvh] overflow-y-auto animate-slideUp text-left space-y-6">
+          <div className="pwa-safe-sheet relative w-full sm:max-w-lg lg-glass rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[510] max-h-[90dvh] overflow-y-auto animate-slideUp text-left space-y-6">
             <div className="w-9 h-1 bg-muted rounded-full mx-auto sm:hidden" />
 
             <div className="flex items-center gap-4">
@@ -316,7 +316,7 @@ export default function LibraryCatalog({
 
               <button
                 onClick={() => setSelectedApp(null)}
-                className="w-8 h-8 rounded-full swiftui-glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0"
+                className="w-8 h-8 rounded-full lg-glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0"
               >
                 <span className="material-symbols-outlined text-base">close</span>
               </button>
@@ -338,15 +338,15 @@ export default function LibraryCatalog({
 
             {/* Technical Metadata Grid */}
             <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/10 text-center">
-              <div className="p-2.5 rounded-2xl swiftui-glass">
+              <div className="p-2.5 rounded-2xl lg-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.storage")}</span>
                 <span className="text-sm font-semibold text-foreground font-mono">{getAppStorageMb(selectedApp.id)} MB</span>
               </div>
-              <div className="p-2.5 rounded-2xl swiftui-glass">
+              <div className="p-2.5 rounded-2xl lg-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.age")}</span>
                 <span className="text-sm font-semibold text-foreground">4+</span>
               </div>
-              <div className="p-2.5 rounded-2xl swiftui-glass">
+              <div className="p-2.5 rounded-2xl lg-glass">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.availability")}</span>
                 <span className="text-sm font-semibold text-foreground">PWA &amp; Web</span>
               </div>

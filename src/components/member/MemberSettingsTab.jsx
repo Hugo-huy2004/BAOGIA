@@ -66,7 +66,7 @@ const LEGACY_DOC_MAPPING = {
 // sáng/tối, BorderBeam ở khối nổi bật + thanh điều hướng dính, liquid-gooey cho
 // chip trên desktop, HugeIcon đơn sắc. Bản cũ tự dựng nền tối cố định #0c0d12,
 // 4 quầng sáng mờ, mỗi dòng một ô gradient màu khác nhau và chữ 11–12px.
-const GLASS = "swiftui-liquid-glass relative overflow-hidden rounded-[24px] divide-y divide-zinc-200/40 dark:divide-white/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]";
+const GLASS = "lg-glass relative overflow-hidden rounded-[24px] divide-y divide-zinc-200/40 dark:divide-white/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]";
 const SHEEN = <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/35 to-transparent" />;
 
 function Section({ title, footer, children }) {
@@ -252,7 +252,7 @@ export default function MemberSettingsTab({
       <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 
       {/* ── 1. ĐẦU TRANG — Chuẩn Apple Liquid Glass (Nhỏ gọn, thông minh, chống tràn tên dài) ── */}
-      <header className="swiftui-liquid-glass relative overflow-hidden rounded-[24px] p-3.5 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+      <header className="lg-glass relative overflow-hidden rounded-[24px] p-3.5 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
         {SHEEN}
         <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* Vùng hồ sơ chính: Avatar + Tên + Badge + Email */}

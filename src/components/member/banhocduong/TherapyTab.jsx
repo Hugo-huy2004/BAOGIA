@@ -696,7 +696,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
 
       {/* Daily Challenges Widget */}
       <BorderBeam size="md" colorVariant="sunset" strength={0.8} borderRadius={24} className="w-full">
-        <div className="swiftui-liquid-glass rounded-[24px] p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+        <div className="lg-glass rounded-[24px] p-3.5 sm:p-5 space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-2.5">
               <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-500 shrink-0">
@@ -735,7 +735,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
               return (
                 <div
                   key={ch.id}
-                  className="swiftui-liquid-glass rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between gap-2 sm:gap-3 relative transition-all"
+                  className="lg-glass rounded-xl sm:rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between gap-2 sm:gap-3 relative transition-all"
                 >
                   <div className="flex items-start gap-2 sm:gap-2.5">
                     <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${ch.color} shrink-0`}>
@@ -791,7 +791,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
       {/* Stats bar */}
       <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
         <BorderBeam size="sm" colorVariant="ocean" strength={0.6} borderRadius={18} className="w-full">
-          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+          <div className="lg-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Tuần này</p>
@@ -800,7 +800,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           </div>
         </BorderBeam>
         <BorderBeam size="sm" colorVariant="sunset" strength={0.6} borderRadius={18} className="w-full">
-          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+          <div className="lg-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Streak</p>
@@ -809,7 +809,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
           </div>
         </BorderBeam>
         <BorderBeam size="sm" colorVariant="candy" strength={0.6} borderRadius={18} className="w-full">
-          <div className="swiftui-liquid-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
+          <div className="lg-glass rounded-[18px] p-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2">
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400 shrink-0" />
             <div className="min-w-0">
               <p className="text-[13px] sm:text-[13px] font-black uppercase tracking-wider text-muted-foreground truncate">Phương pháp</p>
@@ -839,7 +839,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                 whileHover={ok ? { scale: 1.01 } : {}}
                 whileTap={ok ? { scale: 0.98 } : {}}
                 onClick={() => ok && openPanel(method.id)}
-                className={`swiftui-liquid-glass rounded-[22px] h-full flex flex-col justify-between p-3.5 sm:p-4 transition-all ${
+                className={`lg-glass rounded-[22px] h-full flex flex-col justify-between p-3.5 sm:p-4 transition-all ${
                   ok
                     ? "cursor-pointer hover:bg-white/10 dark:hover:bg-white/5"
                     : showJoyUnlock
@@ -945,7 +945,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
               className="w-full max-w-sm"
             >
               <BorderBeam size="md" colorVariant="gold" strength={0.9} borderRadius={28} className="w-full">
-                <div className="swiftui-liquid-glass rounded-[28px] overflow-hidden flex flex-col">
+                <div className="lg-glass rounded-[28px] overflow-hidden flex flex-col">
                   <div className="p-6 pb-4 border-b border-border/40 flex flex-col items-center">
                     <div className="w-12 h-12 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center mb-3 border border-emerald-500/20">
                       <FileCheck2 size={24} />
@@ -953,7 +953,7 @@ export default function TherapyTab({ onNavigateToTab, bio, historyLogs = [], cha
                     <h3 className="text-lg font-black text-foreground uppercase tracking-wider">Hoá Đơn Trao Đổi JOY</h3>
                   </div>
                   <div className="p-6 space-y-4">
-                    <div className="swiftui-liquid-glass rounded-2xl p-4 text-left space-y-3">
+                    <div className="lg-glass rounded-2xl p-4 text-left space-y-3">
                       <div className="flex justify-between items-center">
                         <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Liệu pháp</span>
                         <span className="text-sm font-bold text-foreground text-right">{unlockReceipt.name}</span>

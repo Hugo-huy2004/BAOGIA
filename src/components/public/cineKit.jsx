@@ -199,18 +199,6 @@ export const CINE_CSS = `
       radial-gradient(circle at 48% 112%, rgba(0, 122, 255, 0.14), transparent 30rem);
     filter: saturate(1.05);
   }
-  .ios-glass {
-    border: 1px solid rgba(255,255,255,0.5);
-    background: color-mix(in srgb, hsl(var(--card)) 62%, transparent);
-    box-shadow: 0 18px 50px hsl(var(--shadow) / 0.12), inset 0 1px 0 rgba(255,255,255,0.72);
-    -webkit-backdrop-filter: blur(28px) saturate(170%);
-    backdrop-filter: blur(28px) saturate(170%);
-  }
-  .dark .ios-glass {
-    border-color: rgba(255,255,255,0.1);
-    background: color-mix(in srgb, hsl(var(--card)) 70%, transparent);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
-  }
   .ios-kicker {
     display: inline-flex;
     align-items: center;

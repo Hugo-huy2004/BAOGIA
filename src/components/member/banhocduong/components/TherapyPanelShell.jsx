@@ -21,7 +21,7 @@ export default function TherapyPanelShell({ method, onBack, children }) {
     >
       {/* Header Bar */}
       <BorderBeam size="sm" colorVariant="ocean" strength={0.7} borderRadius={22} className="w-full">
-        <div className="swiftui-liquid-glass rounded-[22px] p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-sm">
+        <div className="lg-glass rounded-[22px] p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3.5 min-w-0">
             <BackButton onClick={onBack} iconOnly />
             <div className="min-w-0">
@@ -44,7 +44,7 @@ export default function TherapyPanelShell({ method, onBack, children }) {
 
       {/* Main Content Area */}
       <BorderBeam size="md" colorVariant="colorful" strength={0.75} borderRadius={26} className="w-full">
-        <div className="swiftui-liquid-glass rounded-[26px] p-4 sm:p-6 min-h-[300px] shadow-sm">
+        <div className="lg-glass rounded-[26px] p-4 sm:p-6 min-h-[300px] shadow-sm">
           {children}
         </div>
       </BorderBeam>

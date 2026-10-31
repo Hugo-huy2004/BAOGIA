@@ -167,7 +167,7 @@ const SupportRequestPage = () => {
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-slate-400/5 dark:bg-slate-800/5 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Main Container */}
-      <div className="w-full max-w-xl glass rounded-3xl border border-border shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all">
+      <div className="w-full max-w-xl lg-glass rounded-3xl border border-border shadow-2xl p-6 sm:p-10 relative overflow-hidden transition-all">
         
         {isSuccess ? (
           /* SUCCESS STATE */
