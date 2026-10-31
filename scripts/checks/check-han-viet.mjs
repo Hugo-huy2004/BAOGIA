@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const vi = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/i18n/locales/vi/translation.json'), 'utf8'));
+const vi = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps/web/src/i18n/locales/vi/translation.json'), 'utf8'));
 
 /**
  * ── HAI VÙNG MIỄN TRỪ, MỖI VÙNG MỘT LÝ DO THẬT ──────────────────────────────

@@ -7,7 +7,7 @@ Hai website có entry React và thư mục build riêng, dùng chung dữ liệu
 | `portfolio.hugowishpax.studio` | Giới thiệu, dự án, học vấn, kỹ năng, CV, liên hệ | `npm run dev:portfolio` (3001) | `npm run build:portfolio` | `dist-portfolio/` |
 | `www.hugowishpax.studio` | Trang chủ dịch vụ, bảng giá, đặt lịch và portal hiện có | `npm run dev` (3000) | `npm run build` | `dist/` |
 
-Portfolio không khởi động portal, đăng nhập, ví, quảng cáo hoặc service worker của website dịch vụ. Hồ sơ dùng dữ liệu dự phòng có sẵn nên không cần backend để hiển thị. Trang giới thiệu chính là một trang cuộn; chi tiết dự án vẫn có đường dẫn riêng. Học vấn và kỹ năng hiển thị trực tiếp, không nằm trong hoạt cảnh cuộn dài. Kỹ năng chia ba nhóm, có mô tả cách sử dụng và liên kết dự án; nguồn dùng chung với CV là `src/data/profileSkills.js`.
+Portfolio không khởi động portal, đăng nhập, ví, quảng cáo hoặc service worker của website dịch vụ. Hồ sơ dùng dữ liệu dự phòng có sẵn nên không cần backend để hiển thị. Trang giới thiệu chính là một trang cuộn; chi tiết dự án vẫn có đường dẫn riêng. Học vấn và kỹ năng hiển thị trực tiếp, không nằm trong hoạt cảnh cuộn dài. Kỹ năng chia ba nhóm, có mô tả cách sử dụng và liên kết dự án; nguồn dùng chung với CV là `apps/web/src/data/profileSkills.js`.
 
 ## Triển khai
 

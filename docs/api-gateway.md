@@ -2,10 +2,10 @@
 
 ## Ý tưởng
 
-Một **bản khai duy nhất** — `server/services.manifest.js` — nuôi ba thứ:
+Một **bản khai duy nhất** — `apps/server/services.manifest.js` — nuôi ba thứ:
 
 ```
-server/services.manifest.js
+apps/server/services.manifest.js
         │
         ├─► server.js                  mount router (đang chung một process)
         ├─► scripts/gen-nginx.mjs      sinh nginx/gateway.conf
@@ -14,14 +14,14 @@ server/services.manifest.js
 
 Thêm tính năng mới:
 
-1. Viết `server/routes/abcRoutes.js`, `export default` một `express.Router`.
+1. Viết `apps/server/routes/abcRoutes.js`, `export default` một `express.Router`.
 2. Thêm một dòng vào `SERVICES`.
 3. `npm run gen:nginx -- --write`.
 
 Không đụng `server.js`. Trước đây tệp đó có 48 dòng `app.use('/api/...')` viết
 tay và nginx không hề biết danh sách ấy.
 
-> Viết route: xem [`server/routes/README.md`](../server/routes/README.md) —
+> Viết route: xem [`apps/server/routes/README.md`](../server/routes/README.md) —
 > khuôn mẫu, chọn middleware xác thực, và sáu luật không được phá.
 
 ## Lệnh

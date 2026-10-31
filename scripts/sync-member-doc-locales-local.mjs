@@ -3,10 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { MEMBER_DOCS_EN } from "../src/components/member/account/memberDocs.en.js";
+import { MEMBER_DOCS_EN } from "../apps/web/src/components/member/account/memberDocs.en.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const LOCALES_DIR = path.join(ROOT, "src/i18n/locales");
+const LOCALES_DIR = path.join(ROOT, "apps/web/src/i18n/locales");
 const MODEL = process.env.HUGO_TRANSLATION_MODEL || "qwen2.5:3b";
 const CHECKPOINT_DIR = path.join(os.tmpdir(), `hugo-member-doc-i18n-${MODEL.replace(/[^a-z0-9.-]/gi, "-")}`);
 const OLLAMA_URL = process.env.HUGO_OLLAMA_URL || "http://127.0.0.1:11434";

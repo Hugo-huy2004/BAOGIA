@@ -3,15 +3,15 @@
  * Chạy lại khi thêm/đổi chiến dịch:  npm run og:partner
  *
  * Vẽ bằng SVG rồi rasterize qua sharp: hai nhân vật (cùng bản vẽ với phim, ở
- * src/pages/public/partner/mascotArt.js) bắt
+ * apps/web/src/pages/public/partner/mascotArt.js) bắt
  * tay đứng trên chữ COLLABORATE, sân khấu đen một luồng đèn như ở trang thật.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { PARTNER_CAMPAIGNS } from "../shared/partnerCampaigns.js";
-import { MASCOT_RIG, faceSvg, hugoBodySvg, limbsSvg, partnerBodySvg } from "../src/pages/public/partner/mascotArt.js";
+import { PARTNER_CAMPAIGNS } from "../packages/shared/partnerCampaigns.js";
+import { MASCOT_RIG, faceSvg, hugoBodySvg, limbsSvg, partnerBodySvg } from "../apps/web/src/pages/public/partner/mascotArt.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -47,7 +47,7 @@ function svgFor(campaign) {
 }
 
 for (const campaign of Object.values(PARTNER_CAMPAIGNS)) {
-  const out = path.join(ROOT, "public/og", `partner-${campaign.slug}.jpg`);
+  const out = path.join(ROOT, "apps/web/public/og", `partner-${campaign.slug}.jpg`);
   await sharp(Buffer.from(svgFor(campaign))).jpeg({ quality: 86, mozjpeg: true }).toFile(out);
   console.log(`OG: ${path.relative(ROOT, out)}`);
 }

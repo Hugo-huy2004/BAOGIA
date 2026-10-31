@@ -10,10 +10,10 @@ bằng `git grep` vì knip không thấy alias của Vite, worker và lazy theo 
 | `src/` (React) | 615 | ~143.700 |
 | `server/` (Node) | 291 | ~44.200 |
 
-Tệp to nhất (khó đọc nhất): `server/routes/adminRoutes.js` 2.468 dòng,
-`server/routes/bioRoutes.js` 2.220, `server/routes/joyRoutes.js` 1.866,
-`src/components/member/shared/ParticleConnectModal.jsx` 1.855,
-`src/pages/member/MemberPortalPage.jsx` 1.603.
+Tệp to nhất (khó đọc nhất): `apps/server/routes/adminRoutes.js` 2.468 dòng,
+`apps/server/routes/bioRoutes.js` 2.220, `apps/server/routes/joyRoutes.js` 1.866,
+`apps/web/src/components/member/shared/ParticleConnectModal.jsx` 1.855,
+`apps/web/src/pages/member/MemberPortalPage.jsx` 1.603.
 
 Backend đang có **ba kiểu tổ chức chồng nhau**: route "béo" tự làm hết (50 tệp
 trong `routes/`), một ít `modules/<miền>/` (arcade, auth, chess, coder,
@@ -32,7 +32,7 @@ không biết logic của một tính năng nằm ở đâu — đó là lý do 
   `metal-fx`, `react-quill-new`. Giữ `patch-package`: không ai import nó nhưng
   bước cài đặt của `@ybouane/liquidglass` gọi lệnh này — knip báo "thừa" là sai.
 - Gộp ba bảng tải trước chunk lệch nhau thành mục lục app duy nhất
-  `src/components/member/os/appIndex.js`.
+  `apps/web/src/components/member/os/appIndex.js`.
 
 ## Đợt 2 — xong (PR #10)
 
@@ -67,7 +67,7 @@ vừa `export default X` — chọn một kiểu.
 **Đợt 3 — backend theo miền, hướng đối tượng.** Mỗi miền một thư mục:
 
 ```
-server/modules/joy/
+apps/server/modules/joy/
   joy.routes.js      ← chỉ khai báo đường dẫn + guard, gọi controller
   joy.controller.js  ← đọc req, gọi service, trả res
   JoyService.js      ← class: toàn bộ luật nghiệp vụ, không biết Express
@@ -85,9 +85,9 @@ với một `index` duy nhất.
 
 ## Luật để không bừa lại
 
-- Thêm app: một dòng manifest ở `shared/appRegistry.js` + một dòng loader ở
+- Thêm app: một dòng manifest ở `packages/shared/appRegistry.js` + một dòng loader ở
   `os/appIndex.js`. Không viết bảng tải trước riêng.
-- Thêm route API: một dòng ở `server/services.manifest.js`; luật nghiệp vụ vào
+- Thêm route API: một dòng ở `apps/server/services.manifest.js`; luật nghiệp vụ vào
   `XxxService`, không vào tệp route.
 - Gỡ tính năng thì gỡ luôn tệp và thư viện của nó trong cùng PR; chạy
   `npx knip` trước khi mở PR, và gỡ thư viện xong thì chạy `npm ci` sạch (thư

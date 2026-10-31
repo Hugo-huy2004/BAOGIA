@@ -102,7 +102,7 @@ process.on("SIGTERM", () => shutdown(0));
 // thì sửa route xong server vẫn chạy code cũ, và triệu chứng là một endpoint
 // mới toanh trả 404 y như chưa từng viết — mất cả buổi đi tìm lỗi trong code
 // đúng. Cùng họ với vụ PayOS "lỗi code" hoá ra là tiến trình cũ chưa chết.
-run("backend", "npm", ["run", "dev"], { cwd: "server", env: { ...process.env, PORT: String(BACKEND_PORT) } });
+run("backend", "npm", ["run", "dev"], { cwd: "apps/server", env: { ...process.env, PORT: String(BACKEND_PORT) } });
 
 try {
   await waitForPort(BACKEND_PORT);

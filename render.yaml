@@ -2,13 +2,13 @@
 # render.yaml — Render Blueprint
 # Render CHỈ còn chạy Node.js (Express + WebSocket + cron).
 #
-# Python FastAPI đã tách sang Vercel (xem python-ai-server/vercel.json):
+# Python FastAPI đã tách sang Vercel (xem apps/ai/vercel.json):
 # Render tính tiền theo GIỜ CHẠY, Vercel tính theo REQUEST — nên thứ gì không
 # cần process sống lâu thì không nên nằm ở đây. Node.js proxy /api/ai/* sang
 # đó qua AI_SERVER_URL (server-to-server, xác thực bằng X-Internal-Key).
 #
-# Giữ ấm instance do Cloudflare Worker lo (workers/keepalive/), không phải
-# self-ping trong process — xem chú thích ở cuối server/server.js.
+# Giữ ấm instance do Cloudflare Worker lo (apps/workers/keepalive/), không phải
+# self-ping trong process — xem chú thích ở cuối apps/server/server.js.
 ################################################################################
 
 services:
@@ -17,8 +17,8 @@ services:
     runtime: node
     region: singapore
 
-    buildCommand: if [ -d server ]; then cd server && npm install; else npm install; fi
-    startCommand: if [ -f server/server.js ]; then node server/server.js; else node server.js; fi
+    buildCommand: npm ci --workspace apps/server
+    startCommand: bash start.sh
 
     plan: free
 
@@ -42,7 +42,7 @@ services:
       - key: INTERNAL_API_KEY
         sync: false
 
-      # URL Vercel của python-ai-server, ví dụ https://hugostudio-ai.vercel.app
+      # URL Vercel của apps/ai, ví dụ https://hugostudio-ai.vercel.app
       - key: AI_SERVER_URL
         sync: false
 

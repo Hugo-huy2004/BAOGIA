@@ -23,11 +23,11 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 const IDS_URL = 'https://raw.githubusercontent.com/cjkvi/cjkvi-ids/master/ids.txt';
 
-const radicals = read('data/nom-radicals.json');
-const readings = read('data/nom-readings.json');
-const glossary = read('data/nom-glossary.json');
-const vi = read('src/i18n/locales/vi/translation.json');
-const nom = read('src/i18n/locales/nom/translation.json');
+const radicals = read('packages/nom-data/nom-radicals.json');
+const readings = read('packages/nom-data/nom-readings.json');
+const glossary = read('packages/nom-data/nom-glossary.json');
+const vi = read('apps/web/src/i18n/locales/vi/translation.json');
+const nom = read('apps/web/src/i18n/locales/nom/translation.json');
 
 // ── Bảng tách chữ (CHISE IDS, giấy phép mở) ─────────────────────────────────
 const idsPath = path.join(os.tmpdir(), 'cjkvi-ids.txt');
@@ -141,11 +141,11 @@ const lessons = [...byRadical.entries()]
   }));
 
 const out = {
-  generatedFrom: 'locales/nom + data/nom-glossary + CHISE IDS',
+  generatedFrom: 'locales/nom + packages/nom-data/nom-glossary + CHISE IDS',
   passMark: 0.8,
   lessons,
 };
-fs.writeFileSync(path.join(ROOT, 'data/nom-lessons.json'), `${JSON.stringify(out)}\n`);
+fs.writeFileSync(path.join(ROOT, 'packages/nom-data/nom-lessons.json'), `${JSON.stringify(out)}\n`);
 
 const teachCount = lessons.reduce((s, l) => s + l.teach.length, 0);
 const quizCount = lessons.reduce((s, l) => s + l.quiz.length, 0);

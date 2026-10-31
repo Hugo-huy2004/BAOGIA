@@ -1,6 +1,6 @@
 /**
- * Sinh `src/components/public/TechLogo.jsx` — logo thương hiệu của các công nghệ
- * xuất hiện trong `src/data/projects.js`.
+ * Sinh `apps/web/src/components/public/TechLogo.jsx` — logo thương hiệu của các công nghệ
+ * xuất hiện trong `apps/web/src/data/projects.js`.
  *
  * Vì sao sinh ra tệp tĩnh thay vì gọi thư viện icon lúc chạy: @iconify/react tải
  * dữ liệu icon qua mạng (api.iconify.design), mà CSP của site chặn fetch ngoài —
@@ -55,7 +55,7 @@ const SLUGS = {
 };
 
 const stacks = new Set();
-const source = fs.readFileSync(path.join(ROOT, "src/data/projects.js"), "utf8");
+const source = fs.readFileSync(path.join(ROOT, "apps/web/src/data/projects.js"), "utf8");
 for (const match of source.matchAll(/stack:\s*\[([^\]]+)\]/g)) {
   for (const raw of match[1].split(",")) {
     const name = raw.trim().replace(/^["']|["']$/g, "");
@@ -113,6 +113,6 @@ export default function TechLogo({ name, size = 18 }) {
 }
 `;
 
-fs.writeFileSync(path.join(ROOT, "src/components/public/TechLogo.jsx"), file);
+fs.writeFileSync(path.join(ROOT, "apps/web/src/components/public/TechLogo.jsx"), file);
 console.log(`TechLogo: ${entries.length} logo (${[...stacks].length} công nghệ).`);
 if (missing.length) console.log("Chưa có logo:", missing.join(", "));

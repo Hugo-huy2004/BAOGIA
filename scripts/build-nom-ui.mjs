@@ -23,11 +23,11 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 // (hugoCoder/hugoSO): đó là giáo trình lập trình dài hàng nghìn dòng, dịch sang
 // chữ Nôm thì không ai học được lập trình bằng nó.
 const FILES = [
-  'src/components/member/wallet/MetalCard3D.jsx',
-  'src/components/member/wallet/JoyWalletApp.jsx',
-  'src/components/member/wallet/TierPrivilegesSection.jsx',
-  'src/components/member/wallet/TransactionReceiptModal.jsx',
-  'src/components/member/MemberSettingsTab.jsx',
+  'apps/web/src/components/member/wallet/MetalCard3D.jsx',
+  'apps/web/src/components/member/wallet/JoyWalletApp.jsx',
+  'apps/web/src/components/member/wallet/TierPrivilegesSection.jsx',
+  'apps/web/src/components/member/wallet/TransactionReceiptModal.jsx',
+  'apps/web/src/components/member/MemberSettingsTab.jsx',
 ];
 
 const VIET = /[àáâãèéêìíòóôõùúýăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
@@ -54,9 +54,9 @@ function extract(source) {
 }
 
 // ── Bộ dịch: dùng lại nguyên bảng tra của bản dịch i18n ─────────────────────
-const glossary = read('data/nom-glossary.json');
-const corpus = read('data/nom-corpus-table.json');
-const VIET_SYLLABLES = new Set(read('data/nom-syllables.json'));
+const glossary = read('packages/nom-data/nom-glossary.json');
+const corpus = read('packages/nom-data/nom-corpus-table.json');
+const VIET_SYLLABLES = new Set(read('packages/nom-data/nom-syllables.json'));
 
 const TABLE = new Map();
 const FROM_GLOSSARY = new Set();
@@ -135,5 +135,5 @@ for (const s of [...strings].sort()) {
   if (nom && nom !== s && HAN.test(nom)) { out[s] = nom; done += 1; }
 }
 
-fs.writeFileSync(path.join(ROOT, 'data/nom-ui.json'), `${JSON.stringify(out, null, 0)}\n`);
-console.log(`${done}/${strings.size} chuỗi cứng dịch được → data/nom-ui.json`);
+fs.writeFileSync(path.join(ROOT, 'packages/nom-data/nom-ui.json'), `${JSON.stringify(out, null, 0)}\n`);
+console.log(`${done}/${strings.size} chuỗi cứng dịch được → packages/nom-data/nom-ui.json`);

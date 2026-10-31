@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_URL = 'https://github.com/nomfoundation/font/releases/download/v5.18/NomNaTong-Regular.ttf';
-const OUT = path.join(ROOT, 'public/fonts/NomNaTong-subset.woff');
+const OUT = path.join(ROOT, 'apps/web/public/fonts/NomNaTong-subset.woff');
 
 const collect = () => {
   const chars = new Set();
@@ -30,11 +30,11 @@ const collect = () => {
     if (node && typeof node === 'object') Object.values(node).forEach(walk);
     else if (typeof node === 'string') eat(node);
   };
-  walk(JSON.parse(fs.readFileSync(path.join(ROOT, 'src/i18n/locales/nom/translation.json'), 'utf8')));
+  walk(JSON.parse(fs.readFileSync(path.join(ROOT, 'apps/web/src/i18n/locales/nom/translation.json'), 'utf8')));
 
   // Nhánh `nom` của danh mục ứng dụng nằm trong một tệp JS, đọc thô là đủ:
   // ta chỉ cần TẬP KÝ TỰ, không cần hiểu cấu trúc.
-  const catalog = fs.readFileSync(path.join(ROOT, 'src/i18n/locales/memberAppTranslations.js'), 'utf8');
+  const catalog = fs.readFileSync(path.join(ROOT, 'apps/web/src/i18n/locales/memberAppTranslations.js'), 'utf8');
   const start = catalog.indexOf('  nom: {');
   const end = catalog.indexOf('  en: {', start);
   if (start >= 0 && end > start) eat(catalog.slice(start, end));

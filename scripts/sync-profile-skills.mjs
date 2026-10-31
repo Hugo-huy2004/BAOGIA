@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import { profileSkills } from "../src/data/profileSkills.js";
+import { profileSkills } from "../apps/web/src/data/profileSkills.js";
 
-const file = new URL("../public/cv/index.html", import.meta.url);
+const file = new URL("../apps/web/public/cv/index.html", import.meta.url);
 const escape = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
 let html = fs.readFileSync(file, "utf8");
 for (const language of ["vi", "en", "zh"]) {

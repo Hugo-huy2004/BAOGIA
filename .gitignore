@@ -7,7 +7,7 @@ build
 .env*
 !.env.example
 !**/.env.example
-!/.env.production
+!/apps/web/.env.production
 
 # Python
 __pycache__/
@@ -35,7 +35,7 @@ ota/
 
 # Hồ sơ người dùng tải lên — KHÔNG BAO GIỜ commit. Đây là dữ liệu cá nhân
 # (CV ứng viên HugoTeam), và mỗi lượt nộp mới sẽ làm repo phình thêm.
-server/uploads/
+apps/server/uploads/
 
 # Playwright E2E
 

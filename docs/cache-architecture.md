@@ -17,7 +17,7 @@ khoản, JOY và xác thực đi tới API để kiểm tra quyền và xử lý
 
 ## Phần đã thực hiện trong mã nguồn
 
-- `server/utils/cacheHelper.js` đệm JSON công khai đã lọc: hồ sơ công khai theo
+- `apps/server/utils/cacheHelper.js` đệm JSON công khai đã lọc: hồ sơ công khai theo
   slug/tên miền, dữ liệu portfolio, danh mục gói và bảng xếp hạng cờ. Mã đổi quà
   nằm riêng ở `GET /api/packages/admin` có `requireAdmin`, không vào cache.
 - Dữ liệu fresh theo TTL của caller; dữ liệu stale được trả ngay và làm mới nền.
@@ -31,7 +31,7 @@ khoản, JOY và xác thực đi tới API để kiểm tra quyền và xử lý
   response Set-Cookie luôn bị chặn cache ở browser, Vercel và Cloudflare.
 - API dùng Workbox `NetworkOnly`, vẫn hưởng HTTP cache theo header server.
   Thay đổi worker chỉ tới thiết bị sau build + deploy.
-- Kiểm tra: `node server/scripts/check-response-cache.mjs`.
+- Kiểm tra: `node apps/server/scripts/check-response-cache.mjs`.
 
 ## Giới hạn nhất quán
 
@@ -66,8 +66,8 @@ edge, vì cache hit ở edge xảy ra trước khi Node nhận request.
 ## Kiểm chứng
 
 ```bash
-node server/scripts/check-cache-headers.mjs
-node server/scripts/check-response-cache.mjs
+node apps/server/scripts/check-cache-headers.mjs
+node apps/server/scripts/check-response-cache.mjs
 npm run check:all
 ```
 

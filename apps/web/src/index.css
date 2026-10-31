@@ -1,0 +1,1238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   CSS DESIGN TOKENS — Light & Dark Mode Variables
+   ========================================================= */
+
+/* GPU Hardware Acceleration & Mobile Glassmorphism Optimizations */
+.gpu-scroll {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, scroll-position;
+  contain: content;
+}
+
+@media (max-width: 768px) {
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+}
+
+/* =========================================================
+   DẤU HIỆU THƯƠNG HIỆU — Hugo Prism
+   -----------------------------------------------------------------------
+   `overflow: visible` là bắt buộc: quầng sáng toả ra ngoài viewBox, không mở
+   thì nó bị cắt cụt thành một đường viền vuông.
+ */
+.hugo-mark {
+  /* KHÔNG viết `hsl(var(--hue) 100% var(--l))`. Bộ nén CSS của Vite nuốt trọn
+     dòng đó mà không báo lỗi, dấu hiệu tụt về màu chữ của nền — đen trên
+     header sáng. Cả chuỗi màu nằm trong MỘT biến, CSS chỉ đọc biến đó.
+
+     Giá trị này trùng `BRAND_HUE` trong apps/web/src/lib/brandColorCycle.js và màu
+     trong public/favicon/favicon.svg. Đổi màu thì đổi cả ba chỗ. */
+  color: var(--hugo-color, hsl(194 100% 58%));
+  overflow: visible;
+}
+
+@layer base {
+  :root {
+    --app-viewport-height: 100dvh;
+    /* One interaction accent. App identity colors are scoped to app icons only. */
+    --primary:             211 100% 50%;
+    --primary-foreground:  0 0% 100%;
+    --primary-muted:       211 100% 50% / 0.12;
+
+    --secondary:           211 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent:              211 100% 50%;
+    --accent-foreground:   0 0% 100%;
+
+    /* Surfaces */
+    /* Light-mode surfaces: keep high contrast for accessibility */
+    --background:          240 24% 97%;
+    --foreground:          240 16% 12%;
+
+    --card:                0 0% 100%;
+    --card-foreground:     240 16% 12%;
+
+    --popover:             0 0% 100%;
+    --popover-foreground:  240 16% 12%;
+
+    --muted:               240 18% 94%;
+    --muted-foreground:    240 10% 42%;
+
+    /* Borders & inputs */
+    --border:              240 14% 88%;
+    --input:               240 16% 90%;
+    --ring:                224 76% 56%;
+
+    /* Radius */
+    --radius:              0.875rem;
+    --space-page:          clamp(0.75rem, 2vw, 1.5rem);
+    --space-section:       clamp(1.25rem, 3vw, 2rem);
+    --space-card:          clamp(0.875rem, 2vw, 1.25rem);
+    --text-display:        clamp(2rem, 4vw, 3rem);
+    --text-title:          1.25rem;
+    --text-body:           1rem;
+    --text-caption:        0.8125rem;
+
+    /* Status */
+    --destructive:         0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --success:             142 76% 36%;
+    --success-foreground:  0 0% 100%;
+    --warning:             38 92% 50%;
+    --warning-foreground:  0 0% 10%;
+    --info:                200 94% 48%;
+    --info-foreground:     0 0% 100%;
+
+    /* Shadow base for box-shadow utilities */
+    --shadow:              240 22% 12%;
+  }
+
+  /* Safe area: <body> chỉ đệm inset TRÊN, và chỉ trong tab trình duyệt (nơi
+     header sticky sẽ chui vào notch nếu không đệm). KHÔNG bao giờ đệm inset
+     DƯỚI ở đây: mọi thứ fixed ở đáy trong repo này (tab bar, footer, banner
+     cài PWA, modal) đều đã tự cộng env(safe-area-inset-bottom) — đệm ở body là
+     bản sao thứ hai, và nó letterbox cả app lên trên vạch Home. */
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* App đã cài vẽ tràn viền; mỗi màn tự lo inset của nó. Bắt bằng media query
+     display-mode (native, iOS hiểu ngay lúc paint) chứ KHÔNG chỉ bằng class
+     .standalone-pwa do useEffect gắn: class chỉ có sau khi React mount, nên
+     paint đầu — và mọi trường hợp effect không chạy — vẫn dính đệm safe-area
+     và app bị đẩy khỏi hai mép màn hình. */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    body {
+      padding-top: 0;
+      min-height: 100dvh;
+    }
+  }
+
+  /* Bản đóng gói Capacitor báo display-mode: browser nên vẫn cần class. */
+  html.standalone-pwa body {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    min-height: var(--app-viewport-height);
+  }
+
+  /* Installed WebKit can exclude the status-bar inset from dvh/%/inset:0.
+     vh includes it. Scope this to installed iOS; browser/Android retain dvh.
+     https://bugs.webkit.org/show_bug.cgi?id=254868 */
+  @supports (-webkit-touch-callout: none) {
+    html.standalone-pwa {
+      --app-viewport-height: 100vh;
+      height: var(--app-viewport-height);
+    }
+  }
+
+  /* Framer Motion measures public-page scroll offsets from this container. */
+  #root {
+    position: relative;
+  }
+
+  .dark {
+    --primary:             211 100% 62%;
+    --primary-foreground:  0 0% 100%;
+    --primary-muted:       211 100% 62% / 0.18;
+
+    --secondary:           211 100% 62%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent:              211 100% 62%;
+    --accent-foreground:   0 0% 100%;
+
+    --background:          240 18% 7%;
+    --foreground:          240 15% 95%;
+
+    --card:                240 18% 10%;
+    --card-foreground:     240 15% 95%;
+
+    --popover:             240 18% 11%;
+    --popover-foreground:  240 15% 94%;
+
+    --muted:               240 15% 14%;
+    --muted-foreground:    240 8% 62%;
+
+    /* Borders */
+    --border:              240 12% 22%;
+    --input:               240 12% 18%;
+    --ring:                224 84% 64%;
+
+    /* Status */
+    --destructive:         0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success:             142 70% 45%;
+    --success-foreground:  0 0% 100%;
+    --warning:             38 90% 55%;
+    --warning-foreground:  0 0% 8%;
+    --info:                200 90% 55%;
+    --info-foreground:     0 0% 100%;
+
+    --shadow:              0 0% 0%;
+  }
+}
+
+/* Portal screens own their inner scroller. The outer #root from index.html
+   must not scroll as well when iOS focuses an input or restores the PWA. */
+#root:has(.portal-mobile-layout),
+#root:has(.portal-fullscreen-shell) {
+  height: var(--app-viewport-height);
+  overflow: clip;
+}
+
+.portal-fullscreen-shell {
+  height: var(--app-viewport-height);
+  bottom: auto;
+}
+
+/* =========================================================
+   BASE RESETS & TYPOGRAPHY
+   ========================================================= */
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(circle at top, hsl(var(--primary) / 0.055), transparent 36%);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Material Symbols filled style */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-display: block;
+  }
+
+  /* Prevent auto-zoom on iOS */
+  input, textarea, select {
+    font-size: 16px;
+  }
+
+  /* Remove tap highlight on touch */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Better focus outline */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Smooth color/bg transitions site-wide */
+  body, header, footer, nav, section, aside, main {
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+}
+
+/* =========================================================
+   SCROLLBAR STYLING
+   ========================================================= */
+
+/* Desktop — thin, styled scrollbar */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar         { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track   { background: transparent; }
+  ::-webkit-scrollbar-thumb   {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+    transition: background 0.2s;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
+}
+
+/* Mobile — hidden scrollbar */
+@media (max-width: 767px) {
+  html, body { -ms-overflow-style: none; scrollbar-width: none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+
+  /* Keep the standard 16px root size on phones. Shrinking the entire
+     document made unrelated utilities inconsistent and pushed body text
+     below Apple's comfortable reading size. Components now adapt through
+     their own responsive tokens instead. */
+  html { font-size: 100%; }
+
+  /* iOS Safari/WebKit auto-zooms the whole page on focus of any text input
+     with a computed font-size under 16px, then snaps back out on blur — that
+     forced zoom-in/zoom-out is the jarring "giật giật" jump members hit while
+     typing on forms across the app. Floor every form control at 16px so it
+     never triggers, regardless of whatever smaller text-xs/text-sm class a
+     component applies. */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* To make an input look like 12px on mobile while keeping the 16px font-size
+     to avoid iOS zoom, we scale it down and expand its width to compensate. */
+  .ios-small-input {
+    font-size: 16px !important;
+    transform: scale(0.75); /* 12px / 16px */
+    transform-origin: left center;
+    width: 133.33% !important; /* 100 / 0.75 */
+  }
+}
+
+/* =========================================================
+   COMPONENT UTILITIES
+   ========================================================= */
+
+@layer components {
+  .ios-pill {
+    border-radius: 9999px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.2s ease-out;
+  }
+
+  .ios-segmented-control {
+    padding: 4px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .ios-segmented-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .ios-card-adaptive {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(226, 232, 240, 0.8);
+    color: #0f172a;
+  }
+  .dark .ios-card-adaptive {
+    background-color: rgba(18, 20, 36, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+  }
+
+  .member-portal-shell {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    font-size: var(--text-body);
+  }
+
+  .portal-stack {
+    display: grid;
+    gap: var(--space-section);
+    width: min(100%, 72rem);
+    margin-inline: auto;
+  }
+
+  .portal-hero {
+    padding: clamp(1rem, 4vw, 2.5rem) 0 0;
+  }
+
+  .portal-eyebrow,
+  .portal-label {
+    color: hsl(var(--muted-foreground));
+    font-size: var(--text-caption);
+    font-weight: 600;
+  }
+
+  .portal-eyebrow {
+    margin-bottom: 0.35rem;
+    text-transform: capitalize;
+  }
+
+  .portal-display {
+    color: hsl(var(--foreground));
+    font-size: var(--text-display);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  .portal-supporting {
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.65rem;
+    max-width: 38rem;
+  }
+
+  .portal-card {
+    background: hsl(var(--card) / 0.94);
+    border: 1px solid hsl(var(--border) / 0.78);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px hsl(var(--shadow) / 0.04);
+  }
+
+  .portal-metric-grid,
+  .portal-action-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portal-metric {
+    align-items: center;
+    display: flex;
+    gap: 0.875rem;
+    padding: var(--space-card);
+  }
+
+  .portal-metric-icon {
+    align-items: center;
+    background: hsl(var(--primary) / 0.1);
+    border-radius: 0.75rem;
+    color: hsl(var(--primary));
+    display: inline-flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+  }
+
+  .portal-value {
+    display: block;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .portal-section-heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+    min-height: 2rem;
+  }
+
+  .portal-section-heading h3 {
+    font-size: var(--text-title);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .portal-section-heading button {
+    color: hsl(var(--primary));
+    font-size: var(--text-caption);
+    font-weight: 600;
+  }
+
+  .portal-action {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    min-height: 4.75rem;
+    padding: var(--space-card);
+    text-align: left;
+    transition: background-color 160ms ease, transform 160ms ease;
+  }
+
+  .portal-action:hover {
+    background: hsl(var(--muted) / 0.72);
+  }
+
+  .portal-action:active {
+    transform: scale(0.985);
+  }
+
+  .portal-action > span:nth-child(2),
+  .portal-list-row > span:nth-child(2) {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .portal-action strong,
+  .portal-list-row strong {
+    color: hsl(var(--foreground));
+    font-size: var(--text-body);
+  }
+
+  .portal-action small,
+  .portal-list-row small {
+    color: hsl(var(--muted-foreground));
+    font-size: var(--text-caption);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .portal-app-icon {
+    align-items: center;
+    background: hsl(var(--primary) / 0.1);
+    border-radius: 0.75rem;
+    color: hsl(var(--primary));
+    display: inline-flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+  }
+
+  .portal-app-icon[data-app="wallet"] { color: hsl(35 92% 44%); background: hsl(35 92% 50% / 0.12); }
+
+  .portal-disclosure {
+    color: hsl(var(--muted-foreground) / 0.65);
+    font-size: 1.125rem;
+  }
+
+  .portal-list {
+    overflow: hidden;
+  }
+
+  .portal-list-row {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    min-height: 4rem;
+    padding: 0.75rem var(--space-card);
+    text-align: left;
+    width: 100%;
+  }
+
+  .portal-list-row + .portal-list-row {
+    border-top: 1px solid hsl(var(--border) / 0.65);
+  }
+
+  .portal-status-dot {
+    background: hsl(var(--info));
+    border-radius: 999px;
+    height: 0.55rem;
+    width: 0.55rem;
+  }
+
+  .portal-status-dot[data-status="success"] { background: hsl(var(--success)); }
+  .portal-status-dot[data-status="warning"] { background: hsl(var(--warning)); }
+  .portal-status-dot[data-status="error"] { background: hsl(var(--destructive)); }
+
+  .portal-empty {
+    align-items: center;
+    color: hsl(var(--muted-foreground));
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    justify-content: center;
+    min-height: 8rem;
+    padding: var(--space-card);
+    text-align: center;
+  }
+
+  @media (max-width: 639px) {
+    .portal-action-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .brand-panel {
+    background: hsl(var(--card) / 0.92);
+    border: 1px solid hsl(var(--border) / 0.85);
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.04),
+      0 10px 24px -18px hsl(var(--shadow) / 0.18);
+    backdrop-filter: blur(10px) saturate(115%);
+    -webkit-backdrop-filter: blur(10px) saturate(115%);
+  }
+  .brand-shell {
+    background: linear-gradient(180deg, hsl(var(--background) / 0.94) 0%, hsl(var(--background)) 100%);
+  }
+  .brand-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-border/60 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground transition-colors;
+    background: hsl(var(--muted) / 0.7);
+  }
+  .brand-tab {
+    @apply flex-shrink-0 rounded-full border border-border/60 px-5 py-2.5 text-xs font-bold text-muted-foreground transition-all;
+    background: hsl(var(--card) / 0.82);
+  }
+  .brand-tab[data-active="true"] {
+    @apply border-primary/20 bg-foreground text-background shadow-card;
+  }
+  .dark .brand-tab[data-active="true"] {
+    @apply bg-primary text-primary-foreground shadow-card;
+  }
+
+  /* ── Gradient text ── */
+  .text-gradient {
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 14%, #eab308 28%, #22c55e 42%, #3b82f6 58%, #6366f1 72%, #a855f7 84%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-gradient-warm {
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 35%, #eab308 70%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-gradient-cool {
+    background: linear-gradient(90deg, #06b6d4 0%, #0ea5e9 35%, #3b82f6 70%, #6366f1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-gradient-rainbow {
+    background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+  }
+
+  /* ── Glow effects ── */
+  .glow {
+    box-shadow: 0 0 24px hsl(var(--primary)/0.14);
+  }
+  .glow-sm {
+    box-shadow: 0 0 12px hsl(var(--primary)/0.12);
+  }
+
+  /* ── Buttons — Premium feel ── */
+  .clay-btn-primary {
+    box-shadow: 0 4px 14px hsl(var(--primary)/0.3);
+    transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  }
+  .clay-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px hsl(var(--primary)/0.4);
+  }
+  .clay-btn-primary:active { transform: translateY(0px); }
+
+  .clay-btn-secondary {
+    box-shadow: 0 4px 14px hsl(var(--secondary)/0.2);
+    transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  }
+  .clay-btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px hsl(var(--secondary)/0.3);
+  }
+
+  /* ── Editor ring ── */
+  .hugo-editor-active-ring {
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary));
+  }
+
+  /* ── Table rows ── */
+  .table-row-floating {
+    transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  }
+  .table-row-floating:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--shadow)/0.06);
+    background-color: hsl(var(--primary)/0.03) !important;
+  }
+
+  /* ── Input premium focus ── */
+  .input-premium-focus {
+    transition: all 0.2s ease;
+  }
+  .input-premium-focus:focus {
+    border-color: hsl(var(--primary)/0.8);
+    box-shadow: 0 0 0 3px hsl(var(--primary)/0.12);
+  }
+
+  /* ── Card hover lift ── */
+  .card-hover {
+    transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px hsl(var(--shadow)/0.10);
+  }
+
+  /* ── Skeleton loader ── */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted) / 0.6) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    border-radius: var(--radius);
+  }
+  @keyframes skeleton-shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+
+  /* ── Badge pulse dot ── */
+  .pulse-dot-green {
+    animation: pulse-dot-green 2s ease-in-out infinite;
+  }
+  .pulse-dot-amber {
+    animation: pulse-dot-amber 2s ease-in-out infinite;
+  }
+  .pulse-dot-red {
+    animation: pulse-dot-red 2s ease-in-out infinite;
+  }
+}
+
+/* =========================================================
+   KEYFRAME ANIMATIONS
+   ========================================================= */
+
+@keyframes pulse-dot-green {
+  0%  { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+  100%{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+@keyframes pulse-dot-amber {
+  0%  { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,158,11,0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+  100%{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+@keyframes pulse-dot-red {
+  0%  { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+  100%{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+
+/* Slide up from bottom */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1); }
+
+@keyframes account-sheet-slide-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(100%); }
+}
+@keyframes account-sheet-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.account-sheet-slide-down { animation: account-sheet-slide-down 0.26s ease-in forwards; }
+.account-sheet-backdrop-out { animation: account-sheet-backdrop-out 0.26s ease-in forwards; }
+
+/* Gradient shift — for animated gradient text */
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient { background-size: 200% auto; animation: gradient-shift 3s ease infinite; }
+
+/* Scanner line */
+@keyframes scan {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(224px); }
+  100% { transform: translateY(0); }
+}
+.animate-scan { animation: scan 3s cubic-bezier(0.4,0,0.2,1) infinite; }
+
+/* Card shine */
+@keyframes shine {
+  0%   { transform: translateX(-100%) skewX(-25deg); }
+  100% { transform: translateX(200%) skewX(-25deg); }
+}
+.group:hover .group-hover\:animate-shine { animation: shine 1.2s cubic-bezier(0.2,0.8,0.2,1); }
+
+/* Footer logo marquee — track holds the list twice, so -50% loops seamlessly */
+@keyframes logo-marquee { to { transform: translateX(-50%); } }
+.animate-logo-marquee { animation: logo-marquee 40s linear infinite; }
+.animate-logo-marquee:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-marquee { animation: none; }
+}
+
+/* Toast slide in */
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-toast-in { animation: toast-slide-in 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+/* Admin SOS crisis alert — slow ambient pulse on the dashboard card, fast
+   flashing strip on the global takeover banner (SosOverlay) */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.animate-pulse-slow { animation: pulse-slow 2.2s ease-in-out infinite; }
+
+@keyframes sos-flash {
+  0%, 100% { background-color: hsl(var(--destructive)); }
+  50% { background-color: #7f1d1d; }
+}
+.animate-sos-flash { animation: sos-flash 0.8s ease-in-out infinite; }
+
+/* Bounce gentle */
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+.animate-bounce-gentle { animation: bounce-gentle 2s ease-in-out infinite; }
+
+/* Wiggle */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-2deg); }
+  75%       { transform: rotate(2deg); }
+}
+.animate-wiggle { animation: wiggle 0.4s ease-in-out; }
+
+/* Spin variants */
+.animate-spin-slow  { animation: spin 3s linear infinite; }
+
+/* Scale in */
+@keyframes scaleIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.animate-scaleIn { animation: scaleIn 0.25s cubic-bezier(0.16,1,0.3,1); }
+
+/* =========================================================
+   SAFE AREA / MOBILE UTILITIES
+   ========================================================= */
+
+.nav-bottom-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(64px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .content-bottom-safe {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
+
+/* =========================================================
+   SPECIAL THEMES (Van Gogh, Art Gallery, etc.)
+   ========================================================= */
+
+.bg-van-gogh-sky {
+  background:
+    radial-gradient(circle at 30% 40%, rgba(251,191,36,0.12) 0%, transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(251,191,36,0.08) 0%, transparent 35%),
+    linear-gradient(135deg, #0f172a 0%, #1e3a8a 40%, #172554 80%, #020617 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.art-frame {
+  position: relative;
+  border: 18px solid transparent;
+  border-image: linear-gradient(to bottom right, #d4af37 0%, #aa8c2c 25%, #f3e5ab 50%, #aa8c2c 75%, #8a7023 100%) 1;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.8);
+}
+
+.brush-stroke-border {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+/* =========================================================
+   PERFORMANCE
+   ========================================================= */
+
+.gpu-accelerate {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+.hugo-hot-toast {
+  position: relative;
+  overflow: hidden;
+}
+
+.hugo-hot-toast::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+}
+
+.dark .hugo-hot-toast {
+  background: rgba(9, 9, 14, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* CSS .apple-account-* chuyển sang ./components/member/apple-account.css —
+   đi cùng PersonalInfoSubTab (React.lazy) thay vì nằm trong CSS toàn cục. */
+
+/* CSS của trình đọc bài TODAY chuyển sang ./components/member/today-article.css
+   — nó đi cùng TodayArticleReader (React.lazy) nên chỉ tải khi mở bài báo,
+   thay vì nằm trong CSS toàn cục mà mọi khách vào /services đều phải tải. */
+
+/* react-hot-toast custom-toast enter/leave (used by apps/web/src/lib/notify.jsx) */
+@keyframes hotToastEnter { from { opacity: 0; transform: translate3d(0,-18px,0) scale(.96); } to { opacity: 1; transform: translate3d(0,0,0) scale(1); } }
+@keyframes hotToastLeave { from { opacity: 1; transform: translate3d(0,0,0) scale(1); } to { opacity: 0; transform: translate3d(0,-14px,0) scale(.98); } }
+.animate-enter { animation: hotToastEnter .28s cubic-bezier(.21,1.02,.73,1) both; }
+.animate-leave { animation: hotToastLeave .22s ease-in forwards; }
+
+/* =========================================================
+   PWA STANDALONE NATIVE APP POLISH
+   ========================================================= */
+/* Khối này đã chuyển sang `apps/web/src/styles/memberPortalShell.css` và được portal
+   nhập riêng. Mọi quy tắc trong đó chỉ nhắm vào đánh dấu của member portal,
+   nên để trong tệp toàn cục là bắt mọi khách tải CSS họ không bao giờ dùng. */
+
+/* =========================================================================
+   STREAMLINED MOBILE CARD & TYPOGRAPHY SYSTEM (max-width: 767px)
+   Hạn chế card, chống "card chồng card", tối ưu chữ và button nhỏ gọn ổn định
+   ========================================================================= */
+@media (max-width: 767px) {
+  /* 1. Card độc lập: viền mảnh tinh tế, không bóng đổ cồng kềnh */
+  .bg-card {
+    border-color: hsl(var(--border) / 0.5) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .dark .bg-card {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  /* 2. CHỐNG "CARD CHỒNG CARD" (Nested Cards Removal)
+     Khi một phần tử đã nằm trong một card/khung khác, triệt tiêu viền,
+     triệt tiêu bóng đổ và làm phẳng nền để nhường trọn không gian cho nội dung */
+  .bg-card .bg-card,
+  .bg-card .bg-card\/50,
+  .bg-card .bg-card\/60,
+  .bg-card .bg-card\/70,
+  .bg-card .bg-card\/80,
+  .bg-card .bg-card\/90,
+  .swiftui-grouped-card .bg-card,
+  .swiftui-grouped-card .bg-card\/50,
+  .swiftui-grouped-card .bg-card\/80,
+  .lg-glass .lg-glass,
+  .today-news-shell [class*="rounded-"] [class*="rounded-"][class*="border"],
+  .psy-workspace [class*="rounded-"] [class*="rounded-"][class*="border"] {
+    box-shadow: none !important;
+    border-color: hsl(var(--border) / 0.3) !important;
+  }
+
+  /* 3. Tối ưu Inset Grouped Section chuẩn iOS Settings trên màn hình nhỏ với Liquid Glass */
+  .swiftui-grouped-card {
+    border-radius: 1rem !important; /* 16px */
+    background: rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 2px 14px -2px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .dark .swiftui-grouped-card {
+    background: rgba(18, 20, 32, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 2px 16px -2px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .swiftui-divider {
+    margin-left: 2.75rem !important;
+  }
+
+  /* 4. Tối ưu kích thước Button chuẩn trên điện thoại */
+  .swiftui-btn-prominent,
+  .swiftui-btn-tinted,
+  .swiftui-btn-bordered {
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+}
+
+/* =========================================================================
+   PWA STANDALONE MODE STANDARDIZATION
+   ========================================================================= */
+html.standalone-pwa,
+body.standalone-pwa {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  user-select: none;
+}
+
+html.standalone-pwa ::-webkit-scrollbar {
+  display: none;
+  width: 0px;
+}
+
+html.standalone-pwa {
+  scrollbar-width: none;
+}
+
+button, a, [role="button"], input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================================
+   APP SHELL — FLAT & STATIC
+   Installed PWA + store builds only; the browser build keeps every effect.
+
+   A phone GPU is not a laptop GPU. `backdrop-filter` makes the compositor
+   snapshot, blur and re-blend whatever sits behind an element on every frame
+   it changes, and the result cannot be cached like a plain layer. The login
+   screen alone measured 3.99 device megapixels of blur — 1.35 whole
+   screenfuls at 390x844@3x — animating forever. Multiply by the ~213
+   backdrop-blur sites in src/ and "the app is laggy" stops being mysterious.
+
+   Dropping the property is safe here because every glass class in this file
+   already sits at 0.8–0.92 alpha; the opaque backgrounds below restore the
+   last few percent so nothing turns see-through.
+   ========================================================================= */
+html.standalone-pwa *,
+html.standalone-pwa *::before,
+html.standalone-pwa *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.standalone-pwa .brand-panel {
+  background: hsl(var(--card));
+}
+
+html.standalone-pwa .lg-glass {
+  --lg-fill: hsl(var(--card) / 0.94);
+}
+
+/* Decorative loops only. Spinners, skeleton shimmer, status dots and the SOS
+   flash all signal that something is happening, so they keep running. */
+html.standalone-pwa .animate-gradient,
+html.standalone-pwa .animate-scan,
+html.standalone-pwa .animate-pulse-slow,
+html.standalone-pwa .animate-bounce-gentle {
+  animation: none !important;
+}
+
+/* Login entrance: opacity + transform only. Both run on the compositor, so
+   nothing here forces the main thread to redo work. The version this
+   replaced animated `filter: blur(20px)`, which rasters a fresh blur on
+   every frame of the transition. */
+@keyframes pwa-login-rise {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+.pwa-login-rise {
+  animation: pwa-login-rise 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pwa-login-rise { animation: none; }
+}
+
+/* =========================================================
+   INTERNATIONALIZATION (i18n) TYPOGRAPHY
+   ========================================================= */
+/* Chỉ còn ba ngôn ngữ: vi, en, zh (xem apps/web/src/i18n/languages.js). Khối phông cho
+   th/ja/ko đã gỡ — không còn ngôn ngữ nào đặt được html[lang="th|ja|ko"], nên
+   đó là CSS chết nằm trong tệp toàn cục mà MỌI trang phải tải. */
+
+
+/* ---------------------------------------------------------
+   CHỮ NÔM (𡨸喃)
+   ---------------------------------------------------------
+   Phông Nom Na Tong của Vietnamese Nôm Preservation Foundation (giấy phép MIT,
+   github.com/nomfoundation/font). Bản gốc 15,2 MB với 32.963 glyph — trong đó
+   6.277 glyph nằm ở CJK Ext B, nơi phần lớn chữ Nôm riêng của tiếng Việt cư
+   ngụ, và KHÔNG phông hệ thống nào phủ tới. Vì vậy ngôn ngữ này bắt buộc phải
+   mang phông theo; không như tiếng Trung, máy người dùng không sẵn có gì.
+
+   Bản nhúng đã cắt còn 54 KB, chỉ giữ đúng những chữ hiện dùng. Thêm chữ mới
+   vào bản dịch thì phải dựng lại:  npm run build:nom-font
+
+   Trình duyệt chỉ tải phông khi có quy tắc dùng tới, nên khách không chọn chữ
+   Nôm sẽ không tải một byte nào của tệp này. */
+@font-face {
+  font-family: 'Nom Na Tong';
+  src: url('/fonts/NomNaTong-subset.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html[lang="nom"] {
+  font-size: 18px;   /* chữ Nôm nhiều nét hơn chữ Hán, cùng cỡ px vẫn rối hơn */
+}
+html[lang="nom"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  /* Rơi về phông chữ Việt phía sau: rất nhiều chuỗi vẫn là quốc ngữ cho tới
+     khi bản dịch Nôm đầy đủ, và một phông chỉ có chữ Hán sẽ vẽ chúng bằng
+     phông dự phòng của trình duyệt — lệch hẳn với phần còn lại của trang. */
+  font-family: 'Nom Na Tong', 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  letter-spacing: normal;
+}
+
+/* Chinese: phông hệ thống, đọc được ở mọi cỡ chữ.
+   Trước đây ép 'Zhi Mang Xing' — một phông thư pháp viết tay. Nó đẹp trên
+   tiêu đề lớn nhưng làm cả trang bán hàng khó đọc, nhất là chữ nhỏ; cộng thêm
+   letter-spacing dương 0.05em thì chữ Hán rời ra, đọc càng mệt.
+   PingFang SC (macOS/iOS) và Microsoft YaHei (Windows) là phông mà Apple và
+   các trang Trung Quốc thật sự dùng. Cỡ chữ nhích lên 17.5px vì chữ Hán đặc
+   nét hơn chữ Latinh, cùng số px vẫn nhìn nhỏ hơn. Giãn chữ trả về 0: ký tự
+   Hán đã có sẵn khoảng đệm trong ô chữ.
+   Muốn lấy lại nét thư pháp thì dùng riêng cho tiêu đề, đừng áp cả trang. */
+html[lang="zh"],
+html[lang="zh-CN"],
+html[lang="zh-TW"] {
+  font-size: 17.5px;
+}
+html[lang="zh"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="zh-CN"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="zh-TW"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Noto Sans SC',
+    'Source Han Sans SC', system-ui, sans-serif !important;
+  letter-spacing: normal;
+}
+
+/* =========================================================
+   SWIFTUI / iOS HIG DESIGN SYSTEM TOKENS & UTILITIES
+   Cảm hứng từ @expo/ui/swift-ui và Apple Human Interface Guidelines
+   ========================================================= */
+
+/* Inset Grouped Section Card (Chuẩn iOS Settings với Liquid Glass) */
+.swiftui-grouped-card {
+  border-radius: 1.25rem; /* 20px */
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.dark .swiftui-grouped-card {
+  background: rgba(20, 22, 35, 0.65);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* Inset separator giữa các dòng trong Section */
+.swiftui-divider {
+  height: 1px;
+  background-color: hsl(var(--border) / 0.5);
+  margin-left: 3.5rem;
+}
+
+/* Hierarchical Foreground styles */
+.swiftui-fg-primary {
+  color: hsl(var(--foreground));
+}
+.swiftui-fg-secondary {
+  color: hsl(var(--muted-foreground));
+}
+.swiftui-fg-tertiary {
+  color: hsl(var(--muted-foreground) / 0.65);
+}
+
+/* SwiftUI Button styles */
+.swiftui-btn-prominent {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px -1px hsl(var(--primary) / 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swiftui-btn-prominent:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+
+.swiftui-btn-tinted {
+  background-color: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swiftui-btn-tinted:hover {
+  background-color: hsl(var(--primary) / 0.18);
+}
+.swiftui-btn-tinted:active {
+  transform: scale(0.97);
+}
+
+.swiftui-btn-bordered {
+  background-color: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.7);
+  color: hsl(var(--foreground));
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.swiftui-btn-bordered:hover {
+  background-color: hsl(var(--muted));
+}
+.swiftui-btn-bordered:active {
+  transform: scale(0.97);
+}
+
+.swiftui-btn-plain {
+  color: hsl(var(--primary));
+  font-weight: 500;
+  background: transparent;
+  transition: opacity 0.15s ease;
+}
+.swiftui-btn-plain:active {
+  opacity: 0.6;
+}
+
+/* ── View Transitions API Styling (Progressive Enhancement) ───────────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+
+/* Nút tim "Ủng hộ máy chủ" trên thanh điều hướng (NavDock). */
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(.96); } 45% { transform: scale(1.12); } }

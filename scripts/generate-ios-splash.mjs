@@ -15,8 +15,8 @@ import path from "node:path";
 import sharp from "sharp";
 
 const BG = "#0b0a0f";
-const OUT_DIR = path.resolve("public/splash");
-const HTML = path.resolve("index.html");
+const OUT_DIR = path.resolve("apps/web/public/splash");
+const HTML = path.resolve("apps/web/index.html");
 const START = "<!-- ios-splash:start (scripts/generate-ios-splash.mjs) -->";
 const END = "<!-- ios-splash:end -->";
 

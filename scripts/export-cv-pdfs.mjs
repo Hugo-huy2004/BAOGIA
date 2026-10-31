@@ -13,15 +13,15 @@ const CHROME_PATH = process.env.CHROME_BIN || '/Applications/Google Chrome.app/C
 const TARGETS = {
   // Primary PDFs: each language follows its intended recruiting context.
   // vi/zh retain the locally familiar visual layout; en is one-column ATS.
-  vi: { url: `file://${ROOT}/public/cv/index.html?lang=vi`, out: 'public/hugo-wishpax-cv.pdf' },
-  en: { url: `file://${ROOT}/public/cv/index.html?lang=en&layout=ats`, out: 'public/hugo-wishpax-cv-en.pdf' },
-  zh: { url: `file://${ROOT}/public/cv/index.html?lang=zh`, out: 'public/hugo-wishpax-cv-zh.pdf' },
+  vi: { url: `file://${ROOT}/apps/web/public/cv/index.html?lang=vi`, out: 'apps/web/public/hugo-wishpax-cv.pdf' },
+  en: { url: `file://${ROOT}/apps/web/public/cv/index.html?lang=en&layout=ats`, out: 'apps/web/public/hugo-wishpax-cv-en.pdf' },
+  zh: { url: `file://${ROOT}/apps/web/public/cv/index.html?lang=zh`, out: 'apps/web/public/hugo-wishpax-cv-zh.pdf' },
 };
 
 // Only generate these when a job portal explicitly asks for plain ATS output.
 const OPTIONAL_TARGETS = {
-  ats: { url: `file://${ROOT}/public/cv/index.html?lang=vi&layout=ats`, out: 'public/hugo-wishpax-cv-ats.pdf' },
-  'ats-en': { url: `file://${ROOT}/public/cv/index.html?lang=en&layout=ats`, out: 'public/hugo-wishpax-cv-ats-en.pdf' },
+  ats: { url: `file://${ROOT}/apps/web/public/cv/index.html?lang=vi&layout=ats`, out: 'apps/web/public/hugo-wishpax-cv-ats.pdf' },
+  'ats-en': { url: `file://${ROOT}/apps/web/public/cv/index.html?lang=en&layout=ats`, out: 'apps/web/public/hugo-wishpax-cv-ats-en.pdf' },
 };
 
 const targetKey = process.argv[2];

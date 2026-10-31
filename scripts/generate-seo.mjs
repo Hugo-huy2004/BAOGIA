@@ -8,7 +8,7 @@
  * body copy. React's createRoot() wipes the static block on mount, so the
  * interactive app is unchanged.
  *
- * All copy comes from src/i18n/locales/vi/translation.json — the author's own
+ * All copy comes from apps/web/src/i18n/locales/vi/translation.json — the author's own
  * strings. Nothing here writes marketing copy or prices; prices are read from
  * servicePkg.items.*.price — the SAME source the live /services page renders —
  * so what a crawler is told can never drift from what a visitor is shown.
@@ -24,16 +24,16 @@ import fs from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
-import { priceCurrency, servicePackages } from "../src/data/servicePackages.js";
-import { SERVICE_ADDONS, addonPath } from "../src/data/serviceAddons.js";
-import { projects } from "../src/data/projects.js";
-import { profileSkills, skillsCopy } from "../src/data/profileSkills.js";
-import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../shared/partnerCampaigns.js";
+import { PUBLIC_TOOLS } from "../apps/web/src/config/publicTools.js";
+import { priceCurrency, servicePackages } from "../apps/web/src/data/servicePackages.js";
+import { SERVICE_ADDONS, addonPath } from "../apps/web/src/data/serviceAddons.js";
+import { projects } from "../apps/web/src/data/projects.js";
+import { profileSkills, skillsCopy } from "../apps/web/src/data/profileSkills.js";
+import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../packages/shared/partnerCampaigns.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const isPortfolio = process.env.SITE_TARGET === "portfolio";
-const DIST = path.join(ROOT, isPortfolio ? "dist-portfolio" : "dist");
+const DIST = path.join(ROOT, isPortfolio ? "apps/web/dist-portfolio" : "apps/web/dist");
 const ORIGIN = isPortfolio ? "https://portfolio.hugowishpax.studio" : "https://www.hugowishpax.studio";
 
 /** Bốn gói kèm giá, đọc từ cùng nguồn với trang thật. Gói báo giá riêng không
@@ -151,7 +151,7 @@ function applyOgImage(html, img) {
 
 function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   const t = JSON.parse(
-      fs.readFileSync(path.join(ROOT, `src/i18n/locales/${lang}/translation.json`), "utf8"),
+      fs.readFileSync(path.join(ROOT, `apps/web/src/i18n/locales/${lang}/translation.json`), "utf8"),
     );
 
   /** "Từ 1.490.000đ" → 1490000. Schema.org needs a number, not the display string. */
@@ -323,7 +323,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   ];
 
   // Trang dự án: một trang chỉ mục + một trang cho mỗi dự án. Danh sách lấy
-  // từ src/data/projects.js, cùng nguồn với trang React — thêm dự án ở đó là
+  // từ apps/web/src/data/projects.js, cùng nguồn với trang React — thêm dự án ở đó là
   // đủ, tệp này không phải sửa.
   routes.push({
     path: "/project",
@@ -503,7 +503,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   }
 
   // Every standalone app gets its own indexable page. Adding a tool to the
-  // registry in src/config/publicTools.js is enough — nothing here needs editing.
+  // registry in apps/web/src/config/publicTools.js is enough — nothing here needs editing.
   for (const [slug, tool] of Object.entries(PUBLIC_TOOLS)) {
     routes.push({
       path: `/${slug}`,
@@ -743,7 +743,7 @@ for (const [route, meta] of Object.entries(isPortfolio ? {} : SHARE_PAGES)) {
 }
 
 // ── Trang chiến dịch hợp tác (/collab/<slug>) ────────────────────────────────
-// Mỗi chiến dịch trong shared/partnerCampaigns.js có một trang tĩnh mang đúng
+// Mỗi chiến dịch trong packages/shared/partnerCampaigns.js có một trang tĩnh mang đúng
 // tiêu đề, mô tả, ảnh chia sẻ và lời mời — để Google, Zalo, Facebook đọc được
 // thư mời mà không cần chạy JS. Chiến dịch đang đứng ở tên miền partner lấy
 // canonical là tên miền đó; tên miền ấy cũng có sitemap/robots riêng
@@ -924,12 +924,12 @@ fs.writeFileSync(
 // engineer; the other is the product lab and portfolio behind the work.
 // `plans`/`faqs` sống trong buildLocale nên phải dựng lại ở đây.
 const tVI = JSON.parse(
-  fs.readFileSync(path.join(ROOT, "src/i18n/locales/vi/translation.json"), "utf8"),
+  fs.readFileSync(path.join(ROOT, "apps/web/src/i18n/locales/vi/translation.json"), "utf8"),
 );
 const plans = planList(tVI);
 const faqs = (tVI.faqPage.faqs || []).map(({ question, answer }) => ({ question, answer }));
 // Bản tiếng Anh cho trợ lý AI khi khách quốc tế hỏi — cùng nguồn trang /en (VNĐ, kèm USD tham khảo).
-const tEN = JSON.parse(fs.readFileSync(path.join(ROOT, "src/i18n/locales/en/translation.json"), "utf8"));
+const tEN = JSON.parse(fs.readFileSync(path.join(ROOT, "apps/web/src/i18n/locales/en/translation.json"), "utf8"));
 const enPricing =
   `## Pricing in English (for clients outside Vietnam; prices in VND, US$ figures approximate)\n\n` +
   servicePackages.filter((p) => !p.freeTier).map((p) => {
@@ -1024,7 +1024,7 @@ if (stale.length) {
 
 // Each deployment advertises only its own sitemap and purpose.
 fs.writeFileSync(path.join(DIST, "robots.txt"),
-  fs.readFileSync(path.join(ROOT, "public/robots.txt"), "utf8")
+  fs.readFileSync(path.join(ROOT, "apps/web/public/robots.txt"), "utf8")
     .replace(/Sitemap: .*/g, `Sitemap: ${ORIGIN}/sitemap.xml`));
 if (isPortfolio) {
   fs.writeFileSync(path.join(DIST, "llms.txt"),

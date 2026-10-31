@@ -50,7 +50,7 @@ tick xác nhận đã có sự đồng ý của cha mẹ/người giám hộ, l�
 **Cần bạn quyết:**
 - Tick trong ứng dụng là mức tối thiểu, không phải xác minh thật. Nếu muốn chắc
   chắn hơn thì cách gọn nhất là **nâng tuổi tối thiểu lên 16** (`MEMBER_MIN_AGE`
-  trong `server/utils/memberAge.js`) — bỏ luôn nghĩa vụ này.
+  trong `apps/server/utils/memberAge.js`) — bỏ luôn nghĩa vụ này.
 - Với tài khoản 14–15 tuổi **đã đăng ký trước đây**: hệ thống sẽ hỏi xác nhận ở
   lần đăng nhập kế tiếp. Nếu muốn xử lý chủ động hơn thì gửi email thông báo.
 
@@ -66,7 +66,7 @@ về thuế GTGT/TNCN cho phần doanh thu dịch vụ.
 ## 5. HugoTeam — quan hệ lao động
 
 **Vì sao:** Tính năng tuyển developer, giao task, chấm công theo giờ, đánh giá
-(`server/routes/hugoTeamRoutes.js`) mang bản chất quan hệ lao động.
+(`apps/server/routes/hugoTeamRoutes.js`) mang bản chất quan hệ lao động.
 
 **Làm gì:**
 - Nếu trả công: phải trả **bằng tiền** (Điều 94, 95 Bộ luật Lao động), không trả
@@ -79,7 +79,7 @@ về thuế GTGT/TNCN cho phần doanh thu dịch vụ.
 
 ## 6. WHO-5 trong ứng dụng có gói trả phí
 
-Thang WHO-5 (`src/components/member/banhocduong/clinicalTests.js`) được WHO cho
+Thang WHO-5 (`apps/web/src/components/member/banhocduong/clinicalTests.js`) được WHO cho
 dùng miễn phí, nhưng **mục đích thương mại cần xin phép WHO**. Portal có gói trả
 phí nên hai lựa chọn: gửi thư xin phép WHO, hoặc để bài WHO-5 luôn miễn phí và
 không nằm sau bất kỳ gói JOY/gói trả phí nào.
@@ -89,7 +89,7 @@ PHQ-9 và GAD-7 không vướng — Pfizer đã đưa ra dùng tự do, và code
 ## 7. Chứng cứ giấy phép cho nhạc nền
 
 Bốn tệp `rain / sea / campfire / ambient .mp3` trên Cloudinary
-(`src/components/member/banhocduong/TherapyTab.jsx`) không có ghi chú nguồn.
+(`apps/web/src/components/member/banhocduong/TherapyTab.jsx`) không có ghi chú nguồn.
 Tìm lại nơi tải và **lưu ảnh chụp trang giấy phép** vào `docs/`; nếu không tìm
 được thì thay bằng nguồn CC0 rõ ràng (Pixabay, Freesound CC0).
 

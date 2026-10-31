@@ -39,7 +39,7 @@ execFileSync('npm', ['run', 'build:native'], {
   env: { ...process.env, VITE_API_URL: apiUrl },
 });
 
-const dist = path.join(root, 'dist-native');
+const dist = path.join(root, 'apps/web/dist-native');
 if (!statSync(dist).isDirectory()) {
   console.error('✖ dist-native/ missing after build.');
   process.exit(1);

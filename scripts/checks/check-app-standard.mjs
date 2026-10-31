@@ -14,10 +14,10 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { FULLSCREEN_APP_IDS } from "../../shared/appRegistry.js";
+import { FULLSCREEN_APP_IDS } from "../../packages/shared/appRegistry.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const MEMBER = path.join(ROOT, "src/components/member");
+const MEMBER = path.join(ROOT, "apps/web/src/components/member");
 
 /**
  * App đã đưa về chuẩn. Thêm tên vào đây SAU khi nó đạt hết tiêu chí — từ đó về

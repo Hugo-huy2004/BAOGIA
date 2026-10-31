@@ -132,7 +132,7 @@ Hiện chỉ `/api/coder-lessons` được cache ở edge. `today/feed`, `arcade
 - Edge TTL: **Use cache-control header if present, bypass cache if not**
 - Browser TTL: **Respect origin**
 
-Danh sách này phải khớp `SHARED_CACHE_PATHS` trong `src/services/api/core/authInterceptor.js`. Route nào đọc danh tính thì **không** được thêm vào đây. Server đã tự đánh dấu `private, no-store` khi request có cookie hoặc token, nên dữ liệu riêng không lọt vào cache.
+Danh sách này phải khớp `SHARED_CACHE_PATHS` trong `apps/web/src/services/api/core/authInterceptor.js`. Route nào đọc danh tính thì **không** được thêm vào đây. Server đã tự đánh dấu `private, no-store` khi request có cookie hoặc token, nên dữ liệu riêng không lọt vào cache.
 
 ## F. Kiểm tra sau khi làm
 

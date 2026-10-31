@@ -2,8 +2,8 @@
 """Soát bản ATS theo những thứ hệ thống lọc hồ sơ thật sự làm."""
 import os, re, subprocess, sys
 
-PDFS = (("public/hugo-wishpax-cv-en.pdf", "en"),)
-PRIMARY_PDFS = ("public/hugo-wishpax-cv.pdf", "public/hugo-wishpax-cv-en.pdf", "public/hugo-wishpax-cv-zh.pdf")
+PDFS = (("apps/web/public/hugo-wishpax-cv-en.pdf", "en"),)
+PRIMARY_PDFS = ("apps/web/public/hugo-wishpax-cv.pdf", "apps/web/public/hugo-wishpax-cv-en.pdf", "apps/web/public/hugo-wishpax-cv-zh.pdf")
 failed = False
 
 def text(path, layout=True):

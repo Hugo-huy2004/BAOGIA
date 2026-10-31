@@ -3,17 +3,17 @@
 // Máy trạng thái là thứ quyết định khi nào thư tự động bay tới khách. Một bước
 // nhảy sai sẽ gửi thư "đã bàn giao mã nguồn" cho người còn chưa điền phiếu yêu
 // cầu, nên nó phải có phép kiểm riêng.
-import { listPrice } from '../../shared/projectPackages.js';
-import { ledgerTotals, buildContract, warrantyItems, contractLangFor, warrantyActive } from '../../shared/projectContract.js';
-import { buildBrief } from '../../shared/projectBrief.js';
-import { PHASES, GATES, CHECK_ITEMS, gateStatus, generateBacklog, phaseOf, SPRINT_CAPACITY } from '../../shared/projectPhases.js';
-import { draftScope, openQuestions } from '../../shared/projectScope.js';
+import { listPrice } from '../../packages/shared/projectPackages.js';
+import { ledgerTotals, buildContract, warrantyItems, contractLangFor, warrantyActive } from '../../packages/shared/projectContract.js';
+import { buildBrief } from '../../packages/shared/projectBrief.js';
+import { PHASES, GATES, CHECK_ITEMS, gateStatus, generateBacklog, phaseOf, SPRINT_CAPACITY } from '../../packages/shared/projectPhases.js';
+import { draftScope, openQuestions } from '../../packages/shared/projectScope.js';
 import {
   PROJECT_STATUSES, PROJECT_STATUS_ORDER, canTransition, isValidStatus,
   formatProjectId, parseProjectId, projectIdPeriod, PROJECT_ID_PATTERN,
   REQUIREMENT_SECTIONS, MOSCOW_LEVELS, MAX_CUSTOMER_EDITS,
   estimateProject, addWorkingDays, PACKAGE_BASE_DAYS, PROJECT_ADDONS, FEEDBACK_QUESTIONS,
-} from '../../shared/projectWorkflow.js';
+} from '../../packages/shared/projectWorkflow.js';
 
 const fails = [];
 const check = (name, ok, detail = '') => {

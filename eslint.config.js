@@ -7,7 +7,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import unusedImports from 'eslint-plugin-unused-imports'
 
 export default [
-  { ignores: ['dist'] },
+  { ignores: ['**/dist', '**/dist-*', '**/node_modules', 'apps/web/android', 'apps/web/ios'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -75,7 +75,7 @@ export default [
     // côi mà không có gì báo, và một `'process' is not defined` nằm im trong
     // khối VAPID. Chỗ này khai globals Node và tắt các luật React vô nghĩa với
     // mã máy chủ, để phần còn lại của cấu hình áp dụng được cho cả backend.
-    files: ['server/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs', 'workers/**/*.js', '*.mjs'],
+    files: ['apps/server/**/*.js', 'packages/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs', 'apps/workers/**/*.js', '*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

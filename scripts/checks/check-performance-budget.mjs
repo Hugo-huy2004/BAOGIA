@@ -19,11 +19,11 @@ import process from "node:process";
 
 const root = process.cwd();
 const config = JSON.parse(
-  await readFile(path.join(root, "performance-budgets.json"), "utf8"),
+  await readFile(path.join(root, "apps/web/performance-budgets.json"), "utf8"),
 );
-const assetsDir = path.join(root, config.assetsDirectory);
+const assetsDir = path.join(root, "apps/web", config.assetsDirectory);
 const files = await readdir(assetsDir);
-const html = await readFile(path.join(root, "dist/index.html"), "utf8");
+const html = await readFile(path.join(root, "apps/web/dist/index.html"), "utf8");
 
 function assetFromHtml(type) {
   const expression = type === "html-script"

@@ -16,7 +16,7 @@ every 15 minutes. Deleted email addresses are retained only as keyed hashes so
 the old account cannot be recreated by a later login.
 
 Before deploying this change, back up the database and run the migration with
-the production `MONGODB_URI` set in `server/.env`:
+the production `MONGODB_URI` set in `apps/server/.env`:
 
 ```bash
 npm run migrate:bio-expiry-index

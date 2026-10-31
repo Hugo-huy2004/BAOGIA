@@ -1,0 +1,591 @@
+import { useEffect, useReducer, useState, Suspense, lazy } from "react";
+import i18n from "./i18n/config";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { DataProvider, useData } from "./context/DataContext";
+import { isPublicGamePath, isPublicToolPath } from "./config/publicTools";
+import { detectInstallTarget, isStandalone, subscribeDisplayMode } from "./config/platform";
+import { useStandalone } from "./hooks/usePWA";
+import { ensureTranslations } from "./i18n/config";
+import ErrorBoundary from "./components/ErrorBoundary";
+import Navbar from "./components/Navbar";
+import VacationNotificationBanner from "./components/VacationNotificationBanner";
+import MaintenancePage from "./components/MaintenancePage";
+import GlobalAdBanner from "./components/GlobalAdBanner";
+import PWAInstallBanner from "./components/ui/PWAInstallBanner";
+import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
+import StatusScreen from "./components/system/StatusScreen";
+import ServerStatusBanner from "./components/system/ServerStatusBanner";
+import { isMemberAuthenticated } from "./services/api/core/authSession";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import { TooltipProvider } from "./components/ui/Tooltip";
+import { Toaster } from "react-hot-toast";
+// Lazy: component này chỉ chạy hiệu ứng phụ rồi return null, không vẽ gì cho
+// lần sơn đầu. Import tĩnh ở đây kéo webPushHelper vào chunk entry, khiến
+// dynamic import trong i18n/config.js thành vô nghĩa — Rollup báo đúng lỗi
+// INEFFECTIVE_DYNAMIC_IMPORT. Lazy ở đây thì ý định bên đó mới thành thật.
+const PWARealtimeBridge = lazy(() => import("./components/PWARealtimeBridge"));
+import NativeShell from "./components/NativeShell";
+import SafeAreaProbe from "./components/ui/SafeAreaProbe";
+import PWAQuickLogin from "./components/PWAQuickLogin";
+import { LazyMotion, MotionConfig } from "framer-motion";
+
+const IOS_SPRING = { type: "spring", visualDuration: 0.42, bounce: 0.18 };
+const loadMotionFeatures = () => import("./config/motionFeatures").then((mod) => mod.default);
+import { initGlobalHaptics } from "./utils/haptics";
+import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
+import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
+import ScreenProtection from "./components/security/ScreenProtection";
+import TraceWatermark from "./components/security/TraceWatermark";
+import { StorageSafeguard } from "./utils/storageSafeguard";
+import PWAInstallModal from "./components/ui/PWAInstallModal";
+import RouteSeoPolicy from "./components/RouteSeoPolicy";
+import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../../../packages/shared/partnerCampaigns";
+import { isPartnerWelcomed, markPartnerWelcomed } from "./utils/partnerWelcome";
+import { redeemInstallHandoff } from "./utils/appHandoff";
+import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
+
+// Only navbar + footer ship with the entry chunk; the rest of the dictionary
+// is fetched per language (see i18n/config.js). Every screen below lives
+// behind a lazy route, so pairing the two loads puts the dictionary inside the
+// Suspense boundary that already exists — no screen can render before its
+// strings are there, and nothing flashes raw `a.b.c` keys.
+// Mạng điện thoại chập chờn làm hỏng một lần tải chunk là chuyện thường: thử
+// lại một lần sau 800 ms trước khi để ErrorBoundary xử lý (tải lại trang).
+const retryOnce = (loader) => loader().catch(() => new Promise((resolve) => setTimeout(resolve, 800)).then(loader));
+const lazyRoute = (loader) =>
+  lazy(() => Promise.all([retryOnce(loader), ensureTranslations()]).then(([mod]) => mod));
+
+const PortfolioRedirect = lazyRoute(() => import("./components/PortfolioRedirect"));
+const ProjectsPage = lazyRoute(() => import("./pages/public/ProjectsPage"));
+const ProjectDetailPage = lazyRoute(() => import("./pages/public/ProjectDetailPage"));
+const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
+const ServiceDetailPage = lazyRoute(() => import("./pages/public/ServiceDetailPage"));
+const ServiceAddonPage = lazyRoute(() => import("./pages/public/ServiceAddonPage"));
+const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
+const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
+const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
+const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
+const HugoLearningPage = lazyRoute(() => import("./pages/public/HugoLearningPage"));
+const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
+const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
+const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
+const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricingPage"));
+const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
+const TermsPage = lazyRoute(() => import("./pages/public/TermsPage"));
+const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
+const TermsAndGuidePage = lazyRoute(() => import("./pages/public/TermsAndGuidePage"));
+const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
+const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
+const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
+const AdminProjectDetailPage = lazyRoute(() => import("./pages/admin/AdminProjectDetailPage"));
+const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
+const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
+const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
+// Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
+const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
+const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
+const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
+const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/PartnerCollabPage"));
+
+// Không cần cho khung hình đầu: chân trang nằm cuối, hộp ủng hộ chỉ mở khi bấm,
+// cổng cài app chỉ dành cho điện thoại chưa cài. Tách khỏi gói index (~15 KB gz).
+const Footer = lazy(() => import("./components/Footer"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const MobileInstallGate = lazy(() => import("./components/ui/MobileInstallGate"));
+const DonationModal = lazy(() => import("./components/ui/DonationModal"));
+
+const Cursor = lazy(() =>
+  import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
+);
+
+
+function BookingRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/services${search}#dat-lich`} replace />;
+}
+
+function AppContent() {
+  const location = useLocation();
+  const isPWA = useStandalone();
+  const [, refreshSession] = useReducer(value => value + 1, 0);
+  useEffect(() => {
+    window.addEventListener("hugo:member-session-expired", refreshSession);
+    window.addEventListener("storage", refreshSession);
+    return () => {
+      window.removeEventListener("hugo:member-session-expired", refreshSession);
+      window.removeEventListener("storage", refreshSession);
+    };
+  }, []);
+  const { data } = useData();
+  const isIntroductionRoute = location.pathname === "/introduction";
+
+  useEffect(() => {
+    const disposeBackgroundSync = BackgroundSyncEngine.initListener();
+    const runMaintenance = () => {
+      StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
+      // Đã bỏ PWAKeepAlive.startKeepAlive(): Worker cron ở apps/workers/keepalive
+      // ping /health mỗi 10 phút trong khung 06:00–23:59 giờ VN, bao trọn khung
+      // 08:00–23:00 mà file kia tự đặt. Ping từ máy người dùng chỉ thêm một
+      // request mỗi lần mở app cho một server đã thức — và không hề "tiết kiệm
+      // 270 giờ/tháng" như chú thích cũ nói: gọi Render là TỐN giờ, không phải
+      // tiết kiệm.
+    };
+
+    let idleId;
+    let timerId;
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(runMaintenance, { timeout: 3000 });
+    } else {
+      timerId = window.setTimeout(runMaintenance, 1200);
+    }
+
+    return () => {
+      disposeBackgroundSync?.();
+      if (idleId) window.cancelIdleCallback?.(idleId);
+      if (timerId) window.clearTimeout(timerId);
+    };
+  }, []);
+
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isCustomDomainHost = Boolean(
+    hostname &&
+    !["localhost", "127.0.0.1"].includes(hostname) &&
+    !hostname.endsWith("hugowishpax.studio") &&
+    !hostname.endsWith("vercel.app")
+  );
+  // Trang chiến dịch hợp tác: /collab/<slug> trên mọi tên miền, và trang gốc
+  // của partner.hugowishpax.studio. Các đường khác trên tên miền partner vẫn là
+  // app bình thường — nhờ vậy liên kết /member/... sau khi nhận quà giữ nguyên phiên.
+  const isPartnerHost = hostname === PARTNER_HOST;
+  const isCollabRoute = location.pathname.startsWith("/collab/") || (isPartnerHost && location.pathname === "/");
+  const isBioRoute = location.pathname.startsWith('/bio/') || location.pathname.startsWith('/b/') || isCustomDomainHost;
+  const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
+  const isPreviewRoute = location.pathname === "/preview";
+  const isPublicGameRoute = isPublicGamePath(location.pathname);
+  const showFooter =
+    !isIntroductionRoute &&
+    !isBioRoute &&
+    !isPartnerBioRoute &&
+    !isPreviewRoute &&
+    !location.pathname.startsWith("/member") &&
+    !location.pathname.startsWith("/admin") &&
+    !isPublicGameRoute &&
+    // Login is a focused, form-only screen (esp. as an installed PWA) — the full
+    // marketing footer below it is noise, like every major sign-in page.
+    !location.pathname.startsWith("/login") &&
+    !location.pathname.startsWith("/oauth");
+
+  const isMaintenanceMode = data?.systemSettings?.maintenanceMode === true;
+  const isVacationMode = data?.systemSettings?.vacationMode === true;
+  const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login') || location.pathname.startsWith('/oauth');
+
+  const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
+  const isSecretLinkRoute = location.pathname.startsWith("/s/");
+  const isPayRoute = location.pathname.startsWith("/pay/");
+  const isIdeRoute = location.pathname === "/member/ide";
+  // `/chess` giờ là trang game công khai của riêng nó (config/publicTools.ts):
+  // vào là chơi được ngay. Chỉ liên kết PHÒNG `/chess/<id>` mới cần đi đường cũ
+  // vào Arcade của thành viên, nên đừng bắt cả tiền tố nữa.
+  const isChessRoute = /^\/chess\/[^/]+/.test(location.pathname);
+  // /arcade is now a standalone public page (see config/publicTools.ts), so it
+  // must not be captured here — that branch redirects guests to /login, which
+  // is exactly what the "play first, sign in to unlock levels" rule forbids.
+  const isArcadeRoute = location.pathname.startsWith("/member/utilities/arcade");
+  // Allowed standalone-app paths come from the registry so this can no longer
+  // drift out of sync with the tools UtilityPublicPage actually renders.
+  const isPublicUtilityRoute = isPublicToolPath(location.pathname);
+  // Hugo Learning là một dịch vụ ĐỨNG RIÊNG: nó có đầu trang, chân trang và
+  // điều hướng của chính nó, nên cả cây /study không dùng navbar/footer chung
+  // của Hugo Studio — kể cả khi đã đăng nhập.
+  const isLearningRoute = /^\/(?:study|hugoso)(?:\/|$)/.test(location.pathname);
+
+  const [bypassMobileGate, setBypassMobileGate] = useState(() => {
+    try {
+      if (sessionStorage.getItem("pwa_gate_dismissed") === "true") return true;
+      // Lần đầu vào khu thành viên trên điện thoại: cho dùng web ngay. Bắt cài
+      // app trước khi thấy app là rào lớn nhất với người lạ; từ lần sau mới gợi ý.
+      if (location.pathname.startsWith("/member") && localStorage.getItem("hugo:member-web-seen") !== "1") {
+        localStorage.setItem("hugo:member-web-seen", "1");
+        sessionStorage.setItem("pwa_gate_dismissed", "true"); // trọn phiên đầu, kể cả tải lại
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
+  // App vừa cài mở bằng start_url có ?handoff= (utils/appHandoff.js): đổi mã lấy
+  // phiên trước khi xét cổng nào, để người dùng không phải đăng nhập lại. Mã chỉ
+  // được phát sau khi đã nhận quà partner, nên nhận được phiên = đã qua màn chào.
+  const [handoffPending, setHandoffPending] = useState(() => new URLSearchParams(location.search).has("handoff"));
+  useEffect(() => {
+    if (!handoffPending) return;
+    redeemInstallHandoff()
+      .then((ok) => { if (ok && isPartnerHost) markPartnerWelcomed(PARTNER_HOST_CAMPAIGN); })
+      .finally(() => { refreshSession(); setHandoffPending(false); });
+  }, [handoffPending, isPartnerHost]);
+  if (handoffPending) {
+    return <StatusScreen kind="loading" />;
+  }
+
+  // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
+  // chào mừng của chiến dịch trên máy này → đưa về trang nhận quà trước.
+  if (
+    isPartnerHost &&
+    isPWA &&
+    location.pathname.startsWith("/member") &&
+    new URLSearchParams(location.search).get("source") === "pwa" &&
+    !isPartnerWelcomed(PARTNER_HOST_CAMPAIGN)
+  ) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Trên điện thoại, khu vực thành viên ưu tiên chạy trong app đã cài:
+  // Nếu chưa cài và chưa bấm tiếp tục trên web, hiện màn hướng dẫn SwiftUI.
+  // Miễn trừ ?embed=true, ?preview=true hoặc khi người dùng đã bấm tiếp tục trên web.
+  if (
+    location.pathname.startsWith("/member") &&
+    detectInstallTarget().isMobile &&
+    !isPWA &&
+    !bypassMobileGate &&
+    new URLSearchParams(location.search).get("embed") !== "true" &&
+    new URLSearchParams(location.search).get("preview") !== "true"
+  ) {
+    return <Suspense fallback={null}><MobileInstallGate onBypass={() => setBypassMobileGate(true)} /></Suspense>;
+  }
+
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
+    return <MaintenancePage />;
+  }
+
+  if (isCustomDomainHost) {
+    return (
+      <Suspense fallback={<StatusScreen kind="loading" />}>
+        <BioPublicPage />
+      </Suspense>
+    );
+  }
+
+  if (isCollabRoute) {
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-[#0d0b1a]"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div></div>}>
+        <Routes>
+          <Route path="/" element={<PartnerCollabPage />} />
+          <Route path="/collab/:slug" element={<PartnerCollabPage />} />
+          <Route path="/collab/:slug/:lang" element={<PartnerCollabPage />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  if (isLearningRoute || isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
+    return (
+      <Suspense fallback={<StatusScreen kind="loading" />}>
+        <Routes>
+          <Route path="/study" element={<HugoLearningPage />} />
+          <Route path="/study/:page" element={<HugoLearningPage />} />
+          <Route path="/study/:page/:sub" element={<HugoLearningPage />} />
+          <Route path="/hugoso" element={<HugoLearningPage />} />
+          <Route path="/hugoso/:page" element={<HugoLearningPage />} />
+          <Route path="/hugoso/:page/:sub" element={<HugoLearningPage />} />
+          <Route path="/bio/:slug" element={<BioPublicPage />} />
+          <Route path="/b/:slug" element={<BioPublicPage />} />
+          <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
+          <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
+          <Route path="/preview" element={<LivePreviewPage />} />
+          <Route path="/customer-portal" element={<CustomerPortalPage />} />
+          <Route path="/customer-portal/:code" element={<CustomerPortalPage />} />
+          <Route path="/pay/:id" element={<PaymentGatewayPage />} />
+          <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
+          {/* Liên kết phòng cũ vẫn mở đúng ván trong Arcade của thành viên. Bản
+              `/chess` trần đã thành trang game công khai, không còn ở đây. */}
+          <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/arcade?game=chess&room=${window.location.pathname.split("/").pop()}`} replace />} />
+          <Route path="/member/utilities/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade") || isPublicGameRoute;
+  // In standalone PWA mode without an active session, show only the login screen —
+  // no marketing navbar, no HBot, no footer. The native build is always in this
+  // mode: the store app is the member app, never the marketing site.
+  const showCustomCursor =
+    !isPWA &&
+    !isFullscreenUtility &&
+    !location.pathname.startsWith("/member") &&
+    window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches;
+  const isAuthenticated = isMemberAuthenticated();
+  // In the installed PWA we want a focused, app-like dashboard: never show the
+  // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
+  const isMemberRoute = location.pathname.startsWith("/member");
+  // Admin có khung riêng (thanh bên + đầu trang); thanh menu trang công khai
+  // trước đây đè lên đầu khu quản trị.
+  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute || location.pathname.startsWith('/oauth') || location.pathname.startsWith('/admin');
+
+  return (
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
+      <ScreenProtection />
+      {isMemberRoute && isAuthenticated && <TraceWatermark />}
+      
+      {/* Static Top-Navigation Header bar */}
+      {!hideNavbar && <Navbar />}
+      
+      {/* Vacation Mode Notification Banner */}
+      {!hideNavbar && <VacationNotificationBanner isVacationMode={isVacationMode} />}
+
+      {/* Global Advertisement Banner */}
+      {!hideNavbar && <GlobalAdBanner />}
+      
+      {/* Dynamic Content Router */}
+      <main className="flex-grow">
+        {showCustomCursor && (
+          <Suspense fallback={null}>
+            <Cursor
+              ringColor="#007aff"
+              ringBackground="rgba(0,122,255,0.16)"
+              ringHoverBackground="rgba(0,122,255,0.28)"
+              dotColor="#007aff"
+            />
+          </Suspense>
+        )}
+        <Suspense fallback={<StatusScreen kind="loading" />}>
+          <Routes>
+            <Route path="/" element={
+              isPWA
+                ? (isAuthenticated ? <Navigate to="/member" replace /> : <Navigate to="/login" replace />)
+                : <ServicesPage />
+            } />
+            <Route path="/introduction" element={
+              isPWA && !isAuthenticated
+                ? <Navigate to="/login" replace />
+                : <PortfolioRedirect />
+            } />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:slug" element={<ServiceDetailPage />} />
+            <Route path="/services/add-ons/:slug" element={<ServiceAddonPage />} />
+            <Route path="/project" element={<ProjectsPage />} />
+            <Route path="/project/:slug" element={<ProjectDetailPage />} />
+            {/* Ví JOY không còn là app riêng — số dư, ưu đãi và mọi thao tác
+                nằm trong trang Tài khoản. Hai đường cũ đều dẫn về đó. */}
+            <Route path="/joy" element={<Navigate to="/member/account" replace />} />
+            <Route path="/member/joy" element={<Navigate to="/member/account" replace />} />
+            {/* Quyền lợi HSSV + bảng giá HSSV đã gộp thành một trang. */}
+            <Route path="/student-benefits" element={<Navigate to="/student-pricing" replace />} />
+            <Route path="/student-pricing" element={<StudentPricingPage />} />
+            <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
+            <Route path="/faq" element={<FAQPage />} />
+            {/* Form đặt lịch đã gộp vào cuối trang Dịch vụ (25/10/2026). Giữ
+                đường cũ để mọi nút "Đặt lịch" và ?type=student vẫn chạy. */}
+            <Route path="/booking" element={<BookingRedirect />} />
+            {/* Installed PWA (standalone) gets the app-style, member-only Google
+                login; the web keeps the full 3-tab LoginPage. */}
+            <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
+            <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
+            <Route path="/member" element={<Navigate to="/member/today" replace />} />
+            <Route path="/member/eco" element={
+              isMemberAuthenticated() ? <EcoPortal /> : <Navigate to="/login" replace />
+            } />
+            <Route path="/member/:tab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            <Route path="/member/:tab/:subTab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            <Route path="/member/:tab/:subTab/:psychTab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            {/* Đoạn thứ năm — /member/utilities/study/<khoá>/<bài>. Thiếu nhánh
+                này thì mở bài trong portal rồi tải lại là rơi xuống "*". */}
+            <Route path="/member/:tab/:subTab/:psychTab/:deepTab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
+            <Route path="/bio/:slug" element={<BioPublicPage />} />
+            <Route path="/b/:slug" element={<BioPublicPage />} />
+            <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
+            <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/user-guide" element={<UserGuidePage />} />
+            <Route path="/terms-and-guide" element={<TermsAndGuidePage />} />
+            {/* Địa chỉ bảng điều khiển đi theo ĐƯỜNG DẪN, không phải `?tab=`.
+                `/admin/queue`, `/admin/projects`, `/admin/users`… — mỗi màn hình
+                một địa chỉ, chia sẻ được, mở tab mới được, nút Lùi chạy đúng.
+                Một bản ghi cụ thể là một đoạn nữa: `/admin/projects/HG-2609-007`
+                — dùng mã người-đọc chứ không phải _id của cơ sở dữ liệu. */}
+            <Route path="/admin/projects/:projectId" element={
+              <AdminProtectedRoute>
+                <AdminProjectDetailPage />
+              </AdminProtectedRoute>
+            } />
+            {/* Khai báo riêng: không có dòng này thì `/:tool/:page/:sub` bên dưới thắng
+                `/admin/*` với `/admin/data/bios` (3 đoạn) và đẩy về trang chủ. */}
+            {["/admin/data/*", "/admin/*"].map((path) => (
+              <Route key={path} path={path} element={
+                <AdminProtectedRoute>
+                  <AdminPanel />
+                </AdminProtectedRoute>
+              } />
+            ))}
+            <Route path="/support-request" element={<SupportRequestPage />} />
+            
+            {/* Dynamic Public Utility Route */}
+            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            {/* Đường thứ hai bên trong một app công khai — ví dụ /study/lesson7.
+                Không có nhánh này thì mở app rồi tải lại trang là văng ra
+                /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
+            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            {/* Đường thứ ba — /study/<khoá>/<bài>. Khoá nằm trong địa chỉ nên
+                không phải suy bài thuộc khoá nào. */}
+            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </main>
+
+      {/* Global Brand footer bar */}
+      {!isEmbed && showFooter && <Suspense fallback={null}><Footer /></Suspense>}
+
+    </div>
+  );
+}
+
+
+/**
+ * Tiền tố ngôn ngữ trong đường dẫn — `/en/services`, `/zh/du-an`…
+ *
+ * Trang tĩnh cho SEO được sinh ra cho cả ba thứ tiếng, mỗi thứ một tiền tố
+ * (xem `scripts/generate-seo.mjs`). Người thật bấm từ kết quả Google sẽ rơi
+ * vào chính những địa chỉ đó, nên bộ định tuyến phải hiểu chúng — nếu không họ
+ * gặp trang 404 ngay sau khi React khởi động.
+ *
+ * Cách rẻ nhất: cắt tiền tố thành `basename` của router. Mọi khai báo route
+ * bên dưới giữ nguyên, không route nào phải viết hai lần.
+ */
+const LANG_PREFIXES = ["/en", "/zh"];
+const langPrefix = LANG_PREFIXES.find(
+  (p) => window.location.pathname === p || window.location.pathname.startsWith(p + "/"),
+);
+if (langPrefix) {
+  // Địa chỉ đã nói rõ ngôn ngữ thì nó thắng lựa chọn đã lưu: nội dung tĩnh
+  // vừa trả về cũng đang ở ngôn ngữ đó, đổi lại sẽ thành nửa nọ nửa kia.
+  const code = langPrefix.slice(1);
+  if (i18n.language !== code) i18n.changeLanguage(code);
+}
+
+
+export default function App() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = (e) => {
+      // Khu quản trị luôn sáng (AdminPanel) — đổi chế độ tối của máy không lật nó.
+      if (window.location.pathname.startsWith("/admin")) {
+        root.classList.remove("dark");
+        return;
+      }
+      if (e.matches) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
+
+    // Initial sync on mount
+    handleChange(mediaQuery);
+
+    // Listen to changes dynamically
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  // index.css has carried a `html.standalone-pwa` block for a while — no
+  // tap highlight, no overscroll bounce, no scrollbars, and now the flat
+  // app-shell rules — but nothing ever added the class, so none of it applied.
+  // display-mode flips when the user installs the PWA mid-session, hence the
+  // listener rather than a one-shot check.
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => root.classList.toggle("standalone-pwa", isStandalone());
+    sync();
+    return subscribeDisplayMode(sync);
+  }, []);
+
+  useEffect(() => initGlobalHaptics(), []);
+  // Fix: on mobile, after keyboard opens (≈380ms), scroll the focused input
+  // back into view in case a React re-render reset the scroll container.
+  useInputFocusScroll();
+
+  return (
+    <ErrorBoundary>
+      <SecurityBlockBoundary>
+        <LazyMotion features={loadMotionFeatures}>
+        {/* Chuyển động mặc định kiểu iOS 27: lò xo nảy nhẹ cho mọi hoạt hình chưa tự
+            khai báo transition; tôn trọng "Giảm chuyển động" của hệ điều hành. */}
+        <MotionConfig reducedMotion="user" transition={IOS_SPRING}>
+        <DataProvider>
+          <BrowserRouter basename={langPrefix || undefined} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <TooltipProvider>
+              <RouteSeoPolicy />
+              <NativeShell />
+              {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
+              <Suspense fallback={null}><PWARealtimeBridge /></Suspense>
+              <PWAQuickLogin />
+              <AppContent />
+              <PWAInstallBanner />
+              <PWAUpdatePrompt />
+              <ServerStatusBanner />
+              <PWAInstallModal />
+              <Suspense fallback={null}><DonationModal /></Suspense>
+              <Toaster
+                position="top-center"
+                reverseOrder={false}
+                containerStyle={{ top: "calc(env(safe-area-inset-top, 24px) + 24px)" }}
+                toastOptions={{
+                  duration: 4000,
+                  className: "hugo-hot-toast",
+                  style: {
+                    maxWidth: "min(420px, calc(100vw - 24px))",
+                    borderRadius: "20px",
+                    border: "1px solid rgba(255,255,255,.62)",
+                    background: "rgba(255,255,255,.94)",
+                    color: "#0f172a",
+                    boxShadow: "0 22px 58px rgba(15,23,42,.20)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    padding: "13px 16px",
+                    fontSize: "13px",
+                    fontWeight: 850,
+                  },
+                  success: {
+                    iconTheme: { primary: "#10b981", secondary: "#ffffff" },
+                  },
+                  error: {
+                    iconTheme: { primary: "#ef4444", secondary: "#ffffff" },
+                  },
+                  loading: {
+                    iconTheme: { primary: "#6366f1", secondary: "#ffffff" },
+                  },
+                }}
+              />
+            </TooltipProvider>
+          </BrowserRouter>
+        </DataProvider>
+        </MotionConfig>
+        </LazyMotion>
+      </SecurityBlockBoundary>
+    </ErrorBoundary>
+  );
+}

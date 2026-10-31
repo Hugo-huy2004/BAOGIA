@@ -1,0 +1,275 @@
+import mongoose from 'mongoose';
+import Bio from '../models/Bio.js';
+import JoyLedger from '../models/JoyLedger.js';
+import ChessRating from '../models/ChessRating.js';
+import { notifyMember } from './notifyMember.js';
+import { broadcastToEmail } from './realtime.js';
+import { NOTIFICATION_TEXT } from '../../../packages/shared/notificationText.js';
+
+import { JOY_REWARD_SOURCES, JOY_SOURCES, JOY_SOURCE_GROUPS, appOfJoySource } from './joySources.js';
+import { currentMultiplier, NON_ISSUANCE_SOURCES } from '../services/joyStabilityService.js';
+
+// Giữ tên cũ cho các nơi đã import; nguồn thật nằm ở joySources.js.
+export const JOY_TITLES = JOY_SOURCES;
+
+/**
+ * Tiêu đề thông báo cho một biến động JOY.
+ *
+ * Khi `source` chưa có tiêu đề riêng, KHÔNG rơi về một chữ chung chung cho cả
+ * thu lẫn chi — ít nhất phải nói được tiền vào hay tiền ra, vì đó là thứ người
+ * dùng cần biết đầu tiên khi mở thông báo.
+ */
+function joyTitleFor(source, amount) {
+  return JOY_TITLES[source] || (Number(amount) >= 0 ? 'Nhận JOY' : 'Dùng JOY');
+}
+
+/**
+ * Single choke point for every JOY-affecting event (earn or spend).
+ * Updates Bio.joyBalance, writes a JoyLedger audit row, and (by default)
+ * creates an in-app notification — so balance/ledger/notification never drift.
+ */
+export async function awardJoy(email, amount, source, description, opts = {}) {
+  if (!email) throw new Error('MISSING_EMAIL');
+  let numAmount = Math.round(Number(amount));
+  if (!numAmount) throw new Error('INVALID_AMOUNT');
+
+  /*
+   * ── HỆ SỐ PHÁT HÀNH ───────────────────────────────────────────────────────
+   * Núm vặn bình ổn JOY (models/JoyPolicy.js) chỉ nhân vào phần THƯỞNG.
+   *
+   * KHÔNG nhân khi:
+   *   · số âm — đó là người dùng TIÊU JOY. Siết phát hành mà cũng siết luôn giá
+   *     thì chẳng thay đổi gì, chỉ làm bảng giá nói dối.
+   *   · nguồn không phải phát hành (chuyển tay, admin điều chỉnh, thu hồi):
+   *     những khoản này phải vào ví đúng bằng con số đã hứa.
+   *   · `opts.rawAmount` — nơi gọi biết rõ số tiền phải khớp chính xác, ví dụ
+   *     hoàn tiền: trả 100 mà bị ghi 80 là sai sổ.
+   *
+   * Nhân TRƯỚC lệnh $inc nguyên tử bên dưới để số dư và dòng sổ cái luôn ghi
+   * cùng một con số — tách hai chỗ là mở đường cho sổ lệch ví.
+   */
+  if (numAmount > 0 && !opts.rawAmount && !NON_ISSUANCE_SOURCES.has(source)) {
+    if (!JOY_REWARD_SOURCES.has(source)) {
+      throw new Error('JOY_REWARD_SOURCE_NOT_APPROVED');
+    }
+    const multiplier = await currentMultiplier();
+    if (multiplier !== 1) {
+      // Làm tròn LÊN: một phần thưởng 5 JOY nhân 0.8 ra 4, chứ không được ra 0.
+      // Thưởng thành 0 thì người dùng tưởng tính năng hỏng, không phải đang siết.
+      numAmount = Math.max(1, Math.ceil(numAmount * multiplier));
+    }
+  }
+  const allowedSources = JoyLedger.schema.path('source')?.enumValues || [];
+  if (!allowedSources.includes(source)) {
+    // Validate ledger metadata before touching the wallet. Previously an
+    // unknown source could increment joyBalance and only then fail while
+    // creating JoyLedger, leaving a partial, repeatable reward.
+    throw new Error('INVALID_JOY_SOURCE');
+  }
+
+  let bio = opts.bioDoc;
+  if (!bio) {
+    bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+  }
+  if (!bio) throw new Error('BIO_NOT_FOUND');
+
+  if (bio.isJoyWalletFrozen && source !== 'admin_adjustment' && source !== 'admin_refund') {
+    throw new Error('JOY_WALLET_FROZEN: Ví JOY tài khoản này đang bị đóng băng kiểm soát.');
+  }
+
+  // Thực hiện cập nhật số dư nguyên tử (atomic update) ở MongoDB để tránh race condition/double spend
+  const query = {
+    _id: bio._id,
+    ...(numAmount < 0 ? { joyBalance: { $gte: -numAmount } } : {})
+  };
+  const update = {
+    $inc: { joyBalance: numAmount }
+  };
+  const updatedBio = await Bio.findOneAndUpdate(query, update, { new: true });
+  if (!updatedBio) {
+    if (numAmount < 0) {
+      throw new Error('INSUFFICIENT_JOY');
+    }
+    throw new Error('BIO_NOT_FOUND');
+  }
+
+  const newBalance = updatedBio.joyBalance;
+
+  // Keep the loaded document in sync as well. Several callers use the return
+  // value immediately without passing bioDoc; leaving this stale made a
+  // successful reward appear to return the previous balance.
+  bio.joyBalance = newBalance;
+  if (opts.bioDoc && opts.bioDoc !== bio) opts.bioDoc.joyBalance = newBalance;
+
+  // …nhưng ĐỪNG để lần save() sau đó của người gọi ghi lại con số này. Số dư đã
+  // được cộng/trừ nguyên tử bằng $inc ở trên; một save() toàn tài liệu sẽ $set
+  // đè bằng giá trị đọc được lúc này, và hai giao dịch chạy song song sẽ xoá
+  // nhau — mua hai lần liên tiếp mà chỉ bị trừ một lần. unmarkModified giữ giá
+  // trị đúng trong bộ nhớ nhưng không đưa nó vào lệnh ghi.
+  for (const doc of new Set([bio, opts.bioDoc].filter(Boolean))) {
+    doc.unmarkModified?.('joyBalance');
+  }
+
+  // Ghi nhận lịch sử giao dịch (JoyLedger)
+  await JoyLedger.create({
+    email: updatedBio.email,
+    amount: numAmount,
+    balanceAfter: newBalance,
+    source,
+    description: description || '',
+    refId: opts.refId || ''
+  });
+
+  // Nếu người gọi truyền bioDoc và không skipSave, ta cần lưu các thuộc tính khác (VD: joySentDate) mà caller đã thay đổi trên bioDoc
+  if (opts.bioDoc && !opts.skipSave) {
+    await opts.bioDoc.save({ validateModifiedOnly: true });
+  }
+
+  // Keep the chess-displayed "JOY" number perfectly in sync with the real wallet.
+  // updateOne (no upsert) is intentional: only players who've already opened the
+  // chess feature have a ChessRating doc — this never silently creates one.
+  await ChessRating.updateOne({ email: bio.email }, { $set: { rating: bio.joyBalance, updatedAt: new Date() } });
+
+  let notification = null;
+  if (opts.notify !== false) {
+    // Tiêu đề đi bằng KHOÁ chứ không phải câu: cùng một bản ghi hiện ra tiếng
+    // Việt hay tiếng Hàn là tuỳ ngôn ngữ người đọc, không tuỳ lúc nó được ghi.
+    //
+    // `description` KHÔNG còn được dùng làm nội dung thông báo — nó là câu
+    // tiếng Việt do hàng chục nơi gọi tự viết, và nó vẫn được lưu nguyên vẹn ở
+    // JoyLedger để đối soát. Trong hộp thư, số tiền / số dư / mã GD / tên người
+    // đối diện đã là field riêng, nên câu đó chỉ lặp lại thứ đang hiện.
+    notification = await notifyMember({
+      email: bio.email,
+      type: numAmount >= 0 ? 'success' : 'info',
+      category: 'joy',
+      key: NOTIFICATION_TEXT.vi[`source.${source}`]
+        ? `source.${source}`
+        : (numAmount >= 0 ? 'source.credit' : 'source.debit'),
+      actionUrl: opts.actionUrl || '/member/account',
+      push: opts.pushNotify === true,
+      amount: numAmount,
+      balanceAfter: newBalance,
+      refCode: opts.refId || '',
+      counterparty: opts.counterparty || '',
+      // App phát sinh, suy từ chính `source` của biến động — nên mọi nơi gọi
+      // awardJoy đều có nhãn mà không phải nhớ truyền thêm tham số. Nơi gọi vẫn
+      // ghi đè được bằng `opts.appId` nếu biết rõ hơn bảng ánh xạ.
+      appId: opts.appId || appOfJoySource(source),
+    });
+  }
+
+  // Update every open device immediately. Web Push below covers devices where
+  // the PWA is in the background or has been closed.
+  const realtimeEvent = {
+    type: 'joy_update',
+    balance: bio.joyBalance,
+    amount: numAmount,
+    source,
+    notification,
+    createdAt: new Date().toISOString()
+  };
+  broadcastToEmail(bio.email, realtimeEvent);
+
+  return { balance: bio.joyBalance, bio, notification };
+}
+
+/**
+ * Lịch sử ví. Trả kèm `title` + `group` để client không phải biết gì về danh
+ * mục nguồn — thêm nguồn mới ở joySources.js là ví hiện đúng ngay, không cần
+ * đụng frontend.
+ *
+ * `limit` chặn trần ở 200: đây là tham số do client truyền, để mở là một người
+ * dùng gõ ?limit=999999 kéo cả ledger về.
+ */
+export async function getJoyHistory(email, limit = 50) {
+  const n = Math.min(200, Math.max(1, Math.floor(Number(limit)) || 50));
+  const rows = await JoyLedger.find({ email }).sort({ createdAt: -1 }).limit(n).lean();
+  return rows.map((r) => ({
+    id: String(r._id),
+    amount: r.amount,
+    balanceAfter: r.balanceAfter,
+    source: r.source,
+    title: joyTitleFor(r.source, r.amount),
+    group: JOY_SOURCE_GROUPS[r.source] || 'khac',
+    description: r.description || '',
+    createdAt: r.createdAt
+  }));
+}
+
+/**
+ * Tổng thu / chi / theo nhóm trong N ngày gần nhất. Gộp ở tầng DB thay vì kéo
+ * cả ledger về client rồi cộng — ví của người chơi lâu năm có hàng nghìn dòng.
+ */
+export async function getJoySummary(email, days = 30) {
+  const span = Math.min(365, Math.max(1, Math.floor(Number(days)) || 30));
+  const since = new Date(Date.now() - span * 24 * 60 * 60 * 1000);
+  const rows = await JoyLedger.aggregate([
+    { $match: { email, createdAt: { $gte: since } } },
+    { $group: { _id: '$source', total: { $sum: '$amount' }, count: { $sum: 1 } } }
+  ]);
+
+  let earned = 0;
+  let spent = 0;
+  const byGroup = {};
+  for (const r of rows) {
+    if (r.total >= 0) earned += r.total;
+    else spent += -r.total;
+    const g = JOY_SOURCE_GROUPS[r._id] || 'khac';
+    byGroup[g] = (byGroup[g] || 0) + r.total;
+  }
+
+  return {
+    days: span,
+    earned,
+    spent,
+    net: earned - spent,
+    txCount: rows.reduce((s, r) => s + r.count, 0),
+    // Nhóm kiếm được nhiều nhất trước, nhóm tiêu nhiều nhất sau.
+    groups: Object.entries(byGroup)
+      .map(([group, total]) => ({ group, total }))
+      .sort((a, b) => b.total - a.total)
+  };
+}
+
+/**
+ * Reconciliation check & Auto-fix for user JOY balance vs JoyLedger sum.
+ */
+export async function reconcileJoyBalance(identifier, autoFix = false) {
+  if (!identifier) throw new Error('MISSING_IDENTIFIER');
+  const queryConditions = [{ email: identifier }, { contactEmail: identifier }];
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    queryConditions.push({ _id: identifier });
+  }
+  const bio = await Bio.findOne({ $or: queryConditions });
+  if (!bio) throw new Error('BIO_NOT_FOUND');
+
+  const ledgerResult = await JoyLedger.aggregate([
+    { $match: { email: bio.email } },
+    { $group: { _id: null, totalLedgerSum: { $sum: '$amount' }, txCount: { $sum: 1 } } }
+  ]);
+
+  const totalLedgerSum = ledgerResult[0]?.totalLedgerSum || 0;
+  const txCount = ledgerResult[0]?.txCount || 0;
+  const currentBalance = bio.joyBalance || 0;
+  const drift = currentBalance - totalLedgerSum;
+  const isHealthy = drift === 0;
+
+  if (!isHealthy && autoFix) {
+    bio.joyBalance = totalLedgerSum;
+    await bio.save();
+    await ChessRating.updateOne({ email: bio.email }, { $set: { rating: totalLedgerSum, updatedAt: new Date() } });
+  }
+
+  return {
+    email: bio.email,
+    userId: bio._id,
+    currentBalance,
+    totalLedgerSum,
+    txCount,
+    drift,
+    isHealthy,
+    fixed: !isHealthy && autoFix
+  };
+}

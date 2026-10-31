@@ -1,4 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci --workspace apps/web --include-workspace-root",
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/web/dist",
   "redirects": [
     {
       "source": "/",

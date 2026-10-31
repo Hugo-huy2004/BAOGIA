@@ -7,7 +7,7 @@ khoản đã đăng nhập Google, đã điền đủ hồ sơ, mỗi người m
 
 ## Luồng người dùng
 
-1. Phim mở màn dựng bằng SVG (`src/pages/public/partner/CollabFilm.jsx`),
+1. Phim mở màn dựng bằng SVG (`apps/web/src/pages/public/partner/CollabFilm.jsx`),
    nhịp kiểu keynote: sân khấu đen, sàn bóng phản chiếu, tiêu đề hiện từ nhoè
    sang nét. Hai nhân vật vẽ theo logo — giọt thuỷ tinh Hugo Studio và ô `<J>`
    của hwagfu.dev — đi vào, bắt tay, nhảy lên chữ **COLLABORATE** phát sáng.
@@ -28,7 +28,7 @@ khoản đã đăng nhập Google, đã điền đủ hồ sơ, mỗi người m
 ## Thêm / đổi / xoá chiến dịch
 
 Mọi thứ riêng của một chiến dịch nằm ở **một mục** trong
-`shared/partnerCampaigns.js`: tên đối tác, logo (`mark`), lời văn + SEO
+`packages/shared/partnerCampaigns.js`: tên đối tác, logo (`mark`), lời văn + SEO
 (`copy.vi`, `copy.en`), quà (`bioDays`, `eduBonusDays`, `joy`), số suất
 (`maxClaims`), lịch (`startsAt`, `endsAt`), ngưỡng chống gian lận (`antiAbuse`).
 
@@ -40,7 +40,7 @@ Mọi thứ riêng của một chiến dịch nằm ở **một mục** trong
   `partnerclaims` để đối soát.
 
 Lời văn chung của trang (nút, trạng thái, tour) ở
-`src/pages/public/partner/collabCopy.js`; số liệu luôn chèn từ chiến dịch.
+`apps/web/src/pages/public/partner/collabCopy.js`; số liệu luôn chèn từ chiến dịch.
 
 ## Quà và cách cộng
 
@@ -93,7 +93,7 @@ bị chặn nhầm thì admin gỡ:
    (như của www, xem `docs/chong-ddos-12-tang.md`) cho cả tên miền partner.
    Thiếu thì các luật dựa trên mạng tự bỏ qua (an toàn: không chặn nhầm).
 4. **Backend (Render)**: deploy lại để có `https://partner.hugowishpax.studio`
-   trong danh sách CORS (`server/config/cors.js`). Thiếu bước này trình duyệt
+   trong danh sách CORS (`apps/server/config/cors.js`). Thiếu bước này trình duyệt
    chặn mọi lời gọi `api.hugowishpax.studio` từ tên miền partner.
 5. **Google Search Console** → thêm property `partner.hugowishpax.studio`, nộp
    `https://partner.hugowishpax.studio/sitemap.xml`.

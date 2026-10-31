@@ -1,0 +1,291 @@
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useData } from "../context/DataContext";
+import { useTranslation } from "react-i18next";
+import logos from "./logos";
+import { API_BASE } from "../config/apiBase";
+import { isVietnameseLanguage } from "../i18n/languages";
+import { EMAIL_CHANNELS, createMailtoUrl } from "../../../../packages/shared/emailChannels";
+
+import { DONATION_CONFIG } from "../config/donationConfig";
+import { STUDIO_SOCIAL_LINKS } from "../config/studioSocialLinks";
+import { SocialBrandIcon } from "../utils/socialBrandHelper";
+
+const linkClass = "inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const btnClass = `${btnBase} border-border text-foreground hover:bg-muted`;
+const btnPrimaryClass = `${btnBase} border-foreground bg-foreground text-background hover:opacity-90`;
+const btnBmcClass = "inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-bold bg-[#FFDD00] text-slate-950 hover:bg-[#FFDD00]/90 transition-all shadow-sm active:scale-95";
+const colTitleClass = "text-xs font-bold uppercase tracking-[0.12em] text-foreground";
+
+const trustContent = {
+  vi: {
+    capabilityLabel: "Năng lực",
+    capabilities: ["PWA", "Offline", "Mobile & safe area", "SEO + JSON-LD", "Reduce Motion", "Xác thực máy chủ"],
+    referencesTitle: "Liên kết kiểm tra & chính sách",
+    referencesDescription: "Công cụ kiểm tra và trang chính sách — bấm để tự đối chiếu. Không phải mục nào cũng là chứng nhận của bên thứ ba.",
+    referencesLabel: "Các liên kết kiểm tra, chính sách và thông tin tham chiếu",
+  },
+  en: {
+    capabilityLabel: "Capabilities",
+    capabilities: ["PWA", "Offline", "Mobile & safe areas", "SEO + JSON-LD", "Reduced Motion", "Server verification"],
+    referencesTitle: "Checks, policies & references",
+    referencesDescription: "Public checkers and policy pages — click to verify for yourself. Not every item is a third-party certification.",
+    referencesLabel: "Website checks, policies and reference information",
+  },
+  es: {
+    capabilityLabel: "Capacidades",
+    capabilities: ["PWA", "Offline", "Áreas móviles y seguras", "SEO + JSON-LD", "Movimiento Reducido", "Verificación del Servidor"],
+    referencesTitle: "Controles, Políticas y Referencias",
+    referencesDescription: "Herramientas de verificación pública y páginas de políticas — haz clic para verificar por ti mismo. No todos los elementos son certificaciones de terceros.",
+    referencesLabel: "Verificaciones de sitio, políticas e información de referencia",
+  },
+  fr: {
+    capabilityLabel: "Capacités",
+    capabilities: ["PWA", "Hors Ligne", "Zones mobiles et sécurisées", "SEO + JSON-LD", "Mouvement Réduit", "Vérification Serveur"],
+    referencesTitle: "Vérifications, Politiques & Références",
+    referencesDescription: "Vérificateurs publics et pages de politiques — cliquez pour vérifier par vous-même. Tous les éléments ne sont pas des certifications tierces.",
+    referencesLabel: "Vérifications de site, politiques et informations de référence",
+  },
+  ko: {
+    capabilityLabel: "기능",
+    capabilities: ["PWA", "오프라인", "모바일 및 안전 영역", "SEO + JSON-LD", "움직임 줄이기", "서버 확인"],
+    referencesTitle: "확인, 정책 및 참조",
+    referencesDescription: "공개 검사기 및 정책 페이지 — 직접 클릭하여 확인해 보세요. 모든 항목이 타사 인증은 아닙니다.",
+    referencesLabel: "웹사이트 검사, 정책 및 참조 정보",
+  },
+  th: {
+    capabilityLabel: "ความสามารถ",
+    capabilities: ["PWA", "ออฟไลน์", "พื้นที่มือถือและปลอดภัย", "SEO + JSON-LD", "ลดการเคลื่อนไหว", "การตรวจสอบเซิร์ฟเวอร์"],
+    referencesTitle: "การตรวจสอบ นโยบาย & การอ้างอิง",
+    referencesDescription: "เครื่องมือตรวจสอบสาธารณะและหน้านโยบาย — คลิกเพื่อตรวจสอบด้วยตัวคุณเอง ไม่ใช่ทุกรายการจะเป็นการรับรองจากบุคคลที่สาม",
+    referencesLabel: "การตรวจสอบเว็บไซต์ นโยบาย และข้อมูลอ้างอิง",
+  },
+  zh: {
+    capabilityLabel: "功能",
+    capabilities: ["PWA", "离线", "移动与安全区域", "SEO + JSON-LD", "减少动画", "服务器验证"],
+    referencesTitle: "检查、政策与参考",
+    referencesDescription: "公共检查工具和政策页面 — 点击自行验证。并非所有项目都是第三方认证。",
+    referencesLabel: "网站检查、政策和参考信息",
+  }
+};
+
+function LogoMarquee({ trust }) {
+  const sectionRef = useRef(null);
+  const [shouldRenderLogos, setShouldRenderLogos] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !("IntersectionObserver" in window)) {
+      setShouldRenderLogos(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setShouldRenderLogos(true);
+      observer.disconnect();
+    }, { rootMargin: "480px 0px" });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} aria-labelledby="footer-reference-title" className="border-b border-border pb-8">
+      <h2 id="footer-reference-title" className={colTitleClass}>{trust.referencesTitle}</h2>
+      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+        {trust.referencesDescription}
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground" aria-label={trust.capabilityLabel}>
+        <strong className="font-bold uppercase tracking-[0.12em] text-foreground">{trust.capabilityLabel}</strong>
+        {trust.capabilities.map((capability) => (
+          <span key={capability} className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+            {capability}
+          </span>
+        ))}
+      </div>
+
+      {/* Băng chạy: track chứa 2 bản danh sách, animation dịch -50% nên nối liền */}
+      <div
+        className="relative mt-4 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4rem,black_calc(100%-4rem),transparent)]"
+        aria-busy={!shouldRenderLogos}
+      >
+        {shouldRenderLogos ? (
+          <ul className="flex w-max animate-logo-marquee items-center gap-3" aria-label={trust.referencesLabel}>
+            {[0, 1].map((copy) => logos.map((Logo, index) => (
+              <li
+                key={`${copy}-${Logo.displayName || Logo.name || index}`}
+                className="flex shrink-0 items-center"
+                aria-hidden={copy === 1 ? "true" : undefined}
+              >
+                <Logo />
+              </li>
+            )))}
+          </ul>
+        ) : (
+          <div className="h-9 animate-pulse rounded-lg bg-muted" aria-hidden="true" />
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default function Footer() {
+  const { data } = useData();
+  const { t, i18n } = useTranslation();
+  const email = "contact@hugowishpax.studio";
+  const resolvedLang = i18n.resolvedLanguage || i18n.language || "vi";
+  const locale = trustContent[resolvedLang] ? resolvedLang : (isVietnameseLanguage(resolvedLang) ? "vi" : "en");
+  const trust = trustContent[locale];
+
+  return (
+    <footer className="site-trust-footer w-full snap-start border-t border-border bg-background px-[max(1rem,env(safe-area-inset-left,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] pt-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        <LogoMarquee trust={trust} />
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.2fr_1fr_1fr_1fr] md:gap-8">
+          <div className="col-span-2 max-w-sm md:col-span-1">
+            <Link to="https://portfolio.hugowishpax.studio/" className="inline-flex min-h-11 items-center text-lg font-extrabold tracking-[-0.03em] text-foreground">
+              Hugo Studio
+            </Link>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t("footer.tagline", "Một góc số dành cho người học, cá nhân và những cửa hàng nhỏ cần hiện diện chỉn chu trên internet.")}
+            </p>
+            <nav aria-label={t("servicePkg.page.socialLinks", "Hugo Studio social links")} className="mt-4 flex flex-wrap gap-2">
+              {STUDIO_SOCIAL_LINKS.map(({ labelKey, fallbackLabel, href, platform }) => {
+                const label = t(`servicePkg.page.${labelKey}`, { defaultValue: fallbackLabel });
+                return (
+                  <a
+                    key={labelKey}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-card/60 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+                  >
+                    <SocialBrandIcon platform={platform} className="size-5" />
+                  </a>
+                );
+              })}
+            </nav>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link to="/booking" className={btnPrimaryClass}>
+                {t("footer.booking", "Đặt lịch trao đổi")}
+              </Link>
+              <a href={DONATION_CONFIG.buyMeACoffeeUrl} target="_blank" rel="noopener noreferrer" className={btnBmcClass}>
+                <svg viewBox="0 0 24 24" className="w-4 h-4 fill-black" aria-hidden="true">
+                  <path d="M20.216 6.415l-.132-.666c-.119-.597-.387-1.127-.775-1.536-.39-.41-1.002-.638-1.771-.645H4.629c-.77.007-1.382.235-1.77.645-.39.41-.657.94-.776 1.536l-.132.666C1.38 7.026 1 8.243 1 9.531c0 2.228 1.107 4.197 2.805 5.372.482 1.488 1.624 2.668 3.12 3.151L6.16 20.5h11.68l-.765-2.446c1.496-.483 2.638-1.663 3.12-3.151 1.698-1.175 2.805-3.144 2.805-5.372 0-1.288-.38-2.505-.784-3.116zm-2.68 5.742c0 1.947-1.42 3.535-3.23 3.738l.635 2.03h-5.88l.635-2.03c-1.81-.203-3.23-1.79-3.23-3.738V6.075h11.07v6.082z"/>
+                </svg>
+                <span>Buy Me a Coffee</span>
+              </a>
+              <a href={`mailto:${email}`} className={btnClass}>
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">mail</span>
+                Email
+              </a>
+              <a href={`${API_BASE}/contact/zalo`} target="_blank" rel="noreferrer" className={btnClass}>
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">chat_bubble</span>
+                Zalo
+              </a>
+            </div>
+          </div>
+
+          <nav aria-label={t("footer.links", "Khám phá")}>
+            <p className={colTitleClass}>{t("footer.links", "Khám phá")}</p>
+            <ul className="mt-2 flex flex-col">
+              <li><Link to="https://portfolio.hugowishpax.studio/" className={linkClass}>{t("footer.introduction", "Giới thiệu")}</Link></li>
+              <li><Link to="/student-pricing" className={linkClass}>{t("navbar.benefits", "Quyền lợi HSSV")}</Link></li>
+              <li><Link to="/" className={linkClass}>{t("footer.services", "Dịch vụ")}</Link></li>
+              <li><Link to="/faq" className={linkClass}>{t("navbar.faq", "Hỏi đáp")}</Link></li>
+            </ul>
+          </nav>
+
+          <nav aria-label={t("footer.connect", "Bắt đầu")}>
+            <p className={colTitleClass}>{t("footer.connect", "Bắt đầu")}</p>
+            <ul className="mt-2 flex flex-col">
+              <li><Link to="/login" className={linkClass}>{t("navbar.login", "Đăng nhập")}</Link></li>
+              <li>
+                <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))} className={linkClass}>
+                  {t("footer.supportServer", "Ủng hộ máy chủ")}
+                </button>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.paypalUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  PayPal Checkout 💳
+                </a>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.kofiUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  Ko-fi Support ☕
+                </a>
+              </li>
+              <li>
+                <a href={DONATION_CONFIG.githubSponsorsUrl} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                  GitHub Sponsors 💖
+                </a>
+              </li>
+              <li><Link to="/terms-and-guide" className={linkClass}>{t("footer.termsAndGuide", "Điều khoản và hướng dẫn sử dụng")}</Link></li>
+            </ul>
+          </nav>
+
+          <nav aria-label={t("footer.partner", "Đối tác")}>
+            <p className={colTitleClass}>{t("footer.partner", "Đối tác")}</p>
+            <ul className="mt-2 flex flex-col">
+              <li>
+                <a
+                  href="https://hwagfu.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                >
+                  HWAGFU.dev
+                  <span className="material-symbols-outlined ml-1 text-[15px]" aria-hidden="true">north_east</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        {/* Hộp thư chuyên biệt theo nghiệp vụ */}
+        <div className="border-t border-border/70 pt-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-foreground mb-3">
+            {resolvedLang === "vi" ? "Hộp thư liên hệ & Hỗ trợ chuyên biệt" : (resolvedLang === "zh" ? "专属服务与支持邮箱" : "Specialized Inboxes & Direct Support")}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {Object.values(EMAIL_CHANNELS).map((channel) => (
+              <a
+                key={channel.id}
+                href={createMailtoUrl(channel.id, { lang: resolvedLang })}
+                className="group flex flex-col justify-between p-3.5 rounded-2xl border border-border/60 bg-card/60 hover:bg-card hover:border-primary/40 transition-all shadow-sm hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">
+                      {channel.icon}
+                    </span>
+                    <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                      {channel.label[resolvedLang] || channel.label.vi}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    {channel.description[resolvedLang] || channel.description.vi}
+                  </p>
+                </div>
+                <span className="mt-2 font-mono text-[11px] text-primary/80 group-hover:underline">
+                  {channel.address}
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <p className="border-t border-border pt-4 text-xs text-muted-foreground">
+          © {new Date().getFullYear()} {data.profile.fullName || "Hugo Wishpax"}
+        </p>
+      </div>
+    </footer>
+  );
+}

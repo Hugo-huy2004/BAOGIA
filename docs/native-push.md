@@ -11,10 +11,10 @@ native không có service worker để nhận. Vì vậy hai bản dùng hai đ�
 
 ## Đã có trong repo
 
-- `src/services/pushService.js` — một facade duy nhất. Call site không được tự
+- `apps/web/src/services/pushService.js` — một facade duy nhất. Call site không được tự
   phân nhánh theo nền tảng.
-- `src/config/platform.js` — `IS_NATIVE`, đặt lúc build qua `VITE_BUILD_TARGET`.
-- `server/models/NativePushDevice.js` — lưu token thiết bị native.
+- `apps/web/src/config/platform.js` — `IS_NATIVE`, đặt lúc build qua `VITE_BUILD_TARGET`.
+- `apps/server/models/NativePushDevice.js` — lưu token thiết bị native.
 - `POST /api/notifications/native/subscribe` và `/native/unsubscribe`
   (đều qua `requireMember`).
 
@@ -45,7 +45,7 @@ FCM tự chuyển tiếp sang APNs cho iOS.
 
 ## Khi có credential thì nối ở đâu
 
-`server/routes/notificationRoutes.js` hiện gửi web push bằng
+`apps/server/routes/notificationRoutes.js` hiện gửi web push bằng
 `webpush.sendNotification(sub.subscription, payload)`. Chỗ gửi cho native là
 truy vấn `NativePushDevice` theo email rồi gửi qua FCM — thêm song song, không
 thay thế, vì bản web vẫn phải chạy.

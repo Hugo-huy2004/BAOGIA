@@ -17,14 +17,14 @@ cron job sẽ chạy nhân đôi.)
 
 | Việc | File |
 |---|---|
-| Bỏ self-ping 24/7 (thủ phạm đốt hết quota giờ) | `server/server.js`, xoá `server/utils/keepAlive.js` |
-| Ping từ ngoài, chỉ trong khung 06:00–24:00 VN | `workers/keepalive/` |
-| Chốt chặn `Cache-Control: private, no-store` mặc định | `server/server.js` |
-| Python FastAPI chạy được trên Vercel | `python-ai-server/api/index.py`, `vercel.json`, `.vercelignore` |
-| Bộ nhớ HugoPSY ghi vào thư mục tạm (FS serverless chỉ đọc) | `python-ai-server/services/memory_service.py` |
+| Bỏ self-ping 24/7 (thủ phạm đốt hết quota giờ) | `apps/server/server.js`, xoá `apps/server/utils/keepAlive.js` |
+| Ping từ ngoài, chỉ trong khung 06:00–24:00 VN | `apps/workers/keepalive/` |
+| Chốt chặn `Cache-Control: private, no-store` mặc định | `apps/server/server.js` |
+| Python FastAPI chạy được trên Vercel | `apps/ai/api/index.py`, `vercel.json`, `.vercelignore` |
+| Bộ nhớ HugoPSY ghi vào thư mục tạm (FS serverless chỉ đọc) | `apps/ai/services/memory_service.py` |
 | Render chỉ còn build/chạy Node | `render.yaml`, `start.sh` (bỏ uvicorn, giữ lại file) |
 
-Kiểm tra chốt chặn cache: `node server/scripts/check-cache-headers.mjs`
+Kiểm tra chốt chặn cache: `node apps/server/scripts/check-cache-headers.mjs`
 
 ---
 
@@ -41,7 +41,7 @@ Project: **`<vercel-team>/hugostudio-ai`** → https://hugostudio-ai.vercel.app
 | `POST /api/ai/intent/classify` **có** `X-Internal-Key` | `200` trong 3.4s |
 | `GET /api/ai/chat/remaining` (đọc MongoDB) | `200` — `{"remaining":20,"max":20}` |
 
-Deploy lại về sau: `cd python-ai-server && npx vercel@latest deploy --prod`
+Deploy lại về sau: `cd apps/ai && npx vercel@latest deploy --prod`
 (CLI cài toàn cục đang là 41.4.1, quá cũ so với yêu cầu 47.2.2 của API — dùng
 `npx vercel@latest` hoặc `npm i -g vercel@latest`).
 
@@ -49,7 +49,7 @@ Biến môi trường đã nạp sẵn cho scope **Production**:
 
 | Biến | Ghi chú |
 |---|---|
-| `INTERNAL_API_KEY` | lấy từ `python-ai-server/.env` (trùng với `server/.env`) |
+| `INTERNAL_API_KEY` | lấy từ `apps/ai/.env` (trùng với `apps/server/.env`) |
 | `GEMINI_API_KEY`, `_2`, `_3` | 3 khoá xoay vòng |
 | `MONGODB_URI` | dùng cho rate-limit theo ngày (TTL index) |
 | `OPENROUTER_API_KEY` | provider dự phòng |
@@ -67,8 +67,8 @@ Giá trị cũ **không dùng được**: nó trùng đúng với `VITE_INTERNAL
 `VITE_*` bị Vite nhúng thẳng vào bundle trình duyệt — tìm thấy trong 4 file
 `dist/assets/*.js` đang phục vụ công khai. Ai xem source trang web cũng đọc được.
 
-Đã xử lý: sinh khoá mới bằng `openssl rand -hex 32`, cập nhật `server/.env`,
-`python-ai-server/.env` và Vercel production, deploy lại. Kiểm chứng: khoá cũ trả
+Đã xử lý: sinh khoá mới bằng `openssl rand -hex 32`, cập nhật `apps/server/.env`,
+`apps/ai/.env` và Vercel production, deploy lại. Kiểm chứng: khoá cũ trả
 `401`, khoá mới trả `200`.
 
 **Việc còn lại của bạn: thêm `INTERNAL_API_KEY` (khoá mới) vào Render.** Chưa thêm
@@ -76,14 +76,14 @@ thì mọi `/api/ai/*` sẽ trả 401 ngay khi `AI_SERVER_URL` trỏ sang Vercel
 
 Lấy lại giá trị bất cứ lúc nào:
 ```bash
-grep '^INTERNAL_API_KEY=' server/.env | cut -d= -f2- | tr -d '\n' | pbcopy
+grep '^INTERNAL_API_KEY=' apps/server/.env | cut -d= -f2- | tr -d '\n' | pbcopy
 ```
 
 **Dọn dẹp nên làm sau:** `VITE_INTERNAL_API_KEY` giờ là giá trị chết. Node **không
-hề** kiểm tra header `X-Internal-Key` (đã grep `server/middleware`, `server/server.js`
+hề** kiểm tra header `X-Internal-Key` (đã grep `apps/server/middleware`, `apps/server/server.js`
 — không có chỗ nào đọc), nên 4 chỗ ở frontend gửi header này là vô nghĩa:
-`src/services/api.js`, `src/services/classes/CompanionBot/AIBot.js`,
-`src/components/member/banhocduong/SleepTracker.jsx`, `DepressionCbtTherapy.jsx`.
+`apps/web/src/services/api.js`, `apps/web/src/services/classes/CompanionBot/AIBot.js`,
+`apps/web/src/components/member/banhocduong/SleepTracker.jsx`, `DepressionCbtTherapy.jsx`.
 Xoá cả biến lẫn header đi cho khỏi tưởng nhầm là có bảo mật.
 
 **Lưu ý:** `/ws/iot` trong `main.py` không chạy trên serverless. Nó là code chết —
@@ -119,7 +119,7 @@ trong dashboard thành `npm install --prefix server` (bỏ dòng `pip install`) 
 Xem log thật: `npx wrangler tail hugostudio-keepalive`
 
 ```bash
-cd workers/keepalive
+cd apps/workers/keepalive
 npx wrangler deploy
 ```
 
@@ -178,7 +178,7 @@ Bật thêm **Speed → Optimization → Brotli** và **Caching → Tiered Cache
 
 Rule kiểu `starts_with(path, "/api/")` sẽ cache luôn response chứa dữ liệu của
 một member cụ thể rồi trả nhầm cho người khác. Chốt chặn `private, no-store` ở
-`server/server.js` đã bịt lỗi này, nhưng whitelist là lớp phòng thủ thứ hai —
+`apps/server/server.js` đã bịt lỗi này, nhưng whitelist là lớp phòng thủ thứ hai —
 giữ cả hai.
 
 **Cố ý không cache `/api/today/feed`**: nó đổi nội dung theo header quốc gia
@@ -218,7 +218,7 @@ Theo thứ tự đáng làm tiếp:
 
    ⚠️ Phải test: cookie đang là host-only, lưu cho host `www.`. Gọi thẳng sang host
    `api.` thì cookie cũ không được gửi → **user đang đăng nhập bị đăng xuất một lần**.
-   Có Bearer token trong localStorage làm dự phòng (`src/services/api/core/authInterceptor.js`)
+   Có Bearer token trong localStorage làm dự phòng (`apps/web/src/services/api/core/authInterceptor.js`)
    nên có thể không ai để ý, nhưng phải thử thật trước khi đẩy production.
 
    > Ghi chú: `hugostudio.vn` **không có DNS**, không phân giải ra gì. Nó vẫn đang nằm

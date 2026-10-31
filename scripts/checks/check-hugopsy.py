@@ -11,7 +11,7 @@ client, không tin vào cái server định gửi.
 import asyncio, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(ROOT, "python-ai-server"))
+sys.path.insert(0, os.path.join(ROOT, "apps/ai"))
 from services.hugopsy_companion_engine import (  # noqa: E402
     hugopsy_engine as engine, CRISIS_RESPONSE_VI, TOPICS, detect_address, render,
 )
@@ -21,7 +21,7 @@ fails = []
 
 
 def client_parse(frames):
-    """Bản sao vòng đọc ở src/services/classes/CompanionBot/AIBot.js — tách theo
+    """Bản sao vòng đọc ở apps/web/src/services/classes/CompanionBot/AIBot.js — tách theo
     DÒNG, chỉ nhận dòng mở đầu bằng 'data: '. Sửa bên kia thì sửa cả đây."""
     out = ""
     for raw in "".join(frames).split("\n"):

@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { composeReply, isCrisis, CRISIS_RESPONSE, normalize, detectAddress, render } from '../../server/services/hugopsyFallback.js';
+import { composeReply, isCrisis, CRISIS_RESPONSE, normalize, detectAddress, render } from '../../apps/server/services/hugopsyFallback.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const fails = [];
@@ -17,9 +17,9 @@ const check = (name, ok, detail = '') => {
 };
 
 console.log('Hai bên dùng chung một kho tri thức');
-const shared = JSON.parse(fs.readFileSync(path.join(ROOT, 'shared/hugopsyKnowledge.json'), 'utf8'));
-const pyEngine = fs.readFileSync(path.join(ROOT, 'python-ai-server/services/hugopsy_companion_engine.py'), 'utf8');
-check('engine Python đọc shared/hugopsyKnowledge.json', pyEngine.includes('hugopsyKnowledge.json'));
+const shared = JSON.parse(fs.readFileSync(path.join(ROOT, 'packages/shared/hugopsyKnowledge.json'), 'utf8'));
+const pyEngine = fs.readFileSync(path.join(ROOT, 'apps/ai/services/hugopsy_companion_engine.py'), 'utf8');
+check('engine Python đọc packages/shared/hugopsyKnowledge.json', pyEngine.includes('hugopsyKnowledge.json'));
 check('Python không còn chép cứng từ khoá khủng hoảng', !/^CRISIS_TERMS = \[/m.test(pyEngine));
 check('kho có đủ 14 chủ đề', shared.topics.length >= 14, `${shared.topics.length} chủ đề`);
 
@@ -37,7 +37,7 @@ for (const num of ['096 306 1414', '111', '1900 599 830']) {
 
 console.log('\nKhông trả lời như cái máy');
 const canned = 'mình luôn ở đây để lắng nghe và đồng hành cùng bạn';
-const proxy = fs.readFileSync(path.join(ROOT, 'server/routes/aiProxyRoutes.js'), 'utf8');
+const proxy = fs.readFileSync(path.join(ROOT, 'apps/server/routes/aiProxyRoutes.js'), 'utf8');
 check('proxy không còn câu chào cố định', !proxy.includes(canned));
 check('proxy có kiểm tra khủng hoảng', proxy.includes('isCrisis('));
 
@@ -66,7 +66,7 @@ check('mặc định là cậu/tớ, đúng giọng phần còn lại của app'
 check('câu trả lời không còn sót chỗ trống', !/\{(user|self|User|Self)\}/.test(composeReply('em buồn quá')));
 check('tin khủng hoảng đổ được đại từ',
   !/\{(user|self|User|Self)\}/.test(render(CRISIS_RESPONSE, addr('em muốn chết'))));
-const proxySrc = fs.readFileSync(path.join(ROOT, 'server/routes/aiProxyRoutes.js'), 'utf8');
+const proxySrc = fs.readFileSync(path.join(ROOT, 'apps/server/routes/aiProxyRoutes.js'), 'utf8');
 check('proxy đổ đại từ trước khi gửi tin khủng hoảng', proxySrc.includes('render(CRISIS_RESPONSE'));
 
 console.log('\nChủ đề đặc thù Á Đông');
@@ -84,7 +84,7 @@ check('"tức ngực" không bị đọc thành cơn giận',
   !composeReply('dạo này em hay đau đầu tức ngực').includes('giận'));
 
 console.log('\nDấu hết luồng không lọt ra màn hình');
-const bot = fs.readFileSync(path.join(ROOT, 'src/services/classes/CompanionBot/AIBot.js'), 'utf8');
+const bot = fs.readFileSync(path.join(ROOT, 'apps/web/src/services/classes/CompanionBot/AIBot.js'), 'utf8');
 check('client bỏ qua "[DONE]"', (bot.match(/rawContent[^\n]*\[DONE\]/g) || []).length >= 2);
 check('không dùng return làm hỏng onDone', !/\[DONE\]"\)\s*return;/.test(bot));
 

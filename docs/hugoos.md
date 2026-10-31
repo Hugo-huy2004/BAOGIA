@@ -18,7 +18,7 @@ Không phải vì thiếu hiệu ứng. Vì mỗi app tự dựng chrome riêng:
 Cùng một portal mà mỗi app một cỡ chữ, một nút quay lại, một cách chừa
 safe-area. Sửa từng app là sửa mãi không hết; phải có một khung dùng chung.
 
-## Lớp nền: `src/components/member/os/`
+## Lớp nền: `apps/web/src/components/member/os/`
 
 | File | Việc |
 | --- | --- |
@@ -29,7 +29,7 @@ safe-area. Sửa từng app là sửa mãi không hết; phải có một khung 
 | `appPalette.js` | Màu nhấn và nền riêng cho từng app, trộn sẵn từ `tint` trong registry. |
 | `useDarkScheme.js` | Bắc cầu giữa class `dark` trên `<html>` và prop `scheme` của iosKit. |
 
-Nền màu vẫn là token `--ios-*` của `src/components/demos/iosKit.jsx`. iosKit là
+Nền màu vẫn là token `--ios-*` của `apps/web/src/components/demos/iosKit.jsx`. iosKit là
 ngôn ngữ thiết kế của cả HugoOS — sửa iosKit là toàn hệ đổi theo, đừng đẻ bộ
 component thứ hai.
 
@@ -46,7 +46,7 @@ Vẫn phẳng và tĩnh: toàn màu đặc, một màu nhấn, không gradient, 
 
 ## App toàn màn hình
 
-`FULLSCREEN_APP_IDS` trong `shared/appRegistry.js` là nguồn duy nhất. Danh sách
+`FULLSCREEN_APP_IDS` trong `packages/shared/appRegistry.js` là nguồn duy nhất. Danh sách
 này từng nằm hardcode ở cả `MemberPortalPage` lẫn `MemberUtilitiesTab` và đã
 lệch nhau — Supporter chỉ có ở một bên, nên app dựng vỏ `h-full` bên trong một
 trang vẫn còn đệm và thanh tab, ra một khoảng đen thừa dưới đáy.
@@ -71,7 +71,7 @@ dùng thì đừng thêm trang chủ. HugoKit là ví dụ — bốn công cụ,
 
 ## Spotlight tìm được vào bên trong app
 
-`shared/appRegistry.js` giờ có `destinations` cho mỗi manifest, gom lại thành
+`packages/shared/appRegistry.js` giờ có `destinations` cho mỗi manifest, gom lại thành
 `APP_DESTINATIONS`. Gõ "QR" trong Spotlight ra thẳng công cụ QR của HugoKit chứ
 không dừng ở tên app.
 
@@ -92,7 +92,7 @@ có trong `core.json` của vi/en vì nhãn điều hướng phải hiện ngay 
 
 ## Đã chuyển sang HugoOS
 
-**Trung Tâm Hỗ Trợ** (`src/components/member/support/SupportCenterApp.jsx`) —
+**Trung Tâm Hỗ Trợ** (`apps/web/src/components/member/support/SupportCenterApp.jsx`) —
 app tham chiếu. Ba tab: Trang chủ / Hướng dẫn / Yêu cầu. Id vẫn là `supporter`
 để icon đã cài và bookmark cũ không hỏng.
 
@@ -148,9 +148,9 @@ Mỗi đợt: khai báo `destinations` trong registry cho app đó, và gọi
 Nguyên tắc: gõ `hugowishpax.studio/<tên-app>` là trải nghiệm được ngay, không
 cần tài khoản; đăng nhập mới bỏ giới hạn. Hạ tầng đã có sẵn, ba mảnh:
 
-1. Một mục trong `src/config/publicTools.ts` (tiêu đề ≤ 65 ký tự — `check:seo`
+1. Một mục trong `apps/web/src/config/publicTools.ts` (tiêu đề ≤ 65 ký tự — `check:seo`
    bắt buộc — mô tả, `heading`, `summary`, và `gate`).
-2. Một nhánh trong `src/pages/public/UtilityPublicPage.jsx` dựng app đó với
+2. Một nhánh trong `apps/web/src/pages/public/UtilityPublicPage.jsx` dựng app đó với
    `isGuestMode` + `requireAccount`.
 3. Một rewrite trong `vercel.json` trỏ `/<slug>` sang `/<slug>/index.html`
    (HTML tĩnh do `scripts/generate-seo.mjs` sinh ra từ chính registry trên).

@@ -14,8 +14,8 @@ run("npm", ["run", "check:seo:portfolio"]);
 // Upload only the finished public site, without the service site's API or env files.
 const stage = fs.mkdtempSync(path.join(os.tmpdir(), "hugo-portfolio-deploy-"));
 try {
-  fs.cpSync(path.join(root, "dist-portfolio"), stage, { recursive: true });
-  const config = JSON.parse(fs.readFileSync(path.join(root, "deploy/portfolio.vercel.json"), "utf8"));
+  fs.cpSync(path.join(root, "apps/web/dist-portfolio"), stage, { recursive: true });
+  const config = JSON.parse(fs.readFileSync(path.join(root, "apps/web/deploy/portfolio.vercel.json"), "utf8"));
   Object.assign(config, { framework: null, buildCommand: "", installCommand: "", outputDirectory: "." });
   fs.writeFileSync(path.join(stage, "vercel.json"), JSON.stringify(config, null, 2) + "\n");
   run("vercel", ["deploy", "--prod", "--yes", "--project", "hugo-portfolio", "--scope", "hugo-huy2004s-projects"], stage);

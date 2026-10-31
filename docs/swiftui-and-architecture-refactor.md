@@ -17,7 +17,7 @@ Mô phỏng trải nghiệm người dùng tự nhiên của SwiftUI trên nền
   - Foreground tam cấp (`.swiftui-fg-tertiary`): chú thích mờ, placeholder.
 - **Tương Tác Đàn Hồi (Haptic & Spring)**: Phản hồi chạm nảy nhẹ (`active:scale-[0.98]` và `active:scale-[0.96]`) với đường cong chuyển động vật lý `cubic-bezier(0.32, 0.72, 0, 1)`.
 
-### 2. Các Thành Phần Trong `src/components/ui/swiftui/`
+### 2. Các Thành Phần Trong `apps/web/src/components/ui/swiftui/`
 - **`SwiftUIGlass`**: Vỏ container kính mờ Liquid Glass sang trọng với viền phản quang specular highlight.
 - **`SwiftUISection`**: Khung nhóm Inset Grouped Section theo phong cách Settings / Form trong iOS, tự động chèn divider hairline giữa các hàng.
 - **`SwiftUIRow`**: Dòng hiển thị chuẩn iOS với Icon badge bo góc squircle, Title, Subtitle, Value, Action trailing và Chevron.
@@ -41,18 +41,18 @@ Dựa trên bài viết *"5 quy tắc cơ bản trong xây dựng cấu trúc m�
   - `middlewares/`: Kiểm tra xác thực, quyền hạn, rate limit.
 
 ### Quy tắc 2: Không đặt logic nặng trong Entry File (`server.js`)
-- `server/server.js` trước đây dài 553 dòng, chứa cả logic khởi tạo HTTP Server, cấu hình CORS phức tạp, kết nối DB, kiểm tra slug cache, và bộ xử lý WebSocket nâng cấp (WebSocket upgrade dispatcher).
+- `apps/server/server.js` trước đây dài 553 dòng, chứa cả logic khởi tạo HTTP Server, cấu hình CORS phức tạp, kết nối DB, kiểm tra slug cache, và bộ xử lý WebSocket nâng cấp (WebSocket upgrade dispatcher).
 - **Hành động tái cấu trúc**:
-  - Tách toàn bộ cơ chế WebSocket sang `server/services/websocketServer.js` (quản lý kết nối `/ws` và `/ws/chess`, theo dõi heartbeat ping/pong, vitals relay).
-  - Tách kết nối MongoDB sang `server/config/database.js`.
-  - Tách cấu hình CORS sang `server/config/cors.js`.
+  - Tách toàn bộ cơ chế WebSocket sang `apps/server/services/websocketServer.js` (quản lý kết nối `/ws` và `/ws/chess`, theo dõi heartbeat ping/pong, vitals relay).
+  - Tách kết nối MongoDB sang `apps/server/config/database.js`.
+  - Tách cấu hình CORS sang `apps/server/config/cors.js`.
   - Giảm `server.js` từ 553 dòng xuống còn 297 dòng — chỉ giữ vai trò kết nối middleware, đăng ký route và khởi chạy listen trên cổng **8099**.
 
 ### Quy tắc 3: Tránh lồng Callback (Callback Hell) & Quản Lý Async/Await Đồng Bộ
-- Mọi hàm trong `server/config/` và `server/services/` đều sử dụng chuẩn `async/await` với `try/catch` có log lỗi chi tiết, không dùng callback lồng nhau.
+- Mọi hàm trong `apps/server/config/` và `apps/server/services/` đều sử dụng chuẩn `async/await` với `try/catch` có log lỗi chi tiết, không dùng callback lồng nhau.
 
 ### Quy tắc 4: Tập trung cấu hình trong thư mục `config/`
-- Tạo mới thư mục `server/config/`:
+- Tạo mới thư mục `apps/server/config/`:
   - `database.js`: Cấu hình kết nối MongoDB, connection pool (`maxPoolSize: 50`), warmup slug cache, và tự động tạo admin khởi tạo nếu thiếu.
   - `cors.js`: Quản lý danh sách origin được phép, regex origin, và hàm tuỳ biến riêng biệt cho `/api/oauth` và API chung.
   - `limiter.js`: Cấu hình rate limit toàn cục bảo vệ máy chủ.

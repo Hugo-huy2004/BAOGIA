@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const isPortfolio = process.env.SITE_TARGET === "portfolio";
-const DIST = path.join(ROOT, isPortfolio ? "dist-portfolio" : "dist");
+const DIST = path.join(ROOT, isPortfolio ? "apps/web/dist-portfolio" : "apps/web/dist");
 const ORIGIN = isPortfolio ? "https://portfolio.hugowishpax.studio" : "https://www.hugowishpax.studio";
 const errors = [];
 

@@ -5,7 +5,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const LOCALES_DIR = path.join(ROOT, "src/i18n/locales");
+const LOCALES_DIR = path.join(ROOT, "apps/web/src/i18n/locales");
 const CHECKPOINT_DIR = path.join(os.tmpdir(), "hugo-member-i18n");
 const MODEL = process.env.HUGO_TRANSLATION_MODEL || "qwen2.5:3b";
 const OLLAMA_URL = process.env.HUGO_OLLAMA_URL || "http://127.0.0.1:11434";
@@ -13,7 +13,7 @@ const START_FRESH = process.env.HUGO_TRANSLATION_FRESH === "1";
 const FINALIZE_PARTIAL = process.env.HUGO_TRANSLATION_FINALIZE_PARTIAL === "1";
 // Chỉ còn BA ngôn ngữ chính: vi (nguồn), en (viết tay), zh (dịch ở đây).
 // Sáu đích cũ (th, ja, ko, id, es, fr) đã gỡ khỏi SUPPORTED_LANGUAGES
-// (src/i18n/languages.js) — để lại ở đây thì lần chạy sau lại sinh ra 6 bộ
+// (apps/web/src/i18n/languages.js) — để lại ở đây thì lần chạy sau lại sinh ra 6 bộ
 // locale mà app không bao giờ nạp.
 const TARGETS = {
   zh: "Simplified Chinese for Mainland China",

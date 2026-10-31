@@ -8,5 +8,5 @@
 # `bash start.sh` trong ô Start Command của dashboard — xoá đi là deploy kế tiếp
 # chết ngay với "start.sh: No such file or directory".
 set -e
-cd "$(dirname "${BASH_SOURCE[0]}")/server"
+cd "$(dirname "${BASH_SOURCE[0]}")/apps/server"
 exec node server.js

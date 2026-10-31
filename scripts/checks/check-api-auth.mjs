@@ -18,7 +18,7 @@ import assert from "node:assert/strict";
 
 // Import only the pure decision function; the module's browser-facing parts are
 // never touched here.
-const { authDecision } = await import("../../src/services/api/core/authHeaders.js");
+const { authDecision } = await import("../../apps/web/src/services/api/core/authHeaders.js");
 
 const TOKEN = "live-token-123";
 
@@ -74,7 +74,7 @@ console.log("check-api-auth: 8 nhóm assertion đều đạt.");
 // Execute the real browser modules with small in-memory browser/transport stubs.
 const { readFileSync } = await import('node:fs');
 const { runInNewContext } = await import('node:vm');
-const { ApiError, readApiResponse } = await import('../../src/services/api/core/apiResponse.js');
+const { ApiError, readApiResponse } = await import('../../apps/web/src/services/api/core/apiResponse.js');
 await assert.rejects(
   readApiResponse(new Response('Gateway asleep', {status: 503})),
   error => error instanceof ApiError
@@ -98,7 +98,7 @@ const storage = () => {
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
 };
 const local = storage(), session = storage();
-const auth = browserModule('src/services/api/core/authSession.js', ['loginMember', 'getMemberSession'], {
+const auth = browserModule('apps/web/src/services/api/core/authSession.js', ['loginMember', 'getMemberSession'], {
   localStorage: local, sessionStorage: session, isCrossOriginApi: false, API_BASE: '/api',
   fetch: async () => Response.json({success: true}),
 });
@@ -112,7 +112,7 @@ const win = {
   location: { origin: 'https://example.com' },
   fetch: () => new Promise(resolve => { pending = resolve; }),
 };
-const interceptor = browserModule('src/services/api/core/authInterceptor.js', ['installApiAuthInterceptor'], {
+const interceptor = browserModule('apps/web/src/services/api/core/authInterceptor.js', ['installApiAuthInterceptor'], {
   window: win, getMemberToken: () => currentToken, getAdminToken: () => null, getAdminSession: () => adminSession,
   clearMemberSession: () => { currentToken = null; }, clearAdminSession: () => { adminCleared = true; adminSession = null; }, authDecision,
   recordApiOutcome: () => {}, reportClientEvent: () => {}, SLOW_API_MS: Infinity,
@@ -145,8 +145,8 @@ pending(json401('AUTH_SESSION_INVALID', 'admin')); await request;
 assert.equal(adminCleared, false, 'late admin 401 cannot erase a newer login');
 
 for (const [file, names, expression] of [
-  ['src/services/api/core/apiClient.js', ['apiFetch'], module => module.apiFetch('/bios/me')],
-  ['src/services/api/core/baseApi.js', ['api'], module => module.api.get('/bios/me')],
+  ['apps/web/src/services/api/core/apiClient.js', ['apiFetch'], module => module.apiFetch('/bios/me')],
+  ['apps/web/src/services/api/core/baseApi.js', ['api'], module => module.api.get('/bios/me')],
 ]) {
   local.setItem('price-doc-member-session', JSON.stringify({token: 'valid'}));
   const module = browserModule(file, names, {
@@ -179,7 +179,7 @@ const platformWindow = {
     return media.get(query);
   },
 };
-const platform = browserModule('src/config/platform.js', ['isStandalone', 'subscribeDisplayMode'], {
+const platform = browserModule('apps/web/src/config/platform.js', ['isStandalone', 'subscribeDisplayMode'], {
   window: platformWindow, navigator: {userAgent: 'Android'},
 });
 assert.equal(platform.isStandalone(), false, 'source=pwa alone is not installed mode');
@@ -196,11 +196,11 @@ assert.equal(platform.isStandalone(), true);
 dispose();
 assert.ok([...media.values()].every(value => !value.listener), 'display listeners are disposed');
 platformWindow.location.search = '';
-const plainTab = browserModule('src/config/platform.js', ['isStandalone'], {window: platformWindow, navigator: {userAgent: 'Android'}});
+const plainTab = browserModule('apps/web/src/config/platform.js', ['isStandalone'], {window: platformWindow, navigator: {userAgent: 'Android'}});
 mode = 'fullscreen';
 assert.equal(plainTab.isStandalone(), false, 'fullscreen mobile browser is still web');
 
-const {requireMemberSession, requireMember} = await import('../../server/middleware/authMiddleware.js');
+const {requireMemberSession, requireMember} = await import('../../apps/server/middleware/authMiddleware.js');
 // Chưa nối DB ở đây: request MANG phiên phải nhận 503 (thử lại), không phải 401
 // (401 làm client xoá phiên). Request không mang phiên thì 401 mà không chạm DB.
 for (const middleware of [requireMemberSession, requireMember]) {
@@ -213,6 +213,6 @@ for (const middleware of [requireMemberSession, requireMember]) {
 }
 console.log('check-api-auth: session races, permission failures, display modes and database outages passed.');
 
-const serverSource = readFileSync(new URL('../../server/server.js', import.meta.url), 'utf8');
+const serverSource = readFileSync(new URL('../../apps/server/server.js', import.meta.url), 'utf8');
 assert.equal(serverSource.includes('jwt.decode(token)'), false, 'WebSocket must never trust an unverified JWT payload');
 console.log('check-api-auth: WebSocket rejects unsigned and expired token payloads.');

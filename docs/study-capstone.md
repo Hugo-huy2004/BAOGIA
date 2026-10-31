@@ -4,7 +4,7 @@ Tài liệu cho phần cá nhân hoá của giáo trình 100 bài. Đọc cùng 
 
 ## Đề tài tốt nghiệp
 
-`shared/capstoneTracks.js` là nguồn duy nhất. Năm đề tài: thư viện sách, cửa
+`packages/shared/capstoneTracks.js` là nguồn duy nhất. Năm đề tài: thư viện sách, cửa
 hàng trực tuyến, đặt lịch phòng khám, cộng đồng học tập, kho và đơn nhập hàng.
 
 Bài 71–90 vẫn dạy **một bộ khung kỹ thuật chung** — không fork hai mươi bài cho
@@ -43,7 +43,7 @@ thật.
 
 ## Hình thức kiểm tra
 
-`shared/quizKinds.js` là hợp đồng dữ liệu và bộ chấm cho tám dạng câu hỏi.
+`packages/shared/quizKinds.js` là hợp đồng dữ liệu và bộ chấm cho tám dạng câu hỏi.
 Câu hỏi **không có** `kind` vẫn là trắc nghiệm một đáp án, nên 471 câu cũ chạy y
 như trước — không phải sửa gì.
 
@@ -147,7 +147,7 @@ Không phải bài nào cũng nên có câu hỏi qua môn. "Vì sao mô hình b
 thuyết phục" hay "khi nào KHÔNG nên dùng agent" là hiểu biết cần đọc kỹ, và mọi
 cách đặt câu hỏi bốn lựa chọn cho chúng đều biến thành mẹo nhớ từ khoá.
 
-`shared/readingLessons.js` khai bài nào qua bằng đọc và đọc bài viết nào. Hiện
+`packages/shared/readingLessons.js` khai bài nào qua bằng đọc và đọc bài viết nào. Hiện
 có năm bài, đều thuộc phần AI: 61, 62, 86, 87, 88.
 
 **Thời gian do máy chủ đo.** `ReadingSession` ghi mốc bắt đầu khi mở bài;
@@ -226,7 +226,7 @@ Năm bài đầu tiên, tất cả về AI (đúng phần giáo trình còn mỏ
 Mỗi bài 640–780 từ, đặt `readingMinutes: 5`. Con số đó dựa trên ~120 từ/phút cho
 văn bản kỹ thuật tiếng Việt có khối mã và bảng — chậm hơn văn xuôi thường.
 
-Nạp bằng `node server/scripts/seed-coder-resources.mjs` (chạy trong thư mục
+Nạp bằng `node apps/server/scripts/seed-coder-resources.mjs` (chạy trong thư mục
 `server/`). Chạy lại nhiều lần được: bài biên soạn khớp theo `title`, link tham
 khảo khớp theo `url`.
 

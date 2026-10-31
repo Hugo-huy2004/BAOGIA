@@ -59,7 +59,7 @@ if (target) {
   process.exit(0);
 }
 
-const counts = sourceFiles("src")
+const counts = sourceFiles("apps/web/src")
   .map((file) => [file, hardcodedStrings(file).length])
   .filter(([, count]) => count > 0)
   .sort((a, b) => b[1] - a[1]);

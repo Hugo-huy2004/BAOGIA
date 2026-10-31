@@ -19,7 +19,7 @@ npm run build:analyze    # build + bundle treemap at dist/stats.html
 npm run check:all        # lint + import check + build + SEO + performance budget
 
 # Python AI server (port 8000)
-cd python-ai-server && source .venv/bin/activate && uvicorn main:app --port 8000
+cd apps/ai && source .venv/bin/activate && uvicorn main:app --port 8000
 ```
 
 Repo KHÔNG có test tự động — toàn bộ bộ test cùng vitest đã bị gỡ ngày
@@ -56,16 +56,16 @@ and status 200, so `/api/*` "succeeds" with a web page instead of JSON. Python i
 Never add a dev-proxy rule that points the browser straight at Python: it
 bypasses `requireMember` and needs an internal key the client must not hold.
 
-- `src/` — React 18 + Vite SPA. Tailwind, Zustand (`src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next with `en`/`vi` locales in `src/i18n/locales/`.
-- `src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `vite.portfolio.config.js` và `deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại ba PDF trong `public/` bằng `npm run cv:pdf` trước build khi sửa CV.
-- `server/` — Express + Mongoose + WebSocket (port 8099). Routes in `server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`.
-- `python-ai-server/` — FastAPI (port 8000). Reached only through Node: `server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
+- `src/` — React 18 + Vite SPA. Tailwind, Zustand (`apps/web/src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next with `en`/`vi` locales in `apps/web/src/i18n/locales/`.
+- `apps/web/src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `vite.portfolio.config.js` và `deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại ba PDF trong `public/` bằng `npm run cv:pdf` trước build khi sửa CV.
+- `server/` — Express + Mongoose + WebSocket (port 8099). Routes in `apps/server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`.
+- `apps/ai/` — FastAPI (port 8000). Reached only through Node: `apps/server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `apps/server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
 - `api/` — Vercel serverless (only `/pay` redirect).
 
 Deploy split (see `docs/tach-tai-render.md`): Render runs **only** Node (it bills by
 the hour, and one always-on free service already eats 730 of the 750h/month quota);
-`python-ai-server/` deploys to Vercel as a serverless function and Node reaches it
-over `AI_SERVER_URL`. Keep-warm lives in `workers/keepalive/` (a Cloudflare Worker
+`apps/ai/` deploys to Vercel as a serverless function and Node reaches it
+over `AI_SERVER_URL`. Keep-warm lives in `apps/workers/keepalive/` (a Cloudflare Worker
 cron), never as a self-ping inside the server. Anything new that doesn't need a
 long-lived process belongs on Vercel/Cloudflare, not Render.
 
@@ -73,24 +73,24 @@ The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-
 
 ### Auth (do not bypass)
 
-Better Auth (`server/auth/betterAuth.js`), two separate instances — never merge them:
+Better Auth (`apps/server/auth/betterAuth.js`), two separate instances — never merge them:
 
-- **Member**: `/api/auth/*`, cookie `hugo.*`, collections `user/session/account/verification/passkey`. Google ID token (`sign-in/social` with `idToken`) and passkey — **no member email OTP** (it was an open email-bombing endpoint the UI never used); `bearer()` for the Capacitor app; `oneTimeToken` carries the Safari session into a freshly installed iOS PWA via `/api/pwa-manifest?handoff=` (`src/utils/appHandoff.js`). Login endpoints have tighter `rateLimit.customRules`. Creating a user creates its Bio (`databaseHooks`). Every member route uses `requireMember` (`server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param.
-- **Admin**: `/api/admin-auth/*`, cookie `hugo-admin.*`, collections `admin_*`. No passwords, no Telegram: a 6-digit code to the admin's own email (`emailOTP`, sign-up disabled). Roles come from `shared/adminAccess.js` through the admin plugin; one admin may hold several (`"support,finance"`), permissions are their union. `requireAdmin` sets `req.admin`. Only owners manage accounts. First owner: set `ADMIN_SEED_EMAIL` and start the server once.
+- **Member**: `/api/auth/*`, cookie `hugo.*`, collections `user/session/account/verification/passkey`. Google ID token (`sign-in/social` with `idToken`) and passkey — **no member email OTP** (it was an open email-bombing endpoint the UI never used); `bearer()` for the Capacitor app; `oneTimeToken` carries the Safari session into a freshly installed iOS PWA via `/api/pwa-manifest?handoff=` (`apps/web/src/utils/appHandoff.js`). Login endpoints have tighter `rateLimit.customRules`. Creating a user creates its Bio (`databaseHooks`). Every member route uses `requireMember` (`apps/server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param.
+- **Admin**: `/api/admin-auth/*`, cookie `hugo-admin.*`, collections `admin_*`. No passwords, no Telegram: a 6-digit code to the admin's own email (`emailOTP`, sign-up disabled). Roles come from `packages/shared/adminAccess.js` through the admin plugin; one admin may hold several (`"support,finance"`), permissions are their union. `requireAdmin` sets `req.admin`. Only owners manage accounts. First owner: set `ADMIN_SEED_EMAIL` and start the server once.
 - Customer portal keeps its own JWT (`customer_jwt`, `requireCustomer`).
 - Hot paths (load shield, IP gate) only check the session cookie's signature (`signedSessionRole`), no DB.
-- Frontend: keep using `src/services/api/core/authSession.js`; the Better Auth clients live in `src/lib/authClient.js` (import it dynamically).
-- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: root `.env` (frontend `VITE_*`), `server/.env` (backend).
-- `server/.env` points `MONGODB_URI` at the **real Atlas DB**. Run local experiments with `MONGODB_URI=mongodb://localhost:27017/hugo_wishpax`.
+- Frontend: keep using `apps/web/src/services/api/core/authSession.js`; the Better Auth clients live in `apps/web/src/lib/authClient.js` (import it dynamically).
+- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`apps/server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: root `.env` (frontend `VITE_*`), `apps/server/.env` (backend).
+- `apps/server/.env` points `MONGODB_URI` at the **real Atlas DB**. Run local experiments with `MONGODB_URI=mongodb://localhost:27017/hugo_wishpax`.
 
 ### Conventions
 
-- **Notifications**: one API — `import { notify } from "src/lib/notify"` (`notify.success/error/warning/info/loading/confirm`). Never import `react-hot-toast` directly in components; `notify.confirm()` replaces `window.confirm` and bespoke confirm modals.
-- **AI calls**: all Gemini usage on the Node side routes through `server/services/aiGateway.js` (quota, cache, retry, model downgrade, kill-switch). Don't call the Gemini SDK directly from route handlers.
-- **Buttons / Liquid Glass**: every `<button>`/`[role=button]` already gets the iOS press feel (scale + spring + highlight) from `src/lib/liquidGlass/LiquidPressEngine.js`, started once in `main.jsx` — don't add per-button `active:scale-*`. Glass surfaces use `.lg-glass`, `.lg-glass--prominent`, `.lg-glass--clear` (`src/styles/liquidGlass.css`). Opt a region out (game boards, drag surfaces) with `data-lg-off`. Default framer-motion transition is an iOS spring set by `MotionConfig` in `App.jsx`.
+- **Notifications**: one API — `import { notify } from "apps/web/src/lib/notify"` (`notify.success/error/warning/info/loading/confirm`). Never import `react-hot-toast` directly in components; `notify.confirm()` replaces `window.confirm` and bespoke confirm modals.
+- **AI calls**: all Gemini usage on the Node side routes through `apps/server/services/aiGateway.js` (quota, cache, retry, model downgrade, kill-switch). Don't call the Gemini SDK directly from route handlers.
+- **Buttons / Liquid Glass**: every `<button>`/`[role=button]` already gets the iOS press feel (scale + spring + highlight) from `apps/web/src/lib/liquidGlass/LiquidPressEngine.js`, started once in `main.jsx` — don't add per-button `active:scale-*`. Glass surfaces use `.lg-glass`, `.lg-glass--prominent`, `.lg-glass--clear` (`apps/web/src/styles/liquidGlass.css`). Opt a region out (game boards, drag surfaces) with `data-lg-off`. Default framer-motion transition is an iOS spring set by `MotionConfig` in `App.jsx`.
 - **Icons**: monochrome Material Symbols only (`bg-muted`, `text-foreground`) on public pages — no emoji, no colorful icon badges.
-- **Public portfolio pages** (`src/pages/public/IntroductionPage.jsx`, `ServicesPage.jsx`): prices and copy are author-written — don't change them without asking; UI-only changes are fine.
-- **JOY wallet/QR**: QR payloads are opaque server-signed HMAC tokens (`server/utils/joyQrToken.js`); the client never constructs or parses them.
+- **Public portfolio pages** (`apps/web/src/pages/public/IntroductionPage.jsx`, `ServicesPage.jsx`): prices and copy are author-written — don't change them without asking; UI-only changes are fine.
+- **JOY wallet/QR**: QR payloads are opaque server-signed HMAC tokens (`apps/server/utils/joyQrToken.js`); the client never constructs or parses them.
 
 ## gstack
 
@@ -112,5 +112,5 @@ product work:
 
 Gstack is the virtual product and engineering team used to build this repo. It
 is not imported into the production application. Production AI employees live
-behind Node admin routes, use `server/services/aiGateway.js`, and must follow
+behind Node admin routes, use `apps/server/services/aiGateway.js`, and must follow
 the approval and audit rules in `docs/ai-workforce.md`.

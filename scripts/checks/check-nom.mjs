@@ -16,8 +16,8 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 let failed = 0;
 const check = (ok, label) => { console.log(`${ok ? '✅' : '❌'} ${label}`); if (!ok) failed++; };
 
-const nom = read('src/i18n/locales/nom/translation.json');
-const glossary = read('data/nom-glossary.json');
+const nom = read('apps/web/src/i18n/locales/nom/translation.json');
+const glossary = read('packages/nom-data/nom-glossary.json');
 
 // ── 1. BẢNG SOẠN TAY LÀNH LẶN ───────────────────────────────────────────────
 const empties = Object.entries(glossary).filter(([, v]) => !String(v || '').trim());
@@ -49,7 +49,7 @@ check(halfDone.length === 0,
 // ── 3. MỌI CHỮ ĐỀU CÓ TRONG PHÔNG ĐÃ CẮT ────────────────────────────────────
 // Đây là bài kiểm quan trọng nhất: thiếu một chữ trong phông thì nó hiện thành
 // ô vuông rỗng, và KHÔNG gì báo cả — người dùng chỉ thấy một lỗ trên màn hình.
-const fontPath = path.join(ROOT, 'public/fonts/NomNaTong-subset.woff');
+const fontPath = path.join(ROOT, 'apps/web/public/fonts/NomNaTong-subset.woff');
 check(fs.existsSync(fontPath), 'phông đã cắt có mặt trong kho mã');
 
 const used = new Set();

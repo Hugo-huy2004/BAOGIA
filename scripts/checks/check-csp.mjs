@@ -19,7 +19,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
-const DIST = path.join(ROOT, "dist");
+const DIST = path.join(ROOT, "apps/web/dist");
 
 const htmlFiles = [];
 (function walk(dir) {

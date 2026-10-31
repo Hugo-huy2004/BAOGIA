@@ -11,7 +11,7 @@ import {
   encodePayload,
   decodeParticleCloudFrame,
   bytesToBase64Url,
-} from "../../src/utils/particleCloudCode.js";
+} from "../../apps/web/src/utils/particleCloudCode.js";
 import assert from "node:assert";
 
 // Must mirror ParticleGenerator.jsx.

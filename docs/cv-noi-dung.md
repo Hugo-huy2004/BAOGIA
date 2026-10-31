@@ -2,7 +2,7 @@
 
 Nguồn nội dung và bố cục: [`public/cv/index.html`](../public/cv/index.html). Thanh công cụ đổi ngôn ngữ, xem PDF và tải PDF: [`public/cv/cv.js`](../public/cv/cv.js).
 
-Riêng kỹ năng quản lý tại [`src/data/profileSkills.js`](../src/data/profileSkills.js): ba nhóm dùng trong dự án web, đã thực hành theo dự án và công cụ làm việc. Portfolio đọc trực tiếp; lệnh xuất PDF tự đồng bộ vào HTML bằng `scripts/sync-profile-skills.mjs`. Sửa tên, mô tả, công nghệ và dự án liên quan ở một nơi này, không sửa tay các khối `skills:*` trong HTML. Không dùng phần trăm hay mức tự nhận thành thạo, không liệt kê kỹ năng mềm và AI chung chung.
+Riêng kỹ năng quản lý tại [`apps/web/src/data/profileSkills.js`](../src/data/profileSkills.js): ba nhóm dùng trong dự án web, đã thực hành theo dự án và công cụ làm việc. Portfolio đọc trực tiếp; lệnh xuất PDF tự đồng bộ vào HTML bằng `scripts/sync-profile-skills.mjs`. Sửa tên, mô tả, công nghệ và dự án liên quan ở một nơi này, không sửa tay các khối `skills:*` trong HTML. Không dùng phần trăm hay mức tự nhận thành thạo, không liệt kê kỹ năng mềm và AI chung chung.
 
 CV tập trung thực tập lập trình web, với học vấn, kỹ năng và bốn dự án tiêu biểu. Các dự án còn lại nằm trên portfolio. Dự án cá nhân và bài tập môn học được ghi đúng loại, không coi là kinh nghiệm làm việc tại công ty.
 

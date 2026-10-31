@@ -1,12 +1,12 @@
 // Dựng bản dịch chữ Nôm từ hai nguồn, rồi ghi ra locales/nom/translation.json.
 //
 // ── HAI NGUỒN, HAI ĐỘ TIN CẬY KHÁC NHAU ─────────────────────────────────────
-//   1. BẢNG SOẠN TAY (data/nom-glossary.json) — người soạn, đã tra. Ưu tiên
+//   1. BẢNG SOẠN TAY (packages/nom-data/nom-glossary.json) — người soạn, đã tra. Ưu tiên
 //      tuyệt đối. Đây là nơi chứa từ vựng HIỆN ĐẠI mà chữ Nôm chưa từng có:
 //      "đăng nhập", "tài khoản", "giao diện"… Chữ Nôm thôi được viết từ đầu
 //      thế kỷ XX, trước khi những khái niệm này ra đời, nên KHÔNG kho ngữ liệu
 //      cổ nào chứa chúng — buộc phải soạn theo từ nguyên Hán Việt.
-//   2. KHO NGỮ LIỆU SONG SONG (data/nom-corpus-table.json) — rút từ 54.777 cặp
+//   2. KHO NGỮ LIỆU SONG SONG (packages/nom-data/nom-corpus-table.json) — rút từ 54.777 cặp
 //      Nôm ↔ quốc ngữ căn khớp từng chữ. Chỉ nhận cụm TỪ HAI ÂM TRỞ LÊN: cụm
 //      một âm là nơi đồng âm nhiều nhất, tra rời ra thì "thành công" thành
 //      城公 (thành trì + công bằng), sai cả hai chữ.
@@ -24,9 +24,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 
-const glossary = read('data/nom-glossary.json');
-const corpus = fs.existsSync(path.join(ROOT, 'data/nom-corpus-table.json'))
-  ? read('data/nom-corpus-table.json') : {};
+const glossary = read('packages/nom-data/nom-glossary.json');
+const corpus = fs.existsSync(path.join(ROOT, 'packages/nom-data/nom-corpus-table.json'))
+  ? read('packages/nom-data/nom-corpus-table.json') : {};
 
 /**
  * Kho ÂM TIẾT tiếng Việt có chữ Nôm chứng thực (7.048 âm).
@@ -41,7 +41,7 @@ const corpus = fs.existsSync(path.join(ROOT, 'data/nom-corpus-table.json'))
  * Bản đầu gộp cả hai vào một rọ và bỏ mọi chuỗi có chứa chúng — chính luật đó,
  * chứ không phải thiếu dữ liệu, đã giữ độ phủ ở mức 31%.
  */
-const VIET_SYLLABLES = new Set(read('data/nom-syllables.json'));
+const VIET_SYLLABLES = new Set(read('packages/nom-data/nom-syllables.json'));
 const VIET_MARKS = /[àáâãèéêìíòóôõùúýăđĩũơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
 const isVietnamese = (token) => VIET_SYLLABLES.has(token) || VIET_MARKS.test(token);
 
@@ -156,7 +156,7 @@ function segment(seg) {
   return parts.join('');
 }
 
-const vi = read('src/i18n/locales/vi/translation.json');
+const vi = read('apps/web/src/i18n/locales/vi/translation.json');
 let total = 0;
 let done = 0;
 
@@ -193,7 +193,7 @@ const tree = walk(vi) || {};
 tree.__locale = 'nom';
 tree.__note = 'Sinh bằng scripts/build-nom-locale.mjs. Khoá thiếu là CÓ CHỦ Ý — rơi về quốc ngữ.';
 
-const OUT = path.join(ROOT, 'src/i18n/locales/nom/translation.json');
+const OUT = path.join(ROOT, 'apps/web/src/i18n/locales/nom/translation.json');
 fs.writeFileSync(OUT, `${JSON.stringify(tree, null, 2)}\n`);
 console.log(`Bảng tra: ${TABLE.size.toLocaleString()} cụm (soạn tay ${Object.keys(glossary).length.toLocaleString()}).`);
 console.log(`Đã dịch ${done.toLocaleString()}/${total.toLocaleString()} chuỗi (${(done / total * 100).toFixed(1)}%).`);
