@@ -72,7 +72,7 @@ function Toggle({ on, onChange, label, disabled }) {
   return (
     <button type="button" role="switch" aria-checked={on} aria-label={label} disabled={disabled} onClick={() => onChange(!on)}
       className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${on ? "bg-foreground" : "bg-muted"}`}>
-      <span className={`absolute top-0.5 size-6 rounded-full bg-background shadow transition-transform ${on ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+      <span className={`absolute left-0 top-0.5 size-6 rounded-full bg-background shadow transition-transform ${on ? "translate-x-[22px]" : "translate-x-0.5"}`} />
     </button>
   );
 }
