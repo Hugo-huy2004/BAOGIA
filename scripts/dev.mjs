@@ -112,5 +112,6 @@ try {
 }
 
 run("vite", "npx", ["vite"], {
+  cwd: "apps/web",
   env: { ...process.env, VITE_DEV_BACKEND_URL: process.env.VITE_DEV_BACKEND_URL || `http://localhost:${BACKEND_PORT}` },
 });

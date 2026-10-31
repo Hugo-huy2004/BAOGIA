@@ -150,7 +150,7 @@ Workflow file: `.github/workflows/ci.yml`
 
 **If CI fails:**
 - Check the **Details** link on the failed workflow
-- Most common: dependency lock file mismatch → run `npm ci && cd server && npm ci` locally and push updated lock files
+- Most common: dependency lock file mismatch → run `npm ci` at the repo root (one lockfile for every workspace) and push the updated `package-lock.json`
 
 ---
 

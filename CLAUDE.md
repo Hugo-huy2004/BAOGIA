@@ -5,16 +5,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run setup            # install frontend + server deps
+npm install              # MỘT lần cài cho mọi workspace (một package-lock ở gốc)
 npm run dev              # frontend + backend cùng lúc — mở http://localhost:3000 (cổng DUY NHẤT)
 npm run dev:frontend     # chỉ Vite, port 3000
 npm run dev:backend      # chỉ Node backend, port 8099 (needs MongoDB running)
-npm run lint             # ESLint over src/ + server/ + scripts/ + workers/
-npm run build            # production build (dist/ KHÔNG commit — .gitignore chặn)
+npm run lint             # ESLint over apps/web/src + apps/server + scripts + apps/workers
+npm run build            # production build → apps/web/dist (KHÔNG commit)
 npm run dev:portfolio    # portfolio độc lập, port 3001, không cần backend
-npm run build:portfolio  # portfolio build riêng → dist-portfolio/ (không commit)
+npm run build:portfolio  # portfolio build riêng → apps/web/dist-portfolio (không commit)
 npm run check:cv         # ba CV chính phải đúng 1 trang A4; kiểm chữ bản Anh
-npm run build:analyze    # build + bundle treemap at dist/stats.html
+npm run build:analyze    # build + bundle treemap at apps/web/dist/stats.html
 
 npm run check:all        # lint + import check + build + SEO + performance budget
 
@@ -56,10 +56,26 @@ and status 200, so `/api/*` "succeeds" with a web page instead of JSON. Python i
 Never add a dev-proxy rule that points the browser straight at Python: it
 bypasses `requireMember` and needs an internal key the client must not hold.
 
-- `src/` — React 18 + Vite SPA. Tailwind, Zustand (`apps/web/src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next with `en`/`vi` locales in `apps/web/src/i18n/locales/`.
-- `apps/web/src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `vite.portfolio.config.js` và `deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại ba PDF trong `public/` bằng `npm run cv:pdf` trước build khi sửa CV.
-- `server/` — Express + Mongoose + WebSocket (port 8099). Routes in `apps/server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`.
-- `apps/ai/` — FastAPI (port 8000). Reached only through Node: `apps/server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `apps/server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
+Monorepo (npm workspaces, one lockfile at the root):
+
+```
+apps/web/          React 18 + Vite SPA (+ Capacitor android/ios, portfolio entry)
+apps/server/       Express + Mongoose + WebSocket, port 8099
+apps/ai/           FastAPI, port 8000 (own Vercel project, deployed from this folder)
+apps/workers/      Cloudflare Workers: keepalive, media-proxy (wrangler, not workspaces)
+packages/shared/   pure JS/JSON used by BOTH web and server (app registry, prices, texts…)
+packages/nom-data/ chữ Nôm source tables for scripts/build-nom-*
+scripts/           repo tooling; scripts/checks = every `npm run check:*`
+api/ vercel.json render.yaml start.sh   stay at the root: Vercel and Render read them there
+```
+
+Cross-package imports are plain relative paths (`../../../packages/shared/x.js`), not
+package names — Vite, Node and the Vercel functions all resolve them with no build step.
+
+- `apps/web/src/` — Tailwind, Zustand (`apps/web/src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next, locales in `apps/web/src/i18n/locales/`. Vite runs with cwd `apps/web` (its config, `index.html`, `public/`, `.env` live there); root scripts call it through `npm run … --workspace apps/web`.
+- `apps/web/src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `apps/web/vite.portfolio.config.js` và `apps/web/deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại PDF trong `apps/web/public/` bằng `npm run cv:pdf` trước build khi sửa CV.
+- `apps/server/` — routes in `apps/server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`. Env in `apps/server/.env`.
+- `apps/ai/` — Reached only through Node: `apps/server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `apps/server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
 - `api/` — Vercel serverless (only `/pay` redirect).
 
 Deploy split (see `docs/tach-tai-render.md`): Render runs **only** Node (it bills by
@@ -69,7 +85,7 @@ over `AI_SERVER_URL`. Keep-warm lives in `apps/workers/keepalive/` (a Cloudflare
 cron), never as a self-ping inside the server. Anything new that doesn't need a
 long-lived process belongs on Vercel/Cloudflare, not Render.
 
-The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-written `public/push-sw.js` (web push + offline arcade score sync) into it. Service-worker changes only reach browsers after a build + deploy.
+The app is a PWA: `vite-plugin-pwa` generates `apps/web/dist/sw.js` and imports the hand-written `apps/web/public/push-sw.js` (web push + offline arcade score sync) into it. Service-worker changes only reach browsers after a build + deploy.
 
 ### Auth (do not bypass)
 
@@ -80,12 +96,12 @@ Better Auth (`apps/server/auth/betterAuth.js`), two separate instances — never
 - Customer portal keeps its own JWT (`customer_jwt`, `requireCustomer`).
 - Hot paths (load shield, IP gate) only check the session cookie's signature (`signedSessionRole`), no DB.
 - Frontend: keep using `apps/web/src/services/api/core/authSession.js`; the Better Auth clients live in `apps/web/src/lib/authClient.js` (import it dynamically).
-- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`apps/server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: root `.env` (frontend `VITE_*`), `apps/server/.env` (backend).
+- Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`apps/server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: `apps/web/.env` (frontend `VITE_*`), `apps/server/.env` (backend).
 - `apps/server/.env` points `MONGODB_URI` at the **real Atlas DB**. Run local experiments with `MONGODB_URI=mongodb://localhost:27017/hugo_wishpax`.
 
 ### Conventions
 
-- **Notifications**: one API — `import { notify } from "apps/web/src/lib/notify"` (`notify.success/error/warning/info/loading/confirm`). Never import `react-hot-toast` directly in components; `notify.confirm()` replaces `window.confirm` and bespoke confirm modals.
+- **Notifications**: one API — `import { notify } from "src/lib/notify"` (`notify.success/error/warning/info/loading/confirm`). Never import `react-hot-toast` directly in components; `notify.confirm()` replaces `window.confirm` and bespoke confirm modals.
 - **AI calls**: all Gemini usage on the Node side routes through `apps/server/services/aiGateway.js` (quota, cache, retry, model downgrade, kill-switch). Don't call the Gemini SDK directly from route handlers.
 - **Buttons / Liquid Glass**: every `<button>`/`[role=button]` already gets the iOS press feel (scale + spring + highlight) from `apps/web/src/lib/liquidGlass/LiquidPressEngine.js`, started once in `main.jsx` — don't add per-button `active:scale-*`. Glass surfaces use `.lg-glass`, `.lg-glass--prominent`, `.lg-glass--clear` (`apps/web/src/styles/liquidGlass.css`). Opt a region out (game boards, drag surfaces) with `data-lg-off`. Default framer-motion transition is an iOS spring set by `MotionConfig` in `App.jsx`.
 - **Icons**: monochrome Material Symbols only (`bg-muted`, `text-foreground`) on public pages — no emoji, no colorful icon badges.

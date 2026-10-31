@@ -440,14 +440,14 @@ function AppContent() {
             <Route path="/support-request" element={<SupportRequestPage />} />
             
             {/* Dynamic Public Utility Route */}
-            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
             {/* Đường thứ hai bên trong một app công khai — ví dụ /study/lesson7.
                 Không có nhánh này thì mở app rồi tải lại trang là văng ra
                 /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
-            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
             {/* Đường thứ ba — /study/<khoá>/<bài>. Khoá nằm trong địa chỉ nên
                 không phải suy bài thuộc khoá nào. */}
-            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
+            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
             
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

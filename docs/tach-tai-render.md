@@ -98,18 +98,32 @@ Node). Chỉ cần biết để sau này đừng dựa vào nó.
 3. Đối chiếu `INTERNAL_API_KEY` với giá trị đã nạp lên Vercel.
 4. **Manual Deploy → Clear build cache & deploy.**
 
-Build giờ chỉ còn `npm install --prefix server` — không cài pip, không chạy
+Build giờ chỉ còn `npm ci --workspace apps/server` — không cài pip, không chạy
 uvicorn. Log khởi động sẽ không còn dòng `🐍 Khởi động Python AI server`.
 
 `start.sh` được giữ lại (chỉ còn chạy Node) thay vì xoá: nếu service được tạo tay
 chứ không qua Blueprint thì ô **Start Command** trong dashboard vẫn đang lưu
 `bash start.sh`, xoá file là deploy kế tiếp chết ngay. Nhớ sửa **Build Command**
-trong dashboard thành `npm install --prefix server` (bỏ dòng `pip install`) —
+trong dashboard thành `npm ci --workspace apps/server` (bỏ dòng `pip install`) —
 `render.yaml` chỉ có tác dụng với service quản lý bằng Blueprint.
 
 > Hiện service đang `503 / x-render-routing: suspend` vì hết quota giờ của tháng 7.
 > Quota reset đầu tháng 8, service tự sống lại — nhưng phải deploy code này thì
 > tháng sau mới không chết lại giữa chừng.
+
+### Từ 31/10/2026: repo là monorepo
+
+Code Node dời từ `server/` sang `apps/server/`, lockfile gộp về gốc (npm
+workspaces). Dashboard Render (service tạo tay, không theo Blueprint) phải là:
+
+| Ô | Giá trị |
+|---|---|
+| Root Directory | để trống (gốc repo) |
+| Build Command | `npm ci --workspace apps/server` |
+| Start Command | `bash start.sh` |
+
+`start.sh` ở gốc đã trỏ sang `apps/server`. Build Command cũ
+`npm install --prefix server` sẽ hỏng vì thư mục `server/` không còn.
 
 ## Bước 3 — Cloudflare Worker giữ ấm ✅ ĐÃ XONG
 

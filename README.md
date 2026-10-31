@@ -5,16 +5,17 @@ Nền tảng Biolink + chăm sóc sức khỏe tinh thần cho học sinh sinh v
 ## Kiến trúc
 
 ```
-├── src/                 # Frontend — React 18 + Vite, Tailwind, Zustand, SWR (port 3000)
-│   └── services/api/
-│       ├── core/        # HTTP client, auth, response/error dùng chung
-│       └── modules/     # API theo nghiệp vụ: robot, booking, JOY, survey…
-├── server/              # Backend — Express + MongoDB (Mongoose), WebSocket (port 8099)
-├── apps/ai/    # AI server — proxy AI, sleep analysis, IoT (port 8000)
-├── scripts/
-│   ├── checks/          # Các chốt kiểm tra chạy độc lập hoặc qua npm run check:*
-│   └── archive/         # Script cũ được giữ lại nhưng không còn thuộc CI/runtime
-└── api/                 # Vercel serverless (redirect /pay)
+├── apps/
+│   ├── web/             # Frontend — React 18 + Vite, Tailwind, Zustand, SWR (port 3000)
+│   ├── server/          # Backend — Express + MongoDB (Mongoose), WebSocket (port 8099)
+│   ├── ai/              # AI server — FastAPI (port 8000), chỉ Node gọi tới
+│   └── workers/         # Cloudflare Workers: keepalive, media-proxy
+├── packages/
+│   ├── shared/          # JS/JSON dùng chung cho web + server
+│   └── nom-data/        # Bảng chữ Nôm gốc cho scripts/build-nom-*
+├── scripts/             # Công cụ repo; scripts/checks = mọi `npm run check:*`
+├── api/                 # Vercel serverless (redirect /pay, ảnh OG)
+└── vercel.json · render.yaml · start.sh   # Vercel/Render đọc ở gốc
 ```
 
 Quy ước tên: component React dùng `PascalCase`, hook bắt đầu bằng `use`, còn
@@ -25,19 +26,18 @@ service/API/script dùng `camelCase` hoặc tên lệnh kebab-case. Mỗi file t
 Vite dev server proxy: **mọi** `/api/*` và `/ws*` → Node, giống hệt rewrite của
 `vercel.json` trên production. Trình duyệt không bao giờ gọi thẳng Python — chỉ
 Node nói chuyện với nó (qua `AI_SERVER_URL` + `INTERNAL_API_KEY`). Xem
-[vite.config.js](vite.config.js).
+[apps/web/vite.config.js](apps/web/vite.config.js).
 
 ## Chạy dev
 
 ```bash
-npm run setup          # cài dependencies frontend + server
-npm run dev            # frontend (Vite, port 3000)
-npm run dev:backend    # backend Node (port 8099) — cần MongoDB chạy sẵn
+npm install            # một lần cho mọi workspace
+npm run dev            # Vite (3000) + Node (8099) cùng lúc — chỉ mở localhost:3000
 ```
 
 ## Biến môi trường
 
-- Root `.env` — frontend (`VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`, …). Xem [.env.example](.env.example).
+- `apps/web/.env` — frontend (`VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`, …). Xem [apps/web/.env.example](apps/web/.env.example).
 - `apps/server/.env` — backend. Xem [apps/server/.env.example](apps/server/.env.example). **Bắt buộc ở production**: `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` — server từ chối khởi động nếu thiếu (xem [apps/server/utils/secrets.js](apps/server/utils/secrets.js)).
 - Admin đầu tiên: đặt `ADMIN_SEED_USERNAME` / `ADMIN_SEED_PASSWORD`, khởi động server một lần, rồi xóa khỏi env.
 
@@ -53,7 +53,7 @@ npm run dev:backend    # backend Node (port 8099) — cần MongoDB chạy sẵn
 ```bash
 npm run lint            # ESLint frontend
 npm run build           # Vite production build
-npm run build:analyze   # build + báo cáo kích thước bundle (dist/stats.html)
+npm run build:analyze   # build + báo cáo kích thước bundle (apps/web/dist/stats.html)
 ```
 
 CI chạy lint trên mỗi push; ngân sách hiệu năng chạy build (`.github/workflows/ci.yml`).
