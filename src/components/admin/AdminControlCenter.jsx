@@ -92,13 +92,12 @@ function VisitorMap({ visitors, focus, onPick }) {
       const L = mod.default || mod;
       Lref.current = L;
       map.current = L.map(box.current, { worldCopyJump: true, zoomControl: true, attributionControl: true }).setView([16, 106], 3);
-      // Ô OSM: free, không key, chỉ màn admin dùng. Vài mạng chặn/không phân giải
-      // tile.openstreetmap.org → lỗi ô đầu tiên thì đổi sang máy chủ OSM France.
-      const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      // Ô OSM France: free, không key. Không dùng tile.openstreetmap.org vì mạng
+      // VN hay không phân giải được tên miền đó (ERR_NAME_NOT_RESOLVED).
+      L.tileLayer("https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png", {
         maxZoom: 18,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> France',
       }).addTo(map.current);
-      tiles.once("tileerror", () => tiles.setUrl("https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"));
       layer.current = L.layerGroup().addTo(map.current);
       drawRef.current();
     });
