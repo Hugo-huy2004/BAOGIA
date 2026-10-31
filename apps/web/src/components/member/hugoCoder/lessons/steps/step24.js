@@ -51,7 +51,7 @@ Nếu hosting không cho đặt tệp ngoài web root, đặt chúng trong một
     {
       section: "research",
       title: "Hosting miễn phí và HTTPS",
-      body: `Có nhiều hosting PHP+MySQL miễn phí (InfinityFree, AwardSpace, 000webhost…). Chúng chạy trên **cPanel** hoặc bảng điều khiển tương tự, cung cấp FTP, phpMyAdmin và chứng chỉ **SSL miễn phí** từ **Let's Encrypt** — tổ chức phi lợi nhuận cấp chứng chỉ TLS tự động, miễn phí, đã phổ cập HTTPS cho hàng trăm triệu website.
+      body: `Có nhiều hosting PHP+MySQL miễn phí (InfinityFree, AwardSpace…; 000webhost đã đóng cửa năm 2024). Chúng chạy trên **cPanel** hoặc bảng điều khiển tương tự, cung cấp FTP, phpMyAdmin và chứng chỉ **SSL miễn phí** từ **Let's Encrypt** — tổ chức phi lợi nhuận cấp chứng chỉ TLS tự động, miễn phí, đã phổ cập HTTPS cho hàng trăm triệu website.
 
 HTTPS không còn là tuỳ chọn: nó mã hoá đường truyền (chống nghe lén mật khẩu, cookie phiên — Spoofing trong STRIDE, step 16), và là điều kiện để cờ cookie \`Secure\` hoạt động.
 

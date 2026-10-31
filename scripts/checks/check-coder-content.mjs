@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { auditCoderContent } from "../../packages/shared/coderContentIntegrity.js";
 import { STAGES, WEB_COURSES, MAX_SLIDES } from "../../apps/web/src/components/member/hugoCoder/lessons/index.js";
+import { LESSON_LANGS, LESSON_LOCALES, localizeCourse } from "../../apps/web/src/components/member/hugoCoder/lessons/localize.js";
 
 // Khoá hình minh hoạ có thật: đọc thẳng từ CodingVisual.jsx (Node không nạp JSX).
 const visualSource = readFileSync("apps/web/src/components/member/hugoCoder/CodingVisual.jsx", "utf8");
@@ -24,6 +25,38 @@ for (const file of [...walk("apps/web/src/components/member/hugoCoder"), ...walk
   });
 }
 
+// Bản dịch phải khớp bài gốc: không tạo khoá lạ, giữ nguyên số đáp án và mọi đoạn mã.
+// Slide riêng nước sở tại phải chèn đúng chỗ và không vượt MAX_SLIDES.
+const CODE = /~~~[\s\S]*?~~~|```[\s\S]*?```|`[^`\n]+`/g;
+const coverage = {};
+function compare(base, tr, where, lang) {
+  if (typeof tr === "string") {
+    if (typeof base !== "string") return result.issues.push(`${lang} ${where}: bản dịch là chữ nhưng gốc không phải.`);
+    coverage[lang].done += 1;
+    const code = (text) => (text.match(CODE) || []).sort().join("\n");
+    if (code(base) !== code(tr)) result.issues.push(`${lang} ${where}: đoạn mã trong bản dịch khác bản gốc.`);
+    return;
+  }
+  if (!tr || typeof tr !== "object") return;
+  if (!base || typeof base !== "object") return result.issues.push(`${lang} ${where}: khoá không có trong bài gốc.`);
+  if (Array.isArray(base) && (!Array.isArray(tr) || tr.length !== base.length)) {
+    result.issues.push(`${lang} ${where}: số phần tử ${tr.length} ≠ gốc ${base.length}.`);
+  }
+  for (const key of Object.keys(tr)) {
+    if (!(key in base)) result.issues.push(`${lang} ${where}.${key}: khoá không có trong bài gốc.`);
+    else compare(base[key], tr[key], `${where}.${key}`, lang);
+  }
+}
+for (const lang of LESSON_LANGS) {
+  coverage[lang] = { done: 0, file: Boolean(LESSON_LOCALES[lang]) };
+  for (const course of WEB_COURSES) {
+    compare(course, LESSON_LOCALES[lang]?.[course.id], course.id, lang);
+    const shown = localizeCourse(course, lang);
+    if (shown.slides.length > MAX_SLIDES) result.issues.push(`${lang} ${course.id}: ${shown.slides.length} slide > ${MAX_SLIDES}.`);
+    if (shown.quiz.length !== course.quiz.length) result.issues.push(`${lang} ${course.id}: số câu trắc nghiệm đổi.`);
+  }
+}
+
 if (result.issues.length) {
   console.error(`Coder content invalid (${result.issues.length} lỗi):`);
   result.issues.forEach((issue) => console.error(`- ${issue}`));
@@ -33,4 +66,5 @@ if (result.issues.length) {
     `Coder content OK: ${result.writtenCount}/${result.courseCount} step đã soạn, `
     + `${result.slideCount} slide, ${result.questionCount} câu trắc nghiệm hợp lệ, ${visualKeys.size} hình minh hoạ.`,
   );
+  console.log(`Bản dịch: ${LESSON_LANGS.map((lang) => `${lang} ${coverage[lang].file ? `${coverage[lang].done} chữ` : "chưa có tệp"}`).join(" · ")}`);
 }

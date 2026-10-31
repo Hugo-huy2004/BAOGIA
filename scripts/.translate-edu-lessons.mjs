@@ -12,8 +12,21 @@ const LANGUAGES = {
   en: "natural English for an introductory web-development course",
   zh: "natural Simplified Chinese for Mainland China for an introductory web-development course",
 };
+// Tên nút phpMyAdmin 5.2 / XAMPP đúng như giao diện thật ở từng ngôn ngữ — người học
+// phải bấm được đúng chữ trên màn hình, không phải bản dịch "gần nghĩa".
+const UI_LABELS = [
+  ["Cơ sở dữ liệu (tab)", "Databases", "数据库"], ["Tạo cơ sở dữ liệu", "Create database", "新建数据库"],
+  ["Tạo (nút)", "Create", "创建"], ["Bảng mã (Collation)", "Collation", "排序规则"],
+  ["Nhập", "Import", "导入"], ["Xuất", "Export", "导出"], ["Nhanh (kiểu xuất)", "Quick", "快速"],
+  ["Thực hiện", "Go", "执行"], ["Thêm (menu)", "More", "更多"], ["Bộ thiết kế", "Designer", "设计器"],
+  ["Chỉ mục", "Indexes", "索引"], ["Cấu trúc", "Structure", "结构"], ["Thao tác", "Operations", "操作"],
+  ["Lưu", "Save", "保存"], ["Ngôn ngữ", "Language", "语言 - Language"],
+  ["MySQL trả về kết quả là trống rỗng", "MySQL returned an empty result set", "MySQL 返回的查询结果为空"],
+];
+const labelRule = (col, name) => `When the text names a phpMyAdmin button or tab, use the exact ${name} phpMyAdmin label: ${UI_LABELS.map((row) => `"${row[0]}" → "${row[col]}"`).join("; ")}. Where the Vietnamese says the interface is in Vietnamese, say it is in ${name}.`;
 const MAX_CHARS = 6_000;
 const MAX_ENTRIES = 100;
+const GLOSSARY = { [LANGUAGES.en]: labelRule(1, "English"), [LANGUAGES.zh]: labelRule(2, "Simplified Chinese") };
 const run = promisify(execFile);
 
 const translatedFields = new Set(["duration", "summary", "title", "body", "alt", "caption", "q", "o", "why", "items", "pairs"]);
@@ -83,6 +96,7 @@ async function translateBatch(batch, language) {
     "Preserve Markdown structure, paragraph breaks, tables, blockquotes, emphasis and list numbering.",
     "Copy every __KEEP_N__ marker exactly and do not add, remove, reorder or translate markers.",
     "Keep programming terminology accurate and concise. Do not add explanations or facts.",
+    GLOSSARY[language] || "",
     JSON.stringify(prepared.map((item) => item.text)),
   ].join("\n");
   const { stdout: response } = await run("claude", ["-p", "--model", "haiku", "--output-format", "text", prompt], {

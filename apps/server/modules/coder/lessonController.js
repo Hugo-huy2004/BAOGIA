@@ -15,25 +15,7 @@ import {
   getStageBenefits,
 } from '../../../web/src/components/member/hugoCoder/lessons/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
-import { readFileSync } from 'node:fs';
-
-// Bản dịch nội dung step (scripts/.translate-edu-lessons.mjs) — cùng hình dạng với
-// WEB_COURSES, chỉ chứa chữ. Thiếu tệp hoặc thiếu mục thì giữ bản gốc tiếng Việt.
-const LESSON_LOCALES = Object.fromEntries(['en', 'zh'].map((lang) => {
-  try {
-    return [lang, JSON.parse(readFileSync(new URL(`../../../web/src/components/member/hugoCoder/lessons/locales/${lang}.json`, import.meta.url), 'utf8'))];
-  } catch { return [lang, null]; }
-}));
-
-function overlay(base, tr) {
-  if (typeof tr === 'string') return typeof base === 'string' ? tr : base;
-  if (!tr || typeof tr !== 'object' || !base || typeof base !== 'object') return base;
-  const out = Array.isArray(base) ? [...base] : { ...base };
-  for (const key of Object.keys(tr)) if (key in out) out[key] = overlay(out[key], tr[key]);
-  return out;
-}
-
-const localized = (course, lang) => overlay(course, LESSON_LOCALES[lang]?.[course.id]);
+import { localizeCourse } from '../../../web/src/components/member/hugoCoder/lessons/localize.js';
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -55,7 +37,7 @@ function lessonSummary(course) {
 // Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.
 function publicCourse(course, lang) {
   if (!course) return null;
-  const text = localized(course, lang);
+  const text = localizeCourse(course, lang);
   return { ...text, quiz: publicQuiz(text.quiz) };
 }
 
