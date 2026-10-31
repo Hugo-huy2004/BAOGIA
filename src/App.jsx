@@ -11,9 +11,10 @@ import Navbar from "./components/Navbar";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
 import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
-import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
+import StatusScreen from "./components/system/StatusScreen";
+import ServerStatusBanner from "./components/system/ServerStatusBanner";
 import { isMemberAuthenticated } from "./services/api/core/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import { TooltipProvider } from "./components/ui/Tooltip";
@@ -89,6 +90,7 @@ const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/Partner
 // Không cần cho khung hình đầu: chân trang nằm cuối, hộp ủng hộ chỉ mở khi bấm,
 // cổng cài app chỉ dành cho điện thoại chưa cài. Tách khỏi gói index (~15 KB gz).
 const Footer = lazy(() => import("./components/Footer"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const MobileInstallGate = lazy(() => import("./components/ui/MobileInstallGate"));
 const DonationModal = lazy(() => import("./components/ui/DonationModal"));
 
@@ -224,7 +226,7 @@ function AppContent() {
       .finally(() => { refreshSession(); setHandoffPending(false); });
   }, [handoffPending, isPartnerHost]);
   if (handoffPending) {
-    return <div className="flex min-h-[100dvh] items-center justify-center bg-background"><span aria-label="Đang đăng nhập" className="material-symbols-outlined animate-spin text-3xl text-muted-foreground">progress_activity</span></div>;
+    return <StatusScreen kind="loading" />;
   }
 
   // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
@@ -259,7 +261,7 @@ function AppContent() {
 
   if (isCustomDomainHost) {
     return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
+      <Suspense fallback={<StatusScreen kind="loading" />}>
         <BioPublicPage />
       </Suspense>
     );
@@ -279,7 +281,7 @@ function AppContent() {
 
   if (isLearningRoute || isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
+      <Suspense fallback={<StatusScreen kind="loading" />}>
         <Routes>
           <Route path="/study" element={<HugoLearningPage />} />
           <Route path="/study/:page" element={<HugoLearningPage />} />
@@ -349,7 +351,7 @@ function AppContent() {
             />
           </Suspense>
         )}
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
+        <Suspense fallback={<StatusScreen kind="loading" />}>
           <Routes>
             <Route path="/" element={
               isPWA
@@ -447,7 +449,7 @@ function AppContent() {
                 không phải suy bài thuộc khoá nào. */}
             <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/" replace />} />
             
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </main>
@@ -541,10 +543,10 @@ export default function App() {
               {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
               <Suspense fallback={null}><PWARealtimeBridge /></Suspense>
               <PWAQuickLogin />
-              <OfflineBanner />
               <AppContent />
               <PWAInstallBanner />
               <PWAUpdatePrompt />
+              <ServerStatusBanner />
               <PWAInstallModal />
               <Suspense fallback={null}><DonationModal /></Suspense>
               <Toaster

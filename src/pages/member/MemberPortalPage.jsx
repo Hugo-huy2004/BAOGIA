@@ -178,6 +178,7 @@ import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
 import { CLOSE_BUTTON_RESERVE } from "../../components/member/shared/BackButton";
 import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
+import StatusScreen from "../../components/system/StatusScreen";
 // Lazy-loaded main tabs
 const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
@@ -1157,7 +1158,7 @@ function MemberPortalPage() {
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
-            <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+            <React.Suspense fallback={<StatusScreen kind="loading" inline />}>
               <MemberUtilitiesTab
                 onOpenParticleModal={openParticleModal}
                 bio={bio}
@@ -1258,10 +1259,7 @@ function MemberPortalPage() {
         >
           <ErrorBoundary>
             <React.Suspense fallback={
-              <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
-                <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
-              </div>
+              <StatusScreen kind="loading" inline />
             }>
               {isHardRejected ? (
                 <RejectedVerification handleLogout={handleLogout} />
@@ -1341,10 +1339,7 @@ function MemberPortalPage() {
         >
           <ErrorBoundary>
             <React.Suspense fallback={
-              <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
-                <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
-              </div>
+              <StatusScreen kind="loading" inline />
             }>
               {isHardRejected ? (
                 <RejectedVerification handleLogout={handleLogout} />

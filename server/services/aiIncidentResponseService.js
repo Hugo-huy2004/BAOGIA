@@ -45,6 +45,9 @@ function sanitizeEvent(event = {}) {
     path: cleanPath(event.path || event.page),
     status: Number.isFinite(Number(event.status)) ? Number(event.status) : undefined,
     source: clean(event.source || 'runtime', 60),
+    code: /^HG-[A-Z0-9]{6}$/.test(String(event.code || '')) ? event.code : '',
+    page: cleanPath(event.page),
+    device: clean(event.device, 20),
     sentryIssueId: clean(event.sentryIssueId, 120),
     sentryUrl: /^https:\/\//i.test(String(event.sentryUrl || ''))
       ? clean(event.sentryUrl, 500)
@@ -109,6 +112,8 @@ export async function reportSpecialistIncident({ specialist, event } = {}) {
     route ? `<b>Vị trí:</b> <code>${escapeHtml(route)}</code>` : '',
     safeEvent.status ? `<b>HTTP:</b> <code>${safeEvent.status}</code>` : '',
     `<b>Lỗi:</b> ${escapeHtml(safeEvent.message)}`,
+    safeEvent.code ? `<b>Mã người dùng thấy:</b> <code>${safeEvent.code}</code>` : '',
+    safeEvent.page ? `<b>Trang:</b> <code>${escapeHtml(safeEvent.page)}</code>${safeEvent.device ? ` · ${escapeHtml(safeEvent.device)}` : ''}` : '',
     `<b>Mã sự cố:</b> <code>${incidentKey}</code>`,
     safeEvent.sentryUrl ? `<a href="${escapeHtml(safeEvent.sentryUrl)}">Mở trên Sentry</a>` : '',
     'Đã mở nhiệm vụ chẩn đoán tự động. Sửa mã chỉ được tạo qua PR có kiểm tra.',
@@ -124,6 +129,9 @@ export async function reportSpecialistIncident({ specialist, event } = {}) {
       path: safeEvent.path,
       meta: {
         fingerprint: incidentKey,
+        code: safeEvent.code,
+        page: safeEvent.page,
+        device: safeEvent.device,
         type: safeEvent.type,
         status: safeEvent.status,
         sentryIssueId: safeEvent.sentryIssueId,

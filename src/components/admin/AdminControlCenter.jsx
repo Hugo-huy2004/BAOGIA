@@ -446,7 +446,7 @@ export default function AdminControlCenter({ data, updateAdvertisement, uploadin
             {errors.map((e) => (
               <li key={e._id} className="text-sm">
                 <p className="break-words text-foreground">{e.message}</p>
-                <p className="truncate text-xs text-muted-foreground">{e.source} · {e.path || "—"} · {ago(e.createdAt)}</p>
+                <p className="truncate text-xs text-muted-foreground">{e.meta?.code ? <span className="font-mono font-semibold text-foreground">{e.meta.code} · </span> : null}{e.source} · {e.path || "—"} · {ago(e.createdAt)}</p>
               </li>
             ))}
             {!errors.length && <li className="text-sm text-muted-foreground">Không có lỗi. Hệ thống chạy sạch.</li>}

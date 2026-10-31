@@ -5,6 +5,10 @@ import { PWA_MANIFEST } from './shared/pwaManifest.js'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
+import { readFileSync } from 'node:fs'
+
+// Phiên bản hệ thống (package.json) — màn cập nhật báo "đã lên bản X".
+const APP_VERSION = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
 
 const QUERY_STRING = { find: /^query-string$/, replacement: new URL('./node_modules/query-string/base.js', import.meta.url).pathname }
 // @hwagfu/cursor khai báo sai `exports`: nhánh "import" trỏ vào dist/index.js
@@ -91,6 +95,7 @@ export default defineConfig(({ mode }) => {
   // Defining it here folds the constant no matter how the build is invoked.
   define: {
     "import.meta.env.VITE_BUILD_TARGET": JSON.stringify(isNative ? "native" : "web"),
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(APP_VERSION),
   },
   resolve: {
     // The virtual module ships with the PWA plugin; without it the import in
@@ -140,12 +145,15 @@ export default defineConfig(({ mode }) => {
       avif: { lossless: true },
     }),
     isNative ? null : VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt': bản mới CHỜ tới khi người dùng bấm "Cập nhật" hoặc rời app
+      // (components/ui/PWAUpdatePrompt.jsx). autoUpdate + skipWaiting từng tải
+      // lại trang ngay giữa lúc đang gõ hay đang chuyển JOY.
+      registerType: 'prompt',
       // Workbox selects the shell assets below; no separate static includes.
       includeAssets: [],
       workbox: {
         cleanupOutdatedCaches: true,
-        skipWaiting: true,
+        skipWaiting: false,
         clientsClaim: true,
         dontCacheBustURLsMatching: /\.[0-9a-f]{8,10}\./,
         importScripts: ['/push-sw.js'],

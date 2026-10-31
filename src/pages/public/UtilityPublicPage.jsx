@@ -10,6 +10,7 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { notify } from "../../lib/notify";
 
 import { resolvePublicTool } from "../../config/publicTools";
+import StatusScreen from "../../components/system/StatusScreen";
 
 const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
 const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
@@ -217,9 +218,7 @@ export default function UtilityPublicPage() {
   const renderTool = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        <StatusScreen kind="loading" inline />
       );
     }
 
@@ -358,9 +357,7 @@ export default function UtilityPublicPage() {
   const renderToolContent = () => (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        <StatusScreen kind="loading" inline />
       }
     >
       <AISelfHealingBoundary>

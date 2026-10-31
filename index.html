@@ -304,41 +304,37 @@
     <!-- React Main Root Container with Splash Screen -->
     <div id="root">
       <style>
+        /* Màn khởi động = cũng là màn mỗi lần tải lại. Chỉ giọt nước (tên dạng chữ
+           chỉ dùng ở văn bản pháp lý). THUẦN CSS: CSP production chặn script nội
+           tuyến mới, nên không có dòng JS nào ở đây. Hình giống HugoDrop.jsx. */
         .hugo-splash {
-          position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-          background-color: #0b0a0f;
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          z-index: 99999;
+          position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+          background-color: #0b0a0f; z-index: 99999; color: hsl(194 100% 58%);
         }
         @media (prefers-color-scheme: light) {
-          /* Fallback for light mode, but overridden for PWA */
-          html:not(.standalone-pwa) .hugo-splash { background-color: #ffffff; }
-          html:not(.standalone-pwa) .hugo-splash .hugo-splash-text { color: #0f172a !important; }
-          html:not(.standalone-pwa) .hugo-splash .hugo-splash-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #3b82f6 !important; }
+          html:not(.standalone-pwa) .hugo-splash { background-color: #f6f6fa; }
         }
-        .hugo-splash-spinner {
-          width: 48px; height: 48px;
-          border: 3px solid rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          border-top-color: #f59e0b;
-          animation: hugo-splash-spin 1s ease-in-out infinite;
-        }
-        @keyframes hugo-splash-spin {
-          to { transform: rotate(360deg); }
-        }
-        .hugo-splash-text {
-          margin-top: 24px; color: #f8f5fa; font-family: 'Plus Jakarta Sans', sans-serif;
-          font-weight: 800; font-size: 16px; letter-spacing: 0.15em; text-transform: uppercase;
-          opacity: 0.8; animation: hugo-splash-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes hugo-splash-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: .4; }
+        .hugo-splash svg { width: 72px; height: 100px; overflow: visible; }
+        .hugo-splash .shell { fill: none; stroke: currentColor; stroke-width: 2.2; }
+        .hugo-splash .wave { fill: currentColor; animation: hugo-splash-wave 1.6s linear infinite; }
+        .hugo-splash .back { opacity: .35; animation-duration: 2.4s; animation-direction: reverse; }
+        .hugo-splash .level { animation: hugo-splash-level 2.8s cubic-bezier(.45,0,.55,1) infinite; }
+        @keyframes hugo-splash-level { 0%, 100% { transform: translateY(86px); } 50% { transform: translateY(30px); } }
+        @keyframes hugo-splash-wave { to { transform: translateX(-62px); } }
+        @media (prefers-reduced-motion: reduce) {
+          .hugo-splash .wave, .hugo-splash .level { animation: none; }
+          .hugo-splash .level { transform: translateY(58px); }
         }
       </style>
-      <div class="hugo-splash">
-        <div class="hugo-splash-spinner"></div>
-        <div class="hugo-splash-text">Hugo Studio</div>
+      <div class="hugo-splash" role="status" aria-label="Hugo Studio">
+        <svg viewBox="14 2 72 100" aria-hidden="true">
+          <defs><clipPath id="hugo-splash-clip"><path d="M47.43 8.25 A3 3 0 0 1 52.57 8.25 L75.68 46.48 A30 30 0 1 1 24.32 46.48 Z" /></clipPath></defs>
+          <path class="shell" d="M47.43 8.25 A3 3 0 0 1 52.57 8.25 L75.68 46.48 A30 30 0 1 1 24.32 46.48 Z" />
+          <g clip-path="url(#hugo-splash-clip)"><g class="level">
+            <g transform="translate(19 -1)"><path class="wave back" d="M0 0 Q 15.5 -5 31 0 T 62 0 T 93 0 T 124 0 V 100 H 0 Z" /></g>
+            <g transform="translate(19 1)"><path class="wave" d="M0 0 Q 15.5 -5 31 0 T 62 0 T 93 0 T 124 0 V 100 H 0 Z" /></g>
+          </g></g>
+        </svg>
       </div>
     </div>
 

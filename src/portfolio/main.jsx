@@ -1,10 +1,12 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { MotionConfig, motion, useScroll, useSpring } from "motion/react";
 import i18n, { ensureTranslations } from "../i18n/config";
 import { SERVICES_ORIGIN, cvPdf } from "../config/publicSites";
 import "../index.css";
+import "./portfolio.css";
 
 const Introduction = lazy(() => import("../pages/public/IntroductionPage"));
 const Projects = lazy(() => import("../pages/public/ProjectsPage"));
@@ -24,29 +26,37 @@ function Portfolio() {
   const { t, i18n: language } = useTranslation();
   const { pathname } = useLocation();
   const [ready, setReady] = useState(false);
+  const scrollRootRef = useRef(document.getElementById("root"));
+  const { scrollYProgress } = useScroll({ container: scrollRootRef });
+  const progress = useSpring(scrollYProgress, { stiffness: 180, damping: 28, mass: 0.25 });
   useEffect(() => {
     ensureTranslations().then(() => setReady(true));
   }, []);
   return (
-    <>
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
-        <nav aria-label="Portfolio" className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-3 text-sm">
-          <Link to="/" className="mr-auto font-bold">Hugo Wishpax</Link>
-          <Link to="/#projects">{t("projectsPage.title", "Dự án")}</Link>
-          <Link to="/#skills">{language.language.startsWith("vi") ? "Kỹ năng" : language.language.startsWith("zh") ? "技能" : "Skills"}</Link>
-          <a href="/cv/index.html">CV</a>
-          <a href={SERVICES_ORIGIN}>{t("navbar.services", "Dịch vụ")}</a>
-          <div className="flex gap-3" aria-label="Language">
+    <MotionConfig reducedMotion="user" transition={{ type: "spring", stiffness: 260, damping: 28 }}>
+      <motion.div className="portfolio-progress" style={{ scaleX: progress }} />
+      <header className="portfolio-nav-wrap">
+        <nav aria-label="Portfolio" className="portfolio-nav">
+          <Link to="/" className="portfolio-wordmark" aria-label="Hugo Wishpax — Portfolio">
+            <span aria-hidden="true">H</span> Hugo Wishpax
+          </Link>
+          <div className="portfolio-nav-links">
+            <Link to="/#projects">{t("projectsPage.title", "Dự án")}</Link>
+            <Link to="/#about">{t("intro.story.profile.kicker", "Hồ sơ")}</Link>
+            <Link to="/#skills">{language.language.startsWith("vi") ? "Kỹ năng" : language.language.startsWith("zh") ? "技能" : "Skills"}</Link>
+            <a href="/cv/index.html">CV</a>
+          </div>
+          <div className="portfolio-languages" aria-label="Language">
             {["vi", "en", "zh"].map((code) => (
               <a key={code} href={`${code === "vi" ? "" : `/${code}`}${pathname}`}
                 aria-current={language.language.startsWith(code) ? "page" : undefined}>
-                {code === "zh" ? "中文" : code.toUpperCase()}
+                {code === "zh" ? "中" : code.toUpperCase()}
               </a>
             ))}
           </div>
         </nav>
       </header>
-      <main>
+      <main id="top">
         {ready && <Suspense fallback={<p className="p-8" role="status">…</p>}>
           <ScrollPosition />
           <Routes>
@@ -58,14 +68,18 @@ function Portfolio() {
           </Routes>
         </Suspense>}
       </main>
-      <footer className="border-t border-border px-5 py-8 text-center text-sm">
-        <a href={cvPdf(language.language)} download className="underline underline-offset-4">
-          {language.language.startsWith("vi") ? "Tải CV (PDF)" : language.language.startsWith("zh") ? "下载简历 (PDF)" : "Download CV (PDF)"}
-        </a>
-        <span className="mx-4" aria-hidden="true">·</span>
-        <a href="mailto:contact@hugowishpax.studio">contact@hugowishpax.studio</a>
+      <footer className="portfolio-footer">
+        <p>Hugo Wishpax <span>·</span> Ho Chi Minh City</p>
+        <div>
+          <a href={cvPdf(language.language)} download>
+            {language.language.startsWith("vi") ? "Tải CV PDF" : language.language.startsWith("zh") ? "下载简历 PDF" : "Download CV PDF"}
+          </a>
+          <a href="https://github.com/Hugo-huy2004" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:contact@hugowishpax.studio">Email</a>
+          <a href={SERVICES_ORIGIN}>{t("navbar.services", "Dịch vụ")}</a>
+        </div>
       </footer>
-    </>
+    </MotionConfig>
   );
 }
 

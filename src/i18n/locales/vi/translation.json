@@ -820,13 +820,19 @@
     },
     "story": {
       "hero": {
-        "line1": "Từ nét vẽ đầu.",
-        "line2": "Đến dòng code cuối.",
-        "line3": "Một tay làm hết.",
-        "lede": "Mình là {{name}}, lập trình viên web tự do. Từ trang giới thiệu đến hệ thống ứng dụng, mình thiết kế, viết code rồi đưa lên mạng. Và dự án nào cũng có bản demo để bạn mở ra dùng thử.",
-        "ctaStart": "Bắt đầu dự án",
+        "eyebrow": "Sinh viên CNTT · Product-minded developer",
+        "title": "Biến câu hỏi khó thành",
+        "accent": "sản phẩm dễ dùng.",
+        "lede": "Mình là {{name}}, sinh viên năm cuối Công nghệ Thông tin. Mình thiết kế, lập trình và vận hành sản phẩm web — từ giao diện đầu tiên đến hệ thống đang chạy thật.",
+        "ctaWork": "Xem dự án",
         "ctaCv": "Xem CV",
-        "ctaCvAria": "Xem CV của {{name}}"
+        "availability": "Đang tìm vị trí thực tập Web Development",
+        "visualLabel": "Một cửa sổ sản phẩm minh hoạ quy trình thiết kế và lập trình",
+        "visualKicker": "Từ ý tưởng đến production",
+        "visualTitle": "Thiết kế rõ. Code gọn. Chạy thật.",
+        "noteBuild": "Sản phẩm đang chạy",
+        "noteProjects": "Dự án nổi bật",
+        "scroll": "Cuộn để xem câu chuyện"
       },
       "work": {
         "label": "Dự án",
@@ -865,7 +871,14 @@
         "kicker": "Hồ sơ",
         "heading": "Học ở trường.\nRèn ở dự án thật.",
         "summary": "Mình thích làm những sản phẩm người ta mở ra dùng mỗi ngày. Giao diện, API, cơ sở dữ liệu – ba lớp, một người làm. Và thứ gì đã lên mạng thì mình nhận luôn phần vận hành.",
+        "statusLabel": "Hiện tại",
+        "statusValue": "Sinh viên năm cuối · dự kiến tốt nghiệp 08/2027",
+        "focusLabel": "Định hướng",
+        "focusValue": "Web Development Internship · Frontend / Full-stack",
+        "languageLabel": "Tiếng Anh",
         "educationHeading": "Quá trình học",
+        "educationTitle": "Học nền tảng. Làm dự án. Rút kinh nghiệm.",
+        "educationIntro": "Mỗi cột mốc đều để lại một kỹ năng có thể mang vào đội ngũ: kỷ luật, cộng tác và khả năng tự học.",
         "school1": {
           "school": "Collège de Mytho — THPT Nguyễn Đình Chiểu",
           "period": "08/2019 – 06/2022",
@@ -899,12 +912,17 @@
           "title": "Sửa lỗi trọn đời.",
           "desc": "Lỗi sinh ra từ code mình viết thì mình sửa miễn phí, không giới hạn thời gian."
         },
-        "cvLabel": "Xem CV đầy đủ"
+        "cvLabel": "Xem CV đầy đủ",
+        "internshipLabel": "Mục tiêu tiếp theo",
+        "internshipHeading": "Một đội ngũ tốt để học nhanh và đóng góp thật.",
+        "internshipDesc": "Mình đang tìm vị trí thực tập phát triển web, nơi có code review, hướng dẫn rõ ràng và sản phẩm thật để cùng chịu trách nhiệm.",
+        "internshipCta": "Trao đổi về vị trí thực tập"
       },
       "contact": {
-        "heading1": "Có ý tưởng?",
-        "heading2": "Nhắn là bắt đầu.",
-        "desc": "Để lại lời nhắn. Mình trả lời trong vòng 24 giờ.",
+        "kicker": "Liên hệ",
+        "heading1": "Cùng làm một điều",
+        "heading2": "thật sự hữu ích.",
+        "desc": "Nếu bạn đang tìm một intern chủ động, thích hiểu vấn đề trước khi viết code, mình rất muốn được trò chuyện.",
         "emailLabel": "Email trực tiếp",
         "nameLabel": "Họ và tên",
         "namePlaceholder": "Nguyễn Văn A",
@@ -8372,6 +8390,56 @@
       "dnsA": "Host @ trỏ về địa chỉ IP máy chủ Hugo Studio (dùng cho tên miền gốc).",
       "dnsAfter": "Trỏ xong, tên miền tự kích hoạt kèm chứng chỉ bảo mật.",
       "packagesTitle": "Gói đang dùng"
+    }
+  },
+  "system": {
+    "status": {
+      "reloading": {
+        "title": "Đang tải lại"
+      },
+      "updating": {
+        "title": "Đang cập nhật phiên bản mới",
+        "body": "Chỉ mất vài giây, dữ liệu vẫn được giữ nguyên."
+      },
+      "offline": {
+        "title": "Mất kết nối mạng",
+        "body": "Kiểm tra Wi-Fi hoặc dữ liệu di động. Trang sẽ tự kết nối lại khi có mạng."
+      },
+      "server": {
+        "title": "Máy chủ đang khởi động",
+        "body": "Máy chủ miễn phí tạm nghỉ khi vắng người và thường sẵn sàng sau 30–60 giây. Trang sẽ tự thử lại."
+      },
+      "notFound": {
+        "title": "Không tìm thấy trang này",
+        "body": "Đường dẫn có thể đã đổi hoặc gõ chưa đúng."
+      },
+      "crash": {
+        "title": "Đã xảy ra sự cố",
+        "body": "Chi tiết lỗi đã được tự động gửi cho đội kỹ thuật. Tải lại thường sẽ khắc phục được."
+      },
+      "retryIn": "Tự thử lại sau {{seconds}} giây",
+      "retryNow": "Thử lại ngay",
+      "home": "Về trang chủ",
+      "back": "Quay lại",
+      "copyCode": "Chép mã sự cố",
+      "reported": "Đã gửi báo cáo cho đội kỹ thuật. Khi cần hỗ trợ, chỉ cần đọc mã này.",
+      "reload": "Tải lại",
+      "details": "Chi tiết kỹ thuật",
+      "what": "Lỗi",
+      "where": "Vị trí",
+      "when": "Thời điểm"
+    },
+    "banner": {
+      "server": "Máy chủ đang khởi động · thường chỉ 30–60 giây",
+      "offline": "Mất kết nối mạng",
+      "back": "Đã kết nối lại"
+    },
+    "update": {
+      "title": "Đã có phiên bản mới",
+      "body": "Tự cập nhật khi rời ứng dụng, hoặc cập nhật ngay.",
+      "now": "Cập nhật",
+      "later": "Để sau",
+      "done": "Đã cập nhật lên phiên bản {{version}}"
     }
   }
 }

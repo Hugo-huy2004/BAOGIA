@@ -7,6 +7,7 @@ import useVisiblePoll from "../hooks/useVisiblePoll";
 import HugoLogo from "../components/HugoLogo";
 import { isAdminAuthenticated } from "../services/api/core/authSession";
 import { notify } from "../lib/notify";
+import HugoDrop from "../components/system/HugoDrop";
 
 const FALLBACK_BANK_APPS = [
   { appId: "mb", appName: "MB Bank", bankName: "Ngân hàng TMCP Quân đội", autofill: true },
@@ -59,10 +60,10 @@ const normalizeSearch = (value) => String(value || "")
 function LoadingState() {
   const { t } = useTranslation();
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-5 text-foreground">
-      <div className="text-center">
-        <div className="mx-auto size-10 animate-spin rounded-full border-4 border-primary/15 border-t-primary" />
-        <p className="mt-4 text-xs font-bold text-muted-foreground">{t("paymentGateway.dangChuanBiThong")}</p>
+    <main className="grid min-h-screen place-items-center bg-background px-5 text-center text-foreground">
+      <div className="flex flex-col items-center gap-4">
+        <HugoDrop className="h-20 w-20" />
+        <p className="text-[15px] text-muted-foreground">{t("paymentGateway.dangChuanBiThong")}</p>
       </div>
     </main>
   );

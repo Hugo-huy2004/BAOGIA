@@ -5098,13 +5098,19 @@
     },
     "story": {
       "hero": {
-        "line1": "起于一笔设计。",
-        "line2": "止于一行代码。",
-        "line3": "一手包办。",
-        "lede": "我是 {{name}}，自由接案的网页开发者。从简介网站到完整的应用系统，设计、编码、上线，都由我一人完成。每个项目都有可以直接打开试用的线上版本。",
-        "ctaStart": "开始一个项目",
+        "eyebrow": "信息技术学生 · 产品思维开发者",
+        "title": "把复杂的问题，变成",
+        "accent": "简单好用的产品。",
+        "lede": "我是 {{name}}，信息技术专业毕业班学生。我负责 Web 产品的设计、开发与运维——从第一版界面，到真正在线运行的系统。",
+        "ctaWork": "查看项目",
         "ctaCv": "查看简历",
-        "ctaCvAria": "查看 {{name}} 的简历"
+        "availability": "正在寻找 Web 开发实习机会",
+        "visualLabel": "展示设计与开发流程的产品界面",
+        "visualKicker": "从想法到上线",
+        "visualTitle": "设计清楚。代码简洁。真正上线。",
+        "noteBuild": "在线产品",
+        "noteProjects": "精选项目",
+        "scroll": "向下滚动，阅读故事"
       },
       "work": {
         "label": "项目",
@@ -5143,7 +5149,14 @@
         "kicker": "简介",
         "heading": "课堂打底。\n项目练手。",
         "summary": "我喜欢做人们每天都会打开的东西。界面、接口、数据库——三层，一个人做。上线之后的运维，也由我自己接着管。",
+        "statusLabel": "目前",
+        "statusValue": "毕业班学生 · 预计 2027 年 8 月毕业",
+        "focusLabel": "方向",
+        "focusValue": "Web 开发实习 · 前端 / 全栈",
+        "languageLabel": "英语",
         "educationHeading": "求学经历",
+        "educationTitle": "打好基础。动手实践。持续复盘。",
+        "educationIntro": "每段经历都留下了能带进团队的能力：自律、协作，以及独立学习的习惯。",
         "school1": {
           "school": "Collège de Mytho — 阮廷炤高中",
           "period": "2019.08 – 2022.06",
@@ -5177,12 +5190,17 @@
           "title": "终身修 bug。",
           "desc": "只要是我写的代码出的问题，免费修，不限时间。"
         },
-        "cvLabel": "查看完整简历"
+        "cvLabel": "查看完整简历",
+        "internshipLabel": "下一步",
+        "internshipHeading": "在优秀团队里快速学习，也真正创造价值。",
+        "internshipDesc": "我正在寻找 Web 开发实习机会，希望团队有清晰的指导、定期代码审查，以及值得共同负责的真实产品。",
+        "internshipCta": "交流实习机会"
       },
       "contact": {
-        "heading1": "有想法吗？",
-        "heading2": "一条消息，就是开始。",
-        "desc": "留个言。24 小时内回复。",
+        "kicker": "联系",
+        "heading1": "一起做一件",
+        "heading2": "真正有用的事。",
+        "desc": "如果你正在寻找一位主动、写代码前先理解问题的实习生，欢迎和我聊聊。",
         "emailLabel": "直接发邮件",
         "nameLabel": "姓名",
         "namePlaceholder": "张三",
@@ -8525,6 +8543,56 @@
       "dnsA": "将主机 @ 指向 Hugo Studio 服务器 IP（用于根域名）。",
       "dnsAfter": "DNS 生效后，域名会自动启用并配备 HTTPS。",
       "packagesTitle": "当前套餐"
+    }
+  },
+  "system": {
+    "status": {
+      "reloading": {
+        "title": "正在重新載入"
+      },
+      "updating": {
+        "title": "正在更新至新版本",
+        "body": "只需幾秒，資料會完整保留。"
+      },
+      "offline": {
+        "title": "網路連線中斷",
+        "body": "請檢查 Wi-Fi 或行動數據。恢復連線後頁面會自動重新連接。"
+      },
+      "server": {
+        "title": "伺服器正在啟動",
+        "body": "免費伺服器在閒置時會休眠，通常 30–60 秒內就緒。頁面會自動重試。"
+      },
+      "notFound": {
+        "title": "找不到此頁面",
+        "body": "連結可能已變更或輸入有誤。"
+      },
+      "crash": {
+        "title": "發生錯誤",
+        "body": "錯誤詳情已自動傳送給技術團隊。重新載入通常即可解決。"
+      },
+      "retryIn": "{{seconds}} 秒後自動重試",
+      "retryNow": "立即重試",
+      "home": "返回首頁",
+      "back": "返回上頁",
+      "copyCode": "複製事件代碼",
+      "reported": "已回報技術團隊。需要協助時，提供此代碼即可。",
+      "reload": "重新載入",
+      "details": "技術詳情",
+      "what": "錯誤",
+      "where": "位置",
+      "when": "時間"
+    },
+    "banner": {
+      "server": "伺服器啟動中 · 通常 30–60 秒",
+      "offline": "網路連線中斷",
+      "back": "已重新連線"
+    },
+    "update": {
+      "title": "有新版本可用",
+      "body": "離開應用程式時自動更新，或立即更新。",
+      "now": "更新",
+      "later": "稍後",
+      "done": "已更新至版本 {{version}}"
     }
   }
 }

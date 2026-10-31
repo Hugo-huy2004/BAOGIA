@@ -820,13 +820,19 @@
     },
     "story": {
       "hero": {
-        "line1": "First pixel.",
-        "line2": "Last line of code.",
-        "line3": "Same pair of hands.",
-        "lede": "I'm {{name}}, a freelance web developer. From a brochure site to a full application system, I design it, build it and ship it. And every project here has a live demo you can open right now.",
-        "ctaStart": "Start a project",
+        "eyebrow": "IT student · Product-minded developer",
+        "title": "Turning hard questions into",
+        "accent": "products that feel simple.",
+        "lede": "I'm {{name}}, a final-year Information Technology student. I design, build and operate web products — from the first interface to systems running in production.",
+        "ctaWork": "Explore my work",
         "ctaCv": "View CV",
-        "ctaCvAria": "View {{name}}'s CV"
+        "availability": "Seeking a Web Development Internship",
+        "visualLabel": "A product window illustrating the design and development process",
+        "visualKicker": "From idea to production",
+        "visualTitle": "Clear design. Clean code. Shipped.",
+        "noteBuild": "Live product",
+        "noteProjects": "Featured projects",
+        "scroll": "Scroll through the story"
       },
       "work": {
         "label": "Projects",
@@ -865,7 +871,14 @@
         "kicker": "Profile",
         "heading": "Learned at school.\nSharpened on real work.",
         "summary": "I like building things people open every day. Interface, API, database — three layers, one person. And once something is live, keeping it running is my job too.",
+        "statusLabel": "Now",
+        "statusValue": "Final-year student · graduating 08/2027",
+        "focusLabel": "Focus",
+        "focusValue": "Web Development Internship · Frontend / Full-stack",
+        "languageLabel": "English",
         "educationHeading": "Education",
+        "educationTitle": "Learn the foundation. Build. Reflect.",
+        "educationIntro": "Each step left me with something useful to a team: discipline, collaboration and the habit of learning independently.",
         "school1": {
           "school": "Collège de Mytho — Nguyen Dinh Chieu High School",
           "period": "08/2019 – 06/2022",
@@ -899,12 +912,17 @@
           "title": "Bugs fixed for life.",
           "desc": "Anything that comes from code I wrote, I fix free. No time limit."
         },
-        "cvLabel": "View the full CV"
+        "cvLabel": "View the full CV",
+        "internshipLabel": "What comes next",
+        "internshipHeading": "A strong team to learn fast and contribute for real.",
+        "internshipDesc": "I'm looking for a web development internship with thoughtful mentorship, regular code review and a real product we can own together.",
+        "internshipCta": "Discuss an internship"
       },
       "contact": {
-        "heading1": "Got an idea?",
-        "heading2": "One message starts it.",
-        "desc": "Leave a message. I reply within 24 hours.",
+        "kicker": "Contact",
+        "heading1": "Let's make something",
+        "heading2": "genuinely useful.",
+        "desc": "If you're looking for a proactive intern who understands the problem before writing code, I'd love to talk.",
         "emailLabel": "Email directly",
         "nameLabel": "Full name",
         "namePlaceholder": "Jane Doe",
@@ -8330,6 +8348,56 @@
       "dnsA": "Point host @ to the Hugo Studio server IP (for root domains).",
       "dnsAfter": "Once DNS points here, the domain activates with HTTPS automatically.",
       "packagesTitle": "Your plans"
+    }
+  },
+  "system": {
+    "status": {
+      "reloading": {
+        "title": "Reloading"
+      },
+      "updating": {
+        "title": "Updating to the new version",
+        "body": "This takes a few seconds. Your data stays as it is."
+      },
+      "offline": {
+        "title": "No internet connection",
+        "body": "Check Wi-Fi or mobile data. The page reconnects on its own once you're back online."
+      },
+      "server": {
+        "title": "The server is starting up",
+        "body": "Our free-tier server sleeps when idle and is usually ready within 30–60 seconds. The page will retry automatically."
+      },
+      "notFound": {
+        "title": "Page not found",
+        "body": "The link may have changed or been mistyped."
+      },
+      "crash": {
+        "title": "Something went wrong",
+        "body": "The error details were sent to our team automatically. Reloading usually fixes it."
+      },
+      "retryIn": "Retrying in {{seconds}}s",
+      "retryNow": "Retry now",
+      "home": "Go home",
+      "back": "Go back",
+      "copyCode": "Copy incident code",
+      "reported": "Reported to our team. If you contact support, just share this code.",
+      "reload": "Reload",
+      "details": "Technical details",
+      "what": "Error",
+      "where": "Where",
+      "when": "When"
+    },
+    "banner": {
+      "server": "Server is starting · usually 30–60 seconds",
+      "offline": "No internet connection",
+      "back": "Back online"
+    },
+    "update": {
+      "title": "A new version is available",
+      "body": "Updates when you leave the app, or update now.",
+      "now": "Update",
+      "later": "Later",
+      "done": "Updated to version {{version}}"
     }
   }
 }

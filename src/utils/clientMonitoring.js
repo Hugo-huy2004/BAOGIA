@@ -53,6 +53,7 @@ function safePayload(event) {
     page: scrubUrl(window.location.href),
     message: truncate(event.message, 220),
     stack: truncate(event.stack, 500),
+    code: truncate(event.code, 16),
     source: "web",
     requestCount: Number.isFinite(event.requestCount) ? event.requestCount : undefined,
     errorCount: Number.isFinite(event.errorCount) ? event.errorCount : undefined,

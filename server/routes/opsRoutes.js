@@ -9,12 +9,14 @@ import {
 } from '../services/aiIncidentResponseService.js';
 import { telemetryBuffer } from '../services/telemetryRingBuffer.js';
 import { recordVisit } from '../services/visitorTracker.js';
+import { logError } from '../utils/alert.js';
 
 const router = express.Router();
 const events = [];
 const MAX_EVENTS = 500;
 const ALLOWED_TYPES = new Set([
   'web-vital',
+  'route-not-found',
   'runtime-error',
   'unhandled-rejection',
   'react-error-boundary',
@@ -55,6 +57,8 @@ function normalizeEvent(body = {}, req) {
     path: cleanPath(body.path),
     page: cleanPath(body.page),
     message: clean(body.message, 240),
+    // Mã sự cố hiện trên màn lỗi (HG-XXXXXX) — người dùng đọc cho hỗ trợ, admin tra ra dòng log.
+    code: /^HG-[A-Z0-9]{6}$/.test(String(body.code || '')) ? body.code : '',
     stack: clean(body.stack, 700),
     source: clean(body.source || 'web', 40),
     requestCount: Math.max(0, Number(body.requestCount) || 0),
@@ -114,13 +118,42 @@ router.post('/client-event', telemetryLimiter, (req, res) => {
     if (specialist) {
       queueMicrotask(() => {
         reportSpecialistIncident({ specialist, event })
+          // Lỗi trùng bị gộp (không báo Telegram lần hai) nhưng mã người dùng
+          // đang cầm vẫn phải tra được — ghi một dòng nhẹ cho riêng mã đó.
+          .then((result) => {
+            if (result?.skipped === 'throttled' && event.code) return logClientIncident(event, 'warn');
+            return null;
+          })
           .catch((error) => console.warn('[specialist-incident]', error.message));
       });
+    } else if (event.type === 'route-not-found' && seenOnce(`404:${event.path}`)) {
+      logClientIncident(event, 'warn');
     }
   } catch {
     res.status(204).end();
   }
 });
+
+// Mỗi đường dẫn 404 chỉ ghi một lần mỗi giờ — link hỏng bị bấm 500 lần vẫn là MỘT việc.
+const seen = new Map();
+function seenOnce(key, windowMs = 60 * 60 * 1000) {
+  const now = Date.now();
+  if (now - (seen.get(key) || 0) < windowMs) return false;
+  if (seen.size > 2000) seen.clear();
+  seen.set(key, now);
+  return true;
+}
+
+function logClientIncident(event, level) {
+  return logError({
+    level,
+    source: event.type === 'route-not-found' ? 'client-404' : 'client',
+    message: event.type === 'route-not-found' ? `Không tìm thấy trang ${event.path}` : (event.message || event.name || 'Lỗi giao diện'),
+    stack: event.stack,
+    path: event.path || event.page,
+    meta: { code: event.code, type: event.type, status: event.status, page: event.page, device: event.device },
+  });
+}
 
 function validSentrySignature(req) {
   const secret = process.env.SENTRY_WEBHOOK_SECRET;

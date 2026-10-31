@@ -1,5 +1,6 @@
 import React from 'react';
-import { reportClientEvent } from '../utils/clientMonitoring';
+import { reportIncident } from '../lib/incident';
+import StatusScreen from './system/StatusScreen';
 import { captureClientException } from '../utils/sentryMonitoring';
 
 const CHUNK_ERROR_PATTERN = /failed to fetch dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
@@ -34,7 +35,7 @@ function isChunkLoadError(error) {
 export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, autoReloading: false, componentStack: '' };
+    this.state = { hasError: false, error: null, autoReloading: false, componentStack: '', code: '', at: '' };
   }
 
   static getDerivedStateFromError(error) {
@@ -71,12 +72,17 @@ export class ErrorBoundary extends React.Component {
       }
     }
 
-    reportClientEvent({
+    // Mã HG-XXXXXX: người dùng thấy trên màn lỗi, admin thấy cùng mã trong
+    // Telegram và ErrorLog ("Giám sát hệ thống" → ô tìm).
+    const code = reportIncident({
       type: 'react-error-boundary',
       name: error?.name || 'ReactError',
       message: error?.message,
       stack: `${error?.stack || ''}\n${errorInfo?.componentStack || ''}`,
     });
+    // Tên component gần nhất trong componentStack = "ở đâu" đọc được bằng mắt.
+    const where = (errorInfo?.componentStack || '').match(/at (\w+)/)?.[1] || '';
+    this.setState({ code, where, at: new Date().toLocaleString() });
     captureClientException(error, {
       source: 'react-error-boundary',
       componentStack: errorInfo?.componentStack,
@@ -85,37 +91,21 @@ export class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      if (this.state.autoReloading) {
-        return (
-          <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
-            <div className="text-center space-y-3">
-              <div className="w-8 h-8 border-3 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-              <p className="text-sm text-muted-foreground">Đang tải phiên bản mới nhất...</p>
-            </div>
-          </div>
-        );
-      }
+      if (this.state.autoReloading) return <StatusScreen kind="updating" />;
+      const { error, code, where, at, componentStack } = this.state;
       return (
-        <div className="min-h-screen flex items-center justify-center bg-surface dark:bg-background p-4">
-          <div className="max-w-md w-full bg-white dark:bg-background border border-border rounded-3xl p-8 text-center space-y-4">
-            <span className="material-symbols-outlined text-5xl text-destructive">error</span>
-            <h1 className="text-2xl font-black text-foreground">Có lỗi xảy ra</h1>
-            <p className="text-sm text-muted-foreground">
-              {this.state.error?.message || 'Vui lòng làm mới trang'}
-            </p>
-            {import.meta.env.DEV && this.state.componentStack && (
-              <pre className="max-h-48 overflow-auto rounded-xl bg-muted p-3 text-left text-[11px] leading-relaxed text-muted-foreground">
-                {`${this.state.error?.name || 'Error'}\n${this.state.componentStack.trim().split('\n').slice(0, 8).join('\n')}`}
-              </pre>
-            )}
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-colors"
-            >
-              Làm mới trang
-            </button>
-          </div>
-        </div>
+        <>
+          <StatusScreen
+            kind="crash"
+            code={code}
+            detail={{ what: `${error?.name || 'Error'}: ${error?.message || ''}`, where: [window.location.pathname, where].filter(Boolean).join(' · '), when: at }}
+          />
+          {import.meta.env.DEV && componentStack && (
+            <pre className="fixed bottom-2 left-2 right-2 max-h-48 overflow-auto rounded-xl bg-muted p-3 text-left text-[11px] leading-relaxed text-muted-foreground">
+              {componentStack.trim().split('\n').slice(0, 8).join('\n')}
+            </pre>
+          )}
+        </>
       );
     }
 

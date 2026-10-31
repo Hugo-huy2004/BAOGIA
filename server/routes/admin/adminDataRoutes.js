@@ -85,8 +85,9 @@ const RESOURCES = {
     list: ['category', 'severity', 'action', 'path', 'createdAt'], show: ['caseId', 'ruleId', 'method', 'network'],
   },
   'error-logs': {
-    model: 'ErrorLog', label: 'Lỗi hệ thống', permission: 'system', ops: 'rd', search: ['message', 'source', 'path'],
-    list: ['level', 'source', 'message', 'createdAt'], show: ['path', 'email', 'stack'],
+    // `meta.code` = mã HG-XXXXXX người dùng thấy trên màn lỗi và đọc lại cho hỗ trợ.
+    model: 'ErrorLog', label: 'Lỗi hệ thống', permission: 'system', ops: 'rd', search: ['meta.code', 'message', 'source', 'path'],
+    list: ['level', 'source', 'message', 'createdAt'], show: ['path', 'email', 'meta', 'stack'],
   },
   'audit-logs': {
     model: 'AdminAuditLog', label: 'Nhật ký quản trị', permission: 'audit', ops: 'r', search: ['adminUsername', 'action', 'targetEmail'],

@@ -1,3 +1,5 @@
+import { ArrowUpRight, Check, GraduationCap } from "lucide-react";
+import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { profileSkills, skillsCopy } from "../../data/profileSkills";
@@ -10,53 +12,67 @@ export default function ProfileSummary({ education }) {
   const language = i18n.language.split("-")[0];
   const code = skillsCopy[language] ? language : "vi";
   const copy = skillsCopy[code];
+
   return (
-    <section id="about" className="scroll-mt-24 border-y border-border bg-background px-5 py-20 sm:px-8 sm:py-28">
-      <div className="mx-auto max-w-6xl">
-        <p className="kicker text-muted-foreground">{t("intro.story.profile.kicker")}</p>
-        <h2 className="headline-section mt-3">{t("intro.story.profile.heading")}</h2>
-        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">{t("intro.story.profile.summary")}</p>
-
-        <div id="skills" className="scroll-mt-24 mt-14">
-          <h3 className="headline-card">{copy.heading}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{copy.note}</p>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {profileSkills.map((group) => (
-              <article key={group.id} className="rounded-2xl border border-border bg-muted/30 p-6">
-                <h4 className="text-base font-semibold">{group.title[code]}</h4>
-                <ul className="mt-4 space-y-2 text-sm font-medium leading-relaxed">
-                  {group.lines.map((line) => <li key={line}>{line}</li>)}
-                </ul>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{group.note[code]}</p>
-                <p className="mt-5 border-t border-border pt-4 text-xs text-muted-foreground">
-                  {copy.evidence}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-sm">
-                  {group.projects.map((id) => (
-                    <Link key={id} to={`/project/${id}`} state={{ from: `${location.pathname}${location.search}${location.hash}` }} className="underline underline-offset-4">{findProject(id).title}</Link>
-                  ))}
-                </div>
-              </article>
-            ))}
+    <section id="about" data-anchor="about" className="portfolio-profile">
+      <div className="portfolio-profile-intro">
+        <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }}>
+          <p className="portfolio-eyebrow"><span />03 · {t("intro.story.profile.kicker")}</p>
+          <h2>{t("intro.story.profile.heading")}</h2>
+        </motion.div>
+        <motion.div className="portfolio-profile-summary" initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.35 }}>
+          <p>{t("intro.story.profile.summary")}</p>
+          <div className="profile-facts">
+            <p><span>{t("intro.story.profile.statusLabel")}</span><b>{t("intro.story.profile.statusValue")}</b></p>
+            <p><span>{t("intro.story.profile.focusLabel")}</span><b>{t("intro.story.profile.focusValue")}</b></p>
+            <p><span>{t("intro.story.profile.languageLabel")}</span><b>VSTEP B2 · 2024</b></p>
           </div>
-        </div>
-
-        <div className="mt-14 border-t border-border pt-8">
-          <h3 className="headline-card">{t("intro.story.profile.educationHeading")}</h3>
-          <ol className="mt-6 grid gap-8 md:grid-cols-2">
-            {education.map((item) => (
-              <li key={item.school}>
-                <p className="text-sm text-muted-foreground">{item.period}</p>
-                <h4 className="mt-2 font-semibold">{item.school}</h4>
-                <p className="mt-1 text-sm text-muted-foreground">{item.degree}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <a href={cvPdf(code)} target="_blank" rel="noopener noreferrer" className="btn-secondary mt-10 inline-flex">
-          {t("intro.story.profile.cvLabel")}
-        </a>
+        </motion.div>
       </div>
+
+      <div id="skills" className="portfolio-skills">
+        <div className="portfolio-section-heading">
+          <div><p>{copy.heading}</p><span>{copy.note}</span></div>
+          <a href={cvPdf(code)} target="_blank" rel="noopener noreferrer">{t("intro.story.profile.cvLabel")} <ArrowUpRight size={15} /></a>
+        </div>
+        <div className="portfolio-skill-grid">
+          {profileSkills.map((group, index) => (
+            <motion.article key={group.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.08 }} viewport={{ once: true, amount: 0.4 }}>
+              <span>0{index + 1}</span>
+              <h3>{group.title[code]}</h3>
+              <ul>{group.lines.map((line) => <li key={line}><Check size={14} />{line}</li>)}</ul>
+              <p>{group.note[code]}</p>
+              <div>{group.projects.map((id) => (
+                <Link key={id} to={`/project/${id}`} state={{ from: `${location.pathname}${location.search}${location.hash}` }}>{findProject(id).title}<ArrowUpRight size={12} /></Link>
+              ))}</div>
+            </motion.article>
+          ))}
+        </div>
+      </div>
+
+      <div className="portfolio-education">
+        <div className="education-copy">
+          <GraduationCap size={22} />
+          <p>{t("intro.story.profile.educationHeading")}</p>
+          <h3>{t("intro.story.profile.educationTitle")}</h3>
+          <span>{t("intro.story.profile.educationIntro")}</span>
+        </div>
+        <ol>
+          {education.map((item) => (
+            <li key={item.school}>
+              <span>{item.year}</span>
+              <div><p>{item.period}</p><h4>{item.school}</h4><b>{item.degree}</b><small>{item.description}</small></div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <motion.div className="portfolio-internship" initial={{ opacity: 0, scale: 0.98 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.45 }}>
+        <p>{t("intro.story.profile.internshipLabel")}</p>
+        <h3>{t("intro.story.profile.internshipHeading")}</h3>
+        <span>{t("intro.story.profile.internshipDesc")}</span>
+        <a href="mailto:contact@hugowishpax.studio">{t("intro.story.profile.internshipCta")} <ArrowUpRight size={16} /></a>
+      </motion.div>
     </section>
   );
 }
