@@ -11,12 +11,6 @@ export function todayStr() {
   return toDateStr(new Date());
 }
 
-function yesterdayStr(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() - 1);
-  return toDateStr(d);
-}
-
 /** Monday of the ISO week containing dateStr, as 'YYYY-MM-DD'. */
 function getWeekStart(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -39,6 +33,25 @@ function rewardForDay(dayOfWeek) {
 }
 
 const REWARD_TABLE = [150, 240, 240, 240, 240, 240, 450];
+
+function daysBetween(from, to) {
+  return Math.round((new Date(to + 'T00:00:00') - new Date(from + 'T00:00:00')) / DAY_MS);
+}
+
+// Ngày được tha: lỡ đúng MỘT ngày thì chuỗi không đứt, mỗi 7 ngày một lần.
+// Học sinh nghỉ vì thi, ốm, về quê là chuyện thường; mất trắng chuỗi 20 ngày vì
+// một ngày lỡ khiến người ta bỏ hẳn chứ không quay lại gầy dựng từ đầu.
+function graceAvailable(record, today) {
+  return !record.graceUsedOn || daysBetween(record.graceUsedOn, today) >= 7;
+}
+
+/** Chuỗi còn sống tính tới hôm nay (đã gồm ngày được tha), 0 nếu đã đứt. */
+function liveStreak(record, today) {
+  if (!record?.lastCheckinDate) return 0;
+  const gap = daysBetween(record.lastCheckinDate, today);
+  if (gap <= 1 || (gap === 2 && graceAvailable(record, today))) return record.consecutiveDays || 0;
+  return 0;
+}
 
 /**
  * Claims today's check-in reward for email. Throws a user-facing Vietnamese
@@ -65,8 +78,11 @@ export async function claimCheckin(email) {
   }
 
   const isFirstEver = !record.lastCheckinDate;
-  const isConsecutive = record.lastCheckinDate === yesterdayStr(today);
+  const gap = isFirstEver ? Infinity : daysBetween(record.lastCheckinDate, today);
+  const usesGrace = gap === 2 && graceAvailable(record, today);
+  const isConsecutive = gap === 1 || usesGrace;
   const previous = {
+    graceUsedOn: record.graceUsedOn,
     lastCheckinDate: record.lastCheckinDate,
     consecutiveDays: record.consecutiveDays,
     milestone14Awarded: record.milestone14Awarded,
@@ -78,6 +94,7 @@ export async function claimCheckin(email) {
     record.milestone14Awarded = false;
     record.milestone30Awarded = false;
   }
+  if (usesGrace) record.graceUsedOn = today;
   record.consecutiveDays = isConsecutive ? record.consecutiveDays + 1 : 1;
   record.lastCheckinDate = today;
 
@@ -113,6 +130,7 @@ export async function claimCheckin(email) {
       bonusAwarded,
       totalReward,
       consecutiveDays: record.consecutiveDays,
+      usedGrace: usesGrace,
       newBalance: balance
     };
   } catch (error) {
@@ -140,7 +158,8 @@ export async function getCheckinStatus(email) {
     weekLocked: false,
     alreadyClaimedToday,
     canClaimToday: !alreadyClaimedToday,
-    consecutiveDays: record?.consecutiveDays || 0,
+    consecutiveDays: liveStreak(record, today),
+    todayReward: rewardForDay(getDayOfWeek(today)),
     milestone14Awarded: record?.milestone14Awarded || false,
     milestone30Awarded: record?.milestone30Awarded || false
   };

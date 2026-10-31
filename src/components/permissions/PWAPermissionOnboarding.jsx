@@ -19,10 +19,13 @@ const EMPTY_SNAPSHOT = {
  * còn mời nhận email. Vị trí vẫn hỏi một lần như cũ.
  */
 
-export default function PWAPermissionOnboarding({ email, enabled = true }) {
+export default function PWAPermissionOnboarding({ email, enabled = true, onVisibleChange }) {
   const { t } = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
   const [visible, setVisible] = useState(false);
+  const shown = visible && enabled && Boolean(email);
+  // Portal xếp hàng các hộp lúc khởi động: khảo sát chờ tới khi tấm này đóng.
+  useEffect(() => { onVisibleChange?.(shown); }, [shown, onVisibleChange]);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
 

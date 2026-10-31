@@ -210,6 +210,7 @@ function MemberPortalPage() {
   const [birthdayMode, setBirthdayMode] = useState("day");
   const [showBirthdayWheel, setShowBirthdayWheel] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [permissionPrimerOpen, setPermissionPrimerOpen] = useState(false);
   const handleSkipOnboarding = useCallback(() => {
     if (onboardingSkipKey) sessionStorage.setItem(onboardingSkipKey, "true");
     setShowOnboarding(false);
@@ -1089,6 +1090,12 @@ function MemberPortalPage() {
       (activeTab === "utilities" && Boolean(utilitySelection))
       || isArticleOpen
     );
+  // Hàng chờ hộp thoại lúc khởi động — mỗi lúc chỉ một hộp, theo thứ tự:
+  // bắt buộc (hồ sơ, xác minh, danh tính, vị trí) → sinh nhật → xin quyền PWA
+  // → khảo sát. Trước đây ba hộp sau không chờ nhau, người mới vào có thể bị
+  // chồng 3–4 tấm trước khi kịp thấy app nào.
+  const startupBusy = showOnboarding || showVerifyModal || Boolean(identityChallenge) || Boolean(locationAnomaly);
+  const birthdayOpen = showBirthdaySurprise || showBirthdayWheel;
   const showMobileNavigation = isMobileView
     && bio?.status !== "pending"
     && !isAppOpen
@@ -1414,7 +1421,8 @@ function MemberPortalPage() {
           <React.Suspense fallback={null}>
             <PWAPermissionOnboarding
               email={memberSession.email}
-              enabled={!loading && !showOnboarding && !showVerifyModal}
+              enabled={!loading && !startupBusy && !birthdayOpen}
+              onVisibleChange={setPermissionPrimerOpen}
             />
           </React.Suspense>
         ) : null}
@@ -1473,7 +1481,7 @@ function MemberPortalPage() {
           </div>
         )}
 
-        {showBirthdaySurprise && (
+        {showBirthdaySurprise && !startupBusy && (
           <React.Suspense fallback={null}>
             <BirthdaySurprise
               displayName={formData.displayName}
@@ -1482,7 +1490,7 @@ function MemberPortalPage() {
             />
           </React.Suspense>
         )}
-        {showBirthdayWheel && !isGuestMode && memberSession?.email && (
+        {showBirthdayWheel && !startupBusy && !isGuestMode && memberSession?.email && (
           <React.Suspense fallback={null}>
             <BirthdayWheel
               onClose={() => setShowBirthdayWheel(false)}
@@ -1536,7 +1544,7 @@ function MemberPortalPage() {
         chúng đã xong: xác minh danh tính và cảnh báo vị trí là việc phải làm,
         còn khảo sát thì không — xếp chồng lên nhau chỉ khiến người ta bấm bừa
         cho khuất mắt. */}
-    {!identityChallenge && !locationAnomaly && <SurveySheet />}
+    {!startupBusy && !birthdayOpen && !permissionPrimerOpen && <SurveySheet />}
     </>
   );
 }

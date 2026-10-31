@@ -4046,6 +4046,8 @@
     },
     "threads": {
       "title": "Hôm nay",
+      "codingStart": "Bắt đầu lộ trình lập trình · {{total}} bài",
+      "codingContinue": "Học tiếp bài {{n}}/{{total}}",
       "thread": "Chuỗi bài",
       "back": "Quay lại",
       "filters": {

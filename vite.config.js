@@ -7,6 +7,12 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 const QUERY_STRING = { find: /^query-string$/, replacement: new URL('./node_modules/query-string/base.js', import.meta.url).pathname }
+// @hwagfu/cursor khai báo sai `exports`: nhánh "import" trỏ vào dist/index.js
+// vốn là CJS (bản ESM thật là index.mjs). CJS thì require("motion/react") → kéo
+// NGUYÊN một framer-motion bản CJS thứ hai vào chunk motion của trang đầu.
+// Trỏ thẳng về bản ESM, và gộp `motion/react` về framer-motion (cùng API).
+const HWAGFU_CURSOR = { find: /^@hwagfu\/cursor$/, replacement: new URL('./node_modules/@hwagfu/cursor/dist/index.mjs', import.meta.url).pathname }
+const MOTION_REACT = { find: /^motion\/react$/, replacement: 'framer-motion' }
 
 /* Cổng backend cục bộ. KHÔNG dùng 8081: đó là cổng mặc định của Metro/Expo, nên
    bất cứ dự án React Native nào đang mở cũng chiếm mất — và Metro trả về HTML
@@ -93,7 +99,7 @@ export default defineConfig(({ mode }) => {
     // vulnerable decode-uri-component. package.json overrides it to 9, whose
     // index.js only has a default export; base.js holds the same named exports.
     alias: isNative
-      ? [{ find: "virtual:pwa-register/react", replacement: "/src/config/pwaRegisterStub.js" }, QUERY_STRING]
+      ? [{ find: "virtual:pwa-register/react", replacement: "/src/config/pwaRegisterStub.js" }, QUERY_STRING, MOTION_REACT, HWAGFU_CURSOR]
       // Every @capacitor/* import in src/ is behind IS_NATIVE, so none of it is
       // reachable here — but the plugins registerPlugin() at module scope, and
       // a side-effectful module survives tree-shaking, so Rollup emitted an
@@ -104,7 +110,7 @@ export default defineConfig(({ mode }) => {
       // distinct module id again.
       // @capgo/* is a Capacitor plugin too (native Google sign-in) and is
       // imported the same guarded way, so it gets the same treatment.
-      : [{ find: /^@(capacitor|capgo)\/.*/, replacement: "/src/config/capacitorStub.js" }, QUERY_STRING],
+      : [{ find: /^@(capacitor|capgo)\/.*/, replacement: "/src/config/capacitorStub.js" }, QUERY_STRING, MOTION_REACT, HWAGFU_CURSOR],
   },
   plugins: [
     react(),

@@ -56,7 +56,7 @@ export async function getWalletOverview(req, res) {
 
     // 2. Chạy song song các dữ liệu liên quan
     const [checkinStatus, joySummaryData, historyData] = await Promise.all([
-      getCheckinStatus(email).catch(() => ({ canClaim: false, currentStreak: 0, todayReward: 0 })),
+      getCheckinStatus(email).catch(() => ({ canClaimToday: false, consecutiveDays: 0, todayReward: 0 })),
       getJoySummary(email, 30).catch(() => ({ earned: 0, spent: 0 })),
       getJoyHistory(email, { limit: 10, days: 30 }).catch(() => ({ transactions: [] })),
     ]);
@@ -78,8 +78,10 @@ export async function getWalletOverview(req, res) {
     };
 
     const perks = {
-      canCheckin: Boolean(checkinStatus.canClaim),
-      streakDays: checkinStatus.currentStreak || 0,
+      // Tên trường phải khớp getCheckinStatus — từng đọc canClaim/currentStreak
+      // (không tồn tại) nên nút Điểm danh trong ví luôn khoá và chuỗi luôn là 0.
+      canCheckin: Boolean(checkinStatus.canClaimToday),
+      streakDays: checkinStatus.consecutiveDays || 0,
       todayReward: checkinStatus.todayReward || 240,
       spinAvailable: false,
       activeVouchersCount: 0,
@@ -175,10 +177,12 @@ export async function claimDailyCheckin(req, res) {
 
     return res.json({
       success: true,
-      reward: result.reward,
-      balance: result.balance,
-      streakDays: result.currentStreak,
-      message: result.message || 'Điểm danh thành công!',
+      reward: result.totalReward,
+      balance: result.newBalance,
+      streakDays: result.consecutiveDays,
+      message: result.usedGrace
+        ? `+${result.totalReward} JOY. Hôm qua lỡ một ngày nhưng chuỗi ${result.consecutiveDays} ngày vẫn giữ nguyên.`
+        : `+${result.totalReward} JOY. Chuỗi ${result.consecutiveDays} ngày liên tiếp!`,
     });
   } catch (error) {
     console.error('[joyWalletController.claimDailyCheckin Error]:', error);

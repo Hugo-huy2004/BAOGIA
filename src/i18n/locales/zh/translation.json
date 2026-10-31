@@ -2803,6 +2803,8 @@
     },
     "threads": {
       "title": "今日",
+      "codingStart": "開始程式設計學習路線 · 共 {{total}} 課",
+      "codingContinue": "繼續第 {{n}}/{{total}} 課",
       "thread": "帖子",
       "back": "返回",
       "filters": {
