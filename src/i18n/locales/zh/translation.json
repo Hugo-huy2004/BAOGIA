@@ -358,13 +358,13 @@
       "supportError": "无法发送支持请求，请重试。",
       "emailSupport": "发送邮件至 contact@hugowishpax.studio",
       "pendingReviewText": "您的申请正在审核中。注册后最多 7 天内可正常使用账户。如果试用期结束前仍未通过验证，账户将被删除。审核决定作出后，证明图片会立即删除。",
-      "reminderText": "试用期内可正常使用账户（剩余 {{days}} 天）。提交学生身份验证即可申请 365 天使用期。",
+      "reminderText": "Hugo Studio 完全免费，不收取任何费用。账户可正常使用 {{days}} 天；验证学生身份即可保留 365 天。",
       "reminderPending": "您的验证申请正在审核中。试用期内仍可正常使用账户。",
       "reminderRejected": "您的验证申请未获通过。您可重新提交一次，或请 Hugo Studio 协助复核。",
       "reminderAction": "验证学生身份",
       "logoutBtn": "退出",
       "submitBtn": "提交信息",
-      "reminderShort": "试用期剩余 {{days}} 天",
+      "reminderShort": "完全免费 · 验证学生身份可用 365 天（剩余 {{days}} 天）",
       "reminderPendingShort": "学生身份验证审核中",
       "reminderRejectedShort": "学生身份验证未通过"
     },
@@ -2805,6 +2805,7 @@
       "title": "今日",
       "codingStart": "開始程式設計學習路線 · 共 {{total}} 課",
       "codingContinue": "繼續第 {{n}}/{{total}} 課",
+      "codingLearners": "{{count}} 位同學正在學習此路線",
       "thread": "帖子",
       "back": "返回",
       "filters": {

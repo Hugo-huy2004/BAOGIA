@@ -2062,13 +2062,13 @@
       "supportError": "Could not send your support request. Please try again.",
       "emailSupport": "Email contact@hugowishpax.studio",
       "pendingReviewText": "Your request is under review. You can use your account normally for up to 7 days from registration. If the trial ends before approval, the account will be deleted. Evidence images are removed as soon as a decision is made.",
-      "reminderText": "You can use your account normally during the {{days}}-day trial. Submit student verification to receive 365 days of access.",
+      "reminderText": "Hugo Studio is completely free — there is nothing to pay. Use your account normally for {{days}} days; verify as a student to keep it for 365 days.",
       "reminderPending": "Your verification request is awaiting review. You can continue using your account during the trial.",
       "reminderRejected": "Your verification request was declined. You may resubmit once or ask Hugo Studio to review it.",
       "reminderAction": "Verify student status",
       "logoutBtn": "Log out",
       "submitBtn": "Submit information",
-      "reminderShort": "Trial: {{days}} days left",
+      "reminderShort": "Free · verify as a student for 365 days ({{days}} days left)",
       "reminderPendingShort": "Student verification under review",
       "reminderRejectedShort": "Student verification declined"
     },
@@ -4007,6 +4007,7 @@
       "title": "Today",
       "codingStart": "Start the coding path · {{total}} lessons",
       "codingContinue": "Continue lesson {{n}}/{{total}}",
+      "codingLearners": "{{count}} people are on this path",
       "thread": "Thread",
       "back": "Back",
       "filters": {

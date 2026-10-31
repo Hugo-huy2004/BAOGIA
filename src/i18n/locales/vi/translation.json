@@ -2063,13 +2063,13 @@
       "supportError": "Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.",
       "emailSupport": "Gửi email trực tiếp đến contact@hugowishpax.studio",
       "pendingReviewText": "Yêu cầu đang được thẩm định. Quý thành viên được sử dụng tài khoản bình thường tối đa 7 ngày kể từ ngày đăng ký. Hết thời hạn mà chưa xác minh thành công, tài khoản sẽ bị xóa. Ảnh minh chứng được xóa ngay sau khi có kết quả.",
-      "reminderText": "Quý thành viên được sử dụng tài khoản bình thường trong thời gian dùng thử {{days}} ngày. Hãy gửi yêu cầu xác minh HSSV để nhận thời hạn 365 ngày.",
+      "reminderText": "Hugo Studio hoàn toàn miễn phí, không thu bất kỳ khoản phí nào. Quý thành viên dùng bình thường trong {{days}} ngày; gửi xác minh HSSV để giữ tài khoản 365 ngày.",
       "reminderPending": "Yêu cầu xác minh đang chờ thẩm định. Quý thành viên vẫn được sử dụng tài khoản bình thường trong thời hạn dùng thử.",
       "reminderRejected": "Yêu cầu xác minh chưa được chấp thuận. Quý thành viên có thể nộp lại một lần hoặc gửi yêu cầu kháng nghị Hugo Studio.",
       "reminderAction": "Xác minh HSSV",
       "logoutBtn": "Đăng xuất",
       "submitBtn": "Gửi thông tin",
-      "reminderShort": "Dùng thử còn {{days}} ngày",
+      "reminderShort": "Miễn phí · xác minh HSSV để dùng 365 ngày (còn {{days}} ngày)",
       "reminderPendingShort": "Hồ sơ HSSV đang chờ thẩm định",
       "reminderRejectedShort": "Hồ sơ HSSV chưa được chấp thuận"
     },
@@ -4048,6 +4048,7 @@
       "title": "Hôm nay",
       "codingStart": "Bắt đầu lộ trình lập trình · {{total}} bài",
       "codingContinue": "Học tiếp bài {{n}}/{{total}}",
+      "codingLearners": "{{count}} học viên đang theo lộ trình này",
       "thread": "Chuỗi bài",
       "back": "Quay lại",
       "filters": {

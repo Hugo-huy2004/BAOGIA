@@ -120,6 +120,21 @@ router.get("/developers", async (req, res) => {
 
 /* ─────────────────────────── Member (identity = req.memberEmail) ─────────────────────────── */
 
+// Số người đã bắt đầu lộ trình (xong step1) — bằng chứng xã hội THẬT cho thẻ
+// "Học tiếp" ở Hôm nay. Đếm trên cả bảng Bio nên giữ trong RAM 10 phút.
+let learnersCache = { at: 0, count: 0 };
+router.get("/learners", requireMember, async (req, res) => {
+  try {
+    if (Date.now() - learnersCache.at > 10 * 60 * 1000) {
+      learnersCache = { at: Date.now(), count: await Bio.countDocuments({ completedLessons: "step1" }) };
+    }
+    res.json({ count: learnersCache.count });
+  } catch (error) {
+    console.error("GET learners error:", error);
+    res.status(500).json({ error: "Failed to load learners" });
+  }
+});
+
 // Everything the dev dashboard needs in one call.
 router.get("/me", requireMember, async (req, res) => {
   try {

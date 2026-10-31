@@ -124,7 +124,7 @@ export const PROFILE_FIELDS = [
     type: 'tel',
     label: 'Số điện thoại / Zalo',
     hint: 'Dùng để liên hệ khi cần và để tạo mã giới thiệu của bạn.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.phone || '').trim(),
     apply(bio, value) {
       const phone = String(value || '').trim();
@@ -142,7 +142,7 @@ export const PROFILE_FIELDS = [
     label: 'Quốc gia / vùng lãnh thổ',
     hint: 'Chọn nơi bạn đang sinh sống để Hugo Studio chuẩn bị trải nghiệm phù hợp theo khu vực.',
     options: COUNTRY_CODES.map((value) => ({ value })),
-    required: true,
+    required: false,
     isMissing: (bio) => !COUNTRY_CODES.includes(String(bio.countryCode || '').toUpperCase()),
     apply(bio, value) {
       const code = String(value || '').toUpperCase();
@@ -155,7 +155,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Tỉnh / Thành phố / Bang',
     hint: 'Nhập đơn vị hành chính cấp tỉnh, thành phố hoặc bang theo quốc gia đã chọn.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.adminArea || '').trim(),
     apply(bio, value) {
       bio.adminArea = sensitiveAnswer(value, 120);
@@ -166,7 +166,7 @@ export const PROFILE_FIELDS = [
     type: 'addressPart',
     label: 'Phường / Xã / Khu vực',
     hint: 'Nhập đơn vị hành chính địa phương tương ứng nơi bạn đang ở.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.locality || '').trim(),
     apply(bio, value) {
       bio.locality = sensitiveAnswer(value, 120);
@@ -177,7 +177,7 @@ export const PROFILE_FIELDS = [
     type: 'addressDetail',
     label: 'Địa chỉ chi tiết',
     hint: 'Chỉ ghi phần còn lại như số nhà, tên đường, toà nhà. Quốc gia và đơn vị hành chính đã được lưu ở các bước trước.',
-    required: true,
+    required: false,
     isMissing: (bio) => !String(bio.exactAddress || '').trim(),
     apply(bio, value) {
       const address = sensitiveAnswer(value, 500);
@@ -238,10 +238,20 @@ export const PROFILE_FIELDS = [
   },
 ];
 
-/** Chỉ những mục BẮT BUỘC còn trống — đây là thứ chặn onboarding. */
-export function missingProfileFields(bio) {
+/**
+ * Chỉ những mục BẮT BUỘC còn trống — đây là thứ chặn onboarding.
+ *
+ * 31/10/2026: cửa vào chỉ còn ngôn ngữ + ngày sinh (+ đồng ý của phụ huynh với
+ * người dưới tuổi) — đúng phần chính sách 14+ đòi. SĐT và địa chỉ nhà từng bắt
+ * buộc ngay lần đầu: với một app lạ, học sinh và phụ huynh thấy bị đòi địa chỉ
+ * nhà trước khi thấy app là bỏ đi. Tính năng nào thật sự cần thì tự hỏi lúc dùng.
+ */
+// Nhận quà/ưu đãi thì cần thêm SĐT: một người một suất (băm SĐT chống nhận trùng).
+const REWARD_FIELDS = ['phone'];
+
+export function missingProfileFields(bio, { reward = false } = {}) {
   if (!bio) return [];
-  return PROFILE_FIELDS.filter((field) => field.required && field.isMissing(bio));
+  return PROFILE_FIELDS.filter((field) => (field.required || (reward && REWARD_FIELDS.includes(field.key))) && field.isMissing(bio));
 }
 
 /** Bản rút gọn gửi xuống client để dựng form. */

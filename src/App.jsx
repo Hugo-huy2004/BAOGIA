@@ -8,7 +8,6 @@ import { useStandalone } from "./hooks/usePWA";
 import { ensureTranslations } from "./i18n/config";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import VacationNotificationBanner from "./components/VacationNotificationBanner";
 import MaintenancePage from "./components/MaintenancePage";
 import GlobalAdBanner from "./components/GlobalAdBanner";
@@ -25,10 +24,8 @@ import { Toaster } from "react-hot-toast";
 // INEFFECTIVE_DYNAMIC_IMPORT. Lazy ở đây thì ý định bên đó mới thành thật.
 const PWARealtimeBridge = lazy(() => import("./components/PWARealtimeBridge"));
 import NativeShell from "./components/NativeShell";
-import MobileInstallGate from "./components/ui/MobileInstallGate";
 import SafeAreaProbe from "./components/ui/SafeAreaProbe";
 import PWAQuickLogin from "./components/PWAQuickLogin";
-import DonationModal from "./components/ui/DonationModal";
 import { LazyMotion, MotionConfig } from "framer-motion";
 
 const IOS_SPRING = { type: "spring", visualDuration: 0.42, bounce: 0.18 };
@@ -88,6 +85,12 @@ const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
 const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
 const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/PartnerCollabPage"));
+
+// Không cần cho khung hình đầu: chân trang nằm cuối, hộp ủng hộ chỉ mở khi bấm,
+// cổng cài app chỉ dành cho điện thoại chưa cài. Tách khỏi gói index (~15 KB gz).
+const Footer = lazy(() => import("./components/Footer"));
+const MobileInstallGate = lazy(() => import("./components/ui/MobileInstallGate"));
+const DonationModal = lazy(() => import("./components/ui/DonationModal"));
 
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
@@ -196,7 +199,15 @@ function AppContent() {
 
   const [bypassMobileGate, setBypassMobileGate] = useState(() => {
     try {
-      return sessionStorage.getItem("pwa_gate_dismissed") === "true";
+      if (sessionStorage.getItem("pwa_gate_dismissed") === "true") return true;
+      // Lần đầu vào khu thành viên trên điện thoại: cho dùng web ngay. Bắt cài
+      // app trước khi thấy app là rào lớn nhất với người lạ; từ lần sau mới gợi ý.
+      if (location.pathname.startsWith("/member") && localStorage.getItem("hugo:member-web-seen") !== "1") {
+        localStorage.setItem("hugo:member-web-seen", "1");
+        sessionStorage.setItem("pwa_gate_dismissed", "true"); // trọn phiên đầu, kể cả tải lại
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -239,7 +250,7 @@ function AppContent() {
     new URLSearchParams(location.search).get("embed") !== "true" &&
     new URLSearchParams(location.search).get("preview") !== "true"
   ) {
-    return <MobileInstallGate onBypass={() => setBypassMobileGate(true)} />;
+    return <Suspense fallback={null}><MobileInstallGate onBypass={() => setBypassMobileGate(true)} /></Suspense>;
   }
 
   if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
@@ -442,7 +453,7 @@ function AppContent() {
       </main>
 
       {/* Global Brand footer bar */}
-      {!isEmbed && showFooter && <Footer />}
+      {!isEmbed && showFooter && <Suspense fallback={null}><Footer /></Suspense>}
 
     </div>
   );
@@ -535,7 +546,7 @@ export default function App() {
               <PWAInstallBanner />
               <PWAUpdatePrompt />
               <PWAInstallModal />
-              <DonationModal />
+              <Suspense fallback={null}><DonationModal /></Suspense>
               <Toaster
                 position="top-center"
                 reverseOrder={false}

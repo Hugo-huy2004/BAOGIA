@@ -533,7 +533,7 @@ router.get('/me/profile-gaps', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: req.memberEmail });
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
     res.json({
-      missing: missingProfileFields(bio).map(describeField),
+      missing: missingProfileFields(bio, { reward: req.query.for === 'reward' }).map(describeField),
       onboardingCompleted: Boolean(bio.onboardingCompleted),
     });
   } catch (error) {

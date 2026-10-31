@@ -535,7 +535,7 @@ export default function PartnerCollabPage() {
 
       {/* ── Hồ sơ: hỏi đúng những mục còn thiếu ─────────────────────────── */}
       {stage === "profile" && session && (
-        <OnboardingProfileModal email={session.email} onDone={onProfileDone} onSkip={onProfileDone} />
+        <OnboardingProfileModal email={session.email} purpose="reward" onDone={onProfileDone} onSkip={onProfileDone} />
       )}
 
       {/* ── Chào mừng + bản đồ tính năng (đích của tour) ────────────────── */}

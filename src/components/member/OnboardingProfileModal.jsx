@@ -34,7 +34,7 @@ const countryFlag = (code) => String.fromCodePoint(...String(code).split("").map
  * bao nhiêu nữa mới xong. Một câu hỏi một màn thì chữ để to được, nút để 52px
  * được, và có thanh tiến độ nói rõ còn mấy bước.
  */
-export default function OnboardingProfileModal({ email, onDone, onSkip, blocking = false }) {
+export default function OnboardingProfileModal({ email, onDone, onSkip, blocking = false, purpose = "" }) {
   const { t, i18n } = useTranslation();
   const [missing, setMissing] = useState(null);
   const [values, setValues] = useState({});
@@ -55,7 +55,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
 
   useEffect(() => {
     let alive = true;
-    fetch(`${apiBase}/bios/me/profile-gaps`, { credentials: "include" })
+    fetch(`${apiBase}/bios/me/profile-gaps${purpose === "reward" ? "?for=reward" : ""}`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
         if (!alive) return;
@@ -67,7 +67,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
       })
       .catch(() => alive && setMissing([]));
     return () => { alive = false; };
-  }, [onSkip, referrerCode]);
+  }, [onSkip, referrerCode, purpose]);
 
   // Mã giới thiệu là bước CUỐI và không bắt buộc — gộp nó vào danh sách bước để
   // thanh tiến độ đếm đúng, thay vì treo thêm một ô ở đáy mọi bước.

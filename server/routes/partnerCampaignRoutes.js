@@ -260,7 +260,7 @@ router.get('/:slug/me', requireMember, meLimiter, loadCampaign, async (req, res)
     const claim = await PartnerClaim.findOne({ campaign: req.campaign.slug, emailKey: emailKeyOf(bio.email) }).lean();
     return res.json({
       campaign: await publicCampaign(req.campaign),
-      profileComplete: missingProfileFields(bio).length === 0,
+      profileComplete: missingProfileFields(bio, { reward: true }).length === 0,
       displayName: bio.displayName || '',
       ...claimView(claim, bio),
     });
@@ -339,7 +339,7 @@ router.post('/:slug/claim', requireMember, claimLimiter, loadCampaign, async (re
     const bio = await findBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ thành viên.' });
 
-    const missing = missingProfileFields(bio);
+    const missing = missingProfileFields(bio, { reward: true });
     if (missing.length) {
       return res.status(409).json({
         code: 'PROFILE_INCOMPLETE',

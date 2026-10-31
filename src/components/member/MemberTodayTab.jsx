@@ -7,6 +7,7 @@ import { languageCode } from "../../i18n/languages";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/api/core/authSession";
 import { todayPostsApi } from "../../services/api/modules/todayFeedApi";
+import { apiFetch } from "../../services/api/core/apiClient";
 import ThreadPost, { Avatar } from "./today/ThreadPost";
 import ThreadComposer from "./today/ThreadComposer";
 import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../../shared/coderProgression";
@@ -165,7 +166,15 @@ function usePullToRefresh(onRefresh) {
 function CodingResume({ completedLessons, onOpen }) {
   const { t } = useTranslation();
   const done = completedCoderSteps(completedLessons).length;
+  const { data: learners } = useQuery({
+    queryKey: ["hugoteam-learners"],
+    queryFn: () => apiFetch("/hugoteam/learners", { credentials: "include" }),
+    enabled: done < CODER_TOTAL_STEPS,
+    staleTime: 10 * 60 * 1000,
+  });
   if (done >= CODER_TOTAL_STEPS) return null;
+  // Số nhỏ phản tác dụng ("3 bạn đang học" = chỗ vắng) nên chỉ hiện từ 10 trở lên.
+  const learnerCount = learners?.count >= 10 ? learners.count : 0;
   const n = done + 1;
   return (
     <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left">
@@ -177,6 +186,9 @@ function CodingResume({ completedLessons, onOpen }) {
           {done ? t("memberPortal.threads.codingContinue", { n, total: CODER_TOTAL_STEPS }) : t("memberPortal.threads.codingStart", { total: CODER_TOTAL_STEPS })}
         </span>
         <span className="block truncate text-[15px] text-muted-foreground">{OUTLINE[n - 1]?.[1]}</span>
+        {learnerCount > 0 && (
+          <span className="block text-[13px] text-muted-foreground">{t("memberPortal.threads.codingLearners", { count: learnerCount })}</span>
+        )}
         {/* Gradient mục tiêu: thấy vạch đích gần lại là động lực đi tiếp. */}
         {done > 0 && (
           <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={CODER_TOTAL_STEPS} aria-valuenow={done}>
