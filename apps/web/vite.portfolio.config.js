@@ -15,7 +15,7 @@ export default defineConfig({
     react(),
   ],
   define: { "import.meta.env.VITE_SITE_TARGET": JSON.stringify("portfolio") },
-  optimizeDeps: { entries: ["apps/web/src/portfolio/main.jsx"] },
+  optimizeDeps: { entries: ["src/portfolio/main.jsx"] },
   build: { outDir: "dist-portfolio" },
   server: { port: 3001 },
 });

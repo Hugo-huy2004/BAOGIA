@@ -19,7 +19,7 @@ Portfolio dùng project riêng **`hugo-portfolio`**, với tên miền `portfoli
 npm run deploy:portfolio
 ```
 
-Lệnh kiểm tra CV, build portfolio, kiểm tra SEO, rồi tải **chỉ bản website đã build** lên project portfolio. Cấu hình redirects, rewrites và headers lấy từ `deploy/portfolio.vercel.json`; API và file môi trường của website dịch vụ không được gửi lên project portfolio. Cần Vercel CLI đã đăng nhập đúng team. Khi sửa CV, vẫn phải xuất PDF trước khi triển khai.
+Lệnh kiểm tra CV, build portfolio, kiểm tra SEO, rồi tải **chỉ bản website đã build** lên project portfolio. Cấu hình redirects, rewrites và headers lấy từ `apps/web/deploy/portfolio.vercel.json`; API và file môi trường của website dịch vụ không được gửi lên project portfolio. Cần Vercel CLI đã đăng nhập đúng team. Khi sửa CV, vẫn phải xuất PDF trước khi triển khai.
 
 DNS nằm ở Cloudflare: CNAME `portfolio` trỏ đến đích được Vercel đề xuất (`cname.vercel-dns.com` cũng được chấp nhận), chế độ DNS only. `www` giữ cấu hình hiện có.
 

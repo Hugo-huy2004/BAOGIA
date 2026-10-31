@@ -95,11 +95,11 @@ const sourceTemplate = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 // index.html mà quên đổi hash thì trình duyệt chặn nó trong im lặng: mất chế
 // độ tối lúc đầu, mất cả "gác khởi động". Dừng build ngay thay vì deploy hỏng.
 {
-  const csp = JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json"), "utf8")).headers);
+  const csp = JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, isPortfolio ? "apps/web/deploy/portfolio.vercel.json" : "vercel.json"), "utf8")).headers);
   for (const [, body] of sourceTemplate.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
     const hash = `sha256-${createHash("sha256").update(body).digest("base64")}`;
     if (!csp.includes(hash)) {
-      console.error(`SEO: script nội tuyến trong index.html có hash ${hash} nhưng CSP trong vercel.json chưa có. Thay hash cũ trong Content-Security-Policy (vercel.json và deploy/portfolio.vercel.json) bằng giá trị này.`);
+      console.error(`SEO: script nội tuyến trong index.html có hash ${hash} nhưng CSP trong vercel.json chưa có. Thay hash cũ trong Content-Security-Policy (vercel.json và apps/web/deploy/portfolio.vercel.json) bằng giá trị này.`);
       process.exit(1);
     }
   }
@@ -965,7 +965,7 @@ fs.writeFileSync(
 // Trước đây phải thêm tay, nên thêm một dự án là quên một rewrite và trang mới
 // rơi vào bản SPA rỗng (Google đọc được đúng cái khung). Giờ danh sách này sinh
 // ra từ chính các trang vừa dựng; những rewrite khác (/api, /pay…) giữ nguyên.
-const vercelPath = path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json");
+const vercelPath = path.join(ROOT, isPortfolio ? "apps/web/deploy/portfolio.vercel.json" : "vercel.json");
 const vercel = JSON.parse(fs.readFileSync(vercelPath, "utf8"));
 const generated = [
   ...partnerRewrites,

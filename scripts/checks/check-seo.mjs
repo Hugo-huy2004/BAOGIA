@@ -109,7 +109,7 @@ if (
   errors.push("robots.txt phải khai báo đúng một sitemap trên tên miền www.");
 }
 
-const vercel = JSON.parse(read(path.join(ROOT, isPortfolio ? "deploy/portfolio.vercel.json" : "vercel.json")));
+const vercel = JSON.parse(read(path.join(ROOT, isPortfolio ? "apps/web/deploy/portfolio.vercel.json" : "vercel.json")));
 const rewrites = new Map(
   (vercel.rewrites || []).map(({ source, destination }) => [source, destination]),
 );
