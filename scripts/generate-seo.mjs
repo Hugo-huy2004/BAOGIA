@@ -30,6 +30,9 @@ import { SERVICE_ADDONS, addonPath } from "../apps/web/src/data/serviceAddons.js
 import { projects } from "../apps/web/src/data/projects.js";
 import { profileSkills, skillsCopy } from "../apps/web/src/data/profileSkills.js";
 import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../packages/shared/partnerCampaigns.js";
+import { EDU_COPY, EDU_LANGS } from "../apps/web/src/education/eduCopy.js";
+import { STAGES as CODER_STAGES } from "../apps/web/src/components/member/hugoCoder/lessons/stages.js";
+import { EDU_ORIGIN } from "../packages/shared/eduSite.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const isPortfolio = process.env.SITE_TARGET === "portfolio";
@@ -864,6 +867,85 @@ if (!isPortfolio) {
       // TRƯỚC file tĩnh (rewrite thì thua file tĩnh cùng đường dẫn).
     }
   }
+}
+
+// ── Education Hugo (education.hugowishpax.studio) ────────────────────────────
+// Cùng bản build với www. Vercel trả file tĩnh TRƯỚC rewrite, nên "/" của tên miền
+// edu luôn ra index.html (= trang Dịch vụ) — Google và thẻ chia sẻ Zalo/Facebook đọc
+// nhầm. middleware.js ở gốc repo đổi "/", "/en", "/zh", robots, sitemap của tên miền
+// edu sang các file dưới đây. Chữ lấy từ education/eduCopy.js (cùng nguồn với trang thật).
+if (!isPortfolio) {
+  const eduUrl = (code) => `${EDU_ORIGIN}${code === "vi" ? "/" : `/${code}`}`;
+  const image = { url: `${EDU_ORIGIN}/og/education.jpg`, type: "image/jpeg", width: 1200, height: 630 };
+  const hreflang = [
+    ...EDU_LANGS.map(({ code }) => `<link rel="alternate" hreflang="${code}" href="${eduUrl(code)}" />`),
+    `<link rel="alternate" hreflang="x-default" href="${eduUrl("vi")}" />`,
+  ].join("\n    ");
+  for (const { code } of EDU_LANGS) {
+    const copy = EDU_COPY[code];
+    const { seo } = copy;
+    const url = eduUrl(code);
+    const stages = CODER_STAGES.map((stage) => ({ ...stage, ...(code === "vi" ? {} : { ...stage.intro, ...copy.curriculum.stages[stage.id] }), learn: code === "vi" ? stage.intro.learn : copy.curriculum.stages[stage.id].learn, title: code === "vi" ? stage.title.replace(/^CODE \d+ · /, "") : copy.curriculum.stages[stage.id].title }));
+    let html = sourceTemplate
+      .replace(/<html lang="[^"]*"/, `<html lang="${code}"`)
+      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(seo.title)}</title>`)
+      .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(seo.description)}" />`)
+      .replace(/<meta\s+name="keywords"\s+content="[\s\S]*?"\s*\/>/, `<meta name="keywords" content="${escAttr(seo.keywords)}" />`)
+      .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />\n    ${hreflang}`)
+      .replace('href="/favicon/favicon.svg"', 'href="/edu/buddy-learn.svg"')
+      .replace('href="/favicon/apple-touch-icon.png"', 'href="/edu/apple-touch-icon.png"')
+      .replace('href="/manifest.webmanifest"', 'href="/edu.webmanifest"')
+      .replace(/<meta name="theme-color" content="#ffffff"/, '<meta name="theme-color" content="#29cdff"')
+      // Khối JSON-LD của Hugo Studio (danh tính www) không thuộc trang này.
+      .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "");
+    for (const [attr, name, value] of [
+      ["property", "og:title", seo.title], ["property", "og:description", seo.description],
+      ["property", "og:url", url], ["property", "og:site_name", "Education Hugo"],
+      ["property", "og:locale", OG_LOCALE[code]], ["property", "og:image:alt", seo.imageAlt],
+      ["name", "twitter:title", seo.title], ["name", "twitter:description", seo.description],
+      ["name", "twitter:image:alt", seo.imageAlt],
+    ]) {
+      html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
+    }
+    html = applyOgImage(html, image);
+    const provider = { "@type": "Organization", name: "Hugo Studio", url: ORIGIN, nonprofitStatus: "Nonprofit" };
+    const schema = [
+      { "@context": "https://schema.org", "@type": "WebSite", name: "Education Hugo", url: eduUrl("vi"), inLanguage: EDU_LANGS.map((l) => l.code), publisher: provider },
+      {
+        "@context": "https://schema.org", "@type": "Course", "@id": `${url}#course`,
+        name: seo.h1, description: seo.description, url, image: image.url, inLanguage: "vi",
+        isAccessibleForFree: true, educationalLevel: "Beginner", provider,
+        teaches: stages.flatMap((stage) => stage.learn),
+        offers: { "@type": "Offer", category: "Free", price: 0, priceCurrency: "VND" },
+        hasCourseInstance: { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT20H" },
+        syllabusSections: stages.map((stage) => ({ "@type": "Syllabus", name: stage.title, description: stage.learn.join("; ") })),
+      },
+      { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: seo.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+    ];
+    html = html.replace("</head>", `${schema.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join("\n")}\n</head>`);
+    const body =
+      `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',system-ui,sans-serif;line-height:1.6">` +
+      `<h1>${escAttr(seo.h1)}</h1><p>${escAttr(seo.lead)}</p>` +
+      `<ul>${copy.landing.ways.map((way) => `<li><b>${escAttr(way.title)}</b> — ${escAttr(way.body)}</li>`).join("")}</ul>` +
+      `<h2>${escAttr(seo.learnTitle)}</h2>` +
+      stages.map((stage) => `<h3>${escAttr(stage.code)} · ${escAttr(stage.title)}</h3><ul>${stage.learn.map((item) => `<li>${escAttr(item)}</li>`).join("")}</ul>`).join("") +
+      `<h2>${escAttr(seo.faqTitle)}</h2>` +
+      seo.faq.map(([q, a]) => `<h3>${escAttr(q)}</h3><p>${escAttr(a)}</p>`).join("") +
+      `<p><a href="${EDU_ORIGIN}/learn">${escAttr(copy.landing.startLearning)}</a> · ` +
+      EDU_LANGS.map((l) => `<a href="${eduUrl(l.code)}" hreflang="${l.code}">${l.label}</a>`).join(" · ") +
+      ` · <a href="${ORIGIN}/">Hugo Studio</a></p></div>`;
+    html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
+    fs.writeFileSync(path.join(DIST, code === "vi" ? "edu.html" : `edu-${code}.html`), html);
+  }
+  fs.writeFileSync(path.join(DIST, "edu-sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
+    EDU_LANGS.map(({ code }) =>
+      `  <url>\n    <loc>${eduUrl(code)}</loc>\n` +
+      EDU_LANGS.map((l) => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${eduUrl(l.code)}"/>\n`).join("") +
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${eduUrl("vi")}"/>\n    <changefreq>weekly</changefreq>\n    <priority>${code === "vi" ? "1.0" : "0.9"}</priority>\n  </url>\n`).join("") +
+    `</urlset>\n`);
+  fs.writeFileSync(path.join(DIST, "edu-robots.txt"),
+    `User-agent: *\nAllow: /\nDisallow: /api\nDisallow: /progress\nDisallow: /store\nDisallow: /settings\nDisallow: /profile\n\nSitemap: ${EDU_ORIGIN}/sitemap.xml\n`);
 }
 
 // ── sitemap.xml ───────────────────────────────────────────────────────────────

@@ -2,9 +2,8 @@
 // icon, màu chủ đề và splash iOS phải đổi lúc chạy — trình duyệt đọc lại thẻ
 // manifest khi nó đổi, và iOS đọc icon/tên ở thời điểm "Thêm vào MH chính".
 import { useEffect } from "react";
+import { useEduText } from "./eduText";
 
-const TITLE = "Education Hugo — Học lập trình web miễn phí";
-const DESCRIPTION = "Học lập trình web miễn phí bằng cách tự tay làm mạng xã hội Nhịp: HTML, CSS, JavaScript, PHP, MySQL, bảo mật và triển khai. Thuộc Hugo Studio.";
 
 function upsert(selector, create, attr, value) {
   const nodes = document.head.querySelectorAll(selector);
@@ -19,9 +18,12 @@ function upsert(selector, create, attr, value) {
 }
 
 export function useEduHead() {
+  const { t, lang } = useEduText();
+  const TITLE = t("seo.title");
+  const DESCRIPTION = t("seo.description");
   useEffect(() => {
     document.title = TITLE;
-    document.documentElement.lang = "vi";
+    document.documentElement.lang = lang;
     upsert('link[rel="manifest"]', { tag: "link", attrs: { rel: "manifest" } }, "href", "/edu.webmanifest");
     upsert('link[rel="apple-touch-icon"]', { tag: "link", attrs: { rel: "apple-touch-icon" } }, "href", "/edu/apple-touch-icon.png");
     upsert('link[rel="icon"]', { tag: "link", attrs: { rel: "icon", type: "image/svg+xml" } }, "href", "/edu/buddy-learn.svg");
@@ -30,10 +32,10 @@ export function useEduHead() {
     upsert('meta[name="description"]', { tag: "meta", attrs: { name: "description" } }, "content", DESCRIPTION);
     upsert('meta[property="og:title"]', { tag: "meta", attrs: { property: "og:title" } }, "content", TITLE);
     upsert('meta[property="og:description"]', { tag: "meta", attrs: { property: "og:description" } }, "content", DESCRIPTION);
-    upsert('link[rel="canonical"]', { tag: "link", attrs: { rel: "canonical" } }, "href", `${window.location.origin}/`);
+    upsert('link[rel="canonical"]', { tag: "link", attrs: { rel: "canonical" } }, "href", `${window.location.origin}${lang === "vi" ? "/" : `/${lang}`}`);
     // Ảnh mở app của Hugo Studio không thuộc về Education Hugo.
     document.head.querySelectorAll('link[rel="apple-touch-startup-image"]').forEach((node) => node.remove());
-  }, []);
+  }, [TITLE, DESCRIPTION, lang]);
 }
 
 // beforeinstallprompt chỉ bắn MỘT lần, thường trước khi màn nào kịp mount —
@@ -46,6 +48,9 @@ if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("edu:installable"));
   });
 }
+
+/** Trình duyệt đang giữ sẵn hộp cài (Chrome/Edge/Android) — có thì hiện nút "Cài ngay". */
+export const canPromptInstall = () => Boolean(deferredInstall);
 
 /** true = đã hiện hộp cài của trình duyệt; false = trình duyệt không hỗ trợ (iOS) → tự hướng dẫn. */
 export async function promptInstall() {

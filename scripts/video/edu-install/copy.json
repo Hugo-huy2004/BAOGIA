@@ -1,0 +1,237 @@
+{
+  "_note": "Kịch bản video hướng dẫn cài Education Hugo. Mỗi cảnh: `say` là lời thoại, `lines` là phụ đề hiện lần lượt. Lời cho ElevenLabs: chạy `node render.mjs --script` để lấy MỘT đoạn liền mỗi ngôn ngữ, xuất một tệp voice/<lang>.mp3 — render tự cắt theo cảnh.",
+  "vi": {
+    "ui": {
+      "url": "education.hugowishpax.studio",
+      "iosChip": "iPhone · iPad — Safari",
+      "androidChip": "Android — Chrome",
+      "share": "Chia sẻ",
+      "copy": "Sao chép",
+      "readingList": "Thêm vào danh sách đọc",
+      "addHome": "Thêm vào MH chính",
+      "addTitle": "Thêm vào màn hình chính",
+      "add": "Thêm",
+      "cancel": "Huỷ",
+      "newTab": "Tab mới",
+      "bookmarks": "Dấu trang",
+      "install": "Cài đặt ứng dụng",
+      "installTitle": "Cài đặt ứng dụng?",
+      "installBtn": "Cài đặt",
+      "why1": "Mở ngay từ màn hình chính",
+      "why2": "Toàn màn hình, như ứng dụng thật",
+      "why3": "Nhắc học mỗi ngày",
+      "appName": "Edu Hugo",
+      "done": "Xong rồi!"
+    },
+    "scenes": [
+      {
+        "id": "intro",
+        "say": "Chào bạn! Mình là Hugo. Chỉ ba mươi giây thôi, mình chỉ bạn cài Education Hugo lên điện thoại nhé.",
+        "lines": [
+          "Chào bạn! Mình là Hugo.",
+          "30 giây thôi — cài Education Hugo lên điện thoại nhé!"
+        ]
+      },
+      {
+        "id": "why",
+        "say": "Cài xong, bạn mở học ngay từ màn hình chính, toàn màn hình như ứng dụng thật, và còn được nhắc học mỗi ngày.",
+        "lines": [
+          "Mở học ngay từ màn hình chính.",
+          "Toàn màn hình như ứng dụng thật.",
+          "Còn được nhắc học mỗi ngày!"
+        ]
+      },
+      {
+        "id": "ios",
+        "say": "Nếu bạn dùng iPhone hoặc iPad: mở trang bằng Safari. Bấm nút Chia sẻ ở thanh dưới cùng. Chọn Thêm vào màn hình chính. Rồi bấm Thêm ở góc trên.",
+        "lines": [
+          "iPhone, iPad: mở trang bằng Safari.",
+          "Bấm nút Chia sẻ ở thanh dưới.",
+          "Chọn “Thêm vào MH chính”.",
+          "Bấm “Thêm” ở góc trên. Xong!"
+        ]
+      },
+      {
+        "id": "android",
+        "say": "Nếu bạn dùng Android: mở trang bằng Chrome. Bấm dấu ba chấm ở góc trên. Chọn Cài đặt ứng dụng. Rồi bấm Cài đặt.",
+        "lines": [
+          "Android: mở trang bằng Chrome.",
+          "Bấm dấu ba chấm ở góc trên.",
+          "Chọn “Cài đặt ứng dụng”.",
+          "Bấm “Cài đặt”. Xong!"
+        ]
+      },
+      {
+        "id": "done",
+        "say": "Xong rồi! Biểu tượng Education Hugo đã nằm trên màn hình chính. Chạm vào và cùng học lập trình thôi!",
+        "lines": [
+          "Xong rồi! Biểu tượng đã nằm trên màn hình chính.",
+          "Chạm vào và cùng học lập trình thôi!"
+        ]
+      }
+    ]
+  },
+  "en": {
+    "ui": {
+      "url": "education.hugowishpax.studio",
+      "iosChip": "iPhone · iPad — Safari",
+      "androidChip": "Android — Chrome",
+      "share": "Share",
+      "copy": "Copy",
+      "readingList": "Add to Reading List",
+      "addHome": "Add to Home Screen",
+      "addTitle": "Add to Home Screen",
+      "add": "Add",
+      "cancel": "Cancel",
+      "newTab": "New tab",
+      "bookmarks": "Bookmarks",
+      "install": "Install app",
+      "installTitle": "Install app?",
+      "installBtn": "Install",
+      "why1": "Open it straight from your home screen",
+      "why2": "Full screen, like a real app",
+      "why3": "A daily study reminder",
+      "appName": "Edu Hugo",
+      "done": "All set!"
+    },
+    "scenes": [
+      {
+        "id": "intro",
+        "say": "Hi there! I'm Hugo. In just thirty seconds, I'll show you how to install Education Hugo on your phone.",
+        "lines": [
+          "Hi there! I'm Hugo.",
+          "30 seconds — let's install Education Hugo on your phone!"
+        ]
+      },
+      {
+        "id": "why",
+        "say": "Once it's installed, you can start learning right from your home screen, in full screen like a real app, with a reminder to study every day.",
+        "lines": [
+          "Start learning right from your home screen.",
+          "Full screen, like a real app.",
+          "Plus a reminder to study every day!"
+        ]
+      },
+      {
+        "id": "ios",
+        "say": "On iPhone or iPad: open the page in Safari. Tap the Share button in the bottom bar. Choose Add to Home Screen. Then tap Add in the top corner.",
+        "lines": [
+          "iPhone, iPad: open the page in Safari.",
+          "Tap the Share button in the bottom bar.",
+          "Choose “Add to Home Screen”.",
+          "Tap “Add” in the top corner. Done!"
+        ]
+      },
+      {
+        "id": "android",
+        "say": "On Android: open the page in Chrome. Tap the three dots in the top corner. Choose Install app. Then tap Install.",
+        "lines": [
+          "Android: open the page in Chrome.",
+          "Tap the three dots in the top corner.",
+          "Choose “Install app”.",
+          "Tap “Install”. Done!"
+        ]
+      },
+      {
+        "id": "done",
+        "say": "All set! The Education Hugo icon is now on your home screen. Tap it, and let's learn to code together!",
+        "lines": [
+          "All set! The icon is on your home screen.",
+          "Tap it and let's learn to code together!"
+        ]
+      }
+    ]
+  },
+  "zh": {
+    "ui": {
+      "url": "education.hugowishpax.studio",
+      "iosChip": "iPhone · iPad — Safari",
+      "androidChip": "Android — Chrome",
+      "share": "分享",
+      "copy": "拷贝",
+      "readingList": "添加到阅读列表",
+      "addHome": "添加到主屏幕",
+      "addTitle": "添加到主屏幕",
+      "add": "添加",
+      "cancel": "取消",
+      "newTab": "新标签页",
+      "bookmarks": "书签",
+      "install": "安装应用",
+      "installTitle": "要安装应用吗？",
+      "installBtn": "安装",
+      "why1": "从主屏幕直接打开",
+      "why2": "全屏显示，像真正的应用",
+      "why3": "每天提醒你学习",
+      "appName": "Edu Hugo",
+      "done": "完成！"
+    },
+    "scenes": [
+      {
+        "id": "intro",
+        "say": "你好！我是 Hugo。只要三十秒，我教你把 Education Hugo 安装到手机上。",
+        "lines": [
+          "你好！我是 Hugo。",
+          "只要 30 秒，把 Education Hugo 装到手机上！"
+        ]
+      },
+      {
+        "id": "why",
+        "say": "安装之后，你可以直接从主屏幕开始学习，全屏显示，就像真正的应用，还会每天提醒你学习。",
+        "lines": [
+          "直接从主屏幕开始学习。",
+          "全屏显示，像真正的应用。",
+          "还会每天提醒你学习！"
+        ]
+      },
+      {
+        "id": "ios",
+        "say": "如果你用 iPhone 或 iPad：用 Safari 打开页面。点击底部栏的分享按钮。选择添加到主屏幕。然后点击右上角的添加。",
+        "lines": [
+          "iPhone、iPad：用 Safari 打开页面。",
+          "点击底部栏的分享按钮。",
+          "选择“添加到主屏幕”。",
+          "点击右上角的“添加”。完成！"
+        ]
+      },
+      {
+        "id": "android",
+        "say": "如果你用安卓手机：用 Chrome 打开页面。点击右上角的三个点。选择安装应用。然后点击安装。",
+        "lines": [
+          "安卓：用 Chrome 打开页面。",
+          "点击右上角的三个点。",
+          "选择“安装应用”。",
+          "点击“安装”。完成！"
+        ]
+      },
+      {
+        "id": "done",
+        "say": "完成啦！Education Hugo 的图标已经在主屏幕上了。点开它，一起学编程吧！",
+        "lines": [
+          "完成啦！图标已经在主屏幕上了。",
+          "点开它，一起学编程吧！"
+        ]
+      }
+    ]
+  },
+  "voiceCuts": {
+    "_note": "Giây cắt giữa 5 cảnh trong voice/<lang>.mp3 (ElevenLabs bản v3+ bỏ qua thẻ <break> nên không có khoảng lặng dài để tự dò). Mỗi số nằm trong khoảng ngừng giữa hai cảnh; render bám vào khoảng lặng gần nhất. Tạo giọng mới thì sửa lại.",
+    "vi": [
+      6.3,
+      13.2,
+      24.0,
+      32.35
+    ],
+    "en": [
+      7.5,
+      16.0,
+      27.7,
+      37.3
+    ],
+    "zh": [
+      6.75,
+      13.35,
+      26.85,
+      36.15
+    ]
+  }
+}

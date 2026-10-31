@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
-import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { clearMemberSession, getMemberSession, logoutAuth } from "../services/api/core/authSession";
 import { hugoCoderApi } from "../services/api/modules/hugoCoderApi";
 import { useCoderLessons } from "../hooks/useCoderLessons";
@@ -7,15 +7,31 @@ import { useJoyStore } from "../stores/joyStore";
 import { useEduHead } from "./eduHead";
 import EduLanding from "./EduLanding";
 import EduLogin from "./EduLogin";
-import EduShell, { EduProfile, EduStore } from "./EduShell";
+import EduShell, { EduInstallGate, EduProfile, EduStore } from "./EduShell";
+import { detectInstallTarget } from "../config/platform";
+import { useStandalone } from "../hooks/usePWA";
 import EduSettings from "./EduSettings";
 import { useEduPrefs } from "./useEduPrefs";
+import { useEduText } from "./eduText";
+import { changeAppLanguage } from "../i18n/config";
+import { installEduTapSounds } from "./eduSound";
+import EduWelcome, { needsWelcome } from "./EduWelcome";
+import { StreakCelebration, useStreakCelebration } from "./EduStreak";
 import "./education.css";
 
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
 const CoderProgress = lazy(() => import("../components/member/hugoCoder/HugoCoderHub").then((mod) => ({ default: mod.ManageTab })));
 
-const Loading = () => <div className="edu-loading" aria-label="Đang tải"><img src="/edu/buddy-learn.svg" alt="" /></div>;
+function Loading() {
+  const { t } = useEduText();
+  return <div className="edu-loading" aria-label={t("common.loading")}><img src="/edu/buddy-learn.svg" alt="" /></div>;
+}
+
+/** /en, /zh: trang giới thiệu theo ngôn ngữ đó (link chia sẻ + trang tĩnh SEO trỏ về đây). */
+function LangLanding({ lang, signedIn }) {
+  useEffect(() => { changeAppLanguage(lang); }, [lang]);
+  return signedIn ? <Navigate to="/learn" replace /> : <EduLanding />;
+}
 
 /**
  * Education Hugo — education.hugowishpax.studio.
@@ -100,14 +116,31 @@ export default function EducationApp() {
 
   const me = learner || (signedIn ? { email: session.email, displayName: session.displayName, avatarUrl: session.avatarUrl } : null);
   const textSize = useEduPrefs(signedIn ? learner?.edu?.prefs : null);
-  const shell = (view, children) => <EduShell view={view} learner={me} signedIn={signedIn}>{children}</EduShell>;
+  const shell = (view, children) => <EduShell view={view} learner={me} signedIn={signedIn} onLearnerUpdate={mergeLearner}>{children}</EduShell>;
   const needsLogin = <Navigate to="/login" replace />;
+  // Lần đầu vào: chọn ngôn ngữ → đồng ý điều khoản (xem EduWelcome). Âm thanh chạm cho cả site.
+  const [welcome, setWelcome] = useState(needsWelcome);
+  useEffect(() => installEduTapSounds(), []);
+  const celebration = useStreakCelebration();
+
+  // Điện thoại chưa cài app: chỉ trang giới thiệu, mọi trang học → video cài đặt.
+  const standalone = useStandalone();
+  const location = useLocation();
+  const device = detectInstallTarget();
+  const phoneWeb = (device.iOS || device.android) && !standalone;
+  const gated = phoneWeb && !["/", "/en", "/zh"].includes(location.pathname);
 
   return (
     <div className={`edu${textSize === "lg" ? " edu-text-lg" : ""}`}>
-      <Routes>
+      {gated && <EduInstallGate />}
+      {welcome && <EduWelcome onDone={() => setWelcome(false)} />}
+      {celebration.event && <StreakCelebration milestone={celebration.event.milestone} stage={celebration.event.stage} onClose={celebration.close} />}
+      {!gated && <Routes>
         <Route path="/" element={signedIn ? <Navigate to="/learn" replace /> : <EduLanding />} />
         {/* Tải lại cả trang sau đăng nhập: bộ nhớ đệm bài học (401 lúc còn là khách) và phiên mới cùng sạch. */}
+        <Route path="/en" element={<LangLanding lang="en" signedIn={signedIn} />} />
+        <Route path="/zh" element={<LangLanding lang="zh" signedIn={signedIn} />} />
+        <Route path="/install" element={<EduInstallGate />} />
         <Route path="/login" element={signedIn ? <Navigate to="/learn" replace /> : <EduLogin onSignedIn={() => window.location.assign("/learn")} />} />
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
@@ -116,7 +149,7 @@ export default function EducationApp() {
         <Route path="/settings" element={signedIn ? shell("settings", <EduSettings learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} onSignOut={signOut} />) : needsLogin} />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      </Routes>}
     </div>
   );
 }
@@ -147,10 +180,11 @@ function LessonView({ learner, onLearnerUpdate }) {
 }
 
 function ProgressView({ learner }) {
+  const { t } = useEduText();
   const { courses, stages } = useCoderLessons(null);
   return (
     <section className="edu-page">
-      <h1 className="edu-page-title">Tiến độ</h1>
+      <h1 className="edu-page-title">{t("progress.title")}</h1>
       <Suspense fallback={<Loading />}>
         <CoderProgress bio={learner} courses={courses} stages={stages} />
       </Suspense>

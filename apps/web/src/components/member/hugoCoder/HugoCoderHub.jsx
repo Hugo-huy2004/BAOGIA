@@ -12,6 +12,7 @@ import { getMemberSession } from "../../../services/api/core/authSession";
 import { hugoCoderApi } from "../../../services/api/modules/hugoCoderApi";
 import LessonPlayer from "./LessonPlayer";
 import { joyText } from "../../../lib/joyDisplay";
+import { useEduText } from "../../../education/eduText";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
 
@@ -179,6 +180,7 @@ function LearningResources({ stages }) {
 
 // ====== Tiến độ — danh hiệu, chặng, điểm trắc nghiệm (Education Hugo dùng lại) ======
 export function ManageTab({ bio, courses, stages }) {
+  const { t: edu } = useEduText();
   const completed = useMemo(
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
     [bio?.completedLessons, courses]
@@ -193,13 +195,7 @@ export function ManageTab({ bio, courses, stages }) {
   const scoredSteps = courses.filter((course) => scores[course.id]);
   const earnedCount = stages.filter(stageEarned).length;
   // Danh hiệu theo chặng đã đi qua (6 / 11 / 15 / 19 / 22 step).
-  const rank =
-    completed.length >= 22 ? "Kỹ sư Full-Stack"
-    : completed.length >= 19 ? "Kỹ sư Bảo mật Web"
-    : completed.length >= 15 ? "Lập trình viên CRUD"
-    : completed.length >= 11 ? "Lập trình viên PHP & SQL"
-    : completed.length >= 6 ? "Lập trình viên Web nền tảng"
-    : "Học viên Nhập môn";
+  const rank = edu("hub.ranks")[[6, 11, 15, 19, 22].filter((need) => completed.length >= need).length];
 
   const pct = percentage(completed.length, courses.length);
 
@@ -224,9 +220,9 @@ export function ManageTab({ bio, courses, stages }) {
             </div>
           </div>
           <div className="min-w-0">
-            <p className="text-[13px] font-black uppercase tracking-widest text-white/70">Danh hiệu hiện tại</p>
+            <p className="text-[13px] font-black uppercase tracking-widest text-white/70">{edu("hub.rankTitle")}</p>
             <h3 className="text-lg font-black leading-tight truncate">{rank}</h3>
-            <p className="text-[13px] text-white/80 mt-0.5">{completed.length}/{courses.length} step • {earnedCount}/{stages.length} chặng hoàn thành</p>
+            <p className="text-[13px] text-white/80 mt-0.5">{edu("hub.rankLine", { done: completed.length, total: courses.length, stages: earnedCount, allStages: stages.length })}</p>
           </div>
         </div>
       </section>
@@ -236,7 +232,7 @@ export function ManageTab({ bio, courses, stages }) {
         <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
           <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
             <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><GraduationCap className="w-3.5 h-3.5 text-foreground" /></span>
-            Điểm trắc nghiệm
+            {edu("hub.scores")}
           </h3>
           <div className="space-y-1.5">
             {scoredSteps.map((step) => {
@@ -245,7 +241,7 @@ export function ManageTab({ bio, courses, stages }) {
                 <div key={step.id} className="flex items-center justify-between gap-2 text-[13px] py-2 border-b border-border/40 last:border-0">
                   <span className="text-foreground/80 truncate">{step.title}</span>
                   <span className="shrink-0 text-[13px] font-black text-muted-foreground">
-                    lần đầu {entry.firstTry}% · cao nhất {entry.best}%
+                    {edu("hub.scoreLine", { first: entry.firstTry, best: entry.best })}
                   </span>
                 </div>
               );
@@ -265,6 +261,7 @@ export function ManageTab({ bio, courses, stages }) {
 // khiển qua `progressOpen`/`onProgressChange`.
 export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, basePath = "/member/utilities/study/coding", framed = false, progressOpen: controlledProgress, onProgressChange, program = "coding", programProgress = null, maxSteps = null, onProgramProgress, onLessonChange }) {
   const { t } = useTranslation();
+  const { t: edu } = useEduText();
   const navigate = useNavigate();
   const [ownProgress, setOwnProgress] = useState(false);
   const progressOpen = controlledProgress ?? ownProgress;
@@ -309,14 +306,14 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
   const lockedNotice = (
     <div className="max-w-lg mx-auto mt-10 rounded-2xl border border-border bg-card p-6 text-center space-y-3">
       <p className="text-[15px] font-black text-foreground">
-        {detailError?.status === 401 ? "Đăng nhập để học tiếp" : "Chưa mở được step này"}
+        {detailError?.status === 401 ? edu("hub.loginToContinue") : edu("hub.cannotOpen")}
       </p>
-      <p className="text-[14px] text-muted-foreground">{detailError?.message || "Khoá Coding miễn phí, chỉ cần đăng nhập để lưu tiến độ."}</p>
+      <p className="text-[14px] text-muted-foreground">{detailError?.message || edu("hub.freeNote")}</p>
       <div className="flex justify-center gap-2">
         {detailError?.status === 401 && (
-          <a href="/login" className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[14px] font-black">Đăng nhập</a>
+          <a href="/login" className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[14px] font-black">{edu("common.login")}</a>
         )}
-        <button type="button" onClick={exitLesson} className="px-4 py-2.5 rounded-xl bg-muted text-foreground text-[14px] font-black">Về bản đồ</button>
+        <button type="button" onClick={exitLesson} className="px-4 py-2.5 rounded-xl bg-muted text-foreground text-[14px] font-black">{edu("hub.backToMap")}</button>
       </div>
     </div>
   );
@@ -339,7 +336,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
     const data = await response.json().catch(() => ({}));
     // Chưa đạt vẫn là kết quả hợp lệ kèm lời giải, không phải lỗi mạng.
     if (!response.ok && data.code !== "QUIZ_BELOW_PASS") {
-      throw new Error(data.error || "Chưa nộp được bài, hãy thử lại.");
+      throw new Error(data.error || edu("player.submitFailed"));
     }
     if (member && data.passed && !data.alreadyCompleted) {
       try {
@@ -354,15 +351,23 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
       onBioUpdate?.({
         ...bio,
         completedLessons: [...new Set([...(bio?.completedLessons || []), course.id])],
+        ...(data.eduStreak ? { edu: { ...(bio?.edu || {}), streak: data.eduStreak.streak } } : {}),
         hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: (({ best, firstTry } = bio?.hugoCoderExamScores?.[course.id] || {}) => ({ best: Math.max(Number(best) || 0, data.score), firstTry: firstTry ?? data.score }))() },
         ...(Number.isFinite(data.balance) ? { joyBalance: data.balance } : {}),
       });
+      // Education Hugo: chuỗi lửa mới + màn chúc mừng nếu vừa chạm mốc (EduStreak).
+      if (data.eduStreak?.milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { milestone: data.eduStreak.milestone, stage: data.eduStreak.streak.stage } }));
       // Qua step lần đầu: +5 JOY mỗi câu đúng (máy chủ tính, xem award-learning).
-      if (data.joyEarned > 0) notify.success(`+${joyText(data.joyEarned)} · ${data.correct}/${data.total} câu đúng`);
+      if (data.joyEarned > 0) notify.success(edu("hub.earned", { joy: joyText(data.joyEarned), correct: data.correct, total: data.total }));
       if (program === "hugoteam") onProgramProgress?.(data);
     }
     if (member && program === "hugoteam" && data.alreadyCompleted) onProgramProgress?.(data);
-    if (!member && data.passed) notify.info("Đăng nhập để lưu tiến độ học tập.");
+    // Học lại step đã qua cũng giữ lửa hôm nay (Education Hugo).
+    if (member && data.alreadyCompleted && data.eduStreak) {
+      onBioUpdate?.({ ...bio, edu: { ...(bio?.edu || {}), streak: data.eduStreak.streak } });
+      if (data.eduStreak.milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { milestone: data.eduStreak.milestone, stage: data.eduStreak.streak.stage } }));
+    }
+    if (!member && data.passed) notify.info(edu("hub.guestSaved"));
     return data;
   };
 

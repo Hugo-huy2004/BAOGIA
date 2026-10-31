@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Bug, Check, Code2, Database, Flag, Lock, Rocket, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
 import { gradeStage } from "../../../../../../packages/shared/stageGrading";
 import { isEduHost } from "../../../../../../packages/shared/eduSite";
+import { useEduText } from "../../../education/eduText";
 
 /**
  * Bản đồ khoá Coding — một con đường lục giác đi qua sáu vùng phong cảnh.
@@ -18,9 +19,9 @@ import { isEduHost } from "../../../../../../packages/shared/eduSite";
 const HUGO_LOOK = {
   basic: { icon: Code2, mascot: "/image/coding/hugo-1.webp" },
   intermediate: { icon: Database, mascot: "/image/coding/hugo-5.webp" },
-  advanced: { icon: Users, Mascot: RobotMascot },
-  security: { icon: ShieldCheck, Mascot: OwlMascot },
-  project: { icon: Sparkles, Mascot: AstronautMascot },
+  advanced: { icon: Users, Mascot: RobotMascot, label: "map.robot" },
+  security: { icon: ShieldCheck, Mascot: OwlMascot, label: "map.owl" },
+  project: { icon: Sparkles, Mascot: AstronautMascot, label: "map.astronaut" },
   devops: { icon: Rocket, mascot: "/image/coding/hugo-6.webp" },
 };
 // Education Hugo: dàn nhân vật clay (scripts/generate-mascots.mjs), mỗi chặng một bạn.
@@ -37,9 +38,9 @@ const GROUND = { blue: "#58c13d", green: "#2fb5c9", purple: "#a3d977", pink: "#f
 const offsetOf = (index, flip) => Math.round(Math.sin(index * 0.9) * 70) * (flip ? -1 : 1);
 
 /** Robot CRUD — chặng 3: tay cầm thẻ bài đăng, mắt chớp. */
-function RobotMascot() {
+function RobotMascot({ label }) {
   return (
-    <svg viewBox="0 0 100 110" role="img" aria-label="Robot CRUD đang chờ">
+    <svg viewBox="0 0 100 110" role="img" aria-label={label}>
       <ellipse cx="50" cy="104" rx="28" ry="5" fill="#000" opacity=".15" />
       <line x1="50" y1="8" x2="50" y2="20" stroke="#5c6ac4" strokeWidth="3" />
       <circle cx="50" cy="7" r="5" fill="#ff6b9d" />
@@ -56,9 +57,9 @@ function RobotMascot() {
 }
 
 /** Cú gác cổng — chặng 4 bảo mật: ôm khiên, mắt tròn canh chừng. */
-function OwlMascot() {
+function OwlMascot({ label }) {
   return (
-    <svg viewBox="0 0 100 110" role="img" aria-label="Cú gác cổng bảo mật đang chờ">
+    <svg viewBox="0 0 100 110" role="img" aria-label={label}>
       <ellipse cx="50" cy="104" rx="28" ry="5" fill="#000" opacity=".15" />
       <path d="M22 30 L30 12 L40 26 M78 30 L70 12 L60 26" fill="#8d5a2b" stroke="#6b4220" strokeWidth="2" strokeLinejoin="round" />
       <ellipse cx="50" cy="62" rx="32" ry="40" fill="#a86b35" />
@@ -74,9 +75,9 @@ function OwlMascot() {
 }
 
 /** Phi hành gia — chặng 5 hoàn thiện sản phẩm: vẫy tay dưới bầu trời sao. */
-function AstronautMascot() {
+function AstronautMascot({ label }) {
   return (
-    <svg viewBox="0 0 100 110" role="img" aria-label="Phi hành gia đang chờ">
+    <svg viewBox="0 0 100 110" role="img" aria-label={label}>
       <ellipse cx="50" cy="104" rx="28" ry="5" fill="#000" opacity=".2" />
       <rect x="28" y="56" width="44" height="40" rx="14" fill="#f8f9fa" stroke="#adb5bd" strokeWidth="3" />
       <rect x="40" y="66" width="20" height="12" rx="3" fill="#5865f2" />
@@ -112,6 +113,7 @@ function Scenery({ seed }) {
 
 /** Bảng chi tiết chặng — mở từ nút tròn "!". */
 function StageSheet({ unit, assessment, onClose }) {
+  const { t } = useEduText();
   useEffect(() => {
     const onKey = (event) => event.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -121,16 +123,16 @@ function StageSheet({ unit, assessment, onClose }) {
   return (
     <div className="cmap-sheet-backdrop" role="presentation" onClick={onClose}>
       <div className={`cmap-sheet cmap-tone-${unit.tone}`} role="dialog" aria-modal="true" aria-labelledby="cmap-sheet-title" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="cmap-sheet-close" onClick={onClose} aria-label="Đóng"><X aria-hidden="true" /></button>
-        <small>Chặng {unit.phaseNumber} · {unit.rangeText}</small>
+        <button type="button" className="cmap-sheet-close" onClick={onClose} aria-label={t("common.close")}><X aria-hidden="true" /></button>
+        <small>{t("common.stage", { n: unit.phaseNumber })} · {unit.rangeText}</small>
         <h2 id="cmap-sheet-title">{unit.title.replace(/^CODE \d+ · /, "")}</h2>
         <p className="cmap-sheet-tagline">{unit.intro?.tagline}</p>
-        <h3>Bạn sẽ học</h3>
+        <h3>{t("map.youLearn")}</h3>
         <ul>{(unit.intro?.learn || []).map((item) => <li key={item}>{item}</li>)}</ul>
-        {unit.intro?.challenge && (<><h3>Thử thách</h3><p>{unit.intro.challenge}</p></>)}
+        {unit.intro?.challenge && (<><h3>{t("map.challenge")}</h3><p>{unit.intro.challenge}</p></>)}
         {unit.intro?.promise && <p className="cmap-sheet-promise">{unit.intro.promise}</p>}
         {assessment.breakdown.attempts > 0 && (
-          <p className="cmap-sheet-grade">Xếp loại hiện tại: <b>{assessment.score}/100 · {assessment.gradeLabel}</b></p>
+          <p className="cmap-sheet-grade">{t("map.grade")} <b>{assessment.score}/100 · {assessment.gradeLabel}</b></p>
         )}
       </div>
     </div>
@@ -138,6 +140,7 @@ function StageSheet({ unit, assessment, onClose }) {
 }
 
 function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId, focusRef, examScores, serverCompleted, flip, prevTone }) {
+  const { t } = useEduText();
   const [sheetOpen, setSheetOpen] = useState(false);
   const look = STAGE_LOOK[unit.id] || STAGE_LOOK.basic;
   const doneCount = lessons.filter(({ course }) => completedSet.has(course.id)).length;
@@ -161,11 +164,11 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
 
       <header className="cmap-banner">
         <div>
-          <small>Chặng {unit.phaseNumber} · {doneCount}/{lessons.length} step</small>
+          <small>{t("map.stageSteps", { n: unit.phaseNumber, done: doneCount, total: lessons.length })}</small>
           <h2 id={`cmap-${unit.id}`}>{unit.title.replace(/^CODE \d+ · /, "")}</h2>
         </div>
-        <button type="button" className="cmap-info" onClick={() => setSheetOpen(true)} aria-label={`Chặng ${unit.phaseNumber} học gì`}>!</button>
-        <span className="cmap-ring" style={{ "--p": `${percent * 3.6}deg` }} aria-label={`Hoàn thành ${percent}%`}>
+        <button type="button" className="cmap-info" onClick={() => setSheetOpen(true)} aria-label={t("map.stageAbout", { n: unit.phaseNumber })}>!</button>
+        <span className="cmap-ring" style={{ "--p": `${percent * 3.6}deg` }} aria-label={t("map.percent", { p: percent })}>
           <b>{percent}%</b>
         </span>
       </header>
@@ -186,20 +189,20 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
               className={`cmap-node ${done ? "is-done" : current ? "is-current" : locked ? "is-locked" : "is-open"}`}
               style={{ "--x": `${offset}px` }}
             >
-              {current && <span className="cmap-bubble">{course.draft ? "Sắp ra mắt" : "Bắt đầu"} · Step {globalIndex + 1}</span>}
+              {current && <span className="cmap-bubble">{course.draft ? t("map.soon") : t("map.start")} · Step {globalIndex + 1}</span>}
               <button
                 type="button"
                 className="cmap-hex"
                 onClick={() => !locked && onOpenLesson(course.id)}
                 disabled={locked}
-                aria-label={`Step ${globalIndex + 1}: ${name}${done ? " — đã xong" : locked ? " — chưa mở" : ""}`}
+                aria-label={`Step ${globalIndex + 1}: ${name}${done ? t("map.done") : locked ? t("map.locked") : ""}`}
                 title={name}
               >
                 <span className="cmap-hex-face"><Icon aria-hidden="true" /></span>
               </button>
               {index === mascotAt && (look.Mascot ? (
                 <span className="cmap-mascot" style={{ "--side": offset > 0 ? -1 : 1 }} aria-hidden="true">
-                  <look.Mascot />
+                  <look.Mascot label={t(look.label)} />
                 </span>
               ) : (
                 <img
@@ -224,6 +227,7 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
 }
 
 export default function CourseMap({ courses, stages, completedSet, currentIndex, focusId, onOpenLesson, examScores = {}, serverCompleted = [] }) {
+  const { t } = useEduText();
   const focusRef = useRef(null);
   const units = useMemo(
     () => stages.map((stage) => ({
@@ -263,8 +267,8 @@ export default function CourseMap({ courses, stages, completedSet, currentIndex,
 
       <footer className={`cmap-finish ${allDone ? "is-done" : ""}`}>
         <span className="cmap-trophy"><Trophy aria-hidden="true" /></span>
-        <strong>{allDone ? "Dự án hoàn tất" : "Đích: dự án hoàn tất"}</strong>
-        <small>Độc quyền bởi Hugo Studio</small>
+        <strong>{allDone ? t("map.finishDone") : t("map.finishGoal")}</strong>
+        <small>{t("map.exclusive")}</small>
       </footer>
     </div>
   );

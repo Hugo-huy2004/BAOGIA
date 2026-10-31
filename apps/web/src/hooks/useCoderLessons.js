@@ -1,8 +1,11 @@
 import { useEffect, useMemo } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { fetchLesson, fetchLessonPage } from "../services/api/modules/coderLessonsApi";
+import { localizeStage, localizeStepTitle, useEduText } from "../education/eduText";
 
 export function useCoderLessons(activeCourseId, { enabled = true, program = "coding" } = {}) {
+  // Tên chặng/step và nội dung slide theo ngôn ngữ app (máy chủ phủ bản dịch lên).
+  const { lang } = useEduText();
   const catalogQuery = useInfiniteQuery({
     queryKey: ["coder-lessons", "catalog"],
     queryFn: ({ pageParam, signal }) => fetchLessonPage(pageParam, signal),
@@ -37,13 +40,14 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
     () => catalogQuery.data?.pages.flatMap((page) => page.items || []) || [],
     [catalogQuery.data],
   );
-  const stages = catalogQuery.data?.pages[0]?.stages || [];
+  const rawStages = catalogQuery.data?.pages[0]?.stages;
+  const stages = useMemo(() => (rawStages || []).map((stage) => localizeStage(stage, lang)), [rawStages, lang]);
   const selectedId = activeCourseId || summaries[0]?.id || null;
   const summary = summaries.find((item) => item.id === selectedId);
 
   const detailQuery = useQuery({
-    queryKey: ["coder-lessons", "detail", selectedId, program],
-    queryFn: ({ signal }) => fetchLesson(selectedId, signal, program),
+    queryKey: ["coder-lessons", "detail", selectedId, program, lang],
+    queryFn: ({ signal }) => fetchLesson(selectedId, signal, program, lang),
     enabled: enabled && Boolean(selectedId),
     placeholderData: summary ? { lesson: summary } : undefined,
     staleTime: 10 * 60_000,
@@ -53,10 +57,11 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
 
   const selectedLesson = detailQuery.data?.lesson || summary || null;
   const courses = useMemo(
-    () => summaries.map((item) => (
-      item.id === selectedLesson?.id ? { ...item, ...selectedLesson } : item
-    )),
-    [summaries, selectedLesson],
+    () => summaries.map((item, index) => {
+      const course = item.id === selectedLesson?.id ? { ...item, ...selectedLesson } : item;
+      return { ...course, title: localizeStepTitle(course.title, index, lang) };
+    }),
+    [summaries, selectedLesson, lang],
   );
 
   return {

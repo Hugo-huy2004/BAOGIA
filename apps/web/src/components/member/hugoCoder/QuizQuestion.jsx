@@ -1,4 +1,5 @@
 import { quizKind, quizAnswerText } from "../../../../../../packages/shared/quizKinds";
+import { useEduText } from "../../../education/eduText";
 
 /**
  * Hiển thị một câu hỏi, đủ tám dạng.
@@ -34,6 +35,7 @@ function Code({ children }) {
 }
 
 export default function QuizQuestion({ question, value, onChange, reviewed }) {
+  const { t } = useEduText();
   const kind = quizKind(question);
   const correct = reviewed && quizAnswerText(question);
 
@@ -43,7 +45,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
         const picked = Array.isArray(value) ? value : [];
         return (
           <div className="space-y-2">
-            <p className="text-[13px] text-muted-foreground">Chọn tất cả đáp án đúng.</p>
+            <p className="text-[13px] text-muted-foreground">{t("quiz.multi")}</p>
             {question.o.map((option, optionIndex) => {
               const on = picked.includes(optionIndex);
               return (
@@ -76,7 +78,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
                 onClick={() => onChange(option)}
                 className={`${OPTION_BASE} flex-1 text-center ${value === option ? OPTION_ON : OPTION_IDLE}`}
               >
-                {option ? "Đúng" : "Sai"}
+                {option ? t("quiz.true") : t("quiz.false")}
               </button>
             ))}
           </div>
@@ -90,7 +92,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
               type="text"
               value={value ?? ""}
               onChange={(event) => onChange(event.target.value)}
-              placeholder="Điền vào chỗ ___"
+              placeholder={t("quiz.blank")}
               spellCheck={false}
               autoCapitalize="off"
               autoCorrect="off"
@@ -112,7 +114,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
         };
         return (
           <div className="space-y-2">
-            <p className="text-[13px] text-muted-foreground">Sắp xếp các bước cho đúng thứ tự.</p>
+            <p className="text-[13px] text-muted-foreground">{t("quiz.order")}</p>
             {order.map((itemIndex, position) => (
               <div
                 key={itemIndex}
@@ -127,7 +129,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
                     type="button"
                     onClick={() => move(position, -1)}
                     disabled={position === 0}
-                    aria-label={`Đưa bước ${position + 1} lên trên`}
+                    aria-label={t("quiz.up", { n: position + 1 })}
                     className="grid h-7 w-7 place-items-center rounded-md bg-muted text-foreground disabled:opacity-30"
                   >
                     <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_upward</span>
@@ -136,7 +138,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
                     type="button"
                     onClick={() => move(position, 1)}
                     disabled={position === order.length - 1}
-                    aria-label={`Đưa bước ${position + 1} xuống dưới`}
+                    aria-label={t("quiz.down", { n: position + 1 })}
                     className="grid h-7 w-7 place-items-center rounded-md bg-muted text-foreground disabled:opacity-30"
                   >
                     <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_downward</span>
@@ -155,7 +157,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
         const shuffled = [...rights].sort((a, b) => (a.right > b.right ? 1 : -1));
         return (
           <div className="space-y-2">
-            <p className="text-[13px] text-muted-foreground">Nối mỗi mục bên trái với mục đúng bên phải.</p>
+            <p className="text-[13px] text-muted-foreground">{t("quiz.match")}</p>
             {question.pairs.map(([left], leftIndex) => (
               <div key={left} className="flex items-center gap-2">
                 <span className="min-w-0 flex-1 text-[13px] font-medium text-foreground">{left}</span>
@@ -165,10 +167,10 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
                 <select
                   value={value?.[leftIndex] ?? ""}
                   onChange={(event) => onChange({ ...(value || {}), [leftIndex]: Number(event.target.value) })}
-                  aria-label={`Nối cho ${left}`}
+                  aria-label={t("quiz.matchFor", { x: left })}
                   className={`${FIELD} flex-1`}
                 >
-                  <option value="" disabled>Chọn…</option>
+                  <option value="" disabled>{t("quiz.pick")}</option>
                   {shuffled.map(({ right, i }) => (
                     <option key={i} value={i}>{right}</option>
                   ))}
@@ -182,7 +184,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
       case "bug":
         return (
           <div className="space-y-2">
-            <p className="text-[13px] text-muted-foreground">Chạm vào dòng có lỗi.</p>
+            <p className="text-[13px] text-muted-foreground">{t("quiz.bug")}</p>
             <div className="overflow-hidden rounded-lg border border-border">
               {question.lines.map((line, lineIndex) => (
                 <button
@@ -208,7 +210,7 @@ export default function QuizQuestion({ question, value, onChange, reviewed }) {
         return (
           <div className="space-y-2">
             <Code>{question.code}</Code>
-            <p className="text-[13px] text-muted-foreground">Đoạn mã trên in ra gì?</p>
+            <p className="text-[13px] text-muted-foreground">{t("quiz.output")}</p>
             {question.o.map((option, optionIndex) => (
               <button
                 key={optionIndex}

@@ -3,7 +3,7 @@ import express from 'express';
 import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
 import { awardJoy } from '../../utils/joyService.js';
-import { noteEduStep } from '../../services/eduLearner.js';
+import { noteEduStep, noteEduStudy } from '../../services/eduLearner.js';
 import { requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
 import { randomInt, randomBytes } from 'node:crypto';
@@ -70,10 +70,13 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
     if (programProgress.includes(lessonId)) {
       const review = gradeStepQuiz(lessonId, evidence.answers);
       const steps = await syncTeam(programProgress);
+      // Ôn lại mà đạt vẫn giữ lửa hôm nay cho chuỗi Education Hugo.
+      const eduStreak = !teamDev && review?.passed ? await noteEduStudy(email).catch(() => null) : null;
       return res.json({
         success: true,
         alreadyCompleted: true,
-        balance: bio.joyBalance,
+        eduStreak,
+        balance: eduStreak?.milestone?.balance ?? bio.joyBalance,
         ...review,
         passPercent: PASS_PERCENT,
         ...teamView(steps),
@@ -131,6 +134,12 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       }
     }
 
+    // Chuỗi lửa Education Hugo: qua bài nào (kể cả học lại) cũng giữ lửa hôm nay.
+    const eduStreak = teamDev ? null : await noteEduStudy(email).catch((error) => {
+      console.error('[award-learning streak]', error.message);
+      return null;
+    });
+
     // $addToSet giữ tiến độ không trùng khi hai thiết bị hoàn thành cùng lúc.
     const added = await Bio.updateOne(
       { _id: bio._id },
@@ -159,7 +168,8 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       return res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, ...teamView(steps) });
     }
 
-    res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT });
+    if (eduStreak?.milestone?.balance) balance = Math.max(balance, eduStreak.milestone.balance);
+    res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, eduStreak });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

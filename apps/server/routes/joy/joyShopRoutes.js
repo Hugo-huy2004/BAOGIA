@@ -5,7 +5,7 @@ import { awardJoy } from '../../utils/joyService.js';
 import rateLimit from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
-import { eduSnapshot, saveEduPrefs } from '../../services/eduLearner.js';
+import { eduSnapshot, saveEduPrefs, thawEduStreak } from '../../services/eduLearner.js';
 import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
@@ -216,6 +216,21 @@ router.put('/edu-settings', requireMemberSession, async (req, res) => {
     return res.json({ success: true, prefs });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/edu-streak/thaw { day } — "Lửa phá băng": THAW_PRICE JOY đổi một
+// ngày đã đóng băng thành ngày giữ lửa (packages/shared/eduStreak.js).
+router.post('/edu-streak/thaw', requireMemberSession, extendLimiter, async (req, res) => {
+  try {
+    const day = String(req.body?.day || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return res.status(400).json({ error: 'Ngày không hợp lệ.' });
+    return res.json({ success: true, ...(await thawEduStreak(req.memberEmail, day)) });
+  } catch (error) {
+    if (String(error.message).startsWith('INSUFFICIENT_JOY')) {
+      return res.status(400).json({ code: 'INSUFFICIENT_JOY', error: 'Số dư JOY chưa đủ để phá băng.' });
+    }
+    return res.status(400).json({ code: error.code, error: error.message });
   }
 });
 

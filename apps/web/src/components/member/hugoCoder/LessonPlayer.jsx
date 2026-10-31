@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowLeft, ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, Image, Library, Lightbulb, MessageSquareWarning, RotateCcw, Sparkles, Target, Volume2, VolumeX, Wrench, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, Image, Library, Lightbulb, MessageSquareWarning, RotateCcw, Sparkles, Target, Volume2, VolumeX, Wrench, X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { notify } from "../../../lib/notify";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
@@ -10,6 +11,7 @@ import LessonBuddy from "./LessonBuddy";
 import CodingVisual from "./CodingVisual";
 import "../../../styles/hugoCoderLearning.css";
 import { CODER_STORAGE_KEYS } from "./workspaceUtils";
+import { useEduText } from "../../../education/eduText";
 
 /**
  * Trình phát step — mỗi lần một slide, màn hình cố định.
@@ -35,13 +37,13 @@ function readStep(lessonId) {
   }
 }
 
-function buildSteps(course) {
+function buildSteps(course, t) {
   if (course.draft) return [];
   const steps = (course.slides || []).map((slide) => ({ kind: slide.section, ...slide }));
   (course.quiz || []).forEach((question, index) => {
-    steps.push({ kind: "check", index, title: `Câu ${index + 1}/${course.quiz.length}`, question });
+    steps.push({ kind: "check", index, title: t("player.question", { n: index + 1, total: course.quiz.length }), question });
   });
-  if (course.quiz?.length) steps.push({ kind: "result", title: "Kết quả trắc nghiệm" });
+  if (course.quiz?.length) steps.push({ kind: "result", title: t("player.resultTitle") });
   return steps;
 }
 
@@ -54,18 +56,19 @@ function buildSteps(course) {
  * không gradient.
  */
 const KIND = {
-  intro: { label: "Giới thiệu", icon: Sparkles, tone: "#0a84ff" },
-  visual: { label: "Minh hoạ", icon: Image, tone: "#30a46c" },
-  research: { label: "Học thuật & nghiên cứu", icon: Library, tone: "#5856d6" },
-  ideate: { label: "Lên ý tưởng", icon: Lightbulb, tone: "#f76b15" },
-  core: { label: "Kiến thức chính", icon: BookOpen, tone: "#0a7ea4" },
-  apply: { label: "Áp dụng vào dự án", icon: Wrench, tone: "#12a594" },
-  check: { label: "Trắc nghiệm", icon: Target, tone: "#8e4ec6" },
-  result: { label: "Kết quả", icon: GraduationCap, tone: "#c2410c" },
+  intro: { icon: Sparkles, tone: "#0a84ff" },
+  visual: { icon: Image, tone: "#30a46c" },
+  research: { icon: Library, tone: "#5856d6" },
+  ideate: { icon: Lightbulb, tone: "#f76b15" },
+  core: { icon: BookOpen, tone: "#0a7ea4" },
+  apply: { icon: Wrench, tone: "#12a594" },
+  check: { icon: Target, tone: "#8e4ec6" },
+  result: { icon: GraduationCap, tone: "#c2410c" },
 };
 
 /** Ô góp ý — mở từ icon ở góc, gửi thẳng về Telegram của người vận hành. */
 function FeedbackSheet({ course, step, stepIndex, onClose }) {
+  const { t } = useEduText();
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -80,11 +83,11 @@ function FeedbackSheet({ course, step, stepIndex, onClose }) {
         body: JSON.stringify({ stepIndex, stepKind: step.kind, message: message.trim() }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Chưa gửi được góp ý.");
-      notify.success("Đã gửi góp ý. Cảm ơn bạn.");
+      if (!response.ok) throw new Error(data.error || t("player.feedbackFailed"));
+      notify.success(t("player.feedbackSent"));
       onClose();
     } catch (error) {
-      notify.error(error.message || "Chưa gửi được góp ý.");
+      notify.error(error.message || t("player.feedbackFailed"));
     } finally {
       setSending(false);
     }
@@ -93,20 +96,20 @@ function FeedbackSheet({ course, step, stepIndex, onClose }) {
   return (
     <div className="lesson-feedback-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <div className="lesson-feedback" onClick={(event) => event.stopPropagation()}>
-        <h3>Góp ý cho bước này</h3>
-        <p>Chỗ nào khó hiểu, sai, hoặc thiếu? Góp ý đi thẳng tới người soạn bài.</p>
+        <h3>{t("player.feedbackTitle")}</h3>
+        <p>{t("player.feedbackBody")}</p>
         <textarea
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           rows={4}
           maxLength={2000}
-          placeholder="Ví dụ: đoạn này chưa giải thích vì sao phải dùng…"
+          placeholder={t("player.feedbackPlaceholder")}
           autoFocus
         />
         <div className="lesson-feedback-actions">
-          <button type="button" className="is-ghost" onClick={onClose}>Huỷ</button>
+          <button type="button" className="is-ghost" onClick={onClose}>{t("player.cancel")}</button>
           <button type="button" onClick={send} disabled={message.trim().length < 5 || sending}>
-            {sending ? "Đang gửi…" : "Gửi góp ý"}
+            {sending ? t("player.sending") : t("player.send")}
           </button>
         </div>
       </div>
@@ -124,12 +127,13 @@ function FeedbackSheet({ course, step, stepIndex, onClose }) {
  * nguồn chứ không phải một khối chữ; tên tệp lấy từ chính bài học.
  */
 function CodeCard({ code, file }) {
+  const { t } = useEduText();
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
-      notify.success("Đã chép. Dán vào trình soạn thảo của bạn.");
+      notify.success(t("player.copied"));
     } catch {
-      notify.error("Chưa chép được — hãy bôi đen và chép tay.");
+      notify.error(t("player.copyFailed"));
     }
   };
 
@@ -138,9 +142,9 @@ function CodeCard({ code, file }) {
       <div className="lesson-ide-bar">
         <span className="lesson-ide-dots" aria-hidden="true"><i /><i /><i /></span>
         <span className="lesson-ide-file">{file || "starter.js"}</span>
-        <button type="button" onClick={copy} aria-label="Chép mã mẫu">
+        <button type="button" onClick={copy} aria-label={t("player.copyAria")}>
           <ClipboardCopy aria-hidden="true" />
-          <span>Chép</span>
+          <span>{t("player.copy")}</span>
         </button>
       </div>
       <pre className="lesson-ide-code"><code>{code}</code></pre>
@@ -157,18 +161,19 @@ function CodeCard({ code, file }) {
  * không phải thứ giao diện nên hối thúc.
  */
 function LessonDone({ course, stepCount, onExit, onNext }) {
+  const { t } = useEduText();
   return (
     <div className="lesson-done">
 
       <LessonBuddy mood="done" size="lg" seed={stepCount} />
 
-      <h2>Hoàn thành bài</h2>
+      <h2>{t("player.doneTitle")}</h2>
       <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
-      <span className="lesson-done-count">{stepCount} slide đã đi qua</span>
+      <span className="lesson-done-count">{t("player.doneCount", { n: stepCount })}</span>
 
       <div className="lesson-done-actions">
-        <button type="button" className="is-ghost" onClick={onExit}>Trở về bản đồ</button>
-        {onNext && <button type="button" onClick={onNext}>Bài tiếp<ArrowRight aria-hidden="true" /></button>}
+        <button type="button" className="is-ghost" onClick={onExit}>{t("player.backToMap")}</button>
+        {onNext && <button type="button" onClick={onNext}>{t("player.nextLesson")}<ArrowRight aria-hidden="true" /></button>}
       </div>
     </div>
   );
@@ -176,29 +181,109 @@ function LessonDone({ course, stepCount, onExit, onNext }) {
 
 /** Lời giải từng câu sau khi máy chủ chấm. */
 function QuizReview({ result, onRetry }) {
+  const { t } = useEduText();
   return (
     <div className="lesson-quiz-result">
       <p className={`lesson-quiz-score ${result.passed ? "is-pass" : "is-fail"}`}>
         <b>{result.score}%</b>
         <span>{result.passed
-          ? `Đạt — đúng ${result.correct}/${result.total} câu.`
-          : `Chưa đạt — cần từ ${result.passPercent}%. Đọc lời giải rồi làm lại.`}</span>
+          ? t("player.pass", { correct: result.correct, total: result.total })
+          : t("player.fail", { pass: result.passPercent })}</span>
       </p>
       <ol className="lesson-quiz-review">
         {(result.review || []).map((item, index) => (
           <li key={index} className={item.correct ? "is-right" : "is-wrong"}>
-            <b>{item.correct ? "Đúng" : "Sai"} · Câu {index + 1}</b>
-            {!item.correct && <span>Đáp án: {item.answer}</span>}
+            <b>{item.correct ? t("player.right") : t("player.wrongMark")} · {t("player.questionN", { n: index + 1 })}</b>
+            {!item.correct && <span>{t("player.answer", { a: item.answer })}</span>}
             {item.why && <span>{item.why}</span>}
           </li>
         ))}
       </ol>
       {!result.passed && (
         <button type="button" className="lesson-quiz-retry" onClick={onRetry}>
-          <RotateCcw aria-hidden="true" /> Làm lại trắc nghiệm
+          <RotateCcw aria-hidden="true" /> {t("player.retryQuiz")}
         </button>
       )}
     </div>
+  );
+}
+
+/**
+ * Khung phóng to hình trong bài: cuộn chuột / chụm hai ngón để phóng, kéo để di chuyển,
+ * bấm đúp để phóng nhanh. Esc hoặc nút X để đóng. Gắn vào body để không bị khung bài cắt.
+ */
+function MediaZoom({ children, onClose }) {
+  const { t } = useEduText();
+  const [view, setView] = useState({ scale: 1, x: 0, y: 0 });
+  const stage = useRef(null);
+  const pointers = useRef(new Map());
+  const pinch = useRef(0);
+  const zoomBy = (factor) => setView((v) => {
+    const scale = Math.min(6, Math.max(1, v.scale * factor));
+    return scale === 1 ? { scale, x: 0, y: 0 } : { ...v, scale };
+  });
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "+" || event.key === "=") zoomBy(1.25);
+      if (event.key === "-") zoomBy(0.8);
+    };
+    // Lắng nghe wheel không-passive để chặn trang phía sau cuộn theo.
+    const node = stage.current;
+    const onWheel = (event) => { event.preventDefault(); zoomBy(event.deltaY < 0 ? 1.12 : 1 / 1.12); };
+    window.addEventListener("keydown", onKey);
+    node?.addEventListener("wheel", onWheel, { passive: false });
+    return () => { window.removeEventListener("keydown", onKey); node?.removeEventListener("wheel", onWheel); };
+  }, [onClose]);
+
+  const down = (event) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    pinch.current = 0;
+  };
+  const move = (event) => {
+    const map = pointers.current;
+    const prev = map.get(event.pointerId);
+    if (!prev) return;
+    map.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (map.size === 2) {
+      const [a, b] = [...map.values()];
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+      if (pinch.current) zoomBy(distance / pinch.current);
+      pinch.current = distance;
+    } else {
+      setView((v) => (v.scale === 1 ? v : { ...v, x: v.x + event.clientX - prev.x, y: v.y + event.clientY - prev.y }));
+    }
+  };
+  const up = (event) => { pointers.current.delete(event.pointerId); pinch.current = 0; };
+
+  return createPortal(
+    <div className="media-zoom" role="dialog" aria-modal="true" aria-label={t("player.zoom")}>
+      <div
+        ref={stage}
+        className="media-zoom-stage"
+        data-lg-off
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
+        onDoubleClick={() => setView((v) => (v.scale > 1 ? { scale: 1, x: 0, y: 0 } : { ...v, scale: 2.5 }))}
+      >
+        <div className="media-zoom-content" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`, cursor: view.scale > 1 ? "grab" : "zoom-in" }}>
+          {children}
+        </div>
+      </div>
+      <div className="media-zoom-bar">
+        <button type="button" onClick={() => zoomBy(0.8)} aria-label={t("player.zoomOut")} disabled={view.scale <= 1}><ZoomOut aria-hidden="true" /></button>
+        <span>{Math.round(view.scale * 100)}%</span>
+        <button type="button" onClick={() => zoomBy(1.25)} aria-label={t("player.zoomIn")} disabled={view.scale >= 6}><ZoomIn aria-hidden="true" /></button>
+        <button type="button" onClick={() => setView({ scale: 1, x: 0, y: 0 })} aria-label={t("player.zoomReset")}><RotateCcw aria-hidden="true" /></button>
+        <button type="button" onClick={onClose} aria-label={t("common.close")}><X aria-hidden="true" /></button>
+      </div>
+      <p className="media-zoom-hint">{t("player.zoomHint")}</p>
+    </div>,
+    document.body,
   );
 }
 
@@ -207,7 +292,9 @@ function QuizReview({ result, onRetry }) {
  *   trả `{ passed, score, correct, total, passPercent, review }` do máy chủ chấm.
  */
 export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesson }) {
-  const steps = useMemo(() => buildSteps(course), [course]);
+  const { t, lang } = useEduText();
+  const steps = useMemo(() => buildSteps(course, t), [course, lang]); // eslint-disable-line react-hooks/exhaustive-deps -- t đổi theo lang
+  const [zoomOpen, setZoomOpen] = useState(false);
   const firstCheck = steps.findIndex((step) => step.kind === "check");
   // Câu trả lời không lưu qua lần tải lại, nên quay về giữa bài trắc nghiệm thì
   // làm lại từ câu đầu — nộp với ô trống chỉ tốn một lượt chấm vô ích.
@@ -256,10 +343,10 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
       <div className="lesson-player">
         <div className="lesson-done">
           <LessonBuddy mood="learn" size="lg" seed={1} />
-          <h2>Bài này đang được soạn</h2>
+          <h2>{t("player.draft")}</h2>
           <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
           <div className="lesson-done-actions">
-            <button type="button" onClick={onExit}>Trở về bản đồ</button>
+            <button type="button" onClick={onExit}>{t("player.backToMap")}</button>
           </div>
         </div>
       </div>
@@ -284,7 +371,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
         sfx("playLose");
       }
     } catch (error) {
-      notify.error(error.message || "Chưa nộp được bài, hãy thử lại.");
+      notify.error(error.message || t("player.submitFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -316,6 +403,9 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
     ? answers[step.index] !== undefined
     : step.kind === "result" ? !submitting && (result?.passed || !result) : true;
   const kind = KIND[step.kind] || KIND.core;
+  const media = step.visual
+    ? <CodingVisual name={step.visual} label={step.title} />
+    : step.image ? <img className="coding-shot-img" src={step.image.src} alt={step.image.alt} loading="lazy" decoding="async" /> : null;
   const KindIcon = kind.icon;
   const STEP_MOOD = { apply: "practice", check: "exam", result: result?.passed ? "correct" : result ? "wrong" : "exam" };
 
@@ -330,18 +420,18 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
   return (
     <div className={`lesson-player is-${step.kind}`} style={{ "--step-tone": kind.tone }}>
       <header className="lesson-player-top">
-        <button type="button" onClick={onExit} aria-label="Thoát step">
+        <button type="button" onClick={onExit} aria-label={t("player.exit")}>
           <X aria-hidden="true" />
         </button>
         <span className="lesson-player-track" aria-label={`${percent}%`}>
           <i style={{ width: `${percent}%` }} />
         </span>
         <span className="lesson-player-count">{index + 1}/{steps.length}</span>
-        <button type="button" className="lesson-player-sound" onClick={toggleSound} aria-label={muted ? "Bật âm thanh" : "Tắt âm thanh"} aria-pressed={!muted}>
+        <button type="button" className="lesson-player-sound" onClick={toggleSound} aria-label={muted ? t("player.soundOn") : t("player.soundOff")} aria-pressed={!muted}>
           {muted ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
         </button>
         {/* Góp ý ở góc mọi slide: người học nói đúng lúc họ vấp. */}
-        <button type="button" className="lesson-player-flag" onClick={() => setFeedbackOpen(true)} aria-label="Góp ý cho slide này">
+        <button type="button" className="lesson-player-flag" onClick={() => setFeedbackOpen(true)} aria-label={t("player.flag")}>
           <MessageSquareWarning aria-hidden="true" />
         </button>
       </header>
@@ -349,19 +439,21 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
       <main key={index} className={`lesson-player-body is-${step.kind}`} style={{ "--step-tone": kind.tone }}>
         <div className="lesson-player-head">
           <span className="lesson-player-badge" aria-hidden="true"><KindIcon /></span>
-          <span className="lesson-player-kind">{kind.label}</span>
+          <span className="lesson-player-kind">{t(`player.kinds.${KIND[step.kind] ? step.kind : "core"}`)}</span>
           {step.title && <h2 className="lesson-player-title">{step.title}</h2>}
         </div>
 
-        <div className="lesson-player-content">
-          {step.visual && <CodingVisual name={step.visual} label={step.title} />}
-
-          {/* Ảnh chụp màn hình thật cho các slide dạy thao tác (phpMyAdmin, hosting…). */}
-          {step.image && (
-            <figure className="coding-shot">
-              <img src={step.image.src} alt={step.image.alt} loading="lazy" decoding="async" />
-              {step.image.caption && <figcaption>{step.image.caption}</figcaption>}
-            </figure>
+        <div className={`lesson-player-content${media ? " has-media" : ""}`}>
+          {/* Hình minh hoạ / ảnh chụp màn hình: máy tính chia đôi (hình bên trái, chữ bên phải),
+              bấm vào để phóng to xem kỹ và làm theo. */}
+          {media && (
+            <div className="lesson-media">
+              <button type="button" className="lesson-media-open" onClick={() => setZoomOpen(true)} aria-label={t("player.zoom")}>
+                {media}
+                <span className="lesson-media-badge" aria-hidden="true"><Maximize2 /></span>
+              </button>
+              {step.image?.caption && <p className="lesson-media-caption">{step.image.caption}</p>}
+            </div>
           )}
 
           {step.body && (
@@ -388,7 +480,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
           {step.kind === "result" && (
             result
               ? <QuizReview result={result} onRetry={retry} />
-              : <p className="lesson-player-lead">{submitting ? "Máy chủ đang chấm bài…" : "Chưa nộp được bài."}</p>
+              : <p className="lesson-player-lead">{submitting ? t("player.grading") : t("player.notSubmitted")}</p>
           )}
         </div>
 
@@ -399,18 +491,20 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
         <footer className="lesson-player-foot">
           {/* Quay lại slide trước để đọc lại; màn kết quả thì không (bài đã nộp). */}
           {index > 0 && step.kind !== "result" && (
-            <button type="button" className="lesson-player-back" onClick={() => setIndex(index - 1)} aria-label="Slide trước">
+            <button type="button" className="lesson-player-back" onClick={() => setIndex(index - 1)} aria-label={t("player.prev")}>
               <ArrowLeft aria-hidden="true" />
             </button>
           )}
           <button type="button" onClick={next} disabled={!ready}>
             {step.kind === "result"
-              ? (result?.passed ? "Hoàn thành bài" : "Nộp lại")
-              : steps[index + 1]?.kind === "result" ? "Nộp bài" : step.kind === "check" ? "Câu tiếp" : "Tiếp tục"}
+              ? (result?.passed ? t("player.finish") : t("player.resubmit"))
+              : steps[index + 1]?.kind === "result" ? t("player.submit") : step.kind === "check" ? t("player.nextQuestion") : t("player.continue")}
             {step.kind === "check" ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
           </button>
         </footer>
       )}
+
+      {zoomOpen && media && <MediaZoom onClose={() => setZoomOpen(false)}>{media}</MediaZoom>}
 
       {feedbackOpen && (
         <FeedbackSheet course={course} step={step} stepIndex={index} onClose={() => setFeedbackOpen(false)} />

@@ -15,6 +15,13 @@ const schema = new mongoose.Schema({
   // Chống gửi trùng: ngày đã nhắc học, ngày đã báo hạn tài khoản.
   remindedDay: { type: String, default: '' },
   expiryWarnedDay: { type: String, default: '' },
+  // Chuỗi lửa (packages/shared/eduStreak.js): ngày học, ngày đóng băng/phá băng,
+  // mốc đã thưởng. `streakRev` tăng mỗi lần ghi — ghi có điều kiện để hai máy
+  // cùng nộp bài không cộng đôi chuỗi hay thưởng đôi.
+  streak: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
+  streakRev: { type: Number, default: 0 },
+  lastCallDay: { type: String, default: '' },
+  frozenNoticeDay: { type: String, default: '' },
 }, { timestamps: true, minimize: false });
 
 schema.index({ 'prefs.reminder': 1, 'prefs.reminderHour': 1 });

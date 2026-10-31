@@ -3192,3 +3192,56 @@ span.cmap-mascot svg { display: block; width: 100%; height: auto; }
 @keyframes cmap-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
 @keyframes cmap-wave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-24deg); } }
 @media (prefers-reduced-motion: reduce) { .cmap-blink, .cmap-wave-arm { animation: none; } }
+
+/* ── Hình trong bài: bấm để phóng to; màn rộng chia đôi hình | chữ ───────────
+   Ảnh chụp thao tác (phpMyAdmin, hosting…) và hình minh hoạ cần TO để làm theo,
+   nên trên máy tính hình chiếm nửa trái, chữ nửa phải; hình dính khi chữ dài. */
+.lesson-media { display: grid; gap: 8px; min-width: 0; }
+.lesson-media-open {
+  position: relative; display: block; width: 100%; padding: 0; border: 0;
+  background: none; color: inherit; font: inherit; text-align: inherit; cursor: zoom-in;
+}
+.lesson-media-badge {
+  position: absolute; right: 10px; top: 10px; display: grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 10px; background: rgb(0 0 0 / .55); color: #fff;
+}
+.lesson-media-badge svg { width: 18px; height: 18px; }
+.coding-shot-img {
+  display: block; width: 100%; height: auto; border-radius: 14px; background: #fff;
+  border: 2px solid color-mix(in srgb, var(--step-tone, #0a84ff) 22%, transparent);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 18%, transparent);
+}
+.lesson-media-caption { margin: 0; font-size: 13.5px; line-height: 1.45; opacity: .75; }
+@media (min-width: 1024px) {
+  .lesson-player-body:has(.has-media) { max-width: 1240px; }
+  .lesson-player-content.has-media {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 16px 32px; align-items: start; align-content: safe center;
+  }
+  .has-media > .lesson-media { grid-column: 1; grid-row: 1 / span 20; position: sticky; top: 0; }
+  .has-media > :not(.lesson-media) { grid-column: 2; }
+  .has-media .coding-visual svg { max-height: min(64vh, 640px); }
+}
+
+.media-zoom {
+  position: fixed; inset: 0; z-index: 1000; display: grid; grid-template-rows: 1fr auto auto;
+  background: rgb(10 14 20 / .94); color: #fff;
+}
+.media-zoom-stage { overflow: hidden; display: grid; place-items: center; padding: 24px; touch-action: none; user-select: none; }
+.media-zoom-content { width: min(1400px, 100%); transform-origin: center; will-change: transform; }
+.media-zoom-content img,
+.media-zoom-content .coding-visual svg { display: block; width: 100%; max-height: 82vh; object-fit: contain; }
+.media-zoom-content .coding-visual { background: #fff; color: #1f2937; }
+.media-zoom-content img { pointer-events: none; }
+.media-zoom-bar {
+  justify-self: center; display: flex; align-items: center; gap: 4px; margin-bottom: 8px;
+  padding: 6px; border-radius: 16px; background: rgb(255 255 255 / .12);
+}
+.media-zoom-bar button {
+  display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px;
+  background: none; color: inherit; cursor: pointer;
+}
+.media-zoom-bar button:disabled { opacity: .35; cursor: default; }
+.media-zoom-bar svg { width: 20px; height: 20px; }
+.media-zoom-bar span { min-width: 52px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.media-zoom-hint { margin: 0 0 max(14px, env(safe-area-inset-bottom)); text-align: center; color: rgb(255 255 255 / .6); font-size: 13px; }

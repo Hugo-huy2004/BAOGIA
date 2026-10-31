@@ -15,6 +15,25 @@ import {
   getStageBenefits,
 } from '../../../web/src/components/member/hugoCoder/lessons/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
+import { readFileSync } from 'node:fs';
+
+// Bản dịch nội dung step (scripts/.translate-edu-lessons.mjs) — cùng hình dạng với
+// WEB_COURSES, chỉ chứa chữ. Thiếu tệp hoặc thiếu mục thì giữ bản gốc tiếng Việt.
+const LESSON_LOCALES = Object.fromEntries(['en', 'zh'].map((lang) => {
+  try {
+    return [lang, JSON.parse(readFileSync(new URL(`../../../web/src/components/member/hugoCoder/lessons/locales/${lang}.json`, import.meta.url), 'utf8'))];
+  } catch { return [lang, null]; }
+}));
+
+function overlay(base, tr) {
+  if (typeof tr === 'string') return typeof base === 'string' ? tr : base;
+  if (!tr || typeof tr !== 'object' || !base || typeof base !== 'object') return base;
+  const out = Array.isArray(base) ? [...base] : { ...base };
+  for (const key of Object.keys(tr)) if (key in out) out[key] = overlay(out[key], tr[key]);
+  return out;
+}
+
+const localized = (course, lang) => overlay(course, LESSON_LOCALES[lang]?.[course.id]);
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -34,9 +53,10 @@ function lessonSummary(course) {
 }
 
 // Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.
-function publicCourse(course) {
+function publicCourse(course, lang) {
   if (!course) return null;
-  return { ...course, quiz: publicQuiz(course.quiz) };
+  const text = localized(course, lang);
+  return { ...text, quiz: publicQuiz(text.quiz) };
 }
 
 /**
@@ -78,10 +98,11 @@ export async function getLessonDetail(req, res) {
   const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
   if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
   const course = WEB_COURSES[index];
+  const lang = String(req.query.lang || '');
   // Chặng 1 học thử không cần tài khoản, cache ở CDN được.
   if (index < CODER_PREVIEW_STEPS) {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
-    return res.json({ lesson: publicCourse(course) });
+    return res.json({ lesson: publicCourse(course, lang) });
   }
 
   // Khoá học MIỄN PHÍ (31/10/2026, Education Hugo): phần còn lại chỉ cần đăng
@@ -93,7 +114,7 @@ export async function getLessonDetail(req, res) {
     return res.status(401).json({ code: 'LOGIN_REQUIRED', error: 'Đăng nhập để học bài này.' });
   }
   return requireMemberSession(req, res, async () => {
-    if (req.query.program !== 'hugoteam') return res.json({ lesson: publicCourse(course) });
+    if (req.query.program !== 'hugoteam') return res.json({ lesson: publicCourse(course, lang) });
     try {
       // Mở từ Hugo Team thì phải đang ở giai đoạn Coding còn hạn.
       const teamDev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: 'coding' }).select('codingStartedAt').lean();
@@ -102,7 +123,7 @@ export async function getLessonDetail(req, res) {
       if (!teamActive) {
         return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam (hoặc đã quá hạn).' });
       }
-      return res.json({ lesson: publicCourse(course) });
+      return res.json({ lesson: publicCourse(course, lang) });
     } catch (error) {
       console.error('[coder lesson access]', error.message);
       return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa kiểm được quyền truy cập. Vui lòng thử lại.' });

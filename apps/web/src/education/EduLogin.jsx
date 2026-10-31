@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { loginMemberWithGoogle, loginMemberWithPasskey } from "../services/api/core/authSession";
 import { loadGoogleIdentity } from "../utils/loadGoogleIdentity";
 import { EduBrand } from "./EduShell";
+import { useEduText } from "./eduText";
 
 /**
  * Đăng nhập = đăng ký: lần đầu bấm Google là máy chủ (Better Auth) tạo tài khoản
@@ -11,6 +12,7 @@ import { EduBrand } from "./EduShell";
  * đăng nhập được bên Hugo Studio và ngược lại.
  */
 export default function EduLogin({ onSignedIn }) {
+  const { t } = useEduText();
   const buttonRef = useRef(null);
   const handlerRef = useRef(() => {});
   const [error, setError] = useState("");
@@ -21,7 +23,7 @@ export default function EduLogin({ onSignedIn }) {
 
   const finish = ({ session, error: failure }) => {
     if (session) return onSignedIn(session);
-    setError(failure || "Đăng nhập chưa thành công. Thử lại nhé.");
+    setError(failure || t("login.failed"));
     setBusy(false);
   };
 
@@ -63,29 +65,29 @@ export default function EduLogin({ onSignedIn }) {
       <header className="edu-login-top"><EduBrand to="/" /></header>
       <main className="edu-login-card">
         <img src="/edu/buddy-correct.svg" alt="" width="120" height="120" />
-        <h1>Đăng nhập hoặc tạo tài khoản</h1>
-        <p>Một tài khoản dùng cho cả Education Hugo và Hugo Studio. Lần đầu bấm Google là có tài khoản ngay.</p>
+        <h1>{t("login.title")}</h1>
+        <p>{t("login.body")}</p>
 
         <div ref={buttonRef} className="edu-google" aria-busy={busy} />
         {blocked && (
           <p className="edu-alert" role="alert">
-            Chưa hiện được nút Google ở <code>{window.location.origin}</code> — có thể do trình chặn quảng cáo. Thử tải lại trang hoặc dùng passkey.
+            {t("login.blocked", { origin: window.location.origin })}
           </p>
         )}
         <button type="button" className="edu-btn edu-btn--ghost edu-btn--wide" onClick={passkey} disabled={busy}>
-          <span className="material-symbols-outlined" aria-hidden="true">passkey</span> Đăng nhập bằng passkey
+          <span className="material-symbols-outlined" aria-hidden="true">passkey</span> {t("login.passkey")}
         </button>
-        {busy && <p className="edu-note">Đang xác thực…</p>}
+        {busy && <p className="edu-note">{t("login.verifying")}</p>}
         {error && <p className="edu-alert" role="alert">{error}</p>}
 
         <p className="edu-note">
-          Dành cho người từ 14 tuổi. Học miễn phí; tài khoản được duy trì theo quy định của Hugo Studio (gia hạn bằng JOY kiếm được khi học, hoặc miễn phí 1 năm khi xác minh giáo dục).
+          {t("login.age")}
         </p>
         <p className="edu-legal">
-          Khi tiếp tục, bạn đồng ý với <a href="https://www.hugowishpax.studio/terms" target="_blank" rel="noopener">Điều khoản</a> và{" "}
-          <a href="https://www.hugowishpax.studio/privacy-policy" target="_blank" rel="noopener">Chính sách bảo mật</a> của Hugo Studio.
+          {t("login.agreeA")} <a href="https://www.hugowishpax.studio/terms" target="_blank" rel="noopener">{t("common.terms")}</a> {t("login.agreeAnd")}{" "}
+          <a href="https://www.hugowishpax.studio/privacy-policy" target="_blank" rel="noopener">{t("login.policy")}</a>{t("login.agreeB")}
         </p>
-        <Link className="edu-link" to="/learn">Học thử chặng 1 trước, không cần tài khoản</Link>
+        <Link className="edu-link" to="/learn">{t("login.tryFirst")}</Link>
       </main>
     </div>
   );

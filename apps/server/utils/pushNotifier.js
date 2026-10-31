@@ -33,10 +33,16 @@ export async function sendPushNotification(email, title, body, url = '/member/to
 
 /**
  * Push của Education Hugo: chỉ tới máy đăng ký từ tên miền Edu (site 'edu'),
- * chạm vào thì mở trong app Edu. Edu chỉ có tiếng Việt nên chữ soạn sẵn.
+ * chạm vào thì mở trong app Edu. Truyền `text(lang)` để chữ theo ngôn ngữ từng máy.
  */
-export async function sendEduPush(email, { title, body, url = '/learn', tag }) {
-  return deliver(email, () => ({ title, body }), url, { site: 'edu', ...(tag ? { tag } : {}) });
+export async function sendEduPush(email, { title, body, text, url = '/learn', tag }) {
+  // `text(lang)` → { title, body } theo ngôn ngữ của TỪNG máy (vi/en/zh, còn lại rơi về vi).
+  const pick = (sub) => {
+    if (!text) return { title, body };
+    const lang = notificationLanguage(sub.device?.locale);
+    return text(['vi', 'en', 'zh'].includes(lang) ? lang : 'vi');
+  };
+  return deliver(email, pick, url, { site: 'edu', ...(tag ? { tag } : {}) });
 }
 
 /**

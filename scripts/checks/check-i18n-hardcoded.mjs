@@ -22,8 +22,8 @@ const VIETNAMESE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽ
 const EXCLUDED = new RegExp([
   "node_modules", "/locales/", "/admin/", "/demos/",
   "hugoCoder/", "hugoSO", "study/", "ideData",
-  // Education Hugo hiện chỉ phục vụ người học tiếng Việt (giáo trình Nhịp là tiếng Việt).
-  "/education/",
+  // Education Hugo dịch qua bộ chữ riêng (vi/en/zh đặt cạnh nhau) — chính bộ chữ đó chứa tiếng Việt.
+  "education/eduCopy",
   "banhocduong/", "intentClassifier", "clinicalTests",
   "PrivacyPolicyPage", "TermsPage",
   // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối

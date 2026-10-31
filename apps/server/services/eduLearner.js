@@ -3,6 +3,8 @@ import Bio from '../models/Bio.js';
 import { accessDeadline } from '../utils/accountAccess.js';
 import { sendEduPush } from '../utils/pushNotifier.js';
 import { cleanEduPrefs, vnClock } from '../../../packages/shared/eduPrefs.js';
+import { THAW_PRICE, addDays, nextMilestone, streakPush, streakView, studyToday, thawDay } from '../../../packages/shared/eduStreak.js';
+import { awardJoy } from '../utils/joyService.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -15,7 +17,67 @@ export async function eduSnapshot(email) {
     { $set: { lastActiveAt: new Date() } },
     { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean();
-  return { prefs: cleanEduPrefs(doc.prefs), today: todayOf(doc, vnClock().day) };
+  const { day } = vnClock();
+  return { prefs: cleanEduPrefs(doc.prefs), today: todayOf(doc, day), streak: streakView(doc.streak, day) };
+}
+
+/**
+ * Ghi chuỗi có điều kiện theo `streakRev`: hai máy nộp bài cùng lúc thì một máy
+ * thắng, máy kia đọc lại và tính lại — không cộng đôi ngày, không thưởng đôi mốc.
+ */
+async function writeStreak(email, change) {
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const doc = await EduLearner.findOne({ email }).select('streak streakRev').lean()
+      || (await EduLearner.create({ email })).toObject();
+    const result = change(doc.streak);
+    const rev = doc.streakRev || 0;
+    const saved = await EduLearner.updateOne(
+      { email, $or: [{ streakRev: rev }, ...(rev ? [] : [{ streakRev: { $exists: false } }])] },
+      { $set: { streak: result.state, streakRev: rev + 1, lastActiveAt: new Date() } },
+    );
+    if (saved.modifiedCount === 1) return result;
+  }
+  throw new Error('STREAK_BUSY');
+}
+
+/** Thưởng mốc chuỗi: JOY (nguồn checkin — chuỗi lửa là điểm danh bằng việc học) + push. */
+async function payMilestone(email, milestone) {
+  if (!milestone) return null;
+  const { balance } = await awardJoy(email, milestone.joy, 'checkin', `Chuỗi lửa Education Hugo: mốc ${milestone.day} ngày`, { refId: `edu-streak-${milestone.day}`, notify: false });
+  sendEduPush(email, { text: (lang) => streakPush(lang, 'milestone', { n: milestone.day, joy: milestone.joy }), url: '/learn?streak=1', tag: 'edu-streak' })
+    .catch(() => {});
+  return { ...milestone, balance };
+}
+
+/** Qua một bài trắc nghiệm (kể cả học lại): giữ lửa hôm nay. Trả chuỗi mới + mốc vừa đạt. */
+export async function noteEduStudy(email) {
+  const { day } = vnClock();
+  const { state, milestone } = await writeStreak(email, (raw) => studyToday(raw, day));
+  const paid = await payMilestone(email, milestone).catch((error) => {
+    console.error('[edu streak milestone]', error.message);
+    return null;
+  });
+  return { streak: streakView(state, day), milestone: paid };
+}
+
+/**
+ * Phá băng một ngày: trừ THAW_PRICE JOY trước (awardJoy chặn số dư âm), rồi mới
+ * ghi chuỗi; ghi hỏng (ngày đã được phá ở máy khác…) thì hoàn lại đúng số đó.
+ */
+export async function thawEduStreak(email, frozenDay) {
+  const { day } = vnClock();
+  const doc = await EduLearner.findOne({ email }).select('streak').lean();
+  thawDay(doc?.streak, frozenDay, day); // kiểm hợp lệ trước khi trừ tiền (ném lỗi có code)
+  const { balance } = await awardJoy(email, -THAW_PRICE, 'store_purchase', `Lửa phá băng chuỗi học ngày ${frozenDay}`, { notify: false });
+  let result;
+  try {
+    result = await writeStreak(email, (raw) => thawDay(raw, frozenDay, day));
+  } catch (error) {
+    await awardJoy(email, THAW_PRICE, 'admin_adjustment', `Hoàn JOY: chưa phá băng được ngày ${frozenDay}`, { rawAmount: true, notify: false });
+    throw error;
+  }
+  const paid = await payMilestone(email, result.milestone).catch(() => null);
+  return { streak: streakView(result.state, day), milestone: paid, balance: paid?.balance ?? balance };
 }
 
 export async function saveEduPrefs(email, input) {
@@ -34,17 +96,10 @@ export async function noteEduStep(email) {
   await EduLearner.updateOne({ email }, { $inc: { dayDone: 1 }, $set: { day, lastActiveAt: new Date() } }, { upsert: true });
 }
 
-// Lời nhắc xoay vòng theo ngày để không lặp một câu mỗi tối.
-const NUDGES = [
-  ['Tới giờ học rồi', 'Một step ngắn thôi — Nhịp đang chờ dòng code tiếp theo.'],
-  ['Giữ nhịp hôm nay', 'Mười lăm phút là đủ qua một step và nhận thêm JOY.'],
-  ['Bạn đồng hành đang đợi', 'Mở Education Hugo và làm tiếp phần còn dang dở.'],
-];
-const AWAY_NUDGE = ['Lâu rồi chưa gặp', 'Bài học vẫn giữ nguyên chỗ cũ — quay lại học tiếp một step nhé.'];
-
 /**
- * Chạy mỗi giờ: nhắc học đúng giờ người học chọn (chưa đạt mục tiêu ngày), và
- * lúc 9h báo hạn tài khoản còn 3 hoặc 1 ngày.
+ * Chạy mỗi giờ: nhắc theo CHUỖI LỬA — đúng giờ người học chọn nếu hôm nay chưa
+ * giữ lửa (sắp tới mốc thì nói mốc), 21h gọi lần cuối trước khi đóng băng, 8h báo
+ * lửa vừa đóng băng; lúc 9h báo hạn tài khoản còn 3 hoặc 1 ngày.
  *
  * ponytail: quét theo giờ với limit 500/lượt — đủ cho quy mô hiện tại; đông hơn
  * thì chia lô theo _id.
@@ -62,14 +117,43 @@ export async function runEduReminders(now = new Date()) {
     lastActiveAt: { $gte: new Date(now - 30 * DAY_MS) },
   }).limit(500).lean();
   for (const doc of due) {
-    const { done, goal } = todayOf(doc, day);
-    if (done >= goal) continue;
-    const away = now - new Date(doc.lastActiveAt) > 2 * DAY_MS;
-    const [title, body] = away ? AWAY_NUDGE : NUDGES[Number(day.slice(-2)) % NUDGES.length];
-    const left = goal - done;
-    await sendEduPush(doc.email, { title, body: !away && goal > 1 ? `${body} Còn ${left} step là đạt mục tiêu hôm nay.` : body, url: '/learn', tag: 'edu-reminder' });
+    const streak = streakView(doc.streak, day);
+    if (streak.studiedToday) continue; // đã giữ lửa hôm nay thì thôi nhắc
+    const next = nextMilestone(streak.count);
+    const key = !streak.count ? 'remindNew' : next.day === streak.count + 1 ? 'nearMilestone' : 'remind';
+    await sendEduPush(doc.email, {
+      text: (lang) => streakPush(lang, key, { n: streak.count, m: next.day, joy: next.joy }),
+      url: '/learn',
+      tag: 'edu-reminder',
+    });
     await EduLearner.updateOne({ _id: doc._id }, { $set: { remindedDay: day } });
     reminded += 1;
+  }
+
+  // 21h: lời gọi cuối cho chuỗi từ 3 ngày chưa học hôm nay — trước khi lửa đóng băng.
+  // 8h: báo lửa vừa đóng băng hôm qua (học hôm nay hoặc phá băng 250 JOY).
+  if (hour === 21 || hour === 8) {
+    const field = hour === 21 ? 'lastCallDay' : 'frozenNoticeDay';
+    const learners = await EduLearner.find({
+      'prefs.reminder': { $ne: false },
+      [field]: { $ne: day },
+      'streak.count': { $gte: hour === 21 ? 3 : 1 },
+      lastActiveAt: { $gte: new Date(now - 30 * DAY_MS) },
+    }).select('email streak').limit(1000).lean();
+    for (const doc of learners) {
+      const streak = streakView(doc.streak, day);
+      const send = hour === 21
+        ? !streak.studiedToday && streak.count >= 3
+        : streak.count > 0 && streak.frozen.includes(addDays(day, -1));
+      if (!send) continue;
+      await sendEduPush(doc.email, {
+        text: (lang) => streakPush(lang, hour === 21 ? 'lastCall' : 'frozen', { n: streak.count, f: streak.freezesThisMonth }),
+        url: '/learn?streak=1',
+        tag: 'edu-streak',
+      });
+      await EduLearner.updateOne({ _id: doc._id }, { $set: { [field]: day } });
+      reminded += 1;
+    }
   }
 
   if (hour === 9) {

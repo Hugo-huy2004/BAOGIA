@@ -5,7 +5,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HugoLogo from "../components/HugoLogo";
 import { CODER_JOY_PER_CORRECT } from "../../../../packages/shared/coderProgression";
+import { STUDIO_SOCIAL_LINKS } from "../config/studioSocialLinks";
+import { detectInstallTarget } from "../config/platform";
+import { useStandalone } from "../hooks/usePWA";
 import { EduBrand, EduInstall } from "./EduShell";
+import { rich, useEduText } from "./eduText";
+import { playEduSound } from "./eduSound";
+import { EDU_LANGS } from "./eduCopy";
+import { changeAppLanguage } from "../i18n/config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,19 +31,12 @@ gsap.registerPlugin(ScrollTrigger);
  * bỏ qua timeline — tranh đứng ở tư thế cuối. Nền màu đặc, không gradient.
  */
 
-const WAYS = [
-  { icon: "bolt", tone: "yellow", title: "Bài ngắn", body: "Mỗi bài vài phút, đủ một ý." },
-  { icon: "construction", tone: "blue", title: "Làm sản phẩm thật", body: "Mỗi khoá dựng một sản phẩm chạy được." },
-  { icon: "quiz", tone: "pink", title: "Kiểm tra ngay", body: "Trắc nghiệm cuối bài, máy chủ chấm." },
-];
+// Chữ của ba thẻ nằm ở eduCopy (landing.ways), theo đúng thứ tự này.
+const WAYS = [{ icon: "bolt", tone: "yellow" }, { icon: "construction", tone: "blue" }, { icon: "quiz", tone: "pink" }];
 const CARD_TILT = [-4, 3, -2];
 
-const SAMPLE = {
-  question: "Thẻ HTML nào dành cho tiêu đề quan trọng nhất của trang?",
-  options: ["<title>", "<h1>", "<header>"],
-  answer: 1,
-  why: "<h1> là tiêu đề chính hiện trên trang; <title> chỉ là tên trên thẻ trình duyệt.",
-};
+// Câu hỏi + lời giải nằm ở eduCopy (landing.sample); đáp án là mã nên không dịch.
+const SAMPLE = { options: ["<title>", "<h1>", "<header>"], answer: 1 };
 
 // Ô ngôn ngữ / khái niệm lập trình. Chữ, không dùng logo thương hiệu.
 const TILES = [
@@ -46,7 +46,7 @@ const TILES = [
 ];
 
 // Bạn bè đứng trên sân quanh bạn xanh: [x, y] là chỗ đặt CHÂN (% khung tranh); y lớn = đứng gần, vẽ đè lên.
-const CROWD = [[30, 66], [44, 60], [58, 60], [72, 66], [14, 80], [86, 80], [24, 96]];
+const CROWD = [[22, 64], [40, 57], [60, 57], [78, 64], [14, 84], [86, 84], [28, 99]];
 
 /** Chớp mắt tự nhiên: mỗi 2,5–4,5 giây nhắm 140 ms. */
 function useBlink() {
@@ -116,6 +116,7 @@ function drop(tl, el, h, at, { e = 0.4, soft = 1 } = {}) {
   gsap.set(el, { y: -h, opacity: 0 });
   const d = gsap.timeline()
     .set(el, { opacity: 1 })
+    .call(() => playEduSound("thud"), null, t)                // chạm đất: tiếng "bịch" (khi đã mở âm thanh)
     .to(el, { y: 0, duration: t, ease: "power1.in" }, 0)
     .to(el, { scaleY: 1 + 0.12 * soft, scaleX: 1 - 0.08 * soft, duration: t, ease: "power2.in" }, 0);
   impact(d, el, h, soft);
@@ -151,10 +152,11 @@ function idleHops(el, h) {
 }
 
 function SampleQuiz({ picked, onPick, tapping }) {
+  const { t } = useEduText();
   const right = picked === SAMPLE.answer;
   return (
     <div className="edu-quiz">
-      <p className="edu-quiz-q">{SAMPLE.question}</p>
+      <p className="edu-quiz-q">{t("landing.sample.question")}</p>
       <div className="edu-quiz-options">
         {SAMPLE.options.map((option, index) => (
           <button
@@ -171,8 +173,8 @@ function SampleQuiz({ picked, onPick, tapping }) {
       </div>
       {picked !== null && (
         <p className={`edu-quiz-result ${right ? "is-right" : "is-wrong"}`} role="status">
-          {right ? `Chính xác! +${CODER_JOY_PER_CORRECT} JOY.` : "Chưa đúng."} {SAMPLE.why}
-          <button type="button" onClick={() => onPick(null)}>Thử lại</button>
+          {right ? t("landing.sample.right", { joy: CODER_JOY_PER_CORRECT }) : t("landing.sample.wrong")} {t("landing.sample.why")}
+          <button type="button" onClick={() => onPick(null)}>{t("landing.sample.retry")}</button>
         </p>
       )}
     </div>
@@ -188,10 +190,10 @@ const Hat = () => (
   </svg>
 );
 
-const Way = ({ way, className = "" }) => (
+const Way = ({ way, text, className = "" }) => (
   <li className={`edu-way edu-way--${way.tone} ${className}`}>
     <span className="material-symbols-outlined" aria-hidden="true">{way.icon}</span>
-    <div><b>{way.title}</b><span>{way.body}</span></div>
+    <div><b>{text.title}</b><span>{text.body}</span></div>
   </li>
 );
 
@@ -205,6 +207,10 @@ const Feature = ({ scope, flip, title, children, art }) => (
 
 // ── Hero ───────────────────────────────────────────────────────────────────
 function Hero() {
+  const { t } = useEduText();
+  const target = detectInstallTarget();
+  const standalone = useStandalone();
+  const phone = (target.iOS || target.android) && !standalone;
   const blink = useBlink();
   const scope = useScene((tl) => {
     tl.from(".h-pad", { scaleX: 0, duration: 0.45, ease: "power2.out" });
@@ -230,16 +236,27 @@ function Hero() {
           </span>
         </div>
         <div className="edu-hero-copy">
-          <h1>Học lập trình miễn phí, vui và làm ra sản phẩm thật!</h1>
-          <Link className="edu-btn edu-btn--wide" to="/learn">Bắt đầu học</Link>
-          <Link className="edu-btn edu-btn--ghost edu-btn--wide" to="/login">Tôi đã có tài khoản</Link>
+          <h1>{t("landing.hero")}</h1>
+          {/* Điện thoại (chưa cài): một nút "Khám phá" cuộn xuống phần giới thiệu; học thì phải cài app. */}
+          {phone ? (
+            <button type="button" className="edu-btn edu-btn--wide" onClick={(event) => event.currentTarget.closest(".edu-hero").nextElementSibling?.scrollIntoView({ behavior: "smooth" })}>
+              {t("landing.explore")} <span className="material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </button>
+          ) : (
+            <>
+              <Link className="edu-btn edu-btn--wide" to="/learn">{t("landing.startLearning")}</Link>
+              <Link className="edu-btn edu-btn--ghost edu-btn--wide" to="/login">{t("landing.haveAccount")}</Link>
+            </>
+          )}
         </div>
       </div>
       {/* ponytail: dải chủ đề chỉ để xem, chưa có khoá riêng cho từng chủ đề nên không gắn link */}
-      <div className="edu-strip" aria-label="Chủ đề lập trình">
-        {TILES.map(([label, tone]) => (
-          <span key={label} className="edu-strip-item"><i className={`edu-tile-dot edu-tile--${tone}`} />{label}</span>
-        ))}
+      <div className="edu-strip" aria-label={t("landing.topics")}>
+        <div className="edu-strip-track">
+          {[...TILES, ...TILES].map(([label, tone], i) => (
+            <span key={i} className="edu-strip-item" aria-hidden={i >= TILES.length || undefined}><i className={`edu-tile-dot edu-tile--${tone}`} />{label}</span>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -251,18 +268,20 @@ const fromHeadX = (i, el) => el.parentElement.offsetWidth / 2 - el.offsetLeft;
 const fromHeadY = (i, el) => el.parentElement.offsetHeight * 0.5 - el.offsetTop;
 
 function FeatureFree() {
+  const { t } = useEduText();
   const scope = useScene((tl) => {
     tl.from(".f1-pad", { scaleX: 0, duration: 0.4, ease: "power2.out" });
     drop(tl, ".f1-buddy", 420, 0.1);
     tl.set(".f1-buddy img", face("correct"), ">0.1");
     const at = tl.duration();
     jump(tl, ".f1-buddy", 110, at);
-    tl.from(".f1-coin", { x: fromHeadX, duration: 0.5, ease: "none", stagger: 0.08 }, at + 0.16)
+    tl.call(() => playEduSound("coin"), null, at + 0.3)
+      .from(".f1-coin", { x: fromHeadX, duration: 0.5, ease: "none", stagger: 0.08 }, at + 0.16)
       .from(".f1-coin", { y: fromHeadY, scale: 0.3, opacity: 0, duration: 0.5, ease: "power1.out", stagger: 0.08 }, at + 0.16);
     tl.add(idleHops(".f1-buddy", 80), tl.duration() + 0.6);
   });
   return (
-    <Feature scope={scope} title="miễn phí. vui. hiệu quả." art={
+    <Feature scope={scope} title={t("landing.freeTitle")} art={
       <div aria-hidden="true">
         <span className="edu-pad f1-pad" />
         {[[18, 22], [80, 14], [86, 52]].map(([x, y], i) => (
@@ -271,13 +290,14 @@ function FeatureFree() {
         <span className="edu-art-actor f1-buddy"><img src="/edu/buddy-learn.svg" alt="" /></span>
       </div>
     }>
-      <p>Mọi khoá học đều <b>miễn phí</b> — Hugo Studio là dự án phi lợi nhuận. Trả lời đúng còn được <b>+{CODER_JOY_PER_CORRECT} JOY</b> mỗi câu.</p>
+      <p>{rich(t("landing.freeBody", { joy: CODER_JOY_PER_CORRECT }))}</p>
     </Feature>
   );
 }
 
 // ── Khối 2: học bằng cách làm ───────────────────────────────────────────────
 function FeatureDo() {
+  const { t } = useEduText();
   const scope = useScene((tl) => {
     // Thẻ dưới cùng rơi trước, thẻ sau đáp lên trên; thẻ cứng nên ít bẹp, xoay đều trong lúc rơi.
     WAYS.forEach((_, k) => {
@@ -293,21 +313,22 @@ function FeatureDo() {
     tl.add(idleHops(".f2-orange", 60), tl.duration() + 0.8);
   });
   return (
-    <Feature scope={scope} flip title="học bằng cách làm" art={
+    <Feature scope={scope} flip title={t("landing.doTitle")} art={
       <div aria-hidden="true">
         <ul className="edu-drop">
-          {WAYS.map((way, i) => <Way key={way.title} way={way} className={`f2-card-${i}`} />)}
+          {WAYS.map((way, i) => <Way key={way.icon} way={way} text={t("landing.ways")[i]} className={`f2-card-${i}`} />)}
         </ul>
         <span className="edu-art-actor edu-art-actor--corner f2-orange"><img src="/edu/cast-5.svg" alt="" className="edu-idle" /></span>
       </div>
     }>
-      <p>Không học thuộc lòng. Mỗi bài cho bạn gõ một đoạn mã thật, chạy thử, rồi ghép dần thành một sản phẩm của riêng mình.</p>
+      <p>{t("landing.doBody")}</p>
     </Feature>
   );
 }
 
 // ── Khối 3: thử một câu ─────────────────────────────────────────────────────
 function FeatureQuiz() {
+  const { t } = useEduText();
   const [picked, setPicked] = useState(null);
   const [tapping, setTapping] = useState(false);
   const [walking, setWalking] = useState(false);
@@ -320,16 +341,21 @@ function FeatureQuiz() {
       .call(() => setTapping(!touched.current))
       .to(".f3-prof", { rotate: 7, duration: 0.18, ease: "power2.out" })                // ngả ra lấy đà
       .to(".f3-prof", { rotate: -18, duration: 0.09, ease: "power2.in" })               // gõ xuống
-      .call(() => { setTapping(false); if (!touched.current) setPicked(SAMPLE.answer); })
+      .call(() => { setTapping(false); if (!touched.current) { setPicked(SAMPLE.answer); playEduSound("success"); } })
       .to(".f3-prof", { rotate: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" }, ">0.08");
     const at = tl.duration();
     jump(tl, ".f3-fans", 90, at);                                      // bạn xanh mừng: nhảy hai cái
     jump(tl, ".f3-fans", 60, ">0.02");
     tl.add(idleHops(".f3-fans", 60), tl.duration() + 1);
   });
-  const pick = (value) => { touched.current = true; setTapping(false); setPicked(value); };
+  const pick = (value) => {
+    touched.current = true;
+    setTapping(false);
+    setPicked(value);
+    if (value !== null) playEduSound(value === SAMPLE.answer ? "success" : "thud", { unlock: true });
+  };
   return (
-    <Feature scope={scope} title="thử một câu ngay đây" art={
+    <Feature scope={scope} title={t("landing.quizTitle")} art={
       <div>
         <div className="edu-phone edu-phone--quiz f3-phone">
           <SampleQuiz picked={picked} onPick={pick} tapping={tapping} />
@@ -342,13 +368,14 @@ function FeatureQuiz() {
         </span>
       </div>
     }>
-      <p>Bài nào cũng kết thúc bằng vài câu như thế này. Sai cũng không sao — xem lời giải rồi làm lại.</p>
+      <p>{t("landing.quizBody")}</p>
     </Feature>
   );
 }
 
 // ── Khối 4: nhiều khoá ──────────────────────────────────────────────────────
 function FeatureCourses() {
+  const { t } = useEduText();
   const scope = useScene((tl) => {
     // Ô chữ rơi từ nhiều độ cao theo thứ tự ngẫu nhiên, cứng nên nảy thấp.
     gsap.utils.shuffle(gsap.utils.toArray(".f4-tile")).forEach((el, k) =>
@@ -359,7 +386,7 @@ function FeatureCourses() {
     tl.add(idleHops(".f4-buddy", 70), tl.duration() + 0.8);
   });
   return (
-    <Feature scope={scope} flip title="nhiều khoá đang tới" art={
+    <Feature scope={scope} flip title={t("landing.coursesTitle")} art={
       <div aria-hidden="true">
         <div className="edu-tile-grid">
           {TILES.map(([label, tone]) => <span key={label} className={`edu-tile f4-tile edu-tile--${tone}`}>{label}</span>)}
@@ -367,13 +394,14 @@ function FeatureCourses() {
         <span className="edu-art-actor f4-buddy"><img src="/edu/buddy-practice.svg" alt="" /></span>
       </div>
     }>
-      <p>Bắt đầu từ lập trình web, rồi thêm dần các khoá mới. Một tài khoản học hết, tiến độ lưu theo tài khoản.</p>
+      <p>{t("landing.coursesBody")}</p>
     </Feature>
   );
 }
 
 // ── Dải học mọi lúc, mọi nơi ────────────────────────────────────────────────
 function Anywhere() {
+  const { t } = useEduText();
   const scope = useScene((tl) => {
     tl.from(".a-phone", { y: 120, opacity: 0, duration: 0.6, stagger: 0.15, ease: "back.out(1.4)" });
     [0, 1, 2].forEach((k) => {                       // rơi xuống máy đầu, rồi nhảy qua từng máy
@@ -386,8 +414,8 @@ function Anywhere() {
   });
   return (
     <section ref={scope} className="edu-anywhere">
-      <h2>học mọi lúc, mọi nơi</h2>
-      <p>Cài Education Hugo lên điện thoại hoặc máy tính như một ứng dụng.</p>
+      <h2>{t("landing.anywhereTitle")}</h2>
+      <p>{t("landing.anywhereBody")}</p>
       <EduInstall className="edu-btn" />
       <div className="edu-phones" aria-hidden="true">
         {[20, 50, 80].map((left) => (
@@ -405,6 +433,7 @@ function Anywhere() {
 
 // ── Lời mời cuối ────────────────────────────────────────────────────────────
 function Final() {
+  const { t } = useEduText();
   const scope = useScene((tl) => {
     tl.from(".edu-final > *", { y: 24, opacity: 0, duration: 0.5, stagger: 0.1 }, 0);
     // Nhân vật bật lên từ mép dưới: lên chậm dần qua đỉnh rồi rơi về chỗ đứng.
@@ -424,8 +453,8 @@ function Final() {
         ))}
       </div>
       <div className="edu-final">
-        <h2>học lập trình cùng Education Hugo</h2>
-        <Link className="edu-btn edu-btn--light edu-btn--wide" to="/learn">Bắt đầu học</Link>
+        <h2>{t("landing.finalTitle")}</h2>
+        <Link className="edu-btn edu-btn--light edu-btn--wide" to="/learn">{t("landing.startLearning")}</Link>
       </div>
       <div className="edu-peek" aria-hidden="true">
         {["/edu/cast-2.svg", "/edu/buddy-done.svg", "/edu/cast-6.svg"].map((src) => (
@@ -436,9 +465,87 @@ function Final() {
   );
 }
 
+// ── Chân trang kiểu Duolingo: cột tiêu đề + liên kết, chỉ những trang Hugo Studio đang có ──
+const WWW = "https://www.hugowishpax.studio";
+// [khoá tiêu đề, [[khoá chữ, đường dẫn]]] — chữ ở eduCopy (footer.*); "/…" là trang trong Edu.
+const FOOTER = [
+  [["learn", [["start", "/learn"], ["common.login", "/login"], ["progress", "/progress"], ["store", "/store"]]]],
+  [["about", [["member", `${WWW}/member`], ["web", `${WWW}/`], ["portfolio", "https://portfolio.hugowishpax.studio"], ["student", `${WWW}/student-pricing`]]]],
+  [["help", [["faq", `${WWW}/faq`], ["request", `${WWW}/support-request`], ["guide", `${WWW}/terms-and-guide`]]]],
+  [
+    ["legal", [["common.terms", `${WWW}/terms`], ["common.privacy", `${WWW}/privacy-policy`]]],
+    ["social", STUDIO_SOCIAL_LINKS.map((s) => [s.labelKey === "socialGroupChat" ? "groupChat" : `=${s.fallbackLabel}`, s.href])],
+  ],
+];
+// Khoá có dấu chấm là khoá đầy đủ; "=Tên" là tên riêng giữ nguyên (TikTok, Instagram…).
+const footerLabel = (t, key) => (key.startsWith("=") ? key.slice(1) : t(key.includes(".") ? key : `footer.${key}`));
+
+function EduFooter() {
+  const { t, lang } = useEduText();
+  return (
+    <footer className="edu-footer">
+      <div className="edu-footer-cols">
+        {FOOTER.map((column, i) => (
+          <div key={i}>
+            {column.map(([title, links]) => (
+              <section key={title}>
+                <h3>{t(`footer.${title}`)}</h3>
+                {links.map(([label, href]) => href.startsWith("/")
+                  ? <Link key={label} to={href}>{footerLabel(t, label)}</Link>
+                  : <a key={label} href={href} target="_blank" rel="noopener">{footerLabel(t, label)}</a>)}
+              </section>
+            ))}
+          </div>
+        ))}
+      </div>
+      {/* Như Duolingo: hàng ngôn ngữ hiển thị — mỗi ngôn ngữ một địa chỉ riêng (/, /en, /zh) để chia sẻ và Google đọc được. */}
+      <div className="edu-footer-langs">
+        <b>{t("footer.language")}</b>
+        <nav>
+          {EDU_LANGS.map(({ code, label, path }) => (
+            <Link key={code} to={path} lang={code} aria-current={code === lang ? "true" : undefined} onClick={() => changeAppLanguage(code)}>{label}</Link>
+          ))}
+        </nav>
+      </div>
+      <div className="edu-footer-bottom">
+        <b>EDUCATION HUGO</b>
+        <span>{t("footer.of")} <HugoLogo className="h-4 w-4" aria-hidden="true" /> Hugo Studio · {t("footer.nonprofit")} · © {new Date().getFullYear()}</span>
+      </div>
+    </footer>
+  );
+}
+
 export default function EduLanding() {
+  const { t } = useEduText();
   const sentinel = useRef(null);
   const [pastHero, setPastHero] = useState(false);
+  const root = useRef(null);
+  const still = useReducedMotion();
+  // Nền chuyển màu mượt giữa các khối (trắng → xanh trời → xanh đêm) thay vì cắt ngang:
+  // đọc màu nền thật của từng khối (đúng cả chế độ tối), làm khối trong suốt, rồi khối
+  // nào đang chiếm giữa màn hình thì nền chung chuyển sang màu đó.
+  useLayoutEffect(() => {
+    const landing = root.current;
+    if (still || !landing) return undefined;
+    const sections = [...landing.querySelectorAll(":scope > section")];
+    const colors = sections.map((el) => getComputedStyle(el).backgroundColor);
+    const base = getComputedStyle(landing.closest(".edu") || document.body).backgroundColor;
+    const ctx = gsap.context(() => {
+      landing.classList.add("is-tinted");
+      gsap.set(landing, { backgroundColor: base });
+      sections.forEach((el, i) => {
+        const color = colors[i] === "rgba(0, 0, 0, 0)" ? base : colors[i];
+        ScrollTrigger.create({
+          trigger: el,
+          scroller: document.getElementById("root"),
+          start: "top 55%",
+          end: "bottom 55%",
+          onToggle: (self) => self.isActive && gsap.to(landing, { backgroundColor: color, duration: 0.7, ease: "power1.inOut", overwrite: true }),
+        });
+      });
+    });
+    return () => { ctx.revert(); landing.classList.remove("is-tinted"); landing.style.backgroundColor = ""; };
+  }, [still]);
   // Như Duolingo: qua khỏi màn đầu thì thanh trên mọc nút "Bắt đầu".
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setPastHero(!entry.isIntersecting),
@@ -448,12 +555,12 @@ export default function EduLanding() {
   }, []);
 
   return (
-    <div className="edu-landing">
+    <div ref={root} className="edu-landing">
       <header className="edu-landing-top">
         <EduBrand to="/" />
         {pastHero
-          ? <Link className="edu-btn" to="/learn">Bắt đầu</Link>
-          : <Link className="edu-btn edu-btn--ghost" to="/login">Đăng nhập</Link>}
+          ? <Link className="edu-btn" to="/learn">{t("landing.start")}</Link>
+          : <Link className="edu-btn edu-btn--ghost" to="/login">{t("common.login")}</Link>}
       </header>
       <span ref={sentinel} className="edu-sentinel" aria-hidden="true" />
 
@@ -465,17 +572,7 @@ export default function EduLanding() {
       <Anywhere />
       <Final />
 
-      <footer className="edu-footer">
-        <div>
-          <b>EDUCATION HUGO</b>
-          <span>thuộc <HugoLogo className="h-4 w-4" aria-hidden="true" /> Hugo Studio · dự án phi lợi nhuận</span>
-        </div>
-        <nav>
-          <a href="https://www.hugowishpax.studio/terms" target="_blank" rel="noopener">Điều khoản</a>
-          <a href="https://www.hugowishpax.studio/privacy-policy" target="_blank" rel="noopener">Bảo mật</a>
-          <a href="https://www.hugowishpax.studio" target="_blank" rel="noopener">Hugo Studio</a>
-        </nav>
-      </footer>
+      <EduFooter />
     </div>
   );
 }
