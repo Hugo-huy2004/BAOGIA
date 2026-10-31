@@ -58,14 +58,14 @@ export async function buildUserOverview(email, memberId) {
   const byEmail = { email };
 
   const [
-    JoyLedger, JoyCreditProfile, JoyDefaultRecord, PendingTransfer, JoyGiftCard,
+    JoyLedger, PendingTransfer, JoyGiftCard,
     Booking, SupportTicket, CustomerProject, UtilityOrder,
     SecurityEvent, SecurityBlock, SecurityAppeal,
     NativePushDevice, NotificationSubscription, InAppNotification,
     SurveyResponse, SleepLog, ReadingSession, LessonFeedback, LearningEvidence,
     StockPosition, StockTrade, ArcadeScore, ChessRating, CheckinRecord,
   ] = await Promise.all([
-    'JoyLedger', 'JoyCreditProfile', 'JoyDefaultRecord', 'PendingTransfer', 'JoyGiftCard',
+    'JoyLedger', 'PendingTransfer', 'JoyGiftCard',
     'Booking', 'SupportTicket', 'CustomerProject', 'UtilityOrder',
     'SecurityEvent', 'SecurityBlock', 'SecurityAppeal',
     'NativePushDevice', 'NotificationSubscription', 'InAppNotification',
@@ -74,12 +74,9 @@ export async function buildUserOverview(email, memberId) {
   ].map(loadModel));
 
   const sections = await Promise.all([
-    // ── Ví và tín dụng ───────────────────────────────────────────────────
+    // ── Ví ───────────────────────────────────────────────────
     section('wallet', async () => ({
       ledger: await recent(JoyLedger, byEmail, 30),
-      credit: JoyCreditProfile ? await JoyCreditProfile.findOne(byEmail).lean() : null,
-      // Sổ đen khoá theo BĂM email, không phải email thô.
-      defaults: await recent(JoyDefaultRecord, { emailHash: hash }, 20),
       giftCards: await recent(JoyGiftCard, byEmail, 10),
       // Giao dịch bị giữ: tra CẢ HAI chiều, người này có thể là bên nhận.
       heldTransfers: PendingTransfer

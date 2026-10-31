@@ -19,8 +19,6 @@ const CHECKS = [
   { name: 'check:notification-tone', cmd: 'npm', args: ['run', 'check:notification-tone'] },
   { name: 'check:joy-stability', cmd: 'npm', args: ['run', 'check:joy-stability'] },
   { name: 'check:survey', cmd: 'npm', args: ['run', 'check:survey'] },
-  { name: 'check:joylater-policy', cmd: 'npm', args: ['run', 'check:joylater-policy'] },
-  { name: 'check:joylater-rates', cmd: 'npm', args: ['run', 'check:joylater-rates'] },
   { name: 'check:tier-finance', cmd: 'npm', args: ['run', 'check:tier-finance'] },
   { name: 'check:han-viet', cmd: 'npm', args: ['run', 'check:han-viet'] },
   { name: 'check:sino', cmd: 'npm', args: ['run', 'check:sino'] },

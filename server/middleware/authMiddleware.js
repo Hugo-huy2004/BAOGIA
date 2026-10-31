@@ -27,7 +27,7 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/accounts(?:\/|$)/, 'access'],
   // Từng bảng tự kiểm quyền riêng trong adminDataRoutes.js.
   [/^\/api\/admin\/data(?:\/|$)/, 'overview'],
-  [/^\/api\/admin\/(?:queue|joylater)(?:\/|$)/, 'queue'],
+  [/^\/api\/admin\/queue(?:\/|$)/, 'queue'],
   [/^\/api\/admin\/ai-support(?:\/|$)/, 'support'],
   [/^\/api\/admin\/users(?:\/|$)/, 'users'],
   [/^\/api\/admin\/(?:coder-submissions|learners|verify-graduation-project)(?:\/|$)/, 'learning'],

@@ -200,31 +200,6 @@ export default function AdminWorkQueueTab({ onOpenUser }) {
         ))}
       </Section>
 
-      <Section icon="block" title="Nợ JOY chờ duyệt cấm vĩnh viễn" items={queue.joylater || []}
-               empty="Không có hồ sơ nợ nào chờ duyệt.">
-        {(queue.joylater || []).map((c) => (
-          <Card key={c._id} title={`Hồ sơ ${c.caseId} · còn nợ ${Number(c.outstanding || 0).toLocaleString("vi-VN")} JOY`}
-                subtitle={`Quá hạn ${c.daysOverdue || 0} ngày${c.note ? ` · ${c.note}` : ""}`}
-                since={c.createdAt}>
-            {/* Sổ đen chỉ lưu BĂM email, cố ý không tra ngược ra người dùng —
-                nên mục này không có nút "mở hồ sơ" như các mục khác. */}
-            <button type="button" disabled={busy === c._id} className={ghost}
-              onClick={() => act(c._id,
-                () => adminBrainApi.reviewJoyLaterCase(c.caseId, "ban"),
-                `CẤM VĨNH VIỄN theo email và số điện thoại của hồ sơ ${c.caseId}? Thao tác thường không gỡ lại được.`,
-                true)}>
-              Duyệt cấm vĩnh viễn
-            </button>
-            <button type="button" disabled={busy === c._id} className={solid}
-              onClick={() => act(c._id,
-                () => adminBrainApi.reviewJoyLaterCase(c.caseId, "skip"),
-                `Bỏ qua hồ sơ ${c.caseId}, không ghi lệnh cấm nào?`)}>
-              Bỏ qua
-            </button>
-          </Card>
-        ))}
-      </Section>
-
       <section>
         <h3 className="mb-3 flex items-center gap-2.5 text-sm font-semibold">
           <span aria-hidden className="material-symbols-outlined grid size-9 place-items-center rounded-full bg-muted text-[20px] text-foreground">

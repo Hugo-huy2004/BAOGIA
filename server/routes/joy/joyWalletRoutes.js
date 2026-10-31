@@ -8,11 +8,8 @@ import { requireAdmin, requireMember, recentlyVerified } from '../../middleware/
 import { bioAge, isMinorAge } from '../../utils/memberAge.js';
 import { checkMoneyStepUp } from '../../services/moneyStepUp.js';
 import { assessTransferHold } from '../../services/transferHold.js';
-import { debtRestriction } from '../../services/joyLaterEnforcement.js';
-import { RESTRICTIONS } from '../../../shared/joyLaterPolicy.js';
 import { transferFeeRateOf, dailyTransferCapOf } from '../../../shared/tierFinance.js';
 import PendingTransfer from '../../models/PendingTransfer.js';
-import { hasOpenLoan } from '../../utils/joyLaterService.js';
 import UtilityOrder from '../../models/UtilityOrder.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
@@ -385,18 +382,6 @@ router.post('/transfer', requireMember, async (req, res) => {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
     }
 
-    // JOYlater: còn nợ thì không chuyển JOY đi được. Đây là lỗ hổng lớn nhất của
-    // mọi hệ tín dụng nội bộ — vay xong đẩy hết sang tài khoản phụ rồi bỏ tài
-    // khoản đang nợ. Chặn ở server, không chỉ ẩn nút.
-    const senderBio = await Bio.findOne({ $or: [{ email: fromEmail }, { contactEmail: fromEmail }] })
-      .select('joyLoan').lean();
-    if (hasOpenLoan(senderBio)) {
-      return res.status(403).json({
-        error: 'Bạn đang có khoản JOYlater chưa trả. Trả xong mới chuyển JOY cho người khác được.',
-        code: 'JOYLATER_OPEN',
-      });
-    }
-
     // 1. Chống gửi lặp request (khoá idempotency trong RAM)
     const idempotencyLockKey = idempotencyKey ? `idempotency:${fromEmail}:${idempotencyKey}` : null;
     if (idempotencyLockKey) {
@@ -420,12 +405,6 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     const sender = await Bio.findOne({ email: fromEmail });
     if (!sender) return rejectRequest(404, 'Không tìm thấy hồ sơ người gửi.');
-
-    // Chế tài nợ JOYlater. Chặn ở ĐÂY, ngay sau khi có hồ sơ người gửi và trước
-    // mọi phép tính tiền: chuyển JOY là đường duy nhất để đẩy số dư sang tài
-    // khoản khác rồi bỏ lại tài khoản đang nợ.
-    const debtBlock = debtRestriction(sender, RESTRICTIONS.TRANSFER);
-    if (debtBlock) return rejectRequest(403, debtBlock, 'JOYLATER_OVERDUE');
 
     // 2. Xác thực 2 lớp — dưới ngưỡng giữ luật cũ (PIN nếu đã cài), từ ngưỡng
     // lên bắt buộc PIN + Face ID/Google vừa xong. `numAmount` là JOY gốc nên so

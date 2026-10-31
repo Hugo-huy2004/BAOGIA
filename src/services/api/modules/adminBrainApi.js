@@ -64,59 +64,6 @@ export const adminBrainApi = {
     return res.json();
   },
 
-  /** Toàn cảnh cho vay JOY: dư nợ, người trễ hạn, hạn mức đã cấp, công tắc. */
-  async getJoyLending() {
-    const res = await fetch(`${API_BASE}/admin/joylater`, { credentials: 'include' });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Không tải được dữ liệu cho vay');
-    return res.json();
-  },
-
-  /**
-   * Ép xét lại hạn mức NGAY, không đợi 17:00 thứ Bảy.
-   *
-   * Bỏ trống `email` = xét lại toàn bộ. Endpoint nằm ở `/joy/joylater/review`
-   * (không phải `/admin/...`) vì nó dùng lại đúng đường tính của cron — hai
-   * đường tính song song thì sớm muộn ra hai con số khác nhau.
-   */
-  async forceJoyReview(email = null) {
-    const res = await fetch(`${API_BASE}/joy/joylater/review`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify(email ? { email } : {}),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Không xét lại được');
-    return res.json();
-  },
-
-  /** Đặt (hoặc gỡ, bằng limit = null) hạn mức tay cho một người. */
-  async setJoyLimit({ email, limit, reason, days }) {
-    const res = await fetch(`${API_BASE}/admin/joylater/limit`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ email, limit, reason, days }),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Không đặt được hạn mức');
-    return res.json();
-  },
-
-  /** Tạm dừng hoặc mở lại việc vay của một người. */
-  async suspendJoyBorrower({ email, suspend, reason }) {
-    const res = await fetch(`${API_BASE}/admin/joylater/suspend`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ email, suspend, reason }),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Không đổi được trạng thái');
-    return res.json();
-  },
-
-  /** Công tắc cho vay toàn hệ thống. */
-  async pauseJoyLending({ paused, reason }) {
-    const res = await fetch(`${API_BASE}/admin/joylater/pause`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-      body: JSON.stringify({ paused, reason }),
-    });
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Không đổi được công tắc');
-    return res.json();
-  },
-
   /**
    * Hàng đợi việc chờ duyệt toàn hệ thống: kháng nghị mở khoá, giao dịch JOY
    * bị giữ, phiếu hỗ trợ đang mở.
@@ -126,21 +73,6 @@ export const adminBrainApi = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'Không tải được hàng đợi');
-    }
-    return res.json();
-  },
-
-  /** Duyệt hoặc bỏ qua một hồ sơ nợ JOY Gối Đầu. `decision`: ban | skip */
-  async reviewJoyLaterCase(caseId, decision) {
-    const res = await fetch(`${API_BASE}/admin/joylater/${caseId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ decision })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Không xử lý được hồ sơ nợ');
     }
     return res.json();
   },

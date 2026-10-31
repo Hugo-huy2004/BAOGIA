@@ -54,8 +54,6 @@
     "check:notification-source": "node server/scripts/check-notification-source.mjs",
     "check:notification-tone": "node server/scripts/check-notification-tone.mjs",
     "check:survey": "node server/scripts/check-survey.mjs",
-    "check:joylater-policy": "node server/scripts/check-joylater-policy.mjs",
-    "check:joylater-rates": "node server/scripts/check-joylater-rates.mjs",
     "check:tier-finance": "node server/scripts/check-tier-finance.mjs",
     "check:han-viet": "node scripts/checks/check-han-viet.mjs",
     "check:sino": "node server/scripts/check-sino-numerals.mjs",

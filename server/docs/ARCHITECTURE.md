@@ -26,7 +26,7 @@ server/
 ├── modules/                         # 🌟 CÁC NHÁNH TÍNH NĂNG GOM CHUNG (FEATURE MODULES)
 │   ├── arcade/                      # Trò chơi (2048, Caro, Survivor, Snake, Pinball, Scores)
 │   ├── chess/                       # Cờ vua (Realtime WebSocket, ELO Ratings, Lịch sử đấu)
-│   ├── joy/                         # Ví JOY (Chuyển tiền, Nợ JOYlater, Idempotency, Ledger)
+│   ├── joy/                         # Ví JOY (Chuyển tiền, Idempotency, Ledger)
 │   ├── companion/                   # Trợ lý AI HugoPsy (Chat, Trị liệu, Ký ức dài hạn)
 │   ├── auth/                        # Xác thực (Google, WebAuthn Passkeys, OAuth2)
 │   └── store/                       # Cửa hàng tiện ích & Giỏ hàng
@@ -84,7 +84,7 @@ graph TD
 | :--- | :--- | :--- |
 | **Trò chơi Arcade** | `server/modules/arcade/` | Toàn bộ 5 trò chơi, tính thưởng JOY, kỷ lục, bảng xếp hạng. |
 | **Cờ vua Realtime** | `server/modules/chess/` | Đấu cờ, WebSocket `/ws/chess`, tính điểm ELO, lịch sử ván cờ. |
-| **Hệ sinh thái Ví JOY** | `server/modules/joy/` | Sổ cái `JoyLedger`, chuyển JOY, nợ `joyLater`, thẻ quà tặng, chống lặp `idempotency`. |
+| **Hệ sinh thái Ví JOY** | `server/modules/joy/` | Sổ cái `JoyLedger`, chuyển JOY, thẻ quà tặng, chống lặp `idempotency`. |
 | **Trợ lý AI HugoPsy** | `server/modules/companion/` | Hội thoại trị liệu tâm lý, phân tích giấc ngủ, RAG vector. |
 | **Danh tính & Xác thực** | `server/modules/auth/` | Đăng nhập Google, Passkey sinh trắc học WebAuthn, OAuth provider. |
 | **Thương mại & Dịch vụ** | `server/modules/store/` | Giỏ hàng, mã giảm giá, cổng thanh toán PayOS. |

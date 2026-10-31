@@ -48,9 +48,8 @@ const withUser = (rows, idByEmail, emailField = 'email') =>
   }));
 
 export async function buildWorkQueue({ limit = 50 } = {}) {
-  const [Bio, SecurityAppeal, PendingTransfer, SupportTicket, JoyDefaultRecord] =
-    await Promise.all(['Bio', 'SecurityAppeal', 'PendingTransfer', 'SupportTicket',
-      'JoyDefaultRecord'].map(loadModel));
+  const [Bio, SecurityAppeal, PendingTransfer, SupportTicket] =
+    await Promise.all(['Bio', 'SecurityAppeal', 'PendingTransfer', 'SupportTicket'].map(loadModel));
 
   const raw = await Promise.all([
     // Kháng nghị mở khoá: người dùng đã gửi ảnh và vị trí, đang chờ một câu trả lời.
@@ -62,15 +61,6 @@ export async function buildWorkQueue({ limit = 50 } = {}) {
     // Giao dịch JOY bị ví giữ lại. Xếp CŨ TRƯỚC: tiền của người ta đang treo.
     section('heldTransfers', () => (PendingTransfer
       ? PendingTransfer.find({ status: { $in: ['pending', 'held', 'review'] } })
-          .sort({ createdAt: 1 }).limit(limit).lean()
-      : [])),
-
-    // Hồ sơ nợ JOY chờ duyệt CẤM VĨNH VIỄN. Trước đây chỉ hiện trong Telegram —
-    // một kênh, một người, không có dấu vết trên bảng điều khiển. Sổ đen khoá
-    // theo BĂM email nên KHÔNG tra ngược ra người dùng được; đó là chủ ý, và
-    // vì vậy mục này không có nút "mở hồ sơ".
-    section('joylater', () => (JoyDefaultRecord
-      ? JoyDefaultRecord.find({ stage: 'review', confirmedAt: null, clearedAt: null })
           .sort({ createdAt: 1 }).limit(limit).lean()
       : [])),
 
@@ -87,8 +77,6 @@ export async function buildWorkQueue({ limit = 50 } = {}) {
   const queue = {
     appeals: withUser(byName.appeals.items, idByEmail),
     heldTransfers: withUser(byName.heldTransfers.items, idByEmail, 'fromEmail'),
-    // Không gắn userId: hồ sơ chỉ có băm, không có email thô.
-    joylater: byName.joylater.items,
     tickets: withUser(byName.tickets.items, idByEmail),
   };
 

@@ -122,7 +122,7 @@ export const MEMBER_DOCS = {
       },
       {
         id: "quy-che-joy",
-        title: "Quy chế ngân khố điểm thưởng JOY & JOY Gối Đầu",
+        title: "Quy chế ngân khố điểm thưởng JOY",
         blocks: [
           {
             type: "p",
@@ -136,19 +136,13 @@ export const MEMBER_DOCS = {
               ["Giới thiệu bạn bè mới", "+100 JOY / người", "Áp dụng khi người mới kích hoạt hồ sơ"],
               ["Chuyển JOY cho bạn bè", "500 JOY/ngày (Star-14) · 1.000 JOY/ngày (các hạng khác) · 8.000 JOY/tháng", "Yêu cầu xác thực mã PIN bảo vệ ngân khố"],
               ["Phí chuyển JOY", "0% (Star-VIP) · 5% (các hạng khác)", "Phí giữ hệ thống vận hành, không phải khoản thu lợi nhuận"],
-              ["JOYlater (Vay JOY)", "Ngừng mở khoản mới từ 25/10/2026", "Khoản đang vay vẫn trả và tính lãi như dưới đây"],
-              ["Lãi JOY Gối Đầu", "Lãi trong hạn thả theo tuần · quá hạn ×1,5 · chậm trả lãi 10%/năm", "Theo giới hạn Bộ luật Dân sự 2015 điều 466"],
             ],
           },
           {
             type: "steps",
             items: [
-              "Vay JOY Gối Đầu chỉ dùng để mở khoá tiện ích hoặc công cụ số trong hệ thống Hugo Studio. JOY không quy đổi thành tiền mặt, nên khoản vay này không phải quan hệ tín dụng tiền tệ.",
-              "Hạn mức được xét theo hồ sơ thành viên (JOY thu vào trừ JOY tiêu ra, số dư, mức độ sử dụng hệ thống và lịch sử hoàn trả), sau đó nhân hệ số của hạng thẻ. Hạng Star-14 không được cấp hạn mức.",
-              "Khoản vay chịu lãi tính theo ngày trên dư nợ gốc còn lại. Lãi trong hạn được chốt tại thời điểm ký và không thay đổi suốt kỳ vay. Trả trước hạn luôn giảm lãi và không mất phí.",
-              "Chậm hoàn trả phát sinh lãi quá hạn (tối đa 150% lãi trong hạn) và lãi chậm trả lãi (tối đa 10%/năm), theo đúng giới hạn của Bộ luật Dân sự 2015 điều 466.",
-              "Quá hạn kéo dài dẫn tới các biện pháp tăng dần, mỗi mức đều được thông báo trước: quá 7 ngày tạm ngưng quyền chuyển JOY và mở khoản mới; quá 21 ngày đình chỉ chi tiêu; quá 45 ngày phong toả tài khoản 30 ngày; quá 90 ngày lập hồ sơ trình quản trị thẩm định biện pháp vĩnh viễn.",
-              "Hugo Studio không bao giờ đòi nợ bằng bất kỳ hình thức nào ngoài hệ thống, không chuyển giao dữ liệu thành viên cho bên thứ ba để thu hồi, và không quy đổi khoản vay thành nghĩa vụ tiền mặt.",
+              "JOY Gối Đầu (JOYlater) đã chấm dứt ngày 31/10/2026. Toàn bộ dư nợ được xoá, mọi biện pháp hạn chế vì nợ được gỡ bỏ; Quý thành viên không còn bất kỳ nghĩa vụ hoàn trả nào.",
+              "Hugo Studio không cung cấp và sẽ không cung cấp hình thức vay hay trả sau nào bằng JOY.",
             ],
           },
         ],

@@ -101,7 +101,7 @@ const modelOf = async (name) => (models[name] ||= (await import(`../../models/${
 // mật không bao giờ ra ngoài; sổ tiền chỉ xem (đổi số dư phải qua joyService);
 // trò chuyện trị liệu không mở cho ai đọc.
 const HIDDEN_MODELS = new Set(['OAuthToken', 'OAuthAuthorizationCode', 'OAuthClient', 'TelegramState', 'Counter', 'CompanionHistory', 'Data']);
-const MONEY_MODELS = new Set(['PendingTransfer', 'StockPosition', 'StockTrade', 'JoyCreditProfile', 'JoyDefaultRecord', 'PaymentLink']);
+const MONEY_MODELS = new Set(['PendingTransfer', 'StockPosition', 'StockTrade', 'PaymentLink']);
 const SECRET_FIELD = /pass|secret|token|hash|otp|pin|cipher|encrypt|salt|(^|\.)iv$|key$|(^|\.)keys?(\.|$)|auth$|account(number|holder)|bank/i;
 const SCALAR = new Set(['String', 'Number', 'Boolean', 'Date', 'ObjectId']);
 

@@ -18,7 +18,6 @@ import {
   TIER_FINANCE, financeOf, financeFacts,
   creditMultiplierOf, transferFeeRateOf, dailyTransferCapOf, isCreditLocked,
 } from '../../shared/tierFinance.js';
-import { limitFor, assess } from '../../shared/joyCredit.js';
 import { TRANSFER_MONTHLY_CAP } from '../../shared/joyPrices.js';
 
 let failed = 0;
@@ -50,28 +49,8 @@ check(creditMultiplierOf('khong_co_that') <= creditMultiplierOf('star18'),
 // ── 3. VỊ THÀNH NIÊN KHÔNG VAY ──────────────────────────────────────────────
 check(isCreditLocked('star14'), 'Star-14 bị khoá vay — đây là luật, không phải nấc đặc quyền');
 check(TIER_FINANCE.star14.creditMultiplier === 0, 'và hệ số của Star-14 là 0');
-check(limitFor(100, 99999, 99999, 'star14') === 0,
-  'điểm tuyệt đối + thu nhập khổng lồ, Star-14 VẪN 0 — khoá là khoá');
-check(assess({ tier: 'star14', medianDailyIncome: 9999, balance: 99999, accountDays: 999, activeDays: 999, appsUsed: 9, surveysAnswered: 9, loansRepaid: 9 }).limit === 0,
-  'đi qua assess() cũng vẫn 0');
 check(!isCreditLocked('eco') && !isCreditLocked('star18') && !isCreditLocked('starVip'),
   'ba hạng người lớn đều vay được');
-
-// ── 4. HẠNG LÀ HỆ SỐ NHÂN, KHÔNG PHẢI TRẦN ──────────────────────────────────
-// Đây là quyết định sản phẩm: với một cái TRẦN, gần như mọi Star-18 chạm trần
-// ngay và không còn lý do gì để dùng đều hay trả đúng hạn.
-const at = (tier, income) => limitFor(80, income, 0, tier);
-check(at('star18', 500) > at('eco', 500), 'Star-18 được nhiều hơn Eco ở cùng thu nhập');
-check(at('starVip', 500) > at('star18', 500), 'Star-VIP được nhiều hơn Star-18');
-check(at('eco', 1000) > at('eco', 500),
-  'CÙNG một hạng, thu nhập cao hơn → hạn mức cao hơn (nếu không, hệ số đã thành trần)');
-check(at('star18', 1000) > at('star18', 500), 'Star-18 cũng vậy — hệ xét hằng tuần còn ý nghĩa');
-check(at('eco', 0) === 0, 'không thu nhập → 0 dù hạng nào');
-
-// Trần cứng phải áp SAU khi nhân, nếu không hệ số ×3 vượt qua giới hạn hệ thống.
-const { CREDIT } = await import('../../shared/joyCredit.js');
-check(limitFor(100, 999999, 999999, 'starVip') <= CREDIT.hardCap,
-  `hệ số ×${creditMultiplierOf('starVip')} vẫn không vượt trần cứng ${CREDIT.hardCap}`);
 
 // ── 5. TRẦN THÁNG DÙNG CHUNG ────────────────────────────────────────────────
 for (const [tier, f] of Object.entries(TIER_FINANCE)) {
@@ -120,17 +99,9 @@ for (const [file, phrases] of DOCS) {
   }
 }
 
-// Và phải NÓI RÕ điều đang thực sự xảy ra.
-const viDocs = read('src/components/member/account/memberDocs.js');
-check(/150%/.test(viDocs) && /10%\/năm/.test(viDocs),
-  'quy chế tiếng Việt nêu đúng hai trần lãi theo luật');
-// Nhận CẢ hai lối nói: "khoá" (lối cũ) và "phong toả" (Hán Việt, lối hiện
-// hành). Bài kiểm này canh một SỰ THẬT — rằng quy chế có nói tới biện pháp
-// khoá tài khoản — chứ không canh một cách dùng từ.
-check(/(khoá|phong toả) tài khoản/.test(viDocs),
-  'quy chế tiếng Việt nói rõ có biện pháp phong toả tài khoản');
-const enDocs = read('src/components/member/account/memberDocs.en.js');
-check(/150%/.test(enDocs) && /10% per year/.test(enDocs), 'quy chế tiếng Anh nêu đúng hai trần lãi');
+// JOYlater đã gỡ 31/10/2026: quy chế phải nói rõ là đã chấm dứt và xoá nợ.
+check(/xoá|xóa/.test(read('src/components/member/account/memberDocs.js')) && /written off/.test(read('src/components/member/account/memberDocs.en.js')),
+  'quy chế hai ngôn ngữ nói rõ JOYlater đã chấm dứt và xoá nợ');
 
 // ── 8. ĐƯỜNG TIỀN THỰC SỰ ĐỌC HẠNG ─────────────────────────────────────────
 // Trước đây `memberTier()` chỉ được dùng để phát quà sinh nhật; mọi lời hứa tài
@@ -142,8 +113,6 @@ check(routes.includes('transferFeeRateOf('), 'đường chuyển JOY đọc phí
 check(routes.includes('dailyTransferCapOf('), 'đường chuyển JOY đọc trần ngày THEO HẠNG');
 check(!/const TRANSFER_FEE_RATE\s*=/.test(routes),
   'hằng số phí dùng chung đã được gỡ khỏi đường chuyển tiền (nếu còn, dễ bị dùng nhầm lại)');
-const credit = read('shared/joyCredit.js');
-check(credit.includes('creditMultiplierOf('), 'phép tính hạn mức đọc hệ số THEO HẠNG');
 
 // ── 9. MẢNH CHỮ SINH RA ĐỌC ĐƯỢC ────────────────────────────────────────────
 for (const tier of TIERS) {

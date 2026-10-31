@@ -3,6 +3,8 @@
 //   node server/scripts/unblock-security.mjs           → chỉ LIỆT KÊ, không sửa
 //   node server/scripts/unblock-security.mjs --yes      → gỡ toàn bộ
 //   node server/scripts/unblock-security.mjs --yes --type=email
+//   node server/scripts/unblock-security.mjs --yes --reason=joylater   → chỉ lệnh có lý do bắt đầu bằng chữ này
+//     (JOYlater gỡ hẳn 31/10/2026: xoá nợ, gỡ mọi khoá vì nợ)
 //
 // Gỡ ở đây làm ĐÚNG như nút gỡ của admin (`revokeSecurityBlock`): kết thúc hiệu
 // lực chứ KHÔNG xoá bản ghi — sổ kiểm toán phải giữ được, người vận hành cần
@@ -19,6 +21,7 @@ import SecurityBlock from '../models/SecurityBlock.js';
 const args = process.argv.slice(2);
 const apply = args.includes('--yes');
 const typeArg = args.find((a) => a.startsWith('--type='))?.split('=')[1] || '';
+const reasonArg = args.find((a) => a.startsWith('--reason='))?.split('=')[1] || '';
 
 const { MONGODB_URI } = process.env;
 if (!MONGODB_URI) {
@@ -32,7 +35,10 @@ const active = (block) => block.permanent
 
 await mongoose.connect(MONGODB_URI);
 
-const filter = typeArg ? { subjectType: typeArg } : {};
+const filter = {
+  ...(typeArg ? { subjectType: typeArg } : {}),
+  ...(reasonArg ? { reasonCode: { $regex: `^${reasonArg.replace(/[^a-z0-9_]/gi, '')}` } } : {}),
+};
 const all = await SecurityBlock.find(filter).lean();
 const live = all.filter(active);
 

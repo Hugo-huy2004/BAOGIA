@@ -21,7 +21,7 @@ import StockPosition from '../models/StockPosition.js';
 import StockTrade from '../models/StockTrade.js';
 import IoTDevice from '../models/IoTDevice.js';
 import ScheduledPush from '../models/ScheduledPush.js';
-import JoyCreditProfile from '../models/JoyCreditProfile.js';
+import mongoose from 'mongoose';
 import JoyLedger from '../models/JoyLedger.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
 import StoreCart from '../models/StoreCart.js';
@@ -116,7 +116,9 @@ const removeMemberData = async (bio) => {
     StockTrade.deleteMany(emailFilter),
     IoTDevice.deleteMany(emailFilter),
     ScheduledPush.deleteMany(emailFilter),
-    JoyCreditProfile.deleteMany(emailFilter),
+    // JOYlater đã gỡ 31/10/2026 (bỏ cả model) nhưng hồ sơ tín dụng cũ vẫn là dữ
+    // liệu cá nhân — xoá tài khoản thì phải xoá theo.
+    mongoose.connection.collection('joycreditprofiles').deleteMany(emailFilter),
     JoyLedger.deleteMany(emailFilter),
     JoyGiftCard.deleteMany({ redeemedBy: email }),
     StoreCart.deleteMany(emailFilter),

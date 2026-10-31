@@ -15,7 +15,6 @@ export const ADMIN_DESTINATIONS = [
   { id: "projects", group: "business", label: "Dự án", sub: "Tiến độ và khách hàng", icon: "work", permission: "projects", countKey: "totalProjects" },
   { id: "services", group: "business", label: "Gói dịch vụ", sub: "Bảng giá đang bán", icon: "sell", permission: "commerce", countKey: "packages" },
   { id: "store", group: "business", label: "Cửa hàng", sub: "Sản phẩm và đơn hàng", icon: "storefront", permission: "commerce" },
-  { id: "joylater", group: "business", label: "Tài chính JOY", sub: "Dư nợ và hạn mức", icon: "account_balance_wallet", permission: "commerce" },
   { id: "hugoteam", group: "community", label: "Hugo Team", sub: "Học tập, bài nộp, mentor và team", icon: "diversity_3", permission: "hugoteam" },
   { id: "control", group: "control", label: "Điều khiển", sub: "Khách thật, an ninh, công tắc", icon: "radar", permission: "system" },
   { id: "data", group: "control", label: "Dữ liệu", sub: "Thêm, sửa, xoá mọi bảng", icon: "table_view", permission: "overview" },

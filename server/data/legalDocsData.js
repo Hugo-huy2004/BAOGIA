@@ -385,8 +385,8 @@ export const LEGAL_DOCUMENTS = {
             {
               type: "note",
               tone: "info",
-              title: "JOYlater Credit Conventions",
-              text: "JOYlater allows active members to unlock digital learning resources prior to full point accumulation. Credit limits derive from documented learning effort and settle automatically against future earnings without monetary interest or penalties.",
+              title: "JOYlater discontinued",
+              text: "JOYlater ended on 31 Oct 2026. All outstanding balances were written off and every debt-related restriction was lifted. Hugo Studio offers no JOY borrowing or pay-later scheme.",
             },
           ],
         },

@@ -291,9 +291,6 @@ export async function sendWeeklyReport({ force = false } = {}) {
         { text: `${mark('hold')}⏸ Giữ`, callback_data: `js:hold:${key}` },
         { text: `${mark('decrease')}📉 Giảm`, callback_data: `js:dec:${key}` },
       ],
-      // Ép xét lại hạn mức JOYlater ngay, không chờ 17:00 thứ Bảy. Đặt cùng thẻ
-      // báo cáo vì đây đúng lúc admin đang nhìn số liệu và quyết định.
-      [{ text: '🔄 Xét lại hạn mức ngay', callback_data: 'js:review' }],
     ],
   });
 
@@ -309,16 +306,6 @@ export async function handleStabilityCallback({ chatId, messageId, data }) {
   if (!data.startsWith('js:')) return false;
   const [, code, key] = data.split(':');
 
-  if (code === 'review') {
-    const { forceReview } = await import('./joyCreditService.js');
-    const result = await forceReview({ by: String(chatId) });
-    const lines = result.changed.slice(0, 8)
-      .map((c) => `· ${c.email}: ${c.from.toLocaleString('vi-VN')} → ${c.to.toLocaleString('vi-VN')}`);
-    await editTelegramMessage(chatId, messageId,
-      `<b>Đã xét lại hạn mức JOYlater</b>\n\nSoát ${result.scanned} hồ sơ · ${result.changed.length} hồ sơ đổi hạn mức.`
-      + (lines.length ? `\n\n${lines.join('\n')}` : ''), 'HTML');
-    return true;
-  }
   const action = ACTION_OF[code];
   if (!action) return false;
 

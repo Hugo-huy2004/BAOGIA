@@ -120,7 +120,7 @@ export const MEMBER_DOCS_EN = {
       },
       {
         id: "joy-policy",
-        title: "JOY Utility Points & JOYlater Terms",
+        title: "JOY Utility Points Terms",
         blocks: [
           {
             type: "p",
@@ -134,19 +134,13 @@ export const MEMBER_DOCS_EN = {
               ["Friend Referral", "+100 JOY / verified peer", "Credited when referee completes profile setup"],
               ["Peer-to-Peer Transfer", "500 JOY/day (Star-14) · 1,000 JOY/day (other tiers) · 8,000 JOY/month", "Protected by mandatory 6-digit wallet PIN"],
               ["Transfer Fee", "0% (Star-VIP) · 5% (other tiers)", "Keeps the system running; not a profit margin"],
-              ["JOYlater (JOY Credit)", "No new loans since 25 Oct 2026", "Open loans are still repaid and charged as below"],
-              ["JOYlater Interest", "In-term rate floats weekly · overdue ×1.5 · late interest 10%/year", "Within the caps of Vietnam's Civil Code 2015, article 466"],
             ],
           },
           {
             type: "steps",
             items: [
-              "JOYlater credit is valid only for unlocking digital tools and features inside Hugo Studio. JOY cannot be converted to cash, so this is not a monetary credit relationship.",
-              "Your limit is assessed from your member profile (JOY earned minus JOY spent, balance, how regularly you use the system, and your repayment record), then multiplied by your tier. Star-14 members are not granted a limit.",
-              "Interest accrues daily on the remaining principal. The in-term rate is fixed when you sign and does not change for the life of the loan. Repaying early always reduces interest and carries no fee.",
-              "Late repayment incurs overdue interest (capped at 150% of the in-term rate) and interest on late interest (capped at 10% per year), following the limits of Vietnam's Civil Code 2015, article 466.",
-              "Prolonged default triggers escalating measures, each announced in advance: past 7 days, transfers and new plans are suspended; past 21 days, spending is frozen; past 45 days, the account is locked for 30 days; past 90 days, a case is referred to administration for permanent measures.",
-              "Hugo Studio never pursues repayment through any channel outside the system, never passes member data to third parties for collection, and never converts a JOYlater balance into a cash obligation.",
+              "JOYlater ended on 31 Oct 2026. All outstanding balances were written off and every debt-related restriction was lifted; members owe nothing.",
+              "Hugo Studio does not and will not offer any JOY borrowing or buy-now-pay-later scheme.",
             ],
           },
         ],

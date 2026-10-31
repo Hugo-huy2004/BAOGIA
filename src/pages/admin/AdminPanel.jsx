@@ -12,7 +12,6 @@ import AdminCommandPalette from "../../components/admin/AdminCommandPalette";
 import AdminDashboard, { SosOverlay } from "../../components/admin/AdminDashboard";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminWorkQueueTab from "../../components/admin/AdminWorkQueueTab";
-import AdminJoyLendingTab from "../../components/admin/AdminJoyLendingTab";
 import { ADMIN_DESTINATIONS, DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, destinationsForPermissions, isValidDestination } from "../../components/admin/adminDestinations";
 import { adminBrainApi } from "../../services/api/modules/adminBrainApi";
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
@@ -508,8 +507,6 @@ export default function AdminPanel() {
         return <AdminServicesTab triggerConfirm={triggerConfirm} />;
       case "store":
         return <AdminUtilityStoreTab />;
-      case "joylater":
-        return <AdminJoyLendingTab />;
 
       case "control":
         return (

@@ -178,38 +178,6 @@ export async function claimChallenge(email, challengeId) {
   return parseOrThrow(res);
 }
 
-// ── JOYlater ───────────────────────────────────────────────────────
-// Mọi con số (hạn mức, phí, số ngày) do server tính từ shared/joyLater.js —
-// client chỉ hiển thị, không tự tính, để màn xác nhận không bao giờ lệch với
-// số thật bị trừ.
-export async function getJoyLaterStatus() {
-  const res = await fetch(`${getApiUrl()}/joy/joylater`, { credentials: "include" });
-  return parseOrThrow(res);
-}
-
-/** Mọi lượt đã mở trước, mới nhất trước, kèm từng dòng đã hoàn. */
-export async function getJoyLaterHistory() {
-  const res = await fetch(`${getApiUrl()}/joy/joylater/history`, { credentials: "include" });
-  return parseOrThrow(res);
-}
-
-/** Trả đúng một đợt. Số tiền do server tính, client không gửi lên. */
-export async function payInstallmentJoyLater() {
-  const res = await fetch(`${getApiUrl()}/joy/joylater/pay-installment`, {
-    method: "POST",
-    credentials: "include",
-  });
-  return parseOrThrow(res);
-}
-
-export async function payOffJoyLater() {
-  const res = await fetch(`${getApiUrl()}/joy/joylater/payoff`, {
-    method: "POST",
-    credentials: "include",
-  });
-  return parseOrThrow(res);
-}
-
 /** Thưởng khi cây nhiệm vụ lớn hết — mỗi ngày một lần, server tự chặn trùng. */
 export async function claimTreeBonus() {
   const res = await fetch(`${getApiUrl()}/companion/claim-tree-bonus`, {

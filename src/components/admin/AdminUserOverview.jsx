@@ -228,25 +228,8 @@ export default function AdminUserOverview({ userId, onClose }) {
         )}
       </Group>
 
-      <Group icon="account_balance_wallet" title="Ví và tín dụng"
-             badge={`${count(wallet?.ledger)} giao dịch · ${count(wallet?.defaults)} lần trễ hạn`}>
-        <div className="space-y-5">
-          {wallet?.credit ? (
-            <div className="rounded-lg border border-border p-3 text-sm">
-              <p className="font-semibold">JOY Gối Đầu</p>
-              <p className="mt-1 text-muted-foreground">
-                Hạn mức {fmt(wallet.credit.limit)} · đang nợ {fmt(wallet.credit.outstanding)} · bậc chế tài {fmt(wallet.credit.tier)}
-              </p>
-            </div>
-          ) : null}
-          <MiniTable rows={wallet?.ledger} columns={[["createdAt", "Thời điểm"], ["type", "Loại"], ["amount", "Số JOY"], ["description", "Diễn giải"]]} />
-          {count(wallet?.defaults) ? (
-            <div>
-              <p className="mb-2 text-sm font-semibold text-amber-600 dark:text-amber-400">Lịch sử trễ hạn</p>
-              <MiniTable rows={wallet.defaults} columns={[["createdAt", "Thời điểm"], ["tier", "Bậc"], ["amount", "Số nợ"], ["note", "Ghi chú"]]} />
-            </div>
-          ) : null}
-        </div>
+      <Group icon="account_balance_wallet" title="Ví" badge={`${count(wallet?.ledger)} giao dịch`}>
+        <MiniTable rows={wallet?.ledger} columns={[["createdAt", "Thời điểm"], ["type", "Loại"], ["amount", "Số JOY"], ["description", "Diễn giải"]]} />
       </Group>
 
       <Group icon="storefront" title="Lịch hẹn, dự án và đơn hàng"

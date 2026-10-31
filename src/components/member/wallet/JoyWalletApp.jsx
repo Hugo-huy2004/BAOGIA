@@ -11,7 +11,6 @@ import {
   fetchJoyPerks,
   fetchChallengeStatus,
   checkHasPin,
-  getJoyLaterStatus,
   claimTreeBonus,
 } from "../../../services/api/modules/joyApi";
 import AppFrame from "../os/AppFrame";
@@ -28,7 +27,6 @@ const JoyMissions = lazy(() => import("../joy/JoyMissions"));
 const JoyHistory = lazy(() => import("../joy/JoyHistory"));
 const JoyRewardsHub = lazy(() => import("../joy/JoyRewardsHub"));
 const MemberUtilityStoreTab = lazy(() => import("../MemberUtilityStoreTab"));
-const JoyLaterSheet = lazy(() => import("../account/JoyLaterSheet"));
 const JoyTree = lazy(() => import("./JoyTree"));
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
@@ -36,7 +34,6 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 // 4 Tab chuẩn App rõ ràng, không trùng lặp (Thẻ 3D 2 mặt nằm ngay trong Tổng quan)
 const TABS = [
   { id: "overview", icon: "account_balance_wallet", labelKey: "memberPortal.walletApp.tabOverview", fallback: nom("Tổng quan") },
-  { id: "later", icon: "schedule_send", labelKey: "memberPortal.walletApp.tabLater", fallback: "Vay JOY" },
   { id: "missions", icon: "task_alt", labelKey: "memberPortal.walletApp.tabMissions", fallback: nom("Nhiệm vụ") },
   { id: "history", icon: "receipt_long", labelKey: "memberPortal.walletApp.tabHistory", fallback: nom("Sổ ví") },
 ];
@@ -155,7 +152,6 @@ export default function JoyWalletApp({
   // State hỗ trợ tính năng cũ tích hợp 100%
   const [challenges, setChallenges] = useState([]);
   const [challengesLoading, setChallengesLoading] = useState(false);
-  const [loan, setLoan] = useState(null);
   const [hasPin, setHasPin] = useState(null);
   const [perksData, setPerksData] = useState(null);
   const [perksLoading, setPerksLoading] = useState(false);
@@ -191,13 +187,6 @@ export default function JoyWalletApp({
       .finally(() => setChallengesLoading(false));
   }, [email]);
 
-  // Load JOYlater status (Khoản mở trước trả sau)
-  const loadLoan = useCallback(() => {
-    getJoyLaterStatus()
-      .then((data) => setLoan(data?.loan || null))
-      .catch(() => setLoan(null));
-  }, []);
-
   // Load Perks (Ưu đãi & Vouchers)
   const loadPerks = useCallback(() => {
     if (!email) return;
@@ -212,28 +201,25 @@ export default function JoyWalletApp({
   useEffect(() => {
     if (!email) return;
     loadChallenges();
-    loadLoan();
     checkHasPin()
       .then((data) => setHasPin(Boolean(data?.hasPin)))
       .catch(() => {});
-  }, [email, loadChallenges, loadLoan]);
+  }, [email, loadChallenges]);
 
   useEffect(() => {
     if (sub === "perks" && !perksData) loadPerks();
     if (tab === "missions" && challenges.length === 0) loadChallenges();
-    if (tab === "later" && !loan) loadLoan();
-  }, [sub, tab, perksData, challenges.length, loan, loadPerks, loadChallenges, loadLoan]);
+  }, [sub, tab, perksData, challenges.length, loadPerks, loadChallenges]);
 
   // Lắng nghe sự kiện cập nhật ví
   useEffect(() => {
     const refresh = () => {
       mutate();
-      loadLoan();
       loadChallenges();
     };
     window.addEventListener("hugo:notification", refresh);
     return () => window.removeEventListener("hugo:notification", refresh);
-  }, [mutate, loadLoan, loadChallenges]);
+  }, [mutate, loadChallenges]);
 
   // Lọc lịch sử giao dịch
   const filteredTransactions = useMemo(() => {
@@ -355,8 +341,7 @@ export default function JoyWalletApp({
          chrome. Thanh gọn + dải phân đoạn là đủ, và thẻ lên ngay đầu màn. */
       largeTitle={false}
       onBack={sub ? () => setSub(null) : onBack}
-      // JOYlater ngừng mở khoản mới 25/10/2026: tab chỉ còn cho người đang nợ trả nốt.
-      tabs={sub ? undefined : TABS.filter((item) => item.id !== "later" || loan || tab === "later").map((item) => ({
+      tabs={sub ? undefined : TABS.map((item) => ({
         id: item.id,
         icon: item.icon,
         label: t(item.labelKey, item.fallback),
@@ -499,7 +484,7 @@ export default function JoyWalletApp({
               {/* CỘT PHẢI (DESKTOP 7 PHẦN / MOBILE 100%): NHIỆM VỤ, LỐI TẮT, GIAO DỊCH, ĐẶC QUYỀN */}
               <div className="lg:col-span-7 space-y-5">
                 {/* VIỆC ĐANG CHỜ (NEEDS-YOU ALERTS) */}
-                {(pendingJoy > 0 || loan || hasPin === false) && (
+                {(pendingJoy > 0 || hasPin === false) && (
                   <section className="wal-group" aria-label={nom("Việc đang chờ")}>
                     {pendingJoy > 0 && (
                       <Row
@@ -511,19 +496,6 @@ export default function JoyWalletApp({
                         onClick={() => {
                           hapticSelect();
                           setTab("missions");
-                        }}
-                      />
-                    )}
-                    {loan && (
-                      <Row
-                        icon="schedule_send"
-                        title={nom("Khoản mở trước JOY Gối Đầu cần hoàn")}
-                        detail={`Còn ${loan.remainingDays} ngày hạn định`}
-                        value={`−${joy.number(loan.outstanding)} JOY`}
-                        valueTone="out"
-                        onClick={() => {
-                          hapticSelect();
-                          setTab("later");
                         }}
                       />
                     )}
@@ -652,19 +624,6 @@ export default function JoyWalletApp({
                 </div>
               </div>
             </div>
-          )}
-
-          {/* ── TAB 2: VAY JOY (JOYLATER: MỞ TRƯỚC TRẢ SAU) ──────────────── */}
-          {!sub && tab === "later" && (
-            <Panel>
-              <JoyLaterSheet
-                onBalanceChange={() => {
-                  loadPerks();
-                  loadLoan();
-                  mutate();
-                }}
-              />
-            </Panel>
           )}
 
           {/* ── TAB 3: NHIỆM VỤ & CÂY JOY ────────────────────────────────── */}

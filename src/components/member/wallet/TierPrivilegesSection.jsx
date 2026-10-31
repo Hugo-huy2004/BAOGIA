@@ -17,7 +17,6 @@ import { financeFacts } from "../../../../shared/tierFinance";
  */
 function financeBenefit(tier) {
   const f = financeFacts(tier);
-  // Vế hạn mức vay JOYlater đã bỏ 25/10/2026: JOYlater ngừng mở khoản mới.
   const fee = f.feeFree
     ? nom("miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY")
     : `phí chuyển JOY ${f.feePercent}%`;

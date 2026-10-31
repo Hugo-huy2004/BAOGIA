@@ -53,7 +53,6 @@ export async function buildAdminBrief() {
     [staleHolds.length > 0, 'warn', 'account_balance_wallet', `${staleHolds.length} giao dịch JOY bị giữ quá 24 giờ mà chủ chưa xác nhận bằng Face ID — nên xem có phải chủ thật không.`, 'queue'],
     waiting(queue.appeals, 'kháng nghị mở khoá tài khoản', 'queue', 'gavel'),
     waiting(queue.tickets, 'yêu cầu hỗ trợ chưa trả lời', 'support', 'support_agent'),
-    waiting(queue.joylater, 'hồ sơ nợ JOY chờ quyết định cấm', 'queue', 'block'),
     [moderation > 0, 'warn', 'shield', `${moderation} nội dung bị máy nghi ngờ, cần người xem lại.`, 'control'],
     [quota.saturated, 'bad', 'smart_toy', 'AI đã dùng hết lượt miễn phí hôm nay. Các tính năng AI tự tạm dừng và tự chạy lại khi sang ngày mới — không cần làm gì.', 'control'],
     [!quota.saturated && !quota.healthy, 'warn', 'smart_toy', 'AI đang gần hết lượt miễn phí hoặc trả lỗi liên tục. Hệ thống đã tự giảm tải.', 'control'],

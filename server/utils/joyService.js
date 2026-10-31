@@ -43,7 +43,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
    *   · nguồn không phải phát hành (chuyển tay, admin điều chỉnh, thu hồi):
    *     những khoản này phải vào ví đúng bằng con số đã hứa.
    *   · `opts.rawAmount` — nơi gọi biết rõ số tiền phải khớp chính xác, ví dụ
-   *     hoàn tiền hay trả nợ JOYlater: trả 100 mà bị ghi 80 là sai sổ.
+   *     hoàn tiền: trả 100 mà bị ghi 80 là sai sổ.
    *
    * Nhân TRƯỚC lệnh $inc nguyên tử bên dưới để số dư và dòng sổ cái luôn ghi
    * cùng một con số — tách hai chỗ là mở đường cho sổ lệch ví.
@@ -172,27 +172,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   };
   broadcastToEmail(bio.email, realtimeEvent);
 
-  // ── JOYlater: trả nợ tự động ─────────────────────────────────────
-  // Đặt ở ĐÂY vì awardJoy là cửa duy nhất mọi biến động JOY đi qua — không có
-  // đường nào nhận JOY mà lách được việc trừ nợ. Người không nợ thì điều kiện
-  // đầu đã false nên không tốn thêm một query nào (joyLoan đã nằm trong `bio`).
-  //
-  // `skipLoanGarnish` chặn đệ quy: chính lần trừ nợ cũng đi qua awardJoy.
-  // Nạp động để tránh vòng import (joyLaterService cần awardJoy ở đây).
-  let loanRepayment = null;
-  if (numAmount > 0 && !opts.skipLoanGarnish && Number(updatedBio.joyLoan?.outstanding) > 0) {
-    try {
-      const { repayFromIncome } = await import('./joyLaterService.js');
-      loanRepayment = await repayFromIncome(updatedBio, numAmount);
-      if (loanRepayment) bio.joyBalance = updatedBio.joyBalance - loanRepayment.repaid;
-    } catch (error) {
-      // Trả nợ lỗi thì KHÔNG được làm mất phần JOY vừa cộng cho người dùng —
-      // lần nhận JOY sau sẽ trừ tiếp.
-      console.error('[joylater repay]', error.message);
-    }
-  }
-
-  return { balance: bio.joyBalance, bio, notification, loanRepayment };
+  return { balance: bio.joyBalance, bio, notification };
 }
 
 /**
