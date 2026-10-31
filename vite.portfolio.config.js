@@ -7,7 +7,9 @@ export default defineConfig({
       name: "portfolio-entry",
       transformIndexHtml: {
         order: "pre",
-        handler: (html) => html.replace('/src/main.jsx', '/src/portfolio/main.jsx'),
+        handler: (html) => html
+          .replace('/src/main.jsx', '/src/portfolio/main.jsx')
+          .replace('maximum-scale=1.0, user-scalable=no, ', ''),
       },
     },
     react(),
