@@ -9,7 +9,6 @@ import { awardJoy } from '../utils/joyService.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { signedClientIp } from '../utils/clientIp.js';
 import { securityHash } from '../services/securityEnforcement.js';
-import { normalizePhone } from '../utils/identityCheck.js';
 import { getPartnerCampaign, isPartnerCampaignOpen, extendFrom } from '../../shared/partnerCampaigns.js';
 
 // ==========================================
@@ -126,6 +125,9 @@ const locationCellOf = (bio) => {
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) return '';
   return `${lat.toFixed(4)},${lng.toFixed(4)}`;
 };
+
+// Chỉ giữ chữ số, bỏ mã quốc gia VN và số 0 đầu: 0912… và +84912… là một số.
+const normalizePhone = (value) => String(value || '').replace(/\D/g, '').replace(/^84/, '').replace(/^0/, '');
 
 const identitySignals = (req, bio) => {
   // Chỉ IP đã được edge ký mới đáng tin để đếm (xem signedClientIp). Thiếu chữ

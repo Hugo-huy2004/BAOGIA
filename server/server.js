@@ -256,7 +256,6 @@ import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initOnboardingReminderService } from './services/onboardingReminderService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
-import { initRealtimeFanout } from './utils/realtime.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
@@ -310,9 +309,6 @@ server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`WebSocket server listening on ws://localhost:${PORT}/ws`);
   console.log(`⏰ Cron: ${RUN_CRON ? 'BẬT ở process này' : 'tắt (RUN_CRON=false)'}`);
-
-  // Loan tin realtime giữa các process (chỉ hoạt động khi có REDIS_URL).
-  initRealtimeFanout();
 
   if (!RUN_CRON) return;
 

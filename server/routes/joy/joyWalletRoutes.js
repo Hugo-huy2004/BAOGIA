@@ -4,9 +4,9 @@ import Bio from '../../models/Bio.js';
 import { getWalletOverview, claimDailyCheckin } from '../../controllers/joyWalletController.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../../utils/joyService.js';
 import { ensureReferralCode } from '../../utils/referralService.js';
-import { requireAdmin, requireMember } from '../../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, recentlyVerified } from '../../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../../utils/memberAge.js';
-import { checkMoneyStepUp, sendMoneyOtpEmail } from '../../services/moneyStepUp.js';
+import { checkMoneyStepUp } from '../../services/moneyStepUp.js';
 import { assessTransferHold } from '../../services/transferHold.js';
 import { debtRestriction } from '../../services/joyLaterEnforcement.js';
 import { RESTRICTIONS } from '../../../shared/joyLaterPolicy.js';
@@ -379,7 +379,7 @@ router.post('/verify-pin', requireMember, async (req, res) => {
 
 router.post('/transfer', requireMember, async (req, res) => {
   try {
-    const { toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey } = req.body;
+    const { toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey } = req.body;
     const fromEmail = req.memberEmail;
     if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
@@ -397,7 +397,7 @@ router.post('/transfer', requireMember, async (req, res) => {
       });
     }
 
-    // 1. Chống gửi lặp request (Idempotency phân tán qua Redis + RAM fallback)
+    // 1. Chống gửi lặp request (khoá idempotency trong RAM)
     const idempotencyLockKey = idempotencyKey ? `idempotency:${fromEmail}:${idempotencyKey}` : null;
     if (idempotencyLockKey) {
       const locked = await acquireIdempotencyLock(idempotencyLockKey, 300);
@@ -428,10 +428,10 @@ router.post('/transfer', requireMember, async (req, res) => {
     if (debtBlock) return rejectRequest(403, debtBlock, 'JOYLATER_OVERDUE');
 
     // 2. Xác thực 2 lớp — dưới ngưỡng giữ luật cũ (PIN nếu đã cài), từ ngưỡng
-    // lên bắt buộc PIN + OTP email. `numAmount` là JOY gốc nên so ngưỡng trực
-    // tiếp. Trả kèm `code` để client biết cần nhập PIN hay OTP.
+    // lên bắt buộc PIN + Face ID/Google vừa xong. `numAmount` là JOY gốc nên so
+    // ngưỡng trực tiếp. Trả kèm `code` để client biết cần PIN hay Face ID.
     const step = await checkMoneyStepUp({
-      senderBio: sender, amountBaseJoy: numAmount, pin, otp, sendOtp: sendMoneyOtpEmail,
+      senderBio: sender, amountBaseJoy: numAmount, pin, verified: recentlyVerified(req),
     });
     if (!step.ok) return rejectRequest(step.status, step.error, step.code);
 
@@ -545,7 +545,7 @@ router.post('/transfer', requireMember, async (req, res) => {
       }).catch(() => {});
       return res.json({
         success: true, held: true, txCode,
-        message: 'Giao dịch lớn đang được rà soát an toàn. Chúng tôi sẽ thông báo ngay khi hoàn tất (thường trong ít phút).',
+        message: 'Giao dịch lớn đang được giữ an toàn 1 giờ. Hết giờ chờ, Quý thành viên mở Trung Tâm An Ninh và xác nhận bằng Face ID là JOY được chuyển ngay.',
       });
     }
 

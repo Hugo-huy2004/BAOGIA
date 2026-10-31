@@ -3,7 +3,7 @@ import express from 'express';
 import Bio from '../../models/Bio.js';
 import { fetchWithCache } from '../../utils/cacheHelper.js';
 import { decryptText, comparePassword } from '../../utils/cryptoUtils.js';
-import redisSlugService from '../../services/redisSlugService.js';
+import slugIndex from '../../services/slugIndex.js';
 import { getUnexpiredPublicBio, toPublicBio } from './bioShared.js';
 
 const router = express.Router();
@@ -13,7 +13,7 @@ router.get('/slug/:slug', async (req, res) => {
     const slug = req.params.slug;
     
     // Thuật toán O(1) Bloom Filter: Chặn ngay nếu Slug không tồn tại trong DB (Tránh DDoS DB)
-    if (global.validSlugs && !global.validSlugs.has(slug)) {
+    if (!slugIndex.hasSlug(slug)) {
       return res.status(404).json({ error: 'Bio not found (Bloom Filter rejected)' });
     }
 
@@ -40,7 +40,7 @@ router.get('/slug/:slug', async (req, res) => {
 
     if (!bio) {
       // Nếu không tìm thấy, xóa khỏi Bloom Filter
-      redisSlugService.deleteSlug(slug);
+      slugIndex.deleteSlug(slug);
       return res.status(404).json({ error: 'Bio not found' });
     }
 
@@ -58,7 +58,7 @@ router.get('/by-domain/:domain', async (req, res) => {
     const domain = rawDomain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/+$/, '');
     
     // Thuật toán O(1) in-memory Bloom check: nếu domain không có trong danh sách, từ chối ngay lập tức
-    if (global.validCustomDomains && !global.validCustomDomains.has(domain)) {
+    if (!slugIndex.hasCustomDomain(domain)) {
       return res.status(404).json({ error: 'Tên miền chưa được đăng ký trong hệ thống.' });
     }
 
@@ -81,7 +81,7 @@ router.get('/by-domain/:domain', async (req, res) => {
     });
 
     if (!bio) {
-      redisSlugService.deleteCustomDomain(domain);
+      slugIndex.deleteCustomDomain(domain);
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ liên kết với tên miền này.' });
     }
 

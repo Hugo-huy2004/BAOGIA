@@ -3,7 +3,7 @@
  * Tuân thủ Quy tắc 4 (Viblo): Cấu hình tập trung trong thư mục config/
  */
 import mongoose from 'mongoose';
-import { redisSlugService } from '../services/redisSlugService.js';
+import { slugIndex } from '../services/slugIndex.js';
 import Bio from '../models/Bio.js';
 
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
@@ -36,7 +36,7 @@ export async function connectDatabase() {
     // In-memory valid-slug set: O(1) rejection of bogus /bio/:slug hits before
     // they reach MongoDB. Kept in sync by bioRoutes on create/rename/delete.
     try {
-      await redisSlugService.init();
+      await slugIndex.init();
     } catch (err) {
       console.error('Valid-slug set error:', err);
     }

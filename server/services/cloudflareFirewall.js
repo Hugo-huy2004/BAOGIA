@@ -122,3 +122,31 @@ export async function unblockIpAtEdge({ ip = '', ruleId = '' } = {}) {
     return { edge: false, error: error.message };
   }
 }
+
+// Công tắc khẩn cấp (tầng 2, docs/chong-ddos-12-tang.md mục D): Configuration
+// Rule "EMERGENCY under attack (www pages)" tạo sẵn ở trạng thái TẮT. Khiên tải
+// gạt nó lên khi bị dội — mọi người lạ mở trang phải qua thử thách Cloudflare
+// trước khi chạm tới mình — và gạt xuống khi yên. `/api` không bị đụng tới.
+// Cần token có quyền Zone → Config Rules: Edit. Thiếu rule/quyền thì trả
+// { edge: false } và khiên tầng ứng dụng vẫn chạy như cũ.
+const EMERGENCY_RULE = 'EMERGENCY under attack (www pages)';
+
+export async function setEmergencyChallenge(on) {
+  const c = creds();
+  if (!c) return { edge: false };
+  try {
+    const set = await cf(`/zones/${c.zone}/rulesets/phases/http_config_settings/entrypoint`);
+    const rule = set?.result?.rules?.find((r) => r.description === EMERGENCY_RULE);
+    if (!rule) return { edge: false, error: 'chưa tạo rule khẩn cấp' };
+    if (rule.enabled === on) return { edge: true };
+    const { id, description, expression, action, action_parameters: actionParameters } = rule;
+    await cf(`/zones/${c.zone}/rulesets/${set.result.id}/rules/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ description, expression, action, action_parameters: actionParameters, enabled: on }),
+    });
+    return { edge: true };
+  } catch (error) {
+    console.error('[CF emergency rule]', error.message);
+    return { edge: false, error: error.message };
+  }
+}

@@ -3,10 +3,10 @@ import express from 'express';
 import { createHash } from 'node:crypto';
 import Bio from '../../models/Bio.js';
 import { compressImage, IMAGE_PRESETS } from '../../utils/imageCompress.js';
-import { requireMember, invalidateMemberGate } from '../../middleware/authMiddleware.js';
+import { requireMember, invalidateMemberGate, requireRecentAuth } from '../../middleware/authMiddleware.js';
 import { COUNTRY_CODES, missingProfileFields, applyProfileValues, describeField } from '../../utils/profileRequirements.js';
 import { clearCache } from '../../utils/cacheHelper.js';
-import { decryptText, comparePassword } from '../../utils/cryptoUtils.js';
+import { decryptText } from '../../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../../utils/birthdayAutomation.js';
 import { ensureReferralCode, applyReferral } from '../../utils/referralService.js';
 import { checkPinAgainstAddress } from '../../utils/reverseGeocode.js';
@@ -14,7 +14,7 @@ import { isEduEmail } from '../../utils/eduEmail.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
 import InAppNotification from '../../models/InAppNotification.js';
 import { appInstallationPolicy } from '../../../shared/appInstallationPolicy.js';
-import redisSlugService from '../../services/redisSlugService.js';
+import slugIndex from '../../services/slugIndex.js';
 import VerificationEvidence from '../../models/VerificationEvidence.js';
 import { generateRaw } from '../../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../../utils/studentRewards.js';
@@ -74,7 +74,7 @@ router.get('/me', requireMember, async (req, res) => {
       });
       
       await bioDoc.save();
-      redisSlugService.addSlug(bioDoc.slug);
+      slugIndex.addSlug(bioDoc.slug);
       // NOTE: referralCode is intentionally NOT generated here — it's generated
       // lazily after the onboarding modal has a chance to collect the phone
       // number, so phone-derived codes are the common case (see ensureReferralCode).
@@ -816,12 +816,12 @@ router.post('/me/check-location', requireMember, checkLocationLimiter, async (re
   }
 });
 
-// POST /me/reset-trusted-location  { email, lat, lng, pin } — member confirms
-// "yes this is really me, this is my new normal location" after a forced
-// re-login from an anomaly, so they aren't logged out again immediately.
-router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
+// POST /me/reset-trusted-location  { lat, lng } — chủ tài khoản xác nhận "đúng là
+// tôi, đây là nơi ở mới". Như "Bảo vệ thiết bị bị đánh cắp" của Apple: phải vừa
+// mở khoá bằng Face ID/Google — người nhặt được máy đang mở sẵn không bấm qua được.
+router.post('/me/reset-trusted-location', requireMember, requireRecentAuth(), async (req, res) => {
   try {
-    const { lat, lng, pin } = req.body;
+    const { lat, lng } = req.body;
     const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
@@ -830,19 +830,10 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
     const bio = await Bio.findOne({ email });
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
 
-    if (bio.transactionPin) {
-      if (!pin) {
-        return res.status(400).json({ error: 'Xác thực mã PIN là bắt buộc để khôi phục vị trí.' });
-      }
-      const isValid = await comparePassword(String(pin), bio.transactionPin);
-      if (!isValid) {
-        return res.status(403).json({ error: 'Mã PIN xác thực không chính xác.' });
-      }
-    }
-
     bio.trustedLocation = { lat, lng, updatedAt: new Date() };
     bio.locationAnomaly = false; // Reset anomaly state
     await bio.save();
+    invalidateMemberGate(email);
 
     res.json({ success: true });
   } catch (error) {
@@ -885,10 +876,10 @@ router.post('/me/custom-domain', requireMember, async (req, res) => {
 
     // Cập nhật O(1) in-memory Set và xóa cache tức thời
     if (oldDomain) {
-      redisSlugService.deleteCustomDomain(oldDomain);
+      slugIndex.deleteCustomDomain(oldDomain);
       await clearCache(`bio_domain_${oldDomain}`);
     }
-    redisSlugService.addCustomDomain(cleanDomain);
+    slugIndex.addCustomDomain(cleanDomain);
     await clearPublicBioCache(bio);
 
     res.json({
@@ -918,7 +909,7 @@ router.delete('/me/custom-domain', requireMember, async (req, res) => {
     await bio.save();
 
     if (oldDomain) {
-      redisSlugService.deleteCustomDomain(oldDomain);
+      slugIndex.deleteCustomDomain(oldDomain);
       await clearCache(`bio_domain_${oldDomain}`);
     }
     await clearPublicBioCache(bio);

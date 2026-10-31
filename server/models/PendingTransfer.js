@@ -20,6 +20,8 @@ const PendingTransferSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected', 'expired'], default: 'pending', index: true },
   decidedBy: { type: String, default: '' },
   decidedAt: { type: Date, default: null },
+  // Lúc đã báo chủ "hết giờ chờ, mở Face ID để chuyển" (services/transferHold.js).
+  readyNotifiedAt: { type: Date, default: null },
   expiresAt: { type: Date, required: true, index: { expires: 0 } },
 }, { timestamps: true });
 

@@ -508,17 +508,15 @@ router.post('/users/:id/held-transfer/:txId', requireAdmin, async (req, res) => 
     if (!['release', 'block'].includes(decision)) {
       return res.status(400).json({ error: 'decision phải là release hoặc block' });
     }
-    const PendingTransfer = (await import('../../models/PendingTransfer.js')).default;
-    const tx = await PendingTransfer.findById(req.params.txId);
-    if (!tx) return res.status(404).json({ error: 'Không tìm thấy giao dịch' });
-    if (tx.status && !['pending', 'held', 'review'].includes(tx.status)) {
-      return res.status(409).json({ error: `Giao dịch đã ở trạng thái "${tx.status}", không xử lý lại.` });
-    }
-
-    tx.status = decision === 'release' ? 'released' : 'blocked';
-    tx.reviewedAt = new Date();
-    tx.reviewerNote = String(note || '').slice(0, 1000);
-    await tx.save();
+    // Trước 31/10/2026 nhánh này ghi trạng thái ngoài enum (released/blocked) nên
+    // luôn 500, và "release" chưa từng chuyển tiền. Giờ đi chung một cửa với
+    // Telegram và chính chủ (services/transferHold.js).
+    const { decideHeldTransfer } = await import('../../services/transferHold.js');
+    const result = await decideHeldTransfer({ _id: req.params.txId }, {
+      approve: decision === 'release', decidedBy: req.admin?.username || req.admin?.email || 'admin',
+    });
+    if (!result.ok) return res.status(409).json({ error: result.error });
+    const tx = result.pending;
 
     await logAdminAuditAction(req, `held_transfer_${decision}`, null, tx.fromEmail,
       `Giao dịch bị giữ: ${decision}`, { txCode: tx.txCode, amount: tx.numAmount, note });

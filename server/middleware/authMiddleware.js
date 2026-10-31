@@ -81,9 +81,31 @@ const adminFromRequest = async (req) => (carriesSession(req, 'hugo-admin')
 /** Email thành viên của request (đã viết thường), hoặc null. */
 export const memberEmailFromRequest = async (req) => {
   if (!carriesSession(req, 'hugo')) return null;
-  const email = (await readSession(memberAuth(), req))?.user?.email;
-  return email ? email.toLowerCase() : null;
+  const found = await readSession(memberAuth(), req);
+  const email = found?.user?.email;
+  if (!email) return null;
+  const verifiedAt = found.session?.verifiedAt;
+  req.memberVerifiedAt = verifiedAt ? new Date(verifiedAt) : null;
+  return email.toLowerCase();
 };
+
+/**
+ * "Xác nhận đây là bạn" kiểu Apple: phiên của request vừa được mở bằng Face ID /
+ * passkey hoặc Google trong `minutes` phút (dấu `verifiedAt`, auth/betterAuth.js).
+ * Không hỏi lại thông tin cá nhân — thứ người quen cũng biết — mà đòi chính
+ * thiết bị/tài khoản chỉ chủ nhân mở được.
+ */
+export const recentlyVerified = (req, minutes = 5) =>
+  Boolean(req.memberVerifiedAt) && Date.now() - req.memberVerifiedAt.getTime() < minutes * 60 * 1000;
+
+export const REAUTH_REQUIRED = {
+  code: 'REAUTH_REQUIRED',
+  error: 'Vui lòng xác nhận đây là bạn bằng Face ID, vân tay hoặc Google.',
+};
+
+/** Đặt SAU requireMember. Thiếu dấu mới thì 428 để client mở hộp "Xác nhận đây là bạn". */
+export const requireRecentAuth = (minutes = 5) => (req, res, next) =>
+  (recentlyVerified(req, minutes) ? next() : res.status(428).json(REAUTH_REQUIRED));
 
 // Những route CẦN gọi được khi hồ sơ chưa xong — nếu chặn cả mấy đường này thì
 // người dùng không có cách nào hoàn tất hồ sơ để được mở chặn (khoá cửa rồi để
@@ -132,11 +154,9 @@ const extractToken = (req, cookieName) => {
  * tài khoản, và (b) mọi nơi ghi cờ đều gọi `invalidateMemberGate()`. Cửa sổ xấu
  * nhất là 30s, và chỉ khi việc vô hiệu hoá thất bại.
  *
- * ponytail: Map + TTL, sao chép đúng khuôn của securityEnforcement.js thay vì
- * thêm Redis. Đệm theo TỪNG PROCESS, và như vậy là ĐỦ kể cả khi tách nhiều
- * process: mỗi process tự đọc một lần mỗi 30 giây cho mỗi người, còn cửa sổ dữ
- * liệu cũ vẫn là 30 giây y như bây giờ — không xấu đi. Khác với socket
- * (utils/realtime.js) vốn BẮT BUỘC phải loan tin qua Redis, chỗ này không cần.
+ * ponytail: Map + TTL, sao chép đúng khuôn của securityEnforcement.js. Đệm theo
+ * TỪNG PROCESS, và như vậy là ĐỦ kể cả khi tách nhiều process: mỗi process tự
+ * đọc một lần mỗi 30 giây cho mỗi người, cửa sổ dữ liệu cũ vẫn là 30 giây.
  */
 const GATE_CACHE_MS = 30 * 1000;
 const GATE_CACHE_MAX = 5000;

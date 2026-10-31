@@ -35,7 +35,7 @@ import DeletedMemberAccount from '../models/DeletedMemberAccount.js';
 import { hashMemberEmail } from '../utils/deletedMemberAccount.js';
 import { deleteAvatar, getPublicIdFromUrl } from '../utils/cloudinary.js';
 import { clearCache } from '../utils/cacheHelper.js';
-import redisSlugService from './redisSlugService.js';
+import slugIndex from './slugIndex.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 
 const expiredMemberFilter = (now) => ({
@@ -165,8 +165,8 @@ export async function deleteMemberAccountPermanently(bioId, { onlyIfTrialExpired
   await Promise.all([
     candidate.slug && clearCache(`bio_slug_${candidate.slug}`),
     candidate.customDomain && clearCache(`bio_domain_${candidate.customDomain}`),
-    redisSlugService.deleteSlug(candidate.slug),
-    redisSlugService.deleteCustomDomain(candidate.customDomain),
+    slugIndex.deleteSlug(candidate.slug),
+    slugIndex.deleteCustomDomain(candidate.customDomain),
   ]);
   await Bio.deleteOne({ _id: candidate._id });
   broadcastToEmail(candidate.email, { type: 'member_account_deleted' });

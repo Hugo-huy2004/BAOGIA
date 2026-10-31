@@ -40,15 +40,15 @@ export async function getJoyQrPayload(email) {
   return parseOrThrow(res);
 }
 
-export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey }) {
+export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey }),
+    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }),
     credentials: "include"
   });
   const data = await res.json();
-  // Server đòi thêm lớp xác thực (PIN/OTP) không phải LỖI — trả `code` để UI mở
+  // Server đòi thêm lớp xác thực (PIN / Face ID) không phải LỖI — trả `code` để UI mở
   // đúng bước nhập, thay vì ném ra một thông báo đỏ.
   if (res.status === 428 && data.code) return { stepUp: data.code, message: data.error };
   if (!res.ok) throw new Error(data.error || "Đã có lỗi xảy ra.");

@@ -120,6 +120,35 @@ export function initCronJobs() {
     } catch (error) {
       console.error('[CRON] Tổng kết an ninh 24h:', error.message);
     }
+    // Cùng giờ: bản tin quản trị (services/adminBrief.js) gửi thẳng vào Telegram —
+    // admin khỏi phải mở bảng điều khiển để biết hôm nay có việc gì. Ngày không có
+    // việc thì chỉ một dòng.
+    try {
+      const [{ buildAdminBrief }, { sendTelegramAlert }] = await Promise.all([
+        import('../services/adminBrief.js'),
+        import('../services/telegramService.js'),
+      ]);
+      const brief = await buildAdminBrief();
+      const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const lines = [
+        `${brief.status === 'bad' ? '🔴' : brief.status === 'warn' ? '🟡' : '🟢'} <b>${esc(brief.headline)}</b>`,
+        ...brief.items.map((i) => `• ${esc(i.text)}`),
+        ...(brief.auto.length ? ['', '<i>Hệ thống đã tự lo:</i>', ...brief.auto.map((a) => `• ${esc(a.text)}`)] : []),
+      ];
+      await sendTelegramAlert(lines.join('\n'));
+    } catch (error) {
+      console.error('[CRON] Bản tin quản trị:', error.message);
+    }
+  });
+
+  // Lệnh chuyển bị giữ vừa hết giờ chờ → báo chủ mở Face ID để tự chuyển.
+  cron.schedule('*/10 * * * *', async () => {
+    try {
+      const { notifyReadyHolds } = await import('../services/transferHold.js');
+      await notifyReadyHolds();
+    } catch (error) {
+      console.error('[CRON] Báo lệnh giữ đã sẵn sàng:', error.message);
+    }
   });
 
   // Chạy mỗi đêm lúc 00:00

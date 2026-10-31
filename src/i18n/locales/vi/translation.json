@@ -3096,7 +3096,6 @@
         "useNfcBtn": "Dùng NFC",
         "insufficientBalance": "Số dư chưa đủ cho tổng giao dịch",
         "balanceAfter": "Số dư sau giao dịch",
-        "faceIdFailed": "Xác thực Face ID thất bại",
         "pinSetupHeading": "Thiết lập mã PIN giao dịch",
         "pinConfirmHeading": "Xác nhận mã PIN giao dịch",
         "pinSetupBody": "Để bảo mật số dư của Quý thành viên, vui lòng nhập mã PIN giao dịch mới gồm 6 chữ số.",
@@ -3116,7 +3115,8 @@
         "cardCodeFind": "Tìm người nhận",
         "cardCodeScan": "Quét mã vạch",
         "cardCodeNoScanner": "Trình duyệt này chưa quét được mã vạch — vui lòng nhập mã",
-        "cardCodeNotFound": "Không tìm thấy thành viên với mã này."
+        "cardCodeNotFound": "Không tìm thấy thành viên với mã này.",
+        "useFaceId": "Dùng Face ID / vân tay"
       },
       "exchange": {
         "exchanged": "Đã đổi",
@@ -4041,29 +4041,6 @@
       "syncing": "Đồng bộ…",
       "online": "Trực tuyến"
     },
-    "identityCheck": {
-      "title": "Kiểm tra thông tin định kỳ",
-      "ask": {
-        "phone": "Để bảo vệ tài khoản, vui lòng nhập lại số điện thoại Quý thành viên đã đăng ký.",
-        "birthday": "Để bảo vệ tài khoản, vui lòng nhập lại ngày/tháng/năm sinh của Quý thành viên.",
-        "email": "Chúng tôi vừa gửi mã xác minh 6 số tới {{email}}. Vui lòng nhập mã để xác nhận hòm thư là của Quý thành viên."
-      },
-      "placeholder": {
-        "phone": "Số điện thoại đã đăng ký",
-        "birthday": "Ngày/Tháng/Năm sinh (vd: 20/09/2008 hoặc 2008-09-20)",
-        "email": "Mã 6 số trong email"
-      },
-      "submit": "Xác nhận",
-      "passed": "Đã xác minh. Cảm ơn Quý thành viên.",
-      "wrongAnswer": "Thông tin không khớp với hồ sơ.",
-      "attemptsLeft_one": "Quý thành viên còn {{count}} lần thử.",
-      "attemptsLeft_other": "Quý thành viên còn {{count}} lần thử.",
-      "lastChance": "Sai thêm một lần nữa, tài khoản sẽ bị khoá.",
-      "networkError": "Không gửi được câu trả lời. Kiểm tra kết nối rồi thử lại.",
-      "otpSendFailed": "Không gửi được mã xác minh. Vui lòng thử lại sau.",
-      "warning": "Khai báo thông tin không đúng sự thật sẽ bị phong toả tài khoản. Muốn mở khoá, hãy gửi email nêu rõ duyên do; quản trị viên có quyền yêu cầu giấy tờ để xác minh.",
-      "codeExpired": "Mã đã hết hạn hoặc chưa được gửi. Hãy yêu cầu mã mới."
-    },
     "joyTree": {
       "complete": "Cây đã trưởng thành"
     },
@@ -4146,6 +4123,44 @@
         "public": "Công khai",
         "private": "Chỉ mình tôi"
       }
+    },
+    "confirmItsYou": {
+      "title": "Xác nhận đây là Quý thành viên",
+      "body": "Mở khoá bằng Face ID, vân tay hoặc tài khoản Google để tiếp tục.",
+      "passkey": "Dùng Face ID / vân tay",
+      "or": "hoặc",
+      "google": "Tiếp tục với Google",
+      "wrongAccount": "Đó là một tài khoản khác. Ứng dụng sẽ tải lại với tài khoản vừa chọn.",
+      "failed": "Chưa xác nhận được. Vui lòng thử lại.",
+      "privacy": "Hugo Studio không nhận hay lưu khuôn mặt, vân tay của Quý thành viên — mọi thứ được kiểm ngay trên thiết bị.",
+      "cancel": "Để sau",
+      "reasonPeriodic": "Định kỳ, Hugo Studio nhờ Quý thành viên mở khoá một lần để chắc rằng chỉ chính chủ đang dùng tài khoản.",
+      "reasonMoney": "Giao dịch này cần chính chủ xác nhận bằng Face ID, vân tay hoặc Google."
+    },
+    "security": {
+      "passkeyAdded": "Đã bật Face ID / vân tay cho máy này.",
+      "revokeFailed": "Chưa đăng xuất được. Vui lòng thử lại.",
+      "revoked": "Đã đăng xuất thiết bị.",
+      "devices": "Thiết bị đang đăng nhập",
+      "unknownDevice": "Thiết bị không rõ",
+      "thisDevice": "Máy này",
+      "signOut": "Đăng xuất",
+      "signOutOthers": "Đăng xuất mọi máy khác",
+      "row": {
+        "passkey": "Face ID / vân tay"
+      },
+      "rowDesc": {
+        "passkey": "Mở khoá và xác nhận giao dịch ngay trên máy",
+        "money2fa": "PIN + Face ID hoặc Google khi chuyển JOY lớn"
+      },
+      "rowAction": {
+        "passkey": "Nhấn để bật trên máy này"
+      },
+      "holdsTitle": "Giao dịch đang giữ an toàn",
+      "holdReady": "Đã qua thời gian chờ — xác nhận để chuyển",
+      "holdWait": "Có thể xác nhận từ {{time}}",
+      "holdConfirm": "Xác nhận",
+      "holdReleased": "Đã chuyển JOY."
     }
   },
   "memberTabs": {

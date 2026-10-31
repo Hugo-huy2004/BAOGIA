@@ -1,29 +1,39 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { logoutAuth } from "../../services/api/core/authSession";
+import { notify } from "../../lib/notify";
+import ConfirmItsYouDialog from "./ConfirmItsYouDialog";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onDismiss }) {
+// Vị trí lạ: muốn nhận nơi mới là "nơi quen" thì phải mở khoá Face ID/Google trước.
+export default function LocationAnomalyDialog({ distanceKm, lat, lng, onDismiss }) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
-  const handleTrustNewLocation = async () => {
+  const trustNewLocation = async () => {
+    setConfirming(false);
     setBusy(true);
     try {
-      await fetch(`${apiBase}/bios/me/reset-trusted-location`, {
+      const res = await fetch(`${apiBase}/bios/me/reset-trusted-location`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, lat, lng }),
+        body: JSON.stringify({ lat, lng }),
       });
+      if (!res.ok) throw new Error();
+      onDismiss();
     } catch {
-      // fail open — dismiss anyway
+      notify.error(t("memberPortal.confirmItsYou.failed"));
     } finally {
       setBusy(false);
-      onDismiss();
     }
   };
+
+  if (confirming) {
+    return <ConfirmItsYouDialog onConfirmed={trustNewLocation} onCancel={() => setConfirming(false)} />;
+  }
 
   const handleLogout = async () => {
     setBusy(true);
@@ -48,7 +58,7 @@ export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onD
           <button
             type="button"
             disabled={busy}
-            onClick={handleTrustNewLocation}
+            onClick={() => setConfirming(true)}
             className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">check_circle</span>

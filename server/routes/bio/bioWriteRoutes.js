@@ -6,7 +6,7 @@ import { requireAdmin, requireMember, invalidateMemberGate } from '../../middlew
 import { bioAge, isMinorAge } from '../../utils/memberAge.js';
 import { clearCache } from '../../utils/cacheHelper.js';
 import { appInstallationPolicy } from '../../../shared/appInstallationPolicy.js';
-import redisSlugService from '../../services/redisSlugService.js';
+import slugIndex from '../../services/slugIndex.js';
 import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
 import { clearPublicBioCache, rejectBlacklistedPhone, ownsBio, HISTORY_LABELS, pushHistory, normalizeSlug, createUniqueSlug, processSecretLinks } from './bioShared.js';
 
@@ -93,7 +93,7 @@ router.post('/', requireMember, async (req, res) => {
     const savedBio = await newBio.save();
     
     await savedBio.save();
-    redisSlugService.addSlug(savedBio.slug);
+    slugIndex.addSlug(savedBio.slug);
 
     return res.status(201).json(savedBio);
   } catch (error) {
@@ -379,8 +379,8 @@ router.put('/:id', requireMember, async (req, res) => {
     // Keep the in-memory valid-slug set consistent on rename — otherwise the
     // new slug 404s (not in set) while the old one stays "valid" forever.
     if (previousSlug !== existing.slug) {
-      redisSlugService.deleteSlug(previousSlug);
-      redisSlugService.addSlug(existing.slug);
+      slugIndex.deleteSlug(previousSlug);
+      slugIndex.addSlug(existing.slug);
     }
 
     return res.json({ bio: existing });

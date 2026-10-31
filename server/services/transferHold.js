@@ -1,6 +1,6 @@
 // Giữ giao dịch đáng ngờ để rà soát — lớp phòng gian lận trên cùng của 2FA.
 //
-// 2FA (PIN+OTP) trả lời "đúng chủ tài khoản không?". Lớp này trả lời câu khác:
+// 2FA (PIN + Face ID/Google) trả lời "đúng chủ tài khoản không?". Lớp này trả lời câu khác:
 // "giao dịch này có GIỐNG hành vi thường ngày của chủ không?". Kẻ chiếm được cả
 // PIN vẫn lộ ở chỗ: lần đầu quét sạch ví sang một tài khoản lạ, số tiền gấp
 // nhiều lần mọi lần trước. Ngân hàng giữ đúng loại lệnh đó lại để người rà.
@@ -69,4 +69,67 @@ export async function executeHeldTransfer(pending) {
       { refId: pending.txCode, bioDoc: recipient, counterparty: pending.fromName, pushNotify: true, actionUrl: '/member/account' }),
   ]);
   return { balance: sender.joyBalance };
+}
+
+// ── Chính chủ tự giải phóng (31/10/2026) ─────────────────────────────────────
+// Như "Độ trễ bảo mật" của Apple: giao dịch bị giữ chờ HOLD_DELAY_MS, rồi chính
+// chủ mở Face ID/Google là tiền đi — không cần admin. Kẻ trộm máy phải giữ được
+// máy qua cả giờ chờ lẫn Face ID; còn chủ thật thì không phải chờ người duyệt.
+// Admin chỉ còn phải nhìn lệnh mà chủ không xác nhận sau 24 giờ.
+export const HOLD_DELAY_MS = 60 * 60 * 1000;
+
+export const holdReadyAt = (pending) => new Date(new Date(pending.createdAt).getTime() + HOLD_DELAY_MS);
+
+/**
+ * Một cửa cho MỌI quyết định về lệnh bị giữ (chính chủ, admin web, Telegram).
+ * Chiếm lệnh nguyên tử rồi mới chuyển: hai bên bấm cùng lúc thì chỉ một bên
+ * thắng, tiền không đi hai lần. Chuyển hỏng thì trả lệnh về chờ.
+ */
+export async function decideHeldTransfer(match, { approve, decidedBy }) {
+  const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
+  const pending = await PendingTransfer.findOneAndUpdate(
+    { ...match, status: 'pending' },
+    { $set: { status: approve ? 'approved' : 'rejected', decidedBy, decidedAt: new Date() } },
+    { new: true },
+  );
+  if (!pending) return { ok: false, error: 'Giao dịch đã được xử lý hoặc hết hạn.' };
+  if (!approve) {
+    const { notifyMember } = await import('../utils/notifyMember.js');
+    await notifyMember({
+      email: pending.fromEmail, type: 'warning', category: 'joy',
+      key: 'source.transfer_rejected', actionUrl: '/member/account', push: true,
+      refCode: pending.txCode, counterparty: pending.toName,
+    }).catch(() => {});
+    return { ok: true, pending };
+  }
+  try {
+    await executeHeldTransfer(pending);
+    return { ok: true, pending };
+  } catch (error) {
+    await PendingTransfer.updateOne({ _id: pending._id }, { $set: { status: 'pending', decidedBy: '', decidedAt: null } });
+    return { ok: false, error: error.message };
+  }
+}
+
+/** Chính chủ, đã qua giờ chờ, vừa mở Face ID/Google. */
+export const releaseHeldTransfer = (txCode, email) => decideHeldTransfer(
+  { txCode, fromEmail: email, createdAt: { $lte: new Date(Date.now() - HOLD_DELAY_MS) } },
+  { approve: true, decidedBy: 'owner-faceid' },
+);
+
+/** Cron 10 phút: lệnh vừa hết giờ chờ thì báo chủ vào xác nhận bằng Face ID. */
+export async function notifyReadyHolds() {
+  const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
+  const { notifyMember } = await import('../utils/notifyMember.js');
+  const ready = await PendingTransfer.find({
+    status: 'pending', readyNotifiedAt: null, createdAt: { $lte: new Date(Date.now() - HOLD_DELAY_MS) },
+  }).limit(100).lean();
+  for (const p of ready) {
+    await PendingTransfer.updateOne({ _id: p._id }, { $set: { readyNotifiedAt: new Date() } });
+    await notifyMember({
+      email: p.fromEmail, key: 'event.holdReady', params: { amount: p.numAmount, recipient: p.toName },
+      type: 'info', category: 'joy', actionUrl: '/member/account', push: true, refCode: p.txCode,
+    }).catch(() => {});
+  }
+  return ready.length;
 }

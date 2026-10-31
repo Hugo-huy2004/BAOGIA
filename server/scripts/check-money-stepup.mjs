@@ -24,6 +24,10 @@ check((await checkMoneyStepUp({ senderBio: bioPin(), amountBaseJoy: T - 1, pin: 
   `dưới ngưỡng + PIN sai → PIN_WRONG`);
 check((await checkMoneyStepUp({ senderBio: bioPin(), amountBaseJoy: T - 1, pin: PIN })).ok,
   `dưới ngưỡng + PIN đúng → cho qua`);
+check((await checkMoneyStepUp({ senderBio: bioPin(), amountBaseJoy: T - 1, verified: true })).ok,
+  `dưới ngưỡng + không PIN nhưng vừa Face ID → cho qua (Face ID thay PIN)`);
+check((await checkMoneyStepUp({ senderBio: bioPin('g@x.vn'), amountBaseJoy: T, verified: true })).code === 'PIN_REQUIRED',
+  `≥ ngưỡng + Face ID nhưng thiếu PIN → PIN_REQUIRED (cần cả hai)`);
 
 // Từ ngưỡng lên: chưa cài PIN → buộc cài.
 check((await checkMoneyStepUp({ senderBio: bioNoPin('b@x.vn'), amountBaseJoy: T })).code === 'PIN_SETUP_REQUIRED',
@@ -38,24 +42,13 @@ for (let i = 0; i < 5; i++) await checkMoneyStepUp({ senderBio: bioPin(victim), 
 check((await checkMoneyStepUp({ senderBio: bioPin(victim), amountBaseJoy: T, pin: PIN })).code === 'PIN_LOCKED',
   `≥ ngưỡng + sai PIN 5 lần → PIN_LOCKED (kể cả sau đó nhập đúng)`);
 
-// Email KHÔNG gửi được: bỏ qua OTP, PIN đúng là xong.
-delete process.env.RESEND_API_KEY;
-delete process.env.EMAIL_SMTP_USER;
-delete process.env.EMAIL_SMTP_PASS;
-check((await checkMoneyStepUp({ senderBio: bioPin('d@x.vn'), amountBaseJoy: T, pin: PIN })).ok,
-  `≥ ngưỡng + PIN đúng + email TẮT → cho qua (không treo chờ OTP)`);
-
-// Email GỬI ĐƯỢC: PIN đúng nhưng chưa có OTP → OTP_SENT; nhập đúng OTP → qua.
-process.env.RESEND_API_KEY = 're_test_key';
-let captured = '';
-const sendOtp = async (_email, code) => { captured = code; };
-const r1 = await checkMoneyStepUp({ senderBio: bioPin('e@x.vn'), amountBaseJoy: T, pin: PIN, sendOtp });
-check(r1.code === 'OTP_SENT', `≥ ngưỡng + PIN đúng + email BẬT → OTP_SENT`);
-check(/^\d{6}$/.test(captured), `OTP là mã 6 số đã gửi đi (${captured})`);
-const r2 = await checkMoneyStepUp({ senderBio: bioPin('e@x.vn'), amountBaseJoy: T, pin: PIN, otp: captured, sendOtp });
-check(r2.ok, `≥ ngưỡng + PIN đúng + OTP đúng → cho qua`);
-const r3 = await checkMoneyStepUp({ senderBio: bioPin('f@x.vn'), amountBaseJoy: T, pin: PIN, otp: '000000', sendOtp });
-check(r3.code === 'OTP_WRONG', `≥ ngưỡng + OTP sai → OTP_WRONG`);
+// PIN đúng nhưng chưa vừa mở khoá Face ID/Google → đòi xác nhận chính chủ.
+check((await checkMoneyStepUp({ senderBio: bioPin('d@x.vn'), amountBaseJoy: T, pin: PIN })).code === 'REAUTH_REQUIRED',
+  `≥ ngưỡng + PIN đúng + chưa Face ID/Google → REAUTH_REQUIRED`);
+check((await checkMoneyStepUp({ senderBio: bioPin('e@x.vn'), amountBaseJoy: T, pin: PIN, verified: true })).ok,
+  `≥ ngưỡng + PIN đúng + vừa Face ID/Google → cho qua`);
+check((await checkMoneyStepUp({ senderBio: bioPin('f@x.vn'), amountBaseJoy: T, pin: 'x', verified: true })).code === 'PIN_WRONG',
+  `≥ ngưỡng + Face ID nhưng PIN sai → PIN_WRONG (Face ID không thay PIN)`);
 
 // ─── Giữ giao dịch đáng ngờ (quyết định thuần, không cần DB) ──────────────────
 const H = 20000; // ngưỡng giữ mặc định

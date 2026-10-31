@@ -108,11 +108,43 @@ async function refuseBlockedMember(session, ctx) {
   }
 }
 
+// Phiên mở bằng chính chủ — Face ID/vân tay (passkey) hoặc Google — được đóng dấu
+// `verifiedAt`; thao tác nhạy cảm đòi dấu này còn mới (requireRecentAuth). Phiên
+// chuyển sang app qua mã một lần thì KHÔNG: ai cầm được cookie cũ cũng tự đổi được
+// mã đó lấy một phiên mới, nên phiên ấy không chứng minh được người cầm máy là ai.
+const PROOF_PATH = /^\/(passkey\/verify-authentication|sign-in\/social|callback\/)/;
+
+async function stampMemberSession(session, ctx) {
+  await refuseBlockedMember(session, ctx);
+  if (PROOF_PATH.test(ctx?.path || '')) return { data: { verifiedAt: new Date() } };
+}
+
+// Đăng nhập trên một máy CHƯA từng thấy thì báo chủ tài khoản ngay (in-app + push),
+// như Apple báo "Apple ID vừa được dùng trên thiết bị mới". Lần đăng nhập đầu tiên
+// và lượt chuyển phiên sang app (mã một lần, chính chủ tự bấm) thì im lặng.
+async function alertNewDevice(session, ctx) {
+  if (!session || /one-time-token/.test(ctx?.path || '')) return;
+  const adapter = ctx?.context?.internalAdapter;
+  if (!adapter) return;
+  const others = (await adapter.listSessions(session.userId)).filter((s) => s.id !== session.id);
+  if (!others.length || others.some((s) => s.userAgent === session.userAgent)) return;
+  const user = await adapter.findUserById(session.userId);
+  if (!user?.email) return;
+  const [{ notifyMember }, { deviceName }] = await Promise.all([
+    import('../utils/notifyMember.js'), import('../../shared/deviceName.js'),
+  ]);
+  await notifyMember({
+    email: user.email.toLowerCase(), key: 'event.newSignIn', params: { device: deviceName(session.userAgent || '') || '—' },
+    type: 'warning', category: 'security', actionUrl: '/member/account', push: true,
+  });
+}
+
 const buildMemberAuth = (base) => betterAuth({
   ...base,
   appName: 'Hugo Studio',
   basePath: '/api/auth',
   advanced: { ...base.advanced, cookiePrefix: 'hugo' },
+  session: { ...base.session, additionalFields: { verifiedAt: { type: 'date', required: false, input: false } } },
   socialProviders: {
     // Đăng nhập Google bằng ID token (nút GIS trên web + bản iOS): audience nhận cả hai client.
     google: {
@@ -128,6 +160,8 @@ const buildMemberAuth = (base) => betterAuth({
       rpID: process.env.PASSKEY_RP_ID || (isProd ? 'hugowishpax.studio' : 'localhost'),
       rpName: 'Hugo Studio',
       origin: isProd ? allowedOrigins.filter((o) => o.startsWith('https://')) : null,
+      // Passkey mới phải qua Face ID/vân tay/mã máy — khoá cứng không có PIN thì không nhận.
+      authenticatorSelection: { userVerification: 'required' },
     }),
     // App Capacitor không gửi được cookie khác origin: nhận phiên qua Bearer.
     bearer(),
@@ -137,7 +171,10 @@ const buildMemberAuth = (base) => betterAuth({
   ],
   databaseHooks: {
     user: { create: { after: (user) => createBio(user).catch((e) => console.error('[auth] tạo Bio:', e.message)) } },
-    session: { create: { before: refuseBlockedMember } },
+    session: { create: {
+      before: stampMemberSession,
+      after: (session, ctx) => alertNewDevice(session, ctx).catch((e) => console.error('[auth] báo máy mới:', e.message)),
+    } },
   },
 });
 

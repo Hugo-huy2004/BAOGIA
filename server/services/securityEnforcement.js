@@ -212,7 +212,7 @@ const NETWORK_ONLY_CATEGORIES = new Set(['availability_attack']);
 // một con bot, và hàng chờ duyệt đầy case không ai bấm. SecurityEvent vẫn ghi
 // đủ từng lần nên không mất dấu vết để tra.
 // ponytail: bộ nhớ trong tiến trình — restart Render thì cùng lắm thừa một tin;
-// cần chính xác xuyên nhiều instance thì chuyển sang Redis (redisClient.js).
+// cần chính xác xuyên nhiều instance thì chuyển sang Mongo.
 const CARD_THROTTLE_MS = 60 * 60 * 1000;
 const cardSentAt = new Map();
 

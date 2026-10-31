@@ -39,7 +39,7 @@ const groqModel = () => (process.env.GROQ_MODELS || "openai/gpt-oss-120b").split
 
 // ponytail: đếm trong bộ nhớ tiến trình — Render chỉ chạy một tiến trình nên đủ;
 // khởi động lại thì đếm lại từ 0 (lệch có lợi cho người dùng, Cloudflare vẫn là
-// chốt cuối). Nếu chạy nhiều tiến trình thì chuyển sang Mongo/Redis.
+// chốt cuối). Nếu chạy nhiều tiến trình thì chuyển sang Mongo.
 let day = "";
 let globalCount = 0;
 let groqCount = 0;

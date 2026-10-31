@@ -6,6 +6,7 @@ import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { IS_NATIVE } from "../../config/platform";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
+import { nativeGoogleIdToken } from "../../utils/nativeGoogle";
 import { getSafeMemberRedirect } from "../../utils/safeRedirect";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
@@ -109,45 +110,17 @@ export default function PWALoginPage() {
     }
   };
 
-  // Google Identity Services is a browser library: it validates the page origin
-  // against the Console, and the WebView's origin is `capacitor://localhost`,
-  // which Google will not accept as a JavaScript origin. The store builds go
-  // through the OS account picker instead and hand back the same kind of ID
-  // token, so everything downstream — including the server — is unchanged.
   const handleNativeGoogle = async () => {
     setNativeBusy(true);
     try {
-      // Nếu binary đang cài KHÔNG có plugin native (APK build trước khi thêm
-      // plugin), Capacitor lặng lẽ rơi về bản web của plugin: nó mở
-      // accounts.google.com trong WebView, mà origin ở đó là
-      // capacitor://localhost — Google chặn thẳng bằng "Error 400:
-      // invalid_request / doesn't comply with OAuth 2.0 policy".
-      //
-      // Người dùng chỉ thấy trang lỗi của Google và không thể đoán rằng thứ
-      // cần làm là cài lại app. Chặn ở đây để nói đúng nguyên nhân.
-      const { Capacitor } = await import("@capacitor/core");
-      if (!Capacitor.isPluginAvailable("SocialLogin")) {
-        showToast("Bản app này chưa có đăng nhập Google. Hãy cài lại bản mới nhất.", "error");
-        return;
-      }
-      const { SocialLogin } = await import("@capgo/capacitor-social-login");
-      await SocialLogin.initialize({
-        google: {
-          iOSClientId: import.meta.env.VITE_GOOGLE_IOS_CLIENT_ID,
-          // Android's Credential Manager wants the *web* client id, and it is
-          // what makes the returned token's `aud` match the web one there.
-          webClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        },
-      });
-      const { result } = await SocialLogin.login({
-        provider: "google",
-        options: { scopes: ["email", "profile"] },
-      });
+      const idToken = await nativeGoogleIdToken();
       // Same shape the GSI callback produces, so one handler serves both.
-      await handleGoogleCredential({ credential: result?.idToken });
+      await handleGoogleCredential({ credential: idToken });
     } catch (err) {
+      if (err?.code === "NO_PLUGIN") {
+        showToast("Bản app này chưa có đăng nhập Google. Hãy cài lại bản mới nhất.", "error");
       // Closing the account sheet is a normal outcome, not an error worth a toast.
-      if (!/cancel/i.test(err?.message || "")) {
+      } else if (!/cancel/i.test(err?.message || "")) {
         showToast("Không mở được đăng nhập Google. Thử lại nhé.", "error");
       }
     } finally {

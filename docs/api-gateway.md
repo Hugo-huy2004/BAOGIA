@@ -106,8 +106,8 @@ Thứ tự này giảm rủi ro dần:
 2. Gom cron ra một worker riêng, không nhận request. Đây là điều kiện bắt buộc
    trước mọi việc tách.
 3. Tách `wallet-svc` từ `joyService`. Nó là ranh giới sạch nhất đang có.
-4. Tách `realtime-svc` (`/ws`, `/ws/chess`) — cần Redis thay cho
-   `global.wsClients`, vì map trong RAM không chia được giữa các process.
+4. Tách `realtime-svc` (`/ws`, `/ws/chess`) — cần một kênh loan tin dùng chung
+   thay cho `global.wsClients` (Redis đã gỡ 31/10/2026; chọn lại khi thật sự tách).
 5. Tách dần các app lá (`radio`, `arcade`, `cinema`, `stock`): chúng phụ thuộc ít
    nhất, chỉ cần đọc Bio và gọi `wallet-svc`.
 

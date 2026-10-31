@@ -36,6 +36,12 @@ export async function buildAdminBrief() {
     MemberActivity.aggregate([{ $group: { _id: null, sent: { $sum: '$push.sent' }, opened: { $sum: '$push.opened' } } }]),
     MemberActivity.countDocuments({ 'push.ignored': { $gte: 3 } }),
   ]);
+  // Lệnh bị giữ: chính chủ tự xác nhận bằng Face ID sau giờ chờ, nên admin chỉ
+  // cần nhìn lệnh đã quá 24 giờ mà chủ chưa xác nhận (có thể không phải chủ).
+  const PendingTransfer = await load('PendingTransfer');
+  const ownerReleased = await PendingTransfer.countDocuments({ decidedBy: 'owner-faceid', decidedAt: { $gte: since } });
+  const staleHolds = queue.heldTransfers.filter((h) => Date.now() - new Date(h.createdAt).getTime() > 24 * HOUR);
+  const ownerPending = queue.heldTransfers.length - staleHolds.length;
   const quota = getQuotaStatus();
   const rssMb = Math.round(process.memoryUsage().rss / 1024 / 1024);
 
@@ -44,7 +50,7 @@ export async function buildAdminBrief() {
   const waiting = (items, what, tab, icon) => [items.length > 0, late(items) ? 'bad' : 'warn', icon,
     `${items.length} ${what} đang chờ — cũ nhất đã ${ago(oldest(items))}.`, tab];
   const signals = [
-    waiting(queue.heldTransfers, 'giao dịch JOY bị giữ lại (tiền người dùng đang treo)', 'queue', 'account_balance_wallet'),
+    [staleHolds.length > 0, 'warn', 'account_balance_wallet', `${staleHolds.length} giao dịch JOY bị giữ quá 24 giờ mà chủ chưa xác nhận bằng Face ID — nên xem có phải chủ thật không.`, 'queue'],
     waiting(queue.appeals, 'kháng nghị mở khoá tài khoản', 'queue', 'gavel'),
     waiting(queue.tickets, 'yêu cầu hỗ trợ chưa trả lời', 'support', 'support_agent'),
     waiting(queue.joylater, 'hồ sơ nợ JOY chờ quyết định cấm', 'queue', 'block'),
@@ -61,6 +67,8 @@ export async function buildAdminBrief() {
     [rejected, 'security', `Chặn ${rejected} yêu cầu tấn công hoặc lạm dụng.`],
     [autoBlocks, 'block', `Tự khoá ${autoBlocks} địa chỉ / tài khoản vi phạm.`],
     [hiddenPosts, 'visibility_off', `Ẩn ${hiddenPosts} bài Today vi phạm (khôi phục được).`],
+    [ownerReleased, 'verified_user', `${ownerReleased} giao dịch bị giữ đã được chính chủ xác nhận bằng Face ID và tự chuyển.`],
+    [ownerPending, 'hourglass_top', `${ownerPending} giao dịch đang giữ an toàn, chờ chính chủ xác nhận — chưa cần bạn.`],
     [quieted, 'notifications_paused', `Gửi thông báo thưa lại cho ${quieted} người hay bỏ qua, để họ không tắt hẳn.`],
   ].filter(([n]) => n > 0).map(([, icon, text]) => ({ icon, text }));
 

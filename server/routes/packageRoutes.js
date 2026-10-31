@@ -7,10 +7,6 @@ import { parseBirthday } from '../utils/birthdayAutomation.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 
-// Dữ liệu công khai, đọc ở mọi lần mở app: giữ 10 giây trong RAM trước Redis để
-// cả trăm lượt đọc cùng lúc chỉ tốn một lệnh Upstash (gói Free). Xem cacheHelper.
-const HOT_PUBLIC = { hotMs: 10_000 };
-
 const router = express.Router();
 
 /**
@@ -61,7 +57,6 @@ router.get('/', async (req, res) => {
   try {
     const packages = await fetchWithCache('all_packages', 60000, () =>
       Package.find().select('name duration durationUnit benefits color createdAt updatedAt').sort({ createdAt: -1 }).lean(),
-      HOT_PUBLIC,
     );
     res.set('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
     res.json(packages);
@@ -70,7 +65,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Gift codes only belong in the authenticated admin catalog, never Redis/CDN.
+// Gift codes only belong in the authenticated admin catalog, never the response cache or CDN.
 router.get('/admin', requireAdmin, async (_req, res) => {
   try {
     res.json(await Package.find().sort({ createdAt: -1 }).lean());

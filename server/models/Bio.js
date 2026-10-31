@@ -553,12 +553,6 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    // Stable sequential index for Redis bitmap addressing (online/DAU presence
-    // tracking) — assigned lazily on first heartbeat, see presenceService.js.
-    presenceIndex: {
-      type: Number,
-      default: null
-    },
     // Bạn Học Đường therapy features unlocked with a one-time 150 JOY spend
     // each (e.g. 'reading', 'meditation', 'depression') — see companionRoutes.js.
     unlockedCompanionFeatures: {

@@ -3095,7 +3095,6 @@
         "useNfcBtn": "Use NFC",
         "insufficientBalance": "Balance is not enough for the total",
         "balanceAfter": "Balance after transfer",
-        "faceIdFailed": "Face ID verification failed",
         "pinSetupHeading": "Set up a transaction PIN",
         "pinConfirmHeading": "Confirm the transaction PIN",
         "pinSetupBody": "To protect your balance, enter a new 6-digit transaction PIN.",
@@ -3115,7 +3114,8 @@
         "cardCodeFind": "Find recipient",
         "cardCodeScan": "Scan barcode",
         "cardCodeNoScanner": "This browser cannot scan barcodes — please type the code",
-        "cardCodeNotFound": "No member found with that code."
+        "cardCodeNotFound": "No member found with that code.",
+        "useFaceId": "Use Face ID / fingerprint"
       },
       "exchange": {
         "exchanged": "Exchanged",
@@ -4000,29 +4000,6 @@
       "syncing": "Syncing…",
       "online": "Online"
     },
-    "identityCheck": {
-      "title": "Periodic identity check",
-      "ask": {
-        "phone": "To protect your account, please re-enter the phone number you registered.",
-        "birthday": "To protect your account, please re-enter your date of birth.",
-        "email": "We just sent a 6-digit code to {{email}}. Enter it to confirm this inbox is yours."
-      },
-      "placeholder": {
-        "phone": "Registered phone number",
-        "birthday": "Date of birth (e.g. 20/09/2008 or 2008-09-20)",
-        "email": "6-digit code from the email"
-      },
-      "submit": "Confirm",
-      "passed": "Verified. Thank you!",
-      "wrongAnswer": "That does not match your profile.",
-      "attemptsLeft_one": "You have {{count}} attempt left.",
-      "attemptsLeft_other": "You have {{count}} attempts left.",
-      "lastChance": "One more wrong answer will lock your account.",
-      "networkError": "Could not submit your answer. Check your connection and try again.",
-      "otpSendFailed": "Could not send the verification code. Please try again later.",
-      "warning": "Providing false information will lock your account. To appeal, email us explaining the discrepancy; an administrator may request documents to verify your identity.",
-      "codeExpired": "The code expired or was never sent. Please request a new one."
-    },
     "joyTree": {
       "complete": "Tree fully grown"
     },
@@ -4105,6 +4082,44 @@
         "public": "Public",
         "private": "Only me"
       }
+    },
+    "confirmItsYou": {
+      "title": "Confirm it's you",
+      "body": "Unlock with Face ID, fingerprint or your Google account to continue.",
+      "passkey": "Use Face ID / fingerprint",
+      "or": "or",
+      "google": "Continue with Google",
+      "wrongAccount": "That is a different account. The app will reload with the account you chose.",
+      "failed": "Couldn't confirm. Please try again.",
+      "privacy": "Hugo Studio never receives or stores your face or fingerprint — the check happens on your device.",
+      "cancel": "Not now",
+      "reasonPeriodic": "Every so often we ask you to unlock once, so only you can use this account.",
+      "reasonMoney": "This transfer needs you to confirm with Face ID, fingerprint or Google."
+    },
+    "security": {
+      "passkeyAdded": "Face ID / fingerprint is on for this device.",
+      "revokeFailed": "Couldn't sign out. Please try again.",
+      "revoked": "Device signed out.",
+      "devices": "Signed-in devices",
+      "unknownDevice": "Unknown device",
+      "thisDevice": "This device",
+      "signOut": "Sign out",
+      "signOutOthers": "Sign out all other devices",
+      "row": {
+        "passkey": "Face ID / fingerprint"
+      },
+      "rowDesc": {
+        "passkey": "Unlock and confirm transfers right on your device",
+        "money2fa": "PIN + Face ID or Google for large JOY transfers"
+      },
+      "rowAction": {
+        "passkey": "Tap to turn on for this device"
+      },
+      "holdsTitle": "Transfers on safety hold",
+      "holdReady": "Waiting period is over — confirm to send",
+      "holdWait": "You can confirm from {{time}}",
+      "holdConfirm": "Confirm",
+      "holdReleased": "JOY sent."
     }
   },
   "memberTabs": {

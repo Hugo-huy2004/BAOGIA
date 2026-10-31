@@ -2917,7 +2917,6 @@
         "useNfcBtn": "用 NFC",
         "insufficientBalance": "數餘𣗓𨇜朱總交易",
         "balanceAfter": "數餘𢖕交譯",
-        "faceIdFailed": "確實 Face ID 失敗",
         "pinSetupHeading": "設立碼 PIN 交易",
         "pinConfirmHeading": "確認碼 PIN 交易",
         "pinSetupBody": "底保密數餘𧵑貴成員, 𢝙𢚸入碼 PIN 交易買𠁝 6 𡨸數.",
@@ -3825,29 +3824,6 @@
       "loadingPanel": "當載內容…",
       "syncing": "同步…",
       "online": "直線"
-    },
-    "identityCheck": {
-      "title": "檢查通信定期",
-      "ask": {
-        "phone": "底保衛財款, 𢝙𢚸入吏數電話貴成員㐌登記.",
-        "birthday": "底保衛財款, 𢝙𢚸入吏𣈜𣎃/𫷜生𧵑貴成員.",
-        "email": "眾碎𣃣寄碼確明 6 數細 {{email}}. 𢝙𢚸入碼底確認㮀書羅𧵑貴成員."
-      },
-      "placeholder": {
-        "phone": "數電話㐌登記",
-        "birthday": "𣈜𣎃/𫷜生 (vd: 20/09/2008)",
-        "email": "碼 6 數𥪝 email"
-      },
-      "submit": "確認",
-      "passed": "㐌確明. 感恩貴成員.",
-      "wrongAnswer": "通信空恰𢭲胡疏.",
-      "attemptsLeft_one": "貴成員群 {{count}} 吝試.",
-      "attemptsLeft_other": "貴成員群 {{count}} 吝試.",
-      "lastChance": "差添沒吝女, 財款𠱊被鎖.",
-      "networkError": "空寄特句𪃲𠳒. 檢查結𦀼耒試吏.",
-      "otpSendFailed": "空寄特碼確明. 𢝙𢚸試吏𡢐.",
-      "warning": "開報通信空中事實𠱊被封鎖財款. 㦖𨷑鎖, 駭㨳 email 標𠓑緣由; 管治員固權要求紙祠底確明.",
-      "codeExpired": "碼㐌歇限或渚特寄. 㤥要求碼買."
     },
     "joyTree": {
       "complete": "𣘃㐌長成"

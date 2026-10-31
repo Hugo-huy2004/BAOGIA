@@ -5,4 +5,3 @@
 export { connectDatabase, MONGODB_URI } from './database.js';
 export { allowedOrigins, isDev, localOriginRegex, oauthCorsOptions, appCorsOptions } from './cors.js';
 export { globalLimiter, heavyLimiter, LOCALHOST_IPS } from './limiter.js';
-export { default as redisClient, getRedisStatus, REDIS_URL } from './redis.js';

@@ -8,7 +8,8 @@ import { base64UrlToBytes } from "../../../utils/particleCloudCode";
 import { searchJoyUser, getJoyQrPayload, resolveMemberCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/api/modules/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
-import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
+import ConfirmItsYouDialog from "../ConfirmItsYouDialog";
+import { webauthnHelper } from "../../../utils/webauthnHelper";
 import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP, TRANSFER_MONTHLY_CAP } from "../../../../shared/joyPrices";
 import { useJoy } from "../../../lib/joyDisplay";
 import { denomKey, transferBreakdown, CROSS_DENOM_FEE } from "../../../../shared/joyCurrency";
@@ -677,8 +678,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [pinInput, setPinInput] = useState("");
   const [setupPinStep, setSetupPinStep] = useState(1);
   const [tempPin, setTempPin] = useState("");
-  const [lastPin, setLastPin] = useState("");
-  const [otpInput, setOtpInput] = useState("");
+  // Server đòi "xác nhận đây là bạn" (Face ID/Google): nhớ PIN vừa nhập để gửi lại.
+  const [reauth, setReauth] = useState(false);
+  const pendingPinRef = useRef("");
   const debounceRef = useRef(null);
 
   const joy = useJoy();
@@ -800,7 +802,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     }
   }, [bio?.displayName, myQR, t]);
 
-  const handleVerifyAndSend = async (enteredPin, enteredOtp) => {
+  const handleVerifyAndSend = async (enteredPin) => {
     setStep("sending");
     setError("");
     const idempotencyKey = crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -811,16 +813,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
         amount: numAmount,
         message: note.trim(),
         pin: enteredPin,
-        otp: enteredOtp,
         idempotencyKey
       });
-      // Giao dịch lớn: server đã gửi OTP về email, mở bước nhập mã. Nhớ PIN vừa
-      // nhập để gửi kèm khi xác nhận OTP.
-      if (data?.stepUp === "OTP_SENT") {
-        setLastPin(enteredPin);
-        setOtpInput("");
+      // Giao dịch lớn: mở Face ID/Google, xong thì gửi lại cùng PIN vừa nhập.
+      if (data?.stepUp === "REAUTH_REQUIRED") {
+        pendingPinRef.current = enteredPin;
         setError("");
-        setStep("otp");
+        setStep("pin");
+        setReauth(true);
         return;
       }
       if (data?.stepUp) { setError(data.message || t("memberPortal.joy.particle.needMoreAuth", "Cần xác thực thêm.")); setStep("pin"); return; }
@@ -983,7 +983,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     {step === "invoice" && t("memberPortal.joy.particle.confirm", "Xác nhận")}
                     {step === "pin" && t("memberPortal.joy.particle.pinTitle")}
                     {step === "setup-pin" && t("memberPortal.joy.particle.pinSetupTitle")}
-                    {step === "otp" && t("memberPortal.joy.particle.otpTitle", "Nhập mã xác nhận")}
                     {step === "sending" && t("memberPortal.joy.particle.sending", "Đang xử lý...")}
                     {step === "success" && t("memberPortal.joy.particle.success", "Thành công!")}
                   </p>
@@ -1465,21 +1464,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     ))}
                   </div>
 
-                  {/* Face ID Quick Pay Button */}
-                  {FaceIdPayHelper.isAvailable() && (
+                  {/* Face ID / vân tay thật (passkey): giao dịch nhỏ thay được PIN. */}
+                  {webauthnHelper.isSupported() && (
                     <button
-                      onClick={async () => {
-                        try {
-                          await FaceIdPayHelper.authenticateBiometricPay();
-                          handleVerifyAndSend("BIOMETRIC_PASSED");
-                        } catch (err) {
-                          setError(err.message || t("memberPortal.joy.particle.faceIdFailed"));
-                        }
-                      }}
-                      className="mb-4 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-2 hover:bg-indigo-100 transition-all active:scale-95 cursor-pointer"
+                      onClick={() => { pendingPinRef.current = ""; setError(""); setReauth(true); }}
+                      className="mb-4 min-h-11 px-4 py-2 rounded-xl border border-border text-foreground font-semibold text-sm flex items-center gap-2 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-base">fingerprint</span>
-                      Xác nhận nhanh bằng Face ID / Touch ID
+                      <span className="material-symbols-outlined text-base" aria-hidden="true">fingerprint</span>
+                      {t("memberPortal.joy.particle.useFaceId")}
                     </button>
                   )}
 
@@ -1582,37 +1574,6 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                 </div>
               )}
 
-              {/* ── Step: OTP email (giao dịch lớn) ── */}
-              {step === "otp" && (
-                <div style={{ padding: "16px 18px 28px", display: "flex", flexDirection: "column", alignItems: "center" }} className="text-slate-900 dark:text-white">
-                  <span className="material-symbols-outlined text-[32px] text-indigo-500 mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_read</span>
-                  <p style={{ margin: "0 0 16px 0", fontSize: 13, textAlign: "center" }} className="text-slate-500 dark:text-slate-400">
-                    {t("memberPortal.joy.particle.otpHint", "Giao dịch lớn cần xác nhận thêm. Chúng tôi đã gửi một mã 6 số tới email của bạn.")}
-                  </p>
-                  <input
-                    value={otpInput}
-                    onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    inputMode="numeric"
-                    autoFocus
-                    placeholder="••••••"
-                    className="w-full max-w-[220px] text-center tracking-[0.5em] text-2xl font-black rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 py-3 outline-none focus:border-indigo-500"
-                  />
-                  {error && <div style={{ color: "#ef4444", fontSize: 13, fontWeight: 700, margin: "14px 0 0", textAlign: "center" }}>{error}</div>}
-                  <button
-                    onClick={() => { if (otpInput.length === 6) handleVerifyAndSend(lastPin, otpInput); }}
-                    disabled={otpInput.length !== 6}
-                    className="mt-5 w-full max-w-[220px] rounded-xl bg-indigo-600 text-white font-bold py-3 disabled:opacity-50 hover:bg-indigo-700 active:scale-95 transition-all cursor-pointer"
-                  >
-                    {t("memberPortal.joy.particle.otpConfirm", "Xác nhận & gửi")}
-                  </button>
-                  <button
-                    onClick={() => { setStep("pin"); setError(""); setOtpInput(""); }}
-                    className="mt-2 text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
-                  >
-                    {t("memberPortal.joy.particle.back", "Quay lại")}
-                  </button>
-                </div>
-              )}
 
               {/* ── Step: Setup PIN ── */}
               {step === "setup-pin" && (
@@ -1848,6 +1809,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
             </div>
           </div>
         </div>
+      )}
+
+      {reauth && (
+        <ConfirmItsYouDialog
+          reason={t("memberPortal.confirmItsYou.reasonMoney")}
+          onCancel={() => setReauth(false)}
+          onConfirmed={() => { setReauth(false); handleVerifyAndSend(pendingPinRef.current); }}
+        />
       )}
     </>,
     document.body

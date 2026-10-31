@@ -39,8 +39,9 @@ runs on its free tier and code must stay inside it — see `docs/chi-phi-0d.md` 
 the list, limits and guards. Never recommend upgrading a plan, adding a card, or a
 new service without a free tier. When a quota runs out the feature must degrade
 (fallback, pause, 429), never start billing: e.g. `aiGateway` stops all Gemini
-calls at the daily cap, rate limiters count in RAM, Redis reads go through the
-opt-in hot layer in `utils/cacheHelper.js`.
+calls at the daily cap, rate limiters and the response cache live in RAM. There is
+**no Redis** (removed 2026-10-31): Render free runs one process, so cache, presence,
+idempotency and WebSocket fan-out are in-process. Don't add Redis back.
 
 ## Architecture
 

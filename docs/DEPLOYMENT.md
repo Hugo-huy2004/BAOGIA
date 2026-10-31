@@ -104,8 +104,8 @@ load-test target.
 Keep MongoDB `MAX_DB_POOL` aligned with both observed query concurrency and the
 database's connection limit. With multiple app instances, the configured pool
 is per instance; verify the total possible connections before scaling out.
-WebSocket fanout between instances requires `REDIS_URL`, and every event path
-must use the shared realtime broadcaster before enabling multiple instances.
+There is no Redis: cache, presence and WebSocket delivery are in-process, so the
+server must run as ONE instance. Scaling out needs a shared fan-out channel first.
 
 ---
 

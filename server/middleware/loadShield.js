@@ -2,6 +2,7 @@ import { monitorEventLoopDelay } from 'node:perf_hooks';
 import { verifiedActor, isMachineWebhook } from '../services/securityEnforcement.js';
 import { isHeavy } from '../config/limiter.js';
 import { sendTelegramAlert } from '../services/telegramService.js';
+import { setEmergencyChallenge } from '../services/cloudflareFirewall.js';
 
 /**
  * Khiên tải — tầng 12 trong docs/chong-ddos-12-tang.md.
@@ -42,6 +43,17 @@ function alert(text) {
     .catch(() => {});
 }
 
+// Bật khiên thì tự gạt luôn thử thách Cloudflare cho trang www (tầng 2): người
+// lạ bị hỏi ngay ở cửa, không ai phải dậy bấm tay. Hạ khiên thì gạt xuống.
+// SHIELD_EDGE=off để giữ việc này bằng tay.
+function edge(on) {
+  if (process.env.SHIELD_EDGE === 'off') return;
+  setEmergencyChallenge(on).then((r) => {
+    if (r.edge) alert(on ? 'Đã bật thử thách Cloudflare cho trang www.' : 'Đã tắt thử thách Cloudflare.');
+    else if (r.error) alert(`Không gạt được thử thách Cloudflare (${r.error}) — bật tay ở Rules → Configuration Rules.`);
+  }).catch(() => {});
+}
+
 setInterval(() => {
   const rps = count;
   count = 0;
@@ -63,6 +75,7 @@ setInterval(() => {
 
   // Phải nóng 3 giây liền mới bật: một nhịp GC hay một cron nặng không đáng khoá ai.
   if (next > level && (hot >= 3 || process.env.SHIELD_FORCE === '1')) {
+    if (level === 0) edge(true);
     level = next;
     console.warn(`[load-shield] bậc ${level} rps=${rps} baseline=${baseline.toFixed(1)} lag=${lagMs}ms`);
     alert(`BẬT bậc ${level} — khách ẩn danh${level === 2 ? ' và thao tác nặng' : ''} tạm nhận 503.`);
@@ -70,6 +83,7 @@ setInterval(() => {
     level = 0;
     console.warn('[load-shield] hạ khiên');
     alert('HẠ khiên — đã yên 60 giây.');
+    edge(false);
   }
 }, 1000).unref();
 

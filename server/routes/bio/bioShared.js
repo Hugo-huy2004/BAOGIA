@@ -60,29 +60,6 @@ export const checkLocationLimiter = rateLimit({
   message: { error: 'Bạn đang cập nhật vị trí quá nhanh. Vui lòng đợi vài phút.' }
 });
 
-// Đợt kiểm tra thông tin: giới hạn theo TÀI KHOẢN chứ không theo IP. Kẻ đoán mò
-// đổi IP dễ hơn đổi tài khoản, mà chặn theo IP thì cả phòng ký túc xá dùng chung
-// một NAT sẽ chặn nhầm nhau.
-export const identityAnswerLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  // `req.ip` thô là lỗ hổng với IPv6: một người thường được cấp cả dải /64, đổi
-  // địa chỉ trong dải đó là có ngay một khoá đếm mới. `ipKeyGenerator` gom cả
-  // dải về một khoá. Chỉ dùng khi chưa biết email (chưa qua requireMember).
-  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
-  message: { error: 'Bạn đang trả lời quá nhanh. Vui lòng đợi ít phút rồi thử lại.' },
-});
-
-// Gửi mã xác minh: mỗi lần bấm là một email thật rời máy chủ. Không chặn thì
-// một vòng lặp gọi API biến hòm thư của thành viên thành bãi rác — và đốt sạch
-// hạn mức nhà cung cấp email.
-export const identityOtpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 3,
-  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
-  message: { error: 'Bạn đã yêu cầu mã quá nhiều lần. Vui lòng đợi 15 phút.' },
-});
-
 export const studentRewardLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,

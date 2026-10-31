@@ -393,35 +393,16 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
     if (cbData.startsWith('cb_hold_ok:') || cbData.startsWith('cb_hold_no:')) {
       const approve = cbData.startsWith('cb_hold_ok:');
       const txCode = cbData.replace(/^cb_hold_(ok|no):/, '');
-      const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
-      const pending = await PendingTransfer.findOne({ txCode });
-      if (!pending || pending.status !== 'pending') {
-        await sendTelegramAlert('ℹ️ <b>Giao dịch này đã được xử lý hoặc hết hạn.</b>');
+      const { decideHeldTransfer } = await import('../services/transferHold.js');
+      const result = await decideHeldTransfer({ txCode }, { approve, decidedBy: 'Boss_Telegram' });
+      if (!result.ok) {
+        await sendTelegramAlert(`❌ <b>Không xử lý được:</b> ${result.error}\nMã: <code>${txCode}</code>`);
         return;
       }
-      const { notifyMember } = await import('../utils/notifyMember.js');
-      if (approve) {
-        try {
-          const { executeHeldTransfer } = await import('../services/transferHold.js');
-          await executeHeldTransfer(pending);
-          pending.status = 'approved';
-          await sendTelegramAlert(`✅ <b>ĐÃ DUYỆT & CHUYỂN:</b> ${pending.numAmount.toLocaleString('vi-VN')} JOY\n<code>${pending.fromEmail}</code> → <code>${pending.toEmail}</code>`);
-        } catch (e) {
-          await sendTelegramAlert(`❌ <b>Không chuyển được:</b> ${e.message}\nMã: <code>${txCode}</code>`);
-          return;
-        }
-      } else {
-        pending.status = 'rejected';
-        await notifyMember({
-          email: pending.fromEmail, type: 'warning', category: 'joy',
-          key: 'source.transfer_rejected', actionUrl: '/member/account', push: true,
-          refCode: pending.txCode, counterparty: pending.toName,
-        }).catch(() => {});
-        await sendTelegramAlert(`🚫 <b>ĐÃ TỪ CHỐI giao dịch:</b> <code>${txCode}</code> (tiền chưa rời ví người gửi)`);
-      }
-      pending.decidedBy = 'Boss_Telegram';
-      pending.decidedAt = new Date();
-      await pending.save();
+      const pending = result.pending;
+      await sendTelegramAlert(approve
+        ? `✅ <b>ĐÃ DUYỆT & CHUYỂN:</b> ${pending.numAmount.toLocaleString('vi-VN')} JOY\n<code>${pending.fromEmail}</code> → <code>${pending.toEmail}</code>`
+        : `🚫 <b>ĐÃ TỪ CHỐI giao dịch:</b> <code>${txCode}</code> (tiền chưa rời ví người gửi)`);
       await AdminAuditLog.create({
         adminId: 'BOSS_TELEGRAM', adminUsername: 'Boss (rà soát giao dịch)',
         action: approve ? 'transfer_hold_approved' : 'transfer_hold_rejected',
@@ -944,11 +925,9 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
     bio.slug = newSlug;
     await bio.save();
 
-    try {
-      const { addSlug, deleteSlug } = await import('../services/redisSlugService.js');
-      if (oldSlug) await deleteSlug(oldSlug);
-      await addSlug(newSlug);
-    } catch {}
+    const { slugIndex } = await import('../services/slugIndex.js');
+    slugIndex.deleteSlug(oldSlug);
+    slugIndex.addSlug(newSlug);
 
     await AdminAuditLog.create({
       adminId: 'TELEGRAM_BOT_ADMIN',

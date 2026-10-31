@@ -2,70 +2,16 @@
  * CẤU HÌNH RATE LIMITING CHO SERVER
  * Tuân thủ Quy tắc 4 (Viblo): Cấu hình tập trung trong thư mục config/
  */
-import rateLimit, { ipKeyGenerator, MemoryStore } from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import crypto from 'crypto';
 import { recordSecurityViolation } from '../services/securityEnforcement.js';
-import { RedisStore } from 'rate-limit-redis';
-import redis from './redis.js';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-// Bộ đếm qua Redis khi có REDIS_URL — CHỈ cho các trần lượt ít request nhưng cần
-// sống qua lần khởi động lại (đăng nhập, OTP): chống dò mật khẩu bằng cách chờ
-// Render restart. Trần trên mọi request ở lại RAM để giữ Upstash trong gói Free.
-// Một kết nối riêng (không đụng kết nối pub/sub).
-const limiterRedis = redis?.duplicate();
-limiterRedis?.on('error', () => {});
+// Mọi bộ đếm ở RAM của tiến trình (Render free chạy một tiến trình; Redis đã gỡ
+// 31/10/2026). Khởi động lại thì bộ đếm về 0 — trần đăng nhập của Better Auth và
+// khoá theo email/IP ở securityEnforcement (Mongo) vẫn còn nguyên.
 
-/**
- * Redis trước, RAM khi Redis lỗi. Upstash gói Free hết hạn mức tháng thì trả lỗi
- * cho mọi lệnh; nếu chỉ "cho qua khi lỗi" thì lúc đó KHÔNG còn trần lượt nào —
- * đúng lúc đông người nhất. Rơi về bộ đếm trong RAM giữ được trần (theo từng
- * instance), và tự quay lại Redis ngay khi Redis trả lời được.
- */
-class FallbackStore {
-  constructor(primary) {
-    this.primary = primary;
-    this.memory = new MemoryStore();
-    this.localKeys = false;
-  }
-
-  init(options) {
-    this.primary.init?.(options);
-    this.memory.init(options);
-  }
-
-  async get(key) {
-    try { return await this.primary.get(key); } catch { return this.memory.get(key); }
-  }
-
-  async increment(key) {
-    try { return await this.primary.increment(key); } catch { return this.memory.increment(key); }
-  }
-
-  async decrement(key) {
-    await Promise.allSettled([this.primary.decrement(key), this.memory.decrement(key)]);
-  }
-
-  async resetKey(key) {
-    await Promise.allSettled([this.primary.resetKey(key), this.memory.resetKey(key)]);
-  }
-
-  shutdown() {
-    this.memory.shutdown?.();
-  }
-}
-
-export function limiterStore(prefix) {
-  if (!limiterRedis) return {};
-  const redisStore = new RedisStore({ prefix: `rl:${prefix}:`, sendCommand: (...args) => limiterRedis.call(...args) });
-  // Lúc khởi động Redis chưa kết nối xong nên lần nạp script đầu có thể hỏng;
-  // store tự nạp lại ở lượt đếm sau. Bắt lỗi ở đây để nó không thành
-  // unhandledRejection (báo động Telegram/Sentry giả mỗi lần deploy).
-  redisStore.incrementScriptSha?.catch?.(() => {});
-  redisStore.getScriptSha?.catch?.(() => {});
-  return { store: new FallbackStore(redisStore), passOnStoreError: true };
-}
 export const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 
 // Đếm theo PHIÊN khi có: IP sau proxy (Vercel → Cloudflare) không phải IP người
@@ -102,7 +48,7 @@ function subjectKey(req) {
 // (import ESM chạy trước dotenv.config()).
 const trustedIp = (ip) => String(process.env.TRUSTED_IPS || '').split(',').map((s) => s.trim()).filter(Boolean).includes(ip);
 
-// ponytail: bộ nhớ trong tiến trình, dọn theo cửa sổ 15 phút; nhiều instance thì chuyển Redis.
+// ponytail: bộ nhớ trong tiến trình, dọn theo cửa sổ 15 phút; nhiều instance thì chuyển sang Mongo.
 const FLAG_WINDOW_MS = 15 * 60 * 1000;
 const flagged = new Map();
 setInterval(() => {
@@ -110,10 +56,7 @@ setInterval(() => {
   for (const [k, at] of flagged) if (now - at > FLAG_WINDOW_MS) flagged.delete(k);
 }, 60 * 1000).unref();
 
-// Đếm trong RAM, không qua Redis: lượt này chạy trên MỌI request, qua Redis là
-// một lệnh mỗi request — đủ để đốt hết 500.000 lệnh/tháng của Upstash gói Free
-// (hệ thống phi lợi nhuận, không dùng gói trả phí). Render Free chạy một instance
-// nên đếm trong RAM là đủ; chỉ mất bộ đếm khi khởi động lại.
+// Trần chung trên MỌI request, đếm trong RAM.
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   // Thành viên đếm theo tài khoản: 1500/15 phút. Khách ẩn danh đếm theo IP mà IP

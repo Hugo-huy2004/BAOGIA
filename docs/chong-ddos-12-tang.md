@@ -12,7 +12,7 @@ WebSocket không qua Vercel: trình duyệt nối thẳng `api.` nên Cloudflare
 | # | Tầng | Nằm ở | Ai làm |
 |---|---|---|---|
 | 1 | Chống ngập mạng L3/L4 | Cloudflare (tự động) | có sẵn |
-| 2 | Công tắc khẩn cấp "Under Attack" chỉ cho trang www | Cloudflare Configuration Rule | **bấm tay** |
+| 2 | Công tắc khẩn cấp "Under Attack" chỉ cho trang www | Cloudflare Configuration Rule, khiên tải tự gạt | tạo rule **bấm tay** một lần, bật/tắt tự động |
 | 3 | Khoá origin `x-origin-auth` | `middleware/originLock.js` | có sẵn, đã kiểm (403) |
 | 4 | WAF chặn dò quét ở edge | Cloudflare Custom Rules | **bấm tay** |
 | 5 | IP thật của người dùng | `utils/clientIp.js` + Transform Rule | code ✅ + **bấm tay** |
@@ -109,7 +109,7 @@ Vì sao an toàn: Cloudflare **ghi đè** hai header này ở chặng www nên t
 - Then: **Security Level → I'm Under Attack**
 - Deploy, rồi **gạt rule sang Disabled** ngay.
 
-Khi bị tấn công, gạt rule sang Enabled. Người thật chỉ phải chờ thử thách khoảng 5 giây ở lần mở trang đầu; `/api` không bị đụng tới. Dự phòng thứ hai là Vercel → Project → Settings → Security → **Attack Challenge Mode**.
+Không cần gạt tay nữa: khiên tải (tầng 12) bật rule này ngay khi lên bậc 1 và tắt khi hạ khiên (`setEmergencyChallenge` trong `services/cloudflareFirewall.js`, báo Telegram cả hai lần). Token `CLOUDFLARE_API_TOKEN` phải có thêm quyền **Zone → Config Rules: Edit**; thiếu quyền thì Telegram báo và vẫn gạt tay được như cũ. Tắt việc tự gạt bằng `SHIELD_EDGE=off`. Người thật chỉ phải chờ thử thách khoảng 5 giây ở lần mở trang đầu; `/api` không bị đụng tới. Dự phòng thứ hai là Vercel → Project → Settings → Security → **Attack Challenge Mode**.
 
 ## E. Cloudflare — tầng 6: cache API công khai
 
@@ -163,7 +163,7 @@ Tín hiệu báo động:
 Xử lý theo thứ tự, mỗi bước chờ 1–2 phút xem có hết không:
 
 1. **Không làm gì cả.** Khiên đã tự cắt khách ẩn danh, thành viên đã đăng nhập vẫn dùng được. Khiên tự hạ sau 60 giây yên.
-2. Bật rule khẩn cấp ở mục D.
+2. Rule khẩn cấp ở mục D đã tự bật. Nếu Telegram báo không gạt được, bật tay.
 3. Vào Cloudflare **Security → Events**, tìm IP/ASN đang nện, rồi thêm Custom rule Block `ip.src in {…}` hoặc `ip.src.asnum eq …`. Cách này **chỉ dùng được với lượt đi thẳng `api.`**. Nếu thủ phạm là IP Vercel thì đừng chặn, vì chặn là chặn cả web.
 4. Ép khiên luôn bật: đặt `SHIELD_FORCE=1` trên Render.
 5. Tạm thời nâng instance Render.
@@ -184,8 +184,8 @@ Mỗi giây khiên đo hai thứ: số request vào Node và độ trễ p99 c�
 - Mức nền là trung bình trượt khoảng 5 phút và **chỉ học lúc yên**, để chính cơn lũ không nâng "mức bình thường" lên.
 - Hạ khiên sau 60 giây yên liên tục. Khiên báo Telegram cả lúc bật và lúc hạ.
 
-Giới hạn: khiên chỉ đếm trong một tiến trình, và tiến trình chết thì bộ đếm cũng mất. Nếu tách nhiều instance thì phải chuyển bộ đếm sang Redis.
+Giới hạn: khiên chỉ đếm trong một tiến trình, và tiến trình chết thì bộ đếm cũng mất.
 
-## Redis
+## Không có Redis
 
-Không cần cho một instance. Không có `REDIS_URL` thì cache, presence và pubsub tự chạy trên RAM ([config/redis.js](../server/config/redis.js)). Rate limiter luôn dùng bộ nhớ trong tiến trình, nên restart là bộ đếm về 0. Muốn biết prod có Redis không, xem log Render: tìm `✅ [Redis] Đã kết nối` hoặc `REDIS_URL chưa khai báo`.
+Đã gỡ hẳn ngày 31/10/2026. Cache, trần lượt, online, khoá chống gửi lặp và WebSocket đều chạy trong RAM của tiến trình Node duy nhất: bớt một dịch vụ có thể sập hoặc hết hạn mức. Restart thì bộ đếm trần lượt về 0; khoá tài khoản/IP vẫn nằm trong Mongo nên không mất. Xoá biến `REDIS_URL` trên Render và database Upstash.

@@ -1,5 +1,6 @@
 import express from 'express';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, requireRecentAuth } from '../middleware/authMiddleware.js';
+import { holdReadyAt, releaseHeldTransfer } from '../services/transferHold.js';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SecurityEvent from '../models/SecurityEvent.js';
 import SecurityAppeal from '../models/SecurityAppeal.js';
@@ -8,7 +9,7 @@ import { uploadAppealImage } from '../utils/cloudinary.js';
 import Bio from '../models/Bio.js';
 import PendingTransfer from '../models/PendingTransfer.js';
 import { stepUpThreshold } from '../services/moneyStepUp.js';
-import { isEmailDeliverable } from '../services/emailService.js';
+import { memberAuth } from '../auth/betterAuth.js';
 import { sendTelegramPhoto } from '../services/telegramService.js';
 
 const router = express.Router();
@@ -124,14 +125,20 @@ router.get('/my-status', requireMember, async (req, res) => {
   try {
     const bio = await Bio.findOne({ email: req.memberEmail }, 'transactionPin isJoyWalletFrozen status').lean();
     const pinSet = Boolean(bio?.transactionPin);
-    const otpEmail = isEmailDeliverable();
-    const pendingHolds = await PendingTransfer.countDocuments({ fromEmail: req.memberEmail, status: 'pending' });
+    const ctx = await memberAuth().$context;
+    const user = await ctx.internalAdapter.findUserByEmail(req.memberEmail);
+    const [holds, passkeys] = await Promise.all([
+      PendingTransfer.find({ fromEmail: req.memberEmail, status: 'pending' }, 'txCode numAmount toName createdAt').sort({ createdAt: 1 }).limit(10).lean(),
+      user?.user ? ctx.adapter.count({ model: 'passkey', where: [{ field: 'userId', value: user.user.id }] }) : 0,
+    ]);
 
     // Danh sách "lớp bảo vệ" cho UI dựng thẳng — nguồn sự thật ở server, client
-    // không tự đoán trạng thái an ninh.
+    // không tự đoán trạng thái an ninh. Giao dịch lớn = PIN + Face ID/Google,
+    // nên lớp 2 bật ngay khi có PIN (Google luôn sẵn); có passkey thì nhanh hơn.
     const protections = [
+      { id: 'passkey', on: passkeys > 0 },
       { id: 'pin', on: pinSet },
-      { id: 'money2fa', on: pinSet && otpEmail, partial: pinSet && !otpEmail },
+      { id: 'money2fa', on: pinSet },
       { id: 'hold', on: true },
       { id: 'wallet', on: !bio?.isJoyWalletFrozen },
     ];
@@ -139,13 +146,26 @@ router.get('/my-status', requireMember, async (req, res) => {
 
     res.json({
       pinSet,
-      otpEmailActive: otpEmail,
       stepUpThreshold: stepUpThreshold(),
       holdEnabled: (process.env.MONEY_HOLD_THRESHOLD == null ? 20000 : Number(process.env.MONEY_HOLD_THRESHOLD)) > 0,
-      pendingHolds,
+      pendingHolds: holds.length,
+      // Lệnh đang giữ của chính mình: hết giờ chờ thì tự xác nhận bằng Face ID.
+      holds: holds.map((h) => ({ txCode: h.txCode, amount: h.numAmount, to: h.toName, readyAt: holdReadyAt(h) })),
       protections,
       score: Math.round((activeCount / protections.length) * 100),
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/security/holds/:txCode/confirm — chính chủ giải phóng lệnh bị giữ sau
+// giờ chờ an toàn, bằng Face ID/Google vừa xong. Không cần admin.
+router.post('/holds/:txCode/confirm', requireMember, requireRecentAuth(), async (req, res) => {
+  try {
+    const result = await releaseHeldTransfer(String(req.params.txCode), req.memberEmail);
+    if (!result.ok) return res.status(409).json({ error: result.error || 'Lệnh chưa hết giờ chờ hoặc đã được xử lý.' });
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

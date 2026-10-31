@@ -14,9 +14,9 @@ import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
-import IdentityCheckDialog from "../../components/member/IdentityCheckDialog";
+import ConfirmItsYouDialog from "../../components/member/ConfirmItsYouDialog";
 import SurveySheet from "../../components/member/SurveySheet";
-import { useIdentityCheck } from "../../hooks/useIdentityCheck";
+import { useIdentityCheck, confirmIdentityCheck } from "../../hooks/useIdentityCheck";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
 import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
@@ -1583,19 +1583,14 @@ function MemberPortalPage() {
       </div>
 
     {identityChallenge && (
-      <IdentityCheckDialog
-        field={identityChallenge.field}
-        attemptsLeft={identityChallenge.attemptsLeft}
-        emailHint={identityChallenge.emailHint}
-        onPassed={() => setIdentityChallenge(null)}
-        onBlocked={() => window.location.reload()}
-        onSwitched={() => window.location.reload()}
+      <ConfirmItsYouDialog
+        reason={t("memberPortal.confirmItsYou.reasonPeriodic")}
+        onConfirmed={async () => { await confirmIdentityCheck(); setIdentityChallenge(null); }}
       />
     )}
 
     {locationAnomaly && (
       <LocationAnomalyDialog
-        email={memberSession?.email}
         distanceKm={locationAnomaly.distanceKm}
         lat={locationAnomaly.lat}
         lng={locationAnomaly.lng}

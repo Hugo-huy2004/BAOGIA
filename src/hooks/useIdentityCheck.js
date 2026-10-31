@@ -1,5 +1,5 @@
 /**
- * Hỏi server xem đã tới kỳ kiểm tra thông tin cá nhân chưa.
+ * Hỏi server xem đã tới kỳ xác nhận chủ tài khoản (Face ID / Google) chưa.
  *
  * Chỉ hỏi MỘT LẦN mỗi phiên mở app: lịch tính bằng ngày, hỏi lại mỗi phút chỉ
  * tốn request chứ không sớm biết thêm điều gì.
@@ -30,3 +30,7 @@ export function useIdentityCheck({ email, enabled = true }) {
 
   return [challenge, setChallenge];
 }
+
+/** Báo server đợt định kỳ đã xong — gọi ngay sau ConfirmItsYouDialog thành công. */
+export const confirmIdentityCheck = () =>
+  fetch(`${apiBase}/bios/me/identity-check/confirm`, { method: "POST", credentials: "include" }).catch(() => null);

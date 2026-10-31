@@ -11,7 +11,6 @@ dịch vụ nào bên dưới — không có thẻ thì không dịch vụ nào 
 | Vercel | Web tĩnh + Python AI (serverless) | Hobby | Băng thông/giờ chạy hàm của Hobby | Vercel tạm dừng, không tính tiền |
 | Cloudflare | DNS, WAF, Transform/Cache Rule, Worker keep-alive | Free | 5 WAF rule, 10 rule mỗi loại, Worker 100k req/ngày | Không tính tiền |
 | MongoDB Atlas | Cơ sở dữ liệu | M0 | 512MB, không có backup tự động | Ghi bị từ chối khi đầy |
-| Upstash Redis | Cache, presence, trần lượt đăng nhập | Free | 500.000 lệnh/tháng | Lệnh lỗi → code rơi về RAM |
 | Gemini (Google AI Studio) | AI | Free tier | Theo model, mỗi khoá | `aiGateway` tự dừng mọi cuộc gọi khi chạm trần ngày |
 | Groq / Workers AI | AI dự phòng (Python) | Free | Theo ngày | Lỗi → dùng nhánh khác |
 | SendGrid | Email | Free | Theo gói tài khoản | Gửi thất bại, form báo lỗi |
@@ -27,16 +26,15 @@ dịch vụ nào bên dưới — không có thẻ thì không dịch vụ nào 
   tác) khi chạm `GEMINI_RPD_LIMIT`. Kiểm tra trong Google AI Studio rằng các khoá
   thuộc project **chưa bật Billing** — đó là chốt chặn thật; trần trong code là
   lớp phụ.
-- **Upstash**: trần lượt trên mọi request đếm trong RAM; chỉ trần đăng nhập/OTP
-  dùng Redis. Route công khai đọc nhiều (`/api/data`, `/bootstrap`, gói dịch vụ)
-  bật lớp nóng 10 giây (`hotMs`): 200 lượt đọc = 4 lệnh thay vì 203.
+- **Không còn Redis/Upstash** (gỡ 31/10/2026): cache, trần lượt, online, khoá
+  chống gửi lặp đều ở RAM của tiến trình Node duy nhất. Xoá luôn database Upstash
+  và biến `REDIS_URL` trên Render.
 - **Atlas 512MB**: cảnh báo lặp (ví dụ "AI chạm trần") ghi tối đa một dòng mỗi 5
   phút thay vì một dòng mỗi request.
 
 ## Kiểm tra mỗi tháng (5 phút)
 
-1. Upstash → tab **Usage**: dưới 500K lệnh.
-2. Render → **Usage**: giờ chạy dưới 750.
-3. Atlas → dung lượng dưới 512MB.
-4. Google Cloud Console → **Billing**: các project chứa khoá Gemini **không** gắn
+1. Render → **Usage**: giờ chạy dưới 750.
+2. Atlas → dung lượng dưới 512MB.
+3. Google Cloud Console → **Billing**: các project chứa khoá Gemini **không** gắn
    tài khoản thanh toán.

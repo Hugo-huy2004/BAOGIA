@@ -1,92 +1,25 @@
 /**
- * Kiểm tra thông tin cá nhân định kỳ (chống khai man).
+ * Xác nhận chủ tài khoản định kỳ — kiểu Apple, không hỏi đố.
  *
- * Ý tưởng: người khai thật nhớ được thông tin của mình mãi mãi; người khai bừa
- * thì vài tuần sau đã quên mình từng bịa số nào. Nên thay vì kiểm lúc đăng ký
- * (ai cũng qua được), hệ thống hỏi lại vào những mốc ngày càng thưa dần.
- *
- * Mỗi đợt chỉ hỏi MỘT món, xoay vòng: điện thoại → ngày sinh → OTP email.
- * Không đoán được lần tới hỏi gì nên vẫn phải nhớ đủ cả bộ, mà người dùng thật
- * thì mỗi lần chỉ tốn mươi giây.
+ * Bản cũ (tới 31/10/2026) hỏi lại số điện thoại / ngày sinh / mã email và khoá
+ * tài khoản khi sai: người quen biết đủ để qua, còn chủ thật gõ nhầm thì bị khoá
+ * oan. Giờ mỗi mốc chỉ đòi mở khoá bằng Face ID / vân tay (passkey) hoặc Google
+ * — thứ chỉ chủ nhân mở được. Không có "trả lời sai", nên không có khoá oan.
+ * Vừa đăng nhập bằng một trong hai sau mốc hẹn thì tính là đã qua, khỏi hỏi.
  */
-import { revokeMemberSession } from './memberSession.js';
 
-// Đúng một lần thì lần sau hỏi thưa hơn: người đã chứng minh nhiều lần không
-// đáng bị làm phiền như người vừa vào. Chạm mốc cuối thì giữ nguyên ~1 năm.
-// Nới 25/10/2026 (từng là 7/14/30/90/180): người mới vào thử bị hỏi ngay tuần
-// đầu là quá nặng cho app học tập, còn chuyển JOY đã có 2FA PIN+OTP riêng.
+// Qua một mốc thì mốc sau thưa hơn; chạm mốc cuối thì giữ ~1 năm.
 export const SCHEDULE_DAYS = [30, 90, 180, 365];
-
-// Xoay vòng câu hỏi. 'email' là bước nặng nhất (phải mở hòm thư) nên xếp cuối.
-const FIELD_ROTATION = ['phone', 'birthday', 'email'];
-
-// Sai vài lần coi như gõ nhầm — số điện thoại và ngày sinh gõ sai rất dễ. Sai
-// lần thứ ba trong CÙNG một đợt mới là khai man.
-export const MAX_ATTEMPTS = 3;
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Chỉ giữ chữ số: "0912 345 678", "+84 912-345-678" phải được coi là một. */
-export function normalizePhone(value) {
-  const digits = String(value || '').replace(/\D/g, '');
-  // 0912… và +84912… là cùng một số: bỏ mã quốc gia VN rồi so phần đuôi.
-  const local = digits.replace(/^84/, '').replace(/^0/, '');
-  return local;
-}
-
-/** Chấp nhận mọi kiểu gõ ngày: 20/09/2008, 20-9-2008, 2008/09/20. */
-function parseBirthInput(value) {
-  const nums = String(value || '').match(/\d+/g);
-  if (!nums || nums.length < 3) return null;
-  const parts = nums.map(Number);
-  // Năm đứng đầu là định dạng ISO YYYY-MM-DD; năm đứng cuối theo ngày/tháng/năm.
-  const yearIdx = parts.findIndex((n) => n > 1900);
-  if (yearIdx === -1) return null;
-  const year = parts[yearIdx];
-  const rest = parts.filter((_, i) => i !== yearIdx);
-  const [a, b] = rest;
-  const day = yearIdx === 0
-    ? b
-    : a > 12 ? a : (b > 12 ? b : a);
-  const month = yearIdx === 0
-    ? a
-    : a > 12 ? b : (b > 12 ? a : b);
-  if (!(month >= 1 && month <= 12) || !(day >= 1 && day <= 31)) return null;
-  return { year, month, day };
-}
-
-/** Món nào hỏi được với hồ sơ này (chưa khai thì không có gì để đối chiếu). */
-export function availableFields(bio) {
-  const fields = [];
-  if (normalizePhone(bio.phone)) fields.push('phone');
-  if (bio.birthYear && bio.birthMonth && bio.birthDay) fields.push('birthday');
-  if (bio.email) fields.push('email');
-  return fields;
-}
-
-/** Món tiếp theo trong vòng xoay, bỏ qua những món hồ sơ chưa có dữ liệu. */
-export function nextField(bio) {
-  const available = availableFields(bio);
-  if (!available.length) return null;
-  const last = bio.identityCheck?.lastField || '';
-  const start = FIELD_ROTATION.indexOf(last) + 1;
-  for (let i = 0; i < FIELD_ROTATION.length; i++) {
-    const candidate = FIELD_ROTATION[(start + i) % FIELD_ROTATION.length];
-    if (available.includes(candidate)) return candidate;
-  }
-  return null;
-}
-
-/** Đợt kiểm tra đã tới hạn chưa. Hồ sơ chưa có lịch thì hẹn mốc đầu tiên. */
 export function isDue(bio, now = Date.now()) {
   const due = bio.identityCheck?.nextDueAt;
-  if (!due) return false;
-  return new Date(due).getTime() <= now;
+  return Boolean(due) && new Date(due).getTime() <= now;
 }
 
-/** Hẹn mốc kế tiếp. `advance` = vừa trả lời đúng nên được giãn ra xa hơn. */
+/** Hẹn mốc kế tiếp. `advance` = vừa xác nhận xong nên được giãn ra xa hơn. */
 export function scheduleNext(bio, { advance = true, now = Date.now() } = {}) {
-  // Kẹp lại: hồ sơ xếp theo lịch cũ 5 mốc có thể đang giữ tier 4.
+  // Kẹp lại: hồ sơ theo lịch cũ 5 mốc có thể đang giữ tier 4.
   const current = Math.min(bio.identityCheck?.tier ?? 0, SCHEDULE_DAYS.length - 1);
   const tier = advance ? Math.min(current + 1, SCHEDULE_DAYS.length - 1) : current;
   bio.identityCheck = {
@@ -99,31 +32,10 @@ export function scheduleNext(bio, { advance = true, now = Date.now() } = {}) {
   return bio.identityCheck;
 }
 
-/**
- * So câu trả lời với hồ sơ. KHÔNG dùng cho 'email' — món đó xác thực bằng OTP
- * gửi tới chính hòm thư, không phải bằng gõ lại địa chỉ.
- */
-export function matchesProfile(bio, field, answer) {
-  if (field === 'phone') {
-    const stored = normalizePhone(bio.phone);
-    return Boolean(stored) && stored === normalizePhone(answer);
-  }
-  if (field === 'birthday') {
-    const input = parseBirthInput(answer);
-    if (!input) return false;
-    return input.year === Number(bio.birthYear)
-      && input.month === Number(bio.birthMonth)
-      && input.day === Number(bio.birthDay);
-  }
-  return false;
-}
-
-/** Người dùng vừa trả lời đúng: ghi nhận và giãn lịch. */
-export async function recordPass(bio, field, now = Date.now()) {
-  const prev = bio.identityCheck?.toObject?.() || bio.identityCheck || {};
+export async function recordPass(bio, now = Date.now()) {
   bio.identityCheck = {
-    ...prev,
-    lastField: field,
+    ...(bio.identityCheck?.toObject?.() || bio.identityCheck || {}),
+    lastField: 'device',
     lastVerifiedAt: new Date(now),
     failStreak: 0,
   };
@@ -132,35 +44,36 @@ export async function recordPass(bio, field, now = Date.now()) {
   return bio.identityCheck;
 }
 
-/**
- * Trả lời sai. Chưa hết lượt thì chỉ đếm thêm; hết lượt thì thu hồi phiên đăng
- * nhập và báo cho nơi gọi biết để khoá tài khoản.
- */
-export async function recordFail(bio, field, now = Date.now()) {
-  const prev = bio.identityCheck?.toObject?.() || bio.identityCheck || {};
-  const attempts = (prev.attempts || 0) + 1;
-  const exhausted = attempts >= MAX_ATTEMPTS;
-
-  bio.identityCheck = {
-    ...prev,
-    pendingField: field,
-    attempts,
-    lastFailedAt: new Date(now),
-    failStreak: exhausted ? (prev.failStreak || 0) + 1 : (prev.failStreak || 0),
-  };
-  await bio.save();
-
-  if (exhausted) {
-    // Đăng xuất mọi thiết bị: tài khoản sắp bị khoá thì phiên đang mở cũng
-    // không được sống tiếp.
-    await revokeMemberSession(bio, 'Hệ thống kiểm tra thông tin định kỳ');
+/** Hôm nay có phải xác nhận không. Đóng dấu luôn nếu phiên đã mở bằng Face ID/Google sau mốc. */
+export async function checkDue(bio, verifiedAt) {
+  if (!bio.identityCheck?.nextDueAt) {
+    scheduleNext(bio, { advance: false });
+    await bio.save();
+    return false;
   }
-
-  return { attempts, attemptsLeft: Math.max(0, MAX_ATTEMPTS - attempts), exhausted };
+  if (!isDue(bio)) return false;
+  if (verifiedAt && verifiedAt >= new Date(bio.identityCheck.nextDueAt)) {
+    await recordPass(bio);
+    return false;
+  }
+  return true;
 }
 
-export default {
-  SCHEDULE_DAYS, FIELD_ROTATION, MAX_ATTEMPTS,
-  normalizePhone, parseBirthInput, availableFields, nextField,
-  isDue, scheduleNext, matchesProfile, recordPass, recordFail,
-};
+// Tự kiểm: node server/utils/identityCheck.js
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const assert = (await import('node:assert/strict')).default;
+  const bio = (ic) => ({ identityCheck: ic, save: async () => {} });
+  const past = new Date(Date.now() - DAY_MS);
+  const b0 = bio(undefined);
+  assert.equal(await checkDue(b0, null), false, 'new member: schedule, never ask now');
+  assert.equal(b0.identityCheck.tier, 0);
+  assert.equal(await checkDue(bio({ tier: 1, nextDueAt: past }), null), true, 'due without fresh proof');
+  const b1 = bio({ tier: 1, nextDueAt: past });
+  assert.equal(await checkDue(b1, new Date()), false, 'fresh Face ID/Google after due = passed');
+  assert.equal(b1.identityCheck.tier, 2);
+  assert.equal(await checkDue(bio({ tier: 1, nextDueAt: past }), new Date(past - DAY_MS)), true, 'proof older than due does not count');
+  const b4 = bio({ tier: 4, nextDueAt: past });
+  await recordPass(b4);
+  assert.equal(b4.identityCheck.tier, 3, 'old 5-step tier clamps to last step');
+  console.log('OK — identity check schedule');
+}

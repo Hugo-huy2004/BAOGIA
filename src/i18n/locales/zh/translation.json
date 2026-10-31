@@ -1893,7 +1893,6 @@
         "useNfcBtn": "使用NFC功能",
         "insufficientBalance": "转账后的余额不足。",
         "balanceAfter": "Balance after transfer",
-        "faceIdFailed": "Face ID verification failed",
         "pinSetupHeading": "设置交易PIN码",
         "pinConfirmHeading": "确认交易PIN码",
         "pinSetupBody": "为了保护您的余额，请输入一个新的6位数的交易PIN码。",
@@ -1913,7 +1912,8 @@
         "cardCodeFind": "查找收款人",
         "cardCodeScan": "扫描条形码",
         "cardCodeNoScanner": "此浏览器无法扫描条形码，请手动输入编码",
-        "cardCodeNotFound": "未找到使用该编码的会员。"
+        "cardCodeNotFound": "未找到使用该编码的会员。",
+        "useFaceId": "使用 Face ID／指纹"
       },
       "exchange": {
         "exchanged": "交换",
@@ -2798,29 +2798,6 @@
       "syncing": "同步中…",
       "online": "在线"
     },
-    "identityCheck": {
-      "title": "定期身份核验",
-      "ask": {
-        "phone": "为保护您的账户，请再次输入您注册时填写的手机号码。",
-        "birthday": "为保护您的账户，请再次输入您的出生年月日。",
-        "email": "我们已向 {{email}} 发送 6 位验证码。请输入验证码，确认该邮箱属于您本人。"
-      },
-      "placeholder": {
-        "phone": "注册手机号码",
-        "birthday": "出生日期（例：20/09/2008）",
-        "email": "邮件中的 6 位验证码"
-      },
-      "submit": "确认",
-      "passed": "核验通过，谢谢！",
-      "wrongAnswer": "与您的资料不一致。",
-      "attemptsLeft_one": "您还有 {{count}} 次机会。",
-      "attemptsLeft_other": "您还有 {{count}} 次机会。",
-      "lastChance": "再错一次，账户将被锁定。",
-      "networkError": "提交失败。请检查网络后重试。",
-      "otpSendFailed": "验证码发送失败，请稍后再试。",
-      "warning": "填报虚假信息将导致账户被锁定。如需解锁，请发送邮件并说明原因；管理员有权要求提供证件以核实身份。",
-      "codeExpired": "验证码已过期或尚未发送，请重新获取。"
-    },
     "joyTree": {
       "complete": "树已长成"
     },
@@ -2903,6 +2880,44 @@
         "public": "公开",
         "private": "仅自己"
       }
+    },
+    "confirmItsYou": {
+      "title": "确认是您本人",
+      "body": "请使用 Face ID、指纹或 Google 账户解锁以继续。",
+      "passkey": "使用 Face ID／指纹",
+      "or": "或",
+      "google": "使用 Google 继续",
+      "wrongAccount": "这是另一个账户。应用将以您选择的账户重新加载。",
+      "failed": "尚未完成确认，请再试一次。",
+      "privacy": "Hugo Studio 不会接收或保存您的面部或指纹——验证只在您的设备上进行。",
+      "cancel": "稍后",
+      "reasonPeriodic": "我们会定期请您解锁一次，确保只有您本人在使用此账户。",
+      "reasonMoney": "此笔转账需要您用 Face ID、指纹或 Google 确认。"
+    },
+    "security": {
+      "passkeyAdded": "已在此设备启用 Face ID／指纹。",
+      "revokeFailed": "未能退出登录，请再试一次。",
+      "revoked": "已退出该设备。",
+      "devices": "已登录的设备",
+      "unknownDevice": "未知设备",
+      "thisDevice": "本机",
+      "signOut": "退出登录",
+      "signOutOthers": "退出其他所有设备",
+      "row": {
+        "passkey": "Face ID／指纹"
+      },
+      "rowDesc": {
+        "passkey": "在设备上直接解锁并确认转账",
+        "money2fa": "大额 JOY 转账需 PIN + Face ID 或 Google"
+      },
+      "rowAction": {
+        "passkey": "点按即可在此设备启用"
+      },
+      "holdsTitle": "安全暂缓中的转账",
+      "holdReady": "等待期已结束——确认即可转出",
+      "holdWait": "可于 {{time}} 起确认",
+      "holdConfirm": "确认",
+      "holdReleased": "JOY 已转出。"
     }
   },
   "memberTabs": {

@@ -1,97 +1,46 @@
-import redis from './redisClient.js';
-import Bio from '../models/Bio.js';
-import Counter from '../models/Counter.js';
 import UserProfile from '../models/UserProfile.js';
-
-const PRESENCE_TTL_SECONDS = 90;       // "online" window — refreshed by a ~45s client heartbeat
-const BITMAP_TTL_SECONDS = 35 * 86400; // keep ~5 weeks of daily active-user bitmaps, then auto-expire
-
-export function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-/** Assigns each Bio a stable sequential integer once, for bitmap addressing (SETBIT offset). */
-async function ensurePresenceIndex(bio) {
-  if (bio.presenceIndex != null) return bio.presenceIndex;
-  const counter = await Counter.findOneAndUpdate(
-    { _id: 'bioPresenceIndex' },
-    { $inc: { seq: 1 } },
-    { upsert: true, new: true }
-  );
-  bio.presenceIndex = counter.seq;
-  await bio.save();
-  return bio.presenceIndex;
-}
+import MemberActivity from '../models/MemberActivity.js';
 
 /**
- * Called on each member heartbeat (~every 45s while the tab is visible).
- * Marks the member online for PRESENCE_TTL_SECONDS and flips today's DAU bit.
- * Fails silently if Redis is unreachable — presence is best-effort, never
- * something that should break the page.
+ * "Đang online" = có nhịp tim trong 90 giây qua (client gửi ~45s/lần khi tab
+ * đang mở). Giữ trong RAM của tiến trình — Render free chạy một tiến trình.
+ * Số người dùng theo ngày lấy từ MemberActivity.days (memberActivity.js ghi).
+ * ponytail: tách nhiều instance thì online chỉ thấy người cắm vào instance đó.
  */
+const PRESENCE_MS = 90 * 1000;
+const lastBeat = new Map();
+
+setInterval(() => {
+  const cutoff = Date.now() - PRESENCE_MS;
+  for (const [email, at] of lastBeat) if (at < cutoff) lastBeat.delete(email);
+}, 60 * 1000).unref();
+
+// Ngày theo giờ VN, khớp MemberActivity.days.
+export function todayStr() {
+  return new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
 export async function recordHeartbeat(email) {
-  // Chỉ cần biết ngày hoạt động gần nhất cho lifecycle mail; không ghi một
-  // lần mỗi heartbeat (~5 phút) để không biến heartbeat thành tải MongoDB.
+  lastBeat.set(email, Date.now());
+  // Chỉ cần biết ngày hoạt động gần nhất cho lifecycle mail; ghi tối đa một
+  // lần mỗi ngày để heartbeat không thành tải MongoDB.
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   await UserProfile.updateOne(
     { email, $or: [{ lastSignalAt: { $lt: today } }, { lastSignalAt: { $exists: false } }] },
     { $set: { lastSignalAt: new Date() } },
   ).catch((e) => console.error('[presence] activity tracking error:', e.message));
-
-  if (!redis) return;
-  try {
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return;
-
-    await redis.set(`presence:${bio.email}`, '1', 'EX', PRESENCE_TTL_SECONDS);
-
-    const idx = await ensurePresenceIndex(bio);
-    const key = `activeusers:${todayStr()}`;
-    await redis.setbit(key, idx, 1);
-    await redis.expire(key, BITMAP_TTL_SECONDS);
-  } catch (e) {
-    console.error('[presence] heartbeat error:', e.message);
-  }
-}
-
-/** Batch online check — one Redis pipeline round trip regardless of list size. */
-export async function getOnlineStatuses(emails) {
-  if (!redis || !emails.length) return Object.fromEntries(emails.map(e => [e, false]));
-  try {
-    const pipeline = redis.pipeline();
-    emails.forEach(email => pipeline.exists(`presence:${email}`));
-    const results = await pipeline.exec();
-    const statuses = {};
-    emails.forEach((email, i) => {
-      statuses[email] = !!(results[i] && results[i][1]);
-    });
-    return statuses;
-  } catch (e) {
-    console.error('[presence] batch status error:', e.message);
-    return Object.fromEntries(emails.map(e => [e, false]));
-  }
 }
 
 export async function isOnline(email) {
-  if (!redis) return false;
-  try {
-    return !!(await redis.exists(`presence:${email}`));
-  } catch (e) {
-    console.error('[presence] status error:', e.message);
-    return false;
-  }
+  return Date.now() - (lastBeat.get(email) || 0) < PRESENCE_MS;
 }
 
-/** Count of distinct members active at all on a given day (default: today). */
+export async function getOnlineStatuses(emails) {
+  return Object.fromEntries(await Promise.all(emails.map(async (e) => [e, await isOnline(e)])));
+}
+
+/** Số thành viên có mở app trong một ngày (YYYY-MM-DD giờ VN, mặc định hôm nay). */
 export async function getDailyActiveCount(dateStr) {
-  if (!redis) return 0;
-  try {
-    return await redis.bitcount(`activeusers:${dateStr || todayStr()}`);
-  } catch (e) {
-    console.error('[presence] dau count error:', e.message);
-    return 0;
-  }
+  return MemberActivity.countDocuments({ days: dateStr || todayStr() });
 }
