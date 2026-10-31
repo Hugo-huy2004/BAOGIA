@@ -47,7 +47,8 @@ function compare(base, tr, where, lang) {
   }
   if (!tr || typeof tr !== "object") return;
   if (!base || typeof base !== "object") return result.issues.push(`${lang} ${where}: khoá không có trong bài gốc.`);
-  if (Array.isArray(base) && (!Array.isArray(tr) || tr.length !== base.length)) {
+  // Ngắn hơn thì được (mục cuối chưa dịch giữ tiếng Việt); dài hơn là lệch bài.
+  if (Array.isArray(base) && (!Array.isArray(tr) || tr.length > base.length)) {
     result.issues.push(`${lang} ${where}: số phần tử ${tr.length} ≠ gốc ${base.length}.`);
   }
   for (const key of Object.keys(tr)) {
