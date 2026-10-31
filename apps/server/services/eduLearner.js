@@ -5,6 +5,7 @@ import { sendEduPush } from '../utils/pushNotifier.js';
 import { cleanEduPrefs, vnClock } from '../../../packages/shared/eduPrefs.js';
 import { THAW_PRICE, addDays, nextMilestone, streakPush, streakView, studyToday, thawDay } from '../../../packages/shared/eduStreak.js';
 import { awardJoy } from '../utils/joyService.js';
+import { logError } from '../utils/alert.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -49,9 +50,25 @@ async function payMilestone(email, milestone) {
   return { ...milestone, balance };
 }
 
-/** Qua một bài trắc nghiệm (kể cả học lại): giữ lửa hôm nay. Trả chuỗi mới + mốc vừa đạt. */
-export async function noteEduStudy(email) {
+const REVIEW_COOLDOWN_DAYS = 7;
+
+/**
+ * Qua một bài trắc nghiệm: giữ lửa hôm nay. Trả chuỗi mới + mốc vừa đạt.
+ * `reviewOf` = step đã qua từ trước (ôn lại): mỗi step chỉ giữ lửa một lần trong
+ * REVIEW_COOLDOWN_DAYS ngày — nộp lại cùng bộ đáp án mỗi ngày bằng script không
+ * nuôi được chuỗi (và JOY mốc). Trả null khi lần ôn này không được tính.
+ * ponytail: người đã qua ≥7 step vẫn xoay vòng được; muốn chặn hẳn thì chỉ tính step mới.
+ */
+export async function noteEduStudy(email, { reviewOf } = {}) {
   const { day } = vnClock();
+  if (reviewOf) {
+    const key = `reviewedOn.${reviewOf}`;
+    const claimed = await EduLearner.updateOne(
+      { email, $or: [{ [key]: { $exists: false } }, { [key]: { $lte: addDays(day, -REVIEW_COOLDOWN_DAYS) } }] },
+      { $set: { [key]: day } },
+    );
+    if (claimed.modifiedCount !== 1) return null;
+  }
   const { state, milestone } = await writeStreak(email, (raw) => studyToday(raw, day));
   const paid = await payMilestone(email, milestone).catch((error) => {
     console.error('[edu streak milestone]', error.message);
@@ -73,7 +90,14 @@ export async function thawEduStreak(email, frozenDay) {
   try {
     result = await writeStreak(email, (raw) => thawDay(raw, frozenDay, day));
   } catch (error) {
-    await awardJoy(email, THAW_PRICE, 'admin_adjustment', `Hoàn JOY: chưa phá băng được ngày ${frozenDay}`, { rawAmount: true, notify: false });
+    await awardJoy(email, THAW_PRICE, 'admin_adjustment', `Hoàn JOY: chưa phá băng được ngày ${frozenDay}`, { rawAmount: true, notify: false })
+      .catch((refundError) => logError({
+        source: 'edu-streak',
+        message: `Phá băng ${frozenDay} hỏng VÀ hoàn ${THAW_PRICE} JOY cũng hỏng — cần hoàn tay`,
+        stack: refundError.stack,
+        meta: { frozenDay, amount: THAW_PRICE, cause: error.message },
+        email,
+      }));
     throw error;
   }
   const paid = await payMilestone(email, result.milestone).catch(() => null);

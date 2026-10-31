@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import HugoDrop from "./HugoDrop";
+import { reportClientEvent } from "../../utils/clientMonitoring";
 
 /*
  * MỘT màn cho mọi trạng thái hệ thống, để chờ, cập nhật hay gặp lỗi đều cùng
@@ -9,7 +10,7 @@ import HugoDrop from "./HugoDrop";
  *   loading · reloading · updating      giọt đầy dần, không có nút
  *   offline · server                    tự thử lại (đếm ngược), có nút thử ngay
  *   notFound                            về trang chủ / quay lại
- *   crash                               mã sự cố + đã tự gửi cho kỹ thuật + chi tiết
+ *   crash                               mã sự cố + nút báo admin + quay lại (KHÔNG lộ chi tiết lỗi)
  *
  * Chữ có defaultValue tiếng Việt: màn chờ có thể hiện TRƯỚC khi gói dịch tải xong.
  */
@@ -20,7 +21,7 @@ const DEFAULTS = {
   offline: { title: "Mất kết nối mạng", body: "Kiểm tra Wi-Fi hoặc dữ liệu di động. Trang sẽ tự kết nối lại khi có mạng." },
   server: { title: "Máy chủ đang khởi động", body: "Máy chủ miễn phí tạm nghỉ khi vắng người và thường sẵn sàng sau 30–60 giây. Trang sẽ tự thử lại." },
   notFound: { title: "Không tìm thấy trang này", body: "Đường dẫn có thể đã đổi hoặc gõ chưa đúng." },
-  crash: { title: "Đã xảy ra sự cố", body: "Chi tiết lỗi đã được tự động gửi cho đội kỹ thuật. Tải lại thường sẽ khắc phục được." },
+  crash: { title: "Đã xảy ra sự cố", body: "Trang này tạm thời chưa dùng được. Bạn có thể báo cho quản trị viên rồi quay lại." },
 };
 
 const BUSY = new Set(["loading", "reloading", "updating"]);
@@ -42,7 +43,7 @@ export default function StatusScreen({ kind = "loading", status, code, detail, i
 
         {(kind === "offline" || kind === "server") && <AutoRetry kind={kind} onRetry={retry} />}
         {kind === "notFound" && <NotFoundActions />}
-        {kind === "crash" && <CrashBlock code={code} detail={detail} onRetry={retry} />}
+        {kind === "crash" && <CrashBlock code={code} detail={detail} />}
       </div>
     </div>
   );
@@ -92,39 +93,36 @@ function NotFoundActions() {
   );
 }
 
-function CrashBlock({ code, detail, onRetry }) {
+// Người dùng KHÔNG thấy lỗi gì, ở đâu (đừng chỉ đường cho kẻ phá): chỉ mã sự cố,
+// nút báo admin và quay lại. Chi tiết đã nằm trong ErrorLog + Telegram theo mã;
+// `detail` chỉ hiện ở môi trường dev.
+function CrashBlock({ code, detail }) {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard?.writeText(code).then(() => setCopied(true)).catch(() => {});
+  const [sent, setSent] = useState(false);
+  const report = () => {
+    reportClientEvent({ type: "user-report", name: "UserReport", message: `Người dùng bấm báo lỗi ${code || ""}`.trim(), code });
+    setSent(true);
   };
+  const back = () => (window.history.length > 1 ? window.history.back() : window.location.assign("/"));
 
   return (
     <>
-      {code && (
-        <button type="button" className="hs-code" onClick={copy} aria-label={t("system.status.copyCode", { defaultValue: "Chép mã sự cố" })}>
-          <span translate="no">{code}</span>
-          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">{copied ? "check" : "content_copy"}</span>
-        </button>
-      )}
-      <p className="hs-note">
-        <span className="material-symbols-outlined text-[16px]" aria-hidden="true">send</span>
-        {t("system.status.reported", { defaultValue: "Đã gửi báo cáo cho đội kỹ thuật. Khi cần hỗ trợ, chỉ cần đọc mã này." })}
-      </p>
+      {code && <p className="hs-code" translate="no">{code}</p>}
       <div className="hs-actions">
-        <button type="button" className="hs-btn hs-btn--primary" onClick={onRetry}>
-          {t("system.status.reload", { defaultValue: "Tải lại" })}
+        <button type="button" className="hs-btn hs-btn--primary" onClick={report} disabled={sent}>
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">{sent ? "check" : "flag"}</span>
+          {sent
+            ? t("system.status.reportSent", { defaultValue: "Đã báo cho quản trị viên" })
+            : t("system.status.reportAdmin", { defaultValue: "Báo lỗi cho admin" })}
         </button>
-        <a className="hs-btn" href="/">{t("system.status.home", { defaultValue: "Về trang chủ" })}</a>
+        <button type="button" className="hs-btn" onClick={back}>
+          {t("system.status.back", { defaultValue: "Quay lại" })}
+        </button>
       </div>
-      {detail && (
-        <details className="hs-details">
-          <summary>{t("system.status.details", { defaultValue: "Chi tiết kỹ thuật" })}</summary>
-          <dl>
-            <dt>{t("system.status.what", { defaultValue: "Lỗi" })}</dt><dd>{detail.what}</dd>
-            <dt>{t("system.status.where", { defaultValue: "Vị trí" })}</dt><dd>{detail.where}</dd>
-            <dt>{t("system.status.when", { defaultValue: "Thời điểm" })}</dt><dd>{detail.when}</dd>
-          </dl>
+      {import.meta.env.DEV && detail && (
+        <details className="hs-details" open>
+          <summary>dev</summary>
+          <dl><dt>what</dt><dd>{detail.what}</dd><dt>where</dt><dd>{detail.where}</dd><dt>when</dt><dd>{detail.when}</dd></dl>
         </details>
       )}
     </>

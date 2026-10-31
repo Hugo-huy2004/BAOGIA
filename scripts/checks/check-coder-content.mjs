@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { auditCoderContent } from "../../packages/shared/coderContentIntegrity.js";
-import { STAGES, WEB_COURSES, MAX_SLIDES } from "../../apps/web/src/components/member/hugoCoder/lessons/index.js";
-import { LESSON_LANGS, LESSON_LOCALES, localizeCourse } from "../../apps/web/src/components/member/hugoCoder/lessons/localize.js";
+import { STAGES, WEB_COURSES, MAX_SLIDES } from "../../packages/courses/coding/index.js";
+import { LESSON_LANGS, LESSON_LOCALES, localizeCourse } from "../../packages/courses/coding/localize.js";
 
 // Khoá hình minh hoạ có thật: đọc thẳng từ CodingVisual.jsx (Node không nạp JSX).
 const visualSource = readFileSync("apps/web/src/components/member/hugoCoder/CodingVisual.jsx", "utf8");
@@ -35,6 +35,14 @@ function compare(base, tr, where, lang) {
     coverage[lang].done += 1;
     const code = (text) => (text.match(CODE) || []).sort().join("\n");
     if (code(base) !== code(tr)) result.issues.push(`${lang} ${where}: đoạn mã trong bản dịch khác bản gốc.`);
+    // Máy dịch không được chèn thêm HTML chạy được hay liên kết lạ vào bài.
+    const prose = (text) => text.replace(CODE, "");
+    if (/<\s*(script|iframe|object|embed|img|svg|a)\b|javascript:|\son\w+\s*=/i.test(prose(tr)) && !/<\s*(script|iframe|object|embed|img|svg|a)\b|javascript:|\son\w+\s*=/i.test(prose(base))) {
+      result.issues.push(`${lang} ${where}: bản dịch có HTML/script mà bản gốc không có.`);
+    }
+    const urls = (text) => new Set(text.match(/https?:\/\/[^\s)>\]"'`]+/g) || []);
+    const known = urls(base);
+    for (const url of urls(tr)) if (!known.has(url)) result.issues.push(`${lang} ${where}: liên kết lạ ${url}.`);
     return;
   }
   if (!tr || typeof tr !== "object") return;

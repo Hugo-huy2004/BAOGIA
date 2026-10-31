@@ -429,17 +429,72 @@
    nền trắng như Duolingo web, băng chặng dính ở đầu khi cuộn qua vùng của nó,
    ô step màu đặc. Màu từng chặng/từng phần giữ nguyên để trang vẫn nhiều màu. */
 .edu .cmap { background: none; margin-bottom: 0; }
-.edu .cmap .cmap-zone { background: none; overflow: clip; padding: 0 16px 40px; } /* 3 lớp: thắng .cmap-tone-indigo.cmap-zone (nền sao) */
-.edu .cmap-scenery { display: none; }
+.edu .cmap .cmap-zone { overflow: clip; }
 .edu .cmap-banner { position: sticky; top: calc(max(10px, env(safe-area-inset-top)) + 56px); z-index: 5; margin-bottom: 48px; }
 .edu .cmap-hex-face { background: var(--node); }
 .edu .cmap-node.is-locked .cmap-hex { background: var(--edu-line); }
 .edu .cmap-node.is-locked .cmap-hex-face { background: var(--edu-soft); }
 .edu .cmap-finish { background: var(--edu-sky); color: #3c3c3c; border-radius: 20px; margin: 0 16px; padding-bottom: 32px; }
 :root.dark .edu .cmap-finish { background: var(--edu-soft); color: var(--edu-ink); }
+/* ── Bản đồ Edu: nền cảnh vật như Hugo Coding — màu đặc (vạch cứng trời/đất, không chuyển màu mềm) ── */
+.edu .cmap .cmap-zone {
+  /* Mỗi chặng MỘT màu nền; đầu chặng chuyển màu từ màu chặng trước (--prev-sky). */
+  background: linear-gradient(180deg, var(--prev-sky, var(--sky)) 0, var(--sky) 220px);
+  border-radius: 0;
+  margin: 0;
+  padding: 18px 16px 56px;
+}
+.edu .cmap .cmap-zone.is-night {
+  background:
+    radial-gradient(circle, #fff 0 1.4px, transparent 1.6px) 0 0 / 46px 52px,
+    radial-gradient(circle, rgba(255, 255, 255, .5) 0 1px, transparent 1.2px) 23px 26px / 46px 52px,
+    linear-gradient(180deg, var(--prev-sky, var(--sky)) 0, var(--sky) 220px);
+}
+/* Nền phủ kín cột học: bỏ lề của .edu-main ở trang Lộ trình. */
+.edu .edu-view-learn .edu-main { padding-inline: 0; }
+.edu .edu-view-learn .edu-main > * { max-width: none; }
+.edu .edu-view-learn .cmap-banner { margin-inline: auto; }
+.edu .cmap-scenery { display: block; }
+.edu .cmap-deco { width: 64px; height: 64px; transform-origin: 50% 100%; animation: edu-sway 4.2s ease-in-out infinite; }
+.edu .cmap-deco.is-tree { width: 92px; height: 92px; }
+.edu .cmap-deco:nth-child(2n) { animation-duration: 5.4s; animation-delay: -1.3s; }
+.edu .cmap-deco:nth-child(3n) { animation-duration: 3.6s; animation-delay: -2.1s; }
+@keyframes edu-sway { 0%, 100% { rotate: -3deg; } 50% { rotate: 3deg; } }
+
+/* Ô step: lục giác BO GÓC (mask SVG giãn theo ô, thay clip-path góc nhọn). */
+.edu .cmap-hex, .edu .cmap-hex-face {
+  clip-path: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20d%3D%27M42.0%204.0Q50%200%2058.0%204.0L92.0%2021.0Q100%2025%20100.0%2033.0L100.0%2067.0Q100%2075%2092.0%2079.0L58.0%2096.0Q50%20100%2042.0%2096.0L8.0%2079.0Q0%2075%200.0%2067.0L0.0%2033.0Q0%2025%208.0%2021.0Z%27/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20d%3D%27M42.0%204.0Q50%200%2058.0%204.0L92.0%2021.0Q100%2025%20100.0%2033.0L100.0%2067.0Q100%2075%2092.0%2079.0L58.0%2096.0Q50%20100%2042.0%2096.0L8.0%2079.0Q0%2075%200.0%2067.0L0.0%2033.0Q0%2025%208.0%2021.0Z%27/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+/* Nhân vật to gấp 3 và sống động hơn: nhảy, nghiêng, nhún bẹp khi chạm đất. */
+.edu .cmap-mascot {
+  width: 288px;
+  max-width: none; /* preflight img{max-width:100%} bó theo bề rộng ô step */
+  translate: calc(-50% + var(--side) * 250px) -50%;
+  transform-origin: 50% 100%;
+  animation: edu-mascot 2.2s cubic-bezier(.45, 0, .55, 1) infinite;
+}
+@keyframes edu-mascot {
+  0%, 100% { transform: translateY(0) scale(1.06, .94) rotate(0deg); }
+  18% { transform: translateY(-10px) scale(.96, 1.05) rotate(-4deg); }
+  40% { transform: translateY(-34px) scale(.98, 1.03) rotate(5deg); }
+  62% { transform: translateY(-12px) scale(1, 1) rotate(-3deg); }
+  80% { transform: translateY(0) scale(1.08, .92) rotate(2deg); }
+}
+@media (max-width: 767px) {
+  /* Màn hẹp: 2x để còn chỗ cho đường đi (khung zone tự cắt phần tràn). */
+  .edu .cmap-mascot { width: 190px; translate: calc(-50% + var(--side) * 150px) -50%; }
+  .edu .cmap-deco { width: 48px; height: 48px; }
+  .edu .cmap-deco.is-tree { width: 68px; height: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edu .cmap-mascot, .edu .cmap-deco { animation: none; }
+}
 @media (min-width: 768px) {
   .edu .cmap-banner { top: 16px; }
-  .edu .edu-view-learn .edu-main { padding-top: 16px; }
+  .edu .edu-view-learn .edu-main { padding-top: 0; }
 }
 .edu .hugo-coder-shell { background: var(--edu-bg); }
 .edu .lesson-player { background: color-mix(in srgb, var(--step-tone, var(--edu-primary)) 7%, var(--edu-bg)); }
@@ -622,3 +677,33 @@
 .edu-gate-why li { display: flex; align-items: center; gap: 12px; font-weight: 700; }
 .edu-gate-why .material-symbols-outlined { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--edu-soft); color: var(--edu-blue); }
 .edu-gate .edu-link { justify-self: center; }
+
+/* Lộ trình ≥1100px: nền các chặng chạy tràn dưới cột phải; cột phải phủ một lớp
+   nhám mờ dần sang phải (đậm dần về mép) để thẻ và chữ trong đó vẫn dễ đọc. */
+@media (min-width: 1100px) {
+  .edu .edu-view-learn .coder-journey { overflow-x: visible; } /* để nền chặng tràn sang cột phải */
+  .edu .edu-view-learn .cmap-zone { margin-right: -368px; padding-right: calc(16px + 368px); }
+  .edu .edu-view-learn .edu-rail { position: sticky; z-index: 3; isolation: isolate; }
+  .edu .edu-view-learn .edu-rail::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: color-mix(in srgb, var(--edu-bg) 78%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-mask: linear-gradient(90deg, transparent 0, #000 22%);
+    mask: linear-gradient(90deg, transparent 0, #000 22%);
+  }
+}
+
+/* Thẻ cột phải có màu: mỗi thẻ một màu đặc, chữ trắng; nút trắng chữ màu thẻ. */
+.edu-rail .edu-card { --card: #1cb0f6; --card-deep: #1899d6; border: 0; background: var(--card); color: #fff; box-shadow: 0 5px 0 var(--card-deep); }
+.edu-rail .edu-card:nth-of-type(2) { --card: #ff9600; --card-deep: #d97e00; }
+.edu-rail .edu-card:nth-of-type(3) { --card: #a560f0; --card-deep: #8547c9; }
+.edu-rail .edu-card:nth-of-type(4) { --card: #58cc02; --card-deep: #46a302; }
+.edu-rail .edu-card--cta { --card: #a560f0; --card-deep: #8547c9; } /* tím: mascot xanh nổi trên nền */
+.edu-rail .edu-card--streak { --card: #ff7a1a; --card-deep: #d9600c; }
+.edu-rail .edu-card h2, .edu-rail .edu-card strong, .edu-rail .edu-card b { color: #fff; }
+.edu-rail .edu-card p, .edu-rail .edu-card .edu-card-sub, .edu-rail .edu-card .edu-card-meta { color: rgba(255, 255, 255, .9); }
+.edu-rail .edu-card header a { color: #fff; }
+.edu-rail .edu-card .edu-btn { background: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .18); }
+.edu-rail .edu-card .edu-btn, .edu-rail .edu-card .edu-btn * { color: var(--card-deep) !important; }
+.edu-rail .edu-card .edu-bar { background: rgba(255, 255, 255, .3); }

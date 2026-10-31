@@ -3,7 +3,7 @@ import Bio from '../models/Bio.js';
 import HugoTeamDev from '../models/HugoTeamDev.js';
 import UserProfile from '../models/UserProfile.js';
 import { requireMember } from '../middleware/authMiddleware.js';
-import { STEP_IDS } from '../../web/src/components/member/hugoCoder/lessons/stages.js';
+import { STEP_IDS } from '../../../packages/courses/coding/stages.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
 import {
   deletePrivateEvidence,

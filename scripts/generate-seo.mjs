@@ -31,7 +31,7 @@ import { projects } from "../apps/web/src/data/projects.js";
 import { profileSkills, skillsCopy } from "../apps/web/src/data/profileSkills.js";
 import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../packages/shared/partnerCampaigns.js";
 import { EDU_COPY, EDU_LANGS } from "../apps/web/src/education/eduCopy.js";
-import { STAGES as CODER_STAGES } from "../apps/web/src/components/member/hugoCoder/lessons/stages.js";
+import { STAGES as CODER_STAGES } from "../packages/courses/coding/stages.js";
 import { EDU_ORIGIN } from "../packages/shared/eduSite.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

@@ -22,6 +22,8 @@ const schema = new mongoose.Schema({
   streakRev: { type: Number, default: 0 },
   lastCallDay: { type: String, default: '' },
   frozenNoticeDay: { type: String, default: '' },
+  // Ngày ôn lại gần nhất của từng step đã qua — ôn lại chỉ giữ lửa mỗi 7 ngày/step.
+  reviewedOn: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
 }, { timestamps: true, minimize: false });
 
 schema.index({ 'prefs.reminder': 1, 'prefs.reminderHour': 1 });

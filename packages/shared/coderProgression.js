@@ -1,4 +1,4 @@
-import { STAGES } from "../../apps/web/src/components/member/hugoCoder/lessons/stages.js";
+import { STAGES } from "../courses/coding/stages.js";
 
 // Ranh giới chặng (đánh số step từ 1) suy từ đề cương khoá Coding.
 export const CODER_STAGE_SEQUENCE = Object.freeze(

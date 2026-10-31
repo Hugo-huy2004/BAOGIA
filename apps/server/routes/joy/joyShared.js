@@ -9,7 +9,7 @@ import {
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
 } from '../../../../packages/shared/joyPrices.js';
 import { ownExchangeItems } from '../../utils/appPlanService.js';
-import { STEP_IDS } from '../../../web/src/components/member/hugoCoder/lessons/stages.js';
+import { STEP_IDS } from '../../../../packages/courses/coding/stages.js';
 import { memberTier, tierGifts, TIER_LABELS } from '../../utils/memberTier.js';
 
 export const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;

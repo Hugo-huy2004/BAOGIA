@@ -222,7 +222,7 @@ const CRITERIA = [
   {
     id: "noEmoji",
     label: "không emoji (chỉ Material Symbols đơn sắc)",
-    // Nội dung bài học (hugoCoder/lessons/) là GIÁO TRÌNH: "♥" trong mã mẫu là
+    // Nội dung bài học (packages/courses/) là GIÁO TRÌNH: "♥" trong mã mẫu là
     // nút Thích của dự án người học tự viết, "✓" là chữ trong hướng dẫn — không
     // phải icon giao diện của app, nên không tính vào luật này.
     test: ({ files, appName }) => Boolean(EXCEPTIONS[`noEmoji@${appName}`])

@@ -24,6 +24,8 @@ const ALLOWED_TYPES = new Set([
   'api-error',
   'api-network-error',
   'api-summary',
+  // Người dùng bấm "Báo lỗi cho admin" trên màn sự cố — gắn với mã HG-… đã ghi.
+  'user-report',
 ]);
 
 const telemetryLimiter = rateLimit({
@@ -127,6 +129,7 @@ router.post('/client-event', telemetryLimiter, (req, res) => {
           .catch((error) => console.warn('[specialist-incident]', error.message));
       });
     } else if (event.type === 'route-not-found' && seenOnce(`404:${event.path}`)) {
+      logClientIncident(event, 'warn');    } else if (event.type === 'user-report' && event.code && seenOnce(`report:${event.code}`, 24 * 60 * 60 * 1000)) {
       logClientIncident(event, 'warn');
     }
   } catch {

@@ -70,8 +70,8 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
     if (programProgress.includes(lessonId)) {
       const review = gradeStepQuiz(lessonId, evidence.answers);
       const steps = await syncTeam(programProgress);
-      // Ôn lại mà đạt vẫn giữ lửa hôm nay cho chuỗi Education Hugo.
-      const eduStreak = !teamDev && review?.passed ? await noteEduStudy(email).catch(() => null) : null;
+      // Ôn lại mà đạt vẫn giữ lửa hôm nay — mỗi step tối đa một lần / 7 ngày.
+      const eduStreak = !teamDev && review?.passed ? await noteEduStudy(email, { reviewOf: lessonId }).catch(() => null) : null;
       return res.json({
         success: true,
         alreadyCompleted: true,
@@ -134,7 +134,7 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       }
     }
 
-    // Chuỗi lửa Education Hugo: qua bài nào (kể cả học lại) cũng giữ lửa hôm nay.
+    // Chuỗi lửa Education Hugo: qua một step mới là giữ lửa hôm nay.
     const eduStreak = teamDev ? null : await noteEduStudy(email).catch((error) => {
       console.error('[award-learning streak]', error.message);
       return null;

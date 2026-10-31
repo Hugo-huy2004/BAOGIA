@@ -14,9 +14,9 @@ document.querySelectorAll(".page").forEach((page) => {
 
 document.documentElement.lang = language;
 const TITLE = {
-  vi: "Hugo Wishpax · Sinh viên CNTT · Thực tập lập trình web | CV",
-  en: "Hugo Wishpax · IT Student · Web Development Internship | CV",
-  zh: "Hugo Wishpax · 信息技术学生 · Web 开发实习 | CV",
+  vi: "Lê Gia Huy (Hugo Wishpax Lê) · Sinh viên CNTT · Thực tập lập trình web | CV",
+  en: "Lê Gia Huy (Hugo Wishpax Lê) · IT Student · Web Development Internship | CV",
+  zh: "Lê Gia Huy (Hugo Wishpax Lê) · 信息技术学生 · Web 开发实习 | CV",
 };
 document.title = TITLE[language];
 

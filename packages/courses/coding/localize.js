@@ -5,7 +5,7 @@ import { EXTRA_SLIDES } from "./locales/extra.js";
 
 export const LESSON_LANGS = ["en", "zh"];
 
-// Bản dịch (scripts/.translate-edu-lessons.mjs) cùng hình dạng với WEB_COURSES, chỉ
+// Bản dịch (scripts/translate-course.mjs) cùng hình dạng với WEB_COURSES, chỉ
 // chứa chữ. Thiếu tệp hoặc thiếu mục thì giữ bản gốc tiếng Việt.
 export const LESSON_LOCALES = Object.fromEntries(LESSON_LANGS.map((lang) => {
   try {

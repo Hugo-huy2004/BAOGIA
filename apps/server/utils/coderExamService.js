@@ -1,5 +1,5 @@
 // Dùng chung giáo trình với client — một nguồn sự thật, không nhân bản câu hỏi.
-import { WEB_COURSES, STAGES, STEP_PASS_PERCENT } from '../../web/src/components/member/hugoCoder/lessons/index.js';
+import { WEB_COURSES, STAGES, STEP_PASS_PERCENT } from '../../../packages/courses/coding/index.js';
 import { isQuizAnswerCorrect, quizAnswerText } from '../../../packages/shared/quizKinds.js';
 import { presentQuiz } from '../../../packages/shared/stepQuiz.js';
 

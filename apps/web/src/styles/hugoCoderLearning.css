@@ -2903,6 +2903,13 @@
 .cmap-tone-pink   { --sky: #ffe8a3; --ground: #ffc861; --node: #ff4b4b; --node-deep: #d63a3a; --deco-a: #e8a33d; --deco-b: #c98a2a; --deco-c: #ff6b6b; --banner: #ff4b4b; }
 .cmap-tone-indigo { --sky: #3b3f8f; --ground: #262a63; --node: #ffc800; --node-deep: #d9a900; --deco-a: #4c5bd4; --deco-b: #5c6ac4; --deco-c: #ffe066; --banner: #5865f2; }
 .cmap-tone-orange { --sky: #ffd8a8; --ground: #ffa94d; --node: #58cc02; --node-deep: #46a302; --deco-a: #d9822b; --deco-b: #e8590c; --deco-c: #fff3bf; --banner: #ff7a1a; }
+/* Tông 7–12 cho khoá nhiều chặng hơn (CourseMap toneOf). midnight, aurora là đêm sao. */
+.cmap-tone-teal     { --sky: #b2f2e8; --ground: #20a39e; --node: #f76707; --node-deep: #d9480f; --deco-a: #0b7285; --deco-b: #1098ad; --deco-c: #ffe066; --banner: #12b886; }
+.cmap-tone-lime     { --sky: #fff9db; --ground: #8cc63f; --node: #7048e8; --node-deep: #5f3dc4; --deco-a: #5c940d; --deco-b: #74b816; --deco-c: #ff8787; --banner: #66a80f; }
+.cmap-tone-rose     { --sky: #ffe3ec; --ground: #f783ac; --node: #1c7ed6; --node-deep: #1864ab; --deco-a: #c2255c; --deco-b: #e64980; --deco-c: #fff3bf; --banner: #e64980; }
+.cmap-tone-midnight { --sky: #1e2257; --ground: #14173a; --node: #4dabf7; --node-deep: #1c7ed6; --deco-a: #364fc7; --deco-b: #4263eb; --deco-c: #ffd43b; --banner: #3b5bdb; }
+.cmap-tone-sand     { --sky: #fff4e0; --ground: #e0b872; --node: #0ca678; --node-deep: #087f5b; --deco-a: #b08030; --deco-b: #c99a4a; --deco-c: #ff6b6b; --banner: #d9480f; }
+.cmap-tone-aurora   { --sky: #0c2b3a; --ground: #123d3a; --node: #63e6be; --node-deep: #20c997; --deco-a: #087f5b; --deco-b: #0ca678; --deco-c: #b197fc; --banner: #0ca678; }
 
 .cmap-zone {
   position: relative;
@@ -2913,7 +2920,7 @@
     linear-gradient(180deg, var(--prev, var(--sky)) 0, var(--sky) 160px, var(--ground) 100%);
 }
 /* Đêm sao cho chặng 5: chấm sáng thay cho cỏ. */
-.cmap-tone-indigo.cmap-zone {
+.cmap-zone.is-night {
   background:
     radial-gradient(circle, rgba(255, 255, 255, .7) 0 1px, transparent 1.6px) 0 0 / 46px 52px,
     radial-gradient(circle, rgba(255, 255, 255, .35) 0 1px, transparent 1.5px) 23px 26px / 46px 52px,
@@ -3080,6 +3087,21 @@
 }
 .cmap-sheet-close svg { width: 18px; height: 18px; }
 .dark .cmap-sheet { --coder-card: #1c1c1f; color: #f2f2f5; }
+/* Trượt lên khi mở, trượt xuống khi đóng (is-closing do StageSheet đặt trước khi gỡ);
+   từng dòng bên trong nối đuôi nhau trượt lên. */
+.cmap-sheet-backdrop { animation: cmap-fade .24s ease-out both; }
+.cmap-sheet { animation: cmap-sheet-up .42s cubic-bezier(.22, 1.2, .36, 1) both; }
+.cmap-sheet > :not(.cmap-sheet-close) { animation: cmap-rise .42s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(80ms + var(--i, 0) * 45ms); }
+.cmap-sheet li { animation: cmap-rise .36s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(200ms + var(--i, 0) * 50ms); }
+.cmap-sheet-backdrop.is-closing { animation: cmap-fade .22s ease-in reverse both; }
+.cmap-sheet-backdrop.is-closing .cmap-sheet { animation: cmap-sheet-down .22s ease-in both; }
+@keyframes cmap-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cmap-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes cmap-sheet-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes cmap-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .cmap-sheet-backdrop, .cmap-sheet, .cmap-sheet > *, .cmap-sheet li { animation-duration: 1ms !important; animation-delay: 0ms !important; }
+}
 
 @keyframes cmap-pulse { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.25); opacity: 0; } }
 @keyframes cmap-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }

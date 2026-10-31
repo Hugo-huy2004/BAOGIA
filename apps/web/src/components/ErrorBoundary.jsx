@@ -98,7 +98,7 @@ export class ErrorBoundary extends React.Component {
           <StatusScreen
             kind="crash"
             code={code}
-            detail={{ what: `${error?.name || 'Error'}: ${error?.message || ''}`, where: [window.location.pathname, where].filter(Boolean).join(' · '), when: at }}
+            detail={import.meta.env.DEV ? { what: `${error?.name || 'Error'}: ${error?.message || ''}`, where: [window.location.pathname, where].filter(Boolean).join(' · '), when: at } : undefined}
           />
           {import.meta.env.DEV && componentStack && (
             <pre className="fixed bottom-2 left-2 right-2 max-h-48 overflow-auto rounded-xl bg-muted p-3 text-left text-[11px] leading-relaxed text-muted-foreground">

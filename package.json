@@ -75,7 +75,8 @@
     "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs",
     "deploy:portfolio": "node scripts/deploy-portfolio.mjs",
     "og:partner": "node scripts/generate-partner-og.mjs",
-    "gen:mascots": "node scripts/generate-mascots.mjs"
+    "gen:mascots": "node scripts/generate-mascots.mjs",
+    "course:translate": "node scripts/translate-course.mjs"
   },
   "devDependencies": {
     "eslint": "^9.15.0",

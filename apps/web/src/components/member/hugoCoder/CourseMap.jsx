@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bug, Check, Code2, Database, Flag, Lock, Rocket, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
 import { gradeStage } from "../../../../../../packages/shared/stageGrading";
 import { isEduHost } from "../../../../../../packages/shared/eduSite";
@@ -32,7 +32,20 @@ const STAGE_LOOK = typeof window !== "undefined" && isEduHost(window.location.ho
 
 // Màu đất cuối mỗi vùng — vùng sau bắt đầu từ đúng màu này để hai vùng hoà
 // vào nhau thay vì cắt ngang một đường thẳng. Khớp --ground trong CSS.
-const GROUND = { blue: "#58c13d", green: "#2fb5c9", purple: "#a3d977", pink: "#ffc861", indigo: "#262a63", orange: "#ffa94d" };
+const GROUND = {
+  blue: "#58c13d", green: "#2fb5c9", purple: "#a3d977", pink: "#ffc861", indigo: "#262a63", orange: "#ffa94d",
+  teal: "#20a39e", lime: "#8cc63f", rose: "#f783ac", midnight: "#14173a", sand: "#e0b872", aurora: "#123d3a",
+};
+// Mỗi chặng một nền. Chặng không ghi `tone` (khoá sau, nhiều chặng hơn) tự lấy
+// theo số chặng, vòng lại khi hết — khoá bao nhiêu chặng cũng có nền riêng.
+const TONES = Object.keys(GROUND);
+// Màu trời (= màu nền MỘT màu của chặng ở Edu) — chặng sau chuyển màu từ màu này.
+const SKY = {
+  blue: "#9be15d", green: "#7fd8ee", purple: "#d9f99d", pink: "#ffe8a3", indigo: "#3b3f8f", orange: "#ffd8a8",
+  teal: "#b2f2e8", lime: "#fff9db", rose: "#ffe3ec", midnight: "#1e2257", sand: "#fff4e0", aurora: "#0c2b3a",
+};
+const NIGHT_TONES = new Set(["indigo", "midnight", "aurora"]); // nền đêm sao
+const toneOf = (stage) => (GROUND[stage?.tone] ? stage.tone : TONES[((stage?.phaseNumber || 1) - 1) % TONES.length]);
 
 // Đường lượn: lệch trái–phải theo hình sin, mỗi chặng lượn ngược chiều chặng trước.
 const offsetOf = (index, flip) => Math.round(Math.sin(index * 0.9) * 70) * (flip ? -1 : 1);
@@ -114,25 +127,35 @@ function Scenery({ seed }) {
 /** Bảng chi tiết chặng — mở từ nút tròn "!". */
 function StageSheet({ unit, assessment, onClose }) {
   const { t } = useEduText();
+  // Đóng = chạy hoạt cảnh trượt xuống (CSS .is-closing) rồi mới gỡ bảng.
+  const [closing, setClosing] = useState(false);
+  const close = useCallback(() => setClosing(true), []);
   useEffect(() => {
-    const onKey = (event) => event.key === "Escape" && onClose();
+    if (!closing) return undefined;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(onClose, reduce ? 0 : 220);
+    return () => window.clearTimeout(timer);
+  }, [closing, onClose]);
+  useEffect(() => {
+    const onKey = (event) => event.key === "Escape" && close();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [close]);
+  const step = (i) => ({ style: { "--i": i } });
 
   return (
-    <div className="cmap-sheet-backdrop" role="presentation" onClick={onClose}>
-      <div className={`cmap-sheet cmap-tone-${unit.tone}`} role="dialog" aria-modal="true" aria-labelledby="cmap-sheet-title" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="cmap-sheet-close" onClick={onClose} aria-label={t("common.close")}><X aria-hidden="true" /></button>
-        <small>{t("common.stage", { n: unit.phaseNumber })} · {unit.rangeText}</small>
-        <h2 id="cmap-sheet-title">{unit.title.replace(/^CODE \d+ · /, "")}</h2>
-        <p className="cmap-sheet-tagline">{unit.intro?.tagline}</p>
-        <h3>{t("map.youLearn")}</h3>
-        <ul>{(unit.intro?.learn || []).map((item) => <li key={item}>{item}</li>)}</ul>
-        {unit.intro?.challenge && (<><h3>{t("map.challenge")}</h3><p>{unit.intro.challenge}</p></>)}
-        {unit.intro?.promise && <p className="cmap-sheet-promise">{unit.intro.promise}</p>}
+    <div className={`cmap-sheet-backdrop${closing ? " is-closing" : ""}`} role="presentation" onClick={close}>
+      <div className={`cmap-sheet cmap-tone-${toneOf(unit)}`} role="dialog" aria-modal="true" aria-labelledby="cmap-sheet-title" onClick={(event) => event.stopPropagation()}>
+        <button type="button" className="cmap-sheet-close" onClick={close} aria-label={t("common.close")}><X aria-hidden="true" /></button>
+        <small {...step(0)}>{t("common.stage", { n: unit.phaseNumber })} · {unit.rangeText}</small>
+        <h2 id="cmap-sheet-title" {...step(1)}>{unit.title.replace(/^CODE \d+ · /, "")}</h2>
+        <p className="cmap-sheet-tagline" {...step(2)}>{unit.intro?.tagline}</p>
+        <h3 {...step(3)}>{t("map.youLearn")}</h3>
+        <ul {...step(3)}>{(unit.intro?.learn || []).map((item, i) => <li key={item} {...step(i)}>{item}</li>)}</ul>
+        {unit.intro?.challenge && (<><h3 {...step(5)}>{t("map.challenge")}</h3><p {...step(6)}>{unit.intro.challenge}</p></>)}
+        {unit.intro?.promise && <p className="cmap-sheet-promise" {...step(7)}>{unit.intro.promise}</p>}
         {assessment.breakdown.attempts > 0 && (
-          <p className="cmap-sheet-grade">{t("map.grade")} <b>{assessment.score}/100 · {assessment.gradeLabel}</b></p>
+          <p className="cmap-sheet-grade" {...step(8)}>{t("map.grade")} <b>{assessment.score}/100 · {assessment.gradeLabel}</b></p>
         )}
       </div>
     </div>
@@ -156,9 +179,9 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
 
   return (
     <section
-      className={`cmap-zone cmap-tone-${unit.tone}`}
+      className={`cmap-zone cmap-tone-${toneOf(unit)}${NIGHT_TONES.has(toneOf(unit)) ? " is-night" : ""}`}
       aria-labelledby={`cmap-${unit.id}`}
-      style={prevTone ? { "--prev": GROUND[prevTone] } : undefined}
+      style={prevTone ? { "--prev": GROUND[prevTone], "--prev-sky": SKY[prevTone] } : undefined}
     >
       <Scenery seed={unit.phaseNumber} />
 
@@ -261,7 +284,7 @@ export default function CourseMap({ courses, stages, completedSet, currentIndex,
           examScores={examScores}
           serverCompleted={serverCompleted}
           flip={index % 2 === 1}
-          prevTone={units[index - 1]?.stage.tone}
+          prevTone={index ? toneOf(units[index - 1].stage) : undefined}
         />
       ))}
 

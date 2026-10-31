@@ -230,7 +230,10 @@ router.post('/edu-streak/thaw', requireMemberSession, extendLimiter, async (req,
     if (String(error.message).startsWith('INSUFFICIENT_JOY')) {
       return res.status(400).json({ code: 'INSUFFICIENT_JOY', error: 'Số dư JOY chưa đủ để phá băng.' });
     }
-    return res.status(400).json({ code: error.code, error: error.message });
+    // Chỉ lỗi nghiệp vụ có code (STREAK_LOST, NOT_FROZEN…) mới nói chi tiết; lỗi lạ không lộ nội bộ.
+    if (error.code) return res.status(400).json({ code: error.code, error: error.message });
+    console.error('[edu-streak thaw]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa phá băng được. Vui lòng thử lại.' });
   }
 });
 

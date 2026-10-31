@@ -8,7 +8,7 @@
  *      → 0% và không qua; ngưỡng qua là STEP_PASS_PERCENT.
  *   3. Chép đáp án theo thứ tự GỐC trong mã nguồn không qua được.
  */
-import { WEB_COURSES, STEP_PASS_PERCENT } from '../../web/src/components/member/hugoCoder/lessons/index.js';
+import { WEB_COURSES, STEP_PASS_PERCENT } from '../../../packages/courses/coding/index.js';
 import { presentQuiz, publicQuiz } from '../../../packages/shared/stepQuiz.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../utils/coderExamService.js';
 

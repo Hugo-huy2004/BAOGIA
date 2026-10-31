@@ -64,6 +64,7 @@ apps/server/       Express + Mongoose + WebSocket, port 8099
 apps/ai/           FastAPI, port 8000 (own Vercel project, deployed from this folder)
 apps/workers/      Cloudflare Workers: keepalive, media-proxy (wrangler, not workspaces)
 packages/shared/   pure JS/JSON used by BOTH web and server (app registry, prices, texts…)
+packages/courses/  Education Hugo course content, one folder per course (coding/ …) — see its README
 packages/nom-data/ chữ Nôm source tables for scripts/build-nom-*
 scripts/           repo tooling; scripts/checks = every `npm run check:*`
 api/ vercel.json render.yaml start.sh   stay at the root: Vercel and Render read them there

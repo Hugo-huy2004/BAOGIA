@@ -77,10 +77,10 @@ lên ý tưởng → kiến thức chính → áp dụng vào "Quán" → trắc
 
 ## Hạ tầng trong repo cần mở rộng (khi bắt đầu code)
 
-Hiện mọi thứ gắn với khoá Coding ở `apps/web/src/components/member/hugoCoder/lessons/`:
+Giáo trình nằm ở `packages/courses/<khoá>/` (xem `packages/courses/README.md`); khoá Coding ở `packages/courses/coding/`:
 - `stages.js` / `index.js` (WEB_COURSES), `lessonController.js`, `/api/coder-lessons`.
 - `localize.js` + `locales/{en,zh}.json` + `locales/extra.js` — phủ bản dịch và slide riêng.
-- `scripts/.translate-edu-lessons.mjs` — máy dịch, có bảng tên nút giao diện.
+- `scripts/translate-course.mjs` (`COURSE=quan npm run course:translate`) — máy dịch, có bảng tên nút giao diện.
 - `npm run check:coder-content` — kiểm bài và bản dịch.
 
 Khoá 2 cần: tham số "khoá nào" cho bốn chỗ trên (thư mục bài riêng, id step không trùng

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import LearningEvidence from '../models/LearningEvidence.js';
-import { STAGES, WEB_COURSES } from '../../web/src/components/member/hugoCoder/lessons/index.js';
+import { STAGES, WEB_COURSES } from '../../../packages/courses/coding/index.js';
 
 class EvidenceDeletedError extends Error {
   constructor() {

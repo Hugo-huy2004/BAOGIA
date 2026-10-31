@@ -11,7 +11,7 @@ import { apiFetch } from "../../services/api/core/apiClient";
 import ThreadPost, { Avatar } from "./today/ThreadPost";
 import ThreadComposer from "./today/ThreadComposer";
 import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../../../../packages/shared/coderProgression";
-import { OUTLINE } from "./hugoCoder/lessons/stages";
+import { OUTLINE } from "../../../../../packages/courses/coding/stages";
 
 /**
  * Today làm lại 100% theo kiểu Threads (26/10/2026): một dòng bài duy nhất,

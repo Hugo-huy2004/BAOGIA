@@ -13,9 +13,9 @@ import {
   STAGES,
   WEB_COURSES,
   getStageBenefits,
-} from '../../../web/src/components/member/hugoCoder/lessons/index.js';
+} from '../../../../packages/courses/coding/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
-import { localizeCourse } from '../../../web/src/components/member/hugoCoder/lessons/localize.js';
+import { localizeCourse } from '../../../../packages/courses/coding/localize.js';
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -80,7 +80,8 @@ export async function getLessonDetail(req, res) {
   const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
   if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
   const course = WEB_COURSES[index];
-  const lang = String(req.query.lang || '');
+  // Chỉ nhận ngôn ngữ có thật: giá trị lạ sẽ đẻ khoá cache CDN mới mỗi lần → đánh thẳng vào máy chủ.
+  const lang = ['en', 'zh'].includes(req.query.lang) ? req.query.lang : 'vi';
   // Chặng 1 học thử không cần tài khoản, cache ở CDN được.
   if (index < CODER_PREVIEW_STEPS) {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');

@@ -3,11 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { WEB_COURSES } from "../apps/web/src/components/member/hugoCoder/lessons/index.js";
-
+// Dịch một khoá trong packages/courses/<COURSE>/ (mặc định coding) sang en/zh:
+//   npm run course:translate                 # khoá coding
+//   COURSE=quan npm run course:translate     # khoá khác, cùng cấu trúc thư mục
+const COURSE = process.env.COURSE || "coding";
 const ROOT = path.resolve(import.meta.dirname, "..");
-const CHECKPOINT_DIR = path.join(os.tmpdir(), "hugo-edu-lessons-i18n");
-const OUT_DIR = path.join(ROOT, "apps/web/src/components/member/hugoCoder/lessons/locales");
+const { WEB_COURSES } = await import(`../packages/courses/${COURSE}/index.js`);
+const CHECKPOINT_DIR = path.join(os.tmpdir(), COURSE === "coding" ? "hugo-edu-lessons-i18n" : `hugo-course-${COURSE}-i18n`);
+const OUT_DIR = path.join(ROOT, `packages/courses/${COURSE}/locales`);
 const LANGUAGES = {
   en: "natural English for an introductory web-development course",
   zh: "natural Simplified Chinese for Mainland China for an introductory web-development course",
@@ -28,6 +31,8 @@ const MAX_CHARS = 6_000;
 const MAX_ENTRIES = 100;
 const GLOSSARY = { [LANGUAGES.en]: labelRule(1, "English"), [LANGUAGES.zh]: labelRule(2, "Simplified Chinese") };
 const run = promisify(execFile);
+// Model đôi khi bọc JSON trong ```json … ``` dù đã dặn không — bóc khung trước khi đọc.
+const parseJson = (text) => JSON.parse(String(text).trim().replace(/^```(?:json)?\s*|\s*```$/g, ""));
 
 const translatedFields = new Set(["duration", "summary", "title", "body", "alt", "caption", "q", "o", "why", "items", "pairs"]);
 
@@ -81,7 +86,7 @@ function mask(text) {
 }
 
 function restore(text, tokens) {
-  return tokens.reduce((result, token, index) => result.replaceAll(`__KEEP_${index}__`, token), String(text));
+  return tokens.reduce((result, token, index) => result.replaceAll(`__KEEP_${index}__`, () => token), String(text));
 }
 
 function markers(text) {
@@ -104,7 +109,7 @@ async function translateBatch(batch, language) {
     timeout: 180_000,
   });
   try {
-    const parsed = JSON.parse(response);
+    const parsed = parseJson(response);
     if (!Array.isArray(parsed) || parsed.length !== batch.length) throw new Error(`expected ${batch.length}, got ${parsed?.length}`);
     return parsed.map((text, index) => {
       if (JSON.stringify(markers(text)) !== JSON.stringify(markers(prepared[index].text))) throw new Error(`markers changed at ${index}`);
@@ -122,7 +127,7 @@ async function translateBatch(batch, language) {
       "-p", "--model", "haiku", "--output-format", "text",
       `Translate Vietnamese course material into ${language}. Return ONLY a JSON array with one string. Copy every __KEEP_N__ marker exactly. Preserve Markdown.\n${JSON.stringify([prepared[0].text])}`,
     ], { maxBuffer: 1024 * 1024, timeout: 180_000 });
-    const fallback = JSON.parse(stdout);
+    const fallback = parseJson(stdout);
     if (!Array.isArray(fallback) || fallback.length !== 1
       || JSON.stringify(markers(fallback[0])) !== JSON.stringify(markers(prepared[0].text))) {
       throw new Error(`${batch[0].path}: ${error.message}`);
@@ -159,11 +164,19 @@ await fs.mkdir(OUT_DIR, { recursive: true });
 console.log(`${allEntries.length} fields / ${canonicalEntries.length} unique / ${work.length} batches per language`);
 
 for (const [code, language] of Object.entries(LANGUAGES)) {
-  const checkpointPath = path.join(CHECKPOINT_DIR, `${code}.json`);
+  // Chạy song song nhiều tiến trình: WORKER=tên FROM=0.6 TO=0.75 (phần của danh sách lô).
+  // Mỗi tiến trình ghi checkpoint riêng `${code}.<WORKER>.json`; khi đọc thì gộp mọi tệp của ngôn ngữ đó.
+  const worker = process.env.WORKER;
+  if (worker && !process.env.LANG_ONLY?.split(",").includes(code) && process.env.LANG_ONLY) continue;
+  const checkpointPath = path.join(CHECKPOINT_DIR, worker ? `${code}.${worker}.json` : `${code}.json`);
   let done = {};
-  try { done = JSON.parse(await fs.readFile(checkpointPath, "utf8")); } catch { /* start */ }
-  for (let index = 0; index < work.length; index += 3) {
-    const group = work.slice(index, index + 3);
+  for (const file of (await fs.readdir(CHECKPOINT_DIR)).filter((name) => name === `${code}.json` || name.startsWith(`${code}.`))) {
+    try { Object.assign(done, JSON.parse(await fs.readFile(path.join(CHECKPOINT_DIR, file), "utf8"))); } catch { /* bỏ qua tệp đang ghi dở */ }
+  }
+  const from = Math.floor(work.length * Number(process.env.FROM || 0));
+  const to = Math.ceil(work.length * Number(process.env.TO || 1));
+  for (let index = from; index < to; index += 3) {
+    const group = work.slice(index, Math.min(index + 3, to));
     const translated = await Promise.all(group.map(async (batch) => {
       const missing = batch.filter((entry) => done[entry.path] == null);
       return missing.length ? { missing, values: await translateBatch(missing, language) } : null;
@@ -172,8 +185,9 @@ for (const [code, language] of Object.entries(LANGUAGES)) {
       missing.forEach((entry, itemIndex) => { done[entry.path] = values[itemIndex]; });
     });
     await fs.writeFile(checkpointPath, JSON.stringify(done), "utf8");
-    console.log(`[${code}] ${Math.min(index + 3, work.length)}/${work.length}`);
+    console.log(`[${code}${worker ? `:${worker}` : ""}] ${Math.min(index + 3, to)}/${work.length}`);
   }
+  if (worker) continue; // tiến trình phụ không ghi tệp kết quả — lần chạy chính gộp lại
   const output = {};
   for (const entry of allEntries) setAtPath(output, entry.path, done[canonicalForPath.get(entry.path)]);
   await fs.writeFile(path.join(OUT_DIR, `${code}.json`), `${JSON.stringify(output, null, 2)}\n`, "utf8");
