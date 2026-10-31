@@ -686,11 +686,11 @@
   .edu .edu-view-learn .edu-rail { position: sticky; z-index: 3; isolation: isolate; }
   .edu .edu-view-learn .edu-rail::before {
     content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    background: color-mix(in srgb, var(--edu-bg) 78%, transparent);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
-    -webkit-mask: linear-gradient(90deg, transparent 0, #000 22%);
-    mask: linear-gradient(90deg, transparent 0, #000 22%);
+    background: color-mix(in srgb, var(--edu-bg) 22%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-mask: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, .55) 40%, #000 100%);
+    mask: linear-gradient(90deg, transparent 0, rgba(0, 0, 0, .55) 40%, #000 100%);
   }
 }
 
