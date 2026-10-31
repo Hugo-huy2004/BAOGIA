@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import NotificationSubscription from '../../models/NotificationSubscription.js';
+import { isEduHost } from '../../../../packages/shared/eduSite.js';
 import NativePushDevice from '../../models/NativePushDevice.js';
 import Bio from '../../models/Bio.js';
 import InAppNotification, { pruneNotifications } from '../../models/InAppNotification.js';
@@ -84,6 +85,15 @@ export async function getVapidPublicKey(req, res) {
   return res.json({ publicKey: vapidKeys.publicKey });
 }
 
+/** Máy đăng ký từ tên miền Edu thì nhận push của Edu, không nhận push Hugo Studio. */
+function siteOf(req) {
+  try {
+    return isEduHost(new URL(req.get('origin') || '').hostname) ? 'edu' : 'www';
+  } catch {
+    return 'www';
+  }
+}
+
 /**
  * Đăng ký nhận thông báo Web Push
  */
@@ -108,6 +118,7 @@ export async function subscribeWebPush(req, res) {
         $set: {
           email,
           subscription,
+          site: siteOf(req),
           device: {
             locale: String(device.locale || '').slice(0, 32),
             timezone: String(device.timezone || '').slice(0, 64),
@@ -156,7 +167,7 @@ export async function sendTestNotification(req, res) {
       return res.status(400).json({ error: 'Email là bắt buộc.' });
     }
 
-    const subscriptions = await NotificationSubscription.find({ email });
+    const subscriptions = await NotificationSubscription.find({ email, site: { $ne: 'edu' } });
     if (!subscriptions || subscriptions.length === 0) {
       return res.status(404).json({ error: 'Không tìm thấy đăng ký thông báo đẩy cho email này.' });
     }
@@ -221,7 +232,7 @@ export async function broadcastAllNotifications(req, res) {
     );
 
     const subscriptions = await NotificationSubscription.find(
-      isBroadcastAll ? { email: { $in: activeUsers.map((user) => user.email) } } : { email: normalizedTargetEmail }
+      { ...(isBroadcastAll ? { email: { $in: activeUsers.map((user) => user.email) } } : { email: normalizedTargetEmail }), site: { $ne: 'edu' } }
     );
 
     let sentCount = 0;

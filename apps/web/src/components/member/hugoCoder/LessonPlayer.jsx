@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, Image, Library, Lightbulb, MessageSquareWarning, RotateCcw, Sparkles, Target, Volume2, VolumeX, Wrench, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ClipboardCopy, GraduationCap, Image, Library, Lightbulb, MessageSquareWarning, RotateCcw, Sparkles, Target, Volume2, VolumeX, Wrench, X } from "lucide-react";
 import confetti from "canvas-confetti";
 import { notify } from "../../../lib/notify";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
@@ -397,6 +397,12 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
 
       {!(step.kind === "result" && result && !result.passed) && (
         <footer className="lesson-player-foot">
+          {/* Quay lại slide trước để đọc lại; màn kết quả thì không (bài đã nộp). */}
+          {index > 0 && step.kind !== "result" && (
+            <button type="button" className="lesson-player-back" onClick={() => setIndex(index - 1)} aria-label="Slide trước">
+              <ArrowLeft aria-hidden="true" />
+            </button>
+          )}
           <button type="button" onClick={next} disabled={!ready}>
             {step.kind === "result"
               ? (result?.passed ? "Hoàn thành bài" : "Nộp lại")

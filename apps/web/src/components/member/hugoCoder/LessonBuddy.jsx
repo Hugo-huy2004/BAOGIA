@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { isEduHost } from "../../../../../../packages/shared/eduSite";
 
 /**
  * Hugo — nhân vật đồng hành trong bài học. Mascot màu là ngoại lệ CÓ CHỦ ĐÍCH
@@ -53,7 +54,10 @@ const MOODS = {
 };
 
 // Ảnh dựng sẵn bằng DiceBear: scripts/generate-coder-buddy.mjs.
-const avatarFor = (mood) => `/coder/buddy-${MOODS[mood] ? mood : "learn"}.svg`;
+// Education Hugo dùng bộ nhân vật clay màu tươi; Hugo Studio giữ Hugo avataaars.
+// Cả hai dựng sẵn bằng scripts/generate-mascots.mjs.
+const ART_DIR = typeof window !== "undefined" && isEduHost(window.location.hostname) ? "/edu" : "/coder";
+const avatarFor = (mood) => `${ART_DIR}/buddy-${MOODS[mood] ? mood : "learn"}.svg`;
 
 export default function LessonBuddy({ mood = "learn", size = "sm", seed = 0 }) {
   const config = MOODS[mood] || MOODS.learn;

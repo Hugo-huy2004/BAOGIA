@@ -47,8 +47,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
     enabled: enabled && Boolean(selectedId),
     placeholderData: summary ? { lesson: summary } : undefined,
     staleTime: 10 * 60_000,
-    // Bài trả phí khi chưa có quyền: 401/403 là câu trả lời cuối, thử lại vô ích.
-    // Hub tự hiện cổng mua khoá theo useFeatureGate.
+    // 401 (chưa đăng nhập) / 403 (Hugo Team hết hạn) là câu trả lời cuối, thử lại vô ích.
     retry: (count, error) => ![401, 403].includes(error?.status) && count < 3,
   });
 
@@ -68,7 +67,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
     detailReady: Boolean(detailQuery.data?.lesson?.slides),
     loading: catalogQuery.isLoading || (Boolean(selectedId) && detailQuery.isLoading),
     error: catalogQuery.error || detailQuery.error,
-    // 401/403 từ máy chủ = step trả phí chưa có quyền; hub hiện cổng mua khoá.
+    // 401/403 từ máy chủ: hub hiện lời nhắc đăng nhập thay cho bài.
     detailError: detailQuery.error,
   };
 }

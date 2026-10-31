@@ -10,6 +10,9 @@ export const JOY_SINK_PRICES = Object.freeze({
   timedUpgrade: 1000,
 });
 
+/** Gia hạn tài khoản (Education Hugo bán thẳng, Store bán qua sản phẩm system_validity): cùng một mốc. */
+export const ACCOUNT_EXTENSION = Object.freeze({ days: 10, priceJoy: JOY_SINK_PRICES.timedUpgrade });
+
 /** Giá Utility Store do loại quyền lợi quyết định, không do client/admin tự đặt. */
 export const utilityProductPrice = (productType) => (
   productType === "system_validity"

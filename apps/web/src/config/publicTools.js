@@ -39,20 +39,6 @@ export const PUBLIC_TOOLS = {
     summary:
       "Xem danh sách phương pháp tự chăm sóc; đăng nhập tài khoản đã xác minh để mở bài tập và lưu tiến độ.",
   },
-  study: {
-    gate: "level",
-    aliases: ["hugoso"],
-    // Học thử trọn chặng 1 (6 step: lập trình, web, HTML, CSS, JS, DOM) rồi
-    // mới phải quyết định. Hằng số nằm ở đây chứ không trong HugoCoderHub: trang
-    // công khai chỉ cần con số, import từ hub sẽ kéo cả bộ học vào bundle.
-    previewLessons: 6,
-    title: "Coding — Học lập trình web từ A đến Z, by Hugo Studio",
-    description:
-      "Tự tay xây một mạng xã hội chia sẻ bài viết ngắn bằng HTML, CSS, JavaScript, PHP và MySQL: 26 step từ con số 0 tới triển khai miễn phí, trắc nghiệm do máy chủ chấm và giấy chứng nhận có xếp loại.",
-    heading: "Coding",
-    summary:
-      "Học lập trình web theo từng step, làm dự án mạng xã hội thật. Học thử miễn phí trọn chặng 1.",
-  },
   radio: {
     gate: "open",
     title: "Hugo Radio — Nhạc Lofi Cho Học Tập Và Thư Giãn",
@@ -158,7 +144,7 @@ export function resolvePublicTool(slug) {
  * True when `pathname` is one of the standalone app URLs.
  *
  * Only the FIRST segment decides. Apps that navigate inside themselves need a
- * second segment to survive a reload (`/study/lesson7` is a real address, not a
+ * second segment to survive a reload (`/chess/room7` is a real address, not a
  * typo) — matching the whole path sent those straight to /introduction.
  */
 export function isPublicToolPath(pathname) {

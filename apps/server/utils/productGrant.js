@@ -1,3 +1,5 @@
+import { extendAccess } from './accountAccess.js';
+
 /**
  * Cấp thứ vừa mua vào tài khoản, dùng chung cho mua lẻ và thanh toán giỏ hàng.
  *
@@ -13,10 +15,7 @@ export function applyProductGrant(bio, product, quantity = 1) {
 
   if (product.productType === 'system_validity' && product.extendDays > 0) {
     const days = product.extendDays * qty;
-    let expires = new Date(bio.expiresAt);
-    if (isNaN(expires.getTime()) || expires.getTime() < Date.now()) expires = new Date();
-    expires.setDate(expires.getDate() + days);
-    bio.expiresAt = expires;
+    extendAccess(bio, days);
     pushHistory(bio, 'event_available', 'Gia hạn sử dụng', `+${days} ngày hạn sử dụng từ "${product.name}"`);
     return `+${days} ngày HSD`;
   }

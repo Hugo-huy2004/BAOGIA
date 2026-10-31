@@ -3,10 +3,9 @@ import express from 'express';
 import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
 import { awardJoy } from '../../utils/joyService.js';
-import { requireMember } from '../../middleware/authMiddleware.js';
-import { canReadCoderStage } from '../../utils/appPlanService.js';
+import { noteEduStep } from '../../services/eduLearner.js';
+import { requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
-import { PUBLIC_TOOLS } from '../../../web/src/config/publicTools.js';
 import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../../utils/memberTier.js';
 import { isLearningEvidenceEnabledFor } from '../../utils/hugoV1Features.js';
@@ -15,13 +14,14 @@ import {
   privateEvidenceDto,
 } from '../../services/learningEvidenceService.js';
 import { sendCustomEmail, escapeHtml } from '../../services/emailService.js';
-import { getCoderLessonGate, getCoderStageCompletion, CODER_TOTAL_STEPS, completedCoderSteps } from '../../../../packages/shared/coderProgression.js';
+import { getCoderLessonGate, getCoderStageCompletion, CODER_TOTAL_STEPS, CODER_JOY_PER_CORRECT, completedCoderSteps } from '../../../../packages/shared/coderProgression.js';
 import { CODER_LESSON_IDS, FOCUS_DAILY_JOY_CAP, todayStr, BIRTHDAY_PRIZES, birthdaySpinStatus } from './joyShared.js';
 
 const router = express.Router();
 
-// POST /api/joy/award-learning
-router.post('/award-learning', requireMember, async (req, res) => {
+// POST /api/joy/award-learning — khoá Coding miễn phí: chỉ cần phiên đăng nhập,
+// không đòi hồ sơ đầy đủ hay hạn dùng thử (người học từ Education Hugo).
+router.post('/award-learning', requireMemberSession, async (req, res) => {
   try {
     const { lessonId, evidence = {}, program = 'coding' } = req.body;
     const email = req.memberEmail;
@@ -38,7 +38,7 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
     // HugoTeam học CHÍNH chương trình Coding: một tiến độ (bio.completedLessons),
     // một bộ điểm. Thành viên đang ở giai đoạn Coding của HugoTeam được học mọi
-    // step (không qua cổng trả phí), dù mở từ HugoTeam hay từ ứng dụng Coding.
+    // step, dù mở từ HugoTeam hay từ Education Hugo.
     const isHugoTeam = program === 'hugoteam';
     const teamDev = await HugoTeamDev.findOne({ email, assessmentStage: 'coding' });
     if (isHugoTeam) {
@@ -90,17 +90,6 @@ router.post('/award-learning', requireMember, async (req, res) => {
       });
     }
 
-
-
-    // Step ngoài phần học thử chỉ được tính khi có quyền đọc chính step đó —
-    // nếu không, ai cũng đoán đáp án mà "qua" được step trả phí.
-    if (!teamDev && lessonIndex >= PUBLIC_TOOLS.study.previewLessons && !canReadCoderStage(bio, lessonGate.stage.id)) {
-      return res.status(403).json({
-        code: 'COURSE_ACCESS_REQUIRED',
-        error: 'Step này thuộc phần trả phí. Mở khóa Coding hoặc chặng chứa step để học tiếp.',
-      });
-    }
-
     // Trắc nghiệm cuối step do MÁY CHỦ chấm lại từ câu trả lời — không tin điểm client khai.
     const graded = gradeStepQuiz(lessonId, evidence.answers);
     if (!graded) {
@@ -143,17 +132,34 @@ router.post('/award-learning', requireMember, async (req, res) => {
     }
 
     // $addToSet giữ tiến độ không trùng khi hai thiết bị hoàn thành cùng lúc.
-    await Bio.updateOne(
+    const added = await Bio.updateOne(
       { _id: bio._id },
       { $addToSet: { completedLessons: lessonId } },
     );
 
-    if (teamDev) {
-      const steps = await syncTeam([...programProgress, lessonId]);
-      return res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, ...teamView(steps) });
+    // Qua step lần đầu: +5 JOY mỗi câu đúng. Chỉ thưởng khi $addToSet THẬT SỰ
+    // thêm — hai máy nộp cùng lúc không nhận đôi, học lại không cày được JOY.
+    // Lỗi ví không được làm mất tiến độ vừa ghi: ghi log, trả 0 JOY.
+    let balance = bio.joyBalance;
+    let joyEarned = 0;
+    // Mục tiêu ngày của Education Hugo đếm step qua lần đầu.
+    if (added.modifiedCount === 1) noteEduStep(email).catch((error) => console.error('[award-learning edu]', error.message));
+    if (added.modifiedCount === 1 && graded.correct > 0) {
+      try {
+        const before = balance;
+        ({ balance } = await awardJoy(email, graded.correct * CODER_JOY_PER_CORRECT, 'ide_learning', `Qua ${lessonId}: ${graded.correct}/${graded.total} câu đúng`, { refId: lessonId }));
+        joyEarned = Math.max(0, balance - before);
+      } catch (error) {
+        console.error('[award-learning joy]', error.message);
+      }
     }
 
-    res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT });
+    if (teamDev) {
+      const steps = await syncTeam([...programProgress, lessonId]);
+      return res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, ...teamView(steps) });
+    }
+
+    res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

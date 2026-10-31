@@ -27,6 +27,8 @@ const notificationSubscriptionSchema = new mongoose.Schema({
       }
     }
   },
+  // Tên miền đăng ký: 'edu' = education.hugowishpax.studio (service worker riêng).
+  site: { type: String, enum: ['www', 'edu'], default: 'www', index: true },
   device: {
     locale: { type: String, default: '' },
     timezone: { type: String, default: '' },

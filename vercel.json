@@ -5,6 +5,26 @@
   "outputDirectory": "apps/web/dist",
   "redirects": [
     {
+      "source": "/study",
+      "destination": "https://education.hugowishpax.studio/",
+      "permanent": true
+    },
+    {
+      "source": "/study/:path*",
+      "destination": "https://education.hugowishpax.studio/",
+      "permanent": true
+    },
+    {
+      "source": "/hugoso",
+      "destination": "https://education.hugowishpax.studio/",
+      "permanent": true
+    },
+    {
+      "source": "/hugoso/:path*",
+      "destination": "https://education.hugowishpax.studio/",
+      "permanent": true
+    },
+    {
       "source": "/",
       "has": [
         {
@@ -216,10 +236,6 @@
       "destination": "/therapy/index.html"
     },
     {
-      "source": "/study",
-      "destination": "/study/index.html"
-    },
-    {
       "source": "/radio",
       "destination": "/radio/index.html"
     },
@@ -402,18 +418,6 @@
     {
       "source": "/member/:path*",
       "destination": "/member/index.html"
-    },
-    {
-      "source": "/study/:path*",
-      "destination": "/study/index.html"
-    },
-    {
-      "source": "/hugoso",
-      "destination": "/study/index.html"
-    },
-    {
-      "source": "/hugoso/:path*",
-      "destination": "/study/index.html"
     },
     {
       "source": "/chess/:room",

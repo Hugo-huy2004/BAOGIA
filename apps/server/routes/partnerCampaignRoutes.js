@@ -9,7 +9,8 @@ import { awardJoy } from '../utils/joyService.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { signedClientIp } from '../utils/clientIp.js';
 import { securityHash } from '../services/securityEnforcement.js';
-import { getPartnerCampaign, isPartnerCampaignOpen, extendFrom } from '../../../packages/shared/partnerCampaigns.js';
+import { getPartnerCampaign, isPartnerCampaignOpen } from '../../../packages/shared/partnerCampaigns.js';
+import { extendAccess } from '../utils/accountAccess.js';
 
 // ==========================================
 // API CHA: /api/partner-campaigns
@@ -269,17 +270,6 @@ router.get('/:slug/me', requireMember, meLimiter, loadCampaign, async (req, res)
     return res.status(500).json({ error: 'Không đọc được trạng thái ưu đãi lúc này.' });
   }
 });
-
-// Cộng ngày duy trì: nối vào hạn cũ. Tài khoản chưa xác minh giáo dục đang đi
-// theo hạn dùng thử (trialExpiresAt) — cổng thành viên và lịch dọn tài khoản
-// đọc hạn đó, nên phải dời CẢ HAI, không thì quà 6 tháng vẫn bị xoá sau 7 ngày.
-const extendAccess = (bio, days) => {
-  const current = bio.isEduVerified || !bio.trialExpiresAt ? bio.expiresAt : bio.trialExpiresAt;
-  const next = extendFrom(current, days);
-  bio.expiresAt = next;
-  if (!bio.isEduVerified) bio.trialExpiresAt = next;
-  return next;
-};
 
 const pushHistory = (bio, campaign, detail) => {
   bio.history.push({

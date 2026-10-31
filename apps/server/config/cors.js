@@ -4,6 +4,7 @@
  */
 import OAuthClient from '../models/OAuthClient.js';
 import { PARTNER_HOST } from '../../../packages/shared/partnerCampaigns.js';
+import { EDU_ORIGIN } from '../../../packages/shared/eduSite.js';
 
 export const allowedOrigins = [
   ...((process.env.CLIENT_URLS || "").split(",")),
@@ -11,6 +12,8 @@ export const allowedOrigins = [
   "https://hugowishpax.studio",
   // Trang chiến dịch hợp tác: cùng bản build SPA, gọi API chéo origin như www.
   `https://${PARTNER_HOST}`,
+  // Education Hugo: cùng bản build, đăng nhập Google/passkey bằng tài khoản Hugo Studio.
+  EDU_ORIGIN,
   // The App Store build is not served over http(s): WKWebView loads it from
   // `capacitor://localhost`, and that string is what lands in the Origin
   // header. It is a constant baked into Capacitor, not a host anyone can point
@@ -20,7 +23,7 @@ export const allowedOrigins = [
 ].filter(Boolean);
 
 export const isDev = process.env.NODE_ENV !== 'production';
-export const localOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/;
+export const localOriginRegex = /^https?:\/\/((?:[a-z0-9-]+\.)?localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/;
 
 // Origin lạ đã bị từ chối, ghi nhớ để không lặp lại log. Reset khi restart.
 export const corsRejected = new Set();

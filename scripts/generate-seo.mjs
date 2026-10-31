@@ -122,12 +122,10 @@ const OG = {
   default: ogImage("/og-image.png", "image/png", 1106, 672),
   services: ogImage("/og/services.jpeg", "image/jpeg", 1200, 630),
   edu: ogImage("/og/edu.jpeg", "image/jpeg", 1200, 630),
-  study: ogImage("/og/study.jpeg", "image/jpeg", 1200, 630),
 };
 function ogImageFor(base) {
   if (!isPortfolio && (base === "/" || base === "/services" || base.startsWith("/services/"))) return OG.services;
   if (["/student-pricing", "/member", "/login"].includes(base)) return OG.edu;
-  if (base === "/study") return OG.study;
   const project = base.startsWith("/project/") && projects.find((p) => `/project/${p.id}` === base);
   const shot = project && (project.cover || project.shots?.[0]?.src);
   if (shot) return { url: `${ORIGIN}/project-screenshots/${project.id}/${shot}.webp`, type: "image/webp", width: 1600, height: 1000 };
@@ -712,9 +710,6 @@ const SHARE_PAGES = {
 // api/bio-og.js để thẻ mang tên và ảnh của đúng người.
 const SHARE_REWRITES = isPortfolio ? [] : [
   { source: "/member/:path*", destination: "/member/index.html" },
-  { source: "/study/:path*", destination: "/study/index.html" },
-  { source: "/hugoso", destination: "/study/index.html" },
-  { source: "/hugoso/:path*", destination: "/study/index.html" },
   { source: "/chess/:room", destination: "/chess/index.html" },
   { source: "/bio/:slug", destination: "/api/bio-og?slug=:slug" },
   { source: "/b/:slug", destination: "/api/bio-og?slug=:slug" },

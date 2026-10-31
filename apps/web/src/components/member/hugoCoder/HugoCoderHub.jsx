@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Award, Braces, ChevronLeft, FileText, GraduationCap, MonitorPlay, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { Award, Braces, ChevronLeft, FileText, GraduationCap, MonitorPlay, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
@@ -10,15 +10,10 @@ import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/api/core/authSession";
 import { hugoCoderApi } from "../../../services/api/modules/hugoCoderApi";
-import { useJoyStore } from "../../../stores/joyStore";
-import FeatureGate from "../shared/FeatureGate";
 import LessonPlayer from "./LessonPlayer";
+import { joyText } from "../../../lib/joyDisplay";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
-import { joyText } from "../../../lib/joyDisplay";
-
-// Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví.
-const MAINTENANCE_PRICE = 50;
 
 
 function percentage(part, total) {
@@ -182,26 +177,12 @@ function LearningResources({ stages }) {
   );
 }
 
-// ====== Tab Quản lý — gói, chứng chỉ, hồ sơ học thuật ======
-function ManageTab({ bio, onBioUpdate, courses, stages }) {
-  const apiBase = import.meta.env.VITE_API_URL || "/api";
+// ====== Tiến độ — danh hiệu, chặng, điểm trắc nghiệm (Education Hugo dùng lại) ======
+export function ManageTab({ bio, courses, stages }) {
   const completed = useMemo(
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
     [bio?.completedLessons, courses]
   );
-  const hasAll = !!bio?.hugoCoderAll7Lifetime;
-  const maintenanceExpires = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
-  const maintenanceActive = hasAll || (maintenanceExpires ? new Date(maintenanceExpires).getTime() > Date.now() : false);
-
-  const stageOwned = {
-    basic: hasAll || !!bio?.hugoCoderBasicLifetime,
-    intermediate: hasAll || !!bio?.hugoCoderIntermediateLifetime,
-    advanced: hasAll || !!bio?.hugoCoderAdvancedLifetime,
-    security: hasAll || !!(bio?.hugoCoderSecurityLifetime || bio?.hugoCoderExamLifetime || bio?.hugoCoderOptimizeLifetime),
-    project: hasAll || !!bio?.hugoCoderUltimateLifetime,
-    devops: hasAll || !!(bio?.hugoCoderDevopsLifetime || bio?.hugoCoderUltimateLifetime)
-  };
-
   const stageEarned = (stage) => {
     const lastId = `step${stage.to}`;
     if (stage.phaseNumber === 6) return completed.includes(lastId) || bio?.hugoCoderProjectStatus === "approved";
@@ -219,33 +200,6 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
     : completed.length >= 11 ? "Lập trình viên PHP & SQL"
     : completed.length >= 6 ? "Lập trình viên Web nền tảng"
     : "Học viên Nhập môn";
-
-  const payMaintenance = async () => {
-    const ok = await notify.confirm({
-      title: "Gia hạn khoá Coding",
-      message: `Dùng ${joyText(MAINTENANCE_PRICE)} (+10% phí sáng tạo) để gia hạn 30 ngày quyền truy cập học tập?`,
-      confirmText: `Gia hạn ${joyText(MAINTENANCE_PRICE)}`
-    });
-    if (!ok) return;
-    try {
-      const session = getMemberSession();
-      const res = await fetch(`${apiBase}/joy/subscribe-feature`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}) },
-        body: JSON.stringify({ email: bio.email, featureKey: "hugoCoder", months: 1 })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
-      notify.success("Đã gia hạn phí bảo trì thành công!");
-      onBioUpdate?.({
-        ...bio,
-        joyBalance: data.balance,
-        featureSubscriptions: { ...(bio.featureSubscriptions || {}), hugoCoder: { active: true, expiresAt: data.expiresAt } }
-      });
-    } catch (e) {
-      notify.error(e.message);
-    }
-  };
 
   const pct = percentage(completed.length, courses.length);
 
@@ -300,49 +254,6 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
         </section>
       )}
 
-      {/* Gói đã sở hữu — màu theo chặng */}
-      <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
-        <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><ShieldCheck className="w-3.5 h-3.5 text-foreground" /></span>
-          Gói đã sở hữu
-        </h3>
-        {hasAll && (
-          <div className="rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-zinc-950 p-3 text-[13px] font-black flex items-center gap-2">
-            <Award className="w-4 h-4" /> Trọn gói 6 chặng vĩnh viễn — miễn phí bảo trì trọn đời
-          </div>
-        )}
-        <div className="grid grid-cols-3 gap-2">
-          {stages.map((stage) => {
-            const owned = stageOwned[stage.id];
-            const th = STAGE_THEME[stage.id];
-            return (
-              <div key={stage.id} className={`rounded-xl border p-2.5 text-center ${owned ? `bg-gradient-to-br ${th.soft}` : "border-border bg-muted/30 opacity-70"}`}>
-                <span className={`inline-block w-2 h-2 rounded-full mb-1 ${owned ? th.dot : "bg-muted-foreground/40"}`} />
-                <p className="text-[13px] font-black text-foreground">Chặng {stage.phaseNumber}</p>
-                <p className="text-[13px] text-muted-foreground leading-tight">{owned ? "Vĩnh viễn" : "Chưa mở"}</p>
-              </div>
-            );
-          })}
-        </div>
-        {!hasAll && (
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-muted/40 border border-border p-3">
-            <div className="min-w-0">
-              <p className="text-[13px] font-black text-foreground">Phí bảo trì hàng tháng</p>
-              <p className="text-[13px] text-muted-foreground leading-4">
-                {maintenanceActive
-                  ? `Còn hạn đến ${new Date(maintenanceExpires).toLocaleDateString("vi-VN")}`
-                  : "Hết hạn — gia hạn để tiếp tục học (quá 3 tháng reset tiến trình)"}
-              </p>
-            </div>
-            <button
-              onClick={payMaintenance}
-              className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-white text-[13px] font-black uppercase tracking-wider active:scale-95 transition-all shadow-sm"
-            >
-              <RefreshCw className="w-3 h-3" /> {joyText(MAINTENANCE_PRICE)}
-            </button>
-          </div>
-        )}
-      </section>
     </div>
   );
 }
@@ -377,10 +288,9 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
       .then(({ bio: accessBio }) => {
         if (!active || !accessBio) return;
         onBioUpdateRef.current?.(accessBio);
-        useJoyStore.getState().setBalance(accessBio.joyBalance);
       })
       .catch(() => {
-        // Hồ sơ đã lưu vẫn dùng được khi mất mạng; mua bán luôn được máy chủ kiểm lại.
+        // Hồ sơ đã lưu vẫn dùng được khi mất mạng.
       });
     return () => {
       active = false;
@@ -391,24 +301,24 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
   // Thoát step thì về BẢN ĐỒ khoá học, không văng ra ngoài app.
   const exitLesson = () => onLessonChange ? onLessonChange(null) : navigate(basePath);
 
-  // Quyền đọc step do MÁY CHỦ quyết định (6 step học thử, gói trọn bộ, gói
-  // chặng, thuê, dùng thử). Client không tự đoán: hỏi chi tiết step, bị từ chối
-  // 401/403 thì hiện cổng mua. Một bộ luật duy nhất, không lệch được.
+  // Quyền đọc step do MÁY CHỦ quyết định; client không tự đoán.
   const lessonLocked = [401, 403].includes(detailError?.status);
 
-  const gate = (extra) => (
-    <FeatureGate
-      bio={bio}
-      featureKey="hugoCoder"
-      priceJoy={1500}
-      icon="code"
-      title="Trao đổi JOY để mở khóa Coding"
-      description="26 step lập trình web: tự xây mạng xã hội chia sẻ bài viết ngắn bằng HTML, CSS, JavaScript, PHP và MySQL, tới triển khai và dự án."
-      onBioUpdate={onBioUpdate}
-      onBack={onBack}
-      className="max-w-lg mx-auto mt-10"
-      {...extra}
-    />
+  // Khoá học miễn phí: bị từ chối chỉ còn hai lẽ — chưa đăng nhập (401) hoặc
+  // mở từ Hugo Team khi không còn ở giai đoạn Coding (403).
+  const lockedNotice = (
+    <div className="max-w-lg mx-auto mt-10 rounded-2xl border border-border bg-card p-6 text-center space-y-3">
+      <p className="text-[15px] font-black text-foreground">
+        {detailError?.status === 401 ? "Đăng nhập để học tiếp" : "Chưa mở được step này"}
+      </p>
+      <p className="text-[14px] text-muted-foreground">{detailError?.message || "Khoá Coding miễn phí, chỉ cần đăng nhập để lưu tiến độ."}</p>
+      <div className="flex justify-center gap-2">
+        {detailError?.status === 401 && (
+          <a href="/login" className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[14px] font-black">Đăng nhập</a>
+        )}
+        <button type="button" onClick={exitLesson} className="px-4 py-2.5 rounded-xl bg-muted text-foreground text-[14px] font-black">Về bản đồ</button>
+      </div>
+    </div>
   );
 
   const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -444,8 +354,11 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
       onBioUpdate?.({
         ...bio,
         completedLessons: [...new Set([...(bio?.completedLessons || []), course.id])],
-        hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: { best: data.score, firstTry: data.score } },
+        hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: (({ best, firstTry } = bio?.hugoCoderExamScores?.[course.id] || {}) => ({ best: Math.max(Number(best) || 0, data.score), firstTry: firstTry ?? data.score }))() },
+        ...(Number.isFinite(data.balance) ? { joyBalance: data.balance } : {}),
       });
+      // Qua step lần đầu: +5 JOY mỗi câu đúng (máy chủ tính, xem award-learning).
+      if (data.joyEarned > 0) notify.success(`+${joyText(data.joyEarned)} · ${data.correct}/${data.total} câu đúng`);
       if (program === "hugoteam") onProgramProgress?.(data);
     }
     if (member && program === "hugoteam" && data.alreadyCompleted) onProgramProgress?.(data);
@@ -465,7 +378,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
     <div className="cmap-sheet-backdrop" role="presentation" onClick={() => setProgressOpen(false)}>
       <div className="cmap-sheet coder-progress-sheet" role="dialog" aria-modal="true" aria-label="Tiến độ" onClick={(event) => event.stopPropagation()}>
         <button type="button" className="cmap-sheet-close" onClick={() => setProgressOpen(false)} aria-label="Đóng"><X aria-hidden="true" /></button>
-        <ManageTab bio={bio} onBioUpdate={onBioUpdate} courses={courses} stages={stages} />
+        <ManageTab bio={bio} courses={courses} stages={stages} />
       </div>
     </div>
   );
@@ -511,7 +424,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
           <div className="flex-1 min-h-0">
             {lessonLocked ? (
               <div className="h-full overflow-y-auto px-4">
-                {gate({ onBack: exitLesson })}
+                {lockedNotice}
               </div>
             ) : (
               <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">

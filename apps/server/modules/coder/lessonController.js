@@ -4,13 +4,10 @@
  */
 import { signedSessionRole } from '../../auth/betterAuth.js';
 import LessonFeedback from '../../models/LessonFeedback.js';
-import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
-import { HUGOTEAM_CODING_DAYS } from '../../../../packages/shared/coderProgression.js';
-import { requireMember } from '../../middleware/authMiddleware.js';
-import { canReadCoderStage } from '../../utils/appPlanService.js';
+import { CODER_PREVIEW_STEPS, HUGOTEAM_CODING_DAYS } from '../../../../packages/shared/coderProgression.js';
+import { requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
-import { PUBLIC_TOOLS } from '../../../web/src/config/publicTools.js';
 import { sendTelegramAlert } from '../../services/telegramService.js';
 import {
   STAGES,
@@ -81,47 +78,29 @@ export async function getLessonDetail(req, res) {
   const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
   if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
   const course = WEB_COURSES[index];
-  // Mười bài học thử (cùng con số trang /study dùng) công khai, cache ở CDN được.
-  if (index < PUBLIC_TOOLS.study.previewLessons) {
+  // Chặng 1 học thử không cần tài khoản, cache ở CDN được.
+  if (index < CODER_PREVIEW_STEPS) {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
     return res.json({ lesson: publicCourse(course) });
   }
 
-  // Bài trả phí: không bao giờ vào cache dùng chung, kể cả phản hồi lỗi.
+  // Khoá học MIỄN PHÍ (31/10/2026, Education Hugo): phần còn lại chỉ cần đăng
+  // nhập — để lưu tiến độ và để không ai cào cả khoá bằng script ẩn danh.
+  // requireMemberSession chứ không requireMember: người chỉ đến để học không
+  // phải điền hồ sơ đầy đủ hay còn hạn dùng thử của Hugo Studio.
   res.setHeader('Cache-Control', 'private, no-store');
   if (!req.headers.authorization && !signedSessionRole(req)) {
     return res.status(401).json({ code: 'LOGIN_REQUIRED', error: 'Đăng nhập để học bài này.' });
   }
-  return requireMember(req, res, async () => {
+  return requireMemberSession(req, res, async () => {
+    if (req.query.program !== 'hugoteam') return res.json({ lesson: publicCourse(course) });
     try {
-      // HugoTeam học CHÍNH chương trình Coding (đủ mọi step): thành viên đang ở
-      // giai đoạn Coding còn hạn được đọc mọi bài, mở từ HugoTeam hay từ Coding.
+      // Mở từ Hugo Team thì phải đang ở giai đoạn Coding còn hạn.
       const teamDev = await HugoTeamDev.findOne({ email: req.memberEmail, assessmentStage: 'coding' }).select('codingStartedAt').lean();
       const teamActive = Boolean(teamDev) && !(teamDev.codingStartedAt
         && Date.now() - new Date(teamDev.codingStartedAt).getTime() > HUGOTEAM_CODING_DAYS * 24 * 60 * 60 * 1000);
-      if (req.query.program === 'hugoteam') {
-        if (!teamActive) {
-          return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam (hoặc đã quá hạn).' });
-        }
-        return res.json({ lesson: publicCourse(course) });
-      }
-      if (teamActive) return res.json({ lesson: publicCourse(course) });
-      if (!req.isAdminActor) {
-        const fields = 'hugoCoderAll7Lifetime hugoCoderBasicLifetime hugoCoderIntermediateLifetime hugoCoderAdvancedLifetime '
-          + 'hugoCoderSecurityLifetime hugoCoderExamLifetime hugoCoderOptimizeLifetime hugoCoderUltimateLifetime '
-          + 'hugoCoderDevopsLifetime featureSubscriptions appPlans';
-        const email = req.memberEmail;
-        const bio = await Bio.findOne({ email }).select(fields).lean()
-          || await Bio.findOne({ contactEmail: email }).select(fields).lean();
-        const stage = STAGES.find((item) => index >= item.from && index < item.to);
-        if (!canReadCoderStage(bio, stage?.id)) {
-          return res.status(403).json({
-            code: 'COURSE_ACCESS_REQUIRED',
-            error: 'Bài này thuộc phần trả phí. Mở khóa bộ Phát triển Web hoặc chặng chứa bài để học tiếp.',
-            lessonId: course.id,
-            stageId: stage?.id || null,
-          });
-        }
+      if (!teamActive) {
+        return res.status(403).json({ code: 'HUGOTEAM_CODING_REQUIRED', error: 'Bạn không ở giai đoạn Coding của HugoTeam (hoặc đã quá hạn).' });
       }
       return res.json({ lesson: publicCourse(course) });
     } catch (error) {
@@ -133,14 +112,14 @@ export async function getLessonDetail(req, res) {
 
 /**
  * Chấm trắc nghiệm cho khách học thử: chỉ step thuộc phần học thử, không ghi
- * tiến độ. Step trả phí không chấm ở đây — lời giải trả về sau khi chấm chính là
- * đáp án, phát cho người chưa mua là phát nội dung trả phí.
+ * tiến độ. Step sau chặng 1 không chấm ẩn danh ở đây: lời giải trả về sau khi
+ * chấm chính là đáp án — người học đăng nhập nộp qua /api/joy/award-learning.
  */
 export async function gradePreviewQuiz(req, res) {
   const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
   if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
-  if (index >= PUBLIC_TOOLS.study.previewLessons) {
-    return res.status(403).json({ code: 'COURSE_ACCESS_REQUIRED', error: 'Step này cần đăng nhập và mở khóa.' });
+  if (index >= CODER_PREVIEW_STEPS) {
+    return res.status(403).json({ code: 'COURSE_ACCESS_REQUIRED', error: 'Step này cần đăng nhập.' });
   }
   const graded = gradeStepQuiz(WEB_COURSES[index].id, req.body?.answers);
   if (!graded) return res.status(409).json({ code: 'STEP_NOT_READY', error: 'Step này đang được soạn.' });

@@ -24,8 +24,7 @@ export const OWN_DISCOUNT = 0.3;
 export const APP_PLANS = Object.freeze({
   arcade: { appId: 'arcade', featureKey: 'hugoArcade', label: 'HugoArcade', trialDays: 7 },
   chess: { appId: 'chess', featureKey: 'hugoChess', label: 'HugoChess', trialDays: 7 },
-  // HugoCoder đã có cờ sở hữu riêng từ trước — dùng lại chứ không tạo cờ thứ hai.
-  ide: { appId: 'ide', featureKey: 'hugoCoder', label: 'Study · Phát triển Web', trialDays: 14, ownFlag: 'hugoCoderAll7Lifetime' },
+  // Coding (id 'ide') không còn ở đây: khoá học miễn phí từ 31/10/2026 (Education Hugo).
 });
 
 export const PLAN_APP_IDS = Object.freeze(Object.keys(APP_PLANS));
@@ -136,28 +135,6 @@ export function planState(bio, appId) {
     };
   }
   return { tier: 'none', unlocked: false, expiresAt: null, trialUsed: hasUsedTrial(bio, appId) };
-}
-
-// Gói lẻ từng chặng Coder (mua vĩnh viễn ở joyRoutes). Ba cờ cũ của chặng 4
-// (Security/Exam/Optimize) và gói Ultimate cũ vẫn tính để ai đã trả tiền không mất quyền.
-export function getCoderOwnedStages(bio) {
-  return {
-    basic: Boolean(bio.hugoCoderBasicLifetime),
-    intermediate: Boolean(bio.hugoCoderIntermediateLifetime),
-    advanced: Boolean(bio.hugoCoderAdvancedLifetime),
-    security: Boolean(
-      bio.hugoCoderSecurityLifetime
-      || bio.hugoCoderExamLifetime
-      || bio.hugoCoderOptimizeLifetime
-    ),
-    project: Boolean(bio.hugoCoderUltimateLifetime),
-    devops: Boolean(bio.hugoCoderDevopsLifetime || bio.hugoCoderUltimateLifetime)
-  };
-}
-
-/** Đọc được chi tiết bài Coder thuộc chặng `stageId`: có cả app (sở hữu/thuê/dùng thử) hoặc sở hữu đúng chặng đó. */
-export function canReadCoderStage(bio, stageId) {
-  return planState(bio, 'ide').unlocked || Boolean(getCoderOwnedStages(bio || {})[stageId]);
 }
 
 function writePlanRecord(bioDoc, appId, patch) {

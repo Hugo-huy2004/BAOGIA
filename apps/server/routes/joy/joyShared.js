@@ -3,16 +3,14 @@
  * joyRoutes.js cũ — mỗi thứ chỉ có MỘT bản ở đây nên các router con dùng chung
  * trạng thái (bộ đếm limiter, cache) như khi còn chung một tệp.
  */
-import { FEATURE_PRICES, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
+import { FEATURE_PRICES } from '../../utils/featureSubscriptionService.js';
 import {
   BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
-  STUDY_LIFETIME,
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
 } from '../../../../packages/shared/joyPrices.js';
-import { ownExchangeItems, getCoderOwnedStages } from '../../utils/appPlanService.js';
+import { ownExchangeItems } from '../../utils/appPlanService.js';
 import { STEP_IDS } from '../../../web/src/components/member/hugoCoder/lessons/stages.js';
 import { memberTier, tierGifts, TIER_LABELS } from '../../utils/memberTier.js';
-import { getCoderStageGate } from '../../../../packages/shared/coderProgression.js';
 
 export const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 
@@ -20,117 +18,10 @@ export const COMPRESS_CHARGE = 50;
 
 export const CODER_LESSON_IDS = STEP_IDS;
 
-export const CODER_STAGE_DEFINITIONS = {
-  basic: {
-    key: 'hugoCoderBasicLifetime',
-    label: 'Chặng 1: Nền tảng lập trình và Web',
-    priceJoy: STUDY_LIFETIME.basic
-  },
-  intermediate: {
-    key: 'hugoCoderIntermediateLifetime',
-    label: 'Chặng 2: PHP, SQL và máy chủ localhost',
-    priceJoy: STUDY_LIFETIME.intermediate,
-    previousTier: 'basic',
-  },
-  advanced: {
-    key: 'hugoCoderAdvancedLifetime',
-    label: 'Chặng 3: CRUD mạng xã hội',
-    priceJoy: STUDY_LIFETIME.advanced,
-    previousTier: 'intermediate',
-  },
-  security: {
-    key: 'hugoCoderSecurityLifetime',
-    label: 'Chặng 4: Bảo mật ứng dụng web',
-    priceJoy: STUDY_LIFETIME.security,
-    previousTier: 'advanced',
-  },
-  project: {
-    key: 'hugoCoderUltimateLifetime',
-    label: 'Chặng 5: Hoàn thiện sản phẩm',
-    priceJoy: STUDY_LIFETIME.project,
-    previousTier: 'security',
-  },
-  devops: {
-    key: 'hugoCoderDevopsLifetime',
-    label: 'Chặng 6: Phân tích, triển khai và dự án hoàn tất',
-    priceJoy: STUDY_LIFETIME.devops,
-    previousTier: 'project',
-  }
-};
-
-export function getCoderStageQuote(bio, tier) {
-  const definition = CODER_STAGE_DEFINITIONS[tier];
-  if (!definition) {
-    return { eligible: false, code: 'INVALID_TIER', error: 'Cấp độ mở khóa không hợp lệ.' };
-  }
-
-  const owned = getCoderOwnedStages(bio);
-  const { tax, total } = calcExchangeTotal(definition.priceJoy);
-  const base = {
-    tier,
-    label: definition.label,
-    priceJoy: definition.priceJoy,
-    tax,
-    total,
-    balance: Number(bio.joyBalance) || 0,
-    alreadyOwned: owned[tier]
-  };
-
-  if (owned[tier]) {
-    return {
-      ...base,
-      eligible: false,
-      code: 'ALREADY_OWNED',
-      error: 'Bạn đã mở khóa vĩnh viễn chặng này rồi.'
-    };
-  }
-
-  if (definition.previousTier && !owned[definition.previousTier]) {
-    const previous = CODER_STAGE_DEFINITIONS[definition.previousTier];
-    return {
-      ...base,
-      eligible: false,
-      code: 'PREVIOUS_STAGE_REQUIRED',
-      error: `Bạn cần mở khóa ${previous.label} trước.`
-    };
-  }
-
-  const stageGate = getCoderStageGate(bio.completedLessons || [], tier);
-  if (!stageGate.unlocked) {
-    const previous = CODER_STAGE_DEFINITIONS[definition.previousTier];
-    return {
-      ...base,
-      eligible: false,
-      code: 'PREVIOUS_STAGE_INCOMPLETE',
-      firstMissingLesson: stageGate.missingLessons[0],
-      missingLessonCount: stageGate.missingLessons.length,
-      error: `Bạn cần hoàn thành đủ ${previous.label} trước khi mở khóa chặng tiếp theo. Còn thiếu ${stageGate.missingLessons.length} bài.`
-    };
-  }
-
-  if (base.balance < total) {
-    return {
-      ...base,
-      eligible: false,
-      code: 'INSUFFICIENT_JOY',
-      error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để mua.`
-    };
-  }
-
-  return { ...base, eligible: true };
-}
-
 // Item labels shown on the invoice modal, keyed the same way the frontend
 // calls /exchange-quote — kept here (not duplicated client-side) so price
 // changes only ever need updating in one place.
 export const EXCHANGE_ITEMS = {
-  hugoCoder: { label: 'Study · Phát triển Web (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
-  hugoCoderIntermediate: { label: 'Study · Tư duy Kiến trúc (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderIntermediate },
-  hugoCoderAdvanced: { label: 'Study · Giải thuật và Mật mã (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderAdvanced },
-  hugoCoderSecurity: { label: 'Study · Bảo mật và AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderSecurity },
-  hugoCoderExam: { label: 'Study · Kiểm tra Năng lực (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderExam },
-  hugoCoderOptimize: { label: 'Study · Tối ưu và AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderOptimize },
-  hugoCoderUltimate: { label: 'Study · Đồ án Web Nâng cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderUltimate },
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
   bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },

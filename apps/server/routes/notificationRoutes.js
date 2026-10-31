@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, requireMemberSession } from '../middleware/authMiddleware.js';
 import {
   getVapidPublicKey,
   subscribeWebPush,
@@ -24,11 +24,13 @@ router.get('/vapid-public-key', async (req, res) => {
 });
 
 // --- 2. Thành viên: Quản lý đăng ký Web Push ---
-router.post('/subscribe', requireMember, async (req, res) => {
+// Chỉ cần phiên (không qua cổng hồ sơ): người học Education Hugo chưa làm hồ sơ
+// Hugo Studio vẫn bật được nhắc học. Đăng ký luôn gắn với req.memberEmail.
+router.post('/subscribe', requireMemberSession, async (req, res) => {
   return subscribeWebPush(req, res);
 });
 
-router.post('/unsubscribe', requireMember, async (req, res) => {
+router.post('/unsubscribe', requireMemberSession, async (req, res) => {
   return unsubscribeWebPush(req, res);
 });
 

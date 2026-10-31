@@ -32,6 +32,14 @@ export async function sendPushNotification(email, title, body, url = '/member/to
 }
 
 /**
+ * Push của Education Hugo: chỉ tới máy đăng ký từ tên miền Edu (site 'edu'),
+ * chạm vào thì mở trong app Edu. Edu chỉ có tiếng Việt nên chữ soạn sẵn.
+ */
+export async function sendEduPush(email, { title, body, url = '/learn', tag }) {
+  return deliver(email, () => ({ title, body }), url, { site: 'edu', ...(tag ? { tag } : {}) });
+}
+
+/**
  * Gửi push dựng theo ngôn ngữ CỦA TỪNG THIẾT BỊ.
  *
  * Thông báo đẩy do hệ điều hành vẽ khi app đã đóng, nên không thể để client
@@ -93,12 +101,13 @@ const maskEmail = (email) => String(email).replace(/^(.{2}).*(@.*)$/, '$1***$2')
 
 /** Phần chung: tìm thiết bị, gửi, dọn đăng ký chết. */
 async function deliver(email, textFor, url, extra = {}) {
-  const { urgency = 'normal', ...shown } = extra;
+  const { urgency = 'normal', site = 'www', ...shown } = extra;
   try {
     if (!email) return;
 
     // Tìm tất cả các subscription (thiết bị đăng ký) của email này
-    const subscriptions = await NotificationSubscription.find({ email });
+    // Máy Edu chỉ nhận push của Edu (đường dẫn www mở trong app Edu là trang trắng).
+    const subscriptions = await NotificationSubscription.find({ email, site: site === 'edu' ? 'edu' : { $ne: 'edu' } });
     if (!subscriptions || subscriptions.length === 0) {
       return;
     }
@@ -116,7 +125,7 @@ async function deliver(email, textFor, url, extra = {}) {
         const payload = JSON.stringify({
           title: text.title,
           body: text.body || '',
-          icon: '/image/avt7.png',
+          icon: site === 'edu' ? '/edu/icon-192.png' : '/image/avt7.png',
           url: url || '/member/today',
           ...shown,
         });

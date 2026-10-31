@@ -12,7 +12,9 @@ class HugoCoderApiError extends Error {
 
 class HugoCoderApi {
   async request(path, { method = "POST", body } = {}) {
-    if (!getMemberSession()?.token) {
+    // Web cùng origin giữ phiên trong cookie HttpOnly nên `token` rỗng — hỏi phiên
+    // có hay không bằng email, đừng bằng token (bản cũ vì vậy luôn tự báo 401 trên web).
+    if (!getMemberSession()?.email) {
       throw new HugoCoderApiError(
         "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục.",
         401,
@@ -50,25 +52,8 @@ class HugoCoderApi {
     });
   }
 
-  buyLifetimeUnlock(tier) {
-    return this.request("/joy/buy-lifetime-unlock", {
-      body: { tier },
-    });
-  }
-
-  getLifetimeUnlockQuote(tier) {
-    return this.request(
-      `/joy/lifetime-unlock-quote?tier=${encodeURIComponent(tier)}`,
-      { method: "GET" },
-    );
-  }
-
   getAccessSnapshot() {
     return this.request("/joy/coder-access", { method: "GET" });
-  }
-
-  buyAllStagesBundle() {
-    return this.request("/joy/buy-all-stages-bundle");
   }
 
   claimMilestoneReward(phase) {

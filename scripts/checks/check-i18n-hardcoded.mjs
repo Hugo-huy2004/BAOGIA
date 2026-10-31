@@ -21,7 +21,9 @@ const VIETNAMESE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽ
 //    machine-translating a legal page is a risk with no upside.
 const EXCLUDED = new RegExp([
   "node_modules", "/locales/", "/admin/", "/demos/",
-  "hugoCoder/", "hugoSO", "study/", "studyCurriculum", "ideData",
+  "hugoCoder/", "hugoSO", "study/", "ideData",
+  // Education Hugo hiện chỉ phục vụ người học tiếng Việt (giáo trình Nhịp là tiếng Việt).
+  "/education/",
   "banhocduong/", "intentClassifier", "clinicalTests",
   "PrivacyPolicyPage", "TermsPage",
   // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối

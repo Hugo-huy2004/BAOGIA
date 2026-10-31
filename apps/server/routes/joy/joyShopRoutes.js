@@ -2,13 +2,21 @@
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import { awardJoy } from '../../utils/joyService.js';
-import { requireMember } from '../../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
+import { accountOrIpKey } from '../../config/limiter.js';
+import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
+import { eduSnapshot, saveEduPrefs } from '../../services/eduLearner.js';
+import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
+import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
 import UtilityProduct from '../../models/UtilityProduct.js';
 import { isAuraThemeFree, isAuraThemeId } from '../../../../packages/shared/auraThemes.js';
-import { BIO_THEME_RENTAL_PRICE, CODER_STAGE_DEFINITIONS, getCoderStageQuote, EXCHANGE_ITEMS } from './joyShared.js';
+import { BIO_THEME_RENTAL_PRICE, EXCHANGE_ITEMS } from './joyShared.js';
 
 const router = express.Router();
+
+// Bấm đúp nút gia hạn không được trừ JOY hai lần ngoài ý muốn.
+const extendLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 10_000, max: 2, standardHeaders: true, legacyHeaders: false });
 
 // GET /api/joy/exchange-quote?email=&item=  — invoice preview for the
 // confirmation modal shown before any "Trao đổi JOY" action. Returns the
@@ -155,9 +163,9 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
     if (!email || !featureKey) return res.status(400).json({ error: 'email and featureKey are required' });
     if (!FEATURE_PRICES[featureKey]) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
 
-    // Block stage-specific monthly subscriptions, only allow hugoCoder (maintenance fee)
-    if (featureKey.startsWith('hugoCoder') && featureKey !== 'hugoCoder') {
-      return res.status(400).json({ error: 'Cấp độ này chỉ có thể mở khóa vĩnh viễn, không hỗ trợ thuê tháng.' });
+    // Khoá Coding miễn phí từ 31/10/2026 (Education Hugo): không còn gì để thu.
+    if (featureKey.startsWith('hugoCoder')) {
+      return res.status(400).json({ error: 'Khoá Coding đã miễn phí, không cần mở khoá.' });
     }
 
     const { balance, expiresAt } = await chargeFeatureSubscription(email, featureKey, Number(months) || 1);
@@ -167,54 +175,32 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
   }
 });
 
-/**
- * GET /api/joy/lifetime-unlock-quote?tier=
- * Validate ownership, learning prerequisites and balance before opening the
- * confirmation sheet. Business denials intentionally return 200 so expected
- * eligibility checks do not appear as failed network requests in DevTools.
- */
-router.get('/lifetime-unlock-quote', requireMember, async (req, res) => {
+// GET /api/joy/coder-access — tiến độ khoá Coding + trạng thái tài khoản của
+// người đang đăng nhập, cho Education Hugo và Hugo Team. Chỉ cần phiên (không
+// đòi hồ sơ đầy đủ): người chỉ đến để học vẫn đọc được tiến độ, số JOY và hạn
+// duy trì tài khoản của mình.
+router.get('/coder-access', requireMemberSession, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const { tier } = req.query;
-    if (!CODER_STAGE_DEFINITIONS[tier]) {
-      return res.status(400).json({ error: 'Cấp độ mở khóa không hợp lệ.' });
-    }
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    const fields = 'email displayName avatarUrl completedLessons hugoCoderExamScores hugoCoderProjectStatus joyBalance isEduVerified trialExpiresAt expiresAt';
+    let bio = await Bio.findOne({ email }).select(fields).lean();
+    if (!bio) bio = await Bio.findOne({ contactEmail: email }).select(fields).lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    return res.json(getCoderStageQuote(bio, tier));
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /api/joy/coder-access — small authoritative snapshot used when opening
-// HugoCoder so an old portal/bootstrap cache can never repaint a purchased
-// stage as locked.
-router.get('/coder-access', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
+    // Cài đặt Edu + mục tiêu hôm nay đi cùng một lượt gọi (ít request cho Render free).
+    const edu = await eduSnapshot(email).catch(() => null);
     return res.json({
+      edu,
       bio: {
-        hugoCoderAll7Lifetime: Boolean(bio.hugoCoderAll7Lifetime),
-        hugoCoderBasicLifetime: Boolean(bio.hugoCoderBasicLifetime),
-        hugoCoderIntermediateLifetime: Boolean(bio.hugoCoderIntermediateLifetime),
-        hugoCoderAdvancedLifetime: Boolean(bio.hugoCoderAdvancedLifetime),
-        hugoCoderSecurityLifetime: Boolean(bio.hugoCoderSecurityLifetime),
-        hugoCoderExamLifetime: Boolean(bio.hugoCoderExamLifetime),
-        hugoCoderOptimizeLifetime: Boolean(bio.hugoCoderOptimizeLifetime),
-        hugoCoderUltimateLifetime: Boolean(bio.hugoCoderUltimateLifetime),
-        hugoCoderDevopsLifetime: Boolean(bio.hugoCoderDevopsLifetime),
-        featureSubscriptions: bio.featureSubscriptions || {},
+        email: bio.email,
+        displayName: bio.displayName || '',
+        avatarUrl: bio.avatarUrl || '',
         completedLessons: bio.completedLessons || [],
-        joyBalance: Number(bio.joyBalance) || 0
+        hugoCoderExamScores: bio.hugoCoderExamScores || {},
+        hugoCoderProjectStatus: bio.hugoCoderProjectStatus || null,
+        joyBalance: Number(bio.joyBalance) || 0,
+        isEduVerified: Boolean(bio.isEduVerified),
+        accessExpiresAt: accessDeadline(bio) || null,
       }
     });
   } catch (error) {
@@ -222,102 +208,56 @@ router.get('/coder-access', requireMember, async (req, res) => {
   }
 });
 
-/**
- * POST /api/joy/buy-lifetime-unlock
- * Deduct stage price to grant lifetime unlock access to Coder phase.
- */
-router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
+// PUT /api/joy/edu-settings — cài đặt cá nhân Education Hugo (đồng bộ mọi máy).
+// cleanEduPrefs bỏ mọi khoá lạ/giá trị ngoài danh sách.
+router.put('/edu-settings', requireMemberSession, async (req, res) => {
   try {
-    const { tier } = req.body; // 6 chặng: 'basic', 'intermediate', 'advanced', 'security' (51-70), 'project' (71-90), 'devops' (91-100)
-    const email = req.memberEmail;
-    if (!email || !CODER_STAGE_DEFINITIONS[tier]) {
-      return res.status(400).json({ error: 'Cấp độ mở khóa không hợp lệ.' });
-    }
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const quote = getCoderStageQuote(bio, tier);
-    if (quote.alreadyOwned) {
-      return res.json({
-        success: true,
-        alreadyOwned: true,
-        balance: quote.balance,
-        bio
-      });
-    }
-    if (!quote.eligible) {
-      return res.status(409).json({ error: quote.error, code: quote.code });
-    }
-
-    const result = await awardJoy(
-      bio.email,
-      -quote.total,
-      'lifetime_unlock',
-      `Trao đổi JOY mở khóa vĩnh viễn Study with Hugo · ${quote.label} (gồm ${quote.tax} JOY phí sáng tạo)`,
-      { bioDoc: bio, skipSave: true, refId: CODER_STAGE_DEFINITIONS[tier].key }
-    );
-
-    bio[CODER_STAGE_DEFINITIONS[tier].key] = true;
-    await bio.save();
-
-    res.json({ success: true, balance: result.balance, bio });
+    const prefs = await saveEduPrefs(req.memberEmail, req.body?.prefs);
+    return res.json({ success: true, prefs });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-/**
- * POST /api/joy/buy-all-stages-bundle
- * Deduct 16,000 JOY (+ 10% tax = 17,600 total) to grant lifetime unlock access to all 7 phases and waive maintenance.
- */
-router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
+// POST /api/joy/extend-account — "Duy trì tài khoản" trong store của Education
+// Hugo: ACCOUNT_EXTENSION.priceJoy (+ phí sáng tạo chung) đổi lấy
+// ACCOUNT_EXTENSION.days ngày. Cùng mốc với sản phẩm system_validity của Store
+// Hugo Studio. requireMemberSession: người học chưa điền đủ hồ sơ vẫn tự gia hạn
+// được — chặn họ ở đây là để tài khoản bị xoá chỉ vì thiếu số điện thoại.
+router.post('/extend-account', requireMemberSession, extendLimiter, async (req, res) => {
   try {
     const email = req.memberEmail;
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    if (bio.hugoCoderAll7Lifetime) {
-      return res.json({
-        success: true,
-        alreadyOwned: true,
-        balance: Number(bio.joyBalance) || 0,
-        bio
-      });
+    if (bio.isEduVerified) {
+      return res.status(400).json({ code: 'EDU_VERIFIED', error: 'Tài khoản đã xác minh giáo dục, đang được duy trì miễn phí.' });
     }
 
-    const priceJoy = 16000;
+    const { days, priceJoy } = ACCOUNT_EXTENSION;
     const { tax, total } = calcExchangeTotal(priceJoy);
-    if (bio.joyBalance < total) {
-      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để mua trọn gói.` });
+    // Trừ JOY nguyên tử TRƯỚC (awardJoy chặn số dư âm), rồi mới dời hạn: hết
+    // tiền thì không có gì thay đổi; dời hạn hỏng sau khi trừ thì hoàn lại.
+    const { balance } = await awardJoy(email, -total, 'store_purchase',
+      `Duy trì tài khoản +${days} ngày (giá ${priceJoy} JOY + ${tax} JOY phí sáng tạo)`,
+      { notify: false, bioDoc: bio, skipSave: true });
+    try {
+      extendAccess(bio, days);
+      await bio.save();
+    } catch (error) {
+      await awardJoy(email, total, 'admin_adjustment', `Hoàn JOY: chưa gia hạn được tài khoản (${error.message})`, { rawAmount: true, notify: false });
+      throw error;
     }
-
-    const result = await awardJoy(
-      bio.email,
-      -total,
-      'lifetime_unlock_all',
-      `Trao đổi JOY trọn bộ vĩnh viễn 6 phần Phát triển Web (miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
-      { bioDoc: bio, skipSave: true, refId: 'hugoCoderAll7Lifetime' }
-    );
-
-    bio.hugoCoderAll7Lifetime = true;
-    bio.hugoCoderBasicLifetime = true;
-    bio.hugoCoderIntermediateLifetime = true;
-    bio.hugoCoderAdvancedLifetime = true;
-    bio.hugoCoderSecurityLifetime = true;
-    bio.hugoCoderDevopsLifetime = true;
-    bio.hugoCoderExamLifetime = true;
-    bio.hugoCoderOptimizeLifetime = true;
-    bio.hugoCoderUltimateLifetime = true;
-
-    await bio.save();
-    res.json({ success: true, balance: result.balance, bio });
+    invalidateMemberGate(bio.email);
+    return res.json({ success: true, balance, days, total, accessExpiresAt: accessDeadline(bio) });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    if (String(error.message).startsWith('INSUFFICIENT_JOY')) {
+      return res.status(400).json({ code: 'INSUFFICIENT_JOY', error: 'Số dư JOY chưa đủ để gia hạn.' });
+    }
+    return res.status(400).json({ error: error.message });
   }
 });
+
 
 // POST /api/joy/subscribe-bio-theme  { email, template: 'brutalism'|'flat' }
 // 'default' is always free and goes through the normal bio PUT — not this route.

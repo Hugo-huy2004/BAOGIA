@@ -1989,6 +1989,20 @@
 
 .lesson-player-foot svg { width: 19px; height: 19px; }
 
+/* Nút về slide trước: ô vuông viền cạnh nút chính. */
+.lesson-player-foot:has(.lesson-player-back) { display: flex; gap: 10px; justify-content: center; }
+.lesson-player-foot:has(.lesson-player-back) > button:last-child { flex: 1; margin: 0; }
+.lesson-player-foot > .lesson-player-back {
+  flex: 0 0 54px;
+  width: 54px;
+  margin: 0;
+  background: var(--coder-card, #fff);
+  color: var(--step-tone, var(--coder-blue));
+  border: 2px solid var(--coder-border);
+  box-shadow: 0 4px 0 var(--coder-border);
+}
+.lesson-player-foot > .lesson-player-back:active { box-shadow: 0 0 0 var(--coder-border); }
+
 /* ── Ô góp ý ────────────────────────────────────────────────────────────── */
 .lesson-feedback-backdrop {
   position: fixed;

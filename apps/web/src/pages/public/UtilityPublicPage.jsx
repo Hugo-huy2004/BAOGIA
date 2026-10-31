@@ -19,7 +19,6 @@ const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab")
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 const HugoKitApp = lazy(() => import("../../components/member/hugoKit/HugoKitApp"));
 const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
-const StudyWithHugoApp = lazy(() => import("../../components/member/study/StudyWithHugoApp"));
 
 // Khách chưa đăng nhập được 3 lượt demo HugoKit mỗi ngày. Các tool thuần client
 // (QR, chữ ký) đếm bằng localStorage; endpoint file phía server tự đếm theo IP.
@@ -257,20 +256,6 @@ export default function UtilityPublicPage() {
             chatMessages={therapyState.chatMessages}
             claimedChallengesToday={therapyState.claimedChallengesToday}
             onUpdateCompanionState={handleTherapyStateUpdate}
-          />
-        );
-      // Coding đứng riêng được: xem trọn 26 step và học thật trọn chặng 1 mà
-      // không cần tài khoản; từ step 7 máy chủ mới đòi đăng nhập + mở gói.
-      case "study":
-      case "hugoso":
-        return (
-          <StudyWithHugoApp
-            bio={player}
-            showToast={commonProps.showToast}
-            onBioUpdate={handleBioUpdate}
-            studyRoute={page || null}
-            studySub={sub || null}
-            onBack={() => navigate("/introduction")}
           />
         );
       case "radio":

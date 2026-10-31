@@ -46,6 +46,17 @@ export function initCronJobs() {
     }
   });
 
+  // Education Hugo — mỗi giờ: nhắc học theo giờ người học chọn, 9h báo hạn tài khoản.
+  cron.schedule('0 * * * *', async () => {
+    try {
+      const { runEduReminders } = await import('../services/eduLearner.js');
+      const { reminded, warned } = await runEduReminders();
+      if (reminded || warned) console.log(`[CRON] Edu: nhắc học ${reminded}, báo hạn ${warned}.`);
+    } catch (error) {
+      console.error('[CRON] Nhắc học Edu:', error.message);
+    }
+  });
+
   // Bot tự gọi Boss khi có chuyện — MỖI GIỜ (anomalyWatch tự throttle 1h/lần nên
   // chạy dày hơn chỉ tốn DB vô ích; free tier cần nhẹ tải).
   cron.schedule('0 * * * *', async () => {

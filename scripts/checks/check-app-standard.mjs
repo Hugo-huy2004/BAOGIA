@@ -24,7 +24,6 @@ const MEMBER = path.join(ROOT, "apps/web/src/components/member");
  * sau ai làm hỏng một tiêu chí là bộ này đỏ.
  */
 const CERTIFIED = {
-  study: "20/09/2026 — gỡ StudyTopBar tự dựng (nó nhận onBack mà KHÔNG khai trong signature nên nút quay lại chưa bao giờ vẽ — lần thứ ba cùng lỗi); tiêu đề+%tiến độ vào khung, giữ hệ màu cineKit qua paletteVars; 2 khối Suspense nay có LazyBoundary. Bọc khung CHỈ khi !embedded vì /study và trang tiện ích công khai đã tự có chrome",
   team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
@@ -80,8 +79,6 @@ const EXCEPTIONS = {
 const APPS = {
   hugoKit: { entry: "hugoKit/HugoKitApp.jsx", dir: "hugoKit" },
   wallet: { entry: "wallet/JoyWalletApp.jsx", dir: "wallet" },
-  // Vỏ Coding ở study/, còn bản đồ + trình học ở hugoCoder/ — quét cả hai.
-  study: { entry: "study/StudyWithHugoApp.jsx", dir: ["study", "hugoCoder"] },
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
   arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   banhocduong: { entry: "banhocduong/BanhocduongTab.jsx", dir: "banhocduong" },

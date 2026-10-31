@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Bug, Check, Code2, Database, Flag, Lock, Rocket, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
 import { gradeStage } from "../../../../../../packages/shared/stageGrading";
+import { isEduHost } from "../../../../../../packages/shared/eduSite";
 
 /**
  * Bản đồ khoá Coding — một con đường lục giác đi qua sáu vùng phong cảnh.
@@ -14,7 +15,7 @@ import { gradeStage } from "../../../../../../packages/shared/stageGrading";
  */
 // Mỗi chặng MỘT nhân vật riêng, không lặp: ba ảnh chibi Hugo cho ba chặng hợp
 // vai (chào, gõ laptop, lên đường triển khai) và ba nhân vật vẽ SVG cho phần còn lại.
-const STAGE_LOOK = {
+const HUGO_LOOK = {
   basic: { icon: Code2, mascot: "/image/coding/hugo-1.webp" },
   intermediate: { icon: Database, mascot: "/image/coding/hugo-5.webp" },
   advanced: { icon: Users, Mascot: RobotMascot },
@@ -22,6 +23,11 @@ const STAGE_LOOK = {
   project: { icon: Sparkles, Mascot: AstronautMascot },
   devops: { icon: Rocket, mascot: "/image/coding/hugo-6.webp" },
 };
+// Education Hugo: dàn nhân vật clay (scripts/generate-mascots.mjs), mỗi chặng một bạn.
+const EDU_CAST = { basic: 1, intermediate: 4, advanced: 6, security: 2, project: 3, devops: 8 };
+const STAGE_LOOK = typeof window !== "undefined" && isEduHost(window.location.hostname)
+  ? Object.fromEntries(Object.entries(HUGO_LOOK).map(([id, look]) => [id, { icon: look.icon, mascot: `/edu/cast-${EDU_CAST[id]}.svg` }]))
+  : HUGO_LOOK;
 
 // Màu đất cuối mỗi vùng — vùng sau bắt đầu từ đúng màu này để hai vùng hoà
 // vào nhau thay vì cắt ngang một đường thẳng. Khớp --ground trong CSS.

@@ -40,9 +40,12 @@ import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
 import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../../../packages/shared/partnerCampaigns";
+import { isEduHost } from "../../../packages/shared/eduSite";
 import { isPartnerWelcomed, markPartnerWelcomed } from "./utils/partnerWelcome";
 import { redeemInstallHandoff } from "./utils/appHandoff";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
+
+const EDU_SITE = typeof window !== "undefined" && isEduHost(window.location.hostname);
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
 // is fetched per language (see i18n/config.js). Every screen below lives
@@ -65,7 +68,7 @@ const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
-const HugoLearningPage = lazyRoute(() => import("./pages/public/HugoLearningPage"));
+const EducationApp = lazyRoute(() => import("./education/EducationApp"));
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
@@ -194,11 +197,6 @@ function AppContent() {
   // Allowed standalone-app paths come from the registry so this can no longer
   // drift out of sync with the tools UtilityPublicPage actually renders.
   const isPublicUtilityRoute = isPublicToolPath(location.pathname);
-  // Hugo Learning là một dịch vụ ĐỨNG RIÊNG: nó có đầu trang, chân trang và
-  // điều hướng của chính nó, nên cả cây /study không dùng navbar/footer chung
-  // của Hugo Studio — kể cả khi đã đăng nhập.
-  const isLearningRoute = /^\/(?:study|hugoso)(?:\/|$)/.test(location.pathname);
-
   const [bypassMobileGate, setBypassMobileGate] = useState(() => {
     try {
       if (sessionStorage.getItem("pwa_gate_dismissed") === "true") return true;
@@ -279,16 +277,10 @@ function AppContent() {
     );
   }
 
-  if (isLearningRoute || isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
       <Suspense fallback={<StatusScreen kind="loading" />}>
         <Routes>
-          <Route path="/study" element={<HugoLearningPage />} />
-          <Route path="/study/:page" element={<HugoLearningPage />} />
-          <Route path="/study/:page/:sub" element={<HugoLearningPage />} />
-          <Route path="/hugoso" element={<HugoLearningPage />} />
-          <Route path="/hugoso/:page" element={<HugoLearningPage />} />
-          <Route path="/hugoso/:page/:sub" element={<HugoLearningPage />} />
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/b/:slug" element={<BioPublicPage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
@@ -403,8 +395,8 @@ function AppContent() {
                 ? <MemberPortalPage />
                 : <Navigate to="/login" replace />
             } />
-            {/* Đoạn thứ năm — /member/utilities/study/<khoá>/<bài>. Thiếu nhánh
-                này thì mở bài trong portal rồi tải lại là rơi xuống "*". */}
+            {/* Đoạn thứ năm — /member/<tab>/<app>/<màn>/<chi tiết>. Thiếu nhánh
+                này thì mở sâu trong portal rồi tải lại là rơi xuống "*". */}
             <Route path="/member/:tab/:subTab/:psychTab/:deepTab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
                 ? <MemberPortalPage />
@@ -441,12 +433,11 @@ function AppContent() {
             
             {/* Dynamic Public Utility Route */}
             <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
-            {/* Đường thứ hai bên trong một app công khai — ví dụ /study/lesson7.
+            {/* Đường thứ hai bên trong một app công khai — ví dụ /chess/<phòng>.
                 Không có nhánh này thì mở app rồi tải lại trang là văng ra
                 /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
             <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
-            {/* Đường thứ ba — /study/<khoá>/<bài>. Khoá nằm trong địa chỉ nên
-                không phải suy bài thuộc khoá nào. */}
+            {/* Đường thứ ba bên trong một app công khai. */}
             <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
             
             <Route path="*" element={<NotFoundPage />} />
@@ -496,6 +487,11 @@ export default function App() {
         root.classList.remove("dark");
         return;
       }
+      // Education Hugo cho chọn Sáng/Tối cố định (useEduPrefs đặt data-theme).
+      if (root.dataset.theme === "light" || root.dataset.theme === "dark") {
+        root.classList.toggle("dark", root.dataset.theme === "dark");
+        return;
+      }
       if (e.matches) {
         root.classList.add("dark");
       } else {
@@ -538,17 +534,26 @@ export default function App() {
         <DataProvider>
           <BrowserRouter basename={langPrefix || undefined} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
-              <RouteSeoPolicy />
-              <NativeShell />
-              {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
+              {/* Education Hugo: cùng bản build, tên miền riêng, vỏ riêng — không
+                  kéo banner cài app, quyên góp hay SEO của Hugo Studio vào. */}
+              {/* Ví JOY/thông báo thời gian thực — chạy cả ở Education Hugo (cùng tài khoản). */}
               <Suspense fallback={null}><PWARealtimeBridge /></Suspense>
-              <PWAQuickLogin />
-              <AppContent />
-              <PWAInstallBanner />
+              {EDU_SITE ? (
+                <Suspense fallback={<StatusScreen kind="loading" />}><EducationApp /></Suspense>
+              ) : (
+                <>
+                  <RouteSeoPolicy />
+                  <NativeShell />
+                  {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
+                  <PWAQuickLogin />
+                  <AppContent />
+                  <PWAInstallBanner />
+                  <PWAInstallModal />
+                  <Suspense fallback={null}><DonationModal /></Suspense>
+                </>
+              )}
               <PWAUpdatePrompt />
               <ServerStatusBanner />
-              <PWAInstallModal />
-              <Suspense fallback={null}><DonationModal /></Suspense>
               <Toaster
                 position="top-center"
                 reverseOrder={false}

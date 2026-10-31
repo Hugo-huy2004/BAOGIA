@@ -37,7 +37,7 @@ const DAY = 24 * 60 * 60;
 
 const trustedOrigins = (request) => {
   const origin = request?.headers?.get?.('origin') || '';
-  const local = !isProd && /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
+  const local = !isProd && /^https?:\/\/((?:[a-z0-9-]+\.)?localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin);
   return local ? [...allowedOrigins, origin] : allowedOrigins;
 };
 
@@ -133,10 +133,15 @@ async function alertNewDevice(session, ctx) {
   const [{ notifyMember }, { deviceName }] = await Promise.all([
     import('../utils/notifyMember.js'), import('../../../packages/shared/deviceName.js'),
   ]);
+  const email = user.email.toLowerCase();
+  const device = deviceName(session.userAgent || '') || '—';
   await notifyMember({
-    email: user.email.toLowerCase(), key: 'event.newSignIn', params: { device: deviceName(session.userAgent || '') || '—' },
+    email, key: 'event.newSignIn', params: { device },
     type: 'warning', category: 'security', actionUrl: '/member/account', push: true,
   });
+  // Máy cài Education Hugo không nhận push Hugo Studio — báo riêng sang đó.
+  const { eduSecurityPush } = await import('../services/eduLearner.js');
+  await eduSecurityPush(email, device);
 }
 
 const buildMemberAuth = (base) => betterAuth({
