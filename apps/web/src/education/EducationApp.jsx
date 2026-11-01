@@ -144,7 +144,7 @@ export default function EducationApp() {
         <Route path="/login" element={signedIn ? <Navigate to="/learn" replace /> : <EduLogin onSignedIn={() => window.location.assign("/learn")} />} />
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
-        <Route path="/streak" element={signedIn ? shell("streak", <StreakView learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
+        <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
         <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
         <Route path="/store" element={signedIn ? shell("store", <EduStore learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="/settings" element={signedIn ? shell("settings", <EduSettings learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />

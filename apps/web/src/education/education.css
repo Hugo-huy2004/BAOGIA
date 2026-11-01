@@ -601,45 +601,6 @@
 .edu-card--streak b { display: block; font-size: 18px; color: var(--edu-orange); }
 .edu-card--streak small { display: block; color: var(--edu-muted); font-size: 13px; line-height: 1.4; }
 
-/* Màn chuỗi lửa (/streak): khối lửa màu theo trạng thái, 3 số, lịch trong thẻ. */
-.streak-screen { display: grid; gap: 14px; width: min(460px, 100%); margin: 0 auto; padding: 12px 16px 28px; box-sizing: border-box; }
-.streak-hero { --hero: var(--edu-soft); --hero-ink: var(--edu-ink); --hero-sub: var(--edu-muted);
-  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 14px; padding: 18px 18px 16px; border-radius: 24px; background: var(--hero); color: var(--hero-ink); }
-.streak-hero.is-lit { --hero: #ff9600; --hero-ink: #fff; --hero-sub: rgb(255 255 255 / .85); box-shadow: 0 5px 0 #d97e00; }
-.streak-hero.is-frozen { --hero: #1cb0f6; --hero-ink: #fff; --hero-sub: rgb(255 255 255 / .85); box-shadow: 0 5px 0 #1899d6; }
-.streak-hero .flame-buddy { grid-row: span 1; }
-.streak-hero-text { display: grid; gap: 2px; min-width: 0; }
-.streak-count { font-size: 64px; font-weight: 800; line-height: .95; color: var(--hero-ink); }
-.streak-hero.is-idle .streak-count { color: var(--edu-orange); }
-.streak-days { font-size: 14px; font-weight: 700; color: var(--hero-sub); }
-.streak-status { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin: 10px 0 0; padding: 10px 12px; border-radius: 14px; background: rgb(255 255 255 / .18); color: var(--hero-ink); font-size: 14px; font-weight: 700; line-height: 1.4; }
-.streak-hero.is-idle .streak-status { background: var(--edu-card, var(--edu-bg)); color: var(--edu-muted); }
-.streak-status .material-symbols-outlined { flex: none; font-size: 20px; }
-.streak-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.streak-stats span { display: grid; justify-items: center; gap: 2px; min-width: 0; padding: 12px 6px; border-radius: 18px; border: 2px solid var(--edu-line); text-align: center; }
-.streak-stats i { font-size: 22px; color: var(--edu-orange); font-style: normal; }
-.streak-stats span:nth-child(2) i { color: #1cb0f6; } .streak-stats span:nth-child(3) i { color: #a560f0; }
-.streak-stats b { font-size: 20px; line-height: 1.1; color: var(--edu-ink); }
-.streak-stats small { font-size: 11.5px; line-height: 1.25; color: var(--edu-muted); overflow-wrap: anywhere; }
-.streak-cal-card { display: grid; gap: 10px; padding: 14px; border-radius: 20px; border: 2px solid var(--edu-line); }
-.streak-month { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.streak-month button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--edu-soft); color: inherit; cursor: pointer; }
-.streak-month button:disabled { opacity: .35; cursor: default; }
-.streak-month b { text-transform: capitalize; font-size: 15px; }
-.streak-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px 2px; justify-items: center; }
-.streak-cal-head { font-size: 11.5px; font-weight: 800; color: var(--edu-muted); }
-.streak-day { display: grid; place-items: center; width: min(38px, 100%); aspect-ratio: 1; border-radius: 50%; font-size: 13.5px; font-weight: 700; color: var(--edu-muted); border: 0; background: none; font-family: inherit; padding: 0; }
-.streak-day.is-lit { background: var(--edu-orange); color: #fff; }
-.streak-day.is-frozen { background: #ddf4ff; color: #1899d6; }
-:root.dark .streak-day.is-frozen { background: #12384d; color: #8fd3f4; }
-.streak-day.is-thawable { cursor: pointer; box-shadow: 0 0 0 2px #1cb0f6 inset; }
-.streak-day.is-thawed { background: #ffc800; color: #3c3c3c; }
-.streak-day.is-today { box-shadow: 0 0 0 2px var(--edu-ink) inset; }
-.streak-legend { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 12px; margin: 0; font-size: 12px; color: var(--edu-muted); }
-.streak-legend i { width: 10px; height: 10px; border-radius: 50%; }
-.streak-legend i.is-lit { background: var(--edu-orange); } .streak-legend i.is-frozen { background: #8fd3f4; } .streak-legend i.is-thawed { background: #ffc800; }
-.streak-rule { margin: 0; font-size: 12.5px; color: var(--edu-muted); line-height: 1.5; text-align: center; }
-
 /* Màn chúc mừng mốc — nền tối, lửa giữa, vòng sáng loang, số chuỗi to */
 .streak-celebrate { position: fixed; inset: 0; z-index: 1200; display: grid; place-content: center; justify-items: center; gap: 18px; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); overflow-y: auto; background: #000; color: #fff; text-align: center; } /* đen = nền sẵn của artboard Rive, ánh lửa loang liền */
 .cel-stage { position: relative; display: grid; place-items: center; width: 260px; height: 300px; margin-bottom: 30px; }
@@ -714,33 +675,8 @@
 .rive-credit a { color: inherit; text-decoration: underline; }
 .streak-celebrate .rive-credit { margin-top: 14px; color: rgb(255 255 255 / .5); }
 
-/* ── Màn chuỗi theo phông + tông Hugo Studio: SF/hệ thống, xanh iOS #007aff, thẻ phẳng ── */
-.streak-screen {
-  --hs-blue: #007aff; --hs-blue-deep: #0062cc; --hs-ice: #5ac8fa; --hs-card: #fff; --hs-line: #e5e5ea; --hs-fill: #f2f2f7; --hs-ink: #1c1c1e; --hs-sub: #8e8e93;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
-  letter-spacing: -0.01em;
-}
-:root.dark .streak-screen { --hs-card: #1c1c1e; --hs-line: #38383a; --hs-fill: #2c2c2e; --hs-ink: #f2f2f7; --hs-sub: #8e8e93; }
-.streak-screen .streak-hero { --hero: var(--hs-fill); --hero-ink: var(--hs-ink); --hero-sub: var(--hs-sub); box-shadow: none; }
-.streak-screen .streak-hero.is-lit { --hero: var(--hs-blue); --hero-ink: #fff; --hero-sub: rgb(255 255 255 / .85); }
-.streak-screen .streak-hero.is-frozen { --hero: var(--hs-ice); --hero-ink: #fff; --hero-sub: rgb(255 255 255 / .9); }
-.streak-screen .streak-hero.is-idle .streak-count { color: var(--hs-blue); }
-.streak-screen .streak-hero.is-idle .streak-status { background: var(--hs-card); color: var(--hs-sub); }
-.streak-screen .streak-stats span, .streak-screen .streak-cal-card, .streak-social { border: 0; background: var(--hs-card); box-shadow: 0 0 0 1px var(--hs-line); }
-.streak-screen .streak-stats i { color: var(--hs-blue); }
-.streak-screen .streak-stats span:nth-child(2) i { color: var(--hs-ice); } .streak-screen .streak-stats span:nth-child(3) i { color: #ff9500; }
-.streak-screen .streak-stats b, .streak-screen .streak-month b { color: var(--hs-ink); }
-.streak-screen .streak-stats small, .streak-screen .streak-cal-head, .streak-screen .streak-legend, .streak-screen .streak-rule { color: var(--hs-sub); }
-.streak-screen .streak-month button { background: var(--hs-fill); color: var(--hs-blue); }
-.streak-screen .streak-day { color: var(--hs-sub); }
-.streak-screen .streak-day.is-lit { background: var(--hs-blue); color: #fff; }
-.streak-screen .streak-day.is-frozen { background: color-mix(in srgb, var(--hs-ice) 22%, transparent); color: #0a84ff; }
-.streak-screen .streak-day.is-thawable { box-shadow: 0 0 0 2px var(--hs-ice) inset; }
-.streak-screen .streak-day.is-today { box-shadow: 0 0 0 2px var(--hs-ink) inset; }
-.streak-screen .streak-legend i.is-lit { background: var(--hs-blue); } .streak-screen .streak-legend i.is-frozen { background: var(--hs-ice); }
-
 /* Thi đua tuần + bạn bè */
-.streak-social { display: grid; gap: 12px; padding: 12px; border-radius: 20px; }
+.streak-social { display: grid; gap: 12px; }
 .streak-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 12px; background: var(--hs-fill); }
 .streak-tabs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border: 0; border-radius: 9px; background: none; color: var(--hs-sub); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .streak-tabs button.is-on { background: var(--hs-card); color: var(--hs-ink); box-shadow: 0 1px 3px rgb(0 0 0 / .12); }
@@ -770,3 +706,60 @@
 .streak-xp { font-size: 14px; font-weight: 700; color: var(--hs-ink); font-variant-numeric: tabular-nums; }
 .streak-unfollow { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: var(--hs-sub); cursor: pointer; }
 .streak-rows li.streak-empty { display: block; padding: 16px 8px; text-align: center; font-size: 13.5px; color: var(--hs-sub); }
+
+/* ── Màn chuỗi lửa /streak: trang toàn màn, thanh trên + 2 tab gạch chân, dải số lớn,
+   tháng + 2 thẻ + lịch. Phông bo tròn của Edu, nền kem ấm; đóng băng thì xanh lạnh. ── */
+.streak-page {
+  --hs-blue: #1cb0f6; --hs-ice: #49c0f8; --hs-card: var(--edu-bg); --hs-line: var(--edu-line); --hs-fill: var(--edu-soft); --hs-ink: var(--edu-ink); --hs-sub: var(--edu-muted);
+  --band: #fff4d4; --band-ink: #ffb020; --band-sub: #e8a33d;
+  min-height: 100dvh; background: var(--edu-bg); color: var(--edu-ink);
+}
+.streak-page.is-lit { --band: #ff9600; --band-ink: #fff; --band-sub: rgb(255 255 255 / .9); }
+.streak-page.is-idle { --band: #fff1d6; --band-ink: #ff9600; --band-sub: #c47a00; }
+.streak-page.is-frozen { --band: #ddf4ff; --band-ink: #1899d6; --band-sub: #1cb0f6; }
+:root.dark .streak-page.is-empty, :root.dark .streak-page.is-idle { --band: #2b2414; --band-sub: #e8a33d; }
+:root.dark .streak-page.is-frozen { --band: #12384d; --band-ink: #8fd3f4; --band-sub: #8fd3f4; }
+.streak-bar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: max(8px, env(safe-area-inset-top)) 8px 0; background: var(--band); }
+.streak-bar h1 { margin: 0; text-align: center; font-size: 19px; font-weight: 800; color: var(--edu-ink); }
+.streak-close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--edu-ink); cursor: pointer; }
+.streak-close .material-symbols-outlined { font-size: 30px; }
+.streak-tabs-line { display: grid; grid-template-columns: 1fr 1fr; background: var(--band); }
+.streak-tabs-line button { min-height: 52px; border: 0; border-bottom: 3px solid rgb(0 0 0 / .08); background: none; color: var(--edu-ink); font: inherit; font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.streak-tabs-line button.is-on { color: #1cb0f6; border-bottom-color: #1cb0f6; }
+.streak-band { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 24px 22px; background: var(--band); }
+.streak-big { display: block; font-size: 88px; font-weight: 800; line-height: 1; color: var(--band-ink); }
+.streak-big-sub { display: block; font-size: 22px; font-weight: 800; color: var(--band-sub); }
+.streak-band-note { display: block; max-width: 220px; margin-top: 8px; font-size: 13px; line-height: 1.4; font-weight: 600; color: var(--band-sub); }
+.streak-page.is-empty .streak-band .flame-buddy { opacity: .45; }
+.streak-body { display: grid; gap: 14px; width: min(520px, 100%); margin: 0 auto; padding: 20px 16px max(28px, env(safe-area-inset-bottom)); box-sizing: border-box; }
+.streak-body .streak-month { display: flex; align-items: center; justify-content: space-between; }
+.streak-body .streak-month b { font-size: 22px; font-weight: 800; text-transform: none; }
+.streak-body .streak-month span { display: flex; gap: 4px; }
+.streak-body .streak-month button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: none; color: var(--edu-muted); cursor: pointer; }
+.streak-body .streak-month button:disabled { opacity: .3; cursor: default; }
+.streak-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.streak-pair span { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; padding: 14px 16px; border-radius: 18px; border: 2px solid var(--edu-line); }
+.streak-pair i { grid-row: span 2; font-size: 28px; font-style: normal; font-variation-settings: "FILL" 1; }
+.streak-pair i.is-lit { color: #ff9600; } .streak-pair i.is-ice { color: #49c0f8; }
+.streak-pair b { font-size: 22px; line-height: 1.1; }
+.streak-pair small { font-size: 13px; color: var(--edu-muted); line-height: 1.3; }
+.streak-body .streak-cal-card { padding: 16px 10px; border-radius: 20px; border: 2px solid var(--edu-line); }
+.streak-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px 2px; justify-items: center; }
+.streak-cal-head { font-size: 13px; font-weight: 800; color: var(--edu-muted); }
+.streak-day { display: grid; place-items: center; width: min(40px, 100%); aspect-ratio: 1; border-radius: 50%; border: 0; padding: 0; background: none; font-family: inherit; font-size: 15px; font-weight: 800; color: var(--edu-muted); }
+.streak-day.is-lit { background: #ff9600; color: #fff; }
+.streak-day.is-frozen { background: #ddf4ff; color: #1899d6; }
+:root.dark .streak-day.is-frozen { background: #12384d; color: #8fd3f4; }
+.streak-day.is-thawable { cursor: pointer; box-shadow: 0 0 0 2px #49c0f8 inset; }
+.streak-day.is-thawed { background: #ffc800; color: #3c3c3c; }
+.streak-day.is-today { background: var(--edu-soft); color: var(--edu-ink); }
+.streak-day.is-lit.is-today { background: #ff9600; color: #fff; box-shadow: 0 0 0 3px #ffd08a; }
+.streak-goal { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; border: 2px solid var(--edu-line); }
+.streak-goal .material-symbols-outlined { font-size: 28px; color: #a560f0; font-variation-settings: "FILL" 1; }
+.streak-goal p { margin: 0; display: grid; gap: 2px; } .streak-goal b { font-size: 15px; } .streak-goal small { font-size: 12.5px; color: var(--edu-muted); }
+.streak-rule { margin: 0; font-size: 12.5px; color: var(--edu-muted); line-height: 1.5; text-align: center; }
+@media (min-width: 768px) { .streak-band { justify-content: center; gap: 64px; } .streak-bar, .streak-tabs-line { padding-inline: max(8px, calc((100% - 520px) / 2)); } }
+/* Dải cam (đã giữ lửa): tab, tiêu đề, nút đóng chuyển trắng cho đủ tương phản. */
+.streak-page.is-lit .streak-bar h1, .streak-page.is-lit .streak-close, .streak-page.is-lit .streak-tabs-line button { color: rgb(255 255 255 / .85); }
+.streak-page.is-lit .streak-tabs-line button.is-on { color: #fff; border-bottom-color: #fff; }
+.streak-page.is-lit .streak-tabs-line button { border-bottom-color: rgb(255 255 255 / .25); }
