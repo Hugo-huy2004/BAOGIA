@@ -10,13 +10,14 @@ import {
 } from '../../../../packages/shared/joyPrices.js';
 import { ownExchangeItems } from '../../utils/appPlanService.js';
 import { STEP_IDS } from '../../../../packages/courses/coding/stages.js';
+import { STEP_IDS as SQL_STEP_IDS } from '../../../../packages/courses/sql/stages.js';
 import { memberTier, tierGifts, TIER_LABELS } from '../../utils/memberTier.js';
 
 export const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 
 export const COMPRESS_CHARGE = 50;
 
-export const CODER_LESSON_IDS = STEP_IDS;
+export const CODER_LESSON_IDS = [...STEP_IDS, ...SQL_STEP_IDS];
 
 // Item labels shown on the invoice modal, keyed the same way the frontend
 // calls /exchange-quote — kept here (not duplicated client-side) so price

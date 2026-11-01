@@ -23,6 +23,7 @@
     "setup": "npm install",
     "check:api-auth": "node scripts/checks/check-api-auth.mjs",
     "check:coder-content": "node scripts/checks/check-coder-content.mjs",
+    "check:sql-course": "node scripts/checks/check-sql-course.mjs",
     "check:all": "node scripts/checks/run-all-checks.mjs",
     "build:native": "npm run --workspace apps/web build:native",
     "native:sync": "npm run --workspace apps/web native:sync",

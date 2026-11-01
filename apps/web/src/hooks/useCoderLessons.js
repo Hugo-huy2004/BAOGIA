@@ -3,12 +3,16 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { fetchLesson, fetchLessonPage } from "../services/api/modules/coderLessonsApi";
 import { localizeStage, localizeStepTitle, useEduText } from "../education/eduText";
 
-export function useCoderLessons(activeCourseId, { enabled = true, program = "coding" } = {}) {
+/** Khoá của một step: id "sqlN" thuộc khoá SQL, còn lại là Coding. */
+export const courseOfStep = (id) => (/^sql\d+$/.test(String(id || "")) ? "sql" : "coding");
+
+export function useCoderLessons(activeCourseId, { enabled = true, program = "coding", course: wanted } = {}) {
+  const course = wanted || courseOfStep(activeCourseId);
   // Tên chặng/step và nội dung slide theo ngôn ngữ app (máy chủ phủ bản dịch lên).
   const { lang } = useEduText();
   const catalogQuery = useInfiniteQuery({
-    queryKey: ["coder-lessons", "catalog"],
-    queryFn: ({ pageParam, signal }) => fetchLessonPage(pageParam, signal),
+    queryKey: ["coder-lessons", "catalog", course],
+    queryFn: ({ pageParam, signal }) => fetchLessonPage(pageParam, signal, course),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => (
       lastPage.pagination?.hasNextPage ? lastPage.pagination.page + 1 : undefined
@@ -41,7 +45,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
     [catalogQuery.data],
   );
   const rawStages = catalogQuery.data?.pages[0]?.stages;
-  const stages = useMemo(() => (rawStages || []).map((stage) => localizeStage(stage, lang)), [rawStages, lang]);
+  const stages = useMemo(() => (rawStages || []).map((stage) => (course === "coding" ? localizeStage(stage, lang) : stage)), [rawStages, lang, course]);
   const selectedId = activeCourseId || summaries[0]?.id || null;
   const summary = summaries.find((item) => item.id === selectedId);
 
@@ -59,7 +63,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
   const courses = useMemo(
     () => summaries.map((item, index) => {
       const course = item.id === selectedLesson?.id ? { ...item, ...selectedLesson } : item;
-      return { ...course, title: localizeStepTitle(course.title, index, lang) };
+      return item.id.startsWith("sql") ? course : { ...course, title: localizeStepTitle(course.title, index, lang) };
     }),
     [summaries, selectedLesson, lang],
   );

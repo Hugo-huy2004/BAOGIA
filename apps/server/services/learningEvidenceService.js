@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import LearningEvidence from '../models/LearningEvidence.js';
-import { STAGES, WEB_COURSES } from '../../../packages/courses/coding/index.js';
+import { findStep } from '../../../packages/courses/index.js';
 
 class EvidenceDeletedError extends Error {
   constructor() {
@@ -17,12 +17,11 @@ const normalizeTag = (value) => String(value || '')
   .replace(/^-+|-+$/g, '')
   .slice(0, 60);
 
-function lessonSkillTags(course, lessonIndex) {
-  const stage = STAGES.find((item) => lessonIndex >= item.from && lessonIndex < item.to);
+function lessonSkillTags(course) {
   return [...new Set([
     normalizeTag(course.lang),
     normalizeTag(course.practiceType),
-    normalizeTag(stage?.id),
+    normalizeTag(course.stage),
   ].filter(Boolean))];
 }
 
@@ -41,9 +40,8 @@ export function privateEvidenceDto(evidence) {
 }
 
 export async function createLessonEvidence({ bio, lessonId, occurredAt = new Date() }) {
-  const lessonIndex = WEB_COURSES.findIndex((course) => course.id === lessonId);
-  if (lessonIndex === -1) throw new Error('LESSON_NOT_FOUND');
-  const course = WEB_COURSES[lessonIndex];
+  const course = findStep(lessonId)?.step;
+  if (!course) throw new Error('LESSON_NOT_FOUND');
   const identity = {
     ownerMemberId: bio._id,
     sourceApp: 'study',
@@ -63,7 +61,7 @@ export async function createLessonEvidence({ bio, lessonId, occurredAt = new Dat
       source: { type: 'lesson', id: lessonId },
       kind: 'lesson_completion',
       title: course.title,
-      skillTags: lessonSkillTags(course, lessonIndex),
+      skillTags: lessonSkillTags(course),
       occurredAt,
       proof: {
         method: 'server_verified_completion',

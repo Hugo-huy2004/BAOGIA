@@ -50,6 +50,31 @@ function MiniPost({ x, y, w = 150, author = "lan.code", text = "Chào Nhịp!" }
   );
 }
 
+// Sơ đồ tư duy: một nút giữa, các nhánh toả quanh (tối đa 8), mỗi nhánh 1–3 lá.
+function MindMap({ center, branches }) {
+  const n = branches.length;
+  return (
+    <g>
+      {branches.map(([title, leaves], i) => {
+        const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+        const bx = 160 + Math.cos(angle) * 108;
+        const by = 90 + Math.sin(angle) * 62;
+        const left = bx < 160;
+        return (
+          <g key={title}>
+            <line x1="160" y1="90" x2={bx} y2={by} stroke={ACCENT} strokeWidth="1.4" strokeOpacity="0.7" />
+            <rect x={bx - 38} y={by - 9} width="76" height="18" rx="9" fill={ACCENT} fillOpacity="0.16" stroke={ACCENT} />
+            <Label x={bx} y={by + 3.5} size={8.5} bold>{title}</Label>
+            {leaves && <Label x={bx + (left ? -40 : 40)} y={by + 18} size={7.5} anchor={left ? "end" : "start"} muted>{leaves}</Label>}
+          </g>
+        );
+      })}
+      <circle cx="160" cy="90" r="24" fill={ACCENT} fillOpacity="0.28" stroke={ACCENT} strokeWidth="2" />
+      <Label x={160} y={94} size={11} bold>{center}</Label>
+    </g>
+  );
+}
+
 const VISUALS = {
   ipo: () => (
     <>
@@ -959,6 +984,122 @@ const VISUALS = {
       <Arrow x1={106} y1={109} x2={112} y2={109} />
       <Arrow x1={209} y1={109} x2={215} y2={109} />
       <Label x={160} y={170} size={9} muted>Bỏ bước nào là nợ kỹ thuật — làm đủ 6 cho MỘT tính năng</Label>
+    </>
+  ),
+  "sql-mindmap": () => (
+    <MindMap center="SQL" branches={[
+      ["SELECT", "chọn cột"], ["WHERE", "lọc dòng"], ["GROUP BY", "gom, đếm"], ["JOIN", "nối bảng"],
+      ["Thiết kế", "khoá, 3NF"], ["Ghi", "giao dịch"], ["Window", "xếp hạng"], ["Hiệu năng", "chỉ mục"],
+    ]} />
+  ),
+  "data-mindmap": () => (
+    <MindMap center="Dữ liệu" branches={[
+      ["Sự kiện", "một đơn hàng"], ["Thông tin", "doanh thu hôm nay"], ["Cơ sở dữ liệu", "tập dữ liệu có tổ chức"],
+      ["DBMS", "SQLite, PostgreSQL"], ["SQL", "ngôn ngữ để hỏi"],
+    ]} />
+  ),
+  "notebook-to-table": () => (
+    <>
+      <rect x="10" y="22" width="120" height="130" rx="6" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.35" />
+      {["8h: 2 bạc xỉu, Lan", "8h05: 1 trà đào", "8h10: Minh 1 cà phê", "… viết tay, khó tìm"].map((t, i) => (
+        <Label key={t} x={18} y={44 + i * 26} anchor="start" size={8.5} muted={i === 3}>{t}</Label>
+      ))}
+      <Arrow x1={134} y1={86} x2={168} y2={86} label="cấu trúc" />
+      {["giờ", "món", "sl", "khách"].map((c, i) => (
+        <g key={c}>
+          <rect x={172 + i * 36} y="40" width="36" height="20" fill={ACCENT} fillOpacity="0.18" stroke={ACCENT} strokeOpacity="0.5" />
+          <Label x={190 + i * 36} y={54} size={8.5} mono bold>{c}</Label>
+        </g>
+      ))}
+      {[["8:00", "bạc xỉu", "2", "Lan"], ["8:05", "trà đào", "1", "NULL"], ["8:10", "cà phê", "1", "Minh"]].map((row, r) => row.map((v, i) => (
+        <Label key={`${r}${i}`} x={190 + i * 36} y={76 + r * 22} size={8} mono>{v}</Label>
+      )))}
+      <Label x={160} y={170} size={9} muted>Cùng dữ liệu — nhưng bảng thì hỏi được, đếm được</Label>
+    </>
+  ),
+  "dbms-layers": () => (
+    <>
+      <Box x={10} y={20} w={90} h={44} label="Ứng dụng" sub="app thu ngân" />
+      <Box x={10} y={74} w={90} h={44} label="Bạn" sub="gõ SQL" />
+      <Arrow x1={100} y1={42} x2={126} y2={72} label="SQL" />
+      <Arrow x1={100} y1={96} x2={126} y2={88} />
+      <Box x={128} y={50} w={88} h={64} label="DBMS" sub="SQLite" accent />
+      <Arrow x1={216} y1={82} x2={238} y2={82} />
+      <Box x={240} y={50} w={72} h={64} label="Tệp .db" sub="trên đĩa" />
+      <Label x={160} y={150} size={9} muted>Bạn nói "cần gì" bằng SQL — DBMS lo "lấy thế nào"</Label>
+    </>
+  ),
+  "relational-anatomy": () => (
+    <>
+      <Label x={20} y={18} anchor="start" mono bold size={10}>menu_items</Label>
+      {["id", "name", "price"].map((c, i) => (
+        <g key={c}>
+          <rect x={20 + i * 93} y="26" width="93" height="22" fill={ACCENT} fillOpacity="0.18" stroke={ACCENT} strokeOpacity="0.5" />
+          <Label x={66 + i * 93} y={41} mono bold size={9.5}>{c}</Label>
+        </g>
+      ))}
+      {[["1", "Bạc xỉu", "29000"], ["2", "Trà đào", "35000"], ["3", "Cà phê đen", "25000"]].map((row, r) => row.map((v, i) => (
+        <Label key={`${r}${i}`} x={66 + i * 93} y={66 + r * 22} mono size={9.5}>{v}</Label>
+      )))}
+      <rect x="20" y="74" width="279" height="20" fill="none" stroke={ACCENT} strokeWidth="2" rx="3" />
+      <rect x="113" y="26" width="93" height="112" fill="none" stroke="currentColor" strokeDasharray="4 3" strokeOpacity="0.6" />
+      <Label x={300} y={88} anchor="end" size={8.5} bold>← bộ (hàng)</Label>
+      <Label x={160} y={152} size={8.5} bold>↑ thuộc tính (cột) · id = khoá chính</Label>
+      <Label x={160} y={170} size={8.5} muted>Quan hệ = tập các bộ: không trùng, không thứ tự</Label>
+    </>
+  ),
+  "select-mindmap": () => (
+    <MindMap center="SELECT" branches={[
+      ["Cột", "name, price"], ["*", "mọi cột"], ["AS", "bí danh"], ["DISTINCT", "bỏ trùng"], ["Biểu thức", "price * 2"], ["FROM", "bảng nguồn"],
+    ]} />
+  ),
+  "types-mindmap": () => (
+    <MindMap center="Kiểu" branches={[
+      ["INTEGER", "số nguyên, tiền"], ["REAL", "số thực"], ["TEXT", "chữ, ngày ISO"], ["BLOB", "nhị phân"], ["NULL", "chưa biết"],
+    ]} />
+  ),
+  "select-pipeline": () => (
+    <>
+      <Box x={8} y={60} w={86} h={56} label="FROM" sub="lấy bảng" />
+      <Box x={117} y={60} w={86} h={56} label="SELECT" sub="chọn, tính cột" accent />
+      <Box x={226} y={60} w={86} h={56} label="DISTINCT" sub="bỏ dòng trùng" />
+      <Arrow x1={94} y1={88} x2={115} y2={88} />
+      <Arrow x1={203} y1={88} x2={224} y2={88} />
+      <Label x={160} y={150} size={9} muted>Viết SELECT trước, nhưng DBMS đọc FROM trước</Label>
+    </>
+  ),
+  "relational-mindmap": () => (
+    <MindMap center="Quan hệ" branches={[
+      ["Bảng", "quan hệ"], ["Cột", "thuộc tính"], ["Hàng", "bộ"], ["Khoá", "chính · ngoại"], ["Miền", "kiểu + CHECK"],
+    ]} />
+  ),
+  "fk-link": () => (
+    <>
+      <Label x={70} y={16} mono bold size={9.5}>order_items</Label>
+      {[["order_id", "item_id", "qty"], ["7", "2", "1"], ["7", "3", "2"]].map((row, r) => row.map((v, i) => (
+        <Label key={`a${r}${i}`} x={22 + i * 46} y={36 + r * 22} mono size={8.5} bold={r === 0}>{v}</Label>
+      )))}
+      <rect x="54" y="48" width="38" height="18" rx="3" fill="none" stroke={ACCENT} strokeWidth="2" />
+      <Label x={250} y={16} mono bold size={9.5}>menu_items</Label>
+      {[["id", "name", "price"], ["1", "Bạc xỉu", "29000"], ["2", "Trà đào", "35000"], ["3", "Cà phê", "25000"]].map((row, r) => row.map((v, i) => (
+        <Label key={`b${r}${i}`} x={196 + i * 50} y={36 + r * 22} mono size={8.5} bold={r === 0}>{v}</Label>
+      )))}
+      <rect x="182" y="70" width="134" height="18" rx="3" fill={ACCENT} fillOpacity="0.16" stroke={ACCENT} />
+      <Arrow x1={94} y1={57} x2={180} y2={78} label="khoá ngoại → khoá chính" />
+      <Label x={160} y={150} size={9} muted>Tên và giá chỉ lưu một chỗ — order_items chỉ giữ con số 2</Label>
+    </>
+  ),
+  "hat-schema": () => (
+    <>
+      <Box x={8} y={20} w={92} h={50} label="customers" sub="id · name · phone" mono />
+      <Box x={8} y={110} w={92} h={50} label="orders" sub="id · customer_id · at" mono accent />
+      <Box x={150} y={110} w={110} h={50} label="order_items" sub="order_id · item_id · qty" mono accent />
+      <Box x={150} y={20} w={110} h={50} label="menu_items" sub="id · name · price" mono />
+      <Arrow x1={54} y1={108} x2={54} y2={72} label="1 – n" />
+      <Arrow x1={148} y1={135} x2={102} y2={135} label="n – 1" />
+      <Arrow x1={205} y1={108} x2={205} y2={72} label="n – 1" />
+      <Label x={290} y={90} size={8.5} muted>mũi tên:</Label>
+      <Label x={290} y={102} size={8.5} muted>FK → PK</Label>
     </>
   ),
 };

@@ -6,7 +6,7 @@ import { awardJoy } from '../../utils/joyService.js';
 import EduLearner from '../../models/EduLearner.js';
 import { noteEduStep, noteEduStudy } from '../../services/eduLearner.js';
 import { addEduXp, XP_PER_CORRECT, XP_PER_LESSON, XP_REVIEW } from '../../services/eduSocial.js';
-import { WEB_COURSES } from '../../../../packages/courses/coding/index.js';
+import { findStep } from '../../../../packages/courses/index.js';
 import { stepLessons } from '../../../../packages/courses/coding/lessons.js';
 import { requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
@@ -31,7 +31,7 @@ router.post('/edu-lesson', requireMemberSession, async (req, res) => {
     const email = req.memberEmail;
     const { lessonId, program = 'coding' } = req.body || {};
     const lesson = Number(req.body?.lesson);
-    const course = WEB_COURSES.find((item) => item.id === lessonId);
+    const course = findStep(lessonId)?.step;
     if (!course || course.draft) return res.status(400).json({ code: 'BAD_STEP', error: 'Step Coding không hợp lệ.' });
     const total = stepLessons(course.slides).length;
     if (!Number.isInteger(lesson) || lesson < 0 || lesson >= total - 1) return res.status(400).json({ code: 'BAD_LESSON', error: 'Bài không hợp lệ.' });
@@ -139,7 +139,7 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
 
     // Bài trắc nghiệm là bài cuối: phải học xong các bài nhỏ trước (chỉ Education Hugo đi theo bài).
     if (!isHugoTeam) {
-      const need = stepLessons(WEB_COURSES.find((item) => item.id === lessonId)?.slides).length - 1;
+      const need = stepLessons(findStep(lessonId)?.step.slides).length - 1;
       const have = (await EduLearner.findOne({ email }).select(`lessonsDone.${lessonId}`).lean())?.lessonsDone?.[lessonId] || [];
       if (have.length < need) return res.status(409).json({ code: 'LESSONS_FIRST', error: 'Học xong các bài trong step rồi mới làm trắc nghiệm.' });
     }

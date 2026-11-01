@@ -1,4 +1,5 @@
 import { STAGES } from "../courses/coding/stages.js";
+import { STEP_IDS as SQL_STEP_IDS } from "../courses/sql/stages.js";
 
 // Ranh giới chặng (đánh số step từ 1) suy từ đề cương khoá Coding.
 export const CODER_STAGE_SEQUENCE = Object.freeze(
@@ -79,6 +80,13 @@ export function getCoderStageGate(completedLessons, targetStageId) {
 }
 
 export function getCoderLessonGate(completedLessons, lessonId) {
+  // Khoá SQL: cùng luật "học đúng thứ tự", chỉ tính các step sql trước nó.
+  const sqlIndex = SQL_STEP_IDS.indexOf(lessonId);
+  if (sqlIndex >= 0) {
+    const completed = new Set(Array.isArray(completedLessons) ? completedLessons : []);
+    const missingLessons = SQL_STEP_IDS.slice(0, sqlIndex).filter((id) => !completed.has(id));
+    return { unlocked: !missingLessons.length, code: missingLessons.length ? "PREVIOUS_LESSONS_INCOMPLETE" : null, stage: null, missingLessons };
+  }
   const stage = getCoderStageForLesson(lessonId);
   if (!stage) return { unlocked: false, code: "INVALID_LESSON", missingLessons: [] };
 

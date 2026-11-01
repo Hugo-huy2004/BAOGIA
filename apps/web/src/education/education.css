@@ -1227,3 +1227,7 @@ button:active .edu-note-cast { transform: scale(.9, 1.08); }
 .edu-history-reply { padding: 8px 10px; border-radius: 10px; background: var(--edu-active); }
 .edu-history .edu-pop-empty { padding: 0 16px 16px; }
 @media (prefers-reduced-motion: reduce) { .edu-fb-stars button.is-on { animation: none; } }
+.edu-set > .edu-btn { margin: 4px 16px 16px; }
+.edu-course-tabs { display: flex; gap: 8px; margin: 0 auto 12px; max-width: 520px; padding: 0 16px; }
+.edu-course-tabs button { flex: 1; min-height: 44px; border: 2px solid var(--edu-line); border-bottom-width: 4px; border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-weight: 800; letter-spacing: .04em; }
+.edu-course-tabs button[aria-selected="true"] { border-color: var(--edu-blue, #1cb0f6); color: var(--edu-blue, #1cb0f6); background: color-mix(in srgb, var(--edu-blue, #1cb0f6) 12%, transparent); }

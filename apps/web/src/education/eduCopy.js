@@ -15,8 +15,8 @@ export const EDU_LANGS = [
 
 export const EDU_COPY = {
   vi: {
-    persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)" },
-      intro: "Giới thiệu", introPlaceholder: "Vài dòng về bạn: đang học gì, mục tiêu…", saveInfo: "Lưu", 
+    persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)",
+      intro: "Giới thiệu", introPlaceholder: "Vài dòng về bạn: đang học gì, mục tiêu…", saveInfo: "Lưu" },
     brand: { aria: "Education Hugo, thuộc Hugo Studio", of: "thuộc" },
     nav: { friends: "Bạn bè", learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
     rail: { today: "Mục tiêu hôm nay", stage: "Chặng hiện tại", streak: "Lửa tới mốc", score: "Điểm trắc nghiệm" },
@@ -96,7 +96,7 @@ export const EDU_COPY = {
       language: "Ngôn ngữ", languageHint: "Chữ của ứng dụng. Nội dung bài học hiện viết bằng tiếng Việt.",
       notify: "Thông báo", reminder: "Nhắc học mỗi ngày", reminderHint: "Chỉ nhắc khi hôm nay chưa đạt mục tiêu.",
       hour: "Giờ nhắc", hourHint: "Giờ Việt Nam.", expiry: "Hạn tài khoản", expiryHint: "Báo trước 3 ngày và 1 ngày.", expiryLabel: "Báo hạn tài khoản",
-      security: "Bảo mật", securityHint: "Báo khi tài khoản đăng nhập trên máy mới.", securityLabel: "Báo đăng nhập mới", emailLabel: "Gửi kèm thư email",
+      security: "Bảo mật", securityHint: "Báo khi tài khoản đăng nhập trên máy mới.", securityLabel: "Báo đăng nhập mới", emailLabel: "Gửi kèm thư email", email: "Thư email", emailHint: "Chào mừng, mốc lửa, lời mời kết bạn cũng gửi qua email.",
       look: "Giao diện", theme: "Chế độ màu", themeSystem: "Theo máy", themeLight: "Sáng", themeDark: "Tối",
       note: "Cài đặt lưu theo tài khoản — đổi ở máy này, máy khác tự theo.",
       pushIosTitle: "Thông báo trên iPhone/iPad", pushIosHint: "iOS chỉ gửi thông báo cho ứng dụng đã cài vào màn hình chính.",
@@ -120,7 +120,7 @@ export const EDU_COPY = {
       rule: "Mỗi ngày qua ít nhất một bài để giữ lửa. Lỡ một ngày, lửa đóng băng; quá 3 lần đóng băng trong tháng là tắt lửa, đếm lại từ đầu.",
       legendStudied: "Đã học", legendFrozen: "Đóng băng", legendThawed: "Đã phá băng",
       next: "Mốc tiếp theo: {d} ngày · +{joy} JOY", road: "Mốc thưởng", story: "Câu chuyện của Lửa Nhỏ", locked: "Giữ lửa {d} ngày để mở chương này",
-      nextShort: "Mốc tới · +{joy} JOY", social: { INTRO_LONG: "Giới thiệu tối đa 160 ký tự.", INTRO_BAD: "Giới thiệu không hợp lệ.", league: "Thi đua tuần", friends: "Đang theo dõi", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Qua một bài để mở màn!", yourCode: "Mã bạn của bạn", copied: "Đã chép mã", codePlaceholder: "Nhập mã 6 ký tự", follow: "Theo dõi", unfollow: "Bỏ theo dõi", friendsEmpty: "Chưa theo dõi ai. Gửi mã của bạn cho bạn bè nhé.", you: "Bạn", xp: "{n} XP", nickTitle: "Đặt biệt danh để lên bảng thi đua", nickHint: "2–20 ký tự, chỉ chữ và emoji. Tên thật không hiện trên bảng.", nickPlaceholder: "Ví dụ: Lửa Xanh", nickSave: "Lưu", nickLabel: "Biệt danh", noNick: "Chưa đặt biệt danh", NICK_LENGTH: "Biệt danh cần 2–20 ký tự.", NICK_CHARS: "Chỉ dùng chữ và emoji — không số, không ký tự đặc biệt.", nickSaved: "Đã lưu biệt danh" }, tab: { me: "Cá nhân", friends: "Bạn bè" }, daysLong: "ngày giữ lửa!", monthStudied: "Ngày học", monthFrozen: "Lần đóng băng", credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
+      nextShort: "Mốc tới · +{joy} JOY", social: { INTRO_LONG: "Giới thiệu tối đa 160 ký tự.", INTRO_BAD: "Giới thiệu không hợp lệ.", league: "Thi đua tuần", friends: "Đang theo dõi", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Qua một bài để mở màn!", yourCode: "Mã bạn của bạn", copied: "Đã chép mã", codePlaceholder: "Nhập mã 6 ký tự", follow: "Theo dõi", unfollow: "Bỏ theo dõi", friendsEmpty: "Chưa theo dõi ai. Gửi mã của bạn cho bạn bè nhé.", you: "Bạn", xp: "{n} XP", nickTitle: "Đặt biệt danh để lên bảng thi đua", nickHint: "2–20 ký tự, chỉ dùng chữ cái. Tên thật không hiện trên bảng.", nickPlaceholder: "Ví dụ: Lửa Xanh", nickSave: "Lưu", nickLabel: "Biệt danh", noNick: "Chưa đặt biệt danh", NICK_LENGTH: "Biệt danh cần 2–20 ký tự.", NICK_CHARS: "Chỉ dùng chữ cái — không số, không ký tự đặc biệt.", nickSaved: "Đã lưu biệt danh" }, tab: { me: "Cá nhân", friends: "Bạn bè" }, daysLong: "ngày giữ lửa!", monthStudied: "Ngày học", monthFrozen: "Lần đóng băng", credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
       week: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
       stages: {
         ember: ["Tro ấm", "Lửa Nhỏ đang ngủ trong đống tro. Một bài học là đủ đánh thức bạn ấy."],
@@ -253,8 +253,8 @@ export const EDU_COPY = {
   },
 
   en: {
-    persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)" },
-      intro: "About", introPlaceholder: "A few words about you: what you're learning, your goal…", saveInfo: "Save", 
+    persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)",
+      intro: "About", introPlaceholder: "A few words about you: what you're learning, your goal…", saveInfo: "Save" },
     brand: { aria: "Education Hugo, part of Hugo Studio", of: "by" },
     nav: { friends: "Friends", learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
     rail: { today: "Today's goal", stage: "Current stage", streak: "Flame to milestone", score: "Quiz score" },
@@ -334,7 +334,7 @@ export const EDU_COPY = {
       language: "Language", languageHint: "App language. Lesson content is currently written in Vietnamese.",
       notify: "Notifications", reminder: "Daily reminder", reminderHint: "Only when you haven't reached today's goal.",
       hour: "Reminder time", hourHint: "Vietnam time (UTC+7).", expiry: "Account expiry", expiryHint: "Heads-up 3 days and 1 day before.", expiryLabel: "Account expiry alerts",
-      security: "Security", securityHint: "Alert when your account signs in on a new device.", securityLabel: "New sign-in alerts", emailLabel: "Also send by email",
+      security: "Security", securityHint: "Alert when your account signs in on a new device.", securityLabel: "New sign-in alerts", emailLabel: "Also send by email", email: "Email", emailHint: "Welcome, streak milestones and friend requests also arrive by email.",
       look: "Appearance", theme: "Color mode", themeSystem: "System", themeLight: "Light", themeDark: "Dark",
       note: "Settings follow your account — change them here and your other devices update too.",
       pushIosTitle: "Notifications on iPhone/iPad", pushIosHint: "iOS only sends notifications to apps installed on the Home Screen.",
@@ -358,7 +358,7 @@ export const EDU_COPY = {
       rule: "Pass at least one lesson a day to keep the flame. Miss a day and it freezes; more than 3 freezes in a month puts it out and the count restarts.",
       legendStudied: "Learned", legendFrozen: "Frozen", legendThawed: "Thawed",
       next: "Next milestone: {d} days · +{joy} JOY", road: "Milestone rewards", story: "Little Flame's story", locked: "Keep the flame {d} days to unlock",
-      nextShort: "Next · +{joy} JOY", social: { INTRO_LONG: "About is limited to 160 characters.", INTRO_BAD: "Invalid about text.", league: "Weekly league", friends: "Following", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Pass a lesson to kick it off!", yourCode: "Your friend code", copied: "Code copied", codePlaceholder: "Enter a 6-character code", follow: "Follow", unfollow: "Unfollow", friendsEmpty: "Not following anyone yet. Send your code to friends.", you: "You", xp: "{n} XP", nickTitle: "Pick a nickname to join the league", nickHint: "2–20 characters, letters and emoji only. Your real name is never shown.", nickPlaceholder: "e.g. Blue Flame", nickSave: "Save", nickLabel: "Nickname", noNick: "No nickname yet", NICK_LENGTH: "Nicknames need 2–20 characters.", NICK_CHARS: "Letters and emoji only — no numbers or special characters.", nickSaved: "Nickname saved" }, tab: { me: "Personal", friends: "Friends" }, daysLong: "day streak!", monthStudied: "Days learned", monthFrozen: "Times frozen", credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
+      nextShort: "Next · +{joy} JOY", social: { INTRO_LONG: "About is limited to 160 characters.", INTRO_BAD: "Invalid about text.", league: "Weekly league", friends: "Following", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Pass a lesson to kick it off!", yourCode: "Your friend code", copied: "Code copied", codePlaceholder: "Enter a 6-character code", follow: "Follow", unfollow: "Unfollow", friendsEmpty: "Not following anyone yet. Send your code to friends.", you: "You", xp: "{n} XP", nickTitle: "Pick a nickname to join the league", nickHint: "2–20 characters, letters only. Your real name is never shown.", nickPlaceholder: "e.g. Blue Flame", nickSave: "Save", nickLabel: "Nickname", noNick: "No nickname yet", NICK_LENGTH: "Nicknames need 2–20 characters.", NICK_CHARS: "Letters only — no numbers or special characters.", nickSaved: "Nickname saved" }, tab: { me: "Personal", friends: "Friends" }, daysLong: "day streak!", monthStudied: "Days learned", monthFrozen: "Times frozen", credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
       week: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
       stages: {
         ember: ["Warm ashes", "Little Flame is asleep in the ashes. One lesson is enough to wake it."],
@@ -549,8 +549,8 @@ export const EDU_COPY = {
   },
 
   zh: {
-    persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)" },
-      intro: "简介", introPlaceholder: "简单介绍自己：在学什么、目标…", saveInfo: "保存", 
+    persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)",
+      intro: "简介", introPlaceholder: "简单介绍自己：在学什么、目标…", saveInfo: "保存" },
     brand: { aria: "Education Hugo，隶属 Hugo Studio", of: "隶属" },
     nav: { friends: "好友", learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
     rail: { today: "今日目标", stage: "当前阶段", streak: "火苗到里程碑", score: "测验分数" },
@@ -630,7 +630,7 @@ export const EDU_COPY = {
       language: "语言", languageHint: "应用界面语言。课程内容目前以越南语编写。",
       notify: "通知", reminder: "每日学习提醒", reminderHint: "仅在今天未达成目标时提醒。",
       hour: "提醒时间", hourHint: "越南时间（UTC+7）。", expiry: "账户到期", expiryHint: "提前 3 天和 1 天提醒。", expiryLabel: "账户到期提醒",
-      security: "安全", securityHint: "账户在新设备登录时提醒。", securityLabel: "新登录提醒", emailLabel: "同时发送邮件",
+      security: "安全", securityHint: "账户在新设备登录时提醒。", securityLabel: "新登录提醒", emailLabel: "同时发送邮件", email: "邮件", emailHint: "欢迎、连续里程碑和好友请求也会发送邮件。",
       look: "外观", theme: "颜色模式", themeSystem: "跟随系统", themeLight: "浅色", themeDark: "深色",
       note: "设置随账户保存——在这台设备修改，其他设备会自动同步。",
       pushIosTitle: "iPhone/iPad 上的通知", pushIosHint: "iOS 只向已添加到主屏幕的应用发送通知。",

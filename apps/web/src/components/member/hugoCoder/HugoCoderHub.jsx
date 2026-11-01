@@ -260,7 +260,7 @@ export function ManageTab({ bio, courses, stages }) {
 // `framed`: bản đồ nằm trong khung AppFrame của app Coding — chỉ vẽ nội dung,
 // không dựng vỏ toàn màn và thanh đầu riêng. Bảng Tiến độ khi đó do khung điều
 // khiển qua `progressOpen`/`onProgressChange`.
-export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, basePath = "/member/utilities/study/coding", framed = false, progressOpen: controlledProgress, onProgressChange, program = "coding", programProgress = null, maxSteps = null, onProgramProgress, onLessonChange }) {
+export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, basePath = "/member/utilities/study/coding", framed = false, progressOpen: controlledProgress, onProgressChange, program = "coding", programProgress = null, maxSteps = null, onProgramProgress, onLessonChange, course }) {
   const { t } = useTranslation();
   const { t: edu } = useEduText();
   const navigate = useNavigate();
@@ -270,7 +270,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
   // Step đang mở đọc THẲNG từ địa chỉ (`basePath/stepN`): tải lại trang là ở
   // nguyên chỗ đang học.
   const selectedLessonId = urlLessonId || null;
-  const { courses: allCourses, stages, loading, detailReady, detailError } = useCoderLessons(selectedLessonId, { program });
+  const { courses: allCourses, stages, loading, detailReady, detailError } = useCoderLessons(selectedLessonId, { program, course: selectedLessonId ? undefined : course });
   const courses = maxSteps ? allCourses.slice(0, maxSteps) : allCourses;
   const progressBio = program === "hugoteam" ? { ...bio, completedLessons: programProgress || [] } : bio;
   const onBioUpdateRef = useRef(onBioUpdate);

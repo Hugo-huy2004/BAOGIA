@@ -5,15 +5,11 @@
 import { signedSessionRole } from '../../auth/betterAuth.js';
 import LessonFeedback from '../../models/LessonFeedback.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
-import { CODER_PREVIEW_STEPS, HUGOTEAM_CODING_DAYS } from '../../../../packages/shared/coderProgression.js';
+import { HUGOTEAM_CODING_DAYS } from '../../../../packages/shared/coderProgression.js';
 import { requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
 import { sendTelegramAlert } from '../../services/telegramService.js';
-import {
-  STAGES,
-  WEB_COURSES,
-  getStageBenefits,
-} from '../../../../packages/courses/coding/index.js';
+import { COURSES, findStep } from '../../../../packages/courses/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
 import { localizeCourse } from '../../../../packages/courses/coding/localize.js';
 import { stepLessons } from '../../../../packages/courses/coding/lessons.js';
@@ -50,6 +46,8 @@ function publicCourse(course, lang) {
 export async function getLessonList(req, res) {
   const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(5, Number.parseInt(req.query.limit, 10) || 25));
+  // ?course=sql — mặc định khoá Coding (client cũ không gửi).
+  const { STAGES, WEB_COURSES, getStageBenefits } = (Object.hasOwn(COURSES, req.query.course) ? COURSES[req.query.course] : COURSES.coding);
   const stageId = String(req.query.stage || '').trim();
   const stage = STAGES.find((item) => item.id === stageId);
   const source = stage ? WEB_COURSES.slice(stage.from, stage.to) : WEB_COURSES;
@@ -63,7 +61,7 @@ export async function getLessonList(req, res) {
       page === 1
         ? STAGES.map((item) => ({
             ...item,
-            benefits: getStageBenefits(item.id),
+            benefits: getStageBenefits ? getStageBenefits(item.id) : [],
           }))
         : undefined,
     pagination: {
@@ -80,13 +78,13 @@ export async function getLessonList(req, res) {
  * Lấy chi tiết bài học
  */
 export async function getLessonDetail(req, res) {
-  const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
-  if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
-  const course = WEB_COURSES[index];
+  const found = findStep(req.params.lessonId);
+  if (!found) return res.status(404).json({ error: 'Lesson not found' });
+  const { step: course, index } = found;
   // Chỉ nhận ngôn ngữ có thật: giá trị lạ sẽ đẻ khoá cache CDN mới mỗi lần → đánh thẳng vào máy chủ.
   const lang = ['en', 'zh'].includes(req.query.lang) ? req.query.lang : 'vi';
   // Chặng 1 học thử không cần tài khoản, cache ở CDN được.
-  if (index < CODER_PREVIEW_STEPS) {
+  if (index < found.course.preview) {
     res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
     return res.json({ lesson: publicCourse(course, lang) });
   }
@@ -123,12 +121,12 @@ export async function getLessonDetail(req, res) {
  * chấm chính là đáp án — người học đăng nhập nộp qua /api/joy/award-learning.
  */
 export async function gradePreviewQuiz(req, res) {
-  const index = WEB_COURSES.findIndex((item) => item.id === req.params.lessonId);
-  if (index < 0) return res.status(404).json({ error: 'Lesson not found' });
-  if (index >= CODER_PREVIEW_STEPS) {
+  const found = findStep(req.params.lessonId);
+  if (!found) return res.status(404).json({ error: 'Lesson not found' });
+  if (found.index >= found.course.preview) {
     return res.status(403).json({ code: 'COURSE_ACCESS_REQUIRED', error: 'Step này cần đăng nhập.' });
   }
-  const graded = gradeStepQuiz(WEB_COURSES[index].id, req.body?.answers);
+  const graded = gradeStepQuiz(found.step.id, req.body?.answers);
   if (!graded) return res.status(409).json({ code: 'STEP_NOT_READY', error: 'Step này đang được soạn.' });
   return res.json({ ...graded, passPercent: PASS_PERCENT });
 }
@@ -138,7 +136,7 @@ export async function gradePreviewQuiz(req, res) {
  */
 export async function submitLessonFeedback(req, res) {
   try {
-    const course = WEB_COURSES.find((item) => item.id === req.params.lessonId);
+    const course = findStep(req.params.lessonId)?.step;
     if (!course) return res.status(404).json({ error: 'Không tìm thấy bài học.' });
 
     const message = String(req.body?.message || '').trim();

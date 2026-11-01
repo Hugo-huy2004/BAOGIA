@@ -342,11 +342,16 @@ export function EduPublicProfile() {
         <div><b>{p.steps}/26</b><small>{t("friends.statSteps")}</small></div>
       </div>
       <h2>{t("friends.progress")}</h2>
-      <ul className="fr-stagebars">
-        {p.stages.map((s) => (
-          <li key={s.code}><span>{s.code}</span><i><i style={{ width: `${(s.done / s.total) * 100}%` }} /></i><b>{s.done}/{s.total}</b></li>
-        ))}
-      </ul>
+      {(() => {
+        // Một khoá = một thanh: gộp các chặng lại.
+        const done = p.stages.reduce((n, s) => n + s.done, 0);
+        const total = p.stages.reduce((n, s) => n + s.total, 0) || 1;
+        return (
+          <ul className="fr-stagebars">
+            <li><span>Coding</span><i><i style={{ width: `${(done / total) * 100}%` }} /></i><b>{done}/{total}</b></li>
+          </ul>
+        );
+      })()}
       {p.relation !== "self" && (
         <button type="button" className="fr-report" onClick={() => setReporting(true)}>
           <AnimIcon name="alert" size={20} />{t("friends.report")}

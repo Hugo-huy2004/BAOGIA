@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { playEduSound } from "./eduSound";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { clearMemberSession, getMemberSession, logoutAuth } from "../services/api/core/authSession";
 import { hugoCoderApi } from "../services/api/modules/hugoCoderApi";
@@ -191,12 +192,23 @@ export default function EducationApp() {
   );
 }
 
+const COURSE_KEY = "edu.course";
+
 function LearnMap({ learner, onLearnerUpdate }) {
   const navigate = useNavigate();
+  const [course, setCourse] = useState(() => { try { return localStorage.getItem(COURSE_KEY) === "sql" ? "sql" : "coding"; } catch { return "coding"; } });
+  const pick = (next) => { playEduSound("tick"); setCourse(next); try { localStorage.setItem(COURSE_KEY, next); } catch { /* riêng tư */ } };
   return (
-    <Suspense fallback={<Loading />}>
-      <HugoCoderHub framed bio={learner} onBioUpdate={onLearnerUpdate} onLessonChange={(id) => navigate(id ? `/learn/${id}` : "/learn")} />
-    </Suspense>
+    <>
+      <div className="edu-course-tabs" role="tablist">
+        {[["coding", "Coding"], ["sql", "SQL"]].map(([key, label]) => (
+          <button key={key} type="button" role="tab" aria-selected={course === key} onClick={() => pick(key)}>{label}</button>
+        ))}
+      </div>
+      <Suspense fallback={<Loading />}>
+        <HugoCoderHub key={course} framed course={course} bio={learner} onBioUpdate={onLearnerUpdate} onLessonChange={(id) => navigate(id ? `/learn/${id}` : "/learn")} />
+      </Suspense>
+    </>
   );
 }
 

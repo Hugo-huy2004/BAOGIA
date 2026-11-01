@@ -1,10 +1,12 @@
 // Dùng chung giáo trình với client — một nguồn sự thật, không nhân bản câu hỏi.
-import { WEB_COURSES, STAGES, STEP_PASS_PERCENT } from '../../../packages/courses/coding/index.js';
+import { STEP_PASS_PERCENT } from '../../../packages/courses/coding/index.js';
+import { ALL_STEPS } from '../../../packages/courses/index.js';
 import { isQuizAnswerCorrect, quizAnswerText } from '../../../packages/shared/quizKinds.js';
 import { presentQuiz } from '../../../packages/shared/stepQuiz.js';
 
 export const PASS_PERCENT = STEP_PASS_PERCENT;
-const STEPS = new Map(WEB_COURSES.map((course) => [course.id, course]));
+// Mọi khoá: id step không trùng giữa các khoá.
+const STEPS = new Map(ALL_STEPS.map((course) => [course.id, course]));
 
 /**
  * Máy chủ chấm trắc nghiệm cuối step. `answers[i]` là câu trả lời cho câu thứ
