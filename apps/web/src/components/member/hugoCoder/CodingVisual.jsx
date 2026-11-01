@@ -1068,6 +1068,72 @@ const VISUALS = {
       <Label x={160} y={150} size={9} muted>Viết SELECT trước, nhưng DBMS đọc FROM trước</Label>
     </>
   ),
+  "where-filter": () => (
+    <>
+      {["Bạc xỉu 29k", "Trà đào 35k", "Cà phê 25k", "Matcha 45k", "Cold brew 39k"].map((t, i) => (
+        <g key={t}>
+          <rect x="10" y={18 + i * 28} width="96" height="22" rx="4" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeOpacity="0.3" />
+          <Label x={58} y={33 + i * 28} size={8.5}>{t}</Label>
+        </g>
+      ))}
+      <Box x={128} y={64} w={70} h={44} label="WHERE" sub="price > 30000" accent />
+      <Arrow x1={106} y1={86} x2={126} y2={86} />
+      <Arrow x1={198} y1={86} x2={218} y2={86} />
+      {["Trà đào 35k", "Matcha 45k", "Cold brew 39k"].map((t, i) => (
+        <g key={t}>
+          <rect x="220" y={46 + i * 28} width="92" height="22" rx="4" fill={ACCENT} fillOpacity="0.16" stroke={ACCENT} />
+          <Label x={266} y={61 + i * 28} size={8.5}>{t}</Label>
+        </g>
+      ))}
+      <Label x={160} y={170} size={9} muted>Mỗi dòng được hỏi một câu: đúng thì giữ, sai hoặc NULL thì bỏ</Label>
+    </>
+  ),
+  "three-valued": () => (
+    <>
+      {[["AND", "TRUE", "FALSE", "NULL"], ["TRUE", "TRUE", "FALSE", "NULL"], ["FALSE", "FALSE", "FALSE", "FALSE"], ["NULL", "NULL", "FALSE", "NULL"]].map((row, r) => row.map((v, c) => (
+        <g key={`${r}${c}`}>
+          <rect x={20 + c * 70} y={14 + r * 34} width="70" height="34" fill={r === 0 || c === 0 ? ACCENT : "currentColor"} fillOpacity={r === 0 || c === 0 ? 0.16 : (v === "NULL" ? 0.1 : 0.03)} stroke="currentColor" strokeOpacity="0.25" />
+          <Label x={55 + c * 70} y={35 + r * 34} size={9.5} mono bold={r === 0 || c === 0}>{v}</Label>
+        </g>
+      )))}
+      <Label x={160} y={170} size={9} muted>WHERE chỉ giữ dòng TRUE — NULL bị bỏ như FALSE</Label>
+    </>
+  ),
+  "order-limit": () => (
+    <>
+      <Box x={8} y={60} w={70} h={50} label="WHERE" sub="lọc" />
+      <Box x={92} y={60} w={70} h={50} label="SELECT" sub="cột" />
+      <Box x={176} y={60} w={70} h={50} label="ORDER BY" sub="sắp xếp" accent />
+      <Box x={260} y={60} w={54} h={50} label="LIMIT" sub="cắt" accent />
+      <Arrow x1={78} y1={85} x2={90} y2={85} />
+      <Arrow x1={162} y1={85} x2={174} y2={85} />
+      <Arrow x1={246} y1={85} x2={258} y2={85} />
+      <Label x={160} y={40} size={9} bold>FROM → WHERE → SELECT → ORDER BY → LIMIT</Label>
+      <Label x={160} y={150} size={9} muted>Vì ORDER BY chạy sau SELECT nên dùng được bí danh</Label>
+    </>
+  ),
+  "case-flow": () => (
+    <>
+      <Box x={8} y={70} w={74} h={40} label="price" sub="mỗi dòng" />
+      <Box x={110} y={14} w={96} h={36} label="< 30000 ?" sub="WHEN" accent />
+      <Box x={110} y={72} w={96} h={36} label="< 40000 ?" sub="WHEN" accent />
+      <Box x={110} y={130} w={96} h={36} label="còn lại" sub="ELSE" />
+      <Box x={236} y={14} w={76} h={36} label="'rẻ'" mono />
+      <Box x={236} y={72} w={76} h={36} label="'vừa'" mono />
+      <Box x={236} y={130} w={76} h={36} label="'cao'" mono />
+      <Arrow x1={82} y1={84} x2={108} y2={34} />
+      <Arrow x1={82} y1={90} x2={108} y2={90} />
+      <Arrow x1={82} y1={96} x2={108} y2={146} />
+      <Arrow x1={206} y1={32} x2={234} y2={32} label="đúng" />
+      <Arrow x1={206} y1={90} x2={234} y2={90} label="đúng" />
+      <Arrow x1={206} y1={148} x2={234} y2={148} />
+    </>
+  ),
+  "filter-mindmap": () => (
+    <MindMap center="WHERE" branches={[
+      ["So sánh", "= <> < >"], ["Logic", "AND OR NOT"], ["Tập", "IN, BETWEEN"], ["Chuỗi", "LIKE, GLOB"], ["NULL", "IS NULL"], ["Sắp xếp", "ORDER BY"], ["CASE", "phân loại"],
+    ]} />
+  ),
   "relational-mindmap": () => (
     <MindMap center="Quan hệ" branches={[
       ["Bảng", "quan hệ"], ["Cột", "thuộc tính"], ["Hàng", "bộ"], ["Khoá", "chính · ngoại"], ["Miền", "kiểu + CHECK"],
