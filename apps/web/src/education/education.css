@@ -941,7 +941,7 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .edu-pop p { margin: 0; color: var(--edu-muted); line-height: 1.5; }
 .edu-pop-course { display: flex; align-items: center; gap: 12px; padding: 10px; border: 2px solid var(--edu-line); border-radius: 14px; }
 .edu-pop-course.is-on { border-color: var(--edu-blue); background: color-mix(in srgb, var(--edu-blue) 12%, transparent); }
-.edu-pop-course:not(.is-on) { opacity: .6; }
+.edu-pop-course:disabled { opacity: .6; }
 .edu-pop-course > span:nth-child(2) { display: grid; flex: 1; }
 .edu-pop-course small { color: var(--edu-muted); font-weight: 700; }
 .edu-pop-check { color: var(--edu-blue); }
@@ -1228,10 +1228,9 @@ button:active .edu-note-cast { transform: scale(.9, 1.08); }
 .edu-history .edu-pop-empty { padding: 0 16px 16px; }
 @media (prefers-reduced-motion: reduce) { .edu-fb-stars button.is-on { animation: none; } }
 .edu-set > .edu-btn { margin: 4px 16px 16px; }
-.edu-course-tabs { display: flex; gap: 8px; margin: 0 auto 12px; max-width: 520px; padding: 0 16px; }
-.edu-course-tabs button { flex: 1; min-height: 44px; border: 2px solid var(--edu-line); border-bottom-width: 4px; border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-weight: 800; letter-spacing: .04em; }
-.edu-course-tabs button[aria-selected="true"] { border-color: var(--edu-blue, #1cb0f6); color: var(--edu-blue, #1cb0f6); background: color-mix(in srgb, var(--edu-blue, #1cb0f6) 12%, transparent); }
 .edu-set + .edu-set, .edu-settings-embedded > * + * { margin-top: 16px; }
 .edu-qr .edu-ob-main { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 32px 16px; }
 .edu-qr-code { padding: 14px 28px; border: 2px dashed var(--edu-blue); border-radius: 18px; background: transparent; color: var(--edu-blue); font: 900 34px/1 ui-monospace, monospace; letter-spacing: .18em; animation: edu-qr-pop .4s cubic-bezier(.2, 1.4, .4, 1); }
 @keyframes edu-qr-pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+button.edu-pop-course { width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+button.edu-pop-course:disabled { cursor: default; }

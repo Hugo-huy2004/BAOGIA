@@ -36,7 +36,7 @@ export const EDU_COPY = {
       progress: "Tiến độ khoá Coding", cardLink: "Thẻ thành viên & kết bạn",
     },
     topbar: {
-      courses: "Khoá học của bạn", course: { coding: "Lập trình Web", quan: "Quán — khoá 2" }, courseProgress: "{done}/{total} step đã qua",
+      courses: "Khoá học của bạn", course: { coding: "Lập trình Web", sql: "SQL & Cơ sở dữ liệu", quan: "Quán — khoá 2" }, courseProgress: "{done}/{total} step đã qua",
       addCourse: "Thêm khoá học (sắp ra mắt)", joyBody: "JOY kiếm được khi qua bài lần đầu và giữ chuỗi lửa. Dùng để gia hạn tài khoản, phá băng chuỗi.",
       toStore: "Mở Cửa hàng", notifications: "Thông báo", readAll: "Đánh dấu đã đọc", empty: "Chưa có thông báo nào. Hugo sẽ nhắc bạn khi có tin mới.",
     },
@@ -274,7 +274,7 @@ export const EDU_COPY = {
       progress: "Coding course progress", cardLink: "Member card & friends",
     },
     topbar: {
-      courses: "Your courses", course: { coding: "Web Programming", quan: "Quán — course 2" }, courseProgress: "{done}/{total} steps passed",
+      courses: "Your courses", course: { coding: "Web Programming", sql: "SQL & Databases", quan: "Quán — course 2" }, courseProgress: "{done}/{total} steps passed",
       addCourse: "Add a course (coming soon)", joyBody: "Earn JOY by passing lessons the first time and keeping your streak. Use it to extend your account or thaw a frozen streak.",
       toStore: "Open the Shop", notifications: "Notifications", readAll: "Mark all read", empty: "No notifications yet. Hugo will let you know when something new arrives.",
     },
@@ -570,7 +570,7 @@ export const EDU_COPY = {
       progress: "编程课程进度", cardLink: "会员卡与好友",
     },
     topbar: {
-      courses: "你的课程", course: { coding: "网页编程", quan: "Quán —— 第 2 门课" }, courseProgress: "已完成 {done}/{total} 个 step",
+      courses: "你的课程", course: { coding: "网页编程", sql: "SQL 与数据库", quan: "Quán —— 第 2 门课" }, courseProgress: "已完成 {done}/{total} 个 step",
       addCourse: "添加课程（即将上线）", joyBody: "首次通过课程和保持连续记录可赚取 JOY，用于延长账户或给连续记录破冰。",
       toStore: "打开商店", notifications: "通知", readAll: "全部标为已读", empty: "还没有通知。有新消息时 Hugo 会告诉你。",
     },

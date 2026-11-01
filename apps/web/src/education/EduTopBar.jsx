@@ -7,13 +7,16 @@ import { EDU_CAST, streakPush } from "../../../../packages/shared/eduStreak";
 import { StreakChip } from "./EduStreak";
 import { useEduText } from "./eduText";
 import AnimIcon from "../components/icons/animated/AnimIcon";
+import { playEduSound } from "./eduSound";
+import { setEduCourse, useEduCourse } from "./useEduCourse";
 
 /**
  * Thanh trên Education Hugo — 4 ô kiểu Duolingo: khoá học · chuỗi lửa · JOY · thông báo.
  * Mỗi ô (trừ chuỗi lửa) mở một bảng nhỏ ngay dưới thanh; bấm ra ngoài là đóng.
  */
 const COURSES = [
-  { id: "coding", cast: 1, ready: true },
+  { id: "coding", cast: 1, ready: true, total: 26 },
+  { id: "sql", cast: 6, ready: true, total: 40 }, // packages/courses/sql
   { id: "quan", cast: 3, ready: false }, // khoá 2 "Quán" — docs/khoa-2-quan.md
 ];
 
@@ -36,20 +39,25 @@ export function JoyCoin({ size = 26 }) {
   return <span className="joy-coin" style={{ "--coin": `${size}px` }} aria-hidden="true"><b>JOY</b></span>;
 }
 
-function CoursePanel({ stats }) {
+function CoursePanel({ learner, onPick }) {
   const { t } = useEduText();
+  const current = useEduCourse();
+  const done = learner?.completedLessons || [];
+  // Step khoá SQL mang id "sqlN", khoá Coding "stepN".
+  const doneIn = (id) => done.filter((s) => (id === "sql" ? /^sql\d+$/ : /^step\d+$/).test(s)).length;
   return (
     <div className="edu-pop" role="dialog" aria-label={t("topbar.courses")}>
       <h3>{t("topbar.courses")}</h3>
       {COURSES.map((course) => (
-        <div key={course.id} className={`edu-pop-course${course.ready ? " is-on" : ""}`}>
+        <button key={course.id} type="button" disabled={!course.ready} onClick={() => onPick(course.id)}
+          className={`edu-pop-course${course.id === current ? " is-on" : ""}`} aria-pressed={course.id === current}>
           <img src={`/edu/cast-${course.cast}.svg`} alt="" width="44" height="44" />
           <span>
             <b>{t(`topbar.course.${course.id}`)}</b>
-            <small>{course.ready ? t("topbar.courseProgress", { done: stats.done, total: stats.total }) : t("map.soon")}</small>
+            <small>{course.ready ? t("topbar.courseProgress", { done: doneIn(course.id), total: course.total }) : t("map.soon")}</small>
           </span>
-          {course.ready && <AnimIcon name="check" className="edu-pop-check" />}
-        </div>
+          {course.id === current && <AnimIcon name="check" className="edu-pop-check" />}
+        </button>
       ))}
       <button type="button" className="edu-pop-add" disabled>
         <AnimIcon name="add" />{t("topbar.addCourse")}
@@ -140,7 +148,7 @@ export function useEduInbox(signedIn) {
   return { items, unread, load, openItem, readAll };
 }
 
-export default function EduTopBar({ learner, signedIn, stats, inbox }) {
+export default function EduTopBar({ learner, signedIn, inbox }) {
   const { t } = useEduText();
   const navigate = useNavigate();
   const pop = usePopover();
@@ -160,13 +168,14 @@ export default function EduTopBar({ learner, signedIn, stats, inbox }) {
     [{ transform: "rotateY(0) translateY(0)" }, { transform: "rotateY(180deg) translateY(-6px)" }, { transform: "rotateY(360deg) translateY(0)" }],
     { duration: 600, easing: "cubic-bezier(.3,1.4,.5,1)" },
   );
+  const course = useEduCourse();
   const readAll = inbox.readAll;
   const loadInbox = inbox.load;
 
   return (
     <div className="edu-topbar" ref={pop.ref}>
       <button type="button" className="edu-chip" onClick={() => pop.toggle("course")} aria-expanded={pop.open === "course"} aria-label={t("topbar.courses")}>
-        <img className="edu-chip-course" src="/edu/cast-1.svg" alt="" width="30" height="30" />
+        <img className="edu-chip-course" src={`/edu/cast-${COURSES.find((c) => c.id === course)?.cast || 1}.svg`} alt="" width="30" height="30" />
       </button>
       {signedIn && streak
         ? <StreakChip streak={streak} onOpen={() => navigate("/streak")} />
@@ -177,7 +186,7 @@ export default function EduTopBar({ learner, signedIn, stats, inbox }) {
       <button type="button" className="edu-chip edu-bell" onClick={() => (signedIn ? (pop.toggle("bell"), pop.open !== "bell" && loadInbox()) : navigate("/login"))} aria-expanded={pop.open === "bell"} aria-label={t("topbar.notifications")}>
         <AnimIcon ref={bell} name="bell" size={30} className={unread > 0 ? "has-new" : ""} />
       </button>
-      {pop.open === "course" && <CoursePanel stats={stats} />}
+      {pop.open === "course" && <CoursePanel learner={learner} onPick={(id) => { pop.setOpen(null); playEduSound("whoosh"); setEduCourse(id); navigate("/learn"); }} />}
       {pop.open === "joy" && <JoyPanel learner={learner} />}
       {pop.open === "bell" && <BellPanel items={items} onOpenItem={openItem} onReadAll={readAll} />}
     </div>
