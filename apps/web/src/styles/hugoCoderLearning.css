@@ -3343,3 +3343,5 @@ span.cmap-mascot svg { display: block; width: 100%; height: auto; }
 .media-zoom-bar svg { width: 20px; height: 20px; }
 .media-zoom-bar span { min-width: 52px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 .media-zoom-hint { margin: 0 0 max(14px, env(safe-area-inset-bottom)); text-align: center; color: rgb(255 255 255 / .6); font-size: 13px; }
+/* Thẻ "Bắt đầu" của step cuối chặng không bị chặng cắt: khi thẻ mở, chặng đó thôi cắt và nổi trên chặng sau. */
+.cmap .cmap-zone:has(.cmap-node.is-pop) { overflow: visible; position: relative; z-index: 7; }
