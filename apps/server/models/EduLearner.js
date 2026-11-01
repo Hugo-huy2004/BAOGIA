@@ -26,6 +26,10 @@ const schema = new mongoose.Schema({
   reviewedOn: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
   // Bài nhỏ đã học của từng step: { step3: [0, 1] } (packages/courses/coding/lessons.js).
   welcomedAt: { type: Date },
+  // Cửa hàng Edu (services/eduStore.js): khiên lửa còn lại, nhân đôi XP tới lúc nào, huy hiệu đang đeo.
+  shields: { type: Number, default: 0, min: 0 },
+  xpBoostUntil: Date,
+  badge: String,
   sponsorMailedAt: { type: Date },
   lessonsDone: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
   // Bạn bè + thi đua tuần (services/eduSocial.js): mã bạn 6 ký tự, danh sách mã đang

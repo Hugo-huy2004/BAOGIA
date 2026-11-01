@@ -999,13 +999,19 @@ const productBody = (b = {}) => {
   if (b.stock !== undefined) out.stock = b.stock === null || b.stock === '' ? null : Math.max(0, Math.round(Number(b.stock)) || 0);
   if (b.active !== undefined) out.active = Boolean(b.active);
   if (b.sort !== undefined) out.sort = Math.round(Number(b.sort)) || 0;
+  if (['badge', 'xp_boost', 'streak_shield'].includes(b.kind)) out.kind = b.kind;
+  if (b.value !== undefined) out.value = Math.max(1, Math.min(720, Math.round(Number(b.value)) || 1));
   if (typeof b.image === 'string' && /^\/edu\/[\w.-]+\.(svg|png|webp)$/.test(b.image)) out.image = b.image;
   return out;
 };
 
 router.get('/edu-products', requireAdmin, async (req, res) => {
-  const items = await EduProduct.find().sort({ sort: 1, createdAt: 1 }).lean();
-  return res.json({ items });
+  try {
+    return res.json({ items: await EduProduct.find().sort({ sort: 1, createdAt: 1 }).lean() });
+  } catch (error) {
+    console.error('[admin edu-products]', error.message);
+    return res.status(500).json({ error: 'Không tải được sản phẩm.' });
+  }
 });
 
 router.post('/edu-products', requireAdmin, async (req, res) => {
@@ -1023,10 +1029,16 @@ router.post('/edu-products', requireAdmin, async (req, res) => {
 
 router.patch('/edu-products/:id', requireAdmin, async (req, res) => {
   if (!/^[a-f0-9]{24}$/.test(req.params.id)) return res.status(400).json({ error: 'id không hợp lệ.' });
-  const set = productBody(req.body);
-  await EduProduct.updateOne({ _id: req.params.id }, { $set: set });
-  await logAdminAuditAction(req, 'edu_product_update', null, null, JSON.stringify({ id: req.params.id, ...set }));
-  return res.json({ success: true });
+  try {
+    const set = productBody(req.body);
+    const r = await EduProduct.updateOne({ _id: req.params.id }, { $set: set }, { runValidators: true });
+    if (!r.matchedCount) return res.status(404).json({ error: 'Không tìm thấy sản phẩm.' });
+    await logAdminAuditAction(req, 'edu_product_update', null, null, JSON.stringify({ id: req.params.id, ...set }));
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('[admin edu-products patch]', error.message);
+    return res.status(400).json({ error: 'Không lưu được sản phẩm.' });
+  }
 });
 
 // POST /api/admin/edu-sponsor-mail { limit, test } — gửi một đợt thư xin tài trợ (3 ngôn ngữ).

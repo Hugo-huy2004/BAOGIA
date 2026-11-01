@@ -36,6 +36,8 @@ export function weekOf(day) {
 /** Cộng XP tuần. Sang tuần mới thì đặt lại từ số này. */
 export async function addEduXp(email, xp) {
   if (!(xp > 0)) return;
+  // Vật phẩm "Nhân đôi XP" (Cửa hàng Edu) còn hạn thì XP x2.
+  if (await EduLearner.exists({ email, xpBoostUntil: { $gt: new Date() } })) xp *= 2;
   const week = weekOf(vnClock().day);
   const inc = await EduLearner.updateOne({ email, xpWeek: week }, { $inc: { xpWeekly: xp } });
   // ponytail: hai bài nộp cùng giây đúng lúc sang tuần có thể mất một lần cộng — chấp nhận được.
@@ -59,7 +61,7 @@ async function ensureCode(doc) {
 
 const fail = (code, message) => Object.assign(new Error(message || code), { code });
 const cleanCode = (raw) => String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-const FIELDS = 'email friendCode streak xpWeek xpWeekly friends requestsIn requestsOut following createdAt';
+const FIELDS = 'email friendCode streak xpWeek xpWeekly friends requestsIn requestsOut following createdAt badge';
 
 /** Một hàng người học gửi xuống client: persona + chuỗi + XP tuần + mã (để mở hồ sơ). Không có email. */
 function row(doc, week, day, personas, myEmail) {
@@ -71,6 +73,7 @@ function row(doc, week, day, personas, myEmail) {
     streak: streakView(doc.streak, day).count,
     xp: doc.xpWeek === week ? doc.xpWeekly || 0 : 0,
     me: doc.email === myEmail,
+    badge: doc.badge || null,
   };
 }
 
@@ -167,6 +170,7 @@ export async function learnerProfile(email, rawCode) {
     name: persona.nickname,
     avatar: persona.avatar || null,
     intro: persona.intro || '',
+    badge: target.badge || null,
     joined: persona.createdAt || target.createdAt || null,
     streak: streakView(target.streak, day).count,
     xp: target.xpWeek === weekOf(day) ? target.xpWeekly || 0 : 0,

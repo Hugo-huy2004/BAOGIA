@@ -1252,3 +1252,10 @@ button.edu-pop-course:disabled { cursor: default; }
 .edu-bag img { padding: 6px; border-radius: 16px; background: color-mix(in srgb, var(--edu-blue) 10%, transparent); }
 .edu-bell { position: relative; }
 .edu-bell-count { position: absolute; top: 2px; right: 0; min-width: 20px; height: 20px; padding: 0 5px; border: 2px solid var(--edu-bg, #131f24); border-radius: 999px; background: #ff4b4b; color: #fff; font-size: 11px; font-weight: 900; line-height: 16px; text-align: center; animation: edu-qr-pop .35s cubic-bezier(.2, 1.4, .4, 1); }
+.fr-card-art { position: relative; overflow: visible; }
+.fr-card-badge { position: absolute; right: -10px; bottom: -10px; padding: 3px; border-radius: 50%; background: #fff; box-shadow: 0 2px 0 #e3e3e3; animation: edu-qr-pop .4s cubic-bezier(.2, 1.4, .4, 1); }
+.edu-shop-status { color: var(--edu-green, #58cc02); font-size: 13px; font-weight: 800; }
+.edu-bag button { padding: 6px; border: 2px solid transparent; border-radius: 16px; background: color-mix(in srgb, var(--edu-blue) 10%, transparent); }
+.edu-bag button.is-on { border-color: var(--edu-blue); }
+.edu-bag img { padding: 0; background: none; }
+.fr-card-art .persona-avatar { border-radius: 20px; overflow: hidden; }

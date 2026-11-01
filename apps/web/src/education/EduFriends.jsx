@@ -128,11 +128,11 @@ function Scanner({ onCode, onClose }) {
  * Thẻ thành viên kiểu Duolingo: nhân vật lớn trên nền xám, biệt danh, mã bạn, chữ Education Hugo
  * và QR (có mascot ở giữa) trỏ tới hồ sơ công khai /u/<mã> — quét bằng app Camera là thấy nhau.
  */
-export function MemberCard({ name, avatar, code }) {
+export function MemberCard({ name, avatar, code, badge }) {
   return (
     <figure className="fr-card">
       <div className="fr-card-head">
-        <div className="fr-card-art"><PersonaAvatar avatar={avatar} name={name} size={96} /></div>
+        <div className="fr-card-art"><PersonaAvatar avatar={avatar} name={name} size={96} />{badge && <img className="fr-card-badge" src={badge} alt="" width="40" height="40" />}</div>
         <div className="fr-card-id">
           <b className="nick-font">{name || "Hugo learner"}</b>
           <small translate="no">{code}</small>
@@ -169,7 +169,7 @@ function AddFriend({ code, me, onRequest }) {
   const closeScan = useCallback(() => setScanning(false), []);
   return (
     <div className="fr-add">
-      <MemberCard name={me?.name} avatar={me?.avatar} code={code} />
+      <MemberCard name={me?.name} avatar={me?.avatar} code={code} badge={me?.badge} />
       <button type="button" className="edu-btn is-ghost" onClick={share}><AnimIcon name="link" size={20} />{t("friends.share")}</button>
       <form className="fr-search" onSubmit={(event) => { event.preventDefault(); const c = q.trim().toUpperCase(); if (/^[A-Z0-9]{6}$/.test(c)) onRequest(c); }}>
         <input value={q} onChange={(event) => setQ(event.target.value)} placeholder={t("friends.searchPlaceholder")} aria-label={t("friends.searchPlaceholder")} autoComplete="off" spellCheck={false} />
@@ -337,7 +337,7 @@ export function EduPublicProfile() {
         {button}
       </div>
       {p.intro && <p className="fr-profile-intro">{p.intro}</p>}
-      <MemberCard name={p.name} avatar={p.avatar} code={p.code} />
+      <MemberCard name={p.name} avatar={p.avatar} code={p.code} badge={p.badge} />
       <div className="fr-stats">
         <div><b>{p.streak}</b><small>{t("friends.statStreak")}</small></div>
         <div><b>{p.xp}</b><small>{t("friends.statXp")}</small></div>

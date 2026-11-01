@@ -110,6 +110,23 @@ export async function thawEduStreak(email, frozenDay) {
   return { streak: streakView(result.state, day), milestone: paid, balance: paid?.balance ?? balance };
 }
 
+/**
+ * Khiên lửa (Cửa hàng Edu): giữ một khiên có điều kiện (shields > 0) rồi phá băng ngày đó miễn phí.
+ * Phá băng hỏng (ngày không còn đóng băng…) thì trả lại khiên. Trả chuỗi mới hoặc null.
+ */
+export async function useStreakShield(email, frozenDay) {
+  const { day } = vnClock();
+  const held = await EduLearner.updateOne({ email, shields: { $gt: 0 } }, { $inc: { shields: -1 } });
+  if (!held.modifiedCount) return null;
+  try {
+    const { state } = await writeStreak(email, (raw) => thawDay(raw, frozenDay, day));
+    return streakView(state, day);
+  } catch {
+    await EduLearner.updateOne({ email }, { $inc: { shields: 1 } });
+    return null;
+  }
+}
+
 export async function saveEduPrefs(email, input) {
   const current = await EduLearner.findOne({ email }).select('prefs').lean();
   const prefs = cleanEduPrefs(input, cleanEduPrefs(current?.prefs));
@@ -163,6 +180,23 @@ export async function runEduReminders(now = new Date()) {
 
   // 21h: lời gọi cuối cho chuỗi từ 3 ngày chưa học hôm nay — trước khi lửa đóng băng.
   // 8h: báo lửa vừa đóng băng hôm qua (học hôm nay hoặc phá băng 250 JOY).
+  // 8h, trước lời báo đóng băng: ai còn Khiên lửa (kể cả đã tắt nhắc học) thì tự phá băng hôm qua.
+  // Đánh dấu frozenNoticeDay để vòng dưới không báo "đóng băng" nữa.
+  if (hour === 8) {
+    const holders = await EduLearner.find({ shields: { $gt: 0 }, frozenNoticeDay: { $ne: day }, 'streak.count': { $gte: 1 } })
+      .select('email streak shields prefs').limit(2000).lean();
+    for (const doc of holders) {
+      if (!streakView(doc.streak, day).frozen.includes(addDays(day, -1))) continue;
+      const saved = await useStreakShield(doc.email, addDays(day, -1));
+      if (!saved) continue;
+      await EduLearner.updateOne({ _id: doc._id }, { $set: { frozenNoticeDay: day } });
+      if (cleanEduPrefs(doc.prefs).reminder) {
+        await sendEduPush(doc.email, { key: 'shield', vars: { n: saved.count, s: doc.shields - 1 }, url: '/streak', tag: 'edu-streak' });
+      }
+      reminded += 1;
+    }
+  }
+
   if (hour === 21 || hour === 8) {
     const field = hour === 21 ? 'lastCallDay' : 'frozenNoticeDay';
     const learners = await EduLearner.find({

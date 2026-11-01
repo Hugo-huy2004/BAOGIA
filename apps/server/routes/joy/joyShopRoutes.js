@@ -1,5 +1,5 @@
 // Mua và đổi bằng JOY: tính năng, theme, gói học — router con của /api/joy (mount trong routes/joyRoutes.js).
-import { buyEduProduct, listEduProducts } from '../../services/eduStore.js';
+import { buyEduProduct, eduPerks, equipEduBadge, listEduProducts } from '../../services/eduStore.js';
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import { awardJoy } from '../../utils/joyService.js';
@@ -358,7 +358,8 @@ router.post('/edu-streak/thaw', requireMemberSession, extendLimiter, async (req,
 // Cửa hàng Edu: danh sách sản phẩm (+ đã sở hữu) và mua bằng JOY.
 router.get('/edu-store', requireMemberSession, async (req, res) => {
   try {
-    return res.json({ items: await listEduProducts(req.memberEmail) });
+    const [items, perks] = await Promise.all([listEduProducts(req.memberEmail), eduPerks(req.memberEmail)]);
+    return res.json({ items, perks });
   } catch (error) {
     console.error('[edu-store]', error.message);
     return res.status(500).json({ error: 'Không tải được cửa hàng.' });
@@ -372,6 +373,15 @@ router.post('/edu-store/:id/buy', requireMemberSession, extendLimiter, async (re
   } catch (error) {
     if (!error.status) console.error('[edu-store buy]', error.message);
     return res.status(error.status || 500).json({ code: error.code, error: error.status ? error.message : 'Chưa mua được, thử lại sau.' });
+  }
+});
+
+router.post('/edu-store/:id/equip', requireMemberSession, extendLimiter, async (req, res) => {
+  if (!/^[a-f0-9]{24}$/.test(req.params.id)) return res.status(400).json({ error: 'Sản phẩm không hợp lệ.' });
+  try {
+    return res.json({ success: true, ...(await equipEduBadge(req.memberEmail, req.params.id)) });
+  } catch (error) {
+    return res.status(error.status || 500).json({ error: error.status ? error.message : 'Chưa đổi được huy hiệu.' });
   }
 });
 

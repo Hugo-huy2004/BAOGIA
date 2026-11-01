@@ -273,25 +273,34 @@ function Rail({ learner, signedIn, stats, onStreak }) {
 }
 
 /** Cửa hàng riêng của Education Hugo: duy trì tài khoản bằng JOY. */
-/** Vật phẩm sưu tầm do admin bày bán (tab "Cửa hàng Edu"): mua bằng JOY, mỗi món một lần, hiện trong Túi đồ. */
+/**
+ * Vật phẩm do admin bày bán (tab "Cửa hàng Edu"), mua bằng JOY, có tác dụng ngay:
+ * Khiên lửa (tự phá băng lúc 8h), Nhân đôi XP (cộng dồn giờ), Huy hiệu (đeo trên thẻ thành viên).
+ */
 function EduShop({ balance, onBalance }) {
   const { t, lang } = useEduText();
   const [items, setItems] = useState(null);
+  const [perks, setPerks] = useState(null);
   const [busy, setBusy] = useState(null);
   const load = useCallback(() => fetch(`${API_BASE}/joy/edu-store`, { credentials: "include" })
-    .then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => setItems(d.items)).catch(() => setItems([])), []);
+    .then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => { setItems(d.items); setPerks(d.perks); }).catch(() => setItems([])), []);
   useEffect(() => { load(); }, [load]);
   const pick = (field) => field?.[lang] || field?.vi || "";
+  const post = async (path) => {
+    const r = await fetch(`${API_BASE}/joy/edu-store/${path}`, { method: "POST", credentials: "include" });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || t("store.failed"));
+    return d;
+  };
 
   const buy = async (item) => {
-    const ok = await notify.confirm({ title: t("shop.confirm", { name: pick(item.name) }), message: t("shop.confirmBody", { price: joyText(item.priceJoy) }), confirmText: t("shop.buy") });
+    const ok = await notify.confirm({ title: t("shop.confirm", { name: pick(item.name) }), message: t(`shop.effect.${item.kind}`, { n: item.value, price: joyText(item.priceJoy) }), confirmText: t("shop.buy") });
     if (!ok) return;
     setBusy(item.id);
     try {
-      const r = await fetch(`${API_BASE}/joy/edu-store/${item.id}/buy`, { method: "POST", credentials: "include" });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || t("store.failed"));
+      const d = await post(`${item.id}/buy`);
       onBalance(d.balance);
+      setPerks(d.perks);
       playEduSound("coin");
       notify.success(t("shop.bought", { name: pick(item.name) }));
       load();
@@ -301,33 +310,51 @@ function EduShop({ balance, onBalance }) {
       setBusy(null);
     }
   };
+  const wear = async (item) => {
+    try { const d = await post(`${item.id}/equip`); setPerks((p) => ({ ...p, badge: d.badge })); playEduSound("pop"); } catch (error) { notify.error(error.message); }
+  };
 
   if (!items?.length) return null;
-  const owned = items.filter((i) => i.ownedAt);
+  const hoursLeft = perks?.xpBoostUntil ? Math.max(1, Math.ceil((new Date(perks.xpBoostUntil) - Date.now()) / 3600_000)) : 0;
+  const status = (item) => (item.kind === "streak_shield" ? (perks?.shields ? t("shop.shields", { n: perks.shields }) : "")
+    : item.kind === "xp_boost" ? (hoursLeft ? t("shop.boostLeft", { n: hoursLeft }) : "") : "");
+  const owned = items.filter((i) => i.kind === "badge" && i.ownedAt);
   return (
     <>
       <h2 className="edu-subhead">{t("shop.title")}</h2>
       <div className="edu-shop">
-        {items.map((item) => (
-          <article key={item.id} className={`edu-shop-item${item.ownedAt ? " is-owned" : ""}`}>
-            <img src={item.image} alt="" width="84" height="84" />
-            <div>
-              <b>{pick(item.name)}</b>
-              <p>{pick(item.description)}</p>
-              {item.ownedAt ? <span className="edu-shop-price is-owned">{t("shop.owned")}</span> : (
-                <button type="button" className="edu-shop-price" disabled={busy === item.id || item.left === 0 || balance < item.priceJoy} onClick={() => buy(item)}>
-                  {item.left === 0 ? t("shop.soldOut") : <><JoyCoin size={22} />{item.priceJoy.toLocaleString(lang)}</>}
-                </button>
-              )}
-              {item.left !== null && item.left > 0 && !item.ownedAt && <small className="edu-shop-left">{t("shop.left", { n: item.left })}</small>}
-            </div>
-          </article>
-        ))}
+        {items.map((item) => {
+          const wearing = item.kind === "badge" && perks?.badge === item.image && item.ownedAt;
+          return (
+            <article key={item.id} className={`edu-shop-item${item.ownedAt || status(item) ? " is-owned" : ""}`}>
+              <img src={item.image} alt="" width="84" height="84" />
+              <div>
+                <b>{pick(item.name)}</b>
+                <p>{pick(item.description)}</p>
+                {status(item) && <small className="edu-shop-status">{status(item)}</small>}
+                {item.kind === "badge" && item.ownedAt ? (
+                  <button type="button" className="edu-shop-price" disabled={wearing} onClick={() => wear(item)}>{t(wearing ? "shop.wearing" : "shop.wear")}</button>
+                ) : (
+                  <button type="button" className="edu-shop-price" disabled={busy === item.id || item.left === 0 || balance < item.priceJoy} onClick={() => buy(item)}>
+                    {item.left === 0 ? t("shop.soldOut") : <><JoyCoin size={22} />{item.priceJoy.toLocaleString(lang)}</>}
+                  </button>
+                )}
+                {item.left !== null && item.left > 0 && !item.ownedAt && <small className="edu-shop-left">{t("shop.left", { n: item.left })}</small>}
+              </div>
+            </article>
+          );
+        })}
       </div>
       {owned.length > 0 && (
         <>
           <h2 className="edu-subhead">{t("shop.bag")}</h2>
-          <div className="edu-bag">{owned.map((i) => <img key={i.id} src={i.image} alt={pick(i.name)} title={pick(i.name)} width="56" height="56" />)}</div>
+          <div className="edu-bag">
+            {owned.map((i) => (
+              <button key={i.id} type="button" className={perks?.badge === i.image ? "is-on" : ""} onClick={() => wear(i)} aria-label={pick(i.name)} title={pick(i.name)}>
+                <img src={i.image} alt="" width="56" height="56" />
+              </button>
+            ))}
+          </div>
         </>
       )}
     </>

@@ -2,14 +2,17 @@ import mongoose from 'mongoose';
 
 /**
  * Sản phẩm Cửa hàng Education Hugo (mua bằng JOY). Admin quản lý ở tab "Cửa hàng Edu".
- * Hiện chỉ có vật phẩm sưu tầm (kind 'collectible'): mua một lần, hiện trong Túi đồ.
+ * Mỗi loại có tác dụng thật, áp dụng ngay khi mua (services/eduStore.js).
  * stock null = không giới hạn.
  */
 const text = { vi: { type: String, required: true }, en: String, zh: String };
 
 const eduProductSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true, trim: true, maxlength: 40 },
-  kind: { type: String, enum: ['collectible'], default: 'collectible' },
+  // badge: mua một lần, tự đeo lên thẻ · xp_boost: nhân đôi XP `value` giờ · streak_shield: +`value` khiên lửa.
+  // 'collectible' là tên cũ của badge (bản đầu).
+  kind: { type: String, enum: ['badge', 'collectible', 'xp_boost', 'streak_shield'], default: 'badge' },
+  value: { type: Number, default: 1, min: 1, max: 720 },
   name: text,
   description: { vi: String, en: String, zh: String },
   image: { type: String, default: '/edu/cast-1.svg', maxlength: 200 },
