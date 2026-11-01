@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import dotenv from 'dotenv';
+import { takeMailSlot } from '../utils/mailBudget.js';
 
 dotenv.config();
 
@@ -182,7 +183,7 @@ const sendWithSmtp = (message) => nodemailer.createTransport({
 
 // Một cổng gửi duy nhất: Resend trước, Nodemailer/SMTP fallback.
 export const sendCustomEmail = async (
-  to, subject, html, cc = null, fromEmail = null, attachments = null, replyTo = null,
+  to, subject, html, cc = null, fromEmail = null, attachments = null, replyTo = null, tier = 'essential',
 ) => {
   const sender = fromEmail || process.env.EMAIL_FROM || process.env.EMAIL_SUPPORT || 'support@hugowishpax.studio';
   // Thư nào chưa tự bọc khung thì bọc ở đây — logo và chân thư là bắt buộc.
@@ -198,6 +199,12 @@ export const sendCustomEmail = async (
     }
     console.log(`[SIMULATED EMAIL] To: ${to} | Subject: ${subject}`);
     return { success: true, simulated: true, message: `Email đã được mô phỏng gửi tới ${to}.` };
+  }
+
+  // Trần 3000 thư/tháng (gói miễn phí Resend) — xem utils/mailBudget.js.
+  if (!(await takeMailSlot(tier).catch(() => true))) {
+    console.warn(`[mail budget] hết suất ${tier}, bỏ thư "${subject}"`);
+    return { success: false, skipped: 'quota', error: 'Đã hết hạn mức thư hôm nay/tháng này.' };
   }
 
   const errors = [];

@@ -39,6 +39,7 @@ import slugIndex from './slugIndex.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import EduLearner from '../models/EduLearner.js';
 import Persona from '../models/Persona.js';
+import EduFeedback from '../models/EduFeedback.js';
 import UserReport from '../models/UserReport.js';
 import TodayPost from '../models/TodayPost.js';
 
@@ -103,6 +104,7 @@ const removeEduData = async (email) => {
     EduLearner.deleteOne({ email }),
     Persona.deleteOne({ email }),
     UserReport.deleteMany({ $or: [{ reporterEmail: email }, { targetEmail: email }] }),
+    EduFeedback.deleteMany({ email }),
     TodayPost.deleteMany({ authorEmail: email }),
     TodayPost.updateMany({ likes: email }, { $pull: { likes: email }, $inc: { likeCount: -1 } }),
   ]);

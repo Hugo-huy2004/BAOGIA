@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/apiBase";
 import { joyText } from "../lib/joyDisplay";
 import { renderNotification } from "../../../../packages/shared/notificationText";
-import { streakPush } from "../../../../packages/shared/eduStreak";
+import { EDU_CAST, streakPush } from "../../../../packages/shared/eduStreak";
 import { StreakChip } from "./EduStreak";
 import { useEduText } from "./eduText";
 import AnimIcon from "../components/icons/animated/AnimIcon";
@@ -79,6 +79,9 @@ function textOf(item, lang) {
 }
 
 // Mỗi loại thông báo một ô 3D màu riêng + icon động.
+// Thông báo của Edu: mỗi loại một nhân vật (giống thư Duolingo luôn có Duo), loại khác giữ ô icon.
+const castOf = (item) => EDU_CAST[String(item.i18nKey || "").replace(/^edu\./, "")];
+
 const ICON = { joy: ["gift", "gold"], payment: ["gift", "gold"], package: ["crown", "purple"], security: ["shield", "red"], system: ["sparkles", "blue"], verification: ["check", "green"], general: ["bell", "orange"], wellness: ["heart", "pink"] };
 
 function BellPanel({ items, onOpenItem, onReadAll }) {
@@ -99,7 +102,9 @@ function BellPanel({ items, onOpenItem, onReadAll }) {
               return (
                 <li key={item._id}>
                   <button type="button" className={item.read ? "" : "is-unread"} onClick={() => onOpenItem(item)}>
-                    <span className={`edu-note-tile is-${(ICON[item.category] || ICON.general)[1]}`}><AnimIcon name={(ICON[item.category] || ICON.general)[0]} size={22} /></span>
+                    {castOf(item)
+                      ? <img className="edu-note-cast" src={`/edu/${castOf(item)}.svg`} alt="" width="46" height="46" />
+                      : <span className={`edu-note-tile is-${(ICON[item.category] || ICON.general)[1]}`}><AnimIcon name={(ICON[item.category] || ICON.general)[0]} size={22} /></span>}
                     <span><b>{text.title}</b>{text.message && <small>{text.message}</small>}<time>{new Date(item.createdAt).toLocaleString(lang, { dateStyle: "short", timeStyle: "short" })}</time></span>
                   </button>
                 </li>

@@ -11,6 +11,12 @@ import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
 import UtilityProduct from '../../models/UtilityProduct.js';
+import EduFeedback from '../../models/EduFeedback.js';
+import UserReport from '../../models/UserReport.js';
+import LessonFeedback from '../../models/LessonFeedback.js';
+import SupportTicket from '../../models/SupportTicket.js';
+import { cleanFeedback } from '../../../../packages/shared/eduFeedback.js';
+import { sendTelegramAlert } from '../../services/telegramService.js';
 import { isAuraThemeFree, isAuraThemeId } from '../../../../packages/shared/auraThemes.js';
 import { BIO_THEME_RENTAL_PRICE, EXCHANGE_ITEMS } from './joyShared.js';
 
@@ -272,6 +278,44 @@ router.post('/edu-report', requireMemberSession, reportLimiter, async (req, res)
     if (error.code) return res.status(400).json({ code: error.code, error: error.message });
     console.error('[edu-report]', error.message);
     return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa gửi được báo cáo.' });
+  }
+});
+
+// POST /api/joy/edu-feedback { ratings: {content…recommend: 1–5}, comment, source } — bài đánh giá Edu, lưu vĩnh viễn.
+// Mỗi người tối đa 1 bài / 24 giờ để bảng tổng hợp của admin không bị một người kéo lệch.
+router.post('/edu-feedback', requireMemberSession, reportLimiter, async (req, res) => {
+  try {
+    const clean = cleanFeedback(req.body);
+    if (!clean) return res.status(400).json({ code: 'INVALID', error: 'Hãy chấm đủ 5 câu (1–5 sao).' });
+    const recent = await EduFeedback.exists({ email: req.memberEmail, createdAt: { $gte: new Date(Date.now() - 24 * 3600 * 1000) } });
+    if (recent) return res.status(429).json({ code: 'TOO_SOON', error: 'Bạn đã gửi đánh giá trong 24 giờ qua.' });
+    const lang = ['vi', 'en', 'zh'].includes(req.body?.lang) ? req.body.lang : 'vi';
+    const doc = await EduFeedback.create({ email: req.memberEmail, ...clean, lang, source: req.body?.source === 'mail' ? 'mail' : 'app' });
+    const avg = (Object.values(clean.ratings).reduce((a, b) => a + b, 0) / 5).toFixed(1);
+    const esc = (t) => String(t).replace(/[<&>]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+    sendTelegramAlert(`<b>Đánh giá Education Hugo</b> · trung bình ${avg}/5${clean.comment ? `\nGóp ý: ${esc(clean.comment.slice(0, 500))}` : ''}`).catch(() => {});
+    return res.json({ success: true, id: doc._id });
+  } catch (error) {
+    console.error('[edu-feedback]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa gửi được đánh giá.' });
+  }
+});
+
+// GET /api/joy/edu-history — Hồ sơ > Lịch sử phản hồi: đánh giá, báo cáo người dùng, báo lỗi bài học, yêu cầu hỗ trợ CỦA CHÍNH MÌNH.
+router.get('/edu-history', requireMemberSession, async (req, res) => {
+  try {
+    res.set('Cache-Control', 'private, no-store');
+    const email = req.memberEmail;
+    const [feedback, reports, lessons, tickets] = await Promise.all([
+      EduFeedback.find({ email }).sort({ createdAt: -1 }).limit(100).lean(),
+      UserReport.find({ reporterEmail: email }).select('targetCode reason note status createdAt').sort({ createdAt: -1 }).limit(100).lean(),
+      LessonFeedback.find({ memberEmail: email }).select('lessonId stepIndex message status createdAt').sort({ createdAt: -1 }).limit(100).lean(),
+      SupportTicket.find({ email }).select('issue status adminReply createdAt').sort({ createdAt: -1 }).limit(100).lean(),
+    ]);
+    return res.json({ feedback, reports, lessons, tickets });
+  } catch (error) {
+    console.error('[edu-history]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED' });
   }
 });
 

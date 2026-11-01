@@ -189,6 +189,7 @@ export default function EduSettings({ learner, onLearnerUpdate, embedded = false
         <div className="edu-set-row">
           <div><b>{t("settings.security")}</b><small>{t("settings.securityHint")}</small></div>
           <Switch label={t("settings.securityLabel")} checked={prefs.notifySecurity} onChange={(notifySecurity) => set({ notifySecurity })} />
+          <Switch label={t("settings.emailLabel")} checked={prefs.notifyEmail} onChange={(notifyEmail) => set({ notifyEmail })} />
         </div>
       </div>
 

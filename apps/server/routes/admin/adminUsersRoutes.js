@@ -11,6 +11,9 @@ import { CODER_STAGE_SEQUENCE, isCoderLessonId } from '../../../../packages/shar
 import { sendPushNotification } from '../../utils/pushNotifier.js';
 import { generate } from '../../services/aiGateway.js';
 import { CODER_STEP_COUNT, logAdminAuditAction } from './adminShared.js';
+import EduFeedback from '../../models/EduFeedback.js';
+import { FEEDBACK_QUESTIONS } from '../../../../packages/shared/eduFeedback.js';
+import { sendSponsorBatch } from '../../services/eduMail.js';
 
 const router = express.Router();
 
@@ -965,6 +968,35 @@ router.post('/users/:id/toggle-edu-status', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error toggling EDU status:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/edu-feedback?page= — tab "Đánh giá": điểm trung bình từng câu + danh sách bài (mới nhất trước).
+router.get('/edu-feedback', requireAdmin, async (req, res) => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const [items, total, stats] = await Promise.all([
+      EduFeedback.find().sort({ createdAt: -1 }).skip((page - 1) * 30).limit(30).lean(),
+      EduFeedback.countDocuments(),
+      EduFeedback.aggregate([{ $group: { _id: null, ...Object.fromEntries(FEEDBACK_QUESTIONS.map((q) => [q, { $avg: `$ratings.${q}` }])) } }]),
+    ]);
+    return res.json({ items, total, page, averages: stats[0] ? Object.fromEntries(FEEDBACK_QUESTIONS.map((q) => [q, stats[0][q]])) : null });
+  } catch (error) {
+    console.error('[admin edu-feedback]', error.message);
+    return res.status(500).json({ error: 'Không tải được đánh giá.' });
+  }
+});
+
+// POST /api/admin/edu-sponsor-mail { limit, test } — gửi một đợt thư xin tài trợ (3 ngôn ngữ).
+// test=true: chỉ gửi cho email admin đang đăng nhập để xem trước.
+router.post('/edu-sponsor-mail', requireAdmin, async (req, res) => {
+  try {
+    const result = await sendSponsorBatch(req.body?.limit, req.body?.test ? { onlyEmail: req.admin.email } : {});
+    await logAdminAuditAction(req, 'edu_sponsor_mail', null, null, JSON.stringify({ ...result, test: Boolean(req.body?.test) }));
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('[admin edu-sponsor-mail]', error.message);
+    return res.status(500).json({ error: 'Không gửi được thư.' });
   }
 });
 

@@ -16,6 +16,7 @@ import { FlameBuddy } from "./EduStreak";
 import EduTopBar, { JoyCoin, useEduInbox } from "./EduTopBar";
 import AnimIcon from "../components/icons/animated/AnimIcon";
 import EduSettings from "./EduSettings";
+import { FeedbackHistory } from "./EduFeedback";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const STUDIO = "https://www.hugowishpax.studio";
@@ -405,6 +406,8 @@ export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUp
         <button type="button" className="edu-btn edu-btn--ghost" onClick={onSignOut}>{t("profile.signOut")}</button>
       </div>
       <EduSettings embedded learner={learner} onLearnerUpdate={onLearnerUpdate} />
+      <Link className="edu-btn edu-btn--ghost" to="/feedback">{t("history.write")}</Link>
+      <FeedbackHistory />
       <p className="edu-legal">
         <Link to="/terms">{t("common.terms")}</Link> · <Link to="/privacy">{t("common.privacy")}</Link> · <Link to="/guidelines">Community Guidelines</Link> · <a href={`${STUDIO}/support-request`} target="_blank" rel="noopener">{t("common.support")}</a>
       </p>

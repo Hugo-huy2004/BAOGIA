@@ -11,7 +11,8 @@ import { useEduText } from "./eduText";
  * `POST /api/auth/sign-in/social` và passkey như www, nên tài khoản tạo ở đây
  * đăng nhập được bên Hugo Studio và ngược lại.
  */
-export default function EduLogin({ onSignedIn }) {
+/** Nút Google + passkey dùng chung cho /login và luồng PWA. `hint`: email gợi ý cho tài khoản đã lưu trên máy. */
+export function SignInPanel({ onSignedIn, hint = "" }) {
   const { t } = useEduText();
   const buttonRef = useRef(null);
   const handlerRef = useRef(() => {});
@@ -45,14 +46,14 @@ export default function EduLogin({ onSignedIn }) {
     loadGoogleIdentity()
       .then((googleId) => {
         if (cancelled || !buttonRef.current) return;
-        googleId.initialize({ client_id: clientId, callback: (response) => handlerRef.current(response), use_fedcm_for_prompt: false });
+        googleId.initialize({ client_id: clientId, ...(hint ? { login_hint: hint } : {}), callback: (response) => handlerRef.current(response), use_fedcm_for_prompt: false });
         buttonRef.current.innerHTML = "";
         googleId.renderButton(buttonRef.current, { theme: "outline", size: "large", shape: "pill", width: 300, text: "continue_with" });
         timer = setTimeout(() => !cancelled && setBlocked((buttonRef.current?.offsetHeight || 0) < 20), 2500);
       })
       .catch(() => !cancelled && setBlocked(true));
     return () => { cancelled = true; clearTimeout(timer); };
-  }, []);
+  }, [hint]);
 
   const passkey = async () => {
     setBusy(true);
@@ -63,6 +64,21 @@ export default function EduLogin({ onSignedIn }) {
   };
 
   return (
+    <>
+      <div ref={buttonRef} className="edu-google" aria-busy={busy} />
+      {blocked && <p className="edu-alert" role="alert">{t("login.blocked", { origin: window.location.origin })}</p>}
+      <button type="button" className="edu-btn edu-btn--ghost edu-btn--wide" onClick={passkey} disabled={busy}>
+        <span className="material-symbols-outlined" aria-hidden="true">passkey</span> {t("login.passkey")}
+      </button>
+      {busy && <p className="edu-note">{t("login.verifying")}</p>}
+      {error && <p className="edu-alert" role="alert">{error}</p>}
+    </>
+  );
+}
+
+export default function EduLogin({ onSignedIn }) {
+  const { t } = useEduText();
+  return (
     <div className="edu-login">
       <header className="edu-login-top"><EduBrand to="/" /></header>
       <main className="edu-login-card">
@@ -70,17 +86,7 @@ export default function EduLogin({ onSignedIn }) {
         <h1>{t("login.title")}</h1>
         <p>{t("login.body")}</p>
 
-        <div ref={buttonRef} className="edu-google" aria-busy={busy} />
-        {blocked && (
-          <p className="edu-alert" role="alert">
-            {t("login.blocked", { origin: window.location.origin })}
-          </p>
-        )}
-        <button type="button" className="edu-btn edu-btn--ghost edu-btn--wide" onClick={passkey} disabled={busy}>
-          <span className="material-symbols-outlined" aria-hidden="true">passkey</span> {t("login.passkey")}
-        </button>
-        {busy && <p className="edu-note">{t("login.verifying")}</p>}
-        {error && <p className="edu-alert" role="alert">{error}</p>}
+        <SignInPanel onSignedIn={onSignedIn} />
 
         <p className="edu-note">
           {t("login.age")}

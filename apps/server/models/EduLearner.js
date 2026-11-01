@@ -25,6 +25,8 @@ const schema = new mongoose.Schema({
   // Ngày ôn lại gần nhất của từng step đã qua — ôn lại chỉ giữ lửa mỗi 7 ngày/step.
   reviewedOn: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
   // Bài nhỏ đã học của từng step: { step3: [0, 1] } (packages/courses/coding/lessons.js).
+  welcomedAt: { type: Date },
+  sponsorMailedAt: { type: Date },
   lessonsDone: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
   // Bạn bè + thi đua tuần (services/eduSocial.js): mã bạn 6 ký tự, danh sách mã đang
   // theo dõi, XP của tuần ISO `xpWeek` (giờ VN) — chỉ máy chủ cộng sau khi chấm bài.

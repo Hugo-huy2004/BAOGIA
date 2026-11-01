@@ -7,6 +7,7 @@ import { denomKey } from '../../../packages/shared/joyCurrency.js';
 import Bio from '../models/Bio.js';
 import InAppNotification from '../models/InAppNotification.js';
 import { streakPush } from '../../../packages/shared/eduStreak.js';
+import { sendEduMail } from '../services/eduMail.js';
 
 // Setup VAPID details
 const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
@@ -50,6 +51,8 @@ export async function sendEduPush(email, { title, body, text: textFn, key, vars 
       email, appId: 'edu', category: EDU_CATEGORY[key] || 'general', title: vi.title, message: vi.body,
       i18nKey: `edu.${key}`, i18nParams: vars, actionUrl: url,
     }).catch((error) => console.error('[edu inbox]', error.message));
+    // Tin đáng giữ (chào mừng, tài khoản, đăng nhập lạ, mốc lửa…) đi cả thư; nhắc học chỉ push.
+    sendEduMail(email, { key, vars, url }).catch((error) => console.error('[edu mail]', error.message));
   }
   // `text(lang)` → { title, body } theo ngôn ngữ của TỪNG máy (vi/en/zh, còn lại rơi về vi).
   const pick = (sub) => {

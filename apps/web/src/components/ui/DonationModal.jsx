@@ -11,7 +11,8 @@ import { DONATION_CONFIG } from "../../config/donationConfig";
 export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose }) {
   const { t } = useTranslation();
   
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  // ?donate=1 (link trong thư xin tài trợ của Education Hugo) mở thẳng form ủng hộ.
+  const [internalIsOpen, setInternalIsOpen] = useState(() => new URLSearchParams(window.location.search).get("donate") === "1");
   const [visible, setVisible] = useState(() => isDonationWidgetVisible());
   const [activeTreat, setActiveTreat] = useState(null);
 

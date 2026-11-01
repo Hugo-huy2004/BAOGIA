@@ -174,6 +174,7 @@ export const STREAK_PUSH = {
     security: [['Có đăng nhập mới', 'Tài khoản vừa đăng nhập trên {device}. Không phải bạn? Mở Hồ sơ Hugo Studio để đăng xuất máy lạ.']],
     friendRequest: [['Lời mời kết bạn', '{name} muốn làm bạn học với bạn. Mở Bạn bè để đồng ý.']],
     friendAccepted: [['Đã thành bạn học', '{name} đã đồng ý kết bạn. Cùng thi đua tuần này nhé!']],
+    welcome: [['Chào bạn! Hugo đây.', 'Chào mừng tới Education Hugo — khoá học miễn phí cho học sinh – sinh viên mọi ngành, Hugo đồng hành cùng bạn trong từng bài. Bắt đầu bài đầu tiên nhé!']],
   },
   en: {
     remind: [
@@ -198,6 +199,7 @@ export const STREAK_PUSH = {
     security: [['New sign-in', "Your account just signed in on {device}. Not you? Open Profile Hugo Studio to sign out unknown devices."]],
     friendRequest: [['Friend request', '{name} wants to be your study buddy. Open Friends to accept.']],
     friendAccepted: [['You are now friends', '{name} accepted your request. Race each other this week!']],
+    welcome: [['Hi! Hugo here.', 'Welcome to Education Hugo: free courses for students in every field, and Hugo is with you in every lesson. Start your first lesson!']],
   },
   zh: {
     remind: [
@@ -222,6 +224,7 @@ export const STREAK_PUSH = {
     security: [['新的登录', '你的账户刚在 {device} 上登录。不是你？打开 个人资料 Hugo Studio 退出陌生设备。']],
     friendRequest: [['好友请求', '{name} 想和你成为学习伙伴。打开好友页面同意。']],
     friendAccepted: [['已成为好友', '{name} 同意了你的请求。本周一起比拼吧！']],
+    welcome: [['你好！我是 Hugo。', '欢迎来到 Education Hugo：为各专业学生提供的免费课程，Hugo 陪你学好每一课。开始第一课吧！']],
   },
 };
 
@@ -233,3 +236,6 @@ export function streakPush(lang, key, vars = {}) {
   const fill = (text) => text.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
   return { title: fill(title), body: fill(body) };
 }
+
+/** Nhân vật đi kèm từng loại thông báo Edu — hộp thông báo và thư (apps/web/public/edu/<tên>.svg, bản PNG cho thư ở edu/mail/). */
+export const EDU_CAST = { welcome: "cast-1", remind: "cast-1", remindNew: "buddy-learn", nearMilestone: "cast-3", lastCall: "cast-2", frozen: "buddy-wrong", milestone: "buddy-done", account: "cast-5", security: "buddy-exam", friendRequest: "cast-6", friendAccepted: "cast-7" };

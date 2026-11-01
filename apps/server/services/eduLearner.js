@@ -18,6 +18,12 @@ export async function eduSnapshot(email) {
     { $set: { lastActiveAt: new Date() } },
     { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean();
+  // Lời chào gửi ĐÚNG MỘT LẦN cho mỗi người học, kể cả người đã học từ trước (đặt mốc nguyên tử nên hai máy mở cùng lúc không chào đôi).
+  if (!doc.welcomedAt) {
+    EduLearner.updateOne({ email, welcomedAt: { $exists: false } }, { $set: { welcomedAt: new Date() } })
+      .then((r) => r.modifiedCount && sendEduPush(email, { key: 'welcome', url: '/learn', tag: 'edu-welcome' }))
+      .catch(() => {});
+  }
   const { day } = vnClock();
   return { prefs: cleanEduPrefs(doc.prefs), today: todayOf(doc, day), streak: streakView(doc.streak, day), lessons: doc.lessonsDone || {} };
 }
