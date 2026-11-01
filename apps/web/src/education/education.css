@@ -953,11 +953,13 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 /* Lửa sáng lan ra xung quanh: quầng cam phập phồng phủ xuống đầu phần thân và hắt lên viền các thẻ. */
 .streak-page:not(.is-empty) .streak-body { position: relative; }
 .streak-page:not(.is-empty) .streak-body::before {
-  content: ""; position: absolute; inset: -40px -20% auto; height: 340px; z-index: 0; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 0, rgb(255 150 0 / .32), rgb(255 120 0 / .12) 45%, transparent 75%);
-  animation: streak-glow 2.4s ease-in-out infinite;
+  content: ""; position: absolute; inset: 0 0 auto; height: 360px; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 100% at 50% 0, rgb(255 150 0 / .22), rgb(255 120 0 / .08) 50%, transparent 72%);
+  animation: streak-glow 2.4s ease-in-out infinite; transform-origin: 50% 0;
 }
-.streak-page:not(.is-empty) .streak-body > * { position: relative; z-index: 1; box-shadow: 0 0 22px rgb(255 150 0 / .16); }
+.streak-page:not(.is-empty) .streak-body > * { position: relative; z-index: 1; }
+/* Chỉ thẻ có viền thật mới hắt sáng — khối chứa (dòng tháng, hàng thống kê) không có khung để lộ. */
+.streak-page:not(.is-empty) .streak-cal-card, .streak-page:not(.is-empty) .streak-goal, .streak-page:not(.is-empty) .streak-pair > * { box-shadow: 0 0 22px rgb(255 150 0 / .14); }
 .streak-page.is-frozen .streak-body::before { background: radial-gradient(ellipse at 50% 0, rgb(80 180 255 / .3), transparent 75%); }
 @keyframes streak-glow { 50% { opacity: .6; transform: scaleY(.92); } }
 @media (prefers-reduced-motion: reduce) { .streak-body::before { animation: none; } }
