@@ -1,6 +1,9 @@
 import EduProduct from '../models/EduProduct.js';
 import EduPurchase from '../models/EduPurchase.js';
+import { randomBytes } from 'node:crypto';
 import EduLearner from '../models/EduLearner.js';
+import EduReceipt from '../models/EduReceipt.js';
+import { sendEduPush } from '../utils/pushNotifier.js';
 import { awardJoy } from '../utils/joyService.js';
 
 // Sản phẩm mẫu: chèn khi chưa có slug đó ($setOnInsert) — admin sửa/tắt rồi thì khởi động lại không ghi đè.
@@ -91,10 +94,12 @@ export async function buyEduProduct(email, productId) {
       throw error;
     }
   }
+  // Mã hoá đơn: HD-YYMMDD-XXXXXX (ngày giờ VN + 6 ký tự ngẫu nhiên), cũng là refId trong sổ JOY.
+  const code = `HD-${new Date(Date.now() + 7 * 3600_000).toISOString().slice(2, 10).replaceAll('-', '')}-${randomBytes(3).toString('hex').toUpperCase()}`;
   const undo = () => Promise.all([purchase && EduPurchase.deleteOne({ _id: purchase._id }), release()]);
   let balance;
   try {
-    ({ balance } = await awardJoy(email, -product.priceJoy, 'store_purchase', `Cửa hàng Edu: ${product.name.vi}`, { notify: false, refId: `edu-shop-${product.slug}` }));
+    ({ balance } = await awardJoy(email, -product.priceJoy, 'store_purchase', `Cửa hàng Edu: ${product.name.vi} · ${code}`, { notify: false, refId: code }));
   } catch (error) {
     await undo();
     if (String(error.message).startsWith('INSUFFICIENT_JOY')) throw Object.assign(new Error('Số dư JOY chưa đủ.'), { status: 400, code: 'INSUFFICIENT_JOY' });
@@ -108,5 +113,18 @@ export async function buyEduProduct(email, productId) {
     await undo();
     throw Object.assign(new Error(product.kind === 'streak_shield' ? `Bạn đã có tối đa ${MAX_SHIELDS} khiên.` : 'Chưa áp dụng được vật phẩm, JOY đã được hoàn.'), { status: 409, code: 'NOT_APPLIED' });
   }
-  return { balance, productId: String(product._id), perks: await eduPerks(email) };
+  // Hoá đơn: lưu vĩnh viễn và gửi đầy đủ vào hộp thông báo + push (không gửi email).
+  const receipt = (await EduReceipt.create({
+    code, email, productId: product._id, slug: product.slug, name: product.name, kind: product.kind, value: product.value || 1,
+    priceJoy: product.priceJoy, balanceBefore: balance + product.priceJoy, balanceAfter: balance,
+  })).toObject();
+  const fmt = (x) => Number(x).toLocaleString('vi-VN');
+  sendEduPush(email, {
+    key: 'purchase', url: '/store', tag: `edu-receipt-${code}`,
+    vars: {
+      price: fmt(product.priceJoy), code, name: product.name.vi, before: fmt(balance + product.priceJoy), balance: fmt(balance),
+      at: new Date(receipt.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'short' }),
+    },
+  }).catch((error) => console.error('[edu-store receipt notify]', error.message));
+  return { balance, productId: String(product._id), perks: await eduPerks(email), receipt };
 }

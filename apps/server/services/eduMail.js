@@ -78,7 +78,8 @@ export async function sendEduMail(email, { key, vars = {}, url = '/learn' }) {
   if (!MAIL_KEYS.has(key)) return null;
   // Công tắc "Gửi kèm thư email" trong Hồ sơ tắt MỌI thư Edu (push và hộp thư vẫn chạy).
   const doc = await EduLearner.findOne({ email }).select('prefs').lean();
-  if (doc && !cleanEduPrefs(doc.prefs).notifyEmail) return null;
+  // Tắt email chỉ chặn thư phụ — thư bảo mật và tài khoản vẫn gửi (đúng Chính sách quyền riêng tư).
+  if (doc && !cleanEduPrefs(doc.prefs).notifyEmail && !ESSENTIAL.has(key)) return null;
   const lang = await mailLanguage(email);
   const text = streakPush(lang, key, vars);
   if (!text) return null;

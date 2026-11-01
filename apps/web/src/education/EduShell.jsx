@@ -284,6 +284,7 @@ function EduShop({ balance, onBalance }) {
   const [items, setItems] = useState(null);
   const [perks, setPerks] = useState(null);
   const [busy, setBusy] = useState(null);
+  const [receipt, setReceipt] = useState(null);
   const load = useCallback(() => fetch(`${API_BASE}/joy/edu-store`, { credentials: "include" })
     .then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => { setItems(d.items); setPerks(d.perks); }).catch(() => setItems([])), []);
   useEffect(() => { load(); }, [load]);
@@ -304,7 +305,7 @@ function EduShop({ balance, onBalance }) {
       onBalance(d.balance);
       setPerks(d.perks);
       playEduSound("coin");
-      notify.success(t("shop.bought", { name: pick(item.name) }));
+      setReceipt(d.receipt);
       load();
     } catch (error) {
       notify.error(error.message);
@@ -321,8 +322,28 @@ function EduShop({ balance, onBalance }) {
   const status = (item) => (item.kind === "streak_shield" ? (perks?.shields ? t("shop.shields", { n: perks.shields }) : "")
     : item.kind === "xp_boost" ? (hoursLeft ? t("shop.boostLeft", { n: hoursLeft }) : "") : "");
   const owned = items.filter((i) => i.kind === "badge" && i.ownedAt);
+  const num = (x) => Number(x || 0).toLocaleString(lang);
   return (
     <>
+      {receipt && (
+        <div className="edu-receipt-wrap" role="dialog" aria-modal="true" aria-label={t("shop.receipt.title")} onClick={() => setReceipt(null)}>
+          <div className="edu-receipt" onClick={(event) => event.stopPropagation()}>
+            <img src="/edu/cast-5.svg" alt="" width="84" height="84" />
+            <h2>{t("shop.receipt.title")}</h2>
+            <p className="edu-receipt-amount">-{num(receipt.priceJoy)} <JoyCoin size={26} /></p>
+            <dl>
+              <dt>{t("shop.receipt.code")}</dt><dd translate="no">{receipt.code}</dd>
+              <dt>{t("shop.receipt.item")}</dt><dd>{pick(receipt.name)}</dd>
+              <dt>{t("shop.receipt.effect")}</dt><dd>{t(`shop.receipt.kinds.${receipt.kind === "collectible" ? "badge" : receipt.kind}`, { n: receipt.value })}</dd>
+              <dt>{t("shop.receipt.before")}</dt><dd>{num(receipt.balanceBefore)} JOY</dd>
+              <dt>{t("shop.receipt.after")}</dt><dd>{num(receipt.balanceAfter)} JOY</dd>
+              <dt>{t("shop.receipt.at")}</dt><dd>{new Date(receipt.createdAt).toLocaleString(lang)}</dd>
+            </dl>
+            <small>{t("shop.receipt.sent")}</small>
+            <button type="button" className="edu-btn edu-btn--wide" onClick={() => setReceipt(null)}>{t("shop.receipt.ok")}</button>
+          </div>
+        </div>
+      )}
       <h2 className="edu-subhead">{t("shop.title")}</h2>
       <div className="edu-shop">
         {items.map((item) => {

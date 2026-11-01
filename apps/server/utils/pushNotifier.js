@@ -39,7 +39,7 @@ export async function sendPushNotification(email, title, body, url = '/member/to
  * chạm vào thì mở trong app Edu. Truyền `text(lang)` để chữ theo ngôn ngữ từng máy.
  */
 // Khoá push Edu → nhóm trong hộp thông báo.
-const EDU_CATEGORY = { account: 'package', security: 'security', milestone: 'joy' };
+const EDU_CATEGORY = { account: 'package', security: 'security', milestone: 'joy', purchase: 'joy' };
 
 export async function sendEduPush(email, { title, body, text: textFn, key, vars = {}, url = '/learn', tag }) {
   // `key` + `vars`: chữ trong packages/shared/eduStreak.js (STREAK_PUSH) — vừa push theo ngôn ngữ

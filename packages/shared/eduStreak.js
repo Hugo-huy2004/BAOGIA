@@ -168,6 +168,7 @@ export const STREAK_PUSH = {
       ['Còn vài giờ thôi!', 'Lửa Nhỏ sắp đóng băng — một bài ngắn là giữ được chuỗi {n} ngày.'],
       ['Hugo đang lo đó', 'Chuỗi {n} ngày sắp tắt. 5 phút thôi, cứu lửa nào!'],
     ],
+    purchase: [['Hoá đơn {code} · -{price} JOY', 'Vật phẩm: {name}. Đã trừ: {price} JOY. Số dư: {before} → {balance} JOY. Thời gian: {at}.']],
     shield: [['Khiên lửa đã cứu chuỗi!', 'Hôm qua bạn lỡ học, Khiên lửa tự phá băng giúp bạn. Chuỗi {n} ngày vẫn cháy — còn {s} khiên.']],
     frozen: [['Lửa Nhỏ bị đóng băng rồi', 'Hôm qua bạn lỡ học. Học hôm nay để sưởi ấm, hoặc phá băng bằng 250 JOY. Đã đóng băng {f}/3 lần tháng này.']],
     milestone: [['Mốc {n} ngày!', 'Lửa Nhỏ lớn thêm rồi — bạn nhận {joy} JOY. Mở lịch lửa để xem chương mới.']],
@@ -194,6 +195,7 @@ export const STREAK_PUSH = {
       ['Only a few hours left!', 'Little Flame is about to freeze — one short lesson keeps your {n}-day streak.'],
       ["Hugo's getting worried", 'Your {n}-day streak is about to go out. 5 minutes to save it!'],
     ],
+    purchase: [['Receipt {code} · -{price} JOY', 'Item: {name}. Charged: {price} JOY. Balance: {before} → {balance} JOY. Date: {at}.']],
     shield: [['Streak Shield saved you!', 'You missed yesterday, so a Streak Shield thawed it. Your {n}-day streak lives on — {s} shield(s) left.']],
     frozen: [['Little Flame got frozen', 'You missed yesterday. Learn today to warm it up, or thaw it for 250 JOY. Frozen {f}/3 times this month.']],
     milestone: [['{n}-day milestone!', 'Little Flame grew — you earned {joy} JOY. Open the flame calendar for a new chapter.']],
@@ -220,6 +222,7 @@ export const STREAK_PUSH = {
       ['只剩几个小时！', '小火苗快要结冰了——一节短课就能保住 {n} 天连续记录。'],
       ['Hugo 有点担心', '{n} 天连续记录快熄灭了。5 分钟救救火苗！'],
     ],
+    purchase: [['收据 {code} · -{price} JOY', '道具：{name}。扣除：{price} JOY。余额：{before} → {balance} JOY。时间：{at}。']],
     shield: [['火焰护盾救了你的连胜！', '你昨天没学习，护盾自动为你破冰。{n} 天连胜继续燃烧——剩余 {s} 个护盾。']],
     frozen: [['小火苗被冻住了', '你昨天没学习。今天学习来温暖它，或花 250 JOY 破冰。本月已结冰 {f}/3 次。']],
     milestone: [['{n} 天里程碑！', '小火苗长大了——你获得 {joy} JOY。打开火焰日历看新的章节。']],
@@ -241,4 +244,4 @@ export function streakPush(lang, key, vars = {}) {
 }
 
 /** Nhân vật đi kèm từng loại thông báo Edu — hộp thông báo và thư (apps/web/public/edu/<tên>.svg, bản PNG cho thư ở edu/mail/). */
-export const EDU_CAST = { welcome: "cast-1", remind: "cast-1", remindNew: "buddy-learn", nearMilestone: "cast-3", lastCall: "cast-2", frozen: "buddy-wrong", shield: "cast-2", milestone: "buddy-done", account: "cast-5", security: "buddy-exam", friendRequest: "cast-6", friendAccepted: "cast-7" };
+export const EDU_CAST = { welcome: "cast-1", remind: "cast-1", remindNew: "buddy-learn", nearMilestone: "cast-3", lastCall: "cast-2", frozen: "buddy-wrong", shield: "cast-2", purchase: "cast-5", milestone: "buddy-done", account: "cast-5", security: "buddy-exam", friendRequest: "cast-6", friendAccepted: "cast-7" };
