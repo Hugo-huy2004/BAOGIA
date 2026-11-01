@@ -32,6 +32,12 @@ const EDU_CAST = { basic: 1, intermediate: 4, advanced: 6, security: 2, project:
 const STAGE_LOOK = typeof window !== "undefined" && isEduHost(window.location.hostname)
   ? Object.fromEntries(Object.entries(HUGO_LOOK).map(([id, look]) => [id, { icon: look.icon, mascot: `/edu/cast-${EDU_CAST[id]}.svg` }]))
   : HUGO_LOOK;
+// Khoá SQL: 8 chặng, 8 nhân vật clay khác nhau (dùng hết dàn cast), ở mọi trang.
+const SQL_CAST = [
+  ["sql-basic", 6, Database], ["sql-filter", 7, Code2], ["sql-group", 5, Users], ["sql-design", 3, Sparkles],
+  ["sql-write", 2, ShieldCheck], ["sql-window", 4, Code2], ["sql-perf", 8, Rocket], ["sql-capstone", 1, Sparkles],
+];
+SQL_CAST.forEach(([id, cast, icon]) => { STAGE_LOOK[id] = { icon, mascot: `/edu/cast-${cast}.svg` }; });
 
 // Màu đất cuối mỗi vùng — vùng sau bắt đầu từ đúng màu này để hai vùng hoà
 // vào nhau thay vì cắt ngang một đường thẳng. Khớp --ground trong CSS.

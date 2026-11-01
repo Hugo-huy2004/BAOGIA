@@ -1134,6 +1134,144 @@ const VISUALS = {
       ["So sánh", "= <> < >"], ["Logic", "AND OR NOT"], ["Tập", "IN, BETWEEN"], ["Chuỗi", "LIKE, GLOB"], ["NULL", "IS NULL"], ["Sắp xếp", "ORDER BY"], ["CASE", "phân loại"],
     ]} />
   ),
+  "group-mindmap": () => (
+    <MindMap center="Gom" branches={[
+      ["COUNT", "đếm"], ["SUM", "cộng"], ["GROUP BY", "theo nhóm"], ["HAVING", "lọc nhóm"], ["JOIN", "nối bảng"], ["Truy vấn con", "IN, EXISTS"], ["UNION", "ghép tập"],
+    ]} />
+  ),
+  "group-by": () => (
+    <>
+      {[["coffee", "Bạc xỉu"], ["coffee", "Cà phê"], ["coffee", "Cold brew"], ["tea", "Trà đào"], ["tea", "Matcha"], ["food", "Bánh mì"]].map(([c, n], i) => (
+        <g key={n}>
+          <rect x="10" y={14 + i * 25} width="120" height="21" rx="4" fill={ACCENT} fillOpacity={c === "coffee" ? 0.25 : c === "tea" ? 0.12 : 0.04} stroke="currentColor" strokeOpacity="0.3" />
+          <Label x={70} y={28 + i * 25} size={8.5} mono>{`${c} · ${n}`}</Label>
+        </g>
+      ))}
+      <Arrow x1={132} y1={44} x2={196} y2={44} />
+      <Arrow x1={132} y1={102} x2={196} y2={86} />
+      <Arrow x1={132} y1={139} x2={196} y2={128} />
+      {[["coffee", "3"], ["tea", "2"], ["food", "1"]].map(([c, n], i) => (
+        <g key={c}>
+          <rect x="198" y={32 + i * 42} width="114" height="26" rx="6" fill={ACCENT} fillOpacity="0.16" stroke={ACCENT} />
+          <Label x={255} y={49 + i * 42} size={9} mono bold>{`${c} · COUNT = ${n}`}</Label>
+        </g>
+      ))}
+      <Label x={160} y={172} size={8.5} muted>GROUP BY gộp nhiều dòng thành MỘT dòng mỗi nhóm</Label>
+    </>
+  ),
+  "join-types": () => (
+    <>
+      {[["INNER", 0], ["LEFT", 1], ["FULL", 2]].map(([name, k], i) => {
+        const cx = 55 + i * 105;
+        return (
+          <g key={name}>
+            <circle cx={cx - 13} cy="80" r="30" fill={k >= 1 ? ACCENT : "none"} fillOpacity="0.25" stroke="currentColor" strokeOpacity="0.5" />
+            <circle cx={cx + 13} cy="80" r="30" fill={k === 2 ? ACCENT : "none"} fillOpacity="0.25" stroke="currentColor" strokeOpacity="0.5" />
+            <path d={`M${cx} 56 A30 30 0 0 1 ${cx} 104 A30 30 0 0 1 ${cx} 56`} fill={ACCENT} fillOpacity="0.55" />
+            <Label x={cx} y={135} size={10} bold mono>{name} JOIN</Label>
+          </g>
+        );
+      })}
+      <Label x={160} y={30} size={9} muted>trái = orders · phải = customers</Label>
+      <Label x={160} y={165} size={8.5} muted>Phần tô = các dòng có trong kết quả</Label>
+    </>
+  ),
+  "design-mindmap": () => (
+    <MindMap center="Thiết kế" branches={[
+      ["ERD", "thực thể"], ["PK", "khoá chính"], ["FK", "khoá ngoại"], ["Ràng buộc", "CHECK, UNIQUE"], ["1NF", "nguyên tử"], ["2NF", "đủ khoá"], ["3NF", "không bắc cầu"], ["n–n", "bảng nối"],
+    ]} />
+  ),
+  "erd-hat": () => (
+    <>
+      <Box x={6} y={10} w={92} h={40} label="customers" mono />
+      <Box x={6} y={70} w={92} h={40} label="orders" mono accent />
+      <Box x={6} y={130} w={92} h={40} label="branches" mono />
+      <Box x={130} y={70} w={92} h={40} label="order_items" mono accent />
+      <Box x={130} y={10} w={92} h={40} label="menu_items" mono />
+      <Box x={244} y={10} w={70} h={40} label="categories" mono />
+      <Box x={244} y={130} w={70} h={40} label="tags" mono />
+      <Box x={130} y={130} w={92} h={40} label="item_tags" mono />
+      <Arrow x1={52} y1={68} x2={52} y2={52} />
+      <Arrow x1={52} y1={112} x2={52} y2={128} />
+      <Arrow x1={128} y1={90} x2={100} y2={90} />
+      <Arrow x1={176} y1={68} x2={176} y2={52} />
+      <Arrow x1={224} y1={30} x2={242} y2={30} />
+      <Arrow x1={176} y1={128} x2={176} y2={112} dashed />
+      <Arrow x1={224} y1={150} x2={242} y2={150} />
+    </>
+  ),
+  "normal-forms": () => (
+    <>
+      <Box x={8} y={20} w={96} h={60} label="1NF" sub="mỗi ô một giá trị" />
+      <Box x={112} y={20} w={96} h={60} label="2NF" sub="phụ thuộc đủ khoá" />
+      <Box x={216} y={20} w={96} h={60} label="3NF" sub="không phụ thuộc bắc cầu" accent />
+      <Arrow x1={104} y1={50} x2={110} y2={50} />
+      <Arrow x1={208} y1={50} x2={214} y2={50} />
+      <Label x={160} y={110} size={9.5} bold>"Mọi cột phụ thuộc vào khoá, cả khoá,</Label>
+      <Label x={160} y={126} size={9.5} bold>và không gì khác ngoài khoá"</Label>
+      <Label x={160} y={150} size={8.5} muted>— câu nhớ của Bill Kent (1983)</Label>
+    </>
+  ),
+  "write-mindmap": () => (
+    <MindMap center="Ghi" branches={[
+      ["INSERT", "thêm"], ["UPDATE", "sửa"], ["DELETE", "xoá"], ["UPSERT", "thêm-hoặc-sửa"], ["BEGIN", "giao dịch"], ["VIEW", "bảng ảo"], ["TRIGGER", "tự động"], ["?", "tham số"],
+    ]} />
+  ),
+  "acid": () => (
+    <>
+      {[["A", "Atomicity", "tất cả hoặc không gì"], ["C", "Consistency", "luôn thoả ràng buộc"], ["I", "Isolation", "không thấy việc dở"], ["D", "Durability", "đã COMMIT là còn"]].map(([k, name, sub], i) => (
+        <g key={k}>
+          <circle cx={40 + i * 80} cy="60" r="26" fill={ACCENT} fillOpacity="0.2" stroke={ACCENT} strokeWidth="2" />
+          <Label x={40 + i * 80} y={67} size={20} bold>{k}</Label>
+          <Label x={40 + i * 80} y={108} size={9} bold>{name}</Label>
+          <Label x={40 + i * 80} y={122} size={7.5} muted>{sub}</Label>
+        </g>
+      ))}
+      <Label x={160} y={160} size={8.5} muted>Härder & Reuter (1983)</Label>
+    </>
+  ),
+  "window-mindmap": () => (
+    <MindMap center="Cửa sổ" branches={[
+      ["WITH", "CTE"], ["Đệ quy", "cây, chuỗi ngày"], ["ROW_NUMBER", "đánh số"], ["RANK", "xếp hạng"], ["LAG/LEAD", "dòng trước/sau"], ["SUM OVER", "luỹ kế"], ["Khung", "ROWS/RANGE"],
+    ]} />
+  ),
+  "window-frame": () => (
+    <>
+      {["01/10", "02/10", "03/10", "04/10", "05/10", "06/10"].map((d, i) => (
+        <g key={d}>
+          <rect x={14 + i * 50} y="60" width="44" height="40" rx="5" fill={ACCENT} fillOpacity={i >= 2 && i <= 4 ? 0.3 : 0.05} stroke="currentColor" strokeOpacity="0.35" />
+          <Label x={36 + i * 50} y={84} size={9} mono>{d}</Label>
+        </g>
+      ))}
+      <rect x="112" y="54" width="146" height="52" rx="8" fill="none" stroke={ACCENT} strokeWidth="2.2" />
+      <Label x={185} y={44} size={8.5} bold>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</Label>
+      <Arrow x1={236} y1={120} x2={236} y2={104} />
+      <Label x={236} y={134} size={8.5}>dòng hiện tại</Label>
+      <Label x={160} y={165} size={8.5} muted>Mỗi dòng giữ nguyên — chỉ tính thêm trên khung trượt</Label>
+    </>
+  ),
+  "perf-mindmap": () => (
+    <MindMap center="Nhanh" branches={[
+      ["B-tree", "cây cân bằng"], ["EXPLAIN", "kế hoạch"], ["Phủ", "covering"], ["Một phần", "WHERE"], ["JSON", "->>"], ["FTS", "MATCH"],
+    ]} />
+  ),
+  "btree": () => (
+    <>
+      <Box x={120} y={10} w={80} h={30} label="30000" mono accent />
+      <Box x={30} y={70} w={80} h={30} label="20000 · 25000" mono />
+      <Box x={210} y={70} w={80} h={30} label="35000 · 45000" mono />
+      <Arrow x1={140} y1={40} x2={80} y2={68} label="<" />
+      <Arrow x1={180} y1={40} x2={240} y2={68} label="≥" />
+      {["Bánh mì", "Cà phê", "Bạc xỉu"].map((t, i) => <Label key={t} x={40 + i * 30} y={122 + (i % 2) * 12} size={7.5} muted>{t}</Label>)}
+      {["Trà đào", "Cold brew", "Matcha"].map((t, i) => <Label key={t} x={220 + i * 32} y={122 + (i % 2) * 12} size={7.5} muted>{t}</Label>)}
+      <Label x={160} y={165} size={8.5} muted>Tìm giá = 35000: 2 bước thay vì đọc cả bảng — log n</Label>
+    </>
+  ),
+  "capstone-sql": () => (
+    <MindMap center="Hạt" branches={[
+      ["Doanh thu", "ngày, tuần"], ["Món", "top, ABC"], ["Khách", "RFM"], ["Cohort", "quay lại"], ["Giờ cao điểm", "strftime"], ["Xu hướng", "LAG, MA7"],
+    ]} />
+  ),
   "relational-mindmap": () => (
     <MindMap center="Quan hệ" branches={[
       ["Bảng", "quan hệ"], ["Cột", "thuộc tính"], ["Hàng", "bộ"], ["Khoá", "chính · ngoại"], ["Miền", "kiểu + CHECK"],
