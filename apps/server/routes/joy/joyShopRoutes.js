@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { eduSnapshot, saveEduPrefs, thawEduStreak } from '../../services/eduLearner.js';
+import { eduSocial, followEdu, unfollowEdu } from '../../services/eduSocial.js';
 import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
@@ -216,6 +217,39 @@ router.put('/edu-settings', requireMemberSession, async (req, res) => {
     return res.json({ success: true, prefs });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/joy/edu-social — mã bạn, bạn bè đang theo dõi, bảng thi đua tuần (không lộ email).
+router.get('/edu-social', requireMemberSession, async (req, res) => {
+  try {
+    res.set('Cache-Control', 'private, no-store');
+    return res.json(await eduSocial(req.memberEmail));
+  } catch (error) {
+    console.error('[edu-social]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa tải được bạn bè.' });
+  }
+});
+
+// POST /api/joy/edu-friends { code } · DELETE /api/joy/edu-friends/:code — theo dõi bằng mã bạn.
+const friendLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 60_000, max: 10, standardHeaders: true, legacyHeaders: false });
+router.post('/edu-friends', requireMemberSession, friendLimiter, async (req, res) => {
+  try {
+    await followEdu(req.memberEmail, req.body?.code);
+    return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
+  } catch (error) {
+    if (error.code) return res.status(400).json({ code: error.code, error: error.message });
+    console.error('[edu-friends]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa thêm được bạn.' });
+  }
+});
+router.delete('/edu-friends/:code', requireMemberSession, friendLimiter, async (req, res) => {
+  try {
+    await unfollowEdu(req.memberEmail, req.params.code);
+    return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
+  } catch (error) {
+    console.error('[edu-friends]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa bỏ theo dõi được.' });
   }
 });
 

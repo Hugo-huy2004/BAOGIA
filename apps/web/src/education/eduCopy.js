@@ -85,7 +85,7 @@ export const EDU_COPY = {
       rule: "Mỗi ngày qua ít nhất một bài để giữ lửa. Lỡ một ngày, lửa đóng băng; quá 3 lần đóng băng trong tháng là tắt lửa, đếm lại từ đầu.",
       legendStudied: "Đã học", legendFrozen: "Đóng băng", legendThawed: "Đã phá băng",
       next: "Mốc tiếp theo: {d} ngày · +{joy} JOY", road: "Mốc thưởng", story: "Câu chuyện của Lửa Nhỏ", locked: "Giữ lửa {d} ngày để mở chương này",
-      nextShort: "Mốc tới · +{joy} JOY", credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
+      nextShort: "Mốc tới · +{joy} JOY", social: { league: "Thi đua tuần", friends: "Bạn bè", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Qua một bài để mở màn!", yourCode: "Mã bạn của bạn", copied: "Đã chép mã", codePlaceholder: "Nhập mã 6 ký tự", follow: "Theo dõi", unfollow: "Bỏ theo dõi", friendsEmpty: "Chưa theo dõi ai. Gửi mã của bạn cho bạn bè nhé.", you: "Bạn", xp: "{n} XP", loadFailed: "Chưa tải được bạn bè." }, credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
       week: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
       stages: {
         ember: ["Tro ấm", "Lửa Nhỏ đang ngủ trong đống tro. Một bài học là đủ đánh thức bạn ấy."],
@@ -288,7 +288,7 @@ export const EDU_COPY = {
       rule: "Pass at least one lesson a day to keep the flame. Miss a day and it freezes; more than 3 freezes in a month puts it out and the count restarts.",
       legendStudied: "Learned", legendFrozen: "Frozen", legendThawed: "Thawed",
       next: "Next milestone: {d} days · +{joy} JOY", road: "Milestone rewards", story: "Little Flame's story", locked: "Keep the flame {d} days to unlock",
-      nextShort: "Next · +{joy} JOY", credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
+      nextShort: "Next · +{joy} JOY", social: { league: "Weekly league", friends: "Friends", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Pass a lesson to kick it off!", yourCode: "Your friend code", copied: "Code copied", codePlaceholder: "Enter a 6-character code", follow: "Follow", unfollow: "Unfollow", friendsEmpty: "Not following anyone yet. Send your code to friends.", you: "You", xp: "{n} XP", loadFailed: "Couldn't load friends." }, credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
       week: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
       stages: {
         ember: ["Warm ashes", "Little Flame is asleep in the ashes. One lesson is enough to wake it."],
@@ -549,7 +549,7 @@ export const EDU_COPY = {
       rule: "每天至少通过一课来守住火苗。错过一天火苗会结冰；一个月内结冰超过 3 次就会熄灭，重新计数。",
       legendStudied: "已学习", legendFrozen: "结冰", legendThawed: "已破冰",
       next: "下一个里程碑：{d} 天 · +{joy} JOY", road: "里程碑奖励", story: "小火苗的故事", locked: "守住火苗 {d} 天解锁本章",
-      nextShort: "下个里程碑 · +{joy} JOY", credit: "火焰动画", lit: "火苗点亮了！", litBody: "已连续 {n} 天。明天再来守住火苗。", reached: "连续 {n} 天！", reward: "+{joy} JOY", great: "太棒了！",
+      nextShort: "下个里程碑 · +{joy} JOY", social: { league: "每周排行", friends: "好友", leagueHint: "按本周 XP 排名 · 周一 00:00 重置", leagueEmpty: "本周还没有人获得 XP。通过一课来开局吧！", yourCode: "你的好友码", copied: "已复制", codePlaceholder: "输入 6 位好友码", follow: "关注", unfollow: "取消关注", friendsEmpty: "还没有关注任何人。把你的好友码发给朋友吧。", you: "你", xp: "{n} XP", loadFailed: "好友加载失败。" }, credit: "火焰动画", lit: "火苗点亮了！", litBody: "已连续 {n} 天。明天再来守住火苗。", reached: "连续 {n} 天！", reward: "+{joy} JOY", great: "太棒了！",
       week: ["一", "二", "三", "四", "五", "六", "日"],
       stages: {
         ember: ["温暖的灰烬", "小火苗在灰烬里睡着了。一节课就能把它唤醒。"],

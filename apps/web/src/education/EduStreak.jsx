@@ -96,6 +96,78 @@ function MonthCalendar({ streak, month, onThaw, busy }) {
   );
 }
 
+/** Thi đua tuần + bạn bè (kiểu Duolingo). Mọi con số do máy chủ trả (/joy/edu-social). */
+function StreakSocial() {
+  const { t } = useEduText();
+  const [tab, setTab] = useState("league");
+  const [data, setData] = useState(null);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const call = async (path, init) => {
+    const response = await fetch(`${API_BASE}/joy/${path}`, { credentials: "include", ...init, headers: { "Content-Type": "application/json" } });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || t("streak.social.loadFailed"));
+    return body;
+  };
+  useEffect(() => {
+    call("edu-social").then(setData).catch(() => setData({ failed: true }));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const follow = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    try { setData(await call("edu-friends", { method: "POST", body: JSON.stringify({ code }) })); setCode(""); }
+    catch (error) { notify.error(error.message); }
+    finally { setBusy(false); }
+  };
+  const unfollow = async (friend) => {
+    try { setData(await call(`edu-friends/${encodeURIComponent(friend)}`, { method: "DELETE" })); }
+    catch (error) { notify.error(error.message); }
+  };
+  const copy = () => navigator.clipboard?.writeText(data.code).then(() => notify.success(t("streak.social.copied"))).catch(() => {});
+  const rows = tab === "league" ? data?.league : data?.friends;
+
+  return (
+    <div className="streak-social">
+      <div className="streak-tabs" role="tablist">
+        {["league", "friends"].map((id) => (
+          <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
+            <span className="material-symbols-outlined" aria-hidden="true">{id === "league" ? "leaderboard" : "group"}</span>{t(`streak.social.${id}`)}
+          </button>
+        ))}
+      </div>
+      {tab === "league" && <p className="streak-social-hint">{t("streak.social.leagueHint")}</p>}
+      {tab === "friends" && data?.code && (
+        <div className="streak-friend-tools">
+          <button type="button" className="streak-code" onClick={copy} aria-label={t("streak.social.yourCode")}>
+            <small>{t("streak.social.yourCode")}</small><b translate="no">{data.code}</b>
+            <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
+          </button>
+          <form className="streak-add" onSubmit={follow}>
+            <input value={code} onChange={(event) => setCode(event.target.value.toUpperCase().slice(0, 6))} placeholder={t("streak.social.codePlaceholder")} aria-label={t("streak.social.codePlaceholder")} autoCapitalize="characters" autoComplete="off" spellCheck={false} />
+            <button type="submit" disabled={busy || code.length !== 6}>{t("streak.social.follow")}</button>
+          </form>
+        </div>
+      )}
+      {!data ? <div className="streak-rows is-loading" aria-busy="true" /> : data.failed ? <p className="streak-social-hint">{t("streak.social.loadFailed")}</p> : (
+        <ol className="streak-rows">
+          {(rows || []).filter((row) => tab === "league" || !row.me || rows.length > 1).map((row, index) => (
+            <li key={`${row.code || row.name}-${index}`} className={row.me ? "is-me" : ""}>
+              <span className={`streak-rank${index < 3 && tab === "league" ? ` is-top${index + 1}` : ""}`}>{index + 1}</span>
+              {row.avatar ? <img src={row.avatar} alt="" loading="lazy" /> : <span className="streak-avatar" aria-hidden="true">{row.name.slice(0, 1).toUpperCase()}</span>}
+              <span className="streak-who"><b>{row.me ? t("streak.social.you") : row.name}</b><small><span className="material-symbols-outlined" aria-hidden="true">local_fire_department</span>{row.streak}</small></span>
+              <b className="streak-xp">{t("streak.social.xp", { n: row.xp })}</b>
+              {tab === "friends" && !row.me && (
+                <button type="button" className="streak-unfollow" onClick={() => unfollow(row.code)} aria-label={t("streak.social.unfollow")}><span className="material-symbols-outlined">person_remove</span></button>
+              )}
+            </li>
+          ))}
+          {!rows?.length || (tab === "friends" && rows.length < 2) ? <li className="streak-empty">{t(tab === "league" ? "streak.social.leagueEmpty" : "streak.social.friendsEmpty")}</li> : null}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 /**
  * Màn chuỗi lửa (/streak) — trang riêng, không dialog, gọn: ngọn lửa + số ngày, trạng thái
  * hôm nay, 3 con số, lịch tháng (bấm ngày đóng băng để phá băng). Mọi con số do máy chủ tính.
@@ -159,6 +231,7 @@ export function StreakScreen({ streak, onUpdate }) {
         <MonthCalendar streak={streak} month={month} onThaw={thaw} busy={busy} />
         <p className="streak-legend"><i className="is-lit" />{t("streak.legendStudied")}<i className="is-frozen" />{t("streak.legendFrozen")}<i className="is-thawed" />{t("streak.legendThawed")}</p>
       </div>
+      <StreakSocial />
       <p className="streak-rule">{t("streak.rule")}</p>
       <RiveCredit />
     </section>

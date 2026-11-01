@@ -4,6 +4,7 @@ import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
 import { awardJoy } from '../../utils/joyService.js';
 import { noteEduStep, noteEduStudy } from '../../services/eduLearner.js';
+import { addEduXp, XP_PER_CORRECT, XP_REVIEW } from '../../services/eduSocial.js';
 import { requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
 import { randomInt, randomBytes } from 'node:crypto';
@@ -74,6 +75,8 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       // Chuỗi lửa tính theo NƠI học (Education Hugo), không theo hồ sơ: thành viên Hugo Team
       // học từ Edu vẫn giữ lửa; chỉ bài nộp từ app Hugo Team (program=hugoteam) mới bỏ qua.
       const eduStreak = !isHugoTeam && review?.passed ? await noteEduStudy(email, { reviewOf: lessonId }).catch(() => null) : null;
+      // XP tuần cho ôn lại chỉ khi lần ôn đó được tính giữ lửa (mỗi step 1 lần / 7 ngày).
+      if (eduStreak) addEduXp(email, XP_REVIEW).catch((error) => console.error('[edu xp]', error.message));
       return res.json({
         success: true,
         alreadyCompleted: true,
@@ -155,6 +158,8 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
     let joyEarned = 0;
     // Mục tiêu ngày của Education Hugo đếm step qua lần đầu.
     if (added.modifiedCount === 1) noteEduStep(email).catch((error) => console.error('[award-learning edu]', error.message));
+    // XP thi đua tuần: chỉ lần qua ĐẦU TIÊN, theo số câu máy chủ chấm đúng.
+    if (added.modifiedCount === 1 && !isHugoTeam) addEduXp(email, graded.correct * XP_PER_CORRECT).catch((error) => console.error('[edu xp]', error.message));
     if (added.modifiedCount === 1 && graded.correct > 0) {
       try {
         const before = balance;

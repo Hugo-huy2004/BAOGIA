@@ -24,8 +24,16 @@ const schema = new mongoose.Schema({
   frozenNoticeDay: { type: String, default: '' },
   // Ngày ôn lại gần nhất của từng step đã qua — ôn lại chỉ giữ lửa mỗi 7 ngày/step.
   reviewedOn: { type: mongoose.Schema.Types.Mixed, default: () => ({}) },
+  // Bạn bè + thi đua tuần (services/eduSocial.js): mã bạn 6 ký tự, danh sách mã đang
+  // theo dõi, XP của tuần ISO `xpWeek` (giờ VN) — chỉ máy chủ cộng sau khi chấm bài.
+  friendCode: { type: String },
+  following: { type: [String], default: [] },
+  xpWeek: { type: String, default: '' },
+  xpWeekly: { type: Number, default: 0 },
 }, { timestamps: true, minimize: false });
 
 schema.index({ 'prefs.reminder': 1, 'prefs.reminderHour': 1 });
+schema.index({ friendCode: 1 }, { unique: true, partialFilterExpression: { friendCode: { $type: 'string' } } });
+schema.index({ xpWeek: 1, xpWeekly: -1 });
 
 export default mongoose.model('EduLearner', schema);
