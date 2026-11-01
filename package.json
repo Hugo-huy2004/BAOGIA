@@ -76,7 +76,8 @@
     "deploy:portfolio": "node scripts/deploy-portfolio.mjs",
     "og:partner": "node scripts/generate-partner-og.mjs",
     "gen:mascots": "node scripts/generate-mascots.mjs",
-    "course:translate": "node scripts/translate-course.mjs"
+    "course:translate": "node scripts/translate-course.mjs",
+    "check:streak": "node scripts/checks/check-edu-streak.mjs"
   },
   "devDependencies": {
     "eslint": "^9.15.0",

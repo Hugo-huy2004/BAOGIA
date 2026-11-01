@@ -11,7 +11,7 @@ import { ACCOUNT_EXTENSION, EXCHANGE_TAX_RATE } from "../../../../packages/share
 import { CODER_JOY_PER_CORRECT } from "../../../../packages/shared/coderProgression";
 import { canPromptInstall, promptInstall } from "./eduHead";
 import { rich, useEduText } from "./eduText";
-import { FlameBuddy, StreakChip, StreakSheet } from "./EduStreak";
+import { FlameBuddy, StreakChip } from "./EduStreak";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const STUDIO = "https://www.hugowishpax.studio";
@@ -168,22 +168,17 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
   const streak = learner?.edu?.streak;
   const location = useLocation();
   const navigate = useNavigate();
-  // ?streak=1 (bấm thông báo đẩy về chuỗi) mở thẳng lịch lửa.
-  const [streakOpen, setStreakOpen] = useState(() => new URLSearchParams(location.search).has("streak"));
-  const closeStreak = () => {
-    setStreakOpen(false);
-    if (location.search.includes("streak")) navigate(location.pathname, { replace: true });
-  };
-  const applyStreak = (data) => {
-    onLearnerUpdate?.({ edu: { ...learner?.edu, streak: data.streak }, ...(Number.isFinite(data.balance) ? { joyBalance: data.balance } : {}) });
-    if (data.milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { milestone: data.milestone, stage: data.streak.stage } }));
-  };
+  // ?streak=1 (thông báo đẩy cũ) → màn chuỗi lửa.
+  useEffect(() => {
+    if (new URLSearchParams(location.search).has("streak")) navigate("/streak", { replace: true });
+  }, [location.search, navigate]);
+  const openStreak = () => navigate("/streak");
   const nav = NAV.map((item) => ({ ...item, label: t(`nav.${item.key}`), to: signedIn || item.to === "/learn" ? item.to : "/login" }));
 
   const chips = (
     <>
       {signedIn && streak
-        ? <StreakChip streak={streak} onOpen={() => setStreakOpen(true)} />
+        ? <StreakChip streak={streak} onOpen={openStreak} />
         : <StatChip icon="local_fire_department" tone="orange" label={t("streak.title")} to="/login">0</StatChip>}
       {signedIn && <StatChip icon="diamond" tone="blue" label={t("shell.balance", { joy: joyText(learner?.joyBalance || 0) })} to="/store">{joyText(learner?.joyBalance || 0).replace(" JOY", "")}</StatChip>}
       {signedIn && !learner?.isEduVerified && stats.days !== null && (
@@ -224,9 +219,8 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
 
       <aside className="edu-rail">
         <div className="edu-rail-chips">{chips}</div>
-        <Rail learner={learner} signedIn={signedIn} stats={stats} onStreak={() => setStreakOpen(true)} />
+        <Rail learner={learner} signedIn={signedIn} stats={stats} onStreak={openStreak} />
       </aside>
-      {streakOpen && streak && <StreakSheet streak={streak} onClose={closeStreak} onUpdate={applyStreak} />}
 
       <nav className="edu-tabs" aria-label="Education Hugo">
         {nav.map((item) => (

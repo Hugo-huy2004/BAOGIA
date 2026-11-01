@@ -26,6 +26,7 @@ const CHECKS = [
   { name: 'check:psy', cmd: 'npm', args: ['run', 'check:psy'] },
   { name: 'check:project', cmd: 'npm', args: ['run', 'check:project'] },
   { name: 'check:coder-content', cmd: 'npm', args: ['run', 'check:coder-content'] },
+  { name: 'check:streak', cmd: 'npm', args: ['run', 'check:streak'] },
   { name: 'check:exam', cmd: 'npm', args: ['run', 'check:exam'] },
   { name: 'check:grading', cmd: 'npm', args: ['run', 'check:grading'] },
   { name: 'check:today', cmd: 'npm', args: ['run', 'check:today'] },

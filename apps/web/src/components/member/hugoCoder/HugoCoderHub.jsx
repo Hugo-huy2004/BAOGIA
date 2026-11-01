@@ -355,8 +355,7 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
         hugoCoderExamScores: { ...(bio?.hugoCoderExamScores || {}), [course.id]: (({ best, firstTry } = bio?.hugoCoderExamScores?.[course.id] || {}) => ({ best: Math.max(Number(best) || 0, data.score), firstTry: firstTry ?? data.score }))() },
         ...(Number.isFinite(data.balance) ? { joyBalance: data.balance } : {}),
       });
-      // Education Hugo: chuỗi lửa mới + màn chúc mừng nếu vừa chạm mốc (EduStreak).
-      if (data.eduStreak?.milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { milestone: data.eduStreak.milestone, stage: data.eduStreak.streak.stage } }));
+      announceStreak(data.eduStreak);
       // Qua step lần đầu: +5 JOY mỗi câu đúng (máy chủ tính, xem award-learning).
       if (data.joyEarned > 0) notify.success(edu("hub.earned", { joy: joyText(data.joyEarned), correct: data.correct, total: data.total }));
       if (program === "hugoteam") onProgramProgress?.(data);
@@ -365,11 +364,21 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
     // Học lại step đã qua cũng giữ lửa hôm nay (Education Hugo).
     if (member && data.alreadyCompleted && data.eduStreak) {
       onBioUpdate?.({ ...bio, edu: { ...(bio?.edu || {}), streak: data.eduStreak.streak } });
-      if (data.eduStreak.milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { milestone: data.eduStreak.milestone, stage: data.eduStreak.streak.stage } }));
+      announceStreak(data.eduStreak);
     }
     if (!member && data.passed) notify.info(edu("hub.guestSaved"));
     return data;
   };
+
+  // Education Hugo: chạm mốc → màn chúc mừng; bài ĐẦU TIÊN trong ngày → hoạt cảnh thắp lửa.
+  // Chỉ đọc kết quả máy chủ trả về (eduStreak), không tự tính gì ở client.
+  function announceStreak(eduStreak) {
+    if (!eduStreak?.streak) return;
+    const { streak, milestone } = eduStreak;
+    const firstToday = streak.studiedToday && !bio?.edu?.streak?.studiedToday;
+    if (milestone) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { count: milestone.day, joy: milestone.joy, stage: streak.stage } }));
+    else if (firstToday) window.dispatchEvent(new CustomEvent("edu:streak-milestone", { detail: { count: streak.count, stage: streak.stage } }));
+  }
 
   const currentCourse = courses.find((course) => course.id === selectedLessonId) || null;
   // Step kế tiếp theo đúng thứ tự lộ trình; step cuối thì không có nút "Step tiếp".

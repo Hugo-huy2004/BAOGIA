@@ -16,7 +16,7 @@ import { useEduText } from "./eduText";
 import { changeAppLanguage } from "../i18n/config";
 import { installEduTapSounds } from "./eduSound";
 import EduWelcome, { needsWelcome } from "./EduWelcome";
-import { StreakCelebration, useStreakCelebration } from "./EduStreak";
+import { StreakCelebration, StreakView, useStreakCelebration } from "./EduStreak";
 import "./education.css";
 
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
@@ -134,7 +134,7 @@ export default function EducationApp() {
     <div className={`edu${textSize === "lg" ? " edu-text-lg" : ""}`}>
       {gated && <EduInstallGate />}
       {welcome && <EduWelcome onDone={() => setWelcome(false)} />}
-      {celebration.event && <StreakCelebration milestone={celebration.event.milestone} stage={celebration.event.stage} onClose={celebration.close} />}
+      {celebration.event && <StreakCelebration key={`${celebration.event.count}-${celebration.event.joy || 0}`} {...celebration.event} onClose={celebration.close} />}
       {!gated && <Routes>
         <Route path="/" element={signedIn ? <Navigate to="/learn" replace /> : <EduLanding />} />
         {/* Tải lại cả trang sau đăng nhập: bộ nhớ đệm bài học (401 lúc còn là khách) và phiên mới cùng sạch. */}
@@ -144,6 +144,7 @@ export default function EducationApp() {
         <Route path="/login" element={signedIn ? <Navigate to="/learn" replace /> : <EduLogin onSignedIn={() => window.location.assign("/learn")} />} />
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
+        <Route path="/streak" element={signedIn ? shell("streak", <StreakView learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
         <Route path="/store" element={signedIn ? shell("store", <EduStore learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="/settings" element={signedIn ? shell("settings", <EduSettings learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />

@@ -45,7 +45,7 @@ async function writeStreak(email, change) {
 async function payMilestone(email, milestone) {
   if (!milestone) return null;
   const { balance } = await awardJoy(email, milestone.joy, 'checkin', `Chuỗi lửa Education Hugo: mốc ${milestone.day} ngày`, { refId: `edu-streak-${milestone.day}`, notify: false });
-  sendEduPush(email, { text: (lang) => streakPush(lang, 'milestone', { n: milestone.day, joy: milestone.joy }), url: '/learn?streak=1', tag: 'edu-streak' })
+  sendEduPush(email, { text: (lang) => streakPush(lang, 'milestone', { n: milestone.day, joy: milestone.joy }), url: '/streak', tag: 'edu-streak' })
     .catch(() => {});
   return { ...milestone, balance };
 }
@@ -172,7 +172,7 @@ export async function runEduReminders(now = new Date()) {
       if (!send) continue;
       await sendEduPush(doc.email, {
         text: (lang) => streakPush(lang, hour === 21 ? 'lastCall' : 'frozen', { n: streak.count, f: streak.freezesThisMonth }),
-        url: '/learn?streak=1',
+        url: '/streak',
         tag: 'edu-streak',
       });
       await EduLearner.updateOne({ _id: doc._id }, { $set: { [field]: day } });
