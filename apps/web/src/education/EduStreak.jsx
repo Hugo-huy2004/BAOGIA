@@ -13,45 +13,14 @@ import { playEduSound } from "./eduSound";
  * mốc thưởng, câu chuyện) và màn chúc mừng khi chạm mốc. Luật ở packages/shared/eduStreak.js.
  */
 
-// Màu ngọn lửa theo chương — lửa lớn và sáng dần; đóng băng thì xanh lạnh.
-const LOOK = {
-  ember: ["#b9aca2", "#e4dad2", 0.62], spark: ["#ff9600", "#ffd84d", 0.7], candle: ["#ff8a00", "#ffd84d", 0.78],
-  campfire: ["#ff6b00", "#ffc800", 0.86], torch: ["#ff5a1f", "#ffc800", 0.92], lantern: ["#ff4b4b", "#ffc800", 0.95],
-  bonfire: ["#ff3d2e", "#ffb800", 1], lighthouse: ["#ff6b00", "#fff1a8", 1], phoenix: ["#ff3d6e", "#ffc800", 1],
-  sun: ["#ffb300", "#fff1a8", 1], star: ["#ffd000", "#ffffff", 1],
-};
-
+/**
+ * Ngọn lửa của chuỗi = ngọn lửa "Spiro Streak" (Rive, CC BY Patgrivet). Chỗ nhỏ (nút, thẻ) dùng
+ * ảnh tĩnh public/edu/flame.png tách từ chính khung Rive; chỗ lớn chạy Rive (RiveFlame).
+ * Đóng băng = cùng ngọn lửa đổi sang xanh lạnh; chưa có chuỗi (tro) = xám mờ.
+ */
 export function FlameBuddy({ stage = "spark", frozen = false, size = 120, className = "" }) {
-  const [outer, inner, scale] = frozen ? ["#8fd3f4", "#e3f6fd", LOOK[stage]?.[2] || 0.8] : LOOK[stage] || LOOK.spark;
-  const asleep = stage === "ember" || frozen;
-  return (
-    <svg className={`flame-buddy${frozen ? " is-frozen" : ""} ${className}`} width={size} height={size * 1.2} viewBox="0 0 100 120" aria-hidden="true">
-      {/* Đạo cụ theo chương: nến, củi, cán đuốc, khung đèn lồng */}
-      {stage === "candle" && <rect x="38" y="96" width="24" height="22" rx="4" fill="#fff3c4" stroke="#e9c46a" strokeWidth="3" />}
-      {["campfire", "bonfire"].includes(stage) && <><rect x="18" y="104" width="64" height="10" rx="5" fill="#8d5a2b" transform="rotate(-12 50 109)" /><rect x="18" y="104" width="64" height="10" rx="5" fill="#a86b35" transform="rotate(12 50 109)" /></>}
-      {stage === "torch" && <rect x="44" y="96" width="12" height="24" rx="4" fill="#8d5a2b" />}
-      {stage === "lantern" && <rect x="16" y="14" width="68" height="100" rx="18" fill="none" stroke="#3c3c3c" strokeWidth="4" />}
-      {["sun", "star", "phoenix", "lighthouse"].includes(stage) && !frozen && (
-        <g className="flame-rays">{[0, 45, 90, 135, 180, 225, 270, 315].map((r) => <rect key={r} x="48" y="0" width="4" height="12" rx="2" fill={inner} transform={`rotate(${r} 50 62)`} />)}</g>
-      )}
-      <g className="flame-body" style={{ transformOrigin: "50% 100%", transform: `scale(${scale})`, "--s": scale }}>
-        <path d="M50 10C64 32 84 46 82 74C80 98 66 110 50 110C34 110 20 98 18 74C16 50 38 36 50 10Z" fill={outer} />
-        <path d="M50 46C58 58 68 66 67 82C66 96 59 102 50 102C41 102 34 96 33 82C32 68 43 60 50 46Z" fill={inner} />
-        {asleep ? (
-          <g stroke="#3c3c3c" strokeWidth="3" strokeLinecap="round" fill="none"><path d="M37 74q4 4 8 0" /><path d="M55 74q4 4 8 0" /></g>
-        ) : (
-          <g className="flame-eyes"><circle cx="41" cy="73" r="5" fill="#3c3c3c" /><circle cx="59" cy="73" r="5" fill="#3c3c3c" /><circle cx="43" cy="71" r="1.6" fill="#fff" /><circle cx="61" cy="71" r="1.6" fill="#fff" /></g>
-        )}
-        <path d={frozen ? "M44 88q6 -4 12 0" : "M43 85q7 7 14 0"} stroke="#3c3c3c" strokeWidth="3" strokeLinecap="round" fill="none" />
-        {!asleep && <><circle cx="33" cy="82" r="4" fill="#ff86d0" opacity=".6" /><circle cx="67" cy="82" r="4" fill="#ff86d0" opacity=".6" /></>}
-      </g>
-      {frozen && (
-        <g className="flame-frost" stroke="#e3f6fd" strokeWidth="3" strokeLinecap="round">
-          {[[16, 34], [84, 48], [22, 96]].map(([x, y]) => <g key={x} transform={`translate(${x} ${y})`}><path d="M0 -7V7M-6 -3.5L6 3.5M-6 3.5L6 -3.5" /></g>)}
-        </g>
-      )}
-    </svg>
-  );
+  const look = frozen ? "is-frozen" : stage === "ember" ? "is-ember" : "";
+  return <img src="/edu/flame.png" alt="" aria-hidden="true" width={size} height={size} className={`flame-buddy ${look} ${className}`} draggable="false" />;
 }
 
 /** Nút lửa trên thanh trên/cột phải. Xám khi hôm nay chưa học, xanh băng khi đang đóng băng. */
@@ -214,6 +183,8 @@ export function StreakScreen({ streak, onUpdate }) {
   const [month, setMonth] = useState(streak.today.slice(0, 7));
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState("me");
+  const [riveFailed, setRiveFailed] = useState(false);
+  const onRiveFail = useCallback(() => setRiveFailed(true), []);
   const frozen = streak.frozenNow && !streak.studiedToday;
 
   const shiftMonth = (by) => {
@@ -267,7 +238,9 @@ export function StreakScreen({ streak, onUpdate }) {
               <span className="streak-big-sub">{t("streak.daysLong")}</span>
               <small className="streak-band-note">{frozen ? t("streak.frozenNow") : streak.studiedToday ? t("streak.today") : t("streak.notToday")}</small>
             </div>
-            <FlameBuddy stage={streak.count ? streak.stage : "ember"} frozen={frozen} size={132} className="is-alive" />
+            <span className={`streak-band-flame${frozen ? " is-frozen" : streak.count ? "" : " is-ember"}`}>
+              {riveFailed ? <FlameBuddy stage={streak.count ? streak.stage : "ember"} frozen={frozen} size={150} /> : <RiveFlame onFail={onRiveFail} className="band-rive" />}
+            </span>
           </div>
           <div className="streak-body">
             <div className="streak-month">
@@ -315,7 +288,7 @@ function RiveCredit() {
   );
 }
 
-function RiveFlame({ onFail }) {
+function RiveFlame({ onFail, className = "cel-rive" }) {
   const canvas = useRef(null);
   useEffect(() => {
     let rive;
@@ -324,14 +297,14 @@ function RiveFlame({ onFail }) {
       if (dead) return;
       RuntimeLoader.setWasmUrl("/edu/rive/rive.wasm"); // tự host — không gọi CDN của Rive
       rive = new Rive({
-        src: "/edu/rive/spiro-streak.riv", artboard: "Spiro-v04", stateMachines: "State Machine 1",
+        src: "/edu/rive/spiro-streak.riv", artboard: "Spiro-Flame Design", animations: "Timeline 1",
         canvas: canvas.current, autoplay: true, layout: new Layout({ fit: Fit.Cover }),
         onLoadError: () => !dead && onFail(),
       });
     }).catch(() => !dead && onFail());
     return () => { dead = true; rive?.cleanup(); };
   }, [onFail]);
-  return <canvas ref={canvas} className="cel-rive" width={560} height={560} aria-hidden="true" />;
+  return <canvas ref={canvas} className={className} width={560} height={560} aria-hidden="true" />;
 }
 
 /**
