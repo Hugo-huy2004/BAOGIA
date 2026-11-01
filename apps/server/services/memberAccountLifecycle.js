@@ -37,6 +37,10 @@ import { deleteAvatar, getPublicIdFromUrl } from '../utils/cloudinary.js';
 import { clearCache } from '../utils/cacheHelper.js';
 import slugIndex from './slugIndex.js';
 import { broadcastToEmail } from '../utils/realtime.js';
+import EduLearner from '../models/EduLearner.js';
+import Persona from '../models/Persona.js';
+import UserReport from '../models/UserReport.js';
+import TodayPost from '../models/TodayPost.js';
 
 const expiredMemberFilter = (now) => ({
   isEduVerified: { $ne: true },
@@ -89,6 +93,21 @@ const removeSecurityAppeals = async (email) => {
   await SecurityAppeal.deleteMany({ email });
 };
 
+// Education Hugo: tiến độ/chuỗi/bạn bè, Persona, báo cáo, bài Cộng đồng + lượt thích.
+// Gỡ mã bạn của người này khỏi danh sách bạn/lời mời của người khác để không còn hàng "ma".
+const removeEduData = async (email) => {
+  const learner = await EduLearner.findOne({ email }).select('friendCode').lean();
+  const code = learner?.friendCode;
+  await Promise.all([
+    code ? EduLearner.updateMany({ $or: [{ friends: code }, { requestsIn: code }, { requestsOut: code }, { following: code }] }, { $pull: { friends: code, requestsIn: code, requestsOut: code, following: code } }) : null,
+    EduLearner.deleteOne({ email }),
+    Persona.deleteOne({ email }),
+    UserReport.deleteMany({ $or: [{ reporterEmail: email }, { targetEmail: email }] }),
+    TodayPost.deleteMany({ authorEmail: email }),
+    TodayPost.updateMany({ likes: email }, { $pull: { likes: email }, $inc: { likeCount: -1 } }),
+  ]);
+};
+
 const removeMemberData = async (bio) => {
   const email = String(bio.email || '').trim().toLowerCase();
   const emailFilter = { email };
@@ -128,6 +147,7 @@ const removeMemberData = async (bio) => {
     removeSecurityAppeals(email),
     SecurityModeration.deleteMany(emailFilter),
     ErrorLog.deleteMany(emailFilter),
+    removeEduData(email),
   ];
   await Promise.all(operations);
 };
