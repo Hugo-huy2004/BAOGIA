@@ -22,6 +22,7 @@ import "./education.css";
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
 const EduCommunity = lazy(() => import("./EduCommunity"));
 const EduFriends = lazy(() => import("./EduFriends"));
+const EduLegal = lazy(() => import("./EduLegal.jsx"));
 const EduPublicProfile = lazy(() => import("./EduFriends").then((mod) => ({ default: mod.EduPublicProfile })));
 const CoderProgress = lazy(() => import("../components/member/hugoCoder/HugoCoderHub").then((mod) => ({ default: mod.ManageTab })));
 
@@ -151,6 +152,10 @@ export default function EducationApp() {
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
         <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
+        {/* Văn bản pháp lý: công khai, không cần đăng nhập. */}
+        {["terms", "privacy", "guidelines"].map((doc) => (
+          <Route key={doc} path={`/${doc}`} element={shell("legal", <Suspense fallback={<Loading />}><EduLegal doc={doc} /></Suspense>)} />
+        ))}
         <Route path="/friends" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduFriends /></Suspense>) : needsLogin} />
         <Route path="/u/:code" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduPublicProfile /></Suspense>) : needsLogin} />
         <Route path="/community" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />

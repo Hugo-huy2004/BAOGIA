@@ -406,7 +406,7 @@ export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUp
       </div>
       <EduSettings embedded learner={learner} onLearnerUpdate={onLearnerUpdate} />
       <p className="edu-legal">
-        <a href={`${STUDIO}/terms`} target="_blank" rel="noopener">{t("common.terms")}</a> · <a href={`${STUDIO}/privacy-policy`} target="_blank" rel="noopener">{t("common.privacy")}</a> · <a href={`${STUDIO}/support-request`} target="_blank" rel="noopener">{t("common.support")}</a>
+        <Link to="/terms">{t("common.terms")}</Link> · <Link to="/privacy">{t("common.privacy")}</Link> · <Link to="/guidelines">Community Guidelines</Link> · <a href={`${STUDIO}/support-request`} target="_blank" rel="noopener">{t("common.support")}</a>
       </p>
     </section>
   );

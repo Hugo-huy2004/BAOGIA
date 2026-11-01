@@ -1088,3 +1088,18 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .fr-sheet textarea { min-height: 80px; padding: 10px 14px; border: 2px solid var(--edu-line); border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-size: 16px; resize: vertical; }
 .fr-sheet-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .edu-btn.is-danger { background: var(--edu-red); box-shadow: 0 4px 0 color-mix(in srgb, var(--edu-red) 70%, #000); color: #fff; }
+
+/* ── Văn bản pháp lý (EduLegal.jsx): cột đọc hẹp, chữ lớn dễ đọc, mục lục nhảy tới từng phần ── */
+.legal { display: grid; gap: 18px; max-width: 760px; line-height: 1.7; }
+.legal header { display: grid; gap: 6px; }
+.legal header small { color: var(--edu-muted); font-weight: 700; }
+.legal-lead { margin: 6px 0 0; font-size: 17px; }
+.legal-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.legal-tabs a { min-height: 40px; display: inline-flex; align-items: center; padding: 0 14px; border: 2px solid var(--edu-line); border-radius: 12px; color: var(--edu-ink); font-weight: 800; text-decoration: none; }
+.legal-tabs a.is-on { border-color: var(--edu-blue); color: var(--edu-blue); background: color-mix(in srgb, var(--edu-blue) 10%, transparent); }
+.legal-toc { display: grid; gap: 4px; margin: 0; padding: 14px 14px 14px 34px; border: 2px solid var(--edu-line); border-radius: 16px; }
+.legal-toc a { color: var(--edu-blue); font-weight: 700; text-decoration: none; }
+.legal section { scroll-margin-top: 80px; }
+.legal h2 { margin: 8px 0 6px; font-size: 20px; font-weight: 900; }
+.legal p { margin: 0 0 10px; }
+.legal ul { display: grid; gap: 8px; margin: 0 0 10px; padding-left: 22px; }

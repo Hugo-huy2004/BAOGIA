@@ -86,8 +86,8 @@ export default function EduLogin({ onSignedIn }) {
           {t("login.age")}
         </p>
         <p className="edu-legal">
-          {t("login.agreeA")} <a href="https://www.hugowishpax.studio/terms" target="_blank" rel="noopener">{t("common.terms")}</a> {t("login.agreeAnd")}{" "}
-          <a href="https://www.hugowishpax.studio/privacy-policy" target="_blank" rel="noopener">{t("login.policy")}</a>{t("login.agreeB")}
+          {t("login.agreeA")} <a href="/terms">{t("common.terms")}</a> {t("login.agreeAnd")}{" "}
+          <a href="/privacy">{t("login.policy")}</a>{t("login.agreeB")}
         </p>
         <Link className="edu-link" to="/learn">{t("login.tryFirst")}</Link>
       </main>

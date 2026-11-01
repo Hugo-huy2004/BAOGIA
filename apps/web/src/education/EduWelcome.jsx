@@ -83,8 +83,8 @@ export default function EduWelcome({ onDone }) {
             <label className="edu-welcome-check">
               <input type="checkbox" checked={terms} onChange={(event) => setTerms(event.target.checked)} />
               <span>
-                {t("welcome.termsA")} <a href={`${WWW}/terms`} target="_blank" rel="noopener">{t("common.terms")}</a> {t("login.agreeAnd")}{" "}
-                <a href={`${WWW}/privacy-policy`} target="_blank" rel="noopener">{t("login.policy")}</a>{t("welcome.termsB")}
+                {t("welcome.termsA")} <a href="/terms">{t("common.terms")}</a> {t("login.agreeAnd")}{" "}
+                <a href="/privacy">{t("login.policy")}</a>{t("welcome.termsB")}
               </span>
             </label>
             <label className="edu-welcome-check">

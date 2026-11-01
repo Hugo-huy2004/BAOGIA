@@ -473,7 +473,7 @@ const FOOTER = [
   [["about", [["member", `${WWW}/member`], ["web", `${WWW}/`], ["portfolio", "https://portfolio.hugowishpax.studio"], ["student", `${WWW}/student-pricing`]]]],
   [["help", [["faq", `${WWW}/faq`], ["request", `${WWW}/support-request`], ["guide", `${WWW}/terms-and-guide`]]]],
   [
-    ["legal", [["common.terms", `${WWW}/terms`], ["common.privacy", `${WWW}/privacy-policy`]]],
+    ["legal", [["common.terms", "/terms"], ["common.privacy", "/privacy"]]],
     ["social", STUDIO_SOCIAL_LINKS.map((s) => [s.labelKey === "socialGroupChat" ? "groupChat" : `=${s.fallbackLabel}`, s.href])],
   ],
 ];
