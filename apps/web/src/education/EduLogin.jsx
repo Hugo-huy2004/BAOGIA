@@ -57,7 +57,9 @@ export default function EduLogin({ onSignedIn }) {
   const passkey = async () => {
     setBusy(true);
     setError("");
-    finish(await loginMemberWithPasskey());
+    const result = await loginMemberWithPasskey();
+    // Lỗi gốc của trình duyệt/Better Auth là tiếng Anh kỹ thuật — thay bằng câu dễ hiểu.
+    finish(result.session ? result : { error: t("login.passkeyFailed") });
   };
 
   return (

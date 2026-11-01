@@ -49,7 +49,7 @@ export const EDU_COPY = {
     },
     profile: {
       title: "Hồ sơ", learner: "Học viên", steps: "Step đã qua", average: "Điểm trung bình", verified: "Đã xác minh", left: "Ngày còn lại",
-      account: "Tài khoản", accountBody: "Tài khoản Hugo Studio — đăng nhập bằng cùng Google/passkey ở education.hugowishpax.studio và www.hugowishpax.studio. Ví JOY, tiến độ và hồ sơ là một.",
+      account: "Tài khoản", accountBody: "Tài khoản Hugo Studio — đăng nhập bằng cùng Google hoặc Face ID / vân tay ở education.hugowishpax.studio và www.hugowishpax.studio. Ví JOY, tiến độ và hồ sơ là một.",
       keep: "Duy trì", keepVerified: "Đã xác minh giáo dục — miễn phí.", keepLeft: "Còn {n} ngày. Gia hạn trong Cửa hàng.", keepExpired: "Đã hết hạn — gia hạn trong Cửa hàng để giữ tài khoản.",
       openStudio: "Mở Hugo Studio", signOut: "Đăng xuất",
     },
@@ -73,8 +73,8 @@ export const EDU_COPY = {
     login: {
       title: "Đăng nhập hoặc tạo tài khoản", body: "Một tài khoản dùng cho cả Education Hugo và Hugo Studio. Lần đầu bấm Google là có tài khoản ngay.",
       failed: "Đăng nhập chưa thành công. Thử lại nhé.",
-      blocked: "Chưa hiện được nút Google ở {origin} — có thể do trình chặn quảng cáo. Thử tải lại trang hoặc dùng passkey.",
-      passkey: "Đăng nhập bằng passkey", verifying: "Đang xác thực…",
+      blocked: "Chưa hiện được nút Google ở {origin} — có thể do trình chặn quảng cáo. Thử tải lại trang hoặc dùng Face ID / vân tay.",
+      passkey: "Đăng nhập bằng Face ID / vân tay", passkeyFailed: "Chưa đăng nhập được bằng Face ID / vân tay. Máy này cần bật trước: đăng nhập Google một lần, rồi bật Face ID trong Hồ sơ Hugo Studio.", verifying: "Đang xác thực…",
       age: "Dành cho người từ 14 tuổi. Học miễn phí; tài khoản được duy trì theo quy định của Hugo Studio (gia hạn bằng JOY kiếm được khi học, hoặc miễn phí 1 năm khi xác minh giáo dục).",
       agreeA: "Khi tiếp tục, bạn đồng ý với", agreeAnd: "và", agreeB: " của Hugo Studio.", policy: "Chính sách bảo mật",
       tryFirst: "Học thử chặng 1 trước, không cần tài khoản",
@@ -253,7 +253,7 @@ export const EDU_COPY = {
     },
     profile: {
       title: "Profile", learner: "Learner", steps: "Steps passed", average: "Average score", verified: "Verified", left: "Days left",
-      account: "Account", accountBody: "One Hugo Studio account — log in with the same Google/passkey on education.hugowishpax.studio and www.hugowishpax.studio. JOY wallet, progress and profile are shared.",
+      account: "Account", accountBody: "One Hugo Studio account — log in with the same Google account or Face ID/fingerprint on education.hugowishpax.studio and www.hugowishpax.studio. JOY wallet, progress and profile are shared.",
       keep: "Account term", keepVerified: "Education verified — free.", keepLeft: "{n} days left. Renew in the Shop.", keepExpired: "Expired — renew in the Shop to keep your account.",
       openStudio: "Open Hugo Studio", signOut: "Log out",
     },
@@ -277,8 +277,8 @@ export const EDU_COPY = {
     login: {
       title: "Log in or create an account", body: "One account for both Education Hugo and Hugo Studio. Tap Google once and your account is ready.",
       failed: "Login didn't work. Please try again.",
-      blocked: "The Google button couldn't load on {origin} — an ad blocker may be in the way. Reload the page or use a passkey.",
-      passkey: "Log in with a passkey", verifying: "Verifying…",
+      blocked: "The Google button couldn't load on {origin} — an ad blocker may be in the way. Reload the page or use Face ID or fingerprint.",
+      passkey: "Sign in with Face ID or fingerprint", passkeyFailed: "Couldn't sign in with Face ID or fingerprint. Turn it on for this device first: sign in with Google once, then enable Face ID in your Hugo Studio profile.", verifying: "Verifying…",
       age: "For ages 14 and up. Learning is free; your account follows Hugo Studio's rules (renew with JOY earned while learning, or free for 1 year with education verification).",
       agreeA: "By continuing you agree to Hugo Studio's", agreeAnd: "and", agreeB: ".", policy: "Privacy Policy",
       tryFirst: "Try stage 1 first, no account needed",
@@ -515,7 +515,7 @@ export const EDU_COPY = {
     },
     profile: {
       title: "个人资料", learner: "学员", steps: "已通过 step", average: "平均分", verified: "已认证", left: "剩余天数",
-      account: "账户", accountBody: "Hugo Studio 账户——在 education.hugowishpax.studio 和 www.hugowishpax.studio 用同一个 Google/通行密钥登录。JOY 钱包、进度和资料都是同一份。",
+      account: "账户", accountBody: "Hugo Studio 账户——在 education.hugowishpax.studio 和 www.hugowishpax.studio 用同一个 Google 或面容/指纹登录。JOY 钱包、进度和资料都是同一份。",
       keep: "维持", keepVerified: "已完成教育认证——免费。", keepLeft: "还剩 {n} 天。请在商店续期。", keepExpired: "已过期——请在商店续期以保留账户。",
       openStudio: "打开 Hugo Studio", signOut: "退出登录",
     },
@@ -539,8 +539,8 @@ export const EDU_COPY = {
     login: {
       title: "登录或创建账户", body: "一个账户同时用于 Education Hugo 和 Hugo Studio。第一次点击 Google 即可创建账户。",
       failed: "登录未成功，请再试一次。",
-      blocked: "Google 按钮无法在 {origin} 显示——可能被广告拦截器阻止。请刷新页面或使用通行密钥。",
-      passkey: "使用通行密钥登录", verifying: "验证中…",
+      blocked: "Google 按钮无法在 {origin} 显示——可能被广告拦截器阻止。请刷新页面或使用面容/指纹登录。",
+      passkey: "使用面容或指纹登录", passkeyFailed: "未能用面容或指纹登录。请先在本设备开启：用 Google 登录一次，再到 Hugo Studio 个人资料中开启面容 ID。", verifying: "验证中…",
       age: "适合 14 岁及以上。学习免费；账户按 Hugo Studio 的规定维持（用学习赚到的 JOY 续期，或完成教育认证免费 1 年）。",
       agreeA: "继续即表示你同意 Hugo Studio 的", agreeAnd: "和", agreeB: "。", policy: "隐私政策",
       tryFirst: "先免账户试学第 1 阶段",
