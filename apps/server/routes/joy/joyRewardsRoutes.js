@@ -71,7 +71,9 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       const review = gradeStepQuiz(lessonId, evidence.answers);
       const steps = await syncTeam(programProgress);
       // Ôn lại mà đạt vẫn giữ lửa hôm nay — mỗi step tối đa một lần / 7 ngày.
-      const eduStreak = !teamDev && review?.passed ? await noteEduStudy(email, { reviewOf: lessonId }).catch(() => null) : null;
+      // Chuỗi lửa tính theo NƠI học (Education Hugo), không theo hồ sơ: thành viên Hugo Team
+      // học từ Edu vẫn giữ lửa; chỉ bài nộp từ app Hugo Team (program=hugoteam) mới bỏ qua.
+      const eduStreak = !isHugoTeam && review?.passed ? await noteEduStudy(email, { reviewOf: lessonId }).catch(() => null) : null;
       return res.json({
         success: true,
         alreadyCompleted: true,
@@ -135,7 +137,7 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
     }
 
     // Chuỗi lửa Education Hugo: qua một step mới là giữ lửa hôm nay.
-    const eduStreak = teamDev ? null : await noteEduStudy(email).catch((error) => {
+    const eduStreak = isHugoTeam ? null : await noteEduStudy(email).catch((error) => {
       console.error('[award-learning streak]', error.message);
       return null;
     });
@@ -163,12 +165,12 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
       }
     }
 
+    if (eduStreak?.milestone?.balance) balance = Math.max(balance, eduStreak.milestone.balance);
     if (teamDev) {
       const steps = await syncTeam([...programProgress, lessonId]);
-      return res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, ...teamView(steps) });
+      return res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, eduStreak, ...teamView(steps) });
     }
 
-    if (eduStreak?.milestone?.balance) balance = Math.max(balance, eduStreak.milestone.balance);
     res.json({ success: true, balance, joyEarned, evidence: privateEvidence, ...graded, passPercent: PASS_PERCENT, eduStreak });
   } catch (error) {
     res.status(400).json({ error: error.message });
