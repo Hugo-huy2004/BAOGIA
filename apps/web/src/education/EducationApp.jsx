@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { playEduSound } from "./eduSound";
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { clearMemberSession, getMemberSession, logoutAuth } from "../services/api/core/authSession";
 import { hugoCoderApi } from "../services/api/modules/hugoCoderApi";
 import { useCoderLessons } from "../hooks/useCoderLessons";
@@ -155,10 +155,12 @@ export default function EducationApp() {
   const device = detectInstallTarget();
   const phoneWeb = (device.iOS || device.android) && !standalone;
   const gated = phoneWeb && !["/", "/en", "/zh"].includes(location.pathname);
+  // Quét QR thẻ bạn bè bằng camera điện thoại luôn mở trình duyệt, không mở PWA (iOS cấm, Android mở tab nhúng).
+  const qrCode = /^\/u\/([A-Za-z0-9]{4,12})$/.exec(location.pathname)?.[1];
 
   return (
     <div className={`edu${textSize === "lg" ? " edu-text-lg" : ""}`}>
-      {gated && <EduInstallGate />}
+      {gated && (qrCode ? <EduQrHandoff code={qrCode} android={device.android} /> : <EduInstallGate />)}
       {welcome && <EduWelcome onDone={() => setWelcome(false)} />}
       {!welcome && !gated && persona && !persona.complete && <PersonaGate email={session.email} current={persona} onDone={setPersona} />}
       {celebration.event && <StreakCelebration key={`${celebration.event.count}-${celebration.event.joy || 0}`} {...celebration.event} onClose={celebration.close} />}
@@ -193,6 +195,28 @@ export default function EducationApp() {
 }
 
 const COURSE_KEY = "edu.course";
+
+/** Màn trung chuyển khi quét QR bạn bè trên trình duyệt điện thoại: chép mã để dán trong app. */
+function EduQrHandoff({ code, android }) {
+  const { t } = useEduText();
+  const [copied, setCopied] = useState(false);
+  const copy = () => navigator.clipboard?.writeText(code).then(() => { setCopied(true); playEduSound("coin"); }).catch(() => {});
+  // Android: intent mở bằng Chrome; WebAPK đã cài sẽ nhận đường dẫn trong phạm vi của nó.
+  const intent = `intent://${window.location.host}/u/${code}#Intent;scheme=https;package=com.android.chrome;end`;
+  return (
+    <div className="edu-gate edu-qr">
+      <main className="edu-ob-main">
+        <img className="edu-ob-hero is-wave" src="/edu/cast-1.svg" alt="" width="130" height="130" />
+        <h1 className="edu-ob-title">{t("friends.qrTitle")}</h1>
+        <p className="edu-ob-lead">{t("friends.qrBody")}</p>
+        <button type="button" className="edu-qr-code" onClick={copy} aria-label={t("friends.qrCopy")}>{code}</button>
+        <button type="button" className="edu-btn edu-btn--wide edu-ob-go" onClick={copy}>{t(copied ? "friends.qrCopied" : "friends.qrCopy")}</button>
+        {android && <a className="edu-btn edu-btn--ghost edu-btn--wide" href={intent}>{t("friends.qrOpen")}</a>}
+        <Link className="edu-ob-later" to="/install">{t("friends.qrInstall")}</Link>
+      </main>
+    </div>
+  );
+}
 
 function LearnMap({ learner, onLearnerUpdate }) {
   const navigate = useNavigate();

@@ -1231,3 +1231,7 @@ button:active .edu-note-cast { transform: scale(.9, 1.08); }
 .edu-course-tabs { display: flex; gap: 8px; margin: 0 auto 12px; max-width: 520px; padding: 0 16px; }
 .edu-course-tabs button { flex: 1; min-height: 44px; border: 2px solid var(--edu-line); border-bottom-width: 4px; border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-weight: 800; letter-spacing: .04em; }
 .edu-course-tabs button[aria-selected="true"] { border-color: var(--edu-blue, #1cb0f6); color: var(--edu-blue, #1cb0f6); background: color-mix(in srgb, var(--edu-blue, #1cb0f6) 12%, transparent); }
+.edu-set + .edu-set, .edu-settings-embedded > * + * { margin-top: 16px; }
+.edu-qr .edu-ob-main { display: grid; gap: 14px; justify-items: center; text-align: center; padding: 32px 16px; }
+.edu-qr-code { padding: 14px 28px; border: 2px dashed var(--edu-blue); border-radius: 18px; background: transparent; color: var(--edu-blue); font: 900 34px/1 ui-monospace, monospace; letter-spacing: .18em; animation: edu-qr-pop .4s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes edu-qr-pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
