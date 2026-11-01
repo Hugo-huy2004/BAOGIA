@@ -1,4 +1,4 @@
-// Biệt danh trên bảng thi đua (Education Hugo và các web sau của Hugo Studio).
+// Biệt danh Persona — dùng chung cho mọi web/app thuộc và ngoài Hugo Studio.
 // Chỉ CHỮ (mọi ngôn ngữ, có dấu) và EMOJI, cách nhau bằng một khoảng trắng.
 // Cấm số, dấu câu, ký hiệu, ký tự điều khiển/vô hình. Máy chủ và giao diện dùng chung.
 export const NICKNAME_MIN = 2;

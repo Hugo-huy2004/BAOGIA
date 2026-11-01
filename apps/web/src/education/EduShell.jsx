@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { PersonaAvatar, PersonaGate } from "./EduPersona";
 import { Link, NavLink } from "react-router-dom";
 import HugoLogo from "../components/HugoLogo";
 import { notify } from "../lib/notify";
@@ -392,8 +393,9 @@ function Stat({ icon, tone, value, label }) {
 }
 
 /** Hồ sơ: một tài khoản Hugo Studio dùng cho cả hai nơi. */
-export function EduProfile({ learner, onSignOut }) {
+export function EduProfile({ learner, persona, onPersona, onSignOut }) {
   const { t } = useEduText();
+  const [editing, setEditing] = useState(false);
   const stats = useLearnerStats(learner);
   const days = stats.days;
   const [installable, setInstallable] = useState(false);
@@ -407,15 +409,15 @@ export function EduProfile({ learner, onSignOut }) {
     <section className="edu-page">
       <h1 className="edu-page-title">{t("profile.title")}</h1>
       <div className="edu-profile">
-        {learner?.avatarUrl
-          ? <img src={learner.avatarUrl} alt="" className="edu-avatar" referrerPolicy="no-referrer" />
-          : <span className="edu-avatar">{(learner?.displayName || learner?.email || "?").slice(0, 1).toUpperCase()}</span>}
+        <PersonaAvatar avatar={persona?.avatar} name={persona?.nickname || learner?.displayName} size={72} />
         <div>
-          <b>{learner?.displayName || t("profile.learner")}</b>
+          <b className={persona?.nickname ? "nick-font" : ""}>{persona?.nickname || learner?.displayName || t("profile.learner")}</b>
           <small>{learner?.email}</small>
         </div>
+        <button type="button" className="edu-btn is-ghost" onClick={() => setEditing(true)}>{t("persona.edit")}</button>
       </div>
 
+      {editing && <PersonaGate editOnly email={learner?.email} current={persona} onDone={(saved) => { if (saved) onPersona(saved); setEditing(false); }} />}
       <div className="edu-stats">
         <Stat icon="local_fire_department" tone="orange" value={learner?.edu?.streak?.count ?? 0} label={t("streak.title")} />
         <Stat icon="task_alt" tone="blue" value={`${stats.done}/${stats.total || 26}`} label={t("profile.steps")} />

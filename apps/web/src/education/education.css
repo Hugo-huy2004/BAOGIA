@@ -808,3 +808,42 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .band-rive { width: 220px; height: 220px; margin: -26px; -webkit-mask: none; mask: none; }
 .streak-page.is-empty, :root.dark .streak-page.is-empty { --band-sub: rgb(214 211 209 / .75); }
 .streak-band > div { min-width: 0; } .streak-band-note { max-width: 180px; }
+
+/* ── Persona: biệt danh + nhân vật bắt buộc (EduPersona.jsx) ─────────────── */
+.persona-avatar { display: inline-grid; place-items: center; border-radius: 22%; image-rendering: pixelated; flex: none; }
+.persona-avatar.is-letter { background: var(--edu-blue); color: #fff; font-weight: 800; }
+.persona-gate { position: fixed; inset: 0; z-index: 90; background: var(--edu-bg); overflow-y: auto; display: grid; place-items: start center; padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+.persona-card { width: min(100%, 560px); display: grid; gap: 14px; justify-items: center; text-align: center; color: var(--edu-ink); }
+.persona-card h2 { margin: 8px 0 0; font-size: 26px; font-weight: 800; }
+.persona-card p { margin: 0; color: var(--edu-muted); }
+.persona-nick { width: 100%; display: grid; gap: 10px; }
+.persona-nick input { min-height: 56px; border-radius: 16px; border: 2px solid var(--edu-line); background: var(--edu-soft); color: var(--edu-ink); font-size: 20px; text-align: center; padding: 0 14px; outline: none; }
+.persona-nick input:focus { border-color: var(--edu-blue); }
+.persona-nick small { color: var(--edu-muted); }
+.persona-nick small.is-error { color: var(--edu-red); }
+.persona-editor { width: 100%; display: grid; gap: 12px; justify-items: center; }
+.persona-preview { box-shadow: 0 6px 0 var(--edu-line); animation: persona-bob 2.4s ease-in-out infinite; }
+@keyframes persona-bob { 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .persona-preview { animation: none; } }
+.persona-name { font-size: 20px; }
+.persona-random { display: inline-flex; gap: 6px; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--edu-line); background: var(--edu-card); color: var(--edu-ink); font-weight: 700; cursor: pointer; }
+.persona-tabs { width: 100%; display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; }
+.persona-tabs button { flex: none; min-height: 40px; padding: 0 14px; border-radius: 12px; border: 2px solid var(--edu-line); background: var(--edu-card); color: var(--edu-muted); font-weight: 700; cursor: pointer; }
+.persona-tabs button.is-on { border-color: var(--edu-active-line); background: var(--edu-active); color: var(--edu-blue); }
+.persona-grid { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 8px; max-height: 300px; overflow-y: auto; padding: 2px; }
+.persona-grid.is-colors { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); }
+.persona-grid button { display: grid; place-items: center; min-height: 68px; border-radius: 16px; border: 2px solid var(--edu-line); background: var(--edu-card); color: var(--edu-muted); cursor: pointer; padding: 4px; }
+.persona-grid.is-colors button { min-height: 52px; }
+.persona-grid button.is-on { border-color: var(--edu-blue); background: var(--edu-active); }
+.persona-swatch { width: 32px; height: 32px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgb(0 0 0 / .08); }
+.persona-actions { display: flex; gap: 10px; width: 100%; justify-content: center; }
+.persona-actions .edu-btn { flex: 1; max-width: 260px; }
+.persona-credit { color: var(--edu-muted); font-size: 12px; }
+.edu-btn.is-ghost { background: var(--edu-card); color: var(--edu-ink) !important; box-shadow: 0 4px 0 var(--edu-line); border: 2px solid var(--edu-line); }
+.streak-rows li { grid-template-columns: 28px 48px minmax(0, 1fr) auto auto; padding: 10px 8px; border-bottom: 1px solid var(--hs-line, rgb(0 0 0 / .06)); }
+.streak-rows .persona-avatar.streak-avatar { width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 2px var(--edu-card); }
+.streak-rows li.is-me { background: color-mix(in srgb, var(--edu-green) 22%, transparent); }
+.streak-rows li.is-me .streak-who b, .streak-rows li.is-me .streak-xp { color: var(--edu-green-edge); }
+.edu-profile { flex-wrap: wrap; }
+.edu-profile > div { flex: 1; min-width: 0; }
+.edu-profile > div small { overflow-wrap: anywhere; }

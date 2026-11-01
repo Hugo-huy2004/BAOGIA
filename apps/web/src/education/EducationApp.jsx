@@ -17,6 +17,7 @@ import { changeAppLanguage } from "../i18n/config";
 import { installEduTapSounds } from "./eduSound";
 import EduWelcome, { needsWelcome } from "./EduWelcome";
 import { StreakCelebration, StreakView, useStreakCelebration } from "./EduStreak";
+import { PersonaGate, usePersona } from "./EduPersona";
 import "./education.css";
 
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
@@ -122,6 +123,8 @@ export default function EducationApp() {
   const [welcome, setWelcome] = useState(needsWelcome);
   useEffect(() => installEduTapSounds(), []);
   const celebration = useStreakCelebration();
+  // Biệt danh + nhân vật bắt buộc (sau bước chào/điều khoản): chưa xong thì không vào học được.
+  const [persona, setPersona] = usePersona(signedIn);
 
   // Điện thoại chưa cài app: chỉ trang giới thiệu, mọi trang học → video cài đặt.
   const standalone = useStandalone();
@@ -134,6 +137,7 @@ export default function EducationApp() {
     <div className={`edu${textSize === "lg" ? " edu-text-lg" : ""}`}>
       {gated && <EduInstallGate />}
       {welcome && <EduWelcome onDone={() => setWelcome(false)} />}
+      {!welcome && !gated && persona && !persona.complete && <PersonaGate email={session.email} current={persona} onDone={setPersona} />}
       {celebration.event && <StreakCelebration key={`${celebration.event.count}-${celebration.event.joy || 0}`} {...celebration.event} onClose={celebration.close} />}
       {!gated && <Routes>
         <Route path="/" element={signedIn ? <Navigate to="/learn" replace /> : <EduLanding />} />
@@ -148,7 +152,7 @@ export default function EducationApp() {
         <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
         <Route path="/store" element={signedIn ? shell("store", <EduStore learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="/settings" element={signedIn ? shell("settings", <EduSettings learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
-        <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} onSignOut={signOut} />) : needsLogin} />
+        <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} />) : needsLogin} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>}
     </div>

@@ -4,8 +4,9 @@ import confetti from "canvas-confetti";
 import { notify } from "../lib/notify";
 import { API_BASE } from "../config/apiBase";
 import { MAX_FREEZES, THAW_PRICE } from "../../../../packages/shared/eduStreak";
-import { NICKNAME_MAX, checkNickname } from "../../../../packages/shared/eduNickname";
+import { NICKNAME_MAX, checkNickname } from "../../../../packages/persona";
 import { useEduText } from "./eduText";
+import { PersonaAvatar } from "./EduPersona";
 import { playEduSound } from "./eduSound";
 
 /**
@@ -159,7 +160,7 @@ function StreakSocial() {
           {(rows || []).filter((row) => tab === "league" || !row.me || rows.length > 1).map((row, index) => (
             <li key={`${row.code || row.name}-${index}`} className={row.me ? "is-me" : ""}>
               <span className={`streak-rank${index < 3 && tab === "league" ? ` is-top${index + 1}` : ""}`}>{index + 1}</span>
-              <span className="streak-avatar nick-font" aria-hidden="true">{[...(row.name || "?")][0].toUpperCase()}</span>
+              <PersonaAvatar avatar={row.avatar} name={row.name} size={48} className="streak-avatar" />
               <span className="streak-who"><b className={row.name ? "nick-font" : "is-anon"}>{row.name || t("streak.social.noNick")}{row.me ? ` · ${t("streak.social.you")}` : ""}</b><small><span className="material-symbols-outlined" aria-hidden="true">local_fire_department</span>{row.streak}</small></span>
               <b className="streak-xp">{t("streak.social.xp", { n: row.xp })}</b>
               {tab === "friends" && !row.me && (

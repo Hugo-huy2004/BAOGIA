@@ -1,11 +1,11 @@
 // Bạn bè + thi đua tuần của Education Hugo (kiểu Duolingo).
 //  - Mỗi người học có MÃ BẠN 6 ký tự; theo dõi người khác bằng mã (một chiều, như Duolingo).
 //  - XP tuần chỉ cộng ở máy chủ sau khi chấm bài đạt (award-learning) — client không gửi điểm.
-//  - Bảng xếp hạng chỉ lộ BIỆT DANH + chuỗi + XP: không tên thật, không ảnh, không email.
-//    Chưa đặt biệt danh thì không có tên trên bảng tuần.
+//  - Bảng xếp hạng chỉ lộ PERSONA (biệt danh + nhân vật pixel, modules/persona) + chuỗi + XP:
+//    không tên thật, không ảnh thật, không email. Chưa có biệt danh thì không có tên trên bảng tuần.
 import { randomInt } from 'node:crypto';
 import EduLearner from '../models/EduLearner.js';
-import { checkNickname } from '../../../packages/shared/eduNickname.js';
+import { PersonaService } from '../modules/persona/PersonaService.js';
 import { vnClock } from '../../../packages/shared/eduPrefs.js';
 import { streakView } from '../../../packages/shared/eduStreak.js';
 
@@ -49,10 +49,11 @@ async function ensureCode(doc) {
 }
 
 /** Hàng hiển thị: biệt danh + chuỗi + XP tuần; bỏ email. */
-function present(docs, week, day, myEmail) {
+function present(docs, week, day, myEmail, personas) {
   return docs.map((d) => ({
     code: d.friendCode || '',
-    name: d.nickname || '',
+    name: personas.get(d.email)?.nickname || '',
+    avatar: personas.get(d.email)?.avatar || null,
     streak: streakView(d.streak, day).count,
     xp: d.xpWeek === week ? d.xpWeekly || 0 : 0,
     me: d.email === myEmail,
@@ -64,17 +65,22 @@ export async function eduSocial(email) {
   const week = weekOf(day);
   const me = await EduLearner.findOneAndUpdate({ email }, { $setOnInsert: { email } }, { upsert: true, new: true }).lean();
   const code = await ensureCode(me);
-  const fields = 'email friendCode nickname streak xpWeek xpWeekly';
-  const [following, leagueDocs] = await Promise.all([
+  const fields = 'email friendCode streak xpWeek xpWeekly';
+  const [following, topDocs, mine] = await Promise.all([
     me.following?.length ? EduLearner.find({ friendCode: { $in: me.following } }).select(fields).lean() : [],
-    EduLearner.find({ xpWeek: week, xpWeekly: { $gt: 0 }, nickname: { $gt: '' } }).sort({ xpWeekly: -1 }).limit(LEAGUE_SIZE).select(fields).lean(),
+    // ponytail: lấy dư 4 lần rồi lọc ai có biệt danh — đủ khi đa số người học đã qua màn Persona bắt buộc.
+    EduLearner.find({ xpWeek: week, xpWeekly: { $gt: 0 } }).sort({ xpWeekly: -1 }).limit(LEAGUE_SIZE * 4).select(fields).lean(),
+    PersonaService.get(email),
   ]);
+  const personas = await PersonaService.forEmails([...new Set([...following, ...topDocs].map((d) => d.email))]);
+  personas.set(email, mine);
   const meDoc = { ...me, friendCode: code };
-  const friends = present([meDoc, ...following], week, day, email).sort((a, b) => b.xp - a.xp || b.streak - a.streak);
-  const league = present(leagueDocs.some((d) => d.email === email) || !me.nickname ? leagueDocs : [...leagueDocs, meDoc], week, day, email);
+  const leagueDocs = topDocs.filter((d) => personas.get(d.email)?.nickname).slice(0, LEAGUE_SIZE);
+  const friends = present([meDoc, ...following], week, day, email, personas).sort((a, b) => b.xp - a.xp || b.streak - a.streak);
+  const league = present(leagueDocs.some((d) => d.email === email) || !mine.nickname ? leagueDocs : [...leagueDocs, meDoc], week, day, email, personas);
   league.sort((a, b) => b.xp - a.xp);
   // Mã bạn chỉ trả cho chính mình và người mình đã theo dõi (để bỏ theo dõi); bảng tuần thì không.
-  return { code, week, nickname: me.nickname || '', friends, league: league.map(({ name, streak, xp, me: mine }) => ({ name, streak, xp, me: mine })) };
+  return { code, week, nickname: mine.nickname, avatar: mine.avatar, friends, league: league.map(({ name, avatar, streak, xp, me: isMe }) => ({ name, avatar, streak, xp, me: isMe })) };
 }
 
 export async function followEdu(email, rawCode) {
@@ -95,7 +101,5 @@ export async function unfollowEdu(email, rawCode) {
 }
 
 export async function setEduNickname(email, raw) {
-  const checked = checkNickname(raw);
-  if (!checked.ok) throw Object.assign(new Error(checked.code), { code: checked.code });
-  await EduLearner.updateOne({ email }, { $set: { nickname: checked.value } }, { upsert: true });
+  await PersonaService.save(email, { nickname: raw });
 }

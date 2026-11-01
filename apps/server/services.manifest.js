@@ -71,6 +71,7 @@ export const SERVICES = Object.freeze([
   // ── Học tập ───────────────────────────────────────────────────────────────
   { id: "coder-resources", prefix: "/api/coder-resources", module: "./routes/coderResourceRoutes.js" },
   { id: "coder-lessons", prefix: "/api/coder-lessons", module: "./routes/coderLessonRoutes.js", cacheable: true },
+  { id: "persona", prefix: "/api/persona", module: "./routes/personaRoutes.js" },
   { id: "today", prefix: "/api/today", module: "./routes/todayRoutes.js" },
 
   // ── Tiện ích & AI ─────────────────────────────────────────────────────────

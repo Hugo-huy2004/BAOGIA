@@ -3,7 +3,8 @@
 // quá MAX_FREEZES lần/tháng thì mất chuỗi, phá băng hợp lệ, thưởng mốc không trả đôi.
 import assert from "node:assert/strict";
 import { vnClock } from "../../packages/shared/eduPrefs.js";
-import { checkNickname } from "../../packages/shared/eduNickname.js";
+import { checkNickname } from "../../packages/persona/nickname.js";
+import { checkAvatar, randomAvatar } from "../../packages/persona/avatar.js";
 import { MAX_FREEZES, settleStreak, streakView, studyToday, thawDay } from "../../packages/shared/eduStreak.js";
 
 // 1. Ranh giới ngày = 00:00 Asia/Ho_Chi_Minh (UTC+7) = 17:00 UTC hôm trước.
@@ -56,5 +57,11 @@ for (const ok of ["Huy", "Lê Gia Huy", "火苗", "Huy 🔥", "Thảo Vy 👩‍
 for (const bad of ["H", "Huy123", "Huy!", "huy_le", "<b>x", "a".repeat(21), "Huy\u200b", "@huy", "Huy\u202eabc"]) assert.equal(checkNickname(bad).ok, false, bad);
 assert.equal(checkNickname("  Lê   Huy ").value, "Lê Huy");
 
-console.log("Biệt danh: chỉ chữ + emoji — đạt.");
+// 10. Nhân vật Persona: chỉ nhận mã trong danh sách, thiếu/thừa/lạ đều bị từ chối.
+const av = randomAvatar();
+assert.equal(checkAvatar(av).ok, true);
+assert.deepEqual(Object.keys(checkAvatar({ ...av, evil: "<svg>" }).value), Object.keys(av));
+for (const bad of [null, "x", { ...av, hair: "<script>" }, { ...av, skinColor: "#000000" }, { ...av, hat: undefined }]) assert.equal(checkAvatar(bad).ok, false);
+
+console.log("Biệt danh: chỉ chữ + emoji · nhân vật: chỉ mã trong danh sách — đạt.");
 console.log("Chuỗi lửa: ranh giới 00:00 giờ VN, 1 lần/ngày, đóng băng, mất chuỗi, phá băng, thưởng mốc — đạt.");

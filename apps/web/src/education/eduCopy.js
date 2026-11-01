@@ -15,6 +15,7 @@ export const EDU_LANGS = [
 
 export const EDU_COPY = {
   vi: {
+    persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, thuộc Hugo Studio", of: "thuộc" },
     nav: { learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", settings: "Cài đặt" },
     common: { loading: "Đang tải", close: "Đóng", login: "Đăng nhập", terms: "Điều khoản", privacy: "Bảo mật", support: "Hỗ trợ", stage: "Chặng {n}", days: "{n} ngày", oneYear: "1 năm" },
@@ -218,6 +219,7 @@ export const EDU_COPY = {
   },
 
   en: {
+    persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, part of Hugo Studio", of: "by" },
     nav: { learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", settings: "Settings" },
     common: { loading: "Loading", close: "Close", login: "Log in", terms: "Terms", privacy: "Privacy", support: "Support", stage: "Stage {n}", days: "{n} days", oneYear: "1 year" },
@@ -479,6 +481,7 @@ export const EDU_COPY = {
   },
 
   zh: {
+    persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo，隶属 Hugo Studio", of: "隶属" },
     nav: { learn: "学习", progress: "进度", store: "商店", profile: "个人资料", settings: "设置" },
     common: { loading: "加载中", close: "关闭", login: "登录", terms: "条款", privacy: "隐私", support: "支持", stage: "第 {n} 阶段", days: "{n} 天", oneYear: "1 年" },

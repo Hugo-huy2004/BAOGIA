@@ -1,0 +1,7 @@
+{
+  "name": "@hugo/persona",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "description": "Persona Hugo Studio: biệt danh + nhân vật pixel-art dùng chung mọi web/app (luật kiểm, client API, vẽ nhân vật)."
+}
