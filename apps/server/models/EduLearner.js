@@ -27,6 +27,8 @@ const schema = new mongoose.Schema({
   // Bạn bè + thi đua tuần (services/eduSocial.js): mã bạn 6 ký tự, danh sách mã đang
   // theo dõi, XP của tuần ISO `xpWeek` (giờ VN) — chỉ máy chủ cộng sau khi chấm bài.
   friendCode: { type: String },
+  // Biệt danh bắt buộc để có tên trên bảng thi đua (packages/shared/eduNickname.js) — không dùng tên thật.
+  nickname: { type: String, default: '' },
   following: { type: [String], default: [] },
   xpWeek: { type: String, default: '' },
   xpWeekly: { type: Number, default: 0 },

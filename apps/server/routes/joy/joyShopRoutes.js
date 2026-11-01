@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { eduSnapshot, saveEduPrefs, thawEduStreak } from '../../services/eduLearner.js';
-import { eduSocial, followEdu, unfollowEdu } from '../../services/eduSocial.js';
+import { eduSocial, followEdu, setEduNickname, unfollowEdu } from '../../services/eduSocial.js';
 import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
@@ -241,6 +241,17 @@ router.post('/edu-friends', requireMemberSession, friendLimiter, async (req, res
     if (error.code) return res.status(400).json({ code: error.code, error: error.message });
     console.error('[edu-friends]', error.message);
     return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa thêm được bạn.' });
+  }
+});
+// PUT /api/joy/edu-nickname { nickname } — biệt danh bắt buộc để có tên trên bảng thi đua.
+router.put('/edu-nickname', requireMemberSession, friendLimiter, async (req, res) => {
+  try {
+    await setEduNickname(req.memberEmail, req.body?.nickname);
+    return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
+  } catch (error) {
+    if (error.code) return res.status(400).json({ code: error.code, error: error.code });
+    console.error('[edu-nickname]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa lưu được biệt danh.' });
   }
 });
 router.delete('/edu-friends/:code', requireMemberSession, friendLimiter, async (req, res) => {

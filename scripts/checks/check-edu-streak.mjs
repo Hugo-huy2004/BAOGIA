@@ -3,6 +3,7 @@
 // quá MAX_FREEZES lần/tháng thì mất chuỗi, phá băng hợp lệ, thưởng mốc không trả đôi.
 import assert from "node:assert/strict";
 import { vnClock } from "../../packages/shared/eduPrefs.js";
+import { checkNickname } from "../../packages/shared/eduNickname.js";
 import { MAX_FREEZES, settleStreak, streakView, studyToday, thawDay } from "../../packages/shared/eduStreak.js";
 
 // 1. Ranh giới ngày = 00:00 Asia/Ho_Chi_Minh (UTC+7) = 17:00 UTC hôm trước.
@@ -50,4 +51,10 @@ assert.equal(studyToday(hit.state, "2026-12-03").milestone, null);
 // 8. Dữ liệu rác (client không ghi được chuỗi, nhưng DB cũ có thể bẩn) không làm sập.
 assert.equal(streakView({ count: "x", studied: ["bad", 5] }, "2026-11-02").count, 0);
 
+// 9. Biệt danh bảng thi đua: chỉ chữ (mọi ngôn ngữ) + emoji, 2–20 ký tự.
+for (const ok of ["Huy", "Lê Gia Huy", "火苗", "Huy 🔥", "Thảo Vy 👩‍💻"]) assert.equal(checkNickname(ok).ok, true, ok);
+for (const bad of ["H", "Huy123", "Huy!", "huy_le", "<b>x", "a".repeat(21), "Huy\u200b", "@huy", "Huy\u202eabc"]) assert.equal(checkNickname(bad).ok, false, bad);
+assert.equal(checkNickname("  Lê   Huy ").value, "Lê Huy");
+
+console.log("Biệt danh: chỉ chữ + emoji — đạt.");
 console.log("Chuỗi lửa: ranh giới 00:00 giờ VN, 1 lần/ngày, đóng băng, mất chuỗi, phá băng, thưởng mốc — đạt.");

@@ -1,10 +1,11 @@
 // Bạn bè + thi đua tuần của Education Hugo (kiểu Duolingo).
 //  - Mỗi người học có MÃ BẠN 6 ký tự; theo dõi người khác bằng mã (một chiều, như Duolingo).
 //  - XP tuần chỉ cộng ở máy chủ sau khi chấm bài đạt (award-learning) — client không gửi điểm.
-//  - Bảng xếp hạng chỉ lộ tên hiển thị + ảnh + chuỗi + XP, KHÔNG lộ email.
+//  - Bảng xếp hạng chỉ lộ BIỆT DANH + chuỗi + XP: không tên thật, không ảnh, không email.
+//    Chưa đặt biệt danh thì không có tên trên bảng tuần.
 import { randomInt } from 'node:crypto';
 import EduLearner from '../models/EduLearner.js';
-import Bio from '../models/Bio.js';
+import { checkNickname } from '../../../packages/shared/eduNickname.js';
 import { vnClock } from '../../../packages/shared/eduPrefs.js';
 import { streakView } from '../../../packages/shared/eduStreak.js';
 
@@ -47,14 +48,11 @@ async function ensureCode(doc) {
   throw new Error('FRIEND_CODE_BUSY');
 }
 
-/** Ghép tên/ảnh từ Bio, chuỗi + XP từ EduLearner; bỏ email trước khi trả về. */
-async function present(docs, week, day, myEmail) {
-  const bios = await Bio.find({ email: { $in: docs.map((d) => d.email) } }).select('email displayName avatarUrl').lean();
-  const byEmail = new Map(bios.map((b) => [b.email, b]));
+/** Hàng hiển thị: biệt danh + chuỗi + XP tuần; bỏ email. */
+function present(docs, week, day, myEmail) {
   return docs.map((d) => ({
     code: d.friendCode || '',
-    name: byEmail.get(d.email)?.displayName || 'Hugo learner',
-    avatar: byEmail.get(d.email)?.avatarUrl || '',
+    name: d.nickname || '',
     streak: streakView(d.streak, day).count,
     xp: d.xpWeek === week ? d.xpWeekly || 0 : 0,
     me: d.email === myEmail,
@@ -66,17 +64,17 @@ export async function eduSocial(email) {
   const week = weekOf(day);
   const me = await EduLearner.findOneAndUpdate({ email }, { $setOnInsert: { email } }, { upsert: true, new: true }).lean();
   const code = await ensureCode(me);
-  const fields = 'email friendCode streak xpWeek xpWeekly';
+  const fields = 'email friendCode nickname streak xpWeek xpWeekly';
   const [following, leagueDocs] = await Promise.all([
     me.following?.length ? EduLearner.find({ friendCode: { $in: me.following } }).select(fields).lean() : [],
-    EduLearner.find({ xpWeek: week, xpWeekly: { $gt: 0 } }).sort({ xpWeekly: -1 }).limit(LEAGUE_SIZE).select(fields).lean(),
+    EduLearner.find({ xpWeek: week, xpWeekly: { $gt: 0 }, nickname: { $gt: '' } }).sort({ xpWeekly: -1 }).limit(LEAGUE_SIZE).select(fields).lean(),
   ]);
   const meDoc = { ...me, friendCode: code };
-  const friends = (await present([meDoc, ...following], week, day, email)).sort((a, b) => b.xp - a.xp || b.streak - a.streak);
-  const league = await present(leagueDocs.some((d) => d.email === email) ? leagueDocs : [...leagueDocs, meDoc], week, day, email);
+  const friends = present([meDoc, ...following], week, day, email).sort((a, b) => b.xp - a.xp || b.streak - a.streak);
+  const league = present(leagueDocs.some((d) => d.email === email) || !me.nickname ? leagueDocs : [...leagueDocs, meDoc], week, day, email);
   league.sort((a, b) => b.xp - a.xp);
   // Mã bạn chỉ trả cho chính mình và người mình đã theo dõi (để bỏ theo dõi); bảng tuần thì không.
-  return { code, week, friends, league: league.map(({ name, avatar, streak, xp, me: mine }) => ({ name, avatar, streak, xp, me: mine })) };
+  return { code, week, nickname: me.nickname || '', friends, league: league.map(({ name, streak, xp, me: mine }) => ({ name, streak, xp, me: mine })) };
 }
 
 export async function followEdu(email, rawCode) {
@@ -94,4 +92,10 @@ export async function followEdu(email, rawCode) {
 
 export async function unfollowEdu(email, rawCode) {
   await EduLearner.updateOne({ email }, { $pull: { following: String(rawCode || '').toUpperCase() } });
+}
+
+export async function setEduNickname(email, raw) {
+  const checked = checkNickname(raw);
+  if (!checked.ok) throw Object.assign(new Error(checked.code), { code: checked.code });
+  await EduLearner.updateOne({ email }, { $set: { nickname: checked.value } }, { upsert: true });
 }

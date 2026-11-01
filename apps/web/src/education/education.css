@@ -763,3 +763,17 @@
 .streak-page.is-lit .streak-bar h1, .streak-page.is-lit .streak-close, .streak-page.is-lit .streak-tabs-line button { color: rgb(255 255 255 / .85); }
 .streak-page.is-lit .streak-tabs-line button.is-on { color: #fff; border-bottom-color: #fff; }
 .streak-page.is-lit .streak-tabs-line button { border-bottom-color: rgb(255 255 255 / .25); }
+
+/* Biệt danh: phông chữ tròn (Nunito), bắt buộc để có tên trên bảng thi đua. */
+.nick-font { font-family: "Nunito", "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 800; letter-spacing: 0; }
+.streak-nick { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: #fff4d4; color: #5c3c00; }
+:root.dark .streak-nick { background: #2b2414; color: #ffd28a; }
+.streak-nick > b { font-size: 15px; }
+.streak-nick small { font-size: 12.5px; line-height: 1.4; opacity: .85; }
+.streak-nick small.is-error { color: #e5484d; opacity: 1; }
+.streak-nick input { letter-spacing: 0 !important; text-transform: none !important; font-size: 17px !important; }
+.streak-nick-chip { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 8px; padding: 10px 14px; border: 0; border-radius: 14px; background: var(--hs-fill); color: var(--hs-ink); font: inherit; text-align: left; cursor: pointer; }
+.streak-nick-chip small { font-size: 12px; color: var(--hs-sub); } .streak-nick-chip b { grid-row: 2; font-size: 18px; }
+.streak-nick-chip .material-symbols-outlined { grid-row: 1 / 3; grid-column: 2; color: var(--hs-blue); }
+.streak-who b.nick-font { font-size: 16px; }
+.streak-who b.is-anon { font-style: italic; color: var(--hs-sub); font-weight: 600; }
