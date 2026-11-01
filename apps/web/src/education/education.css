@@ -1075,13 +1075,14 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .fr-scan .edu-btn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); }
 /* Thẻ thành viên kiểu Duolingo: nhân vật trên nền xám, tên + mã + thương hiệu, QR có mascot */
 .fr-card { display: grid; gap: 0; width: min(100%, 360px); justify-self: center; margin: 0; padding: 14px; border-radius: 26px; background: #f7f7f7; color: #3c3c3c; box-shadow: 0 6px 0 #e3e3e3; }
-.fr-card-art { display: grid; place-items: center; aspect-ratio: 1; border-radius: 20px; background: #e5e5e5; overflow: hidden; }
-.fr-card-art .persona-avatar { width: 88%; height: 88%; border-radius: 0; }
-.fr-card figcaption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 4px 2px; }
-.fr-card figcaption > div { display: grid; min-width: 0; }
-.fr-card figcaption b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 26px; font-weight: 900; color: #3c3c3c; }
-.fr-card figcaption small { color: #8a8a8a; font-size: 16px; font-weight: 700; letter-spacing: .08em; }
-.fr-card-brand { margin-top: 6px; color: #1cb0f6; font-size: 20px; font-weight: 900; letter-spacing: -.02em; }
+.fr-card-head { display: flex; align-items: center; gap: 14px; }
+.fr-card-art { flex: none; display: grid; place-items: center; width: 96px; aspect-ratio: 1; border-radius: 20px; background: #e5e5e5; overflow: hidden; }
+.fr-card-art .persona-avatar { width: 100%; height: 100%; border-radius: 0; }
+.fr-card-id { display: grid; gap: 4px; min-width: 0; }
+.fr-card-id b { font-size: 22px; font-weight: 900; line-height: 1.2; color: #3c3c3c; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fr-card-id small { color: #8a8a8a; font-size: 16px; font-weight: 800; letter-spacing: .12em; }
+.fr-card figcaption { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 14px; padding: 14px 4px 2px; border-top: 2px dashed #e0e0e0; }
+.fr-card-brand { color: #1cb0f6; font-size: 20px; font-weight: 900; line-height: 1.1; letter-spacing: -.02em; }
 .fr-card svg { flex: none; }
 /* Hồ sơ công khai */
 .fr-profile { display: grid; gap: 14px; }
@@ -1236,3 +1237,18 @@ button:active .edu-note-cast { transform: scale(.9, 1.08); }
 @keyframes edu-qr-pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
 button.edu-pop-course { width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; }
 button.edu-pop-course:disabled { cursor: default; }
+.edu-shop { display: grid; gap: 14px; }
+.edu-shop-item { display: flex; align-items: flex-start; gap: 18px; padding: 18px 20px; border: 2px solid var(--edu-line); border-radius: 18px; }
+.edu-shop-item img { flex: none; transition: transform .3s cubic-bezier(.2, 1.4, .4, 1); }
+.edu-shop-item:hover img { transform: translateY(-4px) rotate(-4deg); }
+.edu-shop-item > div { display: grid; gap: 4px; min-width: 0; }
+.edu-shop-item b { font-size: 18px; font-weight: 800; }
+.edu-shop-item p { margin: 0; color: var(--edu-muted); font-size: 15px; line-height: 1.5; }
+.edu-shop-price { justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 4px 0; border: 0; background: none; color: var(--edu-blue); font: inherit; font-size: 17px; font-weight: 900; letter-spacing: .02em; cursor: pointer; }
+.edu-shop-price:disabled { opacity: .45; cursor: default; }
+.edu-shop-price.is-owned { text-transform: uppercase; opacity: 1; cursor: default; }
+.edu-shop-left { color: var(--edu-orange, #ff9600); font-size: 13px; font-weight: 800; }
+.edu-bag { display: flex; flex-wrap: wrap; gap: 10px; }
+.edu-bag img { padding: 6px; border-radius: 16px; background: color-mix(in srgb, var(--edu-blue) 10%, transparent); }
+.edu-bell { position: relative; }
+.edu-bell-count { position: absolute; top: 2px; right: 0; min-width: 20px; height: 20px; padding: 0 5px; border: 2px solid var(--edu-bg, #131f24); border-radius: 999px; background: #ff4b4b; color: #fff; font-size: 11px; font-weight: 900; line-height: 16px; text-align: center; animation: edu-qr-pop .35s cubic-bezier(.2, 1.4, .4, 1); }

@@ -70,6 +70,7 @@ export const EDU_COPY = {
       codeTitle: "Mã nguồn Nhịp", codeEmpty: "Xong chặng 1 là tải được mã Nhịp của chặng đó, chạy thử ngay trên máy.",
       scoreTitle: "Điểm trắc nghiệm", view: "Xem", scoreMeta: "trung bình điểm cao nhất mỗi step",
     },
+    shop: { title: "Vật phẩm", buy: "Mua", confirm: "Mua {name}?", confirmBody: "Trừ {price} từ ví. Vật phẩm nằm trong Túi đồ của bạn mãi mãi.", bought: "Đã mua {name}!", owned: "Đã có", soldOut: "Hết hàng", left: "Còn {n}", bag: "Túi đồ" },
     store: {
       title: "Cửa hàng", wallet: "Số dư ví JOY — dùng chung với Hugo Studio",
       confirmTitle: "Duy trì tài khoản +{days} ngày", confirmBody: "{price} + {tax} phí sáng tạo = {total}.", confirmButton: "Đổi {total}",
@@ -308,6 +309,7 @@ export const EDU_COPY = {
       codeTitle: "Nhịp source code", codeEmpty: "Finish stage 1 to download that stage's Nhịp code and run it on your machine.",
       scoreTitle: "Quiz score", view: "View", scoreMeta: "average of your best score per step",
     },
+    shop: { title: "Items", buy: "Buy", confirm: "Buy {name}?", confirmBody: "{price} will be taken from your wallet. The item stays in your bag forever.", bought: "You got {name}!", owned: "Owned", soldOut: "Sold out", left: "{n} left", bag: "Your bag" },
     store: {
       title: "Shop", wallet: "JOY wallet balance — shared with Hugo Studio",
       confirmTitle: "Keep your account +{days} days", confirmBody: "{price} + {tax} creator fee = {total}.", confirmButton: "Exchange {total}",
@@ -604,6 +606,7 @@ export const EDU_COPY = {
       codeTitle: "Nhịp 源代码", codeEmpty: "完成第 1 阶段即可下载该阶段的 Nhịp 代码，在自己电脑上运行。",
       scoreTitle: "测验成绩", view: "查看", scoreMeta: "每个 step 最高分的平均值",
     },
+    shop: { title: "道具", buy: "购买", confirm: "购买 {name}？", confirmBody: "将从钱包扣除 {price}。道具永久保存在你的背包里。", bought: "已获得 {name}！", owned: "已拥有", soldOut: "已售罄", left: "剩 {n} 件", bag: "背包" },
     store: {
       title: "商店", wallet: "JOY 钱包余额——与 Hugo Studio 共用",
       confirmTitle: "维持账户 +{days} 天", confirmBody: "{price} + {tax} 创作费 = {total}。", confirmButton: "兑换 {total}",

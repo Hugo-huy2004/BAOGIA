@@ -15,6 +15,7 @@ export const ADMIN_DESTINATIONS = [
   { id: "projects", group: "business", label: "Dự án", sub: "Tiến độ và khách hàng", icon: "work", permission: "projects", countKey: "totalProjects" },
   { id: "services", group: "business", label: "Gói dịch vụ", sub: "Bảng giá đang bán", icon: "sell", permission: "commerce", countKey: "packages" },
   { id: "store", group: "business", label: "Cửa hàng", sub: "Sản phẩm và đơn hàng", icon: "storefront", permission: "commerce" },
+  { id: "edu-store", group: "community", label: "Cửa hàng Edu", sub: "Sản phẩm bán bằng JOY trong Education Hugo", icon: "storefront", permission: "learning" },
   { id: "feedback", group: "community", label: "Đánh giá", sub: "Đánh giá Education Hugo, thư tài trợ", icon: "reviews", permission: "learning" },
   { id: "hugoteam", group: "community", label: "Hugo Team", sub: "Học tập, bài nộp, mentor và team", icon: "diversity_3", permission: "hugoteam" },
   { id: "control", group: "control", label: "Điều khiển", sub: "Khách thật, an ninh, công tắc", icon: "radar", permission: "system" },

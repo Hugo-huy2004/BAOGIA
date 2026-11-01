@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PersonaAvatar, PersonaGate, PersonaInfoForm } from "./EduPersona";
 import { Link, NavLink } from "react-router-dom";
 import HugoLogo from "../components/HugoLogo";
 import { notify } from "../lib/notify";
+import { playEduSound } from "./eduSound";
 import { joyText } from "../lib/joyDisplay";
 import { useStandalone } from "../hooks/usePWA";
 import { detectInstallTarget } from "../config/platform";
@@ -13,6 +14,7 @@ import { CODER_JOY_PER_CORRECT } from "../../../../packages/shared/coderProgress
 import { canPromptInstall, promptInstall } from "./eduHead";
 import { rich, useEduText } from "./eduText";
 import { FlameBuddy } from "./EduStreak";
+import { useEduCourse } from "./useEduCourse";
 import EduTopBar, { JoyCoin, useEduInbox } from "./EduTopBar";
 import AnimIcon from "../components/icons/animated/AnimIcon";
 import EduSettings from "./EduSettings";
@@ -135,7 +137,8 @@ export function EduInstallGate() {
 
 /** Số liệu dùng chung cho thanh trên (điện thoại) và cột phải (máy tính). */
 function useLearnerStats(learner) {
-  const { courses, stages } = useCoderLessons(null);
+  // Số liệu theo khoá đang học (chọn ở bảng "Khoá học của bạn").
+  const { courses, stages } = useCoderLessons(null, { course: useEduCourse() });
   return useMemo(() => {
     const done = new Set(learner?.completedLessons || []);
     const ids = courses.map((course) => course.id);
@@ -144,7 +147,7 @@ function useLearnerStats(learner) {
       const finished = stepIds.filter((id) => done.has(id)).length;
       return { ...stage, index, total: stepIds.length, finished, complete: stepIds.length > 0 && finished === stepIds.length };
     });
-    const scores = Object.values(learner?.hugoCoderExamScores || {}).map((entry) => Number(entry?.best) || 0);
+    const scores = ids.map((id) => learner?.hugoCoderExamScores?.[id]).filter(Boolean).map((entry) => Number(entry?.best) || 0);
     return {
       done: ids.filter((id) => done.has(id)).length,
       total: ids.length,
@@ -270,6 +273,67 @@ function Rail({ learner, signedIn, stats, onStreak }) {
 }
 
 /** Cửa hàng riêng của Education Hugo: duy trì tài khoản bằng JOY. */
+/** Vật phẩm sưu tầm do admin bày bán (tab "Cửa hàng Edu"): mua bằng JOY, mỗi món một lần, hiện trong Túi đồ. */
+function EduShop({ balance, onBalance }) {
+  const { t, lang } = useEduText();
+  const [items, setItems] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const load = useCallback(() => fetch(`${API_BASE}/joy/edu-store`, { credentials: "include" })
+    .then((r) => (r.ok ? r.json() : Promise.reject())).then((d) => setItems(d.items)).catch(() => setItems([])), []);
+  useEffect(() => { load(); }, [load]);
+  const pick = (field) => field?.[lang] || field?.vi || "";
+
+  const buy = async (item) => {
+    const ok = await notify.confirm({ title: t("shop.confirm", { name: pick(item.name) }), message: t("shop.confirmBody", { price: joyText(item.priceJoy) }), confirmText: t("shop.buy") });
+    if (!ok) return;
+    setBusy(item.id);
+    try {
+      const r = await fetch(`${API_BASE}/joy/edu-store/${item.id}/buy`, { method: "POST", credentials: "include" });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || t("store.failed"));
+      onBalance(d.balance);
+      playEduSound("coin");
+      notify.success(t("shop.bought", { name: pick(item.name) }));
+      load();
+    } catch (error) {
+      notify.error(error.message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  if (!items?.length) return null;
+  const owned = items.filter((i) => i.ownedAt);
+  return (
+    <>
+      <h2 className="edu-subhead">{t("shop.title")}</h2>
+      <div className="edu-shop">
+        {items.map((item) => (
+          <article key={item.id} className={`edu-shop-item${item.ownedAt ? " is-owned" : ""}`}>
+            <img src={item.image} alt="" width="84" height="84" />
+            <div>
+              <b>{pick(item.name)}</b>
+              <p>{pick(item.description)}</p>
+              {item.ownedAt ? <span className="edu-shop-price is-owned">{t("shop.owned")}</span> : (
+                <button type="button" className="edu-shop-price" disabled={busy === item.id || item.left === 0 || balance < item.priceJoy} onClick={() => buy(item)}>
+                  {item.left === 0 ? t("shop.soldOut") : <><JoyCoin size={22} />{item.priceJoy.toLocaleString(lang)}</>}
+                </button>
+              )}
+              {item.left !== null && item.left > 0 && !item.ownedAt && <small className="edu-shop-left">{t("shop.left", { n: item.left })}</small>}
+            </div>
+          </article>
+        ))}
+      </div>
+      {owned.length > 0 && (
+        <>
+          <h2 className="edu-subhead">{t("shop.bag")}</h2>
+          <div className="edu-bag">{owned.map((i) => <img key={i.id} src={i.image} alt={pick(i.name)} title={pick(i.name)} width="56" height="56" />)}</div>
+        </>
+      )}
+    </>
+  );
+}
+
 export function EduStore({ learner, onLearnerUpdate }) {
   const { t } = useEduText();
   const [busy, setBusy] = useState(false);
@@ -338,6 +402,8 @@ export function EduStore({ learner, onLearnerUpdate }) {
           </article>
         </>
       )}
+
+      <EduShop balance={balance} onBalance={(joyBalance) => onLearnerUpdate({ joyBalance })} />
 
       <h2 className="edu-subhead">{t("store.earnTitle")}</h2>
       <ul className="edu-earn">

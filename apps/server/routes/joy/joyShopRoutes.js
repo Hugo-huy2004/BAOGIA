@@ -1,4 +1,5 @@
 // Mua và đổi bằng JOY: tính năng, theme, gói học — router con của /api/joy (mount trong routes/joyRoutes.js).
+import { buyEduProduct, listEduProducts } from '../../services/eduStore.js';
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import { awardJoy } from '../../utils/joyService.js';
@@ -354,6 +355,26 @@ router.post('/edu-streak/thaw', requireMemberSession, extendLimiter, async (req,
 // ACCOUNT_EXTENSION.days ngày. Cùng mốc với sản phẩm system_validity của Store
 // Hugo Studio. requireMemberSession: người học chưa điền đủ hồ sơ vẫn tự gia hạn
 // được — chặn họ ở đây là để tài khoản bị xoá chỉ vì thiếu số điện thoại.
+// Cửa hàng Edu: danh sách sản phẩm (+ đã sở hữu) và mua bằng JOY.
+router.get('/edu-store', requireMemberSession, async (req, res) => {
+  try {
+    return res.json({ items: await listEduProducts(req.memberEmail) });
+  } catch (error) {
+    console.error('[edu-store]', error.message);
+    return res.status(500).json({ error: 'Không tải được cửa hàng.' });
+  }
+});
+
+router.post('/edu-store/:id/buy', requireMemberSession, extendLimiter, async (req, res) => {
+  if (!/^[a-f0-9]{24}$/.test(req.params.id)) return res.status(400).json({ error: 'Sản phẩm không hợp lệ.' });
+  try {
+    return res.json({ success: true, ...(await buyEduProduct(req.memberEmail, req.params.id)) });
+  } catch (error) {
+    if (!error.status) console.error('[edu-store buy]', error.message);
+    return res.status(error.status || 500).json({ code: error.code, error: error.status ? error.message : 'Chưa mua được, thử lại sau.' });
+  }
+});
+
 router.post('/extend-account', requireMemberSession, extendLimiter, async (req, res) => {
   try {
     const email = req.memberEmail;

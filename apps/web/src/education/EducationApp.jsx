@@ -246,7 +246,7 @@ function LessonView({ learner, onLearnerUpdate }) {
 
 function ProgressView({ learner }) {
   const { t } = useEduText();
-  const { courses, stages } = useCoderLessons(null);
+  const { courses, stages } = useCoderLessons(null, { course: useEduCourse() });
   return (
     <section className="edu-page">
       <h1 className="edu-page-title">{t("progress.title")}</h1>

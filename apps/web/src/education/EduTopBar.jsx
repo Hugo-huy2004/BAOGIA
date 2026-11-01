@@ -183,8 +183,9 @@ export default function EduTopBar({ learner, signedIn, inbox }) {
       <button type="button" className="edu-chip edu-joy" onPointerDown={flipCoin} onClick={() => (signedIn ? pop.toggle("joy") : navigate("/login"))} aria-expanded={pop.open === "joy"} aria-label={t("shell.balance", { joy: joyText(learner?.joyBalance || 0) })}>
         <JoyCoin /><b>{joyText(learner?.joyBalance || 0).replace(" JOY", "")}</b>
       </button>
-      <button type="button" className="edu-chip edu-bell" onClick={() => (signedIn ? (pop.toggle("bell"), pop.open !== "bell" && loadInbox()) : navigate("/login"))} aria-expanded={pop.open === "bell"} aria-label={t("topbar.notifications")}>
+      <button type="button" className="edu-chip edu-bell" onClick={() => (signedIn ? (pop.toggle("bell"), pop.open !== "bell" && loadInbox()) : navigate("/login"))} aria-expanded={pop.open === "bell"} aria-label={unread > 0 ? `${t("topbar.notifications")} (${unread})` : t("topbar.notifications")}>
         <AnimIcon ref={bell} name="bell" size={30} className={unread > 0 ? "has-new" : ""} />
+        {unread > 0 && <span className="edu-bell-count" aria-hidden="true">{unread > 99 ? "99+" : unread}</span>}
       </button>
       {pop.open === "course" && <CoursePanel learner={learner} onPick={(id) => { pop.setOpen(null); playEduSound("whoosh"); setEduCourse(id); navigate("/learn"); }} />}
       {pop.open === "joy" && <JoyPanel learner={learner} />}

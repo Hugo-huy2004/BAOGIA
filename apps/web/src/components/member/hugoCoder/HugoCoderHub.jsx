@@ -187,7 +187,7 @@ export function ManageTab({ bio, courses, stages }) {
     [bio?.completedLessons, courses]
   );
   const stageEarned = (stage) => {
-    const lastId = `step${stage.to}`;
+    const lastId = courses[stage.to - 1]?.id;
     if (stage.phaseNumber === 6) return completed.includes(lastId) || bio?.hugoCoderProjectStatus === "approved";
     return completed.includes(lastId);
   };
@@ -196,7 +196,11 @@ export function ManageTab({ bio, courses, stages }) {
   const scoredSteps = courses.filter((course) => scores[course.id]);
   const earnedCount = stages.filter(stageEarned).length;
   // Danh hiệu theo chặng đã đi qua (6 / 11 / 15 / 19 / 22 step).
-  const rank = edu("hub.ranks")[[6, 11, 15, 19, 22].filter((need) => completed.length >= need).length];
+  // Khoá SQL: danh hiệu = chặng gần nhất đã hoàn thành (bảng danh hiệu kia viết cho khoá Coding).
+  const sql = courses[0]?.id?.startsWith("sql");
+  const rank = sql
+    ? (stages.filter(stageEarned).at(-1) || stages[0])?.title
+    : edu("hub.ranks")[[6, 11, 15, 19, 22].filter((need) => completed.length >= need).length];
 
   const pct = percentage(completed.length, courses.length);
 
@@ -444,9 +448,11 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
           course={currentCourse}
           plan={plan}
           lesson={lessonAt}
-          onLessonDone={() => finishLesson(currentCourse, lessonAt)}
+          // Ghim bài đang học TRƯỚC khi máy chủ ghi tiến độ: tiến độ đổi thì lessonAt tự nhảy sang bài
+          // kế, trình phát dựng lại và mất màn chúc mừng. Chỉ nút "Học tiếp" (onNextPart) mới sang bài mới.
+          onLessonDone={() => { setPicked((all) => ({ ...all, [currentCourse.id]: lessonAt })); return finishLesson(currentCourse, lessonAt); }}
           onNextPart={() => setPicked((all) => ({ ...all, [currentCourse.id]: lessonAt + 1 }))}
-          onExit={exitLesson}
+          onExit={() => { setPicked(({ [currentCourse.id]: _drop, ...rest }) => rest); exitLesson(); }}
           onSubmitQuiz={(answers) => submitQuiz(currentCourse, answers)}
           onNextLesson={nextLessonId ? () => openLesson(nextLessonId) : undefined}
         />

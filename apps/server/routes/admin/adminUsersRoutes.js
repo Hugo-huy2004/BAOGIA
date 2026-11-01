@@ -11,6 +11,7 @@ import { CODER_STAGE_SEQUENCE, isCoderLessonId } from '../../../../packages/shar
 import { sendPushNotification } from '../../utils/pushNotifier.js';
 import { generate } from '../../services/aiGateway.js';
 import { CODER_STEP_COUNT, logAdminAuditAction } from './adminShared.js';
+import EduProduct from '../../models/EduProduct.js';
 import EduFeedback from '../../models/EduFeedback.js';
 import { FEEDBACK_QUESTIONS } from '../../../../packages/shared/eduFeedback.js';
 import { sendSponsorBatch } from '../../services/eduMail.js';
@@ -985,6 +986,47 @@ router.get('/edu-feedback', requireAdmin, async (req, res) => {
     console.error('[admin edu-feedback]', error.message);
     return res.status(500).json({ error: 'Không tải được đánh giá.' });
   }
+});
+
+// Cửa hàng Edu: admin xem/thêm/sửa sản phẩm.
+const productBody = (b = {}) => {
+  const out = {};
+  for (const lang of ['vi', 'en', 'zh']) {
+    if (b.name?.[lang] !== undefined) out[`name.${lang}`] = String(b.name[lang]).slice(0, 80);
+    if (b.description?.[lang] !== undefined) out[`description.${lang}`] = String(b.description[lang]).slice(0, 300);
+  }
+  if (b.priceJoy !== undefined) out.priceJoy = Math.max(1, Math.min(1_000_000, Math.round(Number(b.priceJoy)) || 1));
+  if (b.stock !== undefined) out.stock = b.stock === null || b.stock === '' ? null : Math.max(0, Math.round(Number(b.stock)) || 0);
+  if (b.active !== undefined) out.active = Boolean(b.active);
+  if (b.sort !== undefined) out.sort = Math.round(Number(b.sort)) || 0;
+  if (typeof b.image === 'string' && /^\/edu\/[\w.-]+\.(svg|png|webp)$/.test(b.image)) out.image = b.image;
+  return out;
+};
+
+router.get('/edu-products', requireAdmin, async (req, res) => {
+  const items = await EduProduct.find().sort({ sort: 1, createdAt: 1 }).lean();
+  return res.json({ items });
+});
+
+router.post('/edu-products', requireAdmin, async (req, res) => {
+  try {
+    const slug = String(req.body?.slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
+    if (!slug || !req.body?.name?.vi || !req.body?.priceJoy) return res.status(400).json({ error: 'Cần slug, tên tiếng Việt và giá.' });
+    const product = await EduProduct.create({ slug, name: { vi: 'x' }, priceJoy: 1 });
+    await EduProduct.updateOne({ _id: product._id }, { $set: productBody(req.body) });
+    await logAdminAuditAction(req, 'edu_product_create', null, null, slug);
+    return res.json({ success: true });
+  } catch (error) {
+    return res.status(400).json({ error: error.code === 11000 ? 'Slug đã tồn tại.' : 'Không tạo được sản phẩm.' });
+  }
+});
+
+router.patch('/edu-products/:id', requireAdmin, async (req, res) => {
+  if (!/^[a-f0-9]{24}$/.test(req.params.id)) return res.status(400).json({ error: 'id không hợp lệ.' });
+  const set = productBody(req.body);
+  await EduProduct.updateOne({ _id: req.params.id }, { $set: set });
+  await logAdminAuditAction(req, 'edu_product_update', null, null, JSON.stringify({ id: req.params.id, ...set }));
+  return res.json({ success: true });
 });
 
 // POST /api/admin/edu-sponsor-mail { limit, test } — gửi một đợt thư xin tài trợ (3 ngôn ngữ).

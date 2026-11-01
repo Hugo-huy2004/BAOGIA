@@ -131,14 +131,16 @@ function Scanner({ onCode, onClose }) {
 export function MemberCard({ name, avatar, code }) {
   return (
     <figure className="fr-card">
-      <div className="fr-card-art"><PersonaAvatar avatar={avatar} name={name} size={220} /></div>
-      <figcaption>
-        <div>
+      <div className="fr-card-head">
+        <div className="fr-card-art"><PersonaAvatar avatar={avatar} name={name} size={96} /></div>
+        <div className="fr-card-id">
           <b className="nick-font">{name || "Hugo learner"}</b>
           <small translate="no">{code}</small>
-          <span className="fr-card-brand">Education Hugo</span>
         </div>
-        <QRCodeSVG value={PROFILE_URL(code)} size={112} level="H" bgColor="transparent" fgColor="#3c3c3c"
+      </div>
+      <figcaption>
+        <span className="fr-card-brand">Education<br />Hugo</span>
+        <QRCodeSVG value={PROFILE_URL(code)} size={120} level="H" bgColor="transparent" fgColor="#3c3c3c"
           imageSettings={{ src: "/edu/buddy-learn.svg", height: 26, width: 26, excavate: true }} />
       </figcaption>
     </figure>

@@ -337,6 +337,8 @@ server.listen(PORT, () => {
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
+  // Cửa hàng Edu: chèn sản phẩm mẫu chưa có (không ghi đè sản phẩm admin đã sửa).
+  import('./services/eduStore.js').then((m) => m.seedEduProducts()).catch((error) => console.error('[edu store seed]', error.message));
 
   // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
   initCompanionMemoryCron();

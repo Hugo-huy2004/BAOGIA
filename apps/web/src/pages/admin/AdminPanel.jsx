@@ -20,6 +20,7 @@ import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
 import AdminEduFeedbackTab from "../../components/admin/AdminEduFeedbackTab";
+import AdminEduStoreTab from "../../components/admin/AdminEduStoreTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
 const AdminDataTab = lazy(() => import("../../components/admin/AdminDataTab"));
@@ -503,6 +504,8 @@ export default function AdminPanel() {
         return <AdminHugoTeamTab />;
       case "feedback":
         return <AdminEduFeedbackTab />;
+      case "edu-store":
+        return <AdminEduStoreTab />;
 
       case "projects":
         return <AdminProjectsTab />;
