@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import confetti from "canvas-confetti";
 import { notify } from "../lib/notify";
@@ -155,6 +155,30 @@ export function StreakScreen({ streak, onUpdate }) {
 }
 
 /**
+ * Ngọn lửa Rive (public/edu/rive/spiro-streak.riv, artboard Spiro-v04) cho hoạt cảnh thắp lửa.
+ * Runtime WebGL2 + wasm nạp lười, chỉ khi hoạt cảnh mở; lỗi (máy không có WebGL2…) thì
+ * gọi onFail để quay về ngọn lửa SVG.
+ */
+function RiveFlame({ onFail }) {
+  const canvas = useRef(null);
+  useEffect(() => {
+    let rive;
+    let dead = false;
+    import("@rive-app/webgl2").then(({ Rive, Layout, Fit, RuntimeLoader }) => {
+      if (dead) return;
+      RuntimeLoader.setWasmUrl("/edu/rive/rive.wasm"); // tự host — không gọi CDN của Rive
+      rive = new Rive({
+        src: "/edu/rive/spiro-streak.riv", artboard: "Spiro-v04", stateMachines: "State Machine 1",
+        canvas: canvas.current, autoplay: true, layout: new Layout({ fit: Fit.Cover }),
+        onLoadError: () => !dead && onFail(),
+      });
+    }).catch(() => !dead && onFail());
+    return () => { dead = true; rive?.cleanup(); };
+  }, [onFail]);
+  return <canvas ref={canvas} className="cel-rive" width={560} height={560} aria-hidden="true" />;
+}
+
+/**
  * Hoạt cảnh lửa: "thắp lửa" khi qua bài đầu tiên trong ngày, hoặc chúc mừng mốc (có `joy`).
  * Dựng bằng GSAP: tro → lửa bừng lên, nảy, vòng sáng lan, số chuỗi nhích lên; mốc thì thêm pháo hoa.
  * Mở bằng sự kiện window "edu:streak-milestone" { count, stage, joy? }.
@@ -164,6 +188,8 @@ export function StreakCelebration({ count, stage, joy, onClose }) {
   const scope = useRef(null);
   const [shown, setShown] = useState(Math.max(0, count - 1));
   const [lit, setLit] = useState(false);
+  const [svgOnly, setSvgOnly] = useState(false);
+  const onRiveFail = useCallback(() => setSvgOnly(true), []);
 
   useLayoutEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -197,7 +223,7 @@ export function StreakCelebration({ count, stage, joy, onClose }) {
       <div className="cel-stage">
         <span className="cel-ring" /><span className="cel-ring" /><span className="cel-ring" />
         <span className="cel-spark" />
-        <div className="cel-flame"><FlameBuddy stage={lit ? stage : "ember"} size={190} className="is-alive" /></div>
+        <div className="cel-flame">{svgOnly ? <FlameBuddy stage={lit ? stage : "ember"} size={190} className="is-alive" /> : <RiveFlame onFail={onRiveFail} />}</div>
         <b className="cel-count">{shown}</b>
       </div>
       <div className="cel-text">

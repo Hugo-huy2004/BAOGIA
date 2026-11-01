@@ -632,8 +632,9 @@
 .streak-rule { margin: 0; font-size: 13px; color: var(--edu-muted); line-height: 1.5; }
 
 /* Màn chúc mừng mốc — nền tối, lửa giữa, vòng sáng loang, số chuỗi to */
-.streak-celebrate { position: fixed; inset: 0; z-index: 1200; display: grid; place-content: center; justify-items: center; gap: 18px; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); overflow-y: auto; background: #12202b; color: #fff; text-align: center; }
+.streak-celebrate { position: fixed; inset: 0; z-index: 1200; display: grid; place-content: center; justify-items: center; gap: 18px; padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom)); overflow-y: auto; background: #000; color: #fff; text-align: center; } /* đen = nền sẵn của artboard Rive, ánh lửa loang liền */
 .cel-stage { position: relative; display: grid; place-items: center; width: 260px; height: 300px; margin-bottom: 30px; }
+.cel-rive { display: block; width: 300px; height: 300px; -webkit-mask: radial-gradient(circle, #000 52%, transparent 70%); mask: radial-gradient(circle, #000 52%, transparent 70%); }
 .cel-spark { position: absolute; left: 50%; top: 62%; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; background: #ffe066; box-shadow: 0 0 40px 16px #ffb800; opacity: 0; pointer-events: none; }
 .cel-ring { position: absolute; left: 50%; top: 55%; width: 180px; height: 180px; margin: -90px 0 0 -90px; border-radius: 50%; border: 6px solid #ffc800; opacity: 0; }
 .cel-count { position: absolute; bottom: -34px; left: 50%; translate: -50% 0; min-width: 96px; padding: 4px 18px; border-radius: 99px; background: #ff9600; box-shadow: 0 6px 0 #cc6f00; font-size: 52px; font-weight: 800; line-height: 1.1; }

@@ -35,6 +35,7 @@
     "@hwagfu/cursor": "^1.2.1",
     "@mlc-ai/web-llm": "^0.2.85",
     "@radix-ui/react-tooltip": "^1.2.11",
+    "@rive-app/webgl2": "2.44.2",
     "@sentry/react": "^10.70.0",
     "@tanstack/react-query": "^5.101.4",
     "@ybouane/liquidglass": "^1.0.3",
