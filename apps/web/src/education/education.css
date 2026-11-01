@@ -834,7 +834,9 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .streak-rows li.is-me .streak-who b, .streak-rows li.is-me .streak-xp { color: var(--edu-green-edge); }
 .edu-profile { flex-wrap: wrap; }
 .edu-profile > div { flex: 1; min-width: 0; }
-.edu-profile > div small { overflow-wrap: anywhere; }
+.edu-profile > div small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Nút "Sửa nhân vật" xuống hàng riêng, rộng hết thẻ — tên và email không bị bóp còn vài ký tự một dòng. */
+.edu-profile > .edu-btn { flex-basis: 100%; }
 /* Rive: artboard Motion dọc 1080×1920 — chỉ chừa khung vuông quanh ngọn lửa (x 190–890, y 430–1130 — bỏ chữ "30 day streak" và mép vuông). */
 .rive-crop { position: relative; display: block; flex: none; width: var(--s); height: var(--s); overflow: hidden; }
 .rive-crop canvas { position: absolute; width: calc(var(--s) * 1.543); height: calc(var(--s) * 2.743); left: calc(var(--s) * -.271); top: calc(var(--s) * -.614); }

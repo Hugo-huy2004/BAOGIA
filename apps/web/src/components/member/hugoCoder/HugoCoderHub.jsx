@@ -222,7 +222,7 @@ export function ManageTab({ bio, courses, stages }) {
           </div>
           <div className="min-w-0">
             <p className="text-[13px] font-black uppercase tracking-widest text-white/70">{edu("hub.rankTitle")}</p>
-            <h3 className="text-lg font-black leading-tight truncate">{rank}</h3>
+            <h3 className="text-lg font-black leading-tight line-clamp-2">{rank}</h3>
             <p className="text-[13px] text-white/80 mt-0.5">{edu("hub.rankLine", { done: completed.length, total: courses.length, stages: earnedCount, allStages: stages.length })}</p>
           </div>
         </div>

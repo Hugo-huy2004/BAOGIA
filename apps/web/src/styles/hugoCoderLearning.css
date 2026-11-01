@@ -3029,7 +3029,7 @@
   translate: calc(-50% - var(--x)) 0; /* thẻ nằm giữa đường đi, không theo độ lượn của nút */
   border-radius: 16px;
   background: var(--c);
-  color: #fff;
+  color: var(--c-ink); /* nền pastel: chữ tông đậm cùng màu, không dùng chữ trắng */
   text-align: left;
   transform-origin: 50% 0;
   animation: cmap-pop-in .22s cubic-bezier(.3, 1.6, .5, 1);
@@ -3043,7 +3043,7 @@
   border: 0;
   border-radius: 14px;
   background: #fff;
-  color: var(--c-lip);
+  color: var(--c-ink);
   font: inherit;
   font-size: 15px;
   font-weight: 900;
@@ -3343,5 +3343,11 @@ span.cmap-mascot svg { display: block; width: 100%; height: auto; }
 .media-zoom-bar svg { width: 20px; height: 20px; }
 .media-zoom-bar span { min-width: 52px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 .media-zoom-hint { margin: 0 0 max(14px, env(safe-area-inset-bottom)); text-align: center; color: rgb(255 255 255 / .6); font-size: 13px; }
-/* Thẻ "Bắt đầu" của step cuối chặng không bị chặng cắt: khi thẻ mở, chặng đó thôi cắt và nổi trên chặng sau. */
-.cmap .cmap-zone:has(.cmap-node.is-pop) { overflow: visible; position: relative; z-index: 7; }
+/* Step cuối chặng: thẻ bật LÊN trên (chặng cắt phần tràn xuống dưới). */
+.cmap-pop.is-up { top: auto; bottom: calc(100% + 14px); transform-origin: 50% 100%; }
+.cmap-pop.is-up::before { top: auto; bottom: -8px; }
+/* Thẻ đang mở thì ẩn nhãn "Bắt đầu" của chính nút đó cho khỏi chồng. */
+.cmap-node.is-pop .cmap-bubble { display: none; }
+/* Nhãn "Bắt đầu · Bài x/y" luôn nổi trên các nút khác. */
+.cmap-node.is-current { z-index: 3; }
+.cmap-bubble { z-index: 4; }

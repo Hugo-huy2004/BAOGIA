@@ -238,7 +238,7 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
                 <span className="cmap-hex-face"><Icon aria-hidden="true" /></span>
               </button>
               {popId === course.id && (
-                <div className="cmap-pop" role="dialog" aria-label={name}>
+                <div className={`cmap-pop${last ? " is-up" : ""}`} role="dialog" aria-label={name}>
                   <b>{name}</b>
                   {course.lessons && !done && <span>{t("player.lessonOf", { n: partsDone + 1, total: course.lessons })}</span>}
                   <button type="button" onClick={() => onOpenLesson(course.id)} disabled={course.draft}>
