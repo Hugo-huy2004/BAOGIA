@@ -189,7 +189,12 @@ export default function EducationApp() {
         {/* Cài đặt đã gộp vào Hồ sơ; giữ địa chỉ cũ cho push/link cũ. */}
         <Route path="/settings" element={<Navigate to="/profile" replace />} />
         <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} onLearnerUpdate={mergeLearner} />) : needsLogin} />
-        <Route path="*" element={<EduStatus kind="notFound" />} />
+        {/* PWA cài lúc manifest của www còn hiệu lực sẽ mở /member/today — ở Edu không có trang đó.
+            Đường dẫn kiểu www về /learn (giữ query, vd. ?source=pwa); trong app đã cài, đường lạ cũng về /learn thay vì 404. */}
+        {["/member/*", "/study/*", "/today", "/utilities/*"].map((path) => (
+          <Route key={path} path={path} element={<Navigate to={`/learn${location.search}`} replace />} />
+        ))}
+        <Route path="*" element={standalone ? <Navigate to="/learn" replace /> : <EduStatus kind="notFound" />} />
       </Routes></EduErrorBoundary>}
     </div>
   );

@@ -15,6 +15,8 @@ import { canPromptInstall, promptInstall } from "./eduHead";
 import { rich, useEduText } from "./eduText";
 import { FlameBuddy } from "./EduStreak";
 import { useEduCourse } from "./useEduCourse";
+import { legalFor } from "./legalText";
+import { supportMailUrl } from "./eduSupport";
 import EduTopBar, { JoyCoin, useEduInbox } from "./EduTopBar";
 import AnimIcon from "../components/icons/animated/AnimIcon";
 import EduSettings from "./EduSettings";
@@ -452,6 +454,9 @@ function Stat({ icon, tone, value, label }) {
 
 /** Hồ sơ: một tài khoản Hugo Studio dùng cho cả hai nơi. */
 export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUpdate }) {
+  const { lang: legalLang } = useEduText();
+  const legal = legalFor(legalLang);
+  const support = supportMailUrl({ lang: legalLang, nickname: persona?.nickname });
   const { t } = useEduText();
   const [editing, setEditing] = useState(false);
   const stats = useLearnerStats(learner);
@@ -500,9 +505,11 @@ export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUp
       </div>
       <EduSettings embedded learner={learner} onLearnerUpdate={onLearnerUpdate} />
       <Link className="edu-btn edu-btn--ghost" to="/feedback">{t("history.write")}</Link>
+      {/* Hỗ trợ: mở app Mail (điện thoại) hoặc Gmail web (máy tính) với thư soạn sẵn thông tin thành viên. */}
+      <a className="edu-btn edu-btn--ghost" href={support} target={support.startsWith("mailto:") ? undefined : "_blank"} rel="noopener">{t("common.support")}</a>
       <FeedbackHistory />
       <p className="edu-legal">
-        <Link to="/terms">{t("common.terms")}</Link> · <Link to="/privacy">{t("common.privacy")}</Link> · <Link to="/guidelines">Community Guidelines</Link> · <a href={`${STUDIO}/support-request`} target="_blank" rel="noopener">{t("common.support")}</a>
+        <Link to="/terms">{legal.terms.title}</Link> · <Link to="/privacy">{legal.privacy.title}</Link> · <Link to="/guidelines">{legal.guidelines.title}</Link> · <a href={support} target={support.startsWith("mailto:") ? undefined : "_blank"} rel="noopener">{t("common.support")}</a>
       </p>
     </section>
   );
