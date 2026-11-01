@@ -44,7 +44,11 @@ export function FlameBuddy({ stage = "spark", frozen = false, size = 120, classN
         <path d={frozen ? "M44 88q6 -4 12 0" : "M43 85q7 7 14 0"} stroke="#3c3c3c" strokeWidth="3" strokeLinecap="round" fill="none" />
         {!asleep && <><circle cx="33" cy="82" r="4" fill="#ff86d0" opacity=".6" /><circle cx="67" cy="82" r="4" fill="#ff86d0" opacity=".6" /></>}
       </g>
-      {frozen && <rect x="10" y="20" width="80" height="96" rx="16" fill="#cdeefc" fillOpacity=".55" stroke="#8fd3f4" strokeWidth="3" />}
+      {frozen && (
+        <g className="flame-frost" stroke="#e3f6fd" strokeWidth="3" strokeLinecap="round">
+          {[[16, 34], [84, 48], [22, 96]].map(([x, y]) => <g key={x} transform={`translate(${x} ${y})`}><path d="M0 -7V7M-6 -3.5L6 3.5M-6 3.5L6 -3.5" /></g>)}
+        </g>
+      )}
     </svg>
   );
 }
@@ -127,28 +131,34 @@ export function StreakScreen({ streak, onUpdate }) {
   };
 
   const [title] = t(`streak.stages.${streak.stage}`);
+  const mood = frozen ? "frozen" : streak.studiedToday ? "lit" : "idle";
   return (
     <section className="streak-screen" aria-label={t("streak.title")}>
-      <div className={`streak-hero${streak.studiedToday ? " is-lit" : ""}`}>
-        <FlameBuddy stage={streak.stage} frozen={frozen} size={150} className="is-alive" />
-        <b className="streak-count">{streak.count}<small> {t("streak.days")}</small></b>
-        <span className="streak-stage">{t("streak.name")} · {title}</span>
-        <p className={`streak-status${streak.studiedToday ? " is-lit" : ""}`}>
+      <div className={`streak-hero is-${mood}`}>
+        <FlameBuddy stage={streak.stage} frozen={frozen} size={112} className="is-alive" />
+        <div className="streak-hero-text">
+          <b className="streak-count">{streak.count}</b>
+          <span className="streak-days">{t("streak.days")} · {t("streak.name")} · {title}</span>
+        </div>
+        <p className="streak-status">
+          <span className="material-symbols-outlined" aria-hidden="true">{frozen ? "ac_unit" : streak.studiedToday ? "check_circle" : "schedule"}</span>
           {frozen ? t("streak.frozenNow") : streak.studiedToday ? t("streak.today") : t("streak.notToday")}
         </p>
       </div>
       <div className="streak-stats">
-        <span><b>{streak.best}</b>{t("streak.best")}</span>
-        <span><b>{streak.freezesThisMonth}/{MAX_FREEZES}</b>{t("streak.freezes")}</span>
-        <span><b>{streak.next.day}</b>{t("streak.nextShort", { joy: streak.next.joy })}</span>
+        <span><i className="material-symbols-outlined" aria-hidden="true">emoji_events</i><b>{streak.best}</b><small>{t("streak.best")}</small></span>
+        <span><i className="material-symbols-outlined" aria-hidden="true">ac_unit</i><b>{streak.freezesThisMonth}/{MAX_FREEZES}</b><small>{t("streak.freezes")}</small></span>
+        <span><i className="material-symbols-outlined" aria-hidden="true">flag</i><b>{streak.next.day}</b><small>{t("streak.nextShort", { joy: streak.next.joy })}</small></span>
       </div>
-      <div className="streak-month">
-        <button type="button" onClick={() => shiftMonth(-1)} aria-label="‹"><span className="material-symbols-outlined">chevron_left</span></button>
-        <b>{new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`))}</b>
-        <button type="button" onClick={() => shiftMonth(1)} disabled={month >= streak.today.slice(0, 7)} aria-label="›"><span className="material-symbols-outlined">chevron_right</span></button>
+      <div className="streak-cal-card">
+        <div className="streak-month">
+          <button type="button" onClick={() => shiftMonth(-1)} aria-label="‹"><span className="material-symbols-outlined">chevron_left</span></button>
+          <b>{new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`))}</b>
+          <button type="button" onClick={() => shiftMonth(1)} disabled={month >= streak.today.slice(0, 7)} aria-label="›"><span className="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <MonthCalendar streak={streak} month={month} onThaw={thaw} busy={busy} />
+        <p className="streak-legend"><i className="is-lit" />{t("streak.legendStudied")}<i className="is-frozen" />{t("streak.legendFrozen")}<i className="is-thawed" />{t("streak.legendThawed")}</p>
       </div>
-      <MonthCalendar streak={streak} month={month} onThaw={thaw} busy={busy} />
-      <p className="streak-legend"><i className="is-lit" />{t("streak.legendStudied")}<i className="is-frozen" />{t("streak.legendFrozen")}<i className="is-thawed" />{t("streak.legendThawed")}</p>
       <p className="streak-rule">{t("streak.rule")}</p>
       <RiveCredit />
     </section>
