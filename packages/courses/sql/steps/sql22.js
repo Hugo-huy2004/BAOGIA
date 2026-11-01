@@ -22,7 +22,7 @@ export default {
     {
       section: "research",
       title: "Vì sao không lưu danh sách trong một cột",
-      body: `Cột \`tags = 'ít đường,thuần chay'\` vi phạm 1NF: không đặt khoá ngoại được, không đếm \"bao nhiêu món thuần chay\" bằng GROUP BY được, đổi tên nhãn phải sửa chuỗi khắp nơi. Karwin gọi đây là phản mẫu **Jaywalking**.
+      body: `Cột \`tags = 'ít đường,thuần chay'\` vi phạm 1NF: không đặt khoá ngoại được, không đếm "bao nhiêu món thuần chay" bằng GROUP BY được, đổi tên nhãn phải sửa chuỗi khắp nơi. Karwin gọi đây là phản mẫu **Jaywalking**.
 
 > Karwin, B. (2010) *SQL Antipatterns*. Raleigh: Pragmatic Bookshelf, ch. 2.`,
     },

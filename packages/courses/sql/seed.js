@@ -25,3 +25,13 @@ FROM n;
 INSERT INTO order_items SELECT id, 1 + (id * 5) % 6, 1 + id % 3 FROM orders WHERE id >= 9;
 INSERT INTO order_items SELECT id, 1 + (id * 5 + 2) % 6, 1 FROM orders WHERE id >= 9 AND id % 2 = 0;
 `;
+
+// Chặng 7: bảng lớn để thấy chỉ mục có tác dụng thật (50.000 đơn giả, sinh trong trình duyệt ~0,2 giây).
+export const HAT_BIG = `
+CREATE TABLE big_orders (id INTEGER PRIMARY KEY, customer_id INTEGER, branch_id INTEGER, total INTEGER, ordered_at TEXT, note TEXT);
+WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 50000)
+INSERT INTO big_orders SELECT i, 1 + (i * 7919) % 5000, 1 + i % 3, 20000 + (i * 37) % 180000,
+  datetime('2026-01-01', '+' || (i % 300) || ' days', '+' || (i % 840) || ' minutes'),
+  CASE WHEN i % 97 = 0 THEN 'giao gấp' END
+FROM n;
+`;

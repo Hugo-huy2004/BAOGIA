@@ -147,7 +147,7 @@ export const OUTLINE = [
   ["sql-perf", "EXPLAIN QUERY PLAN và tối ưu truy vấn"],
   ["sql-perf", "Chỉ mục phủ, chỉ mục một phần, chỉ mục biểu thức"],
   ["sql-perf", "JSON trong SQL"],
-  ["sql-perf", "Tìm kiếm toàn văn với FTS5"],
+  ["sql-perf", "Tìm kiếm toàn văn (FTS4/FTS5)"],
   // Chặng 8 — Tốt nghiệp
   ["sql-capstone", "Phân tích cohort: khách quay lại sau bao lâu"],
   ["sql-capstone", "Từ SQLite sang PostgreSQL và MySQL"],

@@ -637,7 +637,9 @@
 .cel-text h2 { margin: 0; font-size: 30px; font-weight: 800; }
 .cel-text p { margin: 8px auto 0; max-width: 340px; color: rgb(255 255 255 / .8); line-height: 1.5; }
 .cel-text .cel-reward { color: #ffc800; font-size: 22px; font-weight: 800; }
+.cel-text { display: grid; justify-items: center; }
 .cel-text .edu-btn { margin-top: 18px; }
+.cel-text .rive-credit { margin: 20px auto 0; }
 @media (prefers-reduced-motion: reduce) { .flame-buddy.is-alive .flame-body, .flame-buddy .flame-rays { animation: none; } }
 
 /* ── Điện thoại dùng web: học chỉ trong app — màn hướng dẫn cài toàn màn ── */

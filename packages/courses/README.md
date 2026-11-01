@@ -17,7 +17,7 @@ packages/courses/<khoá>/
 | Khoá | Thư mục | Trạng thái |
 |---|---|---|
 | 1 · Coding (Nhịp) — HTML/CSS/PHP/MySQL, 26 step | `coding/` | đang dạy |
-| SQL (quán Hạt) — SQLite, từ SELECT tới window function/EXPLAIN/FTS5, 40 step | `sql/` | đang soạn: chặng 1–4 (step 1–22), mở ở /learn (tab SQL) |
+| SQL (quán Hạt) — SQLite, từ SELECT tới window function/EXPLAIN/FTS5, 40 step | `sql/` | đủ 8 chặng (step 1–40), mở ở /learn (tab SQL) |
 | 2 · Quán — React/Node/Express/Supabase/Render/Vercel/Cloudflare, 60 step | `quan/` (chưa tạo) | thiết kế: `docs/khoa-2-quan.md` |
 
 Quy trình cho một step: soạn tiếng Việt trong `steps/` → `npm run check:coder-content`
