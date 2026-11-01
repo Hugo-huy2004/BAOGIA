@@ -965,3 +965,109 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .streak-page.is-frozen .streak-body::before { background: radial-gradient(ellipse at 50% 0, rgb(80 180 255 / .3), transparent 75%); }
 @keyframes streak-glow { 50% { opacity: .6; transform: scaleY(.92); } }
 @media (prefers-reduced-motion: reduce) { .streak-body::before { animation: none; } }
+
+/* ── Bạn bè & thi đua (EduFriends.jsx) ─────────────────────────────────────
+   Điện thoại: 3 thẻ (Thi đua · Bạn bè · Thêm bạn), mỗi lúc một cột.
+   Máy tính ≥1000px: bỏ thẻ, 2 cột — bảng tuần bên trái, bạn bè + thêm bạn bên phải. */
+.fr { display: grid; gap: 14px; }
+.fr h2 { margin: 6px 0 0; font-size: 18px; font-weight: 900; }
+.fr-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 16px; background: var(--edu-soft); }
+.fr-tabs button { position: relative; min-height: 44px; border: 0; border-radius: 12px; background: none; color: var(--edu-muted); font: inherit; font-weight: 800; cursor: pointer; }
+.fr-tabs button.is-on { background: var(--edu-card); color: var(--edu-ink); box-shadow: 0 2px 0 var(--edu-line); }
+.fr-tabs i { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-left: 6px; border-radius: 10px; background: var(--edu-red); color: #fff; font-size: 12px; font-style: normal; }
+.fr-grid { display: grid; gap: 18px; }
+.fr-col { display: none; gap: 10px; align-content: start; }
+.fr-tab-league .fr-col-league, .fr-tab-friends .fr-col-friends, .fr-tab-add .fr-col-add { display: grid; }
+@media (min-width: 1000px) {
+  .fr:not(.streak-body .fr) .fr-tabs { display: none; }
+  .fr:not(.streak-body .fr) .fr-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
+  .fr:not(.streak-body .fr) .fr-col { display: grid; }
+  .fr:not(.streak-body .fr) .fr-col-league { grid-row: span 2; padding: 18px; border: 2px solid var(--edu-line); border-radius: 22px; }
+}
+.fr-head { display: flex; align-items: center; justify-content: space-between; }
+.fr-live { display: inline-flex; align-items: center; gap: 6px; color: var(--edu-red); font-size: 13px; font-weight: 900; text-transform: uppercase; }
+.fr-live i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: fr-live 1.4s ease-in-out infinite; }
+@keyframes fr-live { 50% { opacity: .25; } }
+.fr-sub, .fr-hint { margin: 0; color: var(--edu-muted); font-size: 14px; }
+.fr-empty { color: var(--edu-muted); text-align: center; padding: 18px 0; }
+.fr-warn { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--edu-orange) 15%, transparent); color: var(--edu-ink); font-weight: 800; text-decoration: none; }
+/* Bục 3 người đầu */
+.fr-podium { display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 8px; margin-top: 8px; }
+.fr-podium-spot { display: grid; justify-items: center; gap: 4px; color: var(--edu-ink); text-decoration: none; text-align: center; min-width: 0; }
+.fr-podium-spot b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.fr-podium-spot small { color: var(--edu-muted); font-weight: 800; }
+.fr-podium-block { display: grid; place-items: center; width: 100%; border-radius: 14px 14px 0 0; color: #fff; font-size: 26px; font-weight: 900; box-shadow: inset 0 -6px 0 rgb(0 0 0 / .12); }
+.fr-podium-spot.is-1 .fr-podium-block { height: 84px; background: #ffc800; }
+.fr-podium-spot.is-2 .fr-podium-block { height: 62px; background: #b8c4cf; }
+.fr-podium-spot.is-3 .fr-podium-block { height: 48px; background: #e0955a; }
+.fr-podium-spot.is-me b { color: var(--edu-green); }
+/* Hàng xếp hạng + thanh XP so với người dẫn đầu */
+.fr-rows { display: grid; gap: 4px; margin: 6px 0 0; padding: 0; list-style: none; }
+.fr-rows a { display: grid; grid-template-columns: 28px 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 14px; color: var(--edu-ink); text-decoration: none; }
+.fr-rows a:hover { background: var(--edu-soft); }
+.fr-rows li.is-me a { background: color-mix(in srgb, var(--edu-green) 16%, transparent); }
+.fr-rank { font-weight: 900; color: var(--edu-muted); text-align: center; }
+.fr-rank.is-top1 { color: #e5a800; } .fr-rank.is-top2 { color: #8a9aa8; } .fr-rank.is-top3 { color: #c87533; }
+.fr-who { display: grid; gap: 6px; min-width: 0; }
+.fr-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-xpbar { display: block; height: 8px; border-radius: 4px; background: var(--edu-soft); overflow: hidden; }
+.fr-xpbar i { display: block; height: 100%; border-radius: 4px; background: var(--edu-green); transition: width .6s cubic-bezier(.3, 1.2, .4, 1); }
+.fr-xp { font-weight: 900; }
+/* Danh sách người (bạn, lời mời, kết quả tìm) */
+.fr-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.fr-person { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 2px solid var(--edu-line); border-radius: 16px; }
+.fr-person-main { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; color: var(--edu-ink); text-decoration: none; }
+.fr-person-main > span { display: grid; min-width: 0; }
+.fr-person-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-person-main small { display: inline-flex; align-items: center; gap: 4px; color: var(--edu-muted); font-weight: 700; }
+.fr-person .edu-btn { min-height: 40px; padding: 0 14px; }
+.fr-actions { display: flex; gap: 6px; }
+.fr-icon-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: none; color: var(--edu-muted); cursor: pointer; }
+.fr-icon-btn:hover { background: var(--edu-soft); color: var(--edu-red); }
+/* Thêm bạn */
+.fr-add { display: grid; gap: 10px; }
+.fr-search { display: flex; gap: 8px; }
+.fr-search input { flex: 1; min-width: 0; min-height: 48px; padding: 0 14px; border: 2px solid var(--edu-line); border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-size: 16px; }
+.fr-scan-btn { display: grid; place-items: center; width: 48px; border: 2px solid var(--edu-line); border-radius: 14px; background: var(--edu-card); color: var(--edu-ink); cursor: pointer; }
+.fr-scan { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: #000; }
+.fr-scan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fr-scan-frame { position: relative; width: min(70vw, 280px); aspect-ratio: 1; border: 4px solid #fff; border-radius: 24px; box-shadow: 0 0 0 100vmax rgb(0 0 0 / .45); }
+.fr-scan .edu-btn { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); }
+/* Thẻ thành viên kiểu Duolingo: nhân vật trên nền xám, tên + mã + thương hiệu, QR có mascot */
+.fr-card { display: grid; gap: 0; width: min(100%, 360px); justify-self: center; margin: 0; padding: 14px; border-radius: 26px; background: #f7f7f7; color: #3c3c3c; box-shadow: 0 6px 0 #e3e3e3; }
+.fr-card-art { display: grid; place-items: center; aspect-ratio: 1; border-radius: 20px; background: #e5e5e5; overflow: hidden; }
+.fr-card-art .persona-avatar { width: 88%; height: 88%; border-radius: 0; }
+.fr-card figcaption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 4px 2px; }
+.fr-card figcaption > div { display: grid; min-width: 0; }
+.fr-card figcaption b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 26px; font-weight: 900; color: #3c3c3c; }
+.fr-card figcaption small { color: #8a8a8a; font-size: 16px; font-weight: 700; letter-spacing: .08em; }
+.fr-card-brand { margin-top: 6px; color: #1cb0f6; font-size: 20px; font-weight: 900; letter-spacing: -.02em; }
+.fr-card svg { flex: none; }
+/* Hồ sơ công khai */
+.fr-profile { display: grid; gap: 14px; }
+.fr-profile-hero { display: grid; place-items: center; height: 200px; margin: -8px -16px 0; background: #a560f0; border-radius: 0 0 28px 28px; }
+.fr-profile-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.fr-profile-head h1 { margin: 0; font-size: 28px; }
+.fr-profile-head small { color: var(--edu-muted); font-weight: 700; }
+.fr-profile-intro { margin: 0; line-height: 1.55; }
+.fr-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.fr-stats div { display: grid; padding: 12px; border: 2px solid var(--edu-line); border-radius: 16px; }
+.fr-stats b { font-size: 22px; font-weight: 900; }
+.fr-stats small { color: var(--edu-muted); font-weight: 700; }
+.fr-stagebars { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.fr-stagebars li { display: grid; grid-template-columns: 76px 1fr 44px; align-items: center; gap: 10px; font-weight: 800; }
+.fr-stagebars li > i { height: 12px; border-radius: 6px; background: var(--edu-soft); overflow: hidden; }
+.fr-stagebars li > i > i { display: block; height: 100%; border-radius: 6px; background: #1cb0f6; }
+.fr-stagebars b { text-align: right; }
+@media (min-width: 1000px) {
+  .fr-profile { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; column-gap: 28px; }
+  .fr-profile > .fr-card { grid-column: 2; grid-row: 1 / span 6; }
+  .fr-profile-hero { margin: 0; border-radius: 28px; }
+}
+/* Hồ sơ: sửa biệt danh + giới thiệu */
+.persona-info { display: grid; gap: 12px; padding: 16px; border: 2px solid var(--edu-line); border-radius: 16px; }
+.persona-info label { display: grid; gap: 6px; }
+.persona-info span { font-weight: 800; }
+.persona-info input, .persona-info textarea { min-height: 48px; padding: 10px 14px; border: 2px solid var(--edu-line); border-radius: 12px; background: var(--edu-card); color: var(--edu-ink); font: inherit; font-size: 16px; resize: vertical; }
+.persona-info small { color: var(--edu-muted); }
+.persona-info small.is-error { color: var(--edu-red); }

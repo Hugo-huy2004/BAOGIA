@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { notify } from "../lib/notify";
 import { API_BASE } from "../config/apiBase";
-import { AVATAR_COLORS, AVATAR_PARTS, NICKNAME_MAX, PersonaClient, checkNickname, randomAvatar } from "../../../../packages/persona";
+import { AVATAR_COLORS, AVATAR_PARTS, INTRO_MAX, NICKNAME_MAX, PersonaClient, checkIntro, checkNickname, randomAvatar } from "../../../../packages/persona";
 import { useEduText } from "./eduText";
 import { playEduSound } from "./eduSound";
 
@@ -133,4 +133,43 @@ export function usePersona(signedIn) {
     return () => { alive = false; };
   }, [signedIn]);
   return useMemo(() => [state, setState], [state]);
+}
+
+/** Sửa biệt danh + lời giới thiệu — CHỈ ở trang Hồ sơ (biệt danh không sửa ở nơi nào khác). */
+export function PersonaInfoForm({ current, onSaved }) {
+  const { t } = useEduText();
+  const [nickname, setNickname] = useState(current?.nickname || "");
+  const [intro, setIntro] = useState(current?.intro || "");
+  const [busy, setBusy] = useState(false);
+  const nick = checkNickname(nickname);
+  const about = checkIntro(intro);
+  const dirty = nickname !== (current?.nickname || "") || intro !== (current?.intro || "");
+  const save = async (event) => {
+    event.preventDefault();
+    if (!nick.ok || !about.ok) return;
+    setBusy(true);
+    try {
+      const saved = await persona.save({ nickname: nick.value, intro: about.value });
+      notify.success(t("persona.saved"));
+      onSaved(saved);
+    } catch (error) {
+      const key = `streak.social.${error.code}`;
+      notify.error(t(key) === key ? t("persona.failed") : t(key));
+    } finally { setBusy(false); }
+  };
+  return (
+    <form className="persona-info" onSubmit={save}>
+      <label>
+        <span>{t("streak.social.nickLabel")}</span>
+        <input className="nick-font" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={NICKNAME_MAX * 4} autoComplete="off" />
+        <small className={nickname && !nick.ok ? "is-error" : ""}>{nickname && !nick.ok ? t(`streak.social.${nick.code}`) : t("streak.social.nickHint")}</small>
+      </label>
+      <label>
+        <span>{t("persona.intro")}</span>
+        <textarea value={intro} onChange={(e) => setIntro(e.target.value)} maxLength={INTRO_MAX + 20} rows={2} placeholder={t("persona.introPlaceholder")} />
+        <small>{[...intro].length}/{INTRO_MAX}</small>
+      </label>
+      <button type="submit" className="edu-btn" disabled={busy || !dirty || !nick.ok || !about.ok}>{t("persona.saveInfo")}</button>
+    </form>
+  );
 }

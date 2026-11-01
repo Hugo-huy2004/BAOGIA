@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { PersonaAvatar, PersonaGate } from "./EduPersona";
+import { PersonaAvatar, PersonaGate, PersonaInfoForm } from "./EduPersona";
 import { Link, NavLink } from "react-router-dom";
 import HugoLogo from "../components/HugoLogo";
 import { notify } from "../lib/notify";
@@ -22,7 +22,8 @@ const STUDIO = "https://www.hugowishpax.studio";
 const NAV = [
   { to: "/learn", icon: "home", key: "learn" },
   { to: "/progress", icon: "chart", key: "progress" },
-  { to: "/community", icon: "users", key: "community" },
+  { to: "/friends", icon: "users", key: "friends" },
+  { to: "/community", icon: "message", key: "community" },
   { to: "/store", icon: "bag", key: "store" },
   { to: "/profile", icon: "user", key: "profile" },
 ];
@@ -380,6 +381,8 @@ export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUp
         <button type="button" className="edu-btn is-ghost" onClick={() => setEditing(true)}>{t("persona.edit")}</button>
       </div>
 
+      <PersonaInfoForm key={`${persona?.nickname}|${persona?.intro}`} current={persona} onSaved={onPersona} />
+      <Link className="edu-btn is-ghost" to="/friends">{t("friends.cardLink")}</Link>
       {editing && <PersonaGate editOnly email={learner?.email} current={persona} onDone={(saved) => { if (saved) onPersona(saved); setEditing(false); }} />}
       <div className="edu-stats">
         <Stat icon="local_fire_department" tone="orange" value={learner?.edu?.streak?.count ?? 0} label={t("streak.title")} />

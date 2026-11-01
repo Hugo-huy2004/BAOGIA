@@ -32,6 +32,11 @@ const schema = new mongoose.Schema({
   // Biệt danh bắt buộc để có tên trên bảng thi đua (packages/persona/nickname.js) — không dùng tên thật.
   nickname: { type: String, default: '' },
   following: { type: [String], default: [] },
+  // Kết bạn hai chiều có duyệt (services/eduSocial.js) — đều là mã bạn 6 ký tự.
+  // `following` ở trên là kiểu theo dõi một chiều cũ, tự chuyển thành requestsOut khi mở bạn bè.
+  friends: { type: [String], default: [] },
+  requestsIn: { type: [String], default: [] },
+  requestsOut: { type: [String], default: [] },
   xpWeek: { type: String, default: '' },
   xpWeekly: { type: Number, default: 0 },
 }, { timestamps: true, minimize: false });

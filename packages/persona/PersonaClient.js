@@ -1,5 +1,6 @@
 import { checkAvatar } from './avatar.js';
 import { checkNickname } from './nickname.js';
+import { checkIntro } from './intro.js';
 
 export class PersonaError extends Error {
   constructor(code, status) {
@@ -45,7 +46,7 @@ export class PersonaClient {
   }
 
   /** Lưu một hoặc cả hai phần; phần không gửi thì giữ nguyên. */
-  save({ nickname, avatar } = {}) {
+  save({ nickname, avatar, intro } = {}) {
     const body = {};
     if (nickname !== undefined) {
       const checked = checkNickname(nickname);
@@ -56,6 +57,11 @@ export class PersonaClient {
       const checked = checkAvatar(avatar);
       if (!checked.ok) return Promise.reject(new PersonaError(checked.code, 400));
       body.avatar = checked.value;
+    }
+    if (intro !== undefined) {
+      const checked = checkIntro(intro);
+      if (!checked.ok) return Promise.reject(new PersonaError(checked.code, 400));
+      body.intro = checked.value;
     }
     return this.request('PUT', body);
   }

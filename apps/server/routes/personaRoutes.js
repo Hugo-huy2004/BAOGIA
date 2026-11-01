@@ -20,7 +20,7 @@ router.get('/', requireMemberSession, async (req, res) => {
 
 router.put('/', requireMemberSession, writeLimiter, async (req, res) => {
   try {
-    return res.json(await PersonaService.save(req.memberEmail, { nickname: req.body?.nickname, avatar: req.body?.avatar }));
+    return res.json(await PersonaService.save(req.memberEmail, { nickname: req.body?.nickname, avatar: req.body?.avatar, intro: req.body?.intro }));
   } catch (error) {
     if (error.code && error.code !== 11000) return res.status(400).json({ code: error.code });
     console.error('[persona]', error.message);

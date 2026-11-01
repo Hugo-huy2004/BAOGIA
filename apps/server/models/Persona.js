@@ -9,6 +9,10 @@ const schema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   nickname: { type: String, default: '' },
   avatar: { type: mongoose.Schema.Types.Mixed, default: null }, // mã bộ phận/màu đã qua checkAvatar
+  intro: { type: String, default: '' }, // lời giới thiệu ngắn (packages/persona/intro.js)
 }, { timestamps: true, minimize: false });
+
+// Tìm bạn theo biệt danh (tiền tố, không phân biệt hoa thường).
+schema.index({ nickname: 1 });
 
 export default mongoose.model('Persona', schema);

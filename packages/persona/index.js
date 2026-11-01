@@ -8,3 +8,4 @@
 export { NICKNAME_MAX, NICKNAME_MIN, checkNickname } from './nickname.js';
 export { AVATAR_COLORS, AVATAR_PARTS, checkAvatar, randomAvatar } from './avatar.js';
 export { PersonaClient, PersonaError } from './PersonaClient.js';
+export { INTRO_MAX, checkIntro } from './intro.js';

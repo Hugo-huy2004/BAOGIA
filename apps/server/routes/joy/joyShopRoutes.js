@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { eduSnapshot, saveEduPrefs, thawEduStreak } from '../../services/eduLearner.js';
-import { eduSocial, followEdu, setEduNickname, unfollowEdu } from '../../services/eduSocial.js';
+import { eduSocial, learnerProfile, removeFriend, requestFriend, respondFriend, searchLearners } from '../../services/eduSocial.js';
 import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
@@ -231,36 +231,46 @@ router.get('/edu-social', requireMemberSession, async (req, res) => {
   }
 });
 
-// POST /api/joy/edu-friends { code } · DELETE /api/joy/edu-friends/:code — theo dõi bằng mã bạn.
+// Bạn bè Edu (services/eduSocial.js): kết bạn hai chiều có duyệt, tìm kiếm, hồ sơ công khai.
+// Biệt danh chỉ sửa ở Hồ sơ (/api/persona) — không có route biệt danh riêng ở đây.
 const friendLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 60_000, max: 10, standardHeaders: true, legacyHeaders: false });
-router.post('/edu-friends', requireMemberSession, friendLimiter, async (req, res) => {
+const searchLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false });
+const friendAction = (label, action) => async (req, res) => {
   try {
-    await followEdu(req.memberEmail, req.body?.code);
+    await action(req);
     return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
   } catch (error) {
     if (error.code) return res.status(400).json({ code: error.code, error: error.message });
-    console.error('[edu-friends]', error.message);
-    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa thêm được bạn.' });
+    console.error(`[edu-friends ${label}]`, error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa làm được, thử lại sau.' });
+  }
+};
+// POST /edu-friends { code } gửi lời mời · POST /edu-friends/:code/accept|decline · DELETE /edu-friends/:code huỷ bạn / rút lời mời
+router.post('/edu-friends', requireMemberSession, friendLimiter, friendAction('request', (req) => requestFriend(req.memberEmail, req.body?.code)));
+router.post('/edu-friends/:code/accept', requireMemberSession, friendLimiter, friendAction('accept', (req) => respondFriend(req.memberEmail, req.params.code, true)));
+router.post('/edu-friends/:code/decline', requireMemberSession, friendLimiter, friendAction('decline', (req) => respondFriend(req.memberEmail, req.params.code, false)));
+router.delete('/edu-friends/:code', requireMemberSession, friendLimiter, friendAction('remove', (req) => removeFriend(req.memberEmail, req.params.code)));
+
+// GET /api/joy/edu-search?q= — tìm theo biệt danh (tiền tố), đúng mã bạn, hoặc đúng email.
+router.get('/edu-search', requireMemberSession, searchLimiter, async (req, res) => {
+  try {
+    res.set('Cache-Control', 'private, no-store');
+    return res.json({ results: await searchLearners(req.memberEmail, req.query.q) });
+  } catch (error) {
+    console.error('[edu-search]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa tìm được.' });
   }
 });
-// PUT /api/joy/edu-nickname { nickname } — biệt danh bắt buộc để có tên trên bảng thi đua.
-router.put('/edu-nickname', requireMemberSession, friendLimiter, async (req, res) => {
+
+// GET /api/joy/edu-profile/:code — hồ sơ công khai (persona, giới thiệu, tiến độ, quan hệ với mình).
+router.get('/edu-profile/:code', requireMemberSession, searchLimiter, async (req, res) => {
   try {
-    await setEduNickname(req.memberEmail, req.body?.nickname);
-    return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
+    res.set('Cache-Control', 'private, no-store');
+    return res.json(await learnerProfile(req.memberEmail, req.params.code));
   } catch (error) {
-    if (error.code) return res.status(400).json({ code: error.code, error: error.code });
-    console.error('[edu-nickname]', error.message);
-    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa lưu được biệt danh.' });
-  }
-});
-router.delete('/edu-friends/:code', requireMemberSession, friendLimiter, async (req, res) => {
-  try {
-    await unfollowEdu(req.memberEmail, req.params.code);
-    return res.json({ success: true, ...(await eduSocial(req.memberEmail)) });
-  } catch (error) {
-    console.error('[edu-friends]', error.message);
-    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa bỏ theo dõi được.' });
+    if (error.code === 'NOT_FOUND') return res.status(404).json({ code: 'NOT_FOUND' });
+    console.error('[edu-profile]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED' });
   }
 });
 

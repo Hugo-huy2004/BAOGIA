@@ -172,6 +172,8 @@ export const STREAK_PUSH = {
     milestone: [['Mốc {n} ngày!', 'Lửa Nhỏ lớn thêm rồi — bạn nhận {joy} JOY. Mở lịch lửa để xem chương mới.']],
     account: [['Tài khoản còn {d} ngày', 'Gia hạn bằng JOY trong Cửa hàng (hoặc xác minh học sinh – sinh viên để được 1 năm) để giữ tiến độ học.']],
     security: [['Có đăng nhập mới', 'Tài khoản vừa đăng nhập trên {device}. Không phải bạn? Mở Hồ sơ Hugo Studio để đăng xuất máy lạ.']],
+    friendRequest: [['Lời mời kết bạn', '{name} muốn làm bạn học với bạn. Mở Bạn bè để đồng ý.']],
+    friendAccepted: [['Đã thành bạn học', '{name} đã đồng ý kết bạn. Cùng thi đua tuần này nhé!']],
   },
   en: {
     remind: [
@@ -194,6 +196,8 @@ export const STREAK_PUSH = {
     milestone: [['{n}-day milestone!', 'Little Flame grew — you earned {joy} JOY. Open the flame calendar for a new chapter.']],
     account: [['{d} days left on your account', 'Extend with JOY in the Shop (or verify as a student for a full year) to keep your progress.']],
     security: [['New sign-in', "Your account just signed in on {device}. Not you? Open Profile Hugo Studio to sign out unknown devices."]],
+    friendRequest: [['Friend request', '{name} wants to be your study buddy. Open Friends to accept.']],
+    friendAccepted: [['You are now friends', '{name} accepted your request. Race each other this week!']],
   },
   zh: {
     remind: [
@@ -216,6 +220,8 @@ export const STREAK_PUSH = {
     milestone: [['{n} 天里程碑！', '小火苗长大了——你获得 {joy} JOY。打开火焰日历看新的章节。']],
     account: [['账户还剩 {d} 天', '在商店用 JOY 续期（或验证学生身份获得 1 年），以保留学习进度。']],
     security: [['新的登录', '你的账户刚在 {device} 上登录。不是你？打开 个人资料 Hugo Studio 退出陌生设备。']],
+    friendRequest: [['好友请求', '{name} 想和你成为学习伙伴。打开好友页面同意。']],
+    friendAccepted: [['已成为好友', '{name} 同意了你的请求。本周一起比拼吧！']],
   },
 };
 

@@ -3,10 +3,9 @@ import gsap from "gsap";
 import confetti from "canvas-confetti";
 import { notify } from "../lib/notify";
 import { API_BASE } from "../config/apiBase";
-import { MAX_FREEZES, THAW_PRICE } from "../../../../packages/shared/eduStreak";
-import { NICKNAME_MAX, checkNickname } from "../../../../packages/persona";
+import { THAW_PRICE } from "../../../../packages/shared/eduStreak";
+import EduFriends from "./EduFriends";
 import { useEduText } from "./eduText";
-import { PersonaAvatar } from "./EduPersona";
 import { playEduSound } from "./eduSound";
 
 /**
@@ -64,114 +63,6 @@ function MonthCalendar({ streak, month, onThaw, busy }) {
           <span key={day} className={`streak-day${kind ? ` is-${kind}` : ""}${day === streak.today ? " is-today" : ""}`}>{label}</span>
         );
       })}
-    </div>
-  );
-}
-
-/** Đặt/sửa biệt danh — bắt buộc để có tên trên bảng thi đua. Máy chủ kiểm lại cùng luật. */
-function NicknameCard({ current, onSaved, call }) {
-  const { t } = useEduText();
-  const [editing, setEditing] = useState(!current);
-  const [value, setValue] = useState(current);
-  const [busy, setBusy] = useState(false);
-  const checked = checkNickname(value);
-  const save = async (event) => {
-    event.preventDefault();
-    if (!checked.ok) return;
-    setBusy(true);
-    try { onSaved(await call("edu-nickname", { method: "PUT", body: JSON.stringify({ nickname: checked.value }) })); notify.success(t("streak.social.nickSaved")); setEditing(false); }
-    catch (error) { notify.error(t(`streak.social.${error.message}`) === `streak.social.${error.message}` ? error.message : t(`streak.social.${error.message}`)); }
-    finally { setBusy(false); }
-  };
-  if (!editing) {
-    return (
-      <button type="button" className="streak-nick-chip" onClick={() => setEditing(true)}>
-        <small>{t("streak.social.nickLabel")}</small><b className="nick-font">{current}</b>
-        <span className="material-symbols-outlined" aria-hidden="true">edit</span>
-      </button>
-    );
-  }
-  return (
-    <form className="streak-nick" onSubmit={save}>
-      <b>{t("streak.social.nickTitle")}</b>
-      <div className="streak-add">
-        <input className="nick-font" value={value} onChange={(event) => setValue(event.target.value)} maxLength={NICKNAME_MAX * 4} placeholder={t("streak.social.nickPlaceholder")} aria-label={t("streak.social.nickLabel")} autoComplete="off" />
-        <button type="submit" disabled={busy || !checked.ok}>{t("streak.social.nickSave")}</button>
-      </div>
-      <small className={value && !checked.ok ? "is-error" : ""}>{value && !checked.ok ? t(`streak.social.${checked.code}`) : t("streak.social.nickHint")}</small>
-    </form>
-  );
-}
-
-/** Thi đua tuần + bạn bè (kiểu Duolingo). Mọi con số do máy chủ trả (/joy/edu-social). */
-function StreakSocial() {
-  const { t } = useEduText();
-  const [tab, setTab] = useState("league");
-  const [data, setData] = useState(null);
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const call = async (path, init) => {
-    const response = await fetch(`${API_BASE}/joy/${path}`, { credentials: "include", ...init, headers: { "Content-Type": "application/json" } });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error || t("streak.social.loadFailed"));
-    return body;
-  };
-  useEffect(() => {
-    call("edu-social").then(setData).catch(() => setData({ failed: true }));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const follow = async (event) => {
-    event.preventDefault();
-    setBusy(true);
-    try { setData(await call("edu-friends", { method: "POST", body: JSON.stringify({ code }) })); setCode(""); }
-    catch (error) { notify.error(error.message); }
-    finally { setBusy(false); }
-  };
-  const unfollow = async (friend) => {
-    try { setData(await call(`edu-friends/${encodeURIComponent(friend)}`, { method: "DELETE" })); }
-    catch (error) { notify.error(error.message); }
-  };
-  const copy = () => navigator.clipboard?.writeText(data.code).then(() => notify.success(t("streak.social.copied"))).catch(() => {});
-  const rows = tab === "league" ? data?.league : data?.friends;
-
-  return (
-    <div className="streak-social">
-      <div className="streak-tabs" role="tablist">
-        {["league", "friends"].map((id) => (
-          <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
-            <span className="material-symbols-outlined" aria-hidden="true">{id === "league" ? "leaderboard" : "group"}</span>{t(`streak.social.${id}`)}
-          </button>
-        ))}
-      </div>
-      {data && !data.failed && <NicknameCard key={data.nickname} current={data.nickname} onSaved={setData} call={call} />}
-      {tab === "league" && <p className="streak-social-hint">{t("streak.social.leagueHint")}</p>}
-      {tab === "friends" && data?.code && (
-        <div className="streak-friend-tools">
-          <button type="button" className="streak-code" onClick={copy} aria-label={t("streak.social.yourCode")}>
-            <small>{t("streak.social.yourCode")}</small><b translate="no">{data.code}</b>
-            <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
-          </button>
-          <form className="streak-add" onSubmit={follow}>
-            <input value={code} onChange={(event) => setCode(event.target.value.toUpperCase().slice(0, 6))} placeholder={t("streak.social.codePlaceholder")} aria-label={t("streak.social.codePlaceholder")} autoCapitalize="characters" autoComplete="off" spellCheck={false} />
-            <button type="submit" disabled={busy || code.length !== 6}>{t("streak.social.follow")}</button>
-          </form>
-        </div>
-      )}
-      {!data ? <div className="streak-rows is-loading" aria-busy="true" /> : data.failed ? <p className="streak-social-hint">{t("streak.social.loadFailed")}</p> : (
-        <ol className="streak-rows">
-          {(rows || []).filter((row) => tab === "league" || !row.me || rows.length > 1).map((row, index) => (
-            <li key={`${row.code || row.name}-${index}`} className={row.me ? "is-me" : ""}>
-              <span className={`streak-rank${index < 3 && tab === "league" ? ` is-top${index + 1}` : ""}`}>{index + 1}</span>
-              <PersonaAvatar avatar={row.avatar} name={row.name} size={48} className="streak-avatar" />
-              <span className="streak-who"><b className={row.name ? "nick-font" : "is-anon"}>{row.name || t("streak.social.noNick")}{row.me ? ` · ${t("streak.social.you")}` : ""}</b><small><span className="material-symbols-outlined" aria-hidden="true">local_fire_department</span>{row.streak}</small></span>
-              <b className="streak-xp">{t("streak.social.xp", { n: row.xp })}</b>
-              {tab === "friends" && !row.me && (
-                <button type="button" className="streak-unfollow" onClick={() => unfollow(row.code)} aria-label={t("streak.social.unfollow")}><span className="material-symbols-outlined">person_remove</span></button>
-              )}
-            </li>
-          ))}
-          {!rows?.length || (tab === "friends" && rows.length < 2) ? <li className="streak-empty">{t(tab === "league" ? "streak.social.leagueEmpty" : "streak.social.friendsEmpty")}</li> : null}
-        </ol>
-      )}
     </div>
   );
 }
@@ -268,7 +159,7 @@ export function StreakScreen({ streak, onUpdate }) {
           </div>
         </>
       ) : (
-        <div className="streak-body"><StreakSocial /></div>
+        <div className="streak-body"><EduFriends embedded /></div>
       )}
     </section>
   );

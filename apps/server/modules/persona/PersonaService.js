@@ -2,12 +2,13 @@ import Persona from '../../models/Persona.js';
 import EduLearner from '../../models/EduLearner.js';
 import { checkAvatar } from '../../../../packages/persona/avatar.js';
 import { checkNickname } from '../../../../packages/persona/nickname.js';
+import { checkIntro } from '../../../../packages/persona/intro.js';
 
 const fail = (code) => Object.assign(new Error(code), { code });
 const view = (doc) => {
   const nickname = doc?.nickname || '';
   const avatar = doc?.avatar || null;
-  return { nickname, avatar, complete: Boolean(nickname && avatar) };
+  return { nickname, avatar, intro: doc?.intro || '', complete: Boolean(nickname && avatar) };
 };
 
 /**
@@ -26,7 +27,7 @@ export class PersonaService {
   }
 
   /** Lưu phần được gửi; máy chủ kiểm lại cùng luật với client. */
-  static async save(email, { nickname, avatar } = {}) {
+  static async save(email, { nickname, avatar, intro } = {}) {
     const set = {};
     if (nickname !== undefined) {
       const checked = checkNickname(nickname);
@@ -37,6 +38,11 @@ export class PersonaService {
       const checked = checkAvatar(avatar);
       if (!checked.ok) throw fail(checked.code);
       set.avatar = checked.value;
+    }
+    if (intro !== undefined) {
+      const checked = checkIntro(intro);
+      if (!checked.ok) throw fail(checked.code);
+      set.intro = checked.value;
     }
     if (!Object.keys(set).length) throw fail('PERSONA_EMPTY');
     const doc = await Persona.findOneAndUpdate({ email }, { $set: set }, { upsert: true, new: true }).lean();

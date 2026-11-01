@@ -16,9 +16,24 @@ export const EDU_LANGS = [
 export const EDU_COPY = {
   vi: {
     persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)" },
+      intro: "Giới thiệu", introPlaceholder: "Vài dòng về bạn: đang học gì, mục tiêu…", saveInfo: "Lưu", 
     brand: { aria: "Education Hugo, thuộc Hugo Studio", of: "thuộc" },
-    nav: { learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
+    nav: { friends: "Bạn bè", learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
     rail: { today: "Mục tiêu hôm nay", stage: "Chặng hiện tại", streak: "Lửa tới mốc", score: "Điểm trắc nghiệm" },
+    friends: {
+      title: "Bạn bè", tab: { league: "Thi đua", friends: "Bạn bè", add: "Thêm bạn" },
+      league: "Thi đua tuần", live: "Trực tiếp", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Học một bài để lên bảng!",
+      xp: "{n} XP", you: "Bạn", requests: "Lời mời kết bạn", accept: "Đồng ý", decline: "Từ chối",
+      friendsTitle: "Bạn bè ({n})", friendsEmpty: "Chưa có bạn nào. Gửi thẻ thành viên hoặc tìm bạn ở mục Thêm bạn.",
+      sentTitle: "Đã gửi lời mời", cancel: "Rút lời mời", remove: "Huỷ kết bạn", removeAsk: "Huỷ kết bạn với người này?",
+      addTitle: "Thêm bạn", yourCode: "Mã của bạn", share: "Chia sẻ thẻ", copied: "Đã chép liên kết.",
+      searchPlaceholder: "Tìm theo biệt danh, mã bạn hoặc email", scan: "Quét QR", scanHint: "Quét thẻ của bạn bè bằng app Camera của điện thoại.",
+      scanFailed: "Không mở được camera.", add: "Kết bạn", sent: "Đã gửi lời mời — chờ người kia đồng ý.", noResults: "Không tìm thấy ai.",
+      failed: "Chưa tải được, thử lại sau.", needNick: "Đặt biệt danh trong Hồ sơ để có tên trên bảng thi đua.",
+      notFound: "Không tìm thấy người học này.", back: "Về Bạn bè", editMine: "Sửa hồ sơ", isFriend: "Bạn bè",
+      joined: "Tham gia {date}", friendCount: "{n} bạn", statStreak: "Ngày chuỗi", statXp: "XP tuần này", statSteps: "Step đã qua",
+      progress: "Tiến độ khoá Coding", cardLink: "Thẻ thành viên & kết bạn",
+    },
     topbar: {
       courses: "Khoá học của bạn", course: { coding: "Lập trình Web", quan: "Quán — khoá 2" }, courseProgress: "{done}/{total} step đã qua",
       addCourse: "Thêm khoá học (sắp ra mắt)", joyBody: "JOY kiếm được khi qua bài lần đầu và giữ chuỗi lửa. Dùng để gia hạn tài khoản, phá băng chuỗi.",
@@ -100,7 +115,7 @@ export const EDU_COPY = {
       rule: "Mỗi ngày qua ít nhất một bài để giữ lửa. Lỡ một ngày, lửa đóng băng; quá 3 lần đóng băng trong tháng là tắt lửa, đếm lại từ đầu.",
       legendStudied: "Đã học", legendFrozen: "Đóng băng", legendThawed: "Đã phá băng",
       next: "Mốc tiếp theo: {d} ngày · +{joy} JOY", road: "Mốc thưởng", story: "Câu chuyện của Lửa Nhỏ", locked: "Giữ lửa {d} ngày để mở chương này",
-      nextShort: "Mốc tới · +{joy} JOY", social: { league: "Thi đua tuần", friends: "Đang theo dõi", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Qua một bài để mở màn!", yourCode: "Mã bạn của bạn", copied: "Đã chép mã", codePlaceholder: "Nhập mã 6 ký tự", follow: "Theo dõi", unfollow: "Bỏ theo dõi", friendsEmpty: "Chưa theo dõi ai. Gửi mã của bạn cho bạn bè nhé.", you: "Bạn", xp: "{n} XP", nickTitle: "Đặt biệt danh để lên bảng thi đua", nickHint: "2–20 ký tự, chỉ chữ và emoji. Tên thật không hiện trên bảng.", nickPlaceholder: "Ví dụ: Lửa Xanh 🔥", nickSave: "Lưu", nickLabel: "Biệt danh", noNick: "Chưa đặt biệt danh", NICK_LENGTH: "Biệt danh cần 2–20 ký tự.", NICK_CHARS: "Chỉ dùng chữ và emoji — không số, không ký tự đặc biệt.", nickSaved: "Đã lưu biệt danh" }, tab: { me: "Cá nhân", friends: "Bạn bè" }, daysLong: "ngày giữ lửa!", monthStudied: "Ngày học", monthFrozen: "Lần đóng băng", credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
+      nextShort: "Mốc tới · +{joy} JOY", social: { INTRO_LONG: "Giới thiệu tối đa 160 ký tự.", INTRO_BAD: "Giới thiệu không hợp lệ.", league: "Thi đua tuần", friends: "Đang theo dõi", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Qua một bài để mở màn!", yourCode: "Mã bạn của bạn", copied: "Đã chép mã", codePlaceholder: "Nhập mã 6 ký tự", follow: "Theo dõi", unfollow: "Bỏ theo dõi", friendsEmpty: "Chưa theo dõi ai. Gửi mã của bạn cho bạn bè nhé.", you: "Bạn", xp: "{n} XP", nickTitle: "Đặt biệt danh để lên bảng thi đua", nickHint: "2–20 ký tự, chỉ chữ và emoji. Tên thật không hiện trên bảng.", nickPlaceholder: "Ví dụ: Lửa Xanh", nickSave: "Lưu", nickLabel: "Biệt danh", noNick: "Chưa đặt biệt danh", NICK_LENGTH: "Biệt danh cần 2–20 ký tự.", NICK_CHARS: "Chỉ dùng chữ và emoji — không số, không ký tự đặc biệt.", nickSaved: "Đã lưu biệt danh" }, tab: { me: "Cá nhân", friends: "Bạn bè" }, daysLong: "ngày giữ lửa!", monthStudied: "Ngày học", monthFrozen: "Lần đóng băng", credit: "Hoạt cảnh lửa", lit: "Đã thắp lửa!", litBody: "Chuỗi {n} ngày. Mai quay lại giữ lửa nhé.", reached: "Đạt chuỗi {n} ngày!", reward: "+{joy} JOY", great: "Tuyệt vời!",
       week: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
       stages: {
         ember: ["Tro ấm", "Lửa Nhỏ đang ngủ trong đống tro. Một bài học là đủ đánh thức bạn ấy."],
@@ -234,9 +249,24 @@ export const EDU_COPY = {
 
   en: {
     persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)" },
+      intro: "About", introPlaceholder: "A few words about you: what you're learning, your goal…", saveInfo: "Save", 
     brand: { aria: "Education Hugo, part of Hugo Studio", of: "by" },
-    nav: { learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
+    nav: { friends: "Friends", learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
     rail: { today: "Today's goal", stage: "Current stage", streak: "Flame to milestone", score: "Quiz score" },
+    friends: {
+      title: "Friends", tab: { league: "League", friends: "Friends", add: "Add friends" },
+      league: "Weekly league", live: "Live", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Take a lesson to get on the board!",
+      xp: "{n} XP", you: "You", requests: "Friend requests", accept: "Accept", decline: "Decline",
+      friendsTitle: "Friends ({n})", friendsEmpty: "No friends yet. Share your member card or search in Add friends.",
+      sentTitle: "Requests sent", cancel: "Cancel request", remove: "Unfriend", removeAsk: "Remove this friend?",
+      addTitle: "Add friends", yourCode: "Your code", share: "Share card", copied: "Link copied.",
+      searchPlaceholder: "Search by nickname, friend code or email", scan: "Scan QR", scanHint: "Scan a friend's card with your phone's Camera app.",
+      scanFailed: "Couldn't open the camera.", add: "Add friend", sent: "Request sent — waiting for them to accept.", noResults: "No one found.",
+      failed: "Couldn't load, try again later.", needNick: "Set a nickname in Profile to appear on the league.",
+      notFound: "Learner not found.", back: "Back to Friends", editMine: "Edit profile", isFriend: "Friends",
+      joined: "Joined {date}", friendCount: "{n} friends", statStreak: "Day streak", statXp: "XP this week", statSteps: "Steps passed",
+      progress: "Coding course progress", cardLink: "Member card & friends",
+    },
     topbar: {
       courses: "Your courses", course: { coding: "Web Programming", quan: "Quán — course 2" }, courseProgress: "{done}/{total} steps passed",
       addCourse: "Add a course (coming soon)", joyBody: "Earn JOY by passing lessons the first time and keeping your streak. Use it to extend your account or thaw a frozen streak.",
@@ -318,7 +348,7 @@ export const EDU_COPY = {
       rule: "Pass at least one lesson a day to keep the flame. Miss a day and it freezes; more than 3 freezes in a month puts it out and the count restarts.",
       legendStudied: "Learned", legendFrozen: "Frozen", legendThawed: "Thawed",
       next: "Next milestone: {d} days · +{joy} JOY", road: "Milestone rewards", story: "Little Flame's story", locked: "Keep the flame {d} days to unlock",
-      nextShort: "Next · +{joy} JOY", social: { league: "Weekly league", friends: "Following", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Pass a lesson to kick it off!", yourCode: "Your friend code", copied: "Code copied", codePlaceholder: "Enter a 6-character code", follow: "Follow", unfollow: "Unfollow", friendsEmpty: "Not following anyone yet. Send your code to friends.", you: "You", xp: "{n} XP", nickTitle: "Pick a nickname to join the league", nickHint: "2–20 characters, letters and emoji only. Your real name is never shown.", nickPlaceholder: "e.g. Blue Flame 🔥", nickSave: "Save", nickLabel: "Nickname", noNick: "No nickname yet", NICK_LENGTH: "Nicknames need 2–20 characters.", NICK_CHARS: "Letters and emoji only — no numbers or special characters.", nickSaved: "Nickname saved" }, tab: { me: "Personal", friends: "Friends" }, daysLong: "day streak!", monthStudied: "Days learned", monthFrozen: "Times frozen", credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
+      nextShort: "Next · +{joy} JOY", social: { INTRO_LONG: "About is limited to 160 characters.", INTRO_BAD: "Invalid about text.", league: "Weekly league", friends: "Following", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Pass a lesson to kick it off!", yourCode: "Your friend code", copied: "Code copied", codePlaceholder: "Enter a 6-character code", follow: "Follow", unfollow: "Unfollow", friendsEmpty: "Not following anyone yet. Send your code to friends.", you: "You", xp: "{n} XP", nickTitle: "Pick a nickname to join the league", nickHint: "2–20 characters, letters and emoji only. Your real name is never shown.", nickPlaceholder: "e.g. Blue Flame", nickSave: "Save", nickLabel: "Nickname", noNick: "No nickname yet", NICK_LENGTH: "Nicknames need 2–20 characters.", NICK_CHARS: "Letters and emoji only — no numbers or special characters.", nickSaved: "Nickname saved" }, tab: { me: "Personal", friends: "Friends" }, daysLong: "day streak!", monthStudied: "Days learned", monthFrozen: "Times frozen", credit: "Flame animation", lit: "Flame lit!", litBody: "{n}-day streak. Come back tomorrow to keep it.", reached: "{n}-day streak!", reward: "+{joy} JOY", great: "Awesome!",
       week: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
       stages: {
         ember: ["Warm ashes", "Little Flame is asleep in the ashes. One lesson is enough to wake it."],
@@ -510,9 +540,24 @@ export const EDU_COPY = {
 
   zh: {
     persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)" },
+      intro: "简介", introPlaceholder: "简单介绍自己：在学什么、目标…", saveInfo: "保存", 
     brand: { aria: "Education Hugo，隶属 Hugo Studio", of: "隶属" },
-    nav: { learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
+    nav: { friends: "好友", learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
     rail: { today: "今日目标", stage: "当前阶段", streak: "火苗到里程碑", score: "测验分数" },
+    friends: {
+      title: "好友", tab: { league: "排行", friends: "好友", add: "添加好友" },
+      league: "每周排行", live: "实时", leagueHint: "按本周 XP 排名 · 周一 00:00 重置", leagueEmpty: "本周还没有人获得 XP。学一节课登上排行吧！",
+      xp: "{n} XP", you: "你", requests: "好友请求", accept: "同意", decline: "拒绝",
+      friendsTitle: "好友（{n}）", friendsEmpty: "还没有好友。分享你的会员卡或在“添加好友”中搜索。",
+      sentTitle: "已发送的请求", cancel: "撤回请求", remove: "删除好友", removeAsk: "删除此好友？",
+      addTitle: "添加好友", yourCode: "你的代码", share: "分享卡片", copied: "链接已复制。",
+      searchPlaceholder: "按昵称、好友代码或邮箱搜索", scan: "扫码", scanHint: "用手机相机扫描好友的卡片。",
+      scanFailed: "无法打开相机。", add: "加好友", sent: "已发送请求——等待对方同意。", noResults: "没有找到。",
+      failed: "加载失败，请稍后再试。", needNick: "在个人资料中设置昵称即可出现在排行榜上。",
+      notFound: "未找到该学习者。", back: "返回好友", editMine: "编辑资料", isFriend: "好友",
+      joined: "{date} 加入", friendCount: "{n} 位好友", statStreak: "连续天数", statXp: "本周 XP", statSteps: "已完成 step",
+      progress: "编程课程进度", cardLink: "会员卡与好友",
+    },
     topbar: {
       courses: "你的课程", course: { coding: "网页编程", quan: "Quán —— 第 2 门课" }, courseProgress: "已完成 {done}/{total} 个 step",
       addCourse: "添加课程（即将上线）", joyBody: "首次通过课程和保持连续记录可赚取 JOY，用于延长账户或给连续记录破冰。",
@@ -594,7 +639,7 @@ export const EDU_COPY = {
       rule: "每天至少通过一课来守住火苗。错过一天火苗会结冰；一个月内结冰超过 3 次就会熄灭，重新计数。",
       legendStudied: "已学习", legendFrozen: "结冰", legendThawed: "已破冰",
       next: "下一个里程碑：{d} 天 · +{joy} JOY", road: "里程碑奖励", story: "小火苗的故事", locked: "守住火苗 {d} 天解锁本章",
-      nextShort: "下个里程碑 · +{joy} JOY", social: { league: "每周排行", friends: "关注", leagueHint: "按本周 XP 排名 · 周一 00:00 重置", leagueEmpty: "本周还没有人获得 XP。通过一课来开局吧！", yourCode: "你的好友码", copied: "已复制", codePlaceholder: "输入 6 位好友码", follow: "关注", unfollow: "取消关注", friendsEmpty: "还没有关注任何人。把你的好友码发给朋友吧。", you: "你", xp: "{n} XP", nickTitle: "设置昵称以参加排行", nickHint: "2–20 个字符，只能用文字和表情。排行榜不显示真实姓名。", nickPlaceholder: "例如：蓝色火苗 🔥", nickSave: "保存", nickLabel: "昵称", noNick: "未设置昵称", NICK_LENGTH: "昵称需要 2–20 个字符。", NICK_CHARS: "只能用文字和表情——不能用数字或特殊符号。", nickSaved: "昵称已保存" }, tab: { me: "个人", friends: "好友" }, daysLong: "天连续！", monthStudied: "学习天数", monthFrozen: "结冰次数", credit: "火焰动画", lit: "火苗点亮了！", litBody: "已连续 {n} 天。明天再来守住火苗。", reached: "连续 {n} 天！", reward: "+{joy} JOY", great: "太棒了！",
+      nextShort: "下个里程碑 · +{joy} JOY", social: { INTRO_LONG: "简介最多 160 个字符。", INTRO_BAD: "简介无效。", league: "每周排行", friends: "关注", leagueHint: "按本周 XP 排名 · 周一 00:00 重置", leagueEmpty: "本周还没有人获得 XP。通过一课来开局吧！", yourCode: "你的好友码", copied: "已复制", codePlaceholder: "输入 6 位好友码", follow: "关注", unfollow: "取消关注", friendsEmpty: "还没有关注任何人。把你的好友码发给朋友吧。", you: "你", xp: "{n} XP", nickTitle: "设置昵称以参加排行", nickHint: "2–20 个字符，只能用文字和表情。排行榜不显示真实姓名。", nickPlaceholder: "例如：蓝色火苗", nickSave: "保存", nickLabel: "昵称", noNick: "未设置昵称", NICK_LENGTH: "昵称需要 2–20 个字符。", NICK_CHARS: "只能用文字和表情——不能用数字或特殊符号。", nickSaved: "昵称已保存" }, tab: { me: "个人", friends: "好友" }, daysLong: "天连续！", monthStudied: "学习天数", monthFrozen: "结冰次数", credit: "火焰动画", lit: "火苗点亮了！", litBody: "已连续 {n} 天。明天再来守住火苗。", reached: "连续 {n} 天！", reward: "+{joy} JOY", great: "太棒了！",
       week: ["一", "二", "三", "四", "五", "六", "日"],
       stages: {
         ember: ["温暖的灰烬", "小火苗在灰烬里睡着了。一节课就能把它唤醒。"],

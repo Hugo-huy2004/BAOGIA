@@ -21,6 +21,8 @@ import "./education.css";
 
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
 const EduCommunity = lazy(() => import("./EduCommunity"));
+const EduFriends = lazy(() => import("./EduFriends"));
+const EduPublicProfile = lazy(() => import("./EduFriends").then((mod) => ({ default: mod.EduPublicProfile })));
 const CoderProgress = lazy(() => import("../components/member/hugoCoder/HugoCoderHub").then((mod) => ({ default: mod.ManageTab })));
 
 function Loading() {
@@ -149,6 +151,8 @@ export default function EducationApp() {
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
         <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
+        <Route path="/friends" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduFriends /></Suspense>) : needsLogin} />
+        <Route path="/u/:code" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduPublicProfile /></Suspense>) : needsLogin} />
         <Route path="/community" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
         <Route path="/community/:postKey" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
         <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
