@@ -150,6 +150,7 @@ export function StreakScreen({ streak, onUpdate }) {
       <MonthCalendar streak={streak} month={month} onThaw={thaw} busy={busy} />
       <p className="streak-legend"><i className="is-lit" />{t("streak.legendStudied")}<i className="is-frozen" />{t("streak.legendFrozen")}<i className="is-thawed" />{t("streak.legendThawed")}</p>
       <p className="streak-rule">{t("streak.rule")}</p>
+      <RiveCredit />
     </section>
   );
 }
@@ -159,6 +160,17 @@ export function StreakScreen({ streak, onUpdate }) {
  * Runtime WebGL2 + wasm nạp lười, chỉ khi hoạt cảnh mở; lỗi (máy không có WebGL2…) thì
  * gọi onFail để quay về ngọn lửa SVG.
  */
+// CC BY 4.0 — bắt buộc ghi công: tên tác phẩm, tác giả, nguồn, giấy phép (không chỉnh sửa tệp).
+function RiveCredit() {
+  const { t } = useEduText();
+  return (
+    <p className="rive-credit">
+      {t("streak.credit")}: <a href="https://rive.app/marketplace/28749-54458-spiro-streak/" target="_blank" rel="noopener">“Spiro Streak”</a> · Patgrivet ·{" "}
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+    </p>
+  );
+}
+
 function RiveFlame({ onFail }) {
   const canvas = useRef(null);
   useEffect(() => {
@@ -230,6 +242,7 @@ export function StreakCelebration({ count, stage, joy, onClose }) {
         <h2>{joy ? t("streak.reached", { n: count }) : t("streak.lit")}</h2>
         {joy ? <p className="cel-reward">{t("streak.reward", { joy })}</p> : <p>{t("streak.litBody", { n: count })}</p>}
         <button type="button" className="edu-btn edu-btn--light edu-btn--wide" onClick={onClose}>{t("streak.great")}</button>
+        {!svgOnly && <RiveCredit />}
       </div>
     </div>
   );

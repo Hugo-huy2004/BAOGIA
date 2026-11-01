@@ -699,3 +699,8 @@
 .edu-rail .edu-card .edu-btn { background: #fff; box-shadow: 0 4px 0 rgba(0, 0, 0, .18); }
 .edu-rail .edu-card .edu-btn, .edu-rail .edu-card .edu-btn * { color: var(--card-deep) !important; }
 .edu-rail .edu-card .edu-bar { background: rgba(255, 255, 255, .3); }
+
+/* Ghi công hoạt cảnh Rive (CC BY 4.0). */
+.rive-credit { margin: 4px 0 0; font-size: 11.5px; color: var(--edu-muted); text-align: center; }
+.rive-credit a { color: inherit; text-decoration: underline; }
+.streak-celebrate .rive-credit { margin-top: 14px; color: rgb(255 255 255 / .5); }
