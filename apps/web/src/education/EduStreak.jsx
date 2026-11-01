@@ -16,12 +16,13 @@ import { playEduSound } from "./eduSound";
 
 /**
  * Ngọn lửa của chuỗi = ngọn lửa "Spiro Streak" (Rive, CC BY Patgrivet). Chỗ nhỏ (nút, thẻ) dùng
- * ảnh tĩnh public/edu/flame.png tách từ chính khung Rive; chỗ lớn chạy Rive (RiveFlame).
+ * dải khung động public/edu/flame-sprite.webp cắt từ chính hoạt cảnh Rive; chỗ lớn chạy Rive (RiveFlame).
  * Đóng băng = cùng ngọn lửa đổi sang xanh lạnh; chưa có chuỗi (tro) = xám mờ.
  */
 export function FlameBuddy({ stage = "spark", frozen = false, size = 120, className = "" }) {
   const look = frozen ? "is-frozen" : stage === "ember" ? "is-ember" : "";
-  return <img src="/edu/flame.png" alt="" aria-hidden="true" width={size} height={size} className={`flame-buddy ${look} ${className}`} draggable="false" />;
+  // 24 khung cắt từ chính hoạt cảnh Rive "Spiro-Flame Design" (vòng 1 giây), nền đen đã gỡ thành trong suốt.
+  return <span aria-hidden="true" className={`flame-buddy flame-sprite ${look} ${className}`} style={{ "--flame": `${size}px` }} />;
 }
 
 /** Nút lửa trên thanh trên/cột phải. Xám khi hôm nay chưa học, xanh băng khi đang đóng băng. */
