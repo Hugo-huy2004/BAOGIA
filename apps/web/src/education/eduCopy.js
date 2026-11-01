@@ -21,6 +21,7 @@ export const EDU_COPY = {
     nav: { friends: "Bạn bè", learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
     rail: { today: "Mục tiêu hôm nay", stage: "Chặng hiện tại", streak: "Lửa tới mốc", score: "Điểm trắc nghiệm" },
     friends: {
+      report: "Báo cáo người dùng", reportTitle: "Báo cáo {name}", reportBody: "Báo cáo được gửi kín tới đội ngũ Hugo Studio. Người bị báo cáo không biết ai đã báo.", reportNote: "Mô tả thêm (không bắt buộc)", reportSend: "Gửi báo cáo", reportSent: "Đã gửi báo cáo. Cảm ơn bạn giữ cộng đồng an toàn.", reasons: { nickname: "Biệt danh không phù hợp", avatar: "Nhân vật không phù hợp", intro: "Giới thiệu không phù hợp", harassment: "Quấy rối hoặc bắt nạt", cheating: "Gian lận điểm / XP", other: "Lý do khác" },
       title: "Bạn bè", tab: { league: "Thi đua", friends: "Bạn bè", add: "Thêm bạn" },
       league: "Thi đua tuần", live: "Trực tiếp", leagueHint: "Xếp theo XP tuần này · làm mới 00:00 thứ Hai", leagueEmpty: "Tuần này chưa ai có XP. Học một bài để lên bảng!",
       xp: "{n} XP", you: "Bạn", requests: "Lời mời kết bạn", accept: "Đồng ý", decline: "Từ chối",
@@ -254,6 +255,7 @@ export const EDU_COPY = {
     nav: { friends: "Friends", learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
     rail: { today: "Today's goal", stage: "Current stage", streak: "Flame to milestone", score: "Quiz score" },
     friends: {
+      report: "Report user", reportTitle: "Report {name}", reportBody: "Reports go privately to the Hugo Studio team. The person won't know who reported them.", reportNote: "Add details (optional)", reportSend: "Send report", reportSent: "Report sent. Thanks for keeping the community safe.", reasons: { nickname: "Inappropriate nickname", avatar: "Inappropriate character", intro: "Inappropriate bio", harassment: "Harassment or bullying", cheating: "Cheating on scores / XP", other: "Something else" },
       title: "Friends", tab: { league: "League", friends: "Friends", add: "Add friends" },
       league: "Weekly league", live: "Live", leagueHint: "Ranked by this week's XP · resets Monday 00:00", leagueEmpty: "No XP yet this week. Take a lesson to get on the board!",
       xp: "{n} XP", you: "You", requests: "Friend requests", accept: "Accept", decline: "Decline",
@@ -545,6 +547,7 @@ export const EDU_COPY = {
     nav: { friends: "好友", learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
     rail: { today: "今日目标", stage: "当前阶段", streak: "火苗到里程碑", score: "测验分数" },
     friends: {
+      report: "举报用户", reportTitle: "举报 {name}", reportBody: "举报会私下发送给 Hugo Studio 团队，对方不会知道是谁举报的。", reportNote: "补充说明（可选）", reportSend: "发送举报", reportSent: "举报已发送。感谢你维护社区安全。", reasons: { nickname: "昵称不当", avatar: "角色不当", intro: "简介不当", harassment: "骚扰或欺凌", cheating: "分数 / XP 作弊", other: "其他原因" },
       title: "好友", tab: { league: "排行", friends: "好友", add: "添加好友" },
       league: "每周排行", live: "实时", leagueHint: "按本周 XP 排名 · 周一 00:00 重置", leagueEmpty: "本周还没有人获得 XP。学一节课登上排行吧！",
       xp: "{n} XP", you: "你", requests: "好友请求", accept: "同意", decline: "拒绝",

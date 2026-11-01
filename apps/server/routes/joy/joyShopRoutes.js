@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { eduSnapshot, saveEduPrefs, thawEduStreak } from '../../services/eduLearner.js';
-import { eduSocial, learnerProfile, removeFriend, requestFriend, respondFriend, searchLearners } from '../../services/eduSocial.js';
+import { eduSocial, learnerProfile, removeFriend, reportLearner, requestFriend, respondFriend, searchLearners } from '../../services/eduSocial.js';
 import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
 import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
@@ -259,6 +259,19 @@ router.get('/edu-search', requireMemberSession, searchLimiter, async (req, res) 
   } catch (error) {
     console.error('[edu-search]', error.message);
     return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa tìm được.' });
+  }
+});
+
+// POST /api/joy/edu-report { code, reason, note } — báo cáo người dùng từ hồ sơ công khai; admin xử lý.
+const reportLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 10 * 60_000, max: 5, standardHeaders: true, legacyHeaders: false });
+router.post('/edu-report', requireMemberSession, reportLimiter, async (req, res) => {
+  try {
+    await reportLearner(req.memberEmail, req.body?.code, { reason: req.body?.reason, note: req.body?.note });
+    return res.json({ success: true });
+  } catch (error) {
+    if (error.code) return res.status(400).json({ code: error.code, error: error.message });
+    console.error('[edu-report]', error.message);
+    return res.status(503).json({ code: 'SERVICE_DEGRADED', error: 'Chưa gửi được báo cáo.' });
   }
 });
 

@@ -7,6 +7,8 @@
 import { randomInt } from 'node:crypto';
 import Bio from '../models/Bio.js';
 import Persona from '../models/Persona.js';
+import UserReport from '../models/UserReport.js';
+import { sendTelegramAlert } from './telegramService.js';
 import { sendEduPush } from '../utils/pushNotifier.js';
 import { STAGES } from '../../../packages/courses/coding/index.js';
 import EduLearner from '../models/EduLearner.js';
@@ -220,4 +222,25 @@ export async function removeFriend(email, rawCode) {
   const me = await meDoc(email);
   await EduLearner.updateOne({ _id: me._id }, { $pull: { friends: code, requestsOut: code } });
   await EduLearner.updateOne({ friendCode: code }, { $pull: { friends: me.friendCode, requestsIn: me.friendCode } });
+}
+
+export const REPORT_REASONS = ['nickname', 'avatar', 'intro', 'harassment', 'cheating', 'other'];
+const esc = (text) => String(text || '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+/** Báo cáo một người học. Mỗi người chỉ có MỘT báo cáo đang chờ cho cùng một người (gửi lại = cập nhật). */
+export async function reportLearner(email, rawCode, { reason, note } = {}) {
+  if (!REPORT_REASONS.includes(reason)) throw fail('BAD_REASON', 'Chọn một lý do.');
+  const code = cleanCode(rawCode);
+  const target = await EduLearner.findOne({ friendCode: code }).select('email').lean();
+  if (!target) throw fail('NOT_FOUND', 'Không tìm thấy người này.');
+  if (target.email === email) throw fail('SELF', 'Không thể báo cáo chính mình.');
+  const persona = await Persona.findOne({ email: target.email }).select('nickname intro').lean();
+  const clean = String(note || '').replace(/\s+/g, ' ').trim().slice(0, 500); // gộp xuống dòng/tab; Telegram đã thoát HTML
+  const filter = { reporterEmail: email, targetEmail: target.email, status: 'pending' };
+  const existed = await UserReport.exists(filter);
+  await UserReport.updateOne(filter, { $set: { targetCode: code, reason, note: clean, snapshot: { nickname: persona?.nickname || '', intro: persona?.intro || '' } } }, { upsert: true });
+  if (!existed) {
+    const open = await UserReport.countDocuments({ targetEmail: target.email, status: 'pending' });
+    sendTelegramAlert(`<b>Báo cáo người dùng (Education Hugo)</b>\nMã: <code>${code}</code> · biệt danh: ${esc(persona?.nickname)}\nLý do: ${reason}${clean ? `\nGhi chú: ${esc(clean)}` : ''}\nĐang có ${open} báo cáo chờ xử lý cho người này.`).catch(() => {});
+  }
 }

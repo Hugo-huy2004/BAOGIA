@@ -266,11 +266,52 @@ export default function EduFriends({ embedded = false }) {
   );
 }
 
+const REPORT_REASONS = ["nickname", "avatar", "intro", "harassment", "cheating", "other"];
+
+/** Báo cáo người dùng: chọn lý do + ghi chú tuỳ chọn → admin xem xét (không tự khoá ai). */
+function ReportSheet({ code, name, onClose }) {
+  const { t } = useEduText();
+  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const send = async (event) => {
+    event.preventDefault();
+    setBusy(true);
+    try {
+      await call("edu-report", { method: "POST", body: JSON.stringify({ code, reason, note }) });
+      notify.success(t("friends.reportSent"));
+      onClose();
+    } catch (error) { notify.error(error.message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="fr-sheet-backdrop" role="presentation" onClick={onClose}>
+      <form className="fr-sheet" role="dialog" aria-modal="true" aria-labelledby="fr-report-title" onSubmit={send} onClick={(e) => e.stopPropagation()}>
+        <h2 id="fr-report-title">{t("friends.reportTitle", { name })}</h2>
+        <p>{t("friends.reportBody")}</p>
+        <div className="fr-reasons" role="radiogroup">
+          {REPORT_REASONS.map((key) => (
+            <label key={key} className={reason === key ? "is-on" : ""}>
+              <input type="radio" name="reason" value={key} checked={reason === key} onChange={() => setReason(key)} />
+              {t(`friends.reasons.${key}`)}
+            </label>
+          ))}
+        </div>
+        <textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} rows={3} placeholder={t("friends.reportNote")} />
+        <div className="fr-sheet-actions">
+          <button type="button" className="edu-btn is-ghost" onClick={onClose}>{t("common.close")}</button>
+          <button type="submit" className="edu-btn is-danger" disabled={busy || !reason}>{t("friends.reportSend")}</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 /** Hồ sơ công khai (/u/:code) kiểu Duolingo: băng màu + nhân vật, thống kê, tiến độ chặng, nút kết bạn. */
 export function EduPublicProfile() {
   const { t, lang } = useEduText();
   const { code } = useParams();
   const [p, setP] = useState(null);
+  const [reporting, setReporting] = useState(false);
   const load = useCallback(() => call(`edu-profile/${encodeURIComponent(code)}`).then(setP).catch((e) => setP({ missing: e.status === 404, failed: true })), [code]);
   useEffect(() => { load(); }, [load]);
   const act = async (path, init) => { try { await call(path, init); playEduSound("success"); load(); } catch (error) { notify.error(error.message); } };
@@ -306,6 +347,12 @@ export function EduPublicProfile() {
           <li key={s.code}><span>{s.code}</span><i><i style={{ width: `${(s.done / s.total) * 100}%` }} /></i><b>{s.done}/{s.total}</b></li>
         ))}
       </ul>
+      {p.relation !== "self" && (
+        <button type="button" className="fr-report" onClick={() => setReporting(true)}>
+          <AnimIcon name="alert" size={20} />{t("friends.report")}
+        </button>
+      )}
+      {reporting && <ReportSheet code={p.code} name={p.name} onClose={() => setReporting(false)} />}
     </section>
   );
 }
