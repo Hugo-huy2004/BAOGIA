@@ -16,6 +16,7 @@ import {
 } from '../../../../packages/courses/coding/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
 import { localizeCourse } from '../../../../packages/courses/coding/localize.js';
+import { stepLessons } from '../../../../packages/courses/coding/lessons.js';
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -29,9 +30,11 @@ export const SUMMARY_FIELDS = [
 ];
 
 function lessonSummary(course) {
-  return Object.fromEntries(
-    SUMMARY_FIELDS.filter((key) => course[key] !== undefined).map((key) => [key, course[key]])
-  );
+  return {
+    ...Object.fromEntries(SUMMARY_FIELDS.filter((key) => course[key] !== undefined).map((key) => [key, course[key]])),
+    // Số bài nhỏ của step — bản đồ vẽ "Bài x/y" mà không phải tải slide.
+    ...(course.draft ? {} : { lessons: stepLessons(course.slides).length }),
+  };
 }
 
 // Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.

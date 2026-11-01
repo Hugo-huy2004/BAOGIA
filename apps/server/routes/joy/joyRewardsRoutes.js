@@ -3,8 +3,11 @@ import express from 'express';
 import Bio from '../../models/Bio.js';
 import HugoTeamDev from '../../models/HugoTeamDev.js';
 import { awardJoy } from '../../utils/joyService.js';
+import EduLearner from '../../models/EduLearner.js';
 import { noteEduStep, noteEduStudy } from '../../services/eduLearner.js';
-import { addEduXp, XP_PER_CORRECT, XP_REVIEW } from '../../services/eduSocial.js';
+import { addEduXp, XP_PER_CORRECT, XP_PER_LESSON, XP_REVIEW } from '../../services/eduSocial.js';
+import { WEB_COURSES } from '../../../../packages/courses/coding/index.js';
+import { stepLessons } from '../../../../packages/courses/coding/lessons.js';
 import { requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
 import { gradeStepQuiz, PASS_PERCENT } from '../../utils/coderExamService.js';
 import { randomInt, randomBytes } from 'node:crypto';
@@ -19,6 +22,42 @@ import { getCoderLessonGate, getCoderStageCompletion, CODER_TOTAL_STEPS, CODER_J
 import { CODER_LESSON_IDS, FOCUS_DAILY_JOY_CAP, todayStr, BIRTHDAY_PRIZES, birthdaySpinStatus } from './joyShared.js';
 
 const router = express.Router();
+
+// POST /api/joy/edu-lesson { lessonId, lesson, program } — học xong một BÀI NHỎ (phần slide) của step.
+// Giữ lửa hôm nay ngay sau bài nhỏ, không đợi cả step. Thứ tự: step phải mở, bài trước phải xong.
+// Bài cuối (trắc nghiệm) vẫn nộp qua award-learning.
+router.post('/edu-lesson', requireMemberSession, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { lessonId, program = 'coding' } = req.body || {};
+    const lesson = Number(req.body?.lesson);
+    const course = WEB_COURSES.find((item) => item.id === lessonId);
+    if (!course || course.draft) return res.status(400).json({ code: 'BAD_STEP', error: 'Step Coding không hợp lệ.' });
+    const total = stepLessons(course.slides).length;
+    if (!Number.isInteger(lesson) || lesson < 0 || lesson >= total - 1) return res.status(400).json({ code: 'BAD_LESSON', error: 'Bài không hợp lệ.' });
+
+    const bio = await Bio.findOne({ email }).select('completedLessons').lean() || await Bio.findOne({ contactEmail: email }).select('completedLessons').lean();
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    const stepDone = (bio.completedLessons || []).includes(lessonId);
+    if (!stepDone && !getCoderLessonGate(bio.completedLessons || [], lessonId).unlocked) return res.status(409).json({ code: 'STEP_LOCKED', error: 'Step này chưa mở.' });
+
+    const key = `lessonsDone.${lessonId}`;
+    const have = (await EduLearner.findOne({ email }).select(key).lean())?.lessonsDone?.[lessonId] || [];
+    if (!stepDone && lesson > 0 && !have.includes(lesson - 1)) return res.status(409).json({ code: 'LESSON_ORDER', error: 'Học bài trước trước đã.' });
+
+    const added = await EduLearner.updateOne({ email }, { $addToSet: { [key]: lesson } }, { upsert: true });
+    const fresh = (added.modifiedCount === 1 || added.upsertedCount === 1) && !stepDone;
+    // Bài mới: giữ lửa + XP. Học lại bài cũ: giữ lửa tối đa 1 lần / 7 ngày mỗi bài (như ôn step).
+    const eduStreak = program === 'hugoteam' ? null : await noteEduStudy(email, fresh ? {} : { reviewOf: `${lessonId}_l${lesson}` }).catch((error) => {
+      console.error('[edu-lesson streak]', error.message);
+      return null;
+    });
+    if (fresh && program !== 'hugoteam') addEduXp(email, XP_PER_LESSON).catch((error) => console.error('[edu xp]', error.message));
+    return res.json({ success: true, lessons: [...new Set([...have, lesson])].sort((a, b) => a - b), eduStreak, balance: eduStreak?.milestone?.balance });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 // POST /api/joy/award-learning — khoá Coding miễn phí: chỉ cần phiên đăng nhập,
 // không đòi hồ sơ đầy đủ hay hạn dùng thử (người học từ Education Hugo).
@@ -96,6 +135,13 @@ router.post('/award-learning', requireMemberSession, async (req, res) => {
         firstMissingLesson: lessonGate.missingLessons[0],
         missingLessonCount: lessonGate.missingLessons.length,
       });
+    }
+
+    // Bài trắc nghiệm là bài cuối: phải học xong các bài nhỏ trước (chỉ Education Hugo đi theo bài).
+    if (!isHugoTeam) {
+      const need = stepLessons(WEB_COURSES.find((item) => item.id === lessonId)?.slides).length - 1;
+      const have = (await EduLearner.findOne({ email }).select(`lessonsDone.${lessonId}`).lean())?.lessonsDone?.[lessonId] || [];
+      if (have.length < need) return res.status(409).json({ code: 'LESSONS_FIRST', error: 'Học xong các bài trong step rồi mới làm trắc nghiệm.' });
     }
 
     // Trắc nghiệm cuối step do MÁY CHỦ chấm lại từ câu trả lời — không tin điểm client khai.

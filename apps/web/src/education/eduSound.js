@@ -41,6 +41,10 @@ function tone(ac, { freq, to = freq, type = "sine", at = 0, dur = 0.12, vol = 0.
 }
 
 const SOUNDS = {
+  // Nút step trên bản đồ: tiếng "bụp" mềm hai nhịp như nút Duolingo.
+  node: (ac) => { tone(ac, { freq: 392, to: 330, dur: 0.07, vol: 0.14 }); tone(ac, { freq: 784, to: 1046, type: "triangle", at: 0.05, dur: 0.12, vol: 0.08 }); },
+  // Chuông thông báo: hai tiếng "đinh" ngân, như chuông nhỏ.
+  ding: (ac) => { tone(ac, { freq: 1568, type: "sine", dur: 0.35, vol: 0.09 }); tone(ac, { freq: 2093, type: "sine", at: 0.12, dur: 0.45, vol: 0.06 }); },
   pop: (ac) => tone(ac, { freq: 520, to: 880, dur: 0.09, vol: 0.1 }),                       // bấm nút
   tick: (ac) => tone(ac, { freq: 1200, type: "triangle", dur: 0.05, vol: 0.06 }),            // đổi tab
   thud: (ac) => tone(ac, { freq: 180, to: 60, type: "sine", dur: 0.18, vol: 0.16 }),         // chạm đất
@@ -62,7 +66,11 @@ export function playEduSound(name, { unlock = false } = {}) {
 // Chạm vào đâu kêu gì: nút → pop, mục điều hướng → tick, đáp án → pop.
 const TAP = [
   [".edu-tabs a, .edu-nav, .edu-seg button, .edu-footer-langs a", "tick"],
-  [".edu-btn, .cmap-hex, .cmap-info, .quiz-option, .edu-quiz-options button, .lesson-player-foot button, .edu-welcome-lang", "pop"],
+  [".cmap-hex", "node"],
+  [".edu-bell", "ding"],
+  [".edu-joy", "coin"],
+  [".edu-topbar .edu-chip, .edu-pop button, .comm-post footer > *, .comm-back, .comm-media, .cmap-pop button, .edu-switch, .edu-set .edu-btn", "pop"],
+  [".edu-btn, .cmap-info, .quiz-option, .edu-quiz-options button, .lesson-player-foot button, .edu-welcome-lang", "pop"],
 ];
 
 /** Gắn một lần cho cả site Edu; trả hàm gỡ. */

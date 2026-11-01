@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
 import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
-import { CODER_STORAGE_KEYS } from "./workspaceUtils";
+import { CODER_STORAGE_KEYS, GUEST_LESSONS, readGuestLessons } from "./workspaceUtils";
 import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/api/core/authSession";
@@ -13,6 +13,7 @@ import { hugoCoderApi } from "../../../services/api/modules/hugoCoderApi";
 import LessonPlayer from "./LessonPlayer";
 import { joyText } from "../../../lib/joyDisplay";
 import { useEduText } from "../../../education/eduText";
+import { nextLesson, stepLessons } from "../../../../../../packages/courses/coding/lessons.js";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
 
@@ -282,9 +283,9 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
     if (!getMemberSession()?.email) return undefined;
     let active = true;
     hugoCoderApi.getAccessSnapshot()
-      .then(({ bio: accessBio }) => {
+      .then(({ bio: accessBio, edu: accessEdu }) => {
         if (!active || !accessBio) return;
-        onBioUpdateRef.current?.(accessBio);
+        onBioUpdateRef.current?.(accessEdu ? { ...accessBio, edu: accessEdu } : accessBio);
       })
       .catch(() => {
         // Hồ sơ đã lưu vẫn dùng được khi mất mạng.
@@ -381,6 +382,35 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
   }
 
   const currentCourse = courses.find((course) => course.id === selectedLessonId) || null;
+  // Step chia bài nhỏ; mở step là vào bài đầu tiên chưa học (step đã qua thì từ bài 1).
+  const plan = useMemo(() => (currentCourse?.slides?.length ? stepLessons(currentCourse.slides) : null), [currentCourse?.slides]);
+  const lessonsDone = (id) => (getMemberSession()?.email ? bio?.edu?.lessons?.[id] : readGuestLessons()[id]) || [];
+  const [picked, setPicked] = useState({});
+  useEffect(() => setPicked({}), [selectedLessonId]);
+  const lessonAt = plan ? picked[currentCourse.id] ?? (progressBio?.completedLessons?.includes(currentCourse.id) ? 0 : nextLesson(plan.length, lessonsDone(currentCourse.id))) : 0;
+
+  const finishLesson = async (course, lesson) => {
+    if (!getMemberSession()?.email) {
+      const all = readGuestLessons();
+      all[course.id] = [...new Set([...(all[course.id] || []), lesson])];
+      try { localStorage.setItem(GUEST_LESSONS, JSON.stringify(all)); } catch { /* chỉ mất tiến độ bài trong máy */ }
+      return;
+    }
+    const response = await fetch(`${apiBase}/joy/edu-lesson`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lessonId: course.id, lesson, program }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || edu("player.submitFailed"));
+    onBioUpdate?.({
+      ...bio,
+      edu: { ...(bio?.edu || {}), lessons: { ...(bio?.edu?.lessons || {}), [course.id]: data.lessons }, ...(data.eduStreak ? { streak: data.eduStreak.streak } : {}) },
+      ...(Number.isFinite(data.balance) ? { joyBalance: data.balance } : {}),
+    });
+    announceStreak(data.eduStreak);
+  };
   // Step kế tiếp theo đúng thứ tự lộ trình; step cuối thì không có nút "Step tiếp".
   const nextLessonId = (() => {
     const at = courses.findIndex((course) => course.id === selectedLessonId);
@@ -410,7 +440,12 @@ export default function HugoCoderHub({ onBack, bio, onBioUpdate, urlLessonId, ba
     <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
       {playable ? (
         <LessonPlayer
+          key={`${currentCourse.id}@${lessonAt}`}
           course={currentCourse}
+          plan={plan}
+          lesson={lessonAt}
+          onLessonDone={() => finishLesson(currentCourse, lessonAt)}
+          onNextPart={() => setPicked((all) => ({ ...all, [currentCourse.id]: lessonAt + 1 }))}
           onExit={exitLesson}
           onSubmitQuiz={(answers) => submitQuiz(currentCourse, answers)}
           onNextLesson={nextLessonId ? () => openLesson(nextLessonId) : undefined}

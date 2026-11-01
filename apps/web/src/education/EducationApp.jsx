@@ -10,7 +10,6 @@ import EduLogin from "./EduLogin";
 import EduShell, { EduInstallGate, EduProfile, EduStore } from "./EduShell";
 import { detectInstallTarget } from "../config/platform";
 import { useStandalone } from "../hooks/usePWA";
-import EduSettings from "./EduSettings";
 import { useEduPrefs } from "./useEduPrefs";
 import { useEduText } from "./eduText";
 import { changeAppLanguage } from "../i18n/config";
@@ -21,6 +20,7 @@ import { PersonaGate, usePersona } from "./EduPersona";
 import "./education.css";
 
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
+const EduCommunity = lazy(() => import("./EduCommunity"));
 const CoderProgress = lazy(() => import("../components/member/hugoCoder/HugoCoderHub").then((mod) => ({ default: mod.ManageTab })));
 
 function Loading() {
@@ -45,7 +45,7 @@ function LangLanding({ lang, signedIn }) {
  *   /            khách: trang giới thiệu · đã đăng nhập: vào /learn
  *   /learn       bản đồ 26 step (khách vẫn xem và học thử được)
  *   /learn/:id   trình học toàn màn
- *   /progress /store /profile /settings   cần đăng nhập
+ *   /progress /store /profile /settings /community   cần đăng nhập
  */
 export default function EducationApp() {
   useEduHead();
@@ -149,10 +149,13 @@ export default function EducationApp() {
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
         <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
+        <Route path="/community" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
+        <Route path="/community/:postKey" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
         <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
         <Route path="/store" element={signedIn ? shell("store", <EduStore learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
-        <Route path="/settings" element={signedIn ? shell("settings", <EduSettings learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
-        <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} />) : needsLogin} />
+        {/* Cài đặt đã gộp vào Hồ sơ; giữ địa chỉ cũ cho push/link cũ. */}
+        <Route path="/settings" element={<Navigate to="/profile" replace />} />
+        <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>}
     </div>

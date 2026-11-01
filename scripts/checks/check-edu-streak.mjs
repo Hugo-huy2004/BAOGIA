@@ -5,6 +5,8 @@ import assert from "node:assert/strict";
 import { vnClock } from "../../packages/shared/eduPrefs.js";
 import { checkNickname } from "../../packages/persona/nickname.js";
 import { checkAvatar, randomAvatar } from "../../packages/persona/avatar.js";
+import { WEB_COURSES } from "../../packages/courses/coding/index.js";
+import { nextLesson, stepLessons } from "../../packages/courses/coding/lessons.js";
 import { MAX_FREEZES, settleStreak, streakView, studyToday, thawDay } from "../../packages/shared/eduStreak.js";
 
 // 1. Ranh giới ngày = 00:00 Asia/Ho_Chi_Minh (UTC+7) = 17:00 UTC hôm trước.
@@ -63,5 +65,16 @@ assert.equal(checkAvatar(av).ok, true);
 assert.deepEqual(Object.keys(checkAvatar({ ...av, evil: "<svg>" }).value), Object.keys(av));
 for (const bad of [null, "x", { ...av, hair: "<script>" }, { ...av, skinColor: "#000000" }, { ...av, hat: undefined }]) assert.equal(checkAvatar(bad).ok, false);
 
+// 11. Bài nhỏ: mỗi step 2–5 bài, bài cuối là trắc nghiệm, mọi slide thuộc đúng một bài.
+for (const c of WEB_COURSES.filter((x) => !x.draft)) {
+  const plan = stepLessons(c.slides);
+  assert.ok(plan.length >= 2 && plan.length <= 5, c.id);
+  assert.equal(plan.at(-1).quiz, true);
+  assert.deepEqual(plan.slice(0, -1).flatMap((l) => l.slides).sort((a, b) => a - b), c.slides.map((_, i) => i), c.id);
+}
+assert.equal(nextLesson(5, [0, 1]), 2);
+assert.equal(nextLesson(5, [0, 1, 2, 3]), 4);
+
+console.log("Bài nhỏ: mỗi step 2–5 bài, đủ slide, trắc nghiệm cuối — đạt.");
 console.log("Biệt danh: chỉ chữ + emoji · nhân vật: chỉ mã trong danh sách — đạt.");
 console.log("Chuỗi lửa: ranh giới 00:00 giờ VN, 1 lần/ngày, đóng băng, mất chuỗi, phá băng, thưởng mốc — đạt.");

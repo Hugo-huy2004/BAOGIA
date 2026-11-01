@@ -2,7 +2,13 @@ import express from 'express';
 import crypto from 'crypto';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { resolveNewsEdition, studentNewsService } from '../services/studentNewsService.js';
-import { requireMember } from '../middleware/authMiddleware.js';
+import { requireMember, requireMemberSession } from '../middleware/authMiddleware.js';
+import { PersonaService } from '../modules/persona/PersonaService.js';
+
+// Cộng đồng Education Hugo (?board=edu) dùng chung API này. Người học Edu chỉ cần phiên đăng nhập
+// (như các route học, không đòi hồ sơ đầy đủ); danh tính vẫn lấy từ phiên, không từ client.
+const isEduBoard = (req) => req.query.board === 'edu' || req.body?.board === 'edu';
+const requireMemberOrEduSession = (req, res, next) => (isEduBoard(req) ? requireMemberSession : requireMember)(req, res, next);
 import mongoose from 'mongoose';
 import TodayPost from '../models/TodayPost.js';
 import Bio from '../models/Bio.js';
@@ -159,9 +165,15 @@ function cleanPoll(poll) {
 }
 
 // Mọi thứ trả về client: không lộ email của ai, kể cả người bỏ phiếu.
-async function present(posts, me) {
+// Cộng đồng Edu (?board=edu): tác giả hiện bằng Persona (biệt danh + nhân vật pixel) như bảng thi đua —
+// không tên thật, không ảnh thật.
+async function present(posts, me, req) {
   const emails = [...new Set(posts.map((p) => p.authorEmail).filter(Boolean))];
-  const bios = await Bio.find({ email: { $in: emails } }, { email: 1, displayName: 1, avatarUrl: 1, slug: 1 }).lean();
+  const persona = req && isEduBoard(req);
+  const [bios, personas] = await Promise.all([
+    persona ? [] : Bio.find({ email: { $in: emails } }, { email: 1, displayName: 1, avatarUrl: 1, slug: 1 }).lean(),
+    persona ? PersonaService.forEmails(emails) : null,
+  ]);
   const byEmail = new Map(bios.map((b) => [b.email, b]));
   return posts.map((p) => {
     const bio = byEmail.get(p.authorEmail);
@@ -174,7 +186,9 @@ async function present(posts, me) {
     };
     return {
       key: p.articleKey || String(p._id),
-      author: p.authorEmail ? { name: bio?.displayName || 'Hugo member', avatar: bio?.avatarUrl || '', slug: bio?.slug || '' } : null,
+      author: !p.authorEmail ? null : persona
+        ? { name: personas.get(p.authorEmail)?.nickname || 'Hugo learner', persona: personas.get(p.authorEmail)?.avatar || null }
+        : { name: bio?.displayName || 'Hugo member', avatar: bio?.avatarUrl || '', slug: bio?.slug || '' },
       text: p.text,
       poll,
       parentKey: p.parentKey,
@@ -229,13 +243,13 @@ const findNode = (key, projection) => (isArticleKey(key)
   ? TodayPost.findOne({ articleKey: key }, projection)
   : isPostId(key) ? TodayPost.findById(key, projection) : null);
 
-router.get('/posts', requireMember, feedLimiter, async (req, res) => {
+router.get('/posts', requireMemberOrEduSession, feedLimiter, async (req, res) => {
   try {
-    const filter = { parentKey: null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' }, removed: null }, { authorEmail: req.memberEmail }] };
+    const filter = { parentKey: null, board: isEduBoard(req) ? 'edu' : null, authorEmail: { $ne: null }, $or: [{ audience: { $ne: 'private' }, removed: null }, { authorEmail: req.memberEmail }] };
     const before = new Date(req.query.before);
     if (!Number.isNaN(before.getTime())) filter.createdAt = { $lt: before };
     const posts = await TodayPost.find(filter, view(req.memberEmail)).sort({ createdAt: -1 }).limit(PAGE).lean();
-    return res.json({ posts: await present(posts, req.memberEmail), more: posts.length === PAGE });
+    return res.json({ posts: await present(posts, req.memberEmail, req), more: posts.length === PAGE });
   } catch (error) {
     console.error('[Today posts]', error);
     return res.status(500).json({ error: 'Could not load posts.' });
@@ -243,17 +257,17 @@ router.get('/posts', requireMember, feedLimiter, async (req, res) => {
 });
 
 // Số tim/bình luận cho một loạt bài báo trong feed — một lượt gọi cho cả trang.
-router.get('/posts/stats', requireMember, feedLimiter, async (req, res) => {
+router.get('/posts/stats', requireMemberOrEduSession, feedLimiter, async (req, res) => {
   const keys = String(req.query.keys || '').split(',').filter(isArticleKey).slice(0, 100);
   const rows = await TodayPost.find({ articleKey: { $in: keys } }, view(req.memberEmail)).lean();
   const stats = {};
-  for (const row of await present(rows, req.memberEmail)) {
+  for (const row of await present(rows, req.memberEmail, req)) {
     stats[row.key] = { likeCount: row.likeCount, liked: row.liked, replyCount: row.replyCount };
   }
   return res.json({ stats });
 });
 
-router.get('/posts/:key', requireMember, feedLimiter, async (req, res) => {
+router.get('/posts/:key', requireMemberOrEduSession, feedLimiter, async (req, res) => {
   try {
     const { key } = req.params;
     if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
@@ -264,19 +278,19 @@ router.get('/posts/:key', requireMember, feedLimiter, async (req, res) => {
       TodayPost.find({ parentKey: key, ...visibleTo(req.memberEmail) }, view(req.memberEmail)).sort({ createdAt: 1 }).limit(200).lean(),
       node?.parentKey && isPostId(node.parentKey) ? TodayPost.findById(node.parentKey, view(req.memberEmail)).lean() : null,
     ]);
-    const [post] = node ? await present([node], req.memberEmail) : [null];
-    const [parentView] = parent ? await present([parent], req.memberEmail) : [null];
+    const [post] = node ? await present([node], req.memberEmail, req) : [null];
+    const [parentView] = parent ? await present([parent], req.memberEmail, req) : [null];
     const article = isArticleKey(key) || isArticleKey(node?.parentKey)
       ? await studentNewsService.findArticleById(String(isArticleKey(key) ? key : node.parentKey).slice(2), { language: normalizeLanguage(req.query.lang) })
       : null;
-    return res.json({ post, parent: parentView, article, replies: await present(replies, req.memberEmail) });
+    return res.json({ post, parent: parentView, article, replies: await present(replies, req.memberEmail, req) });
   } catch (error) {
     console.error('[Today post]', error);
     return res.status(500).json({ error: 'Could not open this post.' });
   }
 });
 
-router.post('/posts', requireMember, postLimiter, async (req, res) => {
+router.post('/posts', requireMemberOrEduSession, postLimiter, async (req, res) => {
   try {
     const text = cleanText(req.body?.text);
     const poll = cleanPoll(req.body?.poll);
@@ -303,15 +317,16 @@ router.post('/posts', requireMember, postLimiter, async (req, res) => {
       authorEmail: req.memberEmail, parentKey, text, createdAt: { $gt: new Date(Date.now() - 30_000) },
     }).lean();
     if (twin) {
-      const [view] = await present([twin], req.memberEmail);
+      const [view] = await present([twin], req.memberEmail, req);
       return res.status(200).json({ post: view });
     }
 
     const audience = parentKey ? undefined : cleanAudience(req.body?.audience);
-    const post = await TodayPost.create({ authorEmail: req.memberEmail, text, poll, audience, parentKey, ancestors: ancestors.length ? ancestors : undefined });
+    const board = !parentKey && isEduBoard(req) ? 'edu' : undefined;
+    const post = await TodayPost.create({ authorEmail: req.memberEmail, board, text, poll, audience, parentKey, ancestors: ancestors.length ? ancestors : undefined });
     if (parentKey) await TodayPost.updateOne(isArticleKey(parentKey) ? { articleKey: parentKey } : { _id: parentKey }, { $inc: { replyCount: 1 } });
     const removed = await screenOnPost(post, req);
-    const [view] = await present([{ ...post.toObject(), removed }], req.memberEmail);
+    const [view] = await present([{ ...post.toObject(), removed }], req.memberEmail, req);
     return res.status(201).json({ post: view });
   } catch (error) {
     console.error('[Today post create]', error);
@@ -319,7 +334,7 @@ router.post('/posts', requireMember, postLimiter, async (req, res) => {
   }
 });
 
-router.patch('/posts/:id', requireMember, writeLimiter, async (req, res) => {
+router.patch('/posts/:id', requireMemberOrEduSession, writeLimiter, async (req, res) => {
   const text = cleanText(req.body?.text);
   if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
   if (text.length > MAX_TEXT) return res.status(400).json({ error: `Posts are limited to ${MAX_TEXT} characters.` });
@@ -332,11 +347,11 @@ router.patch('/posts/:id', requireMember, writeLimiter, async (req, res) => {
   post.reviewedAt = undefined; // bản sửa phải được duyệt lại
   await post.save();
   const removed = post.removed ? null : await screenOnPost(post, req);
-  const [view] = await present([{ ...post.toObject(), ...(removed && { removed }) }], req.memberEmail);
+  const [view] = await present([{ ...post.toObject(), ...(removed && { removed }) }], req.memberEmail, req);
   return res.json({ post: view });
 });
 
-router.delete('/posts/:id', requireMember, writeLimiter, async (req, res) => {
+router.delete('/posts/:id', requireMemberOrEduSession, writeLimiter, async (req, res) => {
   if (!isPostId(req.params.id)) return res.status(404).json({ error: 'Not found.' });
   const post = await TodayPost.findOneAndDelete({ _id: req.params.id, authorEmail: req.memberEmail });
   if (!post) return res.status(404).json({ error: 'Not found.' });
@@ -349,7 +364,7 @@ router.delete('/posts/:id', requireMember, writeLimiter, async (req, res) => {
 });
 
 // Thả/bỏ tim — hai lệnh có điều kiện để bấm liên tục cũng không đếm lệch.
-router.post('/posts/:key/like', requireMember, writeLimiter, async (req, res) => {
+router.post('/posts/:key/like', requireMemberOrEduSession, writeLimiter, async (req, res) => {
   const { key } = req.params;
   const me = req.memberEmail;
   if (!isArticleKey(key) && !isPostId(key)) return res.status(404).json({ error: 'Not found.' });
@@ -367,7 +382,7 @@ router.post('/posts/:key/like', requireMember, writeLimiter, async (req, res) =>
 });
 
 // Một phiếu một người, không đổi được — như Threads.
-router.post('/posts/:id/vote', requireMember, writeLimiter, async (req, res) => {
+router.post('/posts/:id/vote', requireMemberOrEduSession, writeLimiter, async (req, res) => {
   const me = req.memberEmail;
   const option = Number(req.body?.option);
   if (!isPostId(req.params.id) || !Number.isInteger(option) || option < 0 || option > 3) {
@@ -388,7 +403,7 @@ router.post('/posts/:id/vote', requireMember, writeLimiter, async (req, res) => 
   ).lean();
   const current = post || await TodayPost.findById(req.params.id).lean();
   if (!current?.poll) return res.status(404).json({ error: 'Not found.' });
-  const [view] = await present([current], me);
+  const [view] = await present([current], me, req);
   return res.json({ poll: view.poll });
 });
 

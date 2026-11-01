@@ -3,7 +3,7 @@ import Bio from '../models/Bio.js';
 import { accessDeadline } from '../utils/accountAccess.js';
 import { sendEduPush } from '../utils/pushNotifier.js';
 import { cleanEduPrefs, vnClock } from '../../../packages/shared/eduPrefs.js';
-import { THAW_PRICE, addDays, nextMilestone, streakPush, streakView, studyToday, thawDay } from '../../../packages/shared/eduStreak.js';
+import { THAW_PRICE, addDays, nextMilestone, streakView, studyToday, thawDay } from '../../../packages/shared/eduStreak.js';
 import { awardJoy } from '../utils/joyService.js';
 import { logError } from '../utils/alert.js';
 
@@ -19,7 +19,7 @@ export async function eduSnapshot(email) {
     { upsert: true, new: true, setDefaultsOnInsert: true },
   ).lean();
   const { day } = vnClock();
-  return { prefs: cleanEduPrefs(doc.prefs), today: todayOf(doc, day), streak: streakView(doc.streak, day) };
+  return { prefs: cleanEduPrefs(doc.prefs), today: todayOf(doc, day), streak: streakView(doc.streak, day), lessons: doc.lessonsDone || {} };
 }
 
 /**
@@ -45,7 +45,7 @@ async function writeStreak(email, change) {
 async function payMilestone(email, milestone) {
   if (!milestone) return null;
   const { balance } = await awardJoy(email, milestone.joy, 'checkin', `Chuỗi lửa Education Hugo: mốc ${milestone.day} ngày`, { refId: `edu-streak-${milestone.day}`, notify: false });
-  sendEduPush(email, { text: (lang) => streakPush(lang, 'milestone', { n: milestone.day, joy: milestone.joy }), url: '/streak', tag: 'edu-streak' })
+  sendEduPush(email, { key: 'milestone', vars: { n: milestone.day, joy: milestone.joy }, url: '/streak', tag: 'edu-streak' })
     .catch(() => {});
   return { ...milestone, balance };
 }
@@ -146,7 +146,8 @@ export async function runEduReminders(now = new Date()) {
     const next = nextMilestone(streak.count);
     const key = !streak.count ? 'remindNew' : next.day === streak.count + 1 ? 'nearMilestone' : 'remind';
     await sendEduPush(doc.email, {
-      text: (lang) => streakPush(lang, key, { n: streak.count, m: next.day, joy: next.joy }),
+      // v: xoay câu theo ngày, để mỗi ngày nhắc một câu khác (kiểu Duolingo).
+      key, vars: { n: streak.count, m: next.day, joy: next.joy, v: Number(day.replaceAll('-', '')) },
       url: '/learn',
       tag: 'edu-reminder',
     });
@@ -171,7 +172,7 @@ export async function runEduReminders(now = new Date()) {
         : streak.count > 0 && streak.frozen.includes(addDays(day, -1));
       if (!send) continue;
       await sendEduPush(doc.email, {
-        text: (lang) => streakPush(lang, hour === 21 ? 'lastCall' : 'frozen', { n: streak.count, f: streak.freezesThisMonth }),
+        key: hour === 21 ? 'lastCall' : 'frozen', vars: { n: streak.count, f: streak.freezesThisMonth, v: Number(day.replaceAll('-', '')) },
         url: '/streak',
         tag: 'edu-streak',
       });
@@ -191,8 +192,7 @@ export async function runEduReminders(now = new Date()) {
       const days = Math.ceil((new Date(deadline) - now) / DAY_MS);
       if (days !== 3 && days !== 1) continue;
       await sendEduPush(bio.email, {
-        title: `Tài khoản còn ${days} ngày`,
-        body: 'Gia hạn bằng JOY trong Cửa hàng (hoặc xác minh học sinh – sinh viên để được 1 năm) để giữ tiến độ học.',
+        key: 'account', vars: { d: days },
         url: '/store',
         tag: 'edu-account',
       });
@@ -208,8 +208,7 @@ export async function eduSecurityPush(email, device) {
   const doc = await EduLearner.findOne({ email }).select('prefs').lean();
   if (!doc || !cleanEduPrefs(doc.prefs).notifySecurity) return;
   await sendEduPush(email, {
-    title: 'Có đăng nhập mới',
-    body: `Tài khoản vừa đăng nhập trên ${device}. Không phải mình? Mở Hồ sơ → Hugo Studio để đăng xuất máy lạ.`,
+    key: 'security', vars: { device: String(device).slice(0, 80) },
     url: '/profile',
     tag: 'edu-security',
   });

@@ -37,9 +37,12 @@ function readStep(lessonId) {
   }
 }
 
-function buildSteps(course, t) {
+// `part` = một bài nhỏ của step (packages/courses/coding/lessons.js): phần slide HOẶC trắc nghiệm.
+function buildSteps(course, t, part) {
   if (course.draft) return [];
-  const steps = (course.slides || []).map((slide) => ({ kind: slide.section, ...slide }));
+  const slides = part?.quiz ? [] : part ? part.slides.map((i) => course.slides[i]) : course.slides || [];
+  const steps = slides.map((slide) => ({ kind: slide.section, ...slide }));
+  if (part && !part.quiz) return steps;
   (course.quiz || []).forEach((question, index) => {
     steps.push({ kind: "check", index, title: t("player.question", { n: index + 1, total: course.quiz.length }), question });
   });
@@ -160,20 +163,20 @@ function CodeCard({ code, file }) {
  * ngang nhau vì cả hai đều hợp lệ — học tiếp hay dừng ở đây là quyền người học,
  * không phải thứ giao diện nên hối thúc.
  */
-function LessonDone({ course, stepCount, onExit, onNext }) {
+function LessonDone({ course, stepCount, onExit, onNext, lessonLabel, nextLabel }) {
   const { t } = useEduText();
   return (
     <div className="lesson-done">
 
       <LessonBuddy mood="done" size="lg" seed={stepCount} />
 
-      <h2>{t("player.doneTitle")}</h2>
+      <h2>{lessonLabel ? t("player.lessonDone", lessonLabel) : t("player.doneTitle")}</h2>
       <p>{course.title.replace(/^\d+\.\s*/, "")}</p>
       <span className="lesson-done-count">{t("player.doneCount", { n: stepCount })}</span>
 
       <div className="lesson-done-actions">
         <button type="button" className="is-ghost" onClick={onExit}>{t("player.backToMap")}</button>
-        {onNext && <button type="button" onClick={onNext}>{t("player.nextLesson")}<ArrowRight aria-hidden="true" /></button>}
+        {onNext && <button type="button" onClick={onNext}>{nextLabel || t("player.nextLesson")}<ArrowRight aria-hidden="true" /></button>}
       </div>
     </div>
   );
@@ -291,15 +294,19 @@ function MediaZoom({ children, onClose }) {
  * @param {(answers: unknown[]) => Promise<object>} onSubmitQuiz  nộp câu trả lời,
  *   trả `{ passed, score, correct, total, passPercent, review }` do máy chủ chấm.
  */
-export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesson }) {
+export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesson, plan = null, lesson = 0, onLessonDone, onNextPart }) {
   const { t, lang } = useEduText();
-  const steps = useMemo(() => buildSteps(course, t), [course, lang]); // eslint-disable-line react-hooks/exhaustive-deps -- t đổi theo lang
+  const part = plan?.[lesson] || null;
+  const slidePart = Boolean(part && !part.quiz);
+  const lessonLabel = plan ? { n: lesson + 1, total: plan.length } : null;
+  const trackId = plan ? `${course.id}@${lesson}` : course.id;
+  const steps = useMemo(() => buildSteps(course, t, part), [course, lang, part]); // eslint-disable-line react-hooks/exhaustive-deps -- t đổi theo lang
   const [zoomOpen, setZoomOpen] = useState(false);
   const firstCheck = steps.findIndex((step) => step.kind === "check");
   // Câu trả lời không lưu qua lần tải lại, nên quay về giữa bài trắc nghiệm thì
   // làm lại từ câu đầu — nộp với ô trống chỉ tốn một lượt chấm vô ích.
   const resumeAt = () => {
-    const saved = Math.min(readStep(course.id), Math.max(0, steps.length - 1));
+    const saved = Math.min(readStep(trackId), Math.max(0, steps.length - 1));
     return firstCheck >= 0 && saved > firstCheck ? firstCheck : saved;
   };
   const [index, setIndex] = useState(resumeAt);
@@ -325,18 +332,18 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
     setAnswers({});
     setDone(false);
     setResult(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ đặt lại khi đổi step
-  }, [course.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ đặt lại khi đổi step/bài
+  }, [trackId]);
 
   // Ghi lại chỗ đang đứng, và step này là step mở gần nhất (bản đồ đọc `lastLesson`).
   useEffect(() => {
     try {
-      localStorage.setItem(STEP_KEY, `${course.id}:${index}`);
+      localStorage.setItem(STEP_KEY, `${trackId}:${index}`);
       localStorage.setItem(CODER_STORAGE_KEYS.lastLesson, course.id);
     } catch {
       /* hết quota: chỉ mất chỗ đang đọc, step vẫn chạy bình thường */
     }
-  }, [course.id, index]);
+  }, [course.id, trackId, index]);
 
   if (course.draft) {
     return (
@@ -377,8 +384,23 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
     }
   };
 
+  // Hết slide của một bài nhỏ: máy chủ ghi bài + giữ lửa, rồi sang màn chúc mừng.
+  const finishPart = async () => {
+    setSubmitting(true);
+    try {
+      await onLessonDone?.();
+      sfx("playWin");
+      setDone(true);
+    } catch (error) {
+      notify.error(error.message || t("player.submitFailed"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const next = () => {
     sfx("playBeep");
+    if (slidePart && last) { finishPart(); return; }
     if (step.kind === "result") {
       if (result?.passed) setDone(true);
       else if (!result) submitQuiz();
@@ -401,7 +423,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
 
   const ready = step.kind === "check"
     ? answers[step.index] !== undefined
-    : step.kind === "result" ? !submitting && (result?.passed || !result) : true;
+    : step.kind === "result" ? !submitting && (result?.passed || !result) : !submitting;
   const kind = KIND[step.kind] || KIND.core;
   const media = step.visual
     ? <CodingVisual name={step.visual} label={step.title} />
@@ -412,7 +434,14 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
   if (done) {
     return (
       <div className="lesson-player">
-        <LessonDone course={course} stepCount={steps.length} onExit={onExit} onNext={onNextLesson} />
+        <LessonDone
+          course={course}
+          stepCount={steps.length}
+          onExit={onExit}
+          onNext={slidePart ? onNextPart : onNextLesson}
+          lessonLabel={lessonLabel}
+          nextLabel={slidePart ? t("player.nextPart") : undefined}
+        />
       </div>
     );
   }
@@ -426,7 +455,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
         <span className="lesson-player-track" aria-label={`${percent}%`}>
           <i style={{ width: `${percent}%` }} />
         </span>
-        <span className="lesson-player-count">{index + 1}/{steps.length}</span>
+        <span className="lesson-player-count">{lessonLabel ? `${t("player.lessonOf", lessonLabel)} · ` : ""}{index + 1}/{steps.length}</span>
         <button type="button" className="lesson-player-sound" onClick={toggleSound} aria-label={muted ? t("player.soundOn") : t("player.soundOff")} aria-pressed={!muted}>
           {muted ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
         </button>
@@ -498,7 +527,7 @@ export default function LessonPlayer({ course, onExit, onSubmitQuiz, onNextLesso
           <button type="button" onClick={next} disabled={!ready}>
             {step.kind === "result"
               ? (result?.passed ? t("player.finish") : t("player.resubmit"))
-              : steps[index + 1]?.kind === "result" ? t("player.submit") : step.kind === "check" ? t("player.nextQuestion") : t("player.continue")}
+              : steps[index + 1]?.kind === "result" ? t("player.submit") : step.kind === "check" ? t("player.nextQuestion") : slidePart && last ? t("player.finishPart") : t("player.continue")}
             {step.kind === "check" ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
           </button>
         </footer>

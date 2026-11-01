@@ -10,6 +10,7 @@ import { vnClock } from '../../../packages/shared/eduPrefs.js';
 import { streakView } from '../../../packages/shared/eduStreak.js';
 
 export const XP_PER_CORRECT = 10;  // qua step lần đầu: 10 XP mỗi câu đúng
+export const XP_PER_LESSON = 10;   // xong một bài nhỏ lần đầu
 export const XP_REVIEW = 5;        // ôn lại được tính giữ lửa: 5 XP
 const MAX_FOLLOWING = 100;
 const LEAGUE_SIZE = 30;

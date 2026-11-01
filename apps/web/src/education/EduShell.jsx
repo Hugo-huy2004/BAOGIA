@@ -12,16 +12,19 @@ import { ACCOUNT_EXTENSION, EXCHANGE_TAX_RATE } from "../../../../packages/share
 import { CODER_JOY_PER_CORRECT } from "../../../../packages/shared/coderProgression";
 import { canPromptInstall, promptInstall } from "./eduHead";
 import { rich, useEduText } from "./eduText";
-import { FlameBuddy, StreakChip } from "./EduStreak";
+import { FlameBuddy } from "./EduStreak";
+import EduTopBar, { useEduInbox } from "./EduTopBar";
+import AnimIcon from "../components/icons/animated/AnimIcon";
+import EduSettings from "./EduSettings";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const STUDIO = "https://www.hugowishpax.studio";
 const NAV = [
-  { to: "/learn", icon: "school", key: "learn" },
-  { to: "/progress", icon: "monitoring", key: "progress" },
-  { to: "/store", icon: "storefront", key: "store" },
-  { to: "/profile", icon: "person", key: "profile" },
-  { to: "/settings", icon: "settings", key: "settings" },
+  { to: "/learn", icon: "home", key: "learn" },
+  { to: "/progress", icon: "chart", key: "progress" },
+  { to: "/community", icon: "users", key: "community" },
+  { to: "/store", icon: "bag", key: "store" },
+  { to: "/profile", icon: "user", key: "profile" },
 ];
 
 // Mã Nhịp tải về theo chặng (public/downloads/coding) — mở khi xong chặng đó.
@@ -151,22 +154,9 @@ function useLearnerStats(learner) {
   }, [courses, stages, learner]);
 }
 
-function StatChip({ icon, tone, children, label, to }) {
-  const body = (
-    <>
-      <span className={`material-symbols-outlined edu-chip-icon edu-tone-${tone}`} aria-hidden="true">{icon}</span>
-      <b>{children}</b>
-    </>
-  );
-  return to
-    ? <Link to={to} className="edu-chip" aria-label={label}>{body}</Link>
-    : <span className="edu-chip" aria-label={label}>{body}</span>;
-}
-
 export default function EduShell({ view, learner, signedIn, onLearnerUpdate, children }) {
   const { t } = useEduText();
   const stats = useLearnerStats(learner);
-  const streak = learner?.edu?.streak;
   const location = useLocation();
   const navigate = useNavigate();
   // ?streak=1 (thông báo đẩy cũ) → màn chuỗi lửa.
@@ -176,17 +166,8 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
   const openStreak = () => navigate("/streak");
   const nav = NAV.map((item) => ({ ...item, label: t(`nav.${item.key}`), to: signedIn || item.to === "/learn" ? item.to : "/login" }));
 
-  const chips = (
-    <>
-      {signedIn && streak
-        ? <StreakChip streak={streak} onOpen={openStreak} />
-        : <StatChip icon="local_fire_department" tone="orange" label={t("streak.title")} to="/login">0</StatChip>}
-      {signedIn && <StatChip icon="diamond" tone="blue" label={t("shell.balance", { joy: joyText(learner?.joyBalance || 0) })} to="/store">{joyText(learner?.joyBalance || 0).replace(" JOY", "")}</StatChip>}
-      {signedIn && !learner?.isEduVerified && stats.days !== null && (
-        <StatChip icon="event_available" tone={stats.days <= 3 ? "red" : "green"} label={t("shell.daysLeft", { n: stats.days })} to="/store">{Math.max(0, stats.days)}</StatChip>
-      )}
-    </>
-  );
+  const inbox = useEduInbox(signedIn);
+  const chips = <EduTopBar learner={learner} signedIn={signedIn} stats={stats} inbox={inbox} />;
 
   return (
     <div className={`edu-app edu-view-${view}`}>
@@ -195,7 +176,7 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
         <nav aria-label="Education Hugo">
           {nav.map((item) => (
             <NavLink key={item.key} to={item.to} className={({ isActive }) => `edu-nav${isActive && item.to !== "/login" ? " is-active" : ""}`}>
-              <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+              <AnimIcon name={item.icon} size={26} />
               {item.label}
             </NavLink>
           ))}
@@ -208,10 +189,7 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
         </div>
       </aside>
 
-      <header className="edu-top">
-        <EduBrand />
-        <div className="edu-top-chips">{chips}</div>
-      </header>
+      <header className="edu-top">{chips}</header>
 
       <main className="edu-main">
         {children}
@@ -226,7 +204,7 @@ export default function EduShell({ view, learner, signedIn, onLearnerUpdate, chi
       <nav className="edu-tabs" aria-label="Education Hugo">
         {nav.map((item) => (
           <NavLink key={item.key} to={item.to} className={({ isActive }) => (isActive && item.to !== "/login" ? "is-active" : "")} aria-label={item.label}>
-            <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+            <AnimIcon name={item.icon} size={26} />
           </NavLink>
         ))}
       </nav>
@@ -393,7 +371,7 @@ function Stat({ icon, tone, value, label }) {
 }
 
 /** Hồ sơ: một tài khoản Hugo Studio dùng cho cả hai nơi. */
-export function EduProfile({ learner, persona, onPersona, onSignOut }) {
+export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUpdate }) {
   const { t } = useEduText();
   const [editing, setEditing] = useState(false);
   const stats = useLearnerStats(learner);
@@ -438,6 +416,7 @@ export function EduProfile({ learner, persona, onPersona, onSignOut }) {
         {(installable || detectInstallTarget().iOS) && <EduInstall />}
         <button type="button" className="edu-btn edu-btn--ghost" onClick={onSignOut}>{t("profile.signOut")}</button>
       </div>
+      <EduSettings embedded learner={learner} onLearnerUpdate={onLearnerUpdate} />
       <p className="edu-legal">
         <a href={`${STUDIO}/terms`} target="_blank" rel="noopener">{t("common.terms")}</a> · <a href={`${STUDIO}/privacy-policy`} target="_blank" rel="noopener">{t("common.privacy")}</a> · <a href={`${STUDIO}/support-request`} target="_blank" rel="noopener">{t("common.support")}</a>
       </p>

@@ -17,7 +17,19 @@ export const EDU_COPY = {
   vi: {
     persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, thuộc Hugo Studio", of: "thuộc" },
-    nav: { learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", settings: "Cài đặt" },
+    nav: { learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
+    topbar: {
+      courses: "Khoá học của bạn", course: { coding: "Lập trình Web", quan: "Quán — khoá 2" }, courseProgress: "{done}/{total} step đã qua",
+      addCourse: "Thêm khoá học (sắp ra mắt)", joyBody: "JOY kiếm được khi qua bài lần đầu và giữ chuỗi lửa. Dùng để gia hạn tài khoản, phá băng chuỗi.",
+      toStore: "Mở Cửa hàng", notifications: "Thông báo", readAll: "Đánh dấu đã đọc", empty: "Chưa có thông báo nào. Hugo sẽ nhắc bạn khi có tin mới.",
+    },
+    community: {
+      title: "Cộng đồng", lead: "Chia sẻ bài làm, hỏi bài, gợi ý tài liệu. Dán link GitHub, YouTube hoặc ảnh — Hugo chỉ lưu chữ và đường link.",
+      placeholder: "Bạn đang học gì, vướng ở đâu?", reply: "Viết bình luận…", post: "Đăng", linkHint: "Link đầu tiên tự hiện xem trước",
+      empty: "Chưa có bài nào. Mở đầu cuộc trò chuyện nhé!", more: "Xem thêm", back: "Quay lại", gone: "Bài này không còn nữa.",
+      failed: "Chưa tải được, thử lại sau.", removed: "Bài bị ẩn vì vi phạm quy tắc cộng đồng — chỉ bạn thấy.",
+      delete: "Xoá bài", deleteAsk: "Xoá bài này và các bình luận bên dưới?", play: "Phát video", repo: "Kho mã",
+    },
     common: { loading: "Đang tải", close: "Đóng", login: "Đăng nhập", terms: "Điều khoản", privacy: "Bảo mật", support: "Hỗ trợ", stage: "Chặng {n}", days: "{n} ngày", oneYear: "1 năm" },
     install: {
       button: "Cài ứng dụng", title: "Cài Education Hugo",
@@ -55,6 +67,7 @@ export const EDU_COPY = {
     },
     progress: { title: "Tiến độ" },
     settings: {
+      passkey: "Đăng nhập bằng Face ID / vân tay", passkeyHint: "Thêm máy này để lần sau đăng nhập chỉ bằng Face ID hoặc vân tay, không cần mật khẩu.", passkeyUnsupported: "Trình duyệt này chưa hỗ trợ Face ID / vân tay.", passkeyAdd: "Thêm máy này", passkeyAdded: "Đã thêm máy này.", passkeyFailed: "Chưa làm được, thử lại sau.", passkeyRemove: "Gỡ", passkeyRemoveAsk: "Gỡ máy này khỏi đăng nhập Face ID / vân tay?",
       title: "Cài đặt", saveFailed: "Chưa lưu được cài đặt, thử lại sau.",
       study: "Học tập", goal: "Mục tiêu mỗi ngày", goalHint: "Số step qua lần đầu trong một ngày.",
       sound: "Âm thanh trong bài", soundHint: "Tiếng chọn đáp án, qua bài.",
@@ -156,7 +169,7 @@ export const EDU_COPY = {
       feedbackPlaceholder: "Ví dụ: đoạn này chưa giải thích vì sao phải dùng…", cancel: "Huỷ", send: "Gửi góp ý", sending: "Đang gửi…",
       feedbackSent: "Đã gửi góp ý. Cảm ơn bạn.", feedbackFailed: "Chưa gửi được góp ý.",
       copied: "Đã chép. Dán vào trình soạn thảo của bạn.", copyFailed: "Chưa chép được — hãy bôi đen và chép tay.", copyAria: "Chép mã mẫu", copy: "Chép",
-      doneTitle: "Hoàn thành bài", doneCount: "{n} slide đã đi qua", backToMap: "Trở về bản đồ", nextLesson: "Bài tiếp",
+      doneTitle: "Hoàn thành bài", lessonOf: "Bài {n}/{total}", lessonDone: "Xong bài {n}/{total}", nextPart: "Học bài tiếp", finishPart: "Xong bài", doneCount: "{n} slide đã đi qua", backToMap: "Trở về bản đồ", nextLesson: "Bài tiếp",
       pass: "Đạt — đúng {correct}/{total} câu.", fail: "Chưa đạt — cần từ {pass}%. Đọc lời giải rồi làm lại.",
       right: "Đúng", wrongMark: "Sai", questionN: "Câu {n}", answer: "Đáp án: {a}", retryQuiz: "Làm lại trắc nghiệm",
       draft: "Bài này đang được soạn", submitFailed: "Chưa nộp được bài, hãy thử lại.",
@@ -173,7 +186,7 @@ export const EDU_COPY = {
     map: {
       robot: "Robot CRUD đang chờ", owl: "Cú gác cổng bảo mật đang chờ", astronaut: "Phi hành gia đang chờ",
       youLearn: "Bạn sẽ học", challenge: "Thử thách", grade: "Xếp loại hiện tại:", stageSteps: "Chặng {n} · {done}/{total} step",
-      stageAbout: "Chặng {n} học gì", percent: "Hoàn thành {p}%", soon: "Sắp ra mắt", start: "Bắt đầu",
+      stageAbout: "Chặng {n} học gì", percent: "Hoàn thành {p}%", soon: "Sắp ra mắt", start: "Bắt đầu", review: "Ôn lại", xp: "+{n} XP",
       done: " — đã xong", locked: " — chưa mở", finishDone: "Dự án hoàn tất", finishGoal: "Đích: dự án hoàn tất", exclusive: "Độc quyền bởi Hugo Studio",
     },
     hub: {
@@ -221,7 +234,19 @@ export const EDU_COPY = {
   en: {
     persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, part of Hugo Studio", of: "by" },
-    nav: { learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", settings: "Settings" },
+    nav: { learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
+    topbar: {
+      courses: "Your courses", course: { coding: "Web Programming", quan: "Quán — course 2" }, courseProgress: "{done}/{total} steps passed",
+      addCourse: "Add a course (coming soon)", joyBody: "Earn JOY by passing lessons the first time and keeping your streak. Use it to extend your account or thaw a frozen streak.",
+      toStore: "Open the Shop", notifications: "Notifications", readAll: "Mark all read", empty: "No notifications yet. Hugo will let you know when something new arrives.",
+    },
+    community: {
+      title: "Community", lead: "Share your work, ask questions, recommend resources. Paste a GitHub, YouTube or image link — Hugo only stores text and links.",
+      placeholder: "What are you learning, where are you stuck?", reply: "Write a reply…", post: "Post", linkHint: "The first link gets a preview",
+      empty: "No posts yet. Start the conversation!", more: "Load more", back: "Back", gone: "This post is no longer available.",
+      failed: "Couldn't load, try again later.", removed: "Hidden for breaking community rules — only you can see it.",
+      delete: "Delete post", deleteAsk: "Delete this post and its replies?", play: "Play video", repo: "Repository",
+    },
     common: { loading: "Loading", close: "Close", login: "Log in", terms: "Terms", privacy: "Privacy", support: "Support", stage: "Stage {n}", days: "{n} days", oneYear: "1 year" },
     install: {
       button: "Install app", title: "Install Education Hugo",
@@ -259,6 +284,7 @@ export const EDU_COPY = {
     },
     progress: { title: "Progress" },
     settings: {
+      passkey: "Sign in with Face ID / fingerprint", passkeyHint: "Add this device to sign in next time with just Face ID or your fingerprint — no password.", passkeyUnsupported: "This browser doesn't support Face ID / fingerprint yet.", passkeyAdd: "Add this device", passkeyAdded: "This device was added.", passkeyFailed: "Couldn't do that, try again later.", passkeyRemove: "Remove", passkeyRemoveAsk: "Remove this device from Face ID / fingerprint sign-in?",
       title: "Settings", saveFailed: "Couldn't save settings. Please try again later.",
       study: "Learning", goal: "Daily goal", goalHint: "Steps passed for the first time in a day.",
       sound: "Lesson sounds", soundHint: "Sounds for picking answers and finishing a lesson.",
@@ -360,7 +386,7 @@ export const EDU_COPY = {
       feedbackPlaceholder: "For example: this part doesn't explain why we need…", cancel: "Cancel", send: "Send feedback", sending: "Sending…",
       feedbackSent: "Feedback sent. Thank you.", feedbackFailed: "Couldn't send feedback.",
       copied: "Copied. Paste it into your editor.", copyFailed: "Couldn't copy — select the code and copy it by hand.", copyAria: "Copy sample code", copy: "Copy",
-      doneTitle: "Lesson complete", doneCount: "{n} slides covered", backToMap: "Back to the map", nextLesson: "Next lesson",
+      doneTitle: "Lesson complete", lessonOf: "Lesson {n} of {total}", lessonDone: "Lesson {n} of {total} done", nextPart: "Next lesson", finishPart: "Finish lesson", doneCount: "{n} slides covered", backToMap: "Back to the map", nextLesson: "Next lesson",
       pass: "Passed — {correct}/{total} correct.", fail: "Not passed yet — you need {pass}%. Read the explanations and try again.",
       right: "Correct", wrongMark: "Wrong", questionN: "Question {n}", answer: "Answer: {a}", retryQuiz: "Retake the quiz",
       draft: "This lesson is still being written", submitFailed: "Couldn't submit. Please try again.",
@@ -377,7 +403,7 @@ export const EDU_COPY = {
     map: {
       robot: "CRUD robot waiting", owl: "Security owl waiting", astronaut: "Astronaut waiting",
       youLearn: "You'll learn", challenge: "Challenge", grade: "Current grade:", stageSteps: "Stage {n} · {done}/{total} steps",
-      stageAbout: "What stage {n} covers", percent: "{p}% complete", soon: "Coming soon", start: "Start",
+      stageAbout: "What stage {n} covers", percent: "{p}% complete", soon: "Coming soon", start: "Start", review: "Review", xp: "+{n} XP",
       done: " — done", locked: " — locked", finishDone: "Project complete", finishGoal: "Finish line: project complete", exclusive: "Made by Hugo Studio",
     },
     hub: {
@@ -483,7 +509,19 @@ export const EDU_COPY = {
   zh: {
     persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo，隶属 Hugo Studio", of: "隶属" },
-    nav: { learn: "学习", progress: "进度", store: "商店", profile: "个人资料", settings: "设置" },
+    nav: { learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
+    topbar: {
+      courses: "你的课程", course: { coding: "网页编程", quan: "Quán —— 第 2 门课" }, courseProgress: "已完成 {done}/{total} 个 step",
+      addCourse: "添加课程（即将上线）", joyBody: "首次通过课程和保持连续记录可赚取 JOY，用于延长账户或给连续记录破冰。",
+      toStore: "打开商店", notifications: "通知", readAll: "全部标为已读", empty: "还没有通知。有新消息时 Hugo 会告诉你。",
+    },
+    community: {
+      title: "社区", lead: "分享作品、提问、推荐资料。可粘贴 GitHub、YouTube 或图片链接——Hugo 只保存文字和链接。",
+      placeholder: "你在学什么？卡在哪里？", reply: "写评论…", post: "发布", linkHint: "第一个链接会自动预览",
+      empty: "还没有帖子，来开个头吧！", more: "加载更多", back: "返回", gone: "该帖子已不存在。",
+      failed: "加载失败，请稍后再试。", removed: "因违反社区规则已隐藏——仅你可见。",
+      delete: "删除帖子", deleteAsk: "删除此帖及其下方评论？", play: "播放视频", repo: "代码仓库",
+    },
     common: { loading: "加载中", close: "关闭", login: "登录", terms: "条款", privacy: "隐私", support: "支持", stage: "第 {n} 阶段", days: "{n} 天", oneYear: "1 年" },
     install: {
       button: "安装应用", title: "安装 Education Hugo",
@@ -521,6 +559,7 @@ export const EDU_COPY = {
     },
     progress: { title: "进度" },
     settings: {
+      passkey: "使用 Face ID / 指纹登录", passkeyHint: "添加此设备，下次只需 Face ID 或指纹即可登录，无需密码。", passkeyUnsupported: "此浏览器暂不支持 Face ID / 指纹。", passkeyAdd: "添加此设备", passkeyAdded: "已添加此设备。", passkeyFailed: "暂时无法完成，请稍后再试。", passkeyRemove: "移除", passkeyRemoveAsk: "从 Face ID / 指纹登录中移除此设备？",
       title: "设置", saveFailed: "设置未能保存，请稍后再试。",
       study: "学习", goal: "每日目标", goalHint: "一天内首次通过的 step 数。",
       sound: "课程音效", soundHint: "选择答案、完成课程时的提示音。",
@@ -622,7 +661,7 @@ export const EDU_COPY = {
       feedbackPlaceholder: "例如：这里没有解释为什么要用…", cancel: "取消", send: "发送意见", sending: "发送中…",
       feedbackSent: "意见已发送，谢谢你。", feedbackFailed: "意见未能发送。",
       copied: "已复制。粘贴到你的编辑器中。", copyFailed: "无法复制——请选中代码手动复制。", copyAria: "复制示例代码", copy: "复制",
-      doneTitle: "完成本课", doneCount: "已学完 {n} 张幻灯片", backToMap: "返回地图", nextLesson: "下一课",
+      doneTitle: "完成本课", lessonOf: "第 {n}/{total} 课", lessonDone: "完成第 {n}/{total} 课", nextPart: "学下一课", finishPart: "完成本课", doneCount: "已学完 {n} 张幻灯片", backToMap: "返回地图", nextLesson: "下一课",
       pass: "通过——答对 {correct}/{total} 题。", fail: "未通过——需要 {pass}% 以上。看完解析再做一次。",
       right: "正确", wrongMark: "错误", questionN: "第 {n} 题", answer: "答案：{a}", retryQuiz: "重新测验",
       draft: "本课正在编写中", submitFailed: "未能提交，请再试一次。",
@@ -639,7 +678,7 @@ export const EDU_COPY = {
     map: {
       robot: "CRUD 机器人在等你", owl: "安全守门猫头鹰在等你", astronaut: "宇航员在等你",
       youLearn: "你将学到", challenge: "挑战", grade: "当前评级：", stageSteps: "第 {n} 阶段 · {done}/{total} 个 step",
-      stageAbout: "第 {n} 阶段学什么", percent: "完成 {p}%", soon: "即将上线", start: "开始",
+      stageAbout: "第 {n} 阶段学什么", percent: "完成 {p}%", soon: "即将上线", start: "开始", review: "复习", xp: "+{n} XP",
       done: "——已完成", locked: "——未解锁", finishDone: "项目完成", finishGoal: "终点：完成项目", exclusive: "Hugo Studio 出品",
     },
     hub: {

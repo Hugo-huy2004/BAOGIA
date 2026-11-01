@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import CourseMap from "./CourseMap";
-import { CODER_STORAGE_KEYS } from "./workspaceUtils";
+import { CODER_STORAGE_KEYS, readGuestLessons } from "./workspaceUtils";
 
 function readLocalValue(key) {
   try {
@@ -79,6 +79,7 @@ export default function CoderLearningJourney({
         focusId={focusId}
         examScores={bio?.hugoCoderExamScores || {}}
         serverCompleted={bio?.completedLessons || []}
+        lessonsDone={bio?.email ? bio?.edu?.lessons || {} : readGuestLessons()}
         onOpenLesson={onOpenLesson}
       />
     </main>

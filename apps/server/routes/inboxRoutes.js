@@ -1,14 +1,15 @@
 import express from 'express';
 import InAppNotification from '../models/InAppNotification.js';
-import { requireMember } from '../middleware/authMiddleware.js';
+import { requireMember, requireMemberSession } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Đọc / đánh dấu đã đọc chỉ cần phiên (Education Hugo dùng chung hộp thông báo, không đòi hồ sơ đủ).
 // All inbox routes are scoped to the verified member token — a member can only
 // ever read/mutate their own notifications.
 
 // GET /api/inbox?limit=20
-router.get('/', requireMember, async (req, res) => {
+router.get('/', requireMemberSession, async (req, res) => {
   try {
     const { limit = 20 } = req.query;
     const email = req.memberEmail;
@@ -37,7 +38,7 @@ router.post('/', requireMember, async (req, res) => {
 });
 
 // PATCH /api/inbox/read-all — must come before /:id
-router.patch('/read-all', requireMember, async (req, res) => {
+router.patch('/read-all', requireMemberSession, async (req, res) => {
   try {
     const result = await InAppNotification.updateMany(
       { email: req.memberEmail, read: false },
@@ -54,7 +55,7 @@ router.patch('/read-all', requireMember, async (req, res) => {
 });
 
 // PATCH /api/inbox/:id/read
-router.patch('/:id/read', requireMember, async (req, res) => {
+router.patch('/:id/read', requireMemberSession, async (req, res) => {
   try {
     await InAppNotification.findOneAndUpdate(
       { _id: req.params.id, email: req.memberEmail },

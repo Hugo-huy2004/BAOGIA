@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bug, Check, Code2, Database, Flag, Lock, Rocket, ShieldCheck, Sparkles, Trophy, Users, X } from "lucide-react";
+import { BookOpen, Check, Code2, Database, Flag, GraduationCap, Lightbulb, Lock, NotebookPen, PenLine, Rocket, ShieldCheck, Sparkles, Star, Trophy, Users, X } from "lucide-react";
+
+// Biểu tượng học tập xoay vòng trên các nút step (sách, bút, mũ tốt nghiệp…).
+const STEP_ICONS = [BookOpen, PenLine, Lightbulb, NotebookPen, GraduationCap, Star];
 import { gradeStage } from "../../../../../../packages/shared/stageGrading";
 import { isEduHost } from "../../../../../../packages/shared/eduSite";
 import { useEduText } from "../../../education/eduText";
@@ -162,9 +165,17 @@ function StageSheet({ unit, assessment, onClose }) {
   );
 }
 
-function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId, focusRef, examScores, serverCompleted, flip, prevTone }) {
+function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId, focusRef, examScores, serverCompleted, lessonsDone, flip, prevTone }) {
   const { t } = useEduText();
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Thẻ "Bắt đầu" bật ra dưới nút step khi bấm (kiểu Duolingo); bấm ra ngoài thì đóng.
+  const [popId, setPopId] = useState(null);
+  useEffect(() => {
+    if (!popId) return undefined;
+    const close = (event) => !event.target.closest?.(".cmap-node.is-pop") && setPopId(null);
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [popId]);
   const look = STAGE_LOOK[unit.id] || STAGE_LOOK.basic;
   const doneCount = lessons.filter(({ course }) => completedSet.has(course.id)).length;
   const percent = lessons.length ? Math.round((doneCount / lessons.length) * 100) : 0;
@@ -196,33 +207,45 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
         </span>
       </header>
 
-      <ol className="cmap-path">
+      {/* data-lg-off: nút step tự lún kiểu Duolingo, không chồng thêm hiệu ứng co giãn chung của app. */}
+      <ol className="cmap-path" data-lg-off>
         {lessons.map(({ course, globalIndex }, index) => {
           const done = completedSet.has(course.id);
           const current = globalIndex === currentIndex;
           const locked = !done && globalIndex > currentIndex;
           const last = index === lessons.length - 1;
-          const Icon = done ? Check : locked ? Lock : last ? Flag : index === 1 ? Bug : look.icon;
+          const Icon = locked ? Lock : done ? Check : last ? Flag : index === 0 ? look.icon : STEP_ICONS[(globalIndex + index) % STEP_ICONS.length];
           const offset = offsetOf(index, flip);
           const name = course.title.replace(/^\d+\.\s*/, "");
+          // Step đang học: vòng tiến độ theo bài nhỏ đã xong (kiểu Duolingo).
+          const partsDone = current && course.lessons ? Math.min(lessonsDone[course.id]?.length || 0, course.lessons - 1) : 0;
           return (
             <li
               key={course.id}
               ref={course.id === focusId ? focusRef : undefined}
-              className={`cmap-node ${done ? "is-done" : current ? "is-current" : locked ? "is-locked" : "is-open"}`}
-              style={{ "--x": `${offset}px` }}
+              className={`cmap-node ${done ? "is-done" : current ? "is-current" : locked ? "is-locked" : "is-open"}${popId === course.id ? " is-pop" : ""}`}
+              style={{ "--x": `${offset}px`, ...(partsDone ? { "--lp": `${(partsDone / course.lessons) * 360}deg` } : {}) }}
             >
-              {current && <span className="cmap-bubble">{course.draft ? t("map.soon") : t("map.start")} · Step {globalIndex + 1}</span>}
+              {current && <span className="cmap-bubble">{course.draft ? t("map.soon") : t("map.start")} · {course.lessons ? t("player.lessonOf", { n: partsDone + 1, total: course.lessons }) : `Step ${globalIndex + 1}`}</span>}
               <button
                 type="button"
                 className="cmap-hex"
-                onClick={() => !locked && onOpenLesson(course.id)}
+                onClick={() => !locked && setPopId(popId === course.id ? null : course.id)}
                 disabled={locked}
                 aria-label={`Step ${globalIndex + 1}: ${name}${done ? t("map.done") : locked ? t("map.locked") : ""}`}
                 title={name}
               >
                 <span className="cmap-hex-face"><Icon aria-hidden="true" /></span>
               </button>
+              {popId === course.id && (
+                <div className="cmap-pop" role="dialog" aria-label={name}>
+                  <b>{name}</b>
+                  {course.lessons && !done && <span>{t("player.lessonOf", { n: partsDone + 1, total: course.lessons })}</span>}
+                  <button type="button" onClick={() => onOpenLesson(course.id)} disabled={course.draft}>
+                    {course.draft ? t("map.soon") : done ? t("map.review") : `${t("map.start")} ${t("map.xp", { n: 10 })}`}
+                  </button>
+                </div>
+              )}
               {index === mascotAt && (look.Mascot ? (
                 <span className="cmap-mascot" style={{ "--side": offset > 0 ? -1 : 1 }} aria-hidden="true">
                   <look.Mascot label={t(look.label)} />
@@ -249,7 +272,7 @@ function Unit({ unit, lessons, currentIndex, completedSet, onOpenLesson, focusId
   );
 }
 
-export default function CourseMap({ courses, stages, completedSet, currentIndex, focusId, onOpenLesson, examScores = {}, serverCompleted = [] }) {
+export default function CourseMap({ courses, stages, completedSet, currentIndex, focusId, onOpenLesson, examScores = {}, serverCompleted = [], lessonsDone = {} }) {
   const { t } = useEduText();
   const focusRef = useRef(null);
   const units = useMemo(
@@ -283,12 +306,16 @@ export default function CourseMap({ courses, stages, completedSet, currentIndex,
           focusRef={focusRef}
           examScores={examScores}
           serverCompleted={serverCompleted}
+          lessonsDone={lessonsDone}
           flip={index % 2 === 1}
           prevTone={index ? toneOf(units[index - 1].stage) : undefined}
         />
       ))}
 
-      <footer className={`cmap-finish ${allDone ? "is-done" : ""}`}>
+      <footer
+        className={`cmap-finish${allDone ? " is-done" : ""}${units.length && NIGHT_TONES.has(toneOf(units.at(-1).stage)) ? " is-night" : ""}`}
+        style={units.length ? { "--end-sky": SKY[toneOf(units.at(-1).stage)] } : undefined}
+      >
         <span className="cmap-trophy"><Trophy aria-hidden="true" /></span>
         <strong>{allDone ? t("map.finishDone") : t("map.finishGoal")}</strong>
         <small>{t("map.exclusive")}</small>

@@ -2967,42 +2967,94 @@
 .cmap-path { position: relative; z-index: 1; display: grid; gap: 22px; justify-items: center; margin: 0; padding: 0; list-style: none; }
 .cmap-node { position: relative; transform: translateX(var(--x)); }
 
-/* Ô lục giác: lớp dưới tối hơn làm mặt vát, mặt trên nhấc lên 7px; bấm thì lún. */
+/* Nút step kiểu Duolingo: đồng xu dẹt (rộng hơn cao), mặt phẳng một màu theo nền chặng + vệt sáng
+   chéo, gờ dày màu đậm bên dưới; bấm thì mặt lún xuống sát gờ. Đã xong = vàng có dấu tích. */
+/* Pastel của màu nhấn từng chặng (--node, chọn sẵn để tương phản với nền) — nổi trên nền, không chìm. */
+.cmap-node { --c: oklch(from var(--node) .82 calc(c * .85) h); --c-lip: oklch(from var(--node) .66 c h); --c-ink: oklch(from var(--node) .38 c h); }
+.cmap-node.is-done { --c: #ffe48a; --c-lip: #f0c75a; --c-ink: #a8780c; }
 .cmap-hex {
   position: relative;
   display: block;
-  width: 78px;
-  height: 84px;
+  width: 72px;
+  height: 64px;
   padding: 0;
   border: 0;
-  background: var(--node-deep);
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  border-radius: 50%;
+  background: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .cmap-hex-face {
   position: absolute;
-  inset: 0 0 7px;
+  inset: 0 0 9px;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--node) 82%, #fff), var(--node));
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  color: #fff;
-  transition: transform .12s ease;
+  border-radius: 50%;
+  box-shadow: 0 9px 0 var(--c-lip); /* gờ dày = bóng đặc dưới mặt nút, nhấn thì thu về 0 */
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .28) 30% 46%, transparent 46%), var(--c);
+  color: var(--c-ink);
+  transition: transform .08s ease-out, box-shadow .08s ease-out;
 }
-.cmap-hex-face svg { width: 32px; height: 32px; stroke-width: 2.6; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .15)); }
-.cmap-hex:active:not(:disabled) .cmap-hex-face { transform: translateY(5px); }
-.cmap-node.is-locked .cmap-hex { background: #b9b9b9; cursor: default; }
-.cmap-node.is-locked .cmap-hex-face { background: #e5e5e5; color: #a3a3a3; }
-.cmap-node.is-current .cmap-hex { width: 90px; height: 97px; }
+.cmap-hex-face svg { width: 30px; height: 30px; stroke-width: 3; }
+.cmap-hex:hover:not(:disabled) .cmap-hex-face { filter: brightness(1.05); }
+/* Nhấn: mặt nút lún hẳn xuống bằng gờ, nhả ra thì bật lại ngay — như Duolingo. */
+.cmap-hex:active:not(:disabled) .cmap-hex-face { transform: translateY(9px); box-shadow: 0 0 0 var(--c-lip); transition-duration: 0s; }
+.cmap-node.is-locked { --c: #e5e5e5; --c-lip: #c4c4c4; --c-ink: #afafaf; }
+.cmap-node.is-locked .cmap-hex { cursor: default; }
+/* Step đang học: vòng tiến độ bài nhỏ cách nút một khoảng, rãnh xám, cung màu chặng. */
 .cmap-node.is-current::before {
   content: "";
   position: absolute;
-  inset: -12px -10px -6px;
+  left: 50%;
+  top: 50%;
+  width: 96px;
+  height: 96px;
+  translate: -50% -50%;
   border-radius: 50%;
-  border: 5px solid rgba(255, 255, 255, .75);
-  animation: cmap-pulse 1.8s ease-out infinite;
+  background: conic-gradient(var(--c) var(--lp, 0deg), rgba(0, 0, 0, .1) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
 }
+/* Thẻ bật ra dưới nút (Duolingo): nảy lên từ nút, mũi nhọn chỉ vào nút. */
+.cmap-node.is-pop { z-index: 6; }
+.cmap-pop {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  z-index: 6;
+  display: grid;
+  gap: 6px;
+  width: min(300px, calc(100vw - 32px));
+  padding: 16px;
+  translate: calc(-50% - var(--x)) 0; /* thẻ nằm giữa đường đi, không theo độ lượn của nút */
+  border-radius: 16px;
+  background: var(--c);
+  color: #fff;
+  text-align: left;
+  transform-origin: 50% 0;
+  animation: cmap-pop-in .22s cubic-bezier(.3, 1.6, .5, 1);
+}
+.cmap-pop::before { content: ""; position: absolute; top: -8px; left: calc(50% + var(--x)); width: 16px; height: 16px; translate: -50% 0; rotate: 45deg; border-radius: 3px; background: var(--c); }
+.cmap-pop b { font-size: 17px; font-weight: 900; line-height: 1.25; }
+.cmap-pop span { font-size: 14px; font-weight: 700; opacity: .9; }
+.cmap-pop button {
+  margin-top: 6px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--c-lip);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .18);
+  cursor: pointer;
+}
+.cmap-pop button:active:not(:disabled) { translate: 0 4px; box-shadow: none; }
+.cmap-pop button:disabled { opacity: .6; cursor: default; }
+@keyframes cmap-pop-in { from { opacity: 0; transform: scale(.6) translateY(-10px); } to { opacity: 1; transform: none; } }
 
 .cmap-bubble {
   position: absolute;
@@ -3042,23 +3094,47 @@
   pointer-events: none;
 }
 
+/* Đích: nối liền nền chặng cuối (--end-sky), cúp vàng kim loại phát sáng với tia sáng xoay. */
 .cmap-finish {
+  position: relative;
   display: grid;
   justify-items: center;
-  gap: 6px;
-  padding: 26px 16px calc(50px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, #ffa94d, #fff3bf);
-  color: #5c3c00;
+  gap: 8px;
+  overflow: hidden;
+  padding: 40px 16px calc(64px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, var(--end-sky, #ffd8a8) 0, color-mix(in srgb, var(--end-sky, #ffd8a8) 55%, #ffd43b) 100%);
+  color: #4a3200;
   text-align: center;
 }
-.cmap-trophy {
-  display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%;
-  background: #ffc800; color: #fff; box-shadow: 0 6px 0 #d9a900;
+.cmap-finish.is-night { color: #fff; }
+.cmap-finish::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  translate: -50% 0;
+  background: repeating-conic-gradient(rgba(255, 255, 255, .35) 0 10deg, transparent 10deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%);
+  mask: radial-gradient(circle, #000 20%, transparent 68%);
+  animation: cmap-rays 18s linear infinite;
+  pointer-events: none;
 }
-.cmap-trophy svg { width: 36px; height: 36px; }
+@keyframes cmap-rays { to { rotate: 360deg; } }
+.cmap-trophy {
+  position: relative;
+  display: grid; place-items: center; width: 104px; height: 104px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .9) 0 7%, rgba(255, 255, 255, .3) 22%, transparent 45%),
+    conic-gradient(from 200deg, #fff1a8, #ffc800 25%, #c98a00 50%, #ffc800 70%, #fff1a8);
+  color: #fff;
+  box-shadow: 0 8px 0 #b98200, 0 0 34px rgba(255, 200, 0, .75), inset 0 2px 0 rgba(255, 255, 255, .8);
+}
+.cmap-trophy svg { width: 50px; height: 50px; stroke-width: 2.4; filter: drop-shadow(0 2px 0 rgba(120, 70, 0, .35)); }
 .cmap-finish.is-done .cmap-trophy { animation: cmap-bob 1.6s ease-in-out infinite; }
-.cmap-finish strong { font-size: 18px; font-weight: 900; }
-.cmap-finish small { font-size: 13px; font-weight: 700; opacity: .75; }
+.cmap-finish strong { position: relative; margin-top: 10px; font-size: 22px; font-weight: 900; }
+.cmap-finish small { position: relative; font-size: 13px; font-weight: 800; opacity: .75; }
 
 /* Bảng chi tiết chặng */
 .cmap-sheet-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; align-items: end; justify-items: center; background: rgba(0, 0, 0, .45); }
@@ -3107,7 +3183,7 @@
 @keyframes cmap-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes cmap-wait { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .cmap-node.is-current::before, .cmap-bubble, .cmap-mascot, .cmap-finish.is-done .cmap-trophy { animation: none; }
+  .cmap-pop, .cmap-finish::before, .cmap-bubble, .cmap-mascot, .cmap-finish.is-done .cmap-trophy { animation: none; }
 }
 @media (max-width: 380px) {
   .cmap-mascot { width: 78px; translate: calc(-50% + var(--side) * 100px) -50%; }

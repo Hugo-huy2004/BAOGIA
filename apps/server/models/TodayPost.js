@@ -21,6 +21,9 @@ const TodayPostSchema = new mongoose.Schema(
     },
     // Chỉ bài gốc mới có. Công khai thì để trống (không ghi gì), "Chỉ mình tôi" = 'private'.
     audience: { type: String, enum: ['private'], default: undefined },
+    // Bảng riêng: 'edu' = Cộng đồng học thuật của Education Hugo (/community). Trống = bảng tin Today.
+    // Chỉ bài gốc mang; bình luận bám theo cây parentKey như cũ.
+    board: { type: String, enum: ['edu'], default: undefined },
     parentKey: { type: String, default: null },
     // Mọi tổ tiên — xoá một bài là xoá luôn cả nhánh bình luận bên dưới.
     // Mảng rỗng/ngày trống để `undefined` cho khỏi ghi trường thừa vào mỗi bài.
@@ -43,6 +46,7 @@ const TodayPostSchema = new mongoose.Schema(
 );
 
 TodayPostSchema.index({ parentKey: 1, createdAt: -1 });
+TodayPostSchema.index({ board: 1, parentKey: 1, createdAt: -1 }, { partialFilterExpression: { board: { $type: 'string' } } });
 TodayPostSchema.index({ reviewedAt: 1 }, { partialFilterExpression: { authorEmail: { $type: 'string' } } });
 
 export default mongoose.model('TodayPost', TodayPostSchema);

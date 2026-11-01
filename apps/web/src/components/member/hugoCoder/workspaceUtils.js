@@ -8,3 +8,14 @@ export const CODER_STORAGE_KEYS = {
   lastLesson: "student_ide_last_lesson"
 };
 
+
+// Bài nhỏ khách (chưa đăng nhập) đã học — chỉ trong máy, như tiến độ step của khách.
+export const GUEST_LESSONS = "coding.lessons";
+export function readGuestLessons() {
+  try {
+    const value = JSON.parse(localStorage.getItem(GUEST_LESSONS) || "{}");
+    return value && typeof value === "object" ? value : {};
+  } catch {
+    return {};
+  }
+}

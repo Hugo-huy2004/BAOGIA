@@ -9,6 +9,46 @@ import { changeAppLanguage } from "../i18n/config";
 import { EduInstall } from "./EduShell";
 import { useEduText } from "./eduText";
 import { EDU_LANGS } from "./eduCopy";
+import { webauthnHelper } from "../utils/webauthnHelper";
+
+/** Passkey (Face ID / vân tay) của tài khoản: xem, thêm máy này, gỡ máy cũ — Better Auth phía máy chủ. */
+function Passkeys() {
+  const { t } = useEduText();
+  const [list, setList] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const supported = webauthnHelper.isSupported();
+  const load = () => webauthnHelper.listDevices().then(setList).catch(() => setList([]));
+  useEffect(() => { if (supported) load(); }, [supported]);
+  const add = async () => {
+    setBusy(true);
+    try {
+      const { iOS, android } = detectInstallTarget();
+      await webauthnHelper.registerDevice(null, iOS ? "iPhone / iPad" : android ? "Android" : navigator.platform || "Passkey");
+      notify.success(t("settings.passkeyAdded"));
+      load();
+    } catch (error) {
+      if (error.name !== "NotAllowedError") notify.error(t("settings.passkeyFailed"));
+    } finally { setBusy(false); }
+  };
+  const remove = async (id) => {
+    if (!(await notify.confirm({ title: t("settings.passkeyRemoveAsk") }))) return;
+    if (await webauthnHelper.removeDevice(id)) setList((all) => all.filter((p) => p._id !== id));
+    else notify.error(t("settings.passkeyFailed"));
+  };
+  return (
+    <div className="edu-set">
+      <h2>{t("settings.passkey")}</h2>
+      <p className="edu-set-note">{supported ? t("settings.passkeyHint") : t("settings.passkeyUnsupported")}</p>
+      {list?.map((p) => (
+        <div key={p._id} className="edu-set-row">
+          <div><b>{p.deviceName}</b><small>{new Date(p.createdAt).toLocaleDateString()}</small></div>
+          <button type="button" className="edu-btn is-ghost" onClick={() => remove(p._id)}>{t("settings.passkeyRemove")}</button>
+        </div>
+      ))}
+      {supported && <button type="button" className="edu-btn" disabled={busy} onClick={add}>{t("settings.passkeyAdd")}</button>}
+    </div>
+  );
+}
 
 function Switch({ checked, onChange, label, disabled }) {
   return <button type="button" role="switch" className="edu-switch" aria-checked={checked} aria-label={label} disabled={disabled} onClick={() => onChange(!checked)} />;
@@ -81,7 +121,8 @@ function DevicePush({ email }) {
  * Cài đặt cá nhân Education Hugo. Lưu trên máy chủ ngay khi đổi, nên máy khác
  * cùng tài khoản nhận cài đặt mới ở lần mở/quay lại tab tiếp theo.
  */
-export default function EduSettings({ learner, onLearnerUpdate }) {
+/** `embedded`: nằm trong trang Hồ sơ (Hồ sơ + Cài đặt gộp một trang) — bỏ khung và tiêu đề trang. */
+export default function EduSettings({ learner, onLearnerUpdate, embedded = false }) {
   const { t, lang } = useEduText();
   const prefs = cleanEduPrefs(learner?.edu?.prefs || EDU_DEFAULT_PREFS);
 
@@ -103,9 +144,10 @@ export default function EduSettings({ learner, onLearnerUpdate }) {
     }
   };
 
+  const Wrap = embedded ? "div" : "section";
   return (
-    <section className="edu-page">
-      <h1 className="edu-page-title">{t("settings.title")}</h1>
+    <Wrap className={embedded ? "edu-settings-embedded" : "edu-page"}>
+      {embedded ? <h2 className="edu-page-title">{t("settings.title")}</h2> : <h1 className="edu-page-title">{t("settings.title")}</h1>}
 
       <div className="edu-set">
         <h2>{t("settings.study")}</h2>
@@ -158,6 +200,7 @@ export default function EduSettings({ learner, onLearnerUpdate }) {
         </div>
         <p className="edu-set-note">{t("settings.note")}</p>
       </div>
-    </section>
+      <Passkeys />
+    </Wrap>
   );
 }

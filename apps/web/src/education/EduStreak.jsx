@@ -299,14 +299,16 @@ function RiveFlame({ onFail, className = "cel-rive" }) {
       if (dead) return;
       RuntimeLoader.setWasmUrl("/edu/rive/rive.wasm"); // tự host — không gọi CDN của Rive
       rive = new Rive({
-        src: "/edu/rive/spiro-streak.riv", artboard: "Spiro-Flame Design", animations: "Timeline 1",
-        canvas: canvas.current, autoplay: true, layout: new Layout({ fit: Fit.Cover }),
+        // "Spiro-Flame Design" chỉ là bảng thiết kế gần như đứng yên — lửa cháy thật là hoạt cảnh "Flame"
+        // của artboard Motion (1080×1920, có chữ "30 day streak" bên dưới): vẽ cả artboard, CSS cắt lấy ngọn lửa.
+        src: "/edu/rive/spiro-streak.riv", artboard: "Spiro-Flame Motion v02", animations: "Flame",
+        canvas: canvas.current, autoplay: true, layout: new Layout({ fit: Fit.Contain }),
         onLoadError: () => !dead && onFail(),
       });
     }).catch(() => !dead && onFail());
     return () => { dead = true; rive?.cleanup(); };
   }, [onFail]);
-  return <canvas ref={canvas} className={className} width={560} height={560} aria-hidden="true" />;
+  return <span className={`rive-crop ${className}`} aria-hidden="true"><canvas ref={canvas} width={540} height={960} /></span>;
 }
 
 /**

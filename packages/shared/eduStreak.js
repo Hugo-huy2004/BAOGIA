@@ -145,36 +145,85 @@ export function stageOf(count) {
   return [...FLAME_STAGES].reverse().find((stage) => count >= stage.from).id;
 }
 
-/** Chữ push theo chuỗi (máy chủ chọn ngôn ngữ theo từng thiết bị). `{n}` = số ngày. */
+/**
+ * Chữ push Education Hugo kiểu Duolingo: Hugo tự xưng, ngắn, vui. KHÔNG emoji bàn phím (quy ước toàn hệ thống: chỉ đồ hoạ riêng). Mỗi khoá có
+ * vài câu xoay vòng (`vars.v` = số thứ tự, máy chủ đặt theo ngày) để nhắc mỗi ngày không lặp.
+ * Máy chủ chọn ngôn ngữ theo từng thiết bị; hộp thông báo dựng lại từ khoá + vars đã lưu.
+ */
 export const STREAK_PUSH = {
   vi: {
-    remind: ['Lửa Nhỏ đang đợi bạn', 'Chuỗi {n} ngày — qua một bài hôm nay để lửa cháy thêm một ngày.'],
-    remindNew: ['Nhóm một đốm lửa nhé', 'Qua một bài hôm nay là Lửa Nhỏ thức dậy. Chuỗi đầu tiên bắt đầu từ đây.'],
-    nearMilestone: ['Còn 1 ngày là tới mốc {m}', 'Học hôm nay để nhận {joy} JOY ở mốc {m} ngày.'],
-    lastCall: ['Còn vài giờ để giữ lửa', 'Lửa Nhỏ sắp đóng băng — một bài ngắn thôi là giữ được chuỗi {n} ngày.'],
-    frozen: ['Lửa Nhỏ bị đóng băng rồi', 'Hôm qua bạn lỡ học. Học hôm nay để sưởi ấm, hoặc phá băng bằng 250 JOY. Đã đóng băng {f}/3 lần tháng này.'],
-    milestone: ['Mốc {n} ngày!', 'Lửa Nhỏ lớn thêm rồi — bạn nhận {joy} JOY. Mở lịch lửa để xem chương mới.'],
+    remind: [
+      ['Chào bạn! Hugo đây.', 'Tới giờ học rồi. Chỉ 5 phút cho một bài nhỏ là chuỗi {n} ngày cháy thêm một ngày.'],
+      ['Nghỉ tay chút không?', 'Bài học không tự học được đâu nha. Chuỗi {n} ngày đang chờ bạn.'],
+      ['Chào bạn! Hugo đây.', 'Cho thời gian dùng điện thoại đáng giá hơn nào — học một bài nhỏ ngay nhé!'],
+      ['Lửa Nhỏ đang đợi bạn', 'Chuỗi {n} ngày — một bài nhỏ hôm nay là đủ giữ lửa.'],
+    ],
+    remindNew: [
+      ['Chào bạn! Hugo đây.', 'Nhóm đốm lửa đầu tiên nhé — một bài nhỏ 5 phút là Lửa Nhỏ thức dậy.'],
+      ['Bắt đầu nhỏ thôi', 'Một bài nhỏ hôm nay, một chuỗi dài ngày mai.'],
+      ['Hugo nhớ bạn đó', 'Code không tự viết được đâu nha. Mở một bài nhỏ nhé!'],
+    ],
+    nearMilestone: [['Sắp tới mốc {m} ngày!', 'Học một bài nhỏ hôm nay để nhận {joy} JOY ở mốc {m} ngày.']],
+    lastCall: [
+      ['Còn vài giờ thôi!', 'Lửa Nhỏ sắp đóng băng — một bài ngắn là giữ được chuỗi {n} ngày.'],
+      ['Hugo đang lo đó', 'Chuỗi {n} ngày sắp tắt. 5 phút thôi, cứu lửa nào!'],
+    ],
+    frozen: [['Lửa Nhỏ bị đóng băng rồi', 'Hôm qua bạn lỡ học. Học hôm nay để sưởi ấm, hoặc phá băng bằng 250 JOY. Đã đóng băng {f}/3 lần tháng này.']],
+    milestone: [['Mốc {n} ngày!', 'Lửa Nhỏ lớn thêm rồi — bạn nhận {joy} JOY. Mở lịch lửa để xem chương mới.']],
+    account: [['Tài khoản còn {d} ngày', 'Gia hạn bằng JOY trong Cửa hàng (hoặc xác minh học sinh – sinh viên để được 1 năm) để giữ tiến độ học.']],
+    security: [['Có đăng nhập mới', 'Tài khoản vừa đăng nhập trên {device}. Không phải bạn? Mở Hồ sơ Hugo Studio để đăng xuất máy lạ.']],
   },
   en: {
-    remind: ['Little Flame is waiting', '{n}-day streak — pass one lesson today to keep it burning.'],
-    remindNew: ['Light a little spark', 'Pass one lesson today and Little Flame wakes up. Your first streak starts here.'],
-    nearMilestone: ['1 day to your {m}-day milestone', 'Learn today to earn {joy} JOY at {m} days.'],
-    lastCall: ['A few hours left to keep the flame', 'Little Flame is about to freeze — one short lesson keeps your {n}-day streak.'],
-    frozen: ['Little Flame got frozen', 'You missed yesterday. Learn today to warm it up, or thaw it for 250 JOY. Frozen {f}/3 times this month.'],
-    milestone: ['{n}-day milestone!', 'Little Flame grew — you earned {joy} JOY. Open the flame calendar for a new chapter.'],
+    remind: [
+      ["Hi! It's Hugo.", "It's time for your daily lesson. Take 5 minutes now to keep your {n}-day streak burning."],
+      ['Ready for a break?', "Your lessons won't take themselves. Your {n}-day streak is waiting."],
+      ["Hi! It's Hugo.", 'Make your screen time count. Take a quick lesson now!'],
+      ['Little Flame is waiting', '{n}-day streak — one short lesson today keeps it burning.'],
+    ],
+    remindNew: [
+      ["Hi! It's Hugo.", 'Light your first spark — one 5-minute lesson wakes Little Flame up.'],
+      ['Start small', 'One small lesson today, a long streak tomorrow.'],
+      ['Hugo misses you', "Code won't write itself. Open a quick lesson!"],
+    ],
+    nearMilestone: [['Almost at {m} days!', 'Take one lesson today to earn {joy} JOY at {m} days.']],
+    lastCall: [
+      ['Only a few hours left!', 'Little Flame is about to freeze — one short lesson keeps your {n}-day streak.'],
+      ["Hugo's getting worried", 'Your {n}-day streak is about to go out. 5 minutes to save it!'],
+    ],
+    frozen: [['Little Flame got frozen', 'You missed yesterday. Learn today to warm it up, or thaw it for 250 JOY. Frozen {f}/3 times this month.']],
+    milestone: [['{n}-day milestone!', 'Little Flame grew — you earned {joy} JOY. Open the flame calendar for a new chapter.']],
+    account: [['{d} days left on your account', 'Extend with JOY in the Shop (or verify as a student for a full year) to keep your progress.']],
+    security: [['New sign-in', "Your account just signed in on {device}. Not you? Open Profile Hugo Studio to sign out unknown devices."]],
   },
   zh: {
-    remind: ['小火苗在等你', '已连续 {n} 天——今天通过一课，让火继续燃烧。'],
-    remindNew: ['点亮一点小火花', '今天通过一课，小火苗就会醒来。你的第一段连续记录从这里开始。'],
-    nearMilestone: ['离 {m} 天里程碑还差 1 天', '今天学习，即可在第 {m} 天获得 {joy} JOY。'],
-    lastCall: ['只剩几个小时守住火苗', '小火苗快要结冰了——一节短课就能保住 {n} 天连续记录。'],
-    frozen: ['小火苗被冻住了', '你昨天没学习。今天学习来温暖它，或花 250 JOY 破冰。本月已结冰 {f}/3 次。'],
-    milestone: ['{n} 天里程碑！', '小火苗长大了——你获得 {joy} JOY。打开火焰日历看新的章节。'],
+    remind: [
+      ['嗨！我是 Hugo。', '到学习时间啦。花 5 分钟学一节小课，让 {n} 天连续记录继续燃烧。'],
+      ['想休息一下吗？', '课程可不会自己学完哦。你的 {n} 天连续记录在等你。'],
+      ['嗨！我是 Hugo。', '让屏幕时间更有价值——现在就学一节小课吧！'],
+      ['小火苗在等你', '已连续 {n} 天——今天一节小课就能守住火苗。'],
+    ],
+    remindNew: [
+      ['嗨！我是 Hugo。', '点亮第一朵火花吧——5 分钟一节小课，小火苗就会醒来。'],
+      ['从小处开始', '今天一节小课，明天一段长长的连续记录。'],
+      ['Hugo 想你了', '代码可不会自己写出来。打开一节小课吧！'],
+    ],
+    nearMilestone: [['快到 {m} 天里程碑了！', '今天学一节小课，即可在第 {m} 天获得 {joy} JOY。']],
+    lastCall: [
+      ['只剩几个小时！', '小火苗快要结冰了——一节短课就能保住 {n} 天连续记录。'],
+      ['Hugo 有点担心', '{n} 天连续记录快熄灭了。5 分钟救救火苗！'],
+    ],
+    frozen: [['小火苗被冻住了', '你昨天没学习。今天学习来温暖它，或花 250 JOY 破冰。本月已结冰 {f}/3 次。']],
+    milestone: [['{n} 天里程碑！', '小火苗长大了——你获得 {joy} JOY。打开火焰日历看新的章节。']],
+    account: [['账户还剩 {d} 天', '在商店用 JOY 续期（或验证学生身份获得 1 年），以保留学习进度。']],
+    security: [['新的登录', '你的账户刚在 {device} 上登录。不是你？打开 个人资料 Hugo Studio 退出陌生设备。']],
   },
 };
 
+/** `vars.v` chọn câu trong các biến thể (xoay vòng); thiếu thì câu đầu. */
 export function streakPush(lang, key, vars = {}) {
-  const [title, body] = (STREAK_PUSH[lang] || STREAK_PUSH.vi)[key];
+  const variants = (STREAK_PUSH[lang] || STREAK_PUSH.vi)[key] || STREAK_PUSH.vi[key];
+  if (!variants) return null;
+  const [title, body] = variants[Math.abs(Number(vars.v) || 0) % variants.length];
   const fill = (text) => text.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
   return { title: fill(title), body: fill(body) };
 }

@@ -5,6 +5,8 @@ import { notificationLanguage } from '../../../packages/shared/notificationText.
 import { renderNotification } from '../../../packages/shared/pushText.js';
 import { denomKey } from '../../../packages/shared/joyCurrency.js';
 import Bio from '../models/Bio.js';
+import InAppNotification from '../models/InAppNotification.js';
+import { streakPush } from '../../../packages/shared/eduStreak.js';
 
 // Setup VAPID details
 const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
@@ -35,7 +37,20 @@ export async function sendPushNotification(email, title, body, url = '/member/to
  * Push của Education Hugo: chỉ tới máy đăng ký từ tên miền Edu (site 'edu'),
  * chạm vào thì mở trong app Edu. Truyền `text(lang)` để chữ theo ngôn ngữ từng máy.
  */
-export async function sendEduPush(email, { title, body, text, url = '/learn', tag }) {
+// Khoá push Edu → nhóm trong hộp thông báo.
+const EDU_CATEGORY = { account: 'package', security: 'security', milestone: 'joy' };
+
+export async function sendEduPush(email, { title, body, text: textFn, key, vars = {}, url = '/learn', tag }) {
+  // `key` + `vars`: chữ trong packages/shared/eduStreak.js (STREAK_PUSH) — vừa push theo ngôn ngữ
+  // TỪNG máy, vừa lưu khoá vào hộp thông báo để Edu dựng lại đúng ngôn ngữ người đọc.
+  const text = key ? (lang) => streakPush(lang, key, vars) : textFn;
+  if (key) {
+    const vi = streakPush('vi', key, vars);
+    await InAppNotification.create({
+      email, appId: 'edu', category: EDU_CATEGORY[key] || 'general', title: vi.title, message: vi.body,
+      i18nKey: `edu.${key}`, i18nParams: vars, actionUrl: url,
+    }).catch((error) => console.error('[edu inbox]', error.message));
+  }
   // `text(lang)` → { title, body } theo ngôn ngữ của TỪNG máy (vi/en/zh, còn lại rơi về vi).
   const pick = (sub) => {
     if (!text) return { title, body };
