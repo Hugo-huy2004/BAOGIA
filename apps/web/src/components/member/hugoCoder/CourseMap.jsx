@@ -316,7 +316,7 @@ export default function CourseMap({ courses, stages, completedSet, currentIndex,
         className={`cmap-finish${allDone ? " is-done" : ""}${units.length && NIGHT_TONES.has(toneOf(units.at(-1).stage)) ? " is-night" : ""}`}
         style={units.length ? { "--end-sky": SKY[toneOf(units.at(-1).stage)] } : undefined}
       >
-        <span className="cmap-trophy"><Trophy aria-hidden="true" /></span>
+        <span className="cmap-trophy-wrap"><span className="cmap-trophy"><Trophy aria-hidden="true" /></span></span>
         <strong>{allDone ? t("map.finishDone") : t("map.finishGoal")}</strong>
         <small>{t("map.exclusive")}</small>
       </footer>

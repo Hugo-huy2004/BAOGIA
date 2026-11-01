@@ -3107,17 +3107,17 @@
   text-align: center;
 }
 .cmap-finish.is-night { color: #fff; }
-.cmap-finish::before {
+/* Tia sáng gắn vào CHÍNH chiếc cúp (không theo bề ngang phần đích, vốn kéo dài dưới cột phải). */
+.cmap-trophy-wrap { position: relative; display: grid; place-items: center; isolation: isolate; }
+.cmap-trophy-wrap::before {
   content: "";
   position: absolute;
-  top: -40px;
-  left: 50%;
-  width: 320px;
-  height: 320px;
-  translate: -50% 0;
+  inset: -110px;
+  z-index: -1;
+  border-radius: 50%;
   background: repeating-conic-gradient(rgba(255, 255, 255, .35) 0 10deg, transparent 10deg 30deg);
-  -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%);
-  mask: radial-gradient(circle, #000 20%, transparent 68%);
+  -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%);
+  mask: radial-gradient(circle, #000 25%, transparent 70%);
   animation: cmap-rays 18s linear infinite;
   pointer-events: none;
 }
@@ -3183,7 +3183,7 @@
 @keyframes cmap-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes cmap-wait { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .cmap-pop, .cmap-finish::before, .cmap-bubble, .cmap-mascot, .cmap-finish.is-done .cmap-trophy { animation: none; }
+  .cmap-pop, .cmap-trophy-wrap::before, .cmap-bubble, .cmap-mascot, .cmap-finish.is-done .cmap-trophy { animation: none; }
 }
 @media (max-width: 380px) {
   .cmap-mascot { width: 78px; translate: calc(-50% + var(--side) * 100px) -50%; }

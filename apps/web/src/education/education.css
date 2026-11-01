@@ -793,7 +793,7 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .streak-page, .streak-page.is-lit, .streak-page.is-idle, .streak-page.is-frozen, .streak-page.is-empty,
 :root.dark .streak-page.is-empty, :root.dark .streak-page.is-idle, :root.dark .streak-page.is-frozen { --band: #000; }
 .streak-band { overflow: hidden; }
-.band-rive { --s: 220px; margin: -26px; -webkit-mask: none; mask: none; }
+.band-rive { --s: 200px; margin: -16px; -webkit-mask: radial-gradient(circle, #000 50%, transparent 70%); mask: radial-gradient(circle, #000 50%, transparent 70%); }
 .streak-page.is-empty, :root.dark .streak-page.is-empty { --band-sub: rgb(214 211 209 / .75); }
 .streak-band > div { min-width: 0; } .streak-band-note { max-width: 180px; }
 
@@ -835,9 +835,9 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .edu-profile { flex-wrap: wrap; }
 .edu-profile > div { flex: 1; min-width: 0; }
 .edu-profile > div small { overflow-wrap: anywhere; }
-/* Rive: artboard Motion dọc 1080×1920 — chỉ chừa khung vuông quanh ngọn lửa (x 140–940, y 448–1248 — bỏ chữ "30 day streak" bên dưới). */
+/* Rive: artboard Motion dọc 1080×1920 — chỉ chừa khung vuông quanh ngọn lửa (x 190–890, y 430–1130 — bỏ chữ "30 day streak" và mép vuông). */
 .rive-crop { position: relative; display: block; flex: none; width: var(--s); height: var(--s); overflow: hidden; }
-.rive-crop canvas { position: absolute; width: calc(var(--s) * 1.35); height: calc(var(--s) * 2.4); left: calc(var(--s) * -.175); top: calc(var(--s) * -.56); }
+.rive-crop canvas { position: absolute; width: calc(var(--s) * 1.543); height: calc(var(--s) * 2.743); left: calc(var(--s) * -.271); top: calc(var(--s) * -.614); }
 /* Lửa động ở mọi chỗ nhỏ (chip, thẻ, dự phòng): dải 24 khung public/edu/flame-sprite.webp, 24 fps. */
 .flame-sprite { display: inline-block; width: var(--flame); height: var(--flame); flex: none; background: url(/edu/flame-sprite.webp) 0 0 / calc(var(--flame) * 24) 100% no-repeat; animation: flame-burn 1s steps(24) infinite; }
 @keyframes flame-burn { to { background-position-x: calc(var(--flame) * -24); } }
@@ -932,3 +932,32 @@ img.flame-buddy.is-alive { animation: flame-sway 2.4s ease-in-out infinite; tran
 .joy-coin::after { content: ""; position: absolute; inset: -20%; background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / .75) 50%, transparent 60%); transform: translateX(-80%); animation: joy-shine 3.2s ease-in-out infinite; }
 @keyframes joy-shine { 0%, 60% { transform: translateX(-80%); } 85%, 100% { transform: translateX(80%); } }
 @media (prefers-reduced-motion: reduce) { .joy-coin::after { animation: none; } }
+
+/* ── Tổng quan một biểu đồ (Rail): 4 vòng đồng tâm + chú thích; nền thẻ trung tính để chữ luôn rõ ── */
+.edu-dash { display: grid; gap: 14px; padding: 18px; border: 2px solid var(--edu-line); border-radius: 20px; background: var(--edu-card); color: var(--edu-ink); }
+.edu-dash-bars { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.edu-dash-bars a { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; padding: 8px; border-radius: 12px; color: var(--edu-ink); text-decoration: none; }
+.edu-dash-bars a:hover { background: var(--edu-soft); }
+.edu-dash-bars span { font-weight: 800; color: var(--edu-muted); }
+.edu-dash-bars b { font-size: 17px; font-weight: 900; }
+.edu-dash-bars i { grid-column: 1 / -1; position: relative; height: 14px; border-radius: 7px; background: color-mix(in srgb, var(--c) 18%, transparent); overflow: hidden; }
+.edu-dash-bars i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: calc(max(var(--v), .04) * 100%); border-radius: 7px; background: var(--c); box-shadow: inset 0 -3px 0 rgb(0 0 0 / .12), inset 0 3px 0 rgb(255 255 255 / .3); transform-origin: left; animation: edu-bar-in .9s cubic-bezier(.3, 1.2, .4, 1) both; animation-delay: calc(var(--i) * .1s); }
+@keyframes edu-bar-in { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .edu-dash-bars i::after { animation: none; } }
+.edu-dash-warn { padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--edu-red) 15%, transparent); color: var(--edu-red); font-weight: 800; text-decoration: none; }
+.edu-dash-zips { display: flex; flex-wrap: wrap; gap: 6px; }
+.edu-dash-zips a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 10px; border-radius: 10px; background: var(--edu-soft); color: var(--edu-ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+/* Thẻ tổng quan không theo bảng màu thẻ cột phải: nền trung tính, chỉ vòng biểu đồ mang màu. */
+.edu-rail .edu-card.edu-dash { border: 2px solid var(--edu-line); background: var(--edu-card); color: var(--edu-ink); box-shadow: 0 4px 0 var(--edu-line); }
+
+/* Lửa sáng lan ra xung quanh: quầng cam phập phồng phủ xuống đầu phần thân và hắt lên viền các thẻ. */
+.streak-page:not(.is-empty) .streak-body { position: relative; }
+.streak-page:not(.is-empty) .streak-body::before {
+  content: ""; position: absolute; inset: -40px -20% auto; height: 340px; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0, rgb(255 150 0 / .32), rgb(255 120 0 / .12) 45%, transparent 75%);
+  animation: streak-glow 2.4s ease-in-out infinite;
+}
+.streak-page:not(.is-empty) .streak-body > * { position: relative; z-index: 1; box-shadow: 0 0 22px rgb(255 150 0 / .16); }
+.streak-page.is-frozen .streak-body::before { background: radial-gradient(ellipse at 50% 0, rgb(80 180 255 / .3), transparent 75%); }
+@keyframes streak-glow { 50% { opacity: .6; transform: scaleY(.92); } }
+@media (prefers-reduced-motion: reduce) { .streak-body::before { animation: none; } }

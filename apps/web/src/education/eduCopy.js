@@ -18,6 +18,7 @@ export const EDU_COPY = {
     persona: { stepNick: "Biệt danh của bạn?", nickBody: "Tên này hiện cho bạn học thấy thay cho tên thật.", next: "Tiếp tục", stepAvatar: "Tạo nhân vật của bạn", avatarBody: "Nhân vật đại diện bạn ở mọi nơi trong Education Hugo.", random: "Ngẫu nhiên", done: "Xong", saved: "Đã lưu nhân vật", edit: "Sửa nhân vật", close: "Đóng", failed: "Chưa lưu được, thử lại nhé.", parts: { hair: "Tóc", eyes: "Mắt", mouth: "Miệng", clothes: "Áo", glasses: "Kính", hat: "Mũ", beard: "Râu", accessories: "Phụ kiện", skinColor: "Da", hairColor: "Màu tóc", clothingColor: "Màu áo", backgroundColor: "Nền" }, none: "Không", credit: "Nhân vật: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, thuộc Hugo Studio", of: "thuộc" },
     nav: { learn: "Học", progress: "Tiến độ", store: "Cửa hàng", profile: "Hồ sơ", community: "Cộng đồng", settings: "Cài đặt" },
+    rail: { today: "Mục tiêu hôm nay", stage: "Chặng hiện tại", streak: "Lửa tới mốc", score: "Điểm trắc nghiệm" },
     topbar: {
       courses: "Khoá học của bạn", course: { coding: "Lập trình Web", quan: "Quán — khoá 2" }, courseProgress: "{done}/{total} step đã qua",
       addCourse: "Thêm khoá học (sắp ra mắt)", joyBody: "JOY kiếm được khi qua bài lần đầu và giữ chuỗi lửa. Dùng để gia hạn tài khoản, phá băng chuỗi.",
@@ -235,6 +236,7 @@ export const EDU_COPY = {
     persona: { stepNick: "What's your nickname?", nickBody: "Other learners see this instead of your real name.", next: "Continue", stepAvatar: "Create your character", avatarBody: "Your character represents you everywhere in Education Hugo.", random: "Random", done: "Done", saved: "Character saved", edit: "Edit character", close: "Close", failed: "Couldn't save, please try again.", parts: { hair: "Hair", eyes: "Eyes", mouth: "Mouth", clothes: "Top", glasses: "Glasses", hat: "Hat", beard: "Beard", accessories: "Extras", skinColor: "Skin", hairColor: "Hair colour", clothingColor: "Top colour", backgroundColor: "Background" }, none: "None", credit: "Characters: DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo, part of Hugo Studio", of: "by" },
     nav: { learn: "Learn", progress: "Progress", store: "Shop", profile: "Profile", community: "Community", settings: "Settings" },
+    rail: { today: "Today's goal", stage: "Current stage", streak: "Flame to milestone", score: "Quiz score" },
     topbar: {
       courses: "Your courses", course: { coding: "Web Programming", quan: "Quán — course 2" }, courseProgress: "{done}/{total} steps passed",
       addCourse: "Add a course (coming soon)", joyBody: "Earn JOY by passing lessons the first time and keeping your streak. Use it to extend your account or thaw a frozen streak.",
@@ -510,6 +512,7 @@ export const EDU_COPY = {
     persona: { stepNick: "你的昵称是？", nickBody: "其他同学看到的是昵称，而不是你的真实姓名。", next: "继续", stepAvatar: "创建你的角色", avatarBody: "角色会在 Education Hugo 各处代表你。", random: "随机", done: "完成", saved: "角色已保存", edit: "编辑角色", close: "关闭", failed: "保存失败，请重试。", parts: { hair: "发型", eyes: "眼睛", mouth: "嘴巴", clothes: "上衣", glasses: "眼镜", hat: "帽子", beard: "胡子", accessories: "配饰", skinColor: "肤色", hairColor: "发色", clothingColor: "衣服颜色", backgroundColor: "背景" }, none: "无", credit: "角色：DiceBear Pixel Art (CC0)" },
     brand: { aria: "Education Hugo，隶属 Hugo Studio", of: "隶属" },
     nav: { learn: "学习", progress: "进度", store: "商店", profile: "个人资料", community: "社区", settings: "设置" },
+    rail: { today: "今日目标", stage: "当前阶段", streak: "火苗到里程碑", score: "测验分数" },
     topbar: {
       courses: "你的课程", course: { coding: "网页编程", quan: "Quán —— 第 2 门课" }, courseProgress: "已完成 {done}/{total} 个 step",
       addCourse: "添加课程（即将上线）", joyBody: "首次通过课程和保持连续记录可赚取 JOY，用于延长账户或给连续记录破冰。",

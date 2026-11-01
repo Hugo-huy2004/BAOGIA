@@ -13,7 +13,7 @@ import { CODER_JOY_PER_CORRECT } from "../../../../packages/shared/coderProgress
 import { canPromptInstall, promptInstall } from "./eduHead";
 import { rich, useEduText } from "./eduText";
 import { FlameBuddy } from "./EduStreak";
-import EduTopBar, { useEduInbox } from "./EduTopBar";
+import EduTopBar, { JoyCoin, useEduInbox } from "./EduTopBar";
 import AnimIcon from "../components/icons/animated/AnimIcon";
 import EduSettings from "./EduSettings";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -228,56 +228,41 @@ function Rail({ learner, signedIn, stats, onStreak }) {
   const zips = stats.stages.filter((row) => row.complete);
   const today = learner?.edu?.today;
   const streak = learner?.edu?.streak;
+  // MỘT biểu đồ cho cả tình hình: 4 thanh, mỗi thanh một chỉ số 0–100%.
+  const rings = [
+    { key: "today", to: "/profile", color: "#58cc02", value: today ? Math.min(1, today.done / today.goal) : 0, text: today ? `${Math.min(today.done, today.goal)}/${today.goal}` : "—" },
+    { key: "stage", to: "/learn", color: "#1cb0f6", value: current?.total ? current.finished / current.total : 0, text: current ? `${current.finished}/${current.total}` : "—", label: current?.code },
+    { key: "streak", to: "/streak", color: "#ff9600", value: streak?.next?.day ? Math.min(1, streak.count / streak.next.day) : 0, text: streak ? `${streak.count}/${streak.next.day}` : "0" },
+    { key: "score", to: "/progress", color: "#ce82ff", value: (stats.average || 0) / 100, text: stats.average === null ? "—" : `${stats.average}%` },
+  ];
   return (
     <>
-      {streak && (
-        <button type="button" className="edu-card edu-card--streak" onClick={onStreak}>
-          <FlameBuddy stage={streak.stage} frozen={streak.frozenNow && !streak.studiedToday} size={56} className="is-alive" />
-          <div>
-            <b>{t("streak.chip", { n: streak.count })}</b>
-            <small>{streak.studiedToday ? t("streak.today") : t("streak.notToday")}</small>
-            <small>{t("streak.next", { d: streak.next.day, joy: streak.next.joy })}</small>
-          </div>
-        </button>
-      )}
-      {today && (
-        <section className={`edu-card${today.done >= today.goal ? " edu-card--done" : ""}`}>
-          <header><h2>{t("shell.goalTitle")}</h2><Link to="/settings">{t("shell.edit")}</Link></header>
-          <div className="edu-bar" aria-label={`${Math.min(today.done, today.goal)}/${today.goal} step`}><i style={{ width: `${Math.min(100, (today.done / today.goal) * 100)}%` }} /></div>
-          <p className="edu-card-meta">{today.done >= today.goal ? t("shell.goalDone") : t("shell.goalToday", { done: today.done, goal: today.goal })}</p>
-        </section>
-      )}
-      {current && (
-        <section className="edu-card">
-          <header><h2>{current.code || t("common.stage", { n: current.phaseNumber })}</h2><Link to="/learn">{t("shell.continue")}</Link></header>
-          <p className="edu-card-sub">{String(current.title || "").replace(/^CODE \d+ · /, "")}</p>
-          <div className="edu-bar" aria-label={`${current.finished}/${current.total} step`}><i style={{ width: `${current.total ? (current.finished / current.total) * 100 : 0}%` }} /></div>
-          <p className="edu-card-meta">{t("shell.inStage", { done: current.finished, total: current.total })}</p>
-        </section>
-      )}
-      {!learner?.isEduVerified && stats.days !== null && (
-        <section className={`edu-card${stats.days <= 3 ? " edu-card--warn" : ""}`}>
-          <header><h2>{t("shell.keepTitle")}</h2><Link to="/store">{t("shell.renew")}</Link></header>
-          <p>{stats.days > 0 ? t("shell.keepLeft", { n: stats.days }) : t("shell.expired")} {t("shell.keepRule", { days: ACCOUNT_EXTENSION.days, price: joyText(ACCOUNT_EXTENSION.priceJoy), joy: CODER_JOY_PER_CORRECT })}</p>
-        </section>
-      )}
-      <section className="edu-card">
-        <header><h2>{t("shell.codeTitle")}</h2></header>
-        {zips.length ? (
-          <ul className="edu-zips">
+      <section className="edu-card edu-dash">
+        {/* Biểu đồ thanh: mỗi chỉ số một thanh dày cùng thang 0–100%, nhìn một lượt là thấy cả tình hình. */}
+        <ul className="edu-dash-bars">
+          {rings.map((ring, i) => (
+            <li key={ring.key}>
+              <Link to={ring.to}>
+                <span>{ring.label || t(`rail.${ring.key}`)}</span>
+                <b style={{ color: ring.color }}>{ring.text}</b>
+                <i style={{ "--c": ring.color, "--v": ring.value, "--i": i }} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {!learner?.isEduVerified && stats.days !== null && stats.days <= 3 && (
+          <Link className="edu-dash-warn" to="/store">{stats.days > 0 ? t("shell.keepLeft", { n: stats.days }) : t("shell.expired")}</Link>
+        )}
+        {zips.length > 0 && (
+          <div className="edu-dash-zips">
             {zips.map((row) => (
-              <li key={row.id}><a href={`/downloads/coding/${CODE_ZIPS[row.index]}`} download><span className="material-symbols-outlined" aria-hidden="true">folder_zip</span>{row.code || t("common.stage", { n: row.phaseNumber })}</a></li>
+              <a key={row.id} href={`/downloads/coding/${CODE_ZIPS[row.index]}`} download title={t("shell.codeTitle")}>
+                <span className="material-symbols-outlined" aria-hidden="true">download</span>{row.code || t("common.stage", { n: row.phaseNumber })}
+              </a>
             ))}
-          </ul>
-        ) : <p>{t("shell.codeEmpty")}</p>}
+          </div>
+        )}
       </section>
-      {stats.average !== null && (
-        <section className="edu-card">
-          <header><h2>{t("shell.scoreTitle")}</h2><Link to="/progress">{t("shell.view")}</Link></header>
-          <p className="edu-big">{stats.average}%</p>
-          <p className="edu-card-meta">{t("shell.scoreMeta")}</p>
-        </section>
-      )}
     </>
   );
 }
@@ -316,7 +301,7 @@ export function EduStore({ learner, onLearnerUpdate }) {
     <section className="edu-page">
       <h1 className="edu-page-title">{t("store.title")}</h1>
       <div className="edu-wallet">
-        <span className="material-symbols-outlined edu-tone-blue" aria-hidden="true">diamond</span>
+        <JoyCoin size={40} />
         <div><b>{joyText(balance)}</b><small>{t("store.wallet")}</small></div>
       </div>
 
@@ -364,7 +349,7 @@ export function EduStore({ learner, onLearnerUpdate }) {
 function Stat({ icon, tone, value, label }) {
   return (
     <div className="edu-stat">
-      <span className={`material-symbols-outlined edu-tone-${tone}`} aria-hidden="true">{icon}</span>
+      {icon === "joy" ? <JoyCoin size={32} /> : <span className={`material-symbols-outlined edu-tone-${tone}`} aria-hidden="true">{icon}</span>}
       <div><b>{value}</b><small>{label}</small></div>
     </div>
   );
@@ -399,7 +384,7 @@ export function EduProfile({ learner, persona, onPersona, onSignOut, onLearnerUp
       <div className="edu-stats">
         <Stat icon="local_fire_department" tone="orange" value={learner?.edu?.streak?.count ?? 0} label={t("streak.title")} />
         <Stat icon="task_alt" tone="blue" value={`${stats.done}/${stats.total || 26}`} label={t("profile.steps")} />
-        <Stat icon="diamond" tone="blue" value={joyText(learner?.joyBalance || 0).replace(" JOY", "")} label="JOY" />
+        <Stat icon="joy" tone="blue" value={joyText(learner?.joyBalance || 0).replace(" JOY", "")} label="JOY" />
         <Stat icon="military_tech" tone="green" value={stats.average === null ? "—" : `${stats.average}%`} label={t("profile.average")} />
         <Stat icon="event_available" tone={!learner?.isEduVerified && days !== null && days <= 3 ? "red" : "green"} value={learner?.isEduVerified ? t("common.oneYear") : days === null ? "—" : Math.max(0, days)} label={learner?.isEduVerified ? t("profile.verified") : t("profile.left")} />
       </div>
