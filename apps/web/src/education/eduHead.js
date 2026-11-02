@@ -2,6 +2,9 @@
 // icon, màu chủ đề và splash iOS phải đổi lúc chạy — trình duyệt đọc lại thẻ
 // manifest khi nó đổi, và iOS đọc icon/tên ở thời điểm "Thêm vào MH chính".
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { courseById } from "../../../../packages/courses/catalog";
+import { legalFor } from "./legalText";
 import { useEduText } from "./eduText";
 
 
@@ -19,8 +22,15 @@ function upsert(selector, create, attr, value) {
 
 export function useEduHead() {
   const { t, lang } = useEduText();
-  const TITLE = t("seo.title");
-  const DESCRIPTION = t("seo.description");
+  const { pathname } = useLocation();
+  // Tiêu đề / mô tả / canonical theo trang: trang khoá học và văn bản pháp lý có bản riêng.
+  const course = courseById(/^\/courses\/([\w-]+)/.exec(pathname)?.[1]);
+  const legalKey = { "/terms": "terms", "/privacy": "privacy", "/guidelines": "guidelines" }[pathname];
+  const legal = legalKey ? legalFor(lang)[legalKey] : null;
+  const TITLE = course ? t("courses.pageTitle", { name: course.title[lang] || course.title.vi })
+    : legal ? `${legal.title} | Education Hugo` : t("seo.title");
+  const DESCRIPTION = course ? course.tagline[lang] || course.tagline.vi : legal ? legal.lead : t("seo.description");
+  const CANONICAL = course || legal ? pathname : lang === "vi" ? "/" : `/${lang}`;
   useEffect(() => {
     document.title = TITLE;
     document.documentElement.lang = lang;
@@ -32,10 +42,10 @@ export function useEduHead() {
     upsert('meta[name="description"]', { tag: "meta", attrs: { name: "description" } }, "content", DESCRIPTION);
     upsert('meta[property="og:title"]', { tag: "meta", attrs: { property: "og:title" } }, "content", TITLE);
     upsert('meta[property="og:description"]', { tag: "meta", attrs: { property: "og:description" } }, "content", DESCRIPTION);
-    upsert('link[rel="canonical"]', { tag: "link", attrs: { rel: "canonical" } }, "href", `${window.location.origin}${lang === "vi" ? "/" : `/${lang}`}`);
+    upsert('link[rel="canonical"]', { tag: "link", attrs: { rel: "canonical" } }, "href", `${window.location.origin}${CANONICAL}`);
     // Ảnh mở app của Hugo Studio không thuộc về Education Hugo.
     document.head.querySelectorAll('link[rel="apple-touch-startup-image"]').forEach((node) => node.remove());
-  }, [TITLE, DESCRIPTION, lang]);
+  }, [TITLE, DESCRIPTION, CANONICAL, lang]);
 }
 
 // beforeinstallprompt chỉ bắn MỘT lần, thường trước khi màn nào kịp mount —

@@ -225,6 +225,7 @@ export const EDU_COPY = {
       wrong: { alt: "Hugo động viên bạn thử lại", lines: ["Chưa đúng, nhưng gần rồi.", "Đọc lại phần giải thích chút nha.", "Sai chỗ này ai cũng từng sai.", "Bình tĩnh, thử lại lần nữa."] },
       done: { alt: "Hugo vẫy tay chúc mừng", lines: ["Xong một bài rồi!", "Hết bài, giỏi lắm!", "Ghi điểm rồi nha!"] },
     },
+    courses: { kicker: "Khoá học miễn phí · Education Hugo", steps: "step", stages: "chặng", hours: "giờ học", free: "miễn phí", start: "Bắt đầu học", path: "Lộ trình", seeSteps: "Xem {n} step", also: "Khoá khác", title: "Khoá học", pageTitle: "{name} — khoá học miễn phí | Education Hugo" },
     seo: {
       title: "Học lập trình miễn phí cho người mới bắt đầu | Education Hugo",
       description: "Học lập trình web miễn phí từ con số 0: HTML, CSS, JavaScript, PHP, MySQL, Git và triển khai website. Bài ngắn vài phút, làm sản phẩm thật, trắc nghiệm chấm ngay. Dự án phi lợi nhuận của Hugo Studio.",
@@ -464,6 +465,7 @@ export const EDU_COPY = {
       wrong: { alt: "Hugo cheering you on", lines: ["Not yet, but close.", "Have another look at the explanation.", "Everyone trips on this one.", "Stay calm and try again."] },
       done: { alt: "Hugo waving to celebrate", lines: ["One lesson down!", "That's the lesson — well done!", "Points scored!"] },
     },
+    courses: { kicker: "Free course · Education Hugo", steps: "steps", stages: "stages", hours: "of learning", free: "free", start: "Start learning", path: "Learning path", seeSteps: "See {n} steps", also: "Also try", title: "Courses", pageTitle: "{name} — free course | Education Hugo" },
     seo: {
       title: "Learn to Code Free for Beginners | Education Hugo",
       description: "Learn web development for free from zero: HTML, CSS, JavaScript, PHP, MySQL, Git and deploying a website. Short lessons, real projects and instantly graded quizzes. A non-profit project by Hugo Studio.",
@@ -761,6 +763,7 @@ export const EDU_COPY = {
       wrong: { alt: "Hugo 鼓励你再试一次", lines: ["还不对，但很接近了。", "再看看解析吧。", "这里谁都错过。", "别急，再试一次。"] },
       done: { alt: "Hugo 挥手庆祝", lines: ["又学完一课！", "本课完成，真棒！", "得分啦！"] },
     },
+    courses: { kicker: "免费课程 · Education Hugo", steps: "个 step", stages: "个阶段", hours: "学习时长", free: "免费", start: "开始学习", path: "学习路线", seeSteps: "查看 {n} 个 step", also: "其他课程", title: "课程", pageTitle: "{name} —— 免费课程 | Education Hugo" },
     seo: {
       title: "零基础免费学编程 | Education Hugo",
       description: "零基础免费学习网页开发：HTML、CSS、JavaScript、PHP、MySQL、Git 和网站部署。每课几分钟，做真实项目，测验即时评分。Hugo Studio 的非营利项目。",

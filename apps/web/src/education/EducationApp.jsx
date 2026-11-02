@@ -24,6 +24,7 @@ import EduStatus, { EduErrorBoundary } from "./EduStatus";
 import { API_BASE } from "../config/apiBase";
 import "./education.css";
 
+const EduCourseIntro = lazy(() => import("./EduCourseIntro"));
 const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
 const EduCommunity = lazy(() => import("./EduCommunity"));
 const EduFriends = lazy(() => import("./EduFriends"));
@@ -155,7 +156,9 @@ export default function EducationApp() {
   const needsLogin = <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   const device = detectInstallTarget();
   const phoneWeb = (device.iOS || device.android) && !standalone;
-  const gated = phoneWeb && !["/", "/en", "/zh"].includes(location.pathname);
+  // Trang công khai (chia sẻ, Google đọc) mở được cả trên trình duyệt điện thoại; còn lại mời cài app.
+  const publicPage = ["/", "/en", "/zh", "/terms", "/privacy", "/guidelines"].includes(location.pathname) || location.pathname.startsWith("/courses/");
+  const gated = phoneWeb && !publicPage;
   // Quét QR thẻ bạn bè bằng camera điện thoại luôn mở trình duyệt, không mở PWA (iOS cấm, Android mở tab nhúng).
   const qrCode = /^\/u\/([A-Za-z0-9]{4,12})$/.exec(location.pathname)?.[1];
 
@@ -174,6 +177,7 @@ export default function EducationApp() {
         <Route path="/login" element={signedIn ? <Navigate to="/learn" replace /> : (standalone ? <EduOnboard start={hasSavedAccounts() ? "signin" : "signinAs"} /> : <EduLogin onSignedIn={afterLogin} />)} />
         <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
+        <Route path="/courses/:id" element={shell("learn", <Suspense fallback={<Loading />}><EduCourseIntro /></Suspense>)} />
         <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
         {/* Văn bản pháp lý: công khai, không cần đăng nhập. */}
         {["terms", "privacy", "guidelines"].map((doc) => (

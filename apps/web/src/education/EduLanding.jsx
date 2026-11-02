@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { CATALOG } from "../../../../packages/courses/catalog";
 import { Link } from "react-router-dom";
 import { useReducedMotion } from "framer-motion";
 import gsap from "gsap";
@@ -375,7 +376,7 @@ function FeatureQuiz() {
 
 // ── Khối 4: nhiều khoá ──────────────────────────────────────────────────────
 function FeatureCourses() {
-  const { t } = useEduText();
+  const { t, lang } = useEduText();
   const scope = useScene((tl) => {
     // Ô chữ rơi từ nhiều độ cao theo thứ tự ngẫu nhiên, cứng nên nảy thấp.
     gsap.utils.shuffle(gsap.utils.toArray(".f4-tile")).forEach((el, k) =>
@@ -395,6 +396,15 @@ function FeatureCourses() {
       </div>
     }>
       <p>{t("landing.coursesBody")}</p>
+      {/* Lối vào trang giới thiệu từng khoá (/courses/:id) — cũng là liên kết nội bộ cho Google. */}
+      <div className="edu-landing-courses">
+        {CATALOG.map((c) => (
+          <Link key={c.id} to={`/courses/${c.id}`} className="cintro-other">
+            <img src={`/edu/cast-${c.cast}.svg`} alt="" width="44" height="44" />
+            <span><b>{c.title[lang] || c.title.vi}</b><small>{c.outline.length} step · {t("courses.free")}</small></span>
+          </Link>
+        ))}
+      </div>
     </Feature>
   );
 }

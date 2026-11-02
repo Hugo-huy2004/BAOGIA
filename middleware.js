@@ -7,7 +7,7 @@
 // Đường dẫn khác (/learn…) không qua đây: SPA tự dựng theo hostname.
 import { EDU_HOST } from "./packages/shared/eduSite.js";
 
-export const config = { matcher: ["/", "/en", "/zh", "/robots.txt", "/sitemap.xml"] };
+export const config = { matcher: ["/", "/en", "/zh", "/robots.txt", "/sitemap.xml", "/courses/coding", "/courses/sql"] };
 
 const EDU_FILES = {
   "/": "/edu.html",
@@ -15,6 +15,8 @@ const EDU_FILES = {
   "/zh": "/edu-zh.html",
   "/robots.txt": "/edu-robots.txt",
   "/sitemap.xml": "/edu-sitemap.xml",
+  "/courses/coding": "/edu-course-coding.html",
+  "/courses/sql": "/edu-course-sql.html",
 };
 
 export default function middleware(request) {

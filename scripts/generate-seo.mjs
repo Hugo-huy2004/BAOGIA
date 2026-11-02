@@ -31,6 +31,7 @@ import { projects } from "../apps/web/src/data/projects.js";
 import { profileSkills, skillsCopy } from "../apps/web/src/data/profileSkills.js";
 import { PARTNER_CAMPAIGNS, PARTNER_HOST, PARTNER_HOST_CAMPAIGN, PARTNER_LANGS, partnerCampaignCopy } from "../packages/shared/partnerCampaigns.js";
 import { EDU_COPY, EDU_LANGS } from "../apps/web/src/education/eduCopy.js";
+import { CATALOG } from "../packages/courses/catalog.js";
 import { STAGES as CODER_STAGES } from "../packages/courses/coding/stages.js";
 import { EDU_ORIGIN } from "../packages/shared/eduSite.js";
 
@@ -920,6 +921,8 @@ if (!isPortfolio) {
         hasCourseInstance: { "@type": "CourseInstance", courseMode: "Online", courseWorkload: "PT20H" },
         syllabusSections: stages.map((stage) => ({ "@type": "Syllabus", name: stage.title, description: stage.learn.join("; ") })),
       },
+      // Trang chủ liệt kê mọi khoá (mỗi khoá có trang riêng /courses/:id).
+      { "@context": "https://schema.org", "@type": "ItemList", name: "Education Hugo courses", itemListElement: CATALOG.map((c, i) => ({ "@type": "ListItem", position: i + 1, url: `${EDU_ORIGIN}/courses/${c.id}`, name: c.title[code] || c.title.vi })) },
       { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: seo.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
     ];
     html = html.replace("</head>", `${schema.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join("\n")}\n</head>`);
@@ -931,18 +934,79 @@ if (!isPortfolio) {
       stages.map((stage) => `<h3>${escAttr(stage.code)} · ${escAttr(stage.title)}</h3><ul>${stage.learn.map((item) => `<li>${escAttr(item)}</li>`).join("")}</ul>`).join("") +
       `<h2>${escAttr(seo.faqTitle)}</h2>` +
       seo.faq.map(([q, a]) => `<h3>${escAttr(q)}</h3><p>${escAttr(a)}</p>`).join("") +
+      `<h2>${escAttr(copy.courses.title)}</h2><ul>${CATALOG.map((c) => `<li><a href="${EDU_ORIGIN}/courses/${c.id}">${escAttr(c.title[code] || c.title.vi)}</a> — ${escAttr(c.tagline[code] || c.tagline.vi)}</li>`).join("")}</ul>` +
       `<p><a href="${EDU_ORIGIN}/learn">${escAttr(copy.landing.startLearning)}</a> · ` +
       EDU_LANGS.map((l) => `<a href="${eduUrl(l.code)}" hreflang="${l.code}">${l.label}</a>`).join(" · ") +
       ` · <a href="${ORIGIN}/">Hugo Studio</a></p></div>`;
     html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
     fs.writeFileSync(path.join(DIST, code === "vi" ? "edu.html" : `edu-${code}.html`), html);
   }
+  // Trang giới thiệu từng khoá: /courses/<id> → edu-course-<id>.html (middleware.js đổi đường dẫn).
+  for (const course of CATALOG) {
+    const copy = EDU_COPY.vi;
+    const url = `${EDU_ORIGIN}/courses/${course.id}`;
+    const title = copy.courses.pageTitle.replace("{name}", course.title.vi);
+    const description = course.tagline.vi;
+    const image = { url: `${EDU_ORIGIN}/og/education.jpg`, type: "image/jpeg", width: 1200, height: 630 };
+    let html = sourceTemplate
+      .replace(/<html lang="[^"]*"/, '<html lang="vi"')
+      .replace(/<title>[\s\S]*?<\/title>/, `<title>${escAttr(title)}</title>`)
+      .replace(/<meta\s+name="description"\s+content="[\s\S]*?"\s*\/>/, `<meta name="description" content="${escAttr(description)}" />`)
+      .replace(/<meta\s+name="keywords"\s+content="[\s\S]*?"\s*\/>/, `<meta name="keywords" content="${escAttr(course.keywords)}" />`)
+      .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${url}" />`)
+      .replace('href="/favicon/favicon.svg"', 'href="/edu/buddy-learn.svg"')
+      .replace('href="/favicon/apple-touch-icon.png"', 'href="/edu/apple-touch-icon.png"')
+      .replace('href="/manifest.webmanifest"', 'href="/edu.webmanifest"')
+      .replace(/<meta name="theme-color" content="#ffffff"/, '<meta name="theme-color" content="#29cdff"')
+      .replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "");
+    for (const [attr, name, value] of [
+      ["property", "og:title", title], ["property", "og:description", description], ["property", "og:url", url],
+      ["property", "og:site_name", "Education Hugo"], ["property", "og:locale", OG_LOCALE.vi], ["property", "og:image:alt", course.title.vi],
+      ["name", "twitter:title", title], ["name", "twitter:description", description], ["name", "twitter:image:alt", course.title.vi],
+    ]) {
+      html = html.replace(new RegExp(`<meta ${attr}="${name}" content="[\\s\\S]*?" />`), `<meta ${attr}="${name}" content="${escAttr(value)}" />`);
+    }
+    html = applyOgImage(html, image);
+    const provider = { "@type": "Organization", name: "Hugo Studio", url: ORIGIN, nonprofitStatus: "Nonprofit" };
+    const schema = [
+      {
+        "@context": "https://schema.org", "@type": "Course", "@id": `${url}#course`, name: course.title.vi, description, url, image: image.url,
+        inLanguage: "vi", isAccessibleForFree: true, educationalLevel: "Beginner", provider, keywords: course.keywords,
+        numberOfCredits: course.outline.length, timeRequired: `PT${course.hours}H`,
+        teaches: course.stages.flatMap((s) => s.intro?.learn || []),
+        offers: { "@type": "Offer", category: "Free", price: 0, priceCurrency: "VND", availability: "https://schema.org/InStock" },
+        hasCourseInstance: { "@type": "CourseInstance", courseMode: "Online", courseWorkload: `PT${course.hours}H` },
+        syllabusSections: course.stages.map((s) => ({ "@type": "Syllabus", name: s.title, description: (s.intro?.learn || []).join("; "), timeRequired: `PT${s.to - s.from}H` })),
+      },
+      { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Education Hugo", item: `${EDU_ORIGIN}/` },
+        { "@type": "ListItem", position: 2, name: copy.courses.title, item: `${EDU_ORIGIN}/learn` },
+        { "@type": "ListItem", position: 3, name: course.title.vi, item: url },
+      ] },
+    ];
+    html = html.replace("</head>", `${schema.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join("\n")}\n</head>`);
+    const body =
+      `<div id="seo-static" style="max-width:52rem;margin:0 auto;padding:clamp(1.5rem,6vw,4rem) 1.25rem;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',system-ui,sans-serif;line-height:1.6">` +
+      `<p><a href="${EDU_ORIGIN}/">Education Hugo</a> › ${escAttr(course.title.vi)}</p>` +
+      `<h1>${escAttr(course.title.vi)}</h1><p>${escAttr(description)}</p>` +
+      `<p>${course.outline.length} step · ${course.stages.length} chặng · ≈${course.hours} giờ · miễn phí</p>` +
+      course.stages.map((s) => `<h2>${escAttr(s.title)}</h2>` + (s.intro?.tagline ? `<p>${escAttr(s.intro.tagline)}</p>` : "") +
+        `<ul>${(s.intro?.learn || []).map((x) => `<li>${escAttr(x)}</li>`).join("")}</ul>` +
+        `<ol start="${s.from + 1}">${course.outline.slice(s.from, s.to).map(([, t]) => `<li>${escAttr(t)}</li>`).join("")}</ol>`).join("") +
+      `<p><a href="${EDU_ORIGIN}/learn">${escAttr(copy.courses.start)}</a> · ` +
+      CATALOG.filter((c) => c.id !== course.id).map((c) => `<a href="${EDU_ORIGIN}/courses/${c.id}">${escAttr(c.title.vi)}</a>`).join(" · ") + `</p></div>`;
+    html = html.replace(/<div id="root">[\s\S]*?<!-- Main Module script entry point -->/, `<div id="root">${body}</div>\n\n    <!-- Main Module script entry point -->`);
+    fs.writeFileSync(path.join(DIST, `edu-course-${course.id}.html`), html);
+  }
+
   fs.writeFileSync(path.join(DIST, "edu-sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n` +
     EDU_LANGS.map(({ code }) =>
       `  <url>\n    <loc>${eduUrl(code)}</loc>\n` +
       EDU_LANGS.map((l) => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${eduUrl(l.code)}"/>\n`).join("") +
       `    <xhtml:link rel="alternate" hreflang="x-default" href="${eduUrl("vi")}"/>\n    <changefreq>weekly</changefreq>\n    <priority>${code === "vi" ? "1.0" : "0.9"}</priority>\n  </url>\n`).join("") +
+    CATALOG.map((c) => `  <url>\n    <loc>${EDU_ORIGIN}/courses/${c.id}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`).join("") +
+    ["terms", "privacy", "guidelines"].map((p) => `  <url>\n    <loc>${EDU_ORIGIN}/${p}</loc>\n    <changefreq>yearly</changefreq>\n    <priority>0.3</priority>\n  </url>\n`).join("") +
     `</urlset>\n`);
   fs.writeFileSync(path.join(DIST, "edu-robots.txt"),
     `User-agent: *\nAllow: /\nDisallow: /api\nDisallow: /progress\nDisallow: /store\nDisallow: /settings\nDisallow: /profile\n\nSitemap: ${EDU_ORIGIN}/sitemap.xml\n`);
