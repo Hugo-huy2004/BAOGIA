@@ -31,6 +31,7 @@ const { SERVICES } = await import(path.join(serverDir, "services.manifest.js"));
 const PUBLIC_ROUTES = {
   "emailRoutes.js GET /unsubscribe": "liên kết huỷ nhận thư trong email: người nhận bấm từ hộp thư, không thể đang có phiên đăng nhập. Xác thực bằng TOKEN ĐÃ KÝ trong query (verifyUnsubscribeToken), token hỏng hoặc hết hạn thì từ chối",
   "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
+  "eduPartnerRoutes.js POST /verify": "kiểm key đối tác Education Hugo: chính key là thứ xác thực (băm SHA-256, có hạn, khoá theo tên miền), chỉ trả email đã che; giới hạn 20 lần/10 phút",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
   "customerRoutes.js POST /auth": "cửa đăng nhập cổng khách hàng",
 

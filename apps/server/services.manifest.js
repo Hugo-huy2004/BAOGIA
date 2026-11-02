@@ -71,6 +71,8 @@ export const SERVICES = Object.freeze([
   // ── Học tập ───────────────────────────────────────────────────────────────
   { id: "coder-resources", prefix: "/api/coder-resources", module: "./routes/coderResourceRoutes.js" },
   { id: "coder-lessons", prefix: "/api/coder-lessons", module: "./routes/coderLessonRoutes.js", cacheable: true },
+  // Thư viện đối tác Education Hugo: kiểm key do admin cấp (services/eduPartner.js).
+  { id: "edu-partner", prefix: "/api/edu-partner", module: "./routes/eduPartnerRoutes.js" },
   { id: "persona", prefix: "/api/persona", module: "./routes/personaRoutes.js" },
   { id: "today", prefix: "/api/today", module: "./routes/todayRoutes.js" },
 

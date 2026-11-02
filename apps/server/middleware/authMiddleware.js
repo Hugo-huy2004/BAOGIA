@@ -30,7 +30,7 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/queue(?:\/|$)/, 'queue'],
   [/^\/api\/admin\/ai-support(?:\/|$)/, 'support'],
   [/^\/api\/admin\/users(?:\/|$)/, 'users'],
-  [/^\/api\/admin\/(?:coder-submissions|learners|verify-graduation-project|edu-feedback|edu-sponsor-mail|edu-products)(?:\/|$)/, 'learning'],
+  [/^\/api\/admin\/(?:coder-submissions|learners|verify-graduation-project|edu-feedback|edu-sponsor-mail|edu-products|edu-partners)(?:\/|$)/, 'learning'],
   [/^\/api\/admin\/(?:store|orders)(?:\/|$)/, 'commerce'],
   [/^\/api\/admin\/(?:audit-logs)(?:\/|$)/, 'audit'],
   [/^\/api\/admin\/(?:security|brain\/auto-moderator)(?:\/|$)/, 'security'],

@@ -13,6 +13,7 @@ import { COURSES, findStep } from '../../../../packages/courses/index.js';
 import { publicQuiz } from '../../../../packages/shared/stepQuiz.js';
 import { localizeCourse } from '../../../../packages/courses/coding/localize.js';
 import { stepLessons } from '../../../../packages/courses/coding/lessons.js';
+import { partnerKeyOf, verifyPartnerKey } from '../../services/eduPartner.js';
 
 export const SUMMARY_FIELDS = [
   'id',
@@ -90,6 +91,15 @@ export async function getLessonDetail(req, res) {
     return res.json({ lesson: publicCourse(course, lang) });
   }
 
+  res.setHeader('Cache-Control', 'private, no-store');
+  // Thư viện đối tác: key do admin cấp mở toàn bộ khoá, không cần tài khoản.
+  if (partnerKeyOf(req)) {
+    if (!(await verifyPartnerKey(partnerKeyOf(req), req.get('origin')))) {
+      return res.status(401).json({ code: 'PARTNER_KEY_INVALID', error: 'Key đối tác không hợp lệ hoặc đã hết hạn.' });
+    }
+    return res.json({ lesson: publicCourse(course, lang) });
+  }
+
   // Khoá học MIỄN PHÍ (31/10/2026, Education Hugo): phần còn lại chỉ cần đăng
   // nhập — để lưu tiến độ và để không ai cào cả khoá bằng script ẩn danh.
   // requireMemberSession chứ không requireMember: người chỉ đến để học không
@@ -124,7 +134,7 @@ export async function getLessonDetail(req, res) {
 export async function gradePreviewQuiz(req, res) {
   const found = findStep(req.params.lessonId);
   if (!found) return res.status(404).json({ error: 'Lesson not found' });
-  if (found.index >= found.course.preview) {
+  if (found.index >= found.course.preview && !(await verifyPartnerKey(partnerKeyOf(req), req.get('origin')))) {
     return res.status(403).json({ code: 'COURSE_ACCESS_REQUIRED', error: 'Step này cần đăng nhập.' });
   }
   const graded = gradeStepQuiz(found.step.id, req.body?.answers);

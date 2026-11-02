@@ -26,7 +26,7 @@ import { reportSpecialistIncident } from './services/aiIncidentResponseService.j
 import mongoose from 'mongoose';
 import {
   connectDatabase,
-  oauthCorsOptions,
+  oauthCorsOptions, partnerCorsOptions,
   appCorsOptions,
   globalLimiter,
   heavyLimiter,
@@ -51,6 +51,11 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 8099;
 // CORS — cấu hình tập trung trong config/cors.js (Quy tắc 4)
 app.use('/api/oauth', cors(oauthCorsOptions));
+// Thư viện đối tác Education Hugo gọi từ tên miền của đối tác (config/cors.js).
+const partnerCors = cors(partnerCorsOptions);
+const wantsPartnerCors = (req) => Boolean(req.get('x-edu-partner-key'))
+  || (req.method === 'OPTIONS' && /x-edu-partner-key/i.test(req.get('access-control-request-headers') || ''));
+app.use(['/api/coder-lessons', '/api/edu-partner'], (req, res, next) => (wantsPartnerCors(req) ? partnerCors(req, res, next) : next()));
 app.use(cors(appCorsOptions));
 
 app.use(cookieParser());

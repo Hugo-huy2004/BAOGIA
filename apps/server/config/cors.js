@@ -41,6 +41,15 @@ export const oauthCorsOptions = {
   credentials: true,
 };
 
+/** Bài học + kiểm key cho thư viện đối tác: gọi từ MỌI tên miền, không cookie
+ *  (danh tính là header X-Edu-Partner-Key; key tự khoá theo tên miền trong DB). */
+export const partnerCorsOptions = {
+  origin: true,
+  credentials: false,
+  allowedHeaders: ['Content-Type', 'X-Edu-Partner-Key'],
+  maxAge: 86400,
+};
+
 /** Cấu hình options CORS toàn cục */
 export const appCorsOptions = {
   origin: (origin, callback) => {

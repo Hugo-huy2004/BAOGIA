@@ -15,6 +15,7 @@ import EduProduct from '../../models/EduProduct.js';
 import EduFeedback from '../../models/EduFeedback.js';
 import { FEEDBACK_QUESTIONS } from '../../../../packages/shared/eduFeedback.js';
 import { sendSponsorBatch } from '../../services/eduMail.js';
+import { issuePartnerKey, listPartnerKeys, revokePartnerKey } from '../../services/eduPartner.js';
 
 const router = express.Router();
 
@@ -1051,6 +1052,40 @@ router.post('/edu-sponsor-mail', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('[admin edu-sponsor-mail]', error.message);
     return res.status(500).json({ error: 'Không gửi được thư.' });
+  }
+});
+
+// Key đối tác Education Hugo: cấp (gửi thẳng vào mail đối tác), xem, thu hồi.
+router.get('/edu-partners', requireAdmin, async (_req, res) => {
+  try {
+    return res.json({ items: await listPartnerKeys() });
+  } catch (error) {
+    console.error('[admin edu-partners]', error.message);
+    return res.status(500).json({ error: 'Không tải được danh sách key.' });
+  }
+});
+
+router.post('/edu-partners', requireAdmin, async (req, res) => {
+  try {
+    const issued = await issuePartnerKey({ ...req.body, admin: req.admin.email });
+    await logAdminAuditAction(req, 'edu_partner_issue', null, null, JSON.stringify({ email: issued.email, last4: issued.last4, expiresAt: issued.expiresAt }));
+    return res.json({ success: true, ...issued });
+  } catch (error) {
+    if (error.status !== 400) console.error('[admin edu-partners issue]', error.message);
+    return res.status(error.status || 500).json({ error: error.status ? error.message : 'Không cấp được key.' });
+  }
+});
+
+router.post('/edu-partners/:id/revoke', requireAdmin, async (req, res) => {
+  if (!/^[a-f0-9]{24}$/.test(req.params.id)) return res.status(400).json({ error: 'id không hợp lệ.' });
+  try {
+    const r = await revokePartnerKey(req.params.id);
+    if (!r.matchedCount) return res.status(404).json({ error: 'Không có key đang hoạt động này.' });
+    await logAdminAuditAction(req, 'edu_partner_revoke', null, null, req.params.id);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('[admin edu-partners revoke]', error.message);
+    return res.status(500).json({ error: 'Không thu hồi được key.' });
   }
 });
 
