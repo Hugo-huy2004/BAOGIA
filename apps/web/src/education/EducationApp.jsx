@@ -1,15 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { playEduSound } from "./eduSound";
 import { useEduCourse } from "./useEduCourse";
-import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { clearMemberSession, getMemberSession, logoutAuth } from "../services/api/core/authSession";
 import { hugoCoderApi } from "../services/api/modules/hugoCoderApi";
 import { useCoderLessons } from "../hooks/useCoderLessons";
 import { useJoyStore } from "../stores/joyStore";
 import { useEduHead } from "./eduHead";
-import EduLanding from "./EduLanding";
-import EduLogin from "./EduLogin";
-import EduOnboard, { rememberAccount, takePendingGoal } from "./EduOnboard";
+import { needsWelcome, rememberAccount, takePendingGoal } from "./eduAccounts";
 import EduShell, { EduInstallGate, EduProfile, EduStore } from "./EduShell";
 import { detectInstallTarget } from "../config/platform";
 import { useStandalone } from "../hooks/usePWA";
@@ -17,21 +15,40 @@ import { useEduPrefs } from "./useEduPrefs";
 import { useEduText } from "./eduText";
 import { changeAppLanguage } from "../i18n/config";
 import { installEduTapSounds } from "./eduSound";
-import EduWelcome, { needsWelcome } from "./EduWelcome";
-import { StreakCelebration, StreakView, useStreakCelebration } from "./EduStreak";
+import { StreakCelebration, useStreakCelebration } from "./EduStreak";
 import { PersonaGate, usePersona } from "./EduPersona";
 import EduStatus, { EduErrorBoundary } from "./EduStatus";
 import { API_BASE } from "../config/apiBase";
 import "./education.css";
 
-const EduCourseIntro = lazy(() => import("./EduCourseIntro"));
-const HugoCoderHub = lazy(() => import("../components/member/hugoCoder/HugoCoderHub"));
-const EduCommunity = lazy(() => import("./EduCommunity"));
-const EduFriends = lazy(() => import("./EduFriends"));
-const EduFeedback = lazy(() => import("./EduFeedback"));
-const EduLegal = lazy(() => import("./EduLegal.jsx"));
-const EduPublicProfile = lazy(() => import("./EduFriends").then((mod) => ({ default: mod.EduPublicProfile })));
-const CoderProgress = lazy(() => import("../components/member/hugoCoder/HugoCoderHub").then((mod) => ({ default: mod.ManageTab })));
+// Mọi màn ngoài khung chính đều tải lười; người đã đăng nhập không phải tải trang giới thiệu (GSAP),
+// đăng nhập hay onboarding. Sau lần vẽ đầu, prefetchPages() tải sẵn các trang khi trình duyệt rảnh.
+const PAGES = {
+  landing: () => import("./EduLanding"),
+  login: () => import("./EduLogin"),
+  onboard: () => import("./EduOnboard"),
+  welcome: () => import("./EduWelcome"),
+  streak: () => import("./EduStreak"),
+  course: () => import("./EduCourseIntro"),
+  hub: () => import("../components/member/hugoCoder/HugoCoderHub"),
+  community: () => import("./EduCommunity"),
+  friends: () => import("./EduFriends"),
+  feedback: () => import("./EduFeedback"),
+  legal: () => import("./EduLegal.jsx"),
+};
+const EduLanding = lazy(PAGES.landing);
+const EduLogin = lazy(PAGES.login);
+const EduOnboard = lazy(PAGES.onboard);
+const EduWelcome = lazy(PAGES.welcome);
+const StreakView = lazy(() => PAGES.streak().then((mod) => ({ default: mod.StreakView })));
+const EduCourseIntro = lazy(PAGES.course);
+const HugoCoderHub = lazy(PAGES.hub);
+const EduCommunity = lazy(PAGES.community);
+const EduFriends = lazy(PAGES.friends);
+const EduFeedback = lazy(PAGES.feedback);
+const EduLegal = lazy(PAGES.legal);
+const EduPublicProfile = lazy(() => PAGES.friends().then((mod) => ({ default: mod.EduPublicProfile })));
+const CoderProgress = lazy(() => PAGES.hub().then((mod) => ({ default: mod.ManageTab })));
 
 const hasSavedAccounts = () => { try { return JSON.parse(localStorage.getItem("edu.accounts") || "[]").length > 0; } catch { return false; } };
 /** Sau đăng nhập: về ?next= nếu là đường dẫn nội bộ, không thì /learn. */
@@ -40,6 +57,28 @@ const afterLogin = () => {
   window.location.assign(/^\/(?!\/)/.test(next) ? next : "/learn");
 };
 const Loading = () => <EduStatus kind="loading" />;
+
+/** Tải sẵn mọi trang khi trình duyệt rảnh — bấm chuyển trang là có ngay, không chờ mạng. */
+function prefetchPages(signedIn) {
+  const run = () => Object.entries(PAGES)
+    .filter(([name]) => (signedIn ? !["landing", "login", "onboard"].includes(name) : true))
+    .forEach(([, load]) => load().catch(() => {}));
+  if ("requestIdleCallback" in window) window.requestIdleCallback(run, { timeout: 4000 }); else setTimeout(run, 2500);
+}
+
+// Khung chính (thanh trên, menu, cột phải, hộp thông báo) dựng MỘT lần cho mọi trang trong nó;
+// chuyển trang chỉ đổi phần nội dung, chờ tải thì quay nhỏ ngay trong vùng nội dung.
+const VIEW_OF = [[/^\/(learn|courses)/, "learn"], [/^\/(terms|privacy|guidelines)/, "legal"], [/^\/(feedback|profile)/, "profile"],
+  [/^\/(friends|u\/)/, "friends"], [/^\/community/, "community"], [/^\/progress/, "progress"], [/^\/store/, "store"]];
+function ShellLayout({ learner, signedIn, onLearnerUpdate }) {
+  const { pathname } = useLocation();
+  const view = VIEW_OF.find(([re]) => re.test(pathname))?.[1] || "learn";
+  return (
+    <EduShell view={view} learner={learner} signedIn={signedIn} onLearnerUpdate={onLearnerUpdate}>
+      <Suspense fallback={<EduStatus kind="loading" compact />}><Outlet /></Suspense>
+    </EduShell>
+  );
+}
 
 /** /en, /zh: trang giới thiệu theo ngôn ngữ đó (link chia sẻ + trang tĩnh SEO trỏ về đây). */
 function LangLanding({ lang, signedIn }) {
@@ -130,9 +169,10 @@ export default function EducationApp() {
 
   const me = learner || (signedIn ? { email: session.email, displayName: session.displayName, avatarUrl: session.avatarUrl } : null);
   const textSize = useEduPrefs(signedIn ? learner?.edu?.prefs : null);
-  const shell = (view, children) => <EduShell view={view} learner={me} signedIn={signedIn} onLearnerUpdate={mergeLearner}>{children}</EduShell>;
   // Lần đầu vào: chọn ngôn ngữ → đồng ý điều khoản (xem EduWelcome). Âm thanh chạm cho cả site.
   const [welcome, setWelcome] = useState(needsWelcome);
+  // Tải sẵn các trang khi rảnh (một lần, sau lần vẽ đầu).
+  useEffect(() => { prefetchPages(signedIn); }, [signedIn]);
   useEffect(() => installEduTapSounds(), []);
   const celebration = useStreakCelebration();
   // Biệt danh + nhân vật bắt buộc (sau bước chào/điều khoản): chưa xong thì không vào học được.
@@ -165,41 +205,41 @@ export default function EducationApp() {
   return (
     <div className={`edu${textSize === "lg" ? " edu-text-lg" : ""}`}>
       {gated && (qrCode ? <EduQrHandoff code={qrCode} android={device.android} /> : <EduInstallGate />)}
-      {welcome && <EduWelcome onDone={() => setWelcome(false)} />}
+      {welcome && <Suspense fallback={null}><EduWelcome onDone={() => setWelcome(false)} /></Suspense>}
       {!welcome && !gated && persona && !persona.complete && <PersonaGate email={session.email} current={persona} onDone={setPersona} />}
       {celebration.event && <StreakCelebration key={`${celebration.event.count}-${celebration.event.joy || 0}`} {...celebration.event} onClose={celebration.close} />}
-      {!gated && <EduErrorBoundary><Routes>
+      {!gated && <EduErrorBoundary><Suspense fallback={<Loading />}><Routes>
         <Route path="/" element={signedIn ? <Navigate to="/learn" replace /> : standalone ? <EduOnboard /> : <EduLanding />} />
         {/* Tải lại cả trang sau đăng nhập: bộ nhớ đệm bài học (401 lúc còn là khách) và phiên mới cùng sạch. */}
         <Route path="/en" element={<LangLanding lang="en" signedIn={signedIn} />} />
         <Route path="/zh" element={<LangLanding lang="zh" signedIn={signedIn} />} />
         <Route path="/install" element={<EduInstallGate />} />
         <Route path="/login" element={signedIn ? <Navigate to="/learn" replace /> : (standalone ? <EduOnboard start={hasSavedAccounts() ? "signin" : "signinAs"} /> : <EduLogin onSignedIn={afterLogin} />)} />
-        <Route path="/learn" element={shell("learn", <LearnMap learner={me} onLearnerUpdate={mergeLearner} />)} />
         <Route path="/learn/:lessonId" element={<LessonView learner={me} onLearnerUpdate={mergeLearner} />} />
-        <Route path="/courses/:id" element={shell("learn", <Suspense fallback={<Loading />}><EduCourseIntro /></Suspense>)} />
         <Route path="/streak" element={signedIn ? <StreakView learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
-        {/* Văn bản pháp lý: công khai, không cần đăng nhập. */}
-        {["terms", "privacy", "guidelines"].map((doc) => (
-          <Route key={doc} path={`/${doc}`} element={shell("legal", <Suspense fallback={<Loading />}><EduLegal doc={doc} /></Suspense>)} />
-        ))}
-        <Route path="/feedback" element={signedIn ? shell("profile", <Suspense fallback={<Loading />}><EduFeedback /></Suspense>) : needsLogin} />
-        <Route path="/friends" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduFriends /></Suspense>) : needsLogin} />
-        <Route path="/u/:code" element={signedIn ? shell("friends", <Suspense fallback={<Loading />}><EduPublicProfile /></Suspense>) : needsLogin} />
-        <Route path="/community" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
-        <Route path="/community/:postKey" element={signedIn ? shell("community", <Suspense fallback={<Loading />}><EduCommunity /></Suspense>) : needsLogin} />
-        <Route path="/progress" element={signedIn ? shell("progress", <ProgressView learner={me} />) : needsLogin} />
-        <Route path="/store" element={signedIn ? shell("store", <EduStore learner={me} onLearnerUpdate={mergeLearner} />) : needsLogin} />
         {/* Cài đặt đã gộp vào Hồ sơ; giữ địa chỉ cũ cho push/link cũ. */}
         <Route path="/settings" element={<Navigate to="/profile" replace />} />
-        <Route path="/profile" element={signedIn ? shell("profile", <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} onLearnerUpdate={mergeLearner} />) : needsLogin} />
+        <Route element={<ShellLayout learner={me} signedIn={signedIn} onLearnerUpdate={mergeLearner} />}>
+          <Route path="/learn" element={<LearnMap learner={me} onLearnerUpdate={mergeLearner} />} />
+          <Route path="/courses/:id" element={<EduCourseIntro />} />
+          {/* Văn bản pháp lý: công khai, không cần đăng nhập. */}
+          {["terms", "privacy", "guidelines"].map((doc) => <Route key={doc} path={`/${doc}`} element={<EduLegal doc={doc} />} />)}
+          <Route path="/feedback" element={signedIn ? <EduFeedback /> : needsLogin} />
+          <Route path="/friends" element={signedIn ? <EduFriends /> : needsLogin} />
+          <Route path="/u/:code" element={signedIn ? <EduPublicProfile /> : needsLogin} />
+          <Route path="/community" element={signedIn ? <EduCommunity /> : needsLogin} />
+          <Route path="/community/:postKey" element={signedIn ? <EduCommunity /> : needsLogin} />
+          <Route path="/progress" element={signedIn ? <ProgressView learner={me} /> : needsLogin} />
+          <Route path="/store" element={signedIn ? <EduStore learner={me} onLearnerUpdate={mergeLearner} /> : needsLogin} />
+          <Route path="/profile" element={signedIn ? <EduProfile learner={me} persona={persona} onPersona={setPersona} onSignOut={signOut} onLearnerUpdate={mergeLearner} /> : needsLogin} />
+        </Route>
         {/* PWA cài lúc manifest của www còn hiệu lực sẽ mở /member/today — ở Edu không có trang đó.
             Đường dẫn kiểu www về /learn (giữ query, vd. ?source=pwa); trong app đã cài, đường lạ cũng về /learn thay vì 404. */}
         {["/member/*", "/study/*", "/today", "/utilities/*"].map((path) => (
           <Route key={path} path={path} element={<Navigate to={`/learn${location.search}`} replace />} />
         ))}
         <Route path="*" element={standalone ? <Navigate to="/learn" replace /> : <EduStatus kind="notFound" />} />
-      </Routes></EduErrorBoundary>}
+      </Routes></Suspense></EduErrorBoundary>}
     </div>
   );
 }
@@ -231,7 +271,7 @@ function LearnMap({ learner, onLearnerUpdate }) {
   // Khoá chọn ở bảng "Khoá học của bạn" trên thanh trên (useEduCourse).
   const course = useEduCourse();
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<EduStatus kind="loading" compact />}>
       <HugoCoderHub key={course} framed course={course} bio={learner} onBioUpdate={onLearnerUpdate} onLessonChange={(id) => navigate(id ? `/learn/${id}` : "/learn")} />
     </Suspense>
   );
@@ -259,7 +299,7 @@ function ProgressView({ learner }) {
   return (
     <section className="edu-page">
       <h1 className="edu-page-title">{t("progress.title")}</h1>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<EduStatus kind="loading" compact />}>
         <CoderProgress bio={learner} courses={courses} stages={stages} />
       </Suspense>
     </section>

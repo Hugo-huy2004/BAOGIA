@@ -16,9 +16,8 @@ export default function EduCourseIntro() {
   const navigate = useNavigate();
   const course = courseById(id);
   if (!course) return <EduStatus kind="notFound" />;
-  // Bản dịch tên chặng/step hiện chỉ có cho khoá Coding.
-  const stages = course.stages.map((s) => (course.id === "coding" ? localizeStage(s, lang) : s));
-  const stepTitle = (title, i) => (course.id === "coding" ? localizeStepTitle(`${i + 1}. ${title}`, i, lang) : `${i + 1}. ${title}`);
+  const stages = course.stages.map((s) => localizeStage(s, lang));
+  const stepTitle = (title, i) => localizeStepTitle(`${i + 1}. ${title}`, i, lang, course.id);
   const start = () => { playEduSound("whoosh"); setEduCourse(course.id); navigate("/learn"); };
   const other = CATALOG.filter((c) => c.id !== course.id);
 

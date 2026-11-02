@@ -12,6 +12,8 @@ const TodayPostSchema = new mongoose.Schema(
     authorEmail: { type: String, default: null, index: true },
     articleKey: { type: String, default: undefined, unique: true, sparse: true },
     text: { type: String, default: '' },
+    // Bản dịch tự động theo ngôn ngữ người đọc (vi/en/zh) — dịch một lần, dùng mãi (POST /posts/:id/translate).
+    translations: { type: Map, of: String, default: undefined },
     poll: {
       type: new mongoose.Schema({
         options: [{ _id: false, text: String, votes: { type: [String], default: [] } }],

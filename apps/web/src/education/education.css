@@ -1306,3 +1306,10 @@ button.edu-pop-course:disabled { cursor: default; }
 }
 @media (prefers-reduced-motion: reduce) { .cintro-mascot, .cintro-stages > li { animation: none; } }
 .edu-landing-courses { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+/* Cộng đồng: nhãn ngôn ngữ tự nhận diện + dòng "Đã dịch từ …" bấm để xem bản gốc. */
+.comm-post header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.comm-lang { padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--edu-blue) 12%, transparent); color: var(--edu-blue); font-size: 11.5px; font-weight: 800; letter-spacing: .02em; }
+.comm-tr { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 4px; padding: 0; border: 0; background: none; color: var(--edu-blue); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.comm-tr.is-busy { color: var(--edu-muted); animation: comm-pulse 1.2s ease-in-out infinite; }
+.comm-post footer span { font-size: 13px; font-weight: 700; }
+@keyframes comm-pulse { 50% { opacity: .45; } }

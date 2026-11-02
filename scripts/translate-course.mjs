@@ -11,9 +11,10 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const { WEB_COURSES } = await import(`../packages/courses/${COURSE}/index.js`);
 const CHECKPOINT_DIR = path.join(os.tmpdir(), COURSE === "coding" ? "hugo-edu-lessons-i18n" : `hugo-course-${COURSE}-i18n`);
 const OUT_DIR = path.join(ROOT, `packages/courses/${COURSE}/locales`);
+const SUBJECT = { coding: "an introductory web-development course", sql: "an SQL and relational database course (SQLite)" }[COURSE] || "a programming course";
 const LANGUAGES = {
-  en: "natural English for an introductory web-development course",
-  zh: "natural Simplified Chinese for Mainland China for an introductory web-development course",
+  en: `natural English for ${SUBJECT}`,
+  zh: `natural Simplified Chinese for Mainland China for ${SUBJECT}`,
 };
 // Tên nút phpMyAdmin 5.2 / XAMPP đúng như giao diện thật ở từng ngôn ngữ — người học
 // phải bấm được đúng chữ trên màn hình, không phải bản dịch "gần nghĩa".
@@ -34,7 +35,8 @@ const run = promisify(execFile);
 // Model đôi khi bọc JSON trong ```json … ``` dù đã dặn không — bóc khung trước khi đọc.
 const parseJson = (text) => JSON.parse(String(text).trim().replace(/^```(?:json)?\s*|\s*```$/g, ""));
 
-const translatedFields = new Set(["duration", "summary", "title", "body", "alt", "caption", "q", "o", "why", "items", "pairs"]);
+// hints: gợi ý bài tập trong ô SQL (slide.sql.hints) — query/solution là mã, không dịch.
+const translatedFields = new Set(["duration", "summary", "title", "body", "alt", "caption", "q", "o", "why", "items", "pairs", "hints"]);
 
 function collect(value, parts = [], entries = []) {
   if (typeof value === "string") {
@@ -48,7 +50,7 @@ function collect(value, parts = [], entries = []) {
   if (!value || typeof value !== "object") return entries;
   for (const [key, item] of Object.entries(value)) {
     if (translatedFields.has(key)) collect(item, [...parts, key], entries);
-    else if (key === "slides" || key === "quiz" || key === "image") collect(item, [...parts, key], entries);
+    else if (key === "slides" || key === "quiz" || key === "image" || key === "sql") collect(item, [...parts, key], entries);
   }
   return entries;
 }
@@ -71,7 +73,7 @@ function chunks(entries) {
   return result;
 }
 
-const PROTECTED = /~~~[\s\S]*?~~~|```[\s\S]*?```|`[^`\n]+`|https?:\/\/[^\s)>]+|\b(?:Nhịp|Hugo Studio|Hugo|JOY|HTML|CSS|JavaScript|PHP|MySQL|SQL|PDO|XAMPP|Apache|phpMyAdmin|HTTP|HTTPS|DNS|DOM|API|JSON|CRUD|OWASP|CSRF|XSS|MVC|Git|Fetch|README)\b|\d+(?:[.,]\d+)*(?:%|\+)?/g;
+const PROTECTED = /~~~[\s\S]*?~~~|```[\s\S]*?```|`[^`\n]+`|https?:\/\/[^\s)>]+|\b(?:Nhịp|Hugo Studio|Hugo|JOY|HTML|CSS|JavaScript|PHP|MySQL|SQL|PDO|XAMPP|Apache|phpMyAdmin|HTTP|HTTPS|DNS|DOM|API|JSON|CRUD|OWASP|CSRF|XSS|MVC|Git|Fetch|README|SQLite|PostgreSQL|SELECT|FROM|WHERE|JOIN|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|NULL|CTE|FTS4|FTS5|B-tree|ACID|Hạt)\b|\d+(?:[.,]\d+)*(?:%|\+)?/g;
 
 function mask(text) {
   const tokens = [];

@@ -36,7 +36,8 @@ function lessonSummary(course) {
 // Trắc nghiệm gửi xuống đã xáo và KHÔNG mang đáp án — máy chủ chấm ở award-learning.
 function publicCourse(course, lang) {
   if (!course) return null;
-  const text = localizeCourse(course, lang);
+  // Mỗi khoá phủ bản dịch của riêng nó (packages/courses/<khoá>/localize.js).
+  const text = (findStep(course.id)?.course.localize || localizeCourse)(course, lang);
   return { ...text, quiz: publicQuiz(text.quiz) };
 }
 

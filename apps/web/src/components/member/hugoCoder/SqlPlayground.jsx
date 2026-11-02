@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import initSqlJs from "sql.js/dist/sql-wasm.js";
 import { HAT_SEED } from "../../../../../../packages/courses/sql/seed.js";
 import { playEduSound } from "../../../education/eduSound";
+import { useEduText } from "../../../education/eduText";
 import "./sqlPlayground.css";
 
 /**
@@ -40,6 +41,7 @@ function sameResult(got, want, ordered) {
 }
 
 export default function SqlPlayground({ id = "", query = "", setup = "", solution, hints = [], ordered = false }) {
+  const { t } = useEduText();
   const db = useRef(null);
   const SQL = useRef(null);
   const draftKey = id ? `${DRAFT}${id}` : null;
@@ -56,7 +58,7 @@ export default function SqlPlayground({ id = "", query = "", setup = "", solutio
       SQL.current = engineModule;
       db.current = freshDb(engineModule, setup);
       setReady(true);
-    }).catch(() => alive && setOut({ error: "Không tải được SQLite. Kiểm tra mạng rồi mở lại slide." }));
+    }).catch(() => alive && setOut({ error: t("sqlPlay.loadFail") }));
     return () => { alive = false; db.current?.close(); };
   }, [setup]);
 
@@ -101,22 +103,22 @@ export default function SqlPlayground({ id = "", query = "", setup = "", solutio
   const verdict = solution && out && (solved && !out.error ? "ok" : misses ? "miss" : null);
   return (
     <div className={`sql-play${solved ? " is-solved" : ""}`}>
-      {solution && <p className="sql-play-task"><b>Bài tập</b>{solved ? " · đã đạt" : " · viết câu SQL rồi bấm Chạy để chấm"}</p>}
+      {solution && <p className="sql-play-task"><b>{t("sqlPlay.task")}</b>{t(solved ? "sqlPlay.solved" : "sqlPlay.todo")}</p>}
       <textarea value={text} spellCheck={false} autoCapitalize="off" autoCorrect="off"
         rows={Math.min(10, Math.max(3, text.split("\n").length + 1))}
         onChange={(event) => edit(event.target.value)}
         onKeyDown={(event) => { if ((event.metaKey || event.ctrlKey) && event.key === "Enter") { event.preventDefault(); run(); } }}
         aria-label="SQL" />
       <div className="sql-play-bar">
-        <button type="button" className="edu-btn" disabled={!ready} onClick={run}>{solution ? "Chạy & chấm" : "Chạy"}</button>
-        <button type="button" className="edu-btn edu-btn--ghost" onClick={reset}>Đặt lại</button>
+        <button type="button" className="edu-btn" disabled={!ready} onClick={run}>{t(solution ? "sqlPlay.grade" : "sqlPlay.run")}</button>
+        <button type="button" className="edu-btn edu-btn--ghost" onClick={reset}>{t("sqlPlay.reset")}</button>
         {solution && misses >= hints.length + 2 && !solved && (
-          <button type="button" className="edu-btn edu-btn--ghost" onClick={() => edit(solution)}>Xem lời giải</button>
+          <button type="button" className="edu-btn edu-btn--ghost" onClick={() => edit(solution)}>{t("sqlPlay.reveal")}</button>
         )}
       </div>
-      {verdict === "ok" && <p className="sql-play-verdict is-ok" role="status">Chính xác! Kết quả khớp với yêu cầu.</p>}
-      {verdict === "miss" && !solved && <p className="sql-play-verdict is-miss" role="status">Chưa khớp — so lại số cột, số dòng{ordered ? " và thứ tự" : ""}.</p>}
-      {shownHints.map((hint, i) => <p key={hint} className="sql-play-hint"><b>Gợi ý {i + 1}:</b> {hint}</p>)}
+      {verdict === "ok" && <p className="sql-play-verdict is-ok" role="status">{t("sqlPlay.ok")}</p>}
+      {verdict === "miss" && !solved && <p className="sql-play-verdict is-miss" role="status">{t("sqlPlay.miss")}{ordered ? t("sqlPlay.missOrder") : ""}.</p>}
+      {shownHints.map((hint, i) => <p key={hint} className="sql-play-hint"><b>{t("sqlPlay.hint", { n: i + 1 })}:</b> {hint}</p>)}
       {out?.error && <p className="sql-play-error" role="alert">{out.error}</p>}
       {last && (
         <div className="sql-play-table">
@@ -128,10 +130,10 @@ export default function SqlPlayground({ id = "", query = "", setup = "", solutio
               ))}
             </tbody>
           </table>
-          <small>{last.values.length} dòng{last.values.length > MAX_ROWS ? ` (hiện ${MAX_ROWS})` : ""}</small>
+          <small>{t("sqlPlay.rows", { n: last.values.length })}{last.values.length > MAX_ROWS ? t("sqlPlay.shown", { n: MAX_ROWS }) : ""}</small>
         </div>
       )}
-      {out && !out.error && !last && <small className="sql-play-ok">Đã chạy · {out.changes} dòng thay đổi · câu cuối không trả bảng</small>}
+      {out && !out.error && !last && <small className="sql-play-ok">{t("sqlPlay.done", { n: out.changes })}</small>}
     </div>
   );
 }

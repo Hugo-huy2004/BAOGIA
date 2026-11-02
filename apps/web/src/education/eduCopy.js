@@ -40,7 +40,7 @@ export const EDU_COPY = {
       addCourse: "Thêm khoá học (sắp ra mắt)", joyBody: "JOY kiếm được khi qua bài lần đầu và giữ chuỗi lửa. Dùng để gia hạn tài khoản, phá băng chuỗi.",
       toStore: "Mở Cửa hàng", notifications: "Thông báo", readAll: "Đánh dấu đã đọc", empty: "Chưa có thông báo nào. Hugo sẽ nhắc bạn khi có tin mới.",
     },
-    community: {
+    community: { translating: "Đang dịch…", translatedFrom: "Đã dịch từ {lang} · Xem bản gốc", showTranslation: "Xem bản dịch {lang}", detected: "Ngôn ngữ bài viết (tự nhận diện)", like: "Thích", replies: "Trả lời", replyShort: "Trả lời", langs: { vi: "Tiếng Việt", en: "Tiếng Anh", zh: "Tiếng Trung", ja: "Tiếng Nhật", ko: "Tiếng Hàn", fr: "Tiếng Pháp", de: "Tiếng Đức", es: "Tiếng Tây Ban Nha", th: "Tiếng Thái" }, 
       title: "Cộng đồng", lead: "Chia sẻ bài làm, hỏi bài, gợi ý tài liệu. Dán link GitHub, YouTube hoặc ảnh — Hugo chỉ lưu chữ và đường link.",
       placeholder: "Bạn đang học gì, vướng ở đâu?", reply: "Viết bình luận…", post: "Đăng", linkHint: "Link đầu tiên tự hiện xem trước",
       empty: "Chưa có bài nào. Mở đầu cuộc trò chuyện nhé!", more: "Xem thêm", back: "Quay lại", gone: "Bài này không còn nữa.",
@@ -226,6 +226,7 @@ export const EDU_COPY = {
       done: { alt: "Hugo vẫy tay chúc mừng", lines: ["Xong một bài rồi!", "Hết bài, giỏi lắm!", "Ghi điểm rồi nha!"] },
     },
     courses: { kicker: "Khoá học miễn phí · Education Hugo", steps: "step", stages: "chặng", hours: "giờ học", free: "miễn phí", start: "Bắt đầu học", path: "Lộ trình", seeSteps: "Xem {n} step", also: "Khoá khác", title: "Khoá học", pageTitle: "{name} — khoá học miễn phí | Education Hugo" },
+    sqlPlay: { task: "Bài tập", solved: " · đã đạt", todo: " · viết câu SQL rồi bấm Chạy để chấm", run: "Chạy", grade: "Chạy & chấm", reset: "Đặt lại", reveal: "Xem lời giải", ok: "Chính xác! Kết quả khớp với yêu cầu.", miss: "Chưa khớp — so lại số cột, số dòng", missOrder: " và thứ tự", hint: "Gợi ý {n}", rows: "{n} dòng", shown: " (hiện {n})", done: "Đã chạy · {n} dòng thay đổi · câu cuối không trả bảng", loadFail: "Không tải được SQLite. Kiểm tra mạng rồi mở lại slide." },
     seo: {
       title: "Học lập trình miễn phí cho người mới bắt đầu | Education Hugo",
       description: "Học lập trình web miễn phí từ con số 0: HTML, CSS, JavaScript, PHP, MySQL, Git và triển khai website. Bài ngắn vài phút, làm sản phẩm thật, trắc nghiệm chấm ngay. Dự án phi lợi nhuận của Hugo Studio.",
@@ -280,7 +281,7 @@ export const EDU_COPY = {
       addCourse: "Add a course (coming soon)", joyBody: "Earn JOY by passing lessons the first time and keeping your streak. Use it to extend your account or thaw a frozen streak.",
       toStore: "Open the Shop", notifications: "Notifications", readAll: "Mark all read", empty: "No notifications yet. Hugo will let you know when something new arrives.",
     },
-    community: {
+    community: { translating: "Translating…", translatedFrom: "Translated from {lang} · See original", showTranslation: "See {lang} translation", detected: "Post language (auto-detected)", like: "Like", replies: "Replies", replyShort: "Reply", langs: { vi: "Vietnamese", en: "English", zh: "Chinese", ja: "Japanese", ko: "Korean", fr: "French", de: "German", es: "Spanish", th: "Thai" }, 
       title: "Community", lead: "Share your work, ask questions, recommend resources. Paste a GitHub, YouTube or image link — Hugo only stores text and links.",
       placeholder: "What are you learning, where are you stuck?", reply: "Write a reply…", post: "Post", linkHint: "The first link gets a preview",
       empty: "No posts yet. Start the conversation!", more: "Load more", back: "Back", gone: "This post is no longer available.",
@@ -466,6 +467,7 @@ export const EDU_COPY = {
       done: { alt: "Hugo waving to celebrate", lines: ["One lesson down!", "That's the lesson — well done!", "Points scored!"] },
     },
     courses: { kicker: "Free course · Education Hugo", steps: "steps", stages: "stages", hours: "of learning", free: "free", start: "Start learning", path: "Learning path", seeSteps: "See {n} steps", also: "Also try", title: "Courses", pageTitle: "{name} — free course | Education Hugo" },
+    sqlPlay: { task: "Exercise", solved: " · passed", todo: " · write your SQL, then press Run to check", run: "Run", grade: "Run & check", reset: "Reset", reveal: "Show solution", ok: "Correct! Your result matches.", miss: "Not a match yet — compare the number of columns and rows", missOrder: " and their order", hint: "Hint {n}", rows: "{n} rows", shown: " (showing {n})", done: "Ran · {n} rows changed · the last statement returned no table", loadFail: "Couldn't load SQLite. Check your connection and reopen the slide." },
     seo: {
       title: "Learn to Code Free for Beginners | Education Hugo",
       description: "Learn web development for free from zero: HTML, CSS, JavaScript, PHP, MySQL, Git and deploying a website. Short lessons, real projects and instantly graded quizzes. A non-profit project by Hugo Studio.",
@@ -520,6 +522,14 @@ export const EDU_COPY = {
           challenge: "A stranger must be able to install and use your product using only the docs you wrote.",
           promise: "Finish line: a final project approved by Hugo Studio — a 4,000 JOY reward.",
         },
+        "sql-basic": {"title": "Data, tables and your first SELECT", "tagline": "From the café's notebook to your first data table.", "learn": ["Data, databases and DBMSs", "Codd's relational model: tables, rows, columns", "SQLite running right in your browser", "SELECT, FROM and reading results"], "challenge": "No server at all: every SQL statement runs in SQLite on your own device.", "promise": "Stage result: the Hạt café menu table and your first query."},
+        "sql-filter": {"title": "Filtering, sorting and expressions", "tagline": "Ask the right question: which items, what price, sold when.", "learn": ["WHERE, AND/OR/NOT, IN, BETWEEN, LIKE", "NULL and three-valued logic", "ORDER BY, LIMIT, OFFSET", "Expressions, CASE, string and date functions"], "challenge": "NULL is not even equal to itself — every condition must account for empty cells.", "promise": "Stage result: a menu page filtered by price, category and keyword."},
+        "sql-group": {"title": "Grouping and multiple tables", "tagline": "From single orders to revenue per day and per item.", "learn": ["COUNT, SUM, AVG, MIN, MAX", "GROUP BY and HAVING", "INNER and LEFT JOIN, self-joins", "Subqueries, EXISTS, UNION"], "challenge": "One wrong JOIN condition doubles your revenue and nothing warns you.", "promise": "Stage result: revenue reports by item and by day."},
+        "sql-design": {"title": "Database design", "tagline": "Draw the whole café's schema before writing your first CREATE.", "learn": ["Entity–relationship diagrams (ERD)", "Primary keys, foreign keys, constraints", "Normalisation: 1NF, 2NF, 3NF", "Data types and naming conventions"], "challenge": "Every fact must be stored in exactly ONE place.", "promise": "Stage result: the complete Hạt schema in 3NF."},
+        "sql-write": {"title": "Writing data safely", "tagline": "Insert, update and delete without ever losing an order.", "learn": ["INSERT, UPDATE, DELETE, UPSERT", "Transactions and ACID", "Views, triggers and generated columns", "SQL injection and parameterised statements"], "challenge": "Two cashiers press the button at once — stock must still be right.", "promise": "Stage result: a complete ordering flow inside one transaction."},
+        "sql-window": {"title": "Advanced queries: CTEs and window functions", "tagline": "Rank, run totals and compare with yesterday — in one SQL statement.", "learn": ["CTEs with WITH, recursive CTEs", "ROW_NUMBER, RANK, DENSE_RANK", "LAG, LEAD, running totals, moving averages", "Window frames: ROWS / RANGE"], "challenge": "No loops, no application code: every calculation lives in the query.", "promise": "Stage result: a revenue dashboard with rankings and trends."},
+        "sql-perf": {"title": "Performance and advanced features", "tagline": "Read a query plan like a map.", "learn": ["B-tree, covering and partial indexes", "EXPLAIN QUERY PLAN and optimisation", "JSON in SQL", "Full-text search with FTS"], "challenge": "A 2-second query on a million rows must drop below 20 ms.", "promise": "Stage result: instant menu search by keyword, accents optional."},
+        "sql-capstone": {"title": "Capstone project", "tagline": "A real reporting system written in pure SQL.", "learn": ["Cohort analysis and customer retention", "Multi-dimensional reports", "Moving SQL to PostgreSQL/MySQL", "Wrap-up and next steps"], "challenge": "Every number in the report must trace back to the source data.", "promise": "Stage result: 10 auto-graded report queries for the Hạt café."},
       },
       steps: [
         "Thinking like a programmer: algorithms, variables and your first program",
@@ -549,6 +559,8 @@ export const EDU_COPY = {
         "Writing docs: README, setup and user guide",
         "Final project: 5 new features and 3 linked pages",
       ],
+      // Khoá SQL: tên step theo đúng thứ tự packages/courses/sql/stages.js (OUTLINE).
+      sqlSteps: ["Data all around us: from notebooks to databases", "The relational model: tables, rows, columns and keys", "SQLite in the browser: running your first SQL", "SELECT and FROM: choosing columns, aliases and DISTINCT", "Data types: numbers, text, dates and NULL", "WHERE and comparison operators", "AND, OR, NOT, IN, BETWEEN", "LIKE, GLOB and string search", "NULL and three-valued logic", "ORDER BY, LIMIT, OFFSET and pagination", "Expressions, CASE, string and date functions", "Aggregate functions: COUNT, SUM, AVG, MIN, MAX", "GROUP BY and HAVING", "INNER JOIN: joining orders to the menu", "LEFT JOIN, self-joins and the row-multiplication trap", "Subqueries, IN, EXISTS", "UNION, INTERSECT, EXCEPT", "Entity–relationship diagrams (ERD)", "CREATE TABLE, primary keys and foreign keys", "Constraints: NOT NULL, UNIQUE, CHECK, DEFAULT", "Normalisation: 1NF, 2NF, 3NF", "Many-to-many relationships and junction tables", "INSERT, UPDATE, DELETE", "UPSERT and RETURNING", "Transactions and ACID", "Views, triggers and generated columns", "SQL injection and parameterised queries", "CTEs: naming each step of a query", "Recursive CTEs: category trees and date series", "Window functions: ROW_NUMBER, RANK, DENSE_RANK", "LAG, LEAD and time-based comparison", "Running totals, moving averages and window frames", "B-tree indexes: why lookups are fast", "EXPLAIN QUERY PLAN and query optimisation", "Covering, partial and expression indexes", "JSON in SQL", "Full-text search (FTS4/FTS5)", "Cohort analysis: how soon customers come back", "From SQLite to PostgreSQL and MySQL", "Capstone: 10 report queries for the Hạt café"],
     },
   },
 
@@ -578,7 +590,7 @@ export const EDU_COPY = {
       addCourse: "添加课程（即将上线）", joyBody: "首次通过课程和保持连续记录可赚取 JOY，用于延长账户或给连续记录破冰。",
       toStore: "打开商店", notifications: "通知", readAll: "全部标为已读", empty: "还没有通知。有新消息时 Hugo 会告诉你。",
     },
-    community: {
+    community: { translating: "翻译中…", translatedFrom: "译自{lang} · 查看原文", showTranslation: "查看{lang}译文", detected: "帖子语言（自动识别）", like: "赞", replies: "回复", replyShort: "回复", langs: { vi: "越南语", en: "英语", zh: "中文", ja: "日语", ko: "韩语", fr: "法语", de: "德语", es: "西班牙语", th: "泰语" }, 
       title: "社区", lead: "分享作品、提问、推荐资料。可粘贴 GitHub、YouTube 或图片链接——Hugo 只保存文字和链接。",
       placeholder: "你在学什么？卡在哪里？", reply: "写评论…", post: "发布", linkHint: "第一个链接会自动预览",
       empty: "还没有帖子，来开个头吧！", more: "加载更多", back: "返回", gone: "该帖子已不存在。",
@@ -764,6 +776,7 @@ export const EDU_COPY = {
       done: { alt: "Hugo 挥手庆祝", lines: ["又学完一课！", "本课完成，真棒！", "得分啦！"] },
     },
     courses: { kicker: "免费课程 · Education Hugo", steps: "个 step", stages: "个阶段", hours: "学习时长", free: "免费", start: "开始学习", path: "学习路线", seeSteps: "查看 {n} 个 step", also: "其他课程", title: "课程", pageTitle: "{name} —— 免费课程 | Education Hugo" },
+    sqlPlay: { task: "练习", solved: " · 已通过", todo: " · 写好 SQL 后点击运行进行评分", run: "运行", grade: "运行并评分", reset: "重置", reveal: "查看答案", ok: "正确！结果与要求一致。", miss: "还不一致——请核对列数和行数", missOrder: "以及顺序", hint: "提示 {n}", rows: "{n} 行", shown: "（显示 {n} 行）", done: "已运行 · {n} 行被修改 · 最后一条语句没有返回表", loadFail: "无法加载 SQLite。请检查网络后重新打开此页。" },
     seo: {
       title: "零基础免费学编程 | Education Hugo",
       description: "零基础免费学习网页开发：HTML、CSS、JavaScript、PHP、MySQL、Git 和网站部署。每课几分钟，做真实项目，测验即时评分。Hugo Studio 的非营利项目。",
@@ -818,6 +831,14 @@ export const EDU_COPY = {
           challenge: "陌生人仅凭你写的文档就能自行安装和使用你的产品。",
           promise: "终点：结业项目通过 Hugo Studio 审核——奖励 4,000 JOY。",
         },
+        "sql-basic": {"title": "数据、表与第一条 SELECT", "tagline": "从咖啡馆的记账本到第一张数据表。", "learn": ["数据、数据库与数据库管理系统", "Codd 的关系模型：表、行、列", "直接在浏览器中运行的 SQLite", "SELECT、FROM 与阅读结果"], "challenge": "完全不需要服务器：每条 SQL 都在你设备上的 SQLite 中运行。", "promise": "阶段成果：Hạt 咖啡馆菜单表和你的第一条查询。"},
+        "sql-filter": {"title": "筛选、排序与表达式", "tagline": "问对问题：哪些饮品、什么价格、何时售出。", "learn": ["WHERE、AND/OR/NOT、IN、BETWEEN、LIKE", "NULL 与三值逻辑", "ORDER BY、LIMIT、OFFSET", "表达式、CASE、字符串与日期函数"], "challenge": "NULL 甚至不等于它自己——每个条件都要考虑空值。", "promise": "阶段成果：可按价格、类别和关键词筛选的菜单页。"},
+        "sql-group": {"title": "分组与多表查询", "tagline": "从单笔订单到每日、每品的营收。", "learn": ["COUNT、SUM、AVG、MIN、MAX", "GROUP BY 与 HAVING", "INNER、LEFT JOIN 与自连接", "子查询、EXISTS、UNION"], "challenge": "JOIN 条件错一处，营收就会翻倍，而且没人报错。", "promise": "阶段成果：按品项和按日期的营收报表。"},
+        "sql-design": {"title": "数据库设计", "tagline": "在写第一条 CREATE 之前，先画出整间咖啡馆的结构。", "learn": ["实体关系图（ERD）", "主键、外键与约束", "规范化：1NF、2NF、3NF", "数据类型与命名规范"], "challenge": "每个事实只能存储在一个地方。", "promise": "阶段成果：符合 3NF 的完整 Hạt 数据库结构。"},
+        "sql-write": {"title": "安全地写入数据", "tagline": "增、改、删，而且绝不丢失任何一笔订单。", "learn": ["INSERT、UPDATE、DELETE、UPSERT", "事务与 ACID", "视图、触发器与生成列", "SQL 注入与参数化语句"], "challenge": "两名收银员同时按下按钮——库存仍须准确。", "promise": "阶段成果：在一个事务中完成的完整点单流程。"},
+        "sql-window": {"title": "进阶查询：CTE 与窗口函数", "tagline": "排名、累计、与昨日对比——一条 SQL 搞定。", "learn": ["WITH 子句（CTE）与递归 CTE", "ROW_NUMBER、RANK、DENSE_RANK", "LAG、LEAD、累计和、移动平均", "窗口框架：ROWS / RANGE"], "challenge": "没有循环，没有应用代码：所有计算都在查询里完成。", "promise": "阶段成果：带排名和趋势的营收仪表盘。"},
+        "sql-perf": {"title": "性能与高级特性", "tagline": "像读地图一样读懂查询计划。", "learn": ["B-tree、覆盖索引与部分索引", "EXPLAIN QUERY PLAN 与优化", "SQL 中的 JSON", "FTS 全文搜索"], "challenge": "百万行上耗时 2 秒的查询要降到 20 毫秒以内。", "promise": "阶段成果：按关键词即时搜索菜单，无需输入声调。"},
+        "sql-capstone": {"title": "结业项目", "tagline": "一套用纯 SQL 编写的真实报表系统。", "learn": ["同期群分析与客户留存", "多维度报表", "把 SQL 迁移到 PostgreSQL/MySQL", "总结与后续学习路线"], "challenge": "报表中的每个数字都必须能追溯到原始数据。", "promise": "阶段成果：为 Hạt 咖啡馆编写 10 条自动评分的报表查询。"},
       },
       steps: [
         "编程思维：算法、变量和第一个程序",
@@ -847,6 +868,8 @@ export const EDU_COPY = {
         "编写文档：README、安装与使用指南",
         "结业项目：5 个新功能和 3 个关联页面",
       ],
+      // Khoá SQL: tên step theo đúng thứ tự packages/courses/sql/stages.js (OUTLINE).
+      sqlSteps: ["身边的数据：从记账本到数据库", "关系模型：表、行、列与键", "浏览器中的 SQLite：运行第一条 SQL", "SELECT 与 FROM：选择列、别名与去重", "数据类型：数字、文本、日期与 NULL", "WHERE 与比较运算符", "AND、OR、NOT、IN、BETWEEN", "LIKE、GLOB 与字符串搜索", "NULL 与三值逻辑", "ORDER BY、LIMIT、OFFSET 与分页", "表达式、CASE、字符串与日期函数", "聚合函数：COUNT、SUM、AVG、MIN、MAX", "GROUP BY 与 HAVING", "INNER JOIN：把订单与菜单连接起来", "LEFT JOIN、自连接与行数倍增陷阱", "子查询、IN、EXISTS", "UNION、INTERSECT、EXCEPT", "实体关系图（ERD）", "CREATE TABLE、主键与外键", "约束：NOT NULL、UNIQUE、CHECK、DEFAULT", "规范化：1NF、2NF、3NF", "多对多关系与关联表", "INSERT、UPDATE、DELETE", "UPSERT 与 RETURNING", "事务与 ACID", "视图、触发器与生成列", "SQL 注入与参数化查询", "CTE：为查询的每一步命名", "递归 CTE：分类树与日期序列", "窗口函数：ROW_NUMBER、RANK、DENSE_RANK", "LAG、LEAD 与按时间对比", "累计和、移动平均与窗口框架", "B-tree 索引：为什么查找这么快", "EXPLAIN QUERY PLAN 与查询优化", "覆盖索引、部分索引与表达式索引", "SQL 中的 JSON", "全文搜索（FTS4/FTS5）", "同期群分析：顾客多久回头", "从 SQLite 到 PostgreSQL 和 MySQL", "结业项目：为 Hạt 咖啡馆编写 10 条报表查询"],
     },
   },
 };

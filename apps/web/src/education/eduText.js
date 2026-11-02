@@ -43,7 +43,7 @@ export function localizeStage(stage, lang) {
 }
 
 /** "3. Tên step" → tên đã dịch, giữ số thứ tự. `index` đếm từ 0. */
-export function localizeStepTitle(title, index, lang) {
-  const translated = lang === "vi" ? null : EDU_COPY[lang]?.curriculum?.steps?.[index];
+export function localizeStepTitle(title, index, lang, course = "coding") {
+  const translated = lang === "vi" ? null : EDU_COPY[lang]?.curriculum?.[course === "sql" ? "sqlSteps" : "steps"]?.[index];
   return translated ? `${index + 1}. ${translated}` : title;
 }

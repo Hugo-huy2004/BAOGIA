@@ -5,6 +5,7 @@ import { API_BASE } from "../config/apiBase";
 import { PersonaAvatar } from "./EduPersona";
 import { useEduText } from "./eduText";
 import AnimIcon from "../components/icons/animated/AnimIcon";
+import { detectLang, translatePost } from "./postTranslate";
 
 /**
  * Cộng đồng học thuật Education Hugo (/community) — bảng riêng trên chính API Today
@@ -110,8 +111,30 @@ function ago(date, lang) {
   return fmt.format(0, "minute");
 }
 
+/** Tự nhận diện ngôn ngữ bài; khác ngôn ngữ người đọc thì tự dịch (trên máy nếu được, không thì máy chủ). */
+function useTranslation(post, lang) {
+  const [state, setState] = useState({ from: null, text: null, original: false, busy: false });
+  useEffect(() => {
+    let alive = true;
+    if (!post.text || post.removed) return undefined;
+    detectLang(post.text).then(async (from) => {
+      if (!alive) return;
+      setState((s) => ({ ...s, from }));
+      if (!from || from === lang) return;
+      setState((s) => ({ ...s, busy: true }));
+      const text = await translatePost(post, from, lang);
+      if (alive) setState((s) => ({ ...s, text, busy: false }));
+    });
+    return () => { alive = false; };
+  }, [post.key, post.text, post.removed, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  return [state, () => setState((s) => ({ ...s, original: !s.original }))];
+}
+
 function Post({ post, onChange, onRemove, open }) {
   const { t, lang } = useEduText();
+  const [tr, toggleOriginal] = useTranslation(post, lang);
+  const langName = (code) => t(`community.langs.${code}`) === `community.langs.${code}` ? code.toUpperCase() : t(`community.langs.${code}`);
+  const shown = tr.text && !tr.original ? tr.text : post.text;
   const link = post.text.match(URL_RE)?.[0];
   const preview = link && linkPreview(link);
   const like = async () => {
@@ -126,17 +149,28 @@ function Post({ post, onChange, onRemove, open }) {
     <article className={`comm-post${post.removed ? " is-removed" : ""}`}>
       <PersonaAvatar avatar={post.author?.persona} name={post.author?.name} size={44} />
       <div className="comm-post-main">
-        <header><b className="nick-font">{post.author?.name}</b><time dateTime={post.createdAt}>{ago(post.createdAt, lang)}</time></header>
+        <header>
+          <b className="nick-font">{post.author?.name}</b>
+          <time dateTime={post.createdAt} title={new Date(post.createdAt).toLocaleString(lang)}>{ago(post.createdAt, lang)}</time>
+          {tr.from && <span className="comm-lang" title={t("community.detected")}>{langName(tr.from)}</span>}
+        </header>
         {post.removed && <small className="comm-removed">{t("community.removed")}</small>}
-        <RichText text={post.text} />
+        <RichText text={shown} />
+        {tr.busy && <small className="comm-tr is-busy">{t("community.translating")}</small>}
+        {tr.text && (
+          <button type="button" className="comm-tr" onClick={toggleOriginal}>
+            <AnimIcon name="sparkles" size={16} />
+            {tr.original ? t("community.showTranslation", { lang: langName(lang) }) : t("community.translatedFrom", { lang: langName(tr.from) })}
+          </button>
+        )}
         {preview && <Preview link={preview} />}
         <footer>
-          <button type="button" className={post.liked ? "is-on" : ""} onClick={like} aria-pressed={post.liked}>
-            <AnimIcon name="heart" />{post.likeCount || ""}
+          <button type="button" className={post.liked ? "is-on" : ""} onClick={like} aria-pressed={post.liked} aria-label={t("community.like")}>
+            <AnimIcon name="heart" /><span>{post.likeCount || t("community.like")}</span>
           </button>
           {open && (
-            <Link to={`/community/${post.key}`}>
-              <AnimIcon name="message" />{post.replyCount || ""}
+            <Link to={`/community/${post.key}`} aria-label={t("community.replies")}>
+              <AnimIcon name="message" /><span>{post.replyCount || t("community.replyShort")}</span>
             </Link>
           )}
           {post.mine && (

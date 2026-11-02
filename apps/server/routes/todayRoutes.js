@@ -364,6 +364,37 @@ router.delete('/posts/:id', requireMemberOrEduSession, writeLimiter, async (req,
 });
 
 // Thả/bỏ tim — hai lệnh có điều kiện để bấm liên tục cũng không đếm lệch.
+// Dịch bài sang ngôn ngữ người đọc — dùng khi trình duyệt không có Translator API.
+// Mỗi bài dịch MỘT lần cho mỗi ngôn ngữ (lưu vào translations), qua aiGateway (hạn mức + cache).
+// Liên kết và đoạn mã được che trước khi dịch rồi trả lại nguyên vẹn.
+const TRANSLATE_LANGS = { vi: 'Vietnamese', en: 'English', zh: 'Simplified Chinese' };
+const translateLimiter = rateLimit({ keyGenerator: byMember, windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false });
+router.post('/posts/:id/translate', requireMemberOrEduSession, translateLimiter, async (req, res) => {
+  try {
+    const to = String(req.body?.to || req.query.to || '');
+    if (!TRANSLATE_LANGS[to] || !isPostId(req.params.id)) return res.status(400).json({ error: 'Bad request.' });
+    const post = await TodayPost.findById(req.params.id, { text: 1, translations: 1, removed: 1, audience: 1, authorEmail: 1, ancestors: 1 }).lean();
+    if (!(await canSee(post, req.memberEmail))) return res.status(404).json({ error: 'Not found.' });
+    const cached = post.translations?.[to];
+    if (cached) return res.json({ text: cached });
+    const tokens = [];
+    const masked = String(post.text || '').slice(0, 5000)
+      .replace(/```[\s\S]*?```|`[^`\n]+`|https?:\/\/[^\s<>"')\]]+/g, (m) => `[[${tokens.push(m) - 1}]]`);
+    const { generate } = await import('../services/aiGateway.js');
+    const out = await generate(
+      `Translate this community post into ${TRANSLATE_LANGS[to]}. Keep the tone, line breaks and emoji. Copy every [[N]] marker exactly. Reply with the translation only.\n\n${masked}`,
+      { temperature: 0.2, lowPriority: true, cacheKey: `post-tr:${req.params.id}:${to}`, cacheTtlMs: 7 * 86_400_000 },
+    );
+    if (!out) return res.status(503).json({ code: 'AI_BUSY', error: 'Translation is unavailable right now.' });
+    const text = String(out).trim().replace(/\[\[(\d+)\]\]/g, (m, i) => tokens[Number(i)] ?? m);
+    await TodayPost.updateOne({ _id: post._id }, { $set: { [`translations.${to}`]: text } });
+    return res.json({ text });
+  } catch (error) {
+    console.error('[Today translate]', error.message);
+    return res.status(500).json({ error: 'Could not translate this post.' });
+  }
+});
+
 router.post('/posts/:key/like', requireMemberOrEduSession, writeLimiter, async (req, res) => {
   const { key } = req.params;
   const me = req.memberEmail;

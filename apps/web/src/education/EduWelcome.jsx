@@ -17,16 +17,8 @@ import { playEduSound } from "./eduSound";
  *    trái nguyên tắc tối thiểu hoá dữ liệu. Màn này nói rõ điều đó.
  * Ghi lại phiên bản + thời điểm đồng ý trên máy; đổi điều khoản thì tăng VERSION để hỏi lại.
  */
-const KEY = "edu.consent";
-const VERSION = 1;
-
-export function needsWelcome() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || "null")?.v !== VERSION;
-  } catch {
-    return false; // không có bộ nhớ (chế độ riêng tư chặn): đừng chặn người học mỗi lần tải
-  }
-}
+import { KEY, VERSION } from "./eduAccounts";
+export { needsWelcome } from "./eduAccounts";
 
 const WWW = "https://www.hugowishpax.studio";
 

@@ -45,7 +45,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
     [catalogQuery.data],
   );
   const rawStages = catalogQuery.data?.pages[0]?.stages;
-  const stages = useMemo(() => (rawStages || []).map((stage) => (course === "coding" ? localizeStage(stage, lang) : stage)), [rawStages, lang, course]);
+  const stages = useMemo(() => (rawStages || []).map((stage) => localizeStage(stage, lang)), [rawStages, lang]);
   const selectedId = activeCourseId || summaries[0]?.id || null;
   const summary = summaries.find((item) => item.id === selectedId);
 
@@ -63,7 +63,7 @@ export function useCoderLessons(activeCourseId, { enabled = true, program = "cod
   const courses = useMemo(
     () => summaries.map((item, index) => {
       const course = item.id === selectedLesson?.id ? { ...item, ...selectedLesson } : item;
-      return item.id.startsWith("sql") ? course : { ...course, title: localizeStepTitle(course.title, index, lang) };
+      return { ...course, title: localizeStepTitle(course.title, index, lang, item.id.startsWith("sql") ? "sql" : "coding") };
     }),
     [summaries, selectedLesson, lang],
   );
