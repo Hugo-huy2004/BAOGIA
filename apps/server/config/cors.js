@@ -4,7 +4,6 @@
  */
 import OAuthClient from '../models/OAuthClient.js';
 import { PARTNER_HOST } from '../../../packages/shared/partnerCampaigns.js';
-import { EDU_ORIGIN } from '../../../packages/shared/eduSite.js';
 
 export const allowedOrigins = [
   ...((process.env.CLIENT_URLS || "").split(",")),
@@ -12,8 +11,6 @@ export const allowedOrigins = [
   "https://hugowishpax.studio",
   // Trang chiến dịch hợp tác: cùng bản build SPA, gọi API chéo origin như www.
   `https://${PARTNER_HOST}`,
-  // Education Hugo: cùng bản build, đăng nhập Google/passkey bằng tài khoản Hugo Studio.
-  EDU_ORIGIN,
   // The App Store build is not served over http(s): WKWebView loads it from
   // `capacitor://localhost`, and that string is what lands in the Origin
   // header. It is a constant baked into Capacitor, not a host anyone can point
@@ -39,15 +36,6 @@ export const oauthCorsOptions = {
       .catch(() => callback(null, false));
   },
   credentials: true,
-};
-
-/** Bài học + kiểm key cho thư viện đối tác: gọi từ MỌI tên miền, không cookie
- *  (danh tính là header X-Edu-Partner-Key; key tự khoá theo tên miền trong DB). */
-export const partnerCorsOptions = {
-  origin: true,
-  credentials: false,
-  allowedHeaders: ['Content-Type', 'X-Edu-Partner-Key'],
-  maxAge: 86400,
 };
 
 /** Cấu hình options CORS toàn cục */

@@ -56,10 +56,6 @@ const RESOURCES = {
     model: 'JoyLedger', label: 'Sổ JOY', permission: 'commerce', ops: 'r', search: ['email', 'refId'],
     list: ['email', 'amount', 'balanceAfter', 'source', 'createdAt'], show: ['description', 'refId'],
   },
-  'coder-resources': {
-    model: 'CoderResource', label: 'Học liệu Coding', permission: 'learning', ops: 'crud', search: ['title'],
-    list: ['title', 'type', 'stageId', 'pinned'], edit: ['title', 'type', 'stageId', 'description', 'url', 'body', 'readingMinutes', 'author', 'source', 'pinned'],
-  },
   'cinema-movies': {
     model: 'CinemaMovie', label: 'Phim', permission: 'system', ops: 'rud', search: ['title'],
     list: ['title', 'year', 'category', 'views', 'active'], edit: ['title', 'description', 'category', 'year', 'active'],

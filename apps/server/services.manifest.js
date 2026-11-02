@@ -45,7 +45,6 @@ export const SERVICES = Object.freeze([
 
   // ── Hồ sơ & nội dung công khai ────────────────────────────────────────────
   { id: "member-progress", prefix: "/api/member/progress", module: "./routes/memberProgressRoutes.js" },
-  { id: "hugoteam", prefix: "/api/hugoteam", module: "./routes/hugoTeamRoutes.js" },
   { id: "email", prefix: "/api/email", module: "./routes/emailRoutes.js" },
   { id: "contact", prefix: "/api/contact", module: "./routes/contactRoutes.js" },
   { id: "data", prefix: "/api/data", module: "./routes/dataRoutes.js", cacheable: true },
@@ -69,10 +68,6 @@ export const SERVICES = Object.freeze([
   { id: "admin-workforce", prefix: "/api/admin/workforce", module: "./routes/aiWorkforceRoutes.js" },
 
   // ── Học tập ───────────────────────────────────────────────────────────────
-  { id: "coder-resources", prefix: "/api/coder-resources", module: "./routes/coderResourceRoutes.js" },
-  { id: "coder-lessons", prefix: "/api/coder-lessons", module: "./routes/coderLessonRoutes.js", cacheable: true },
-  // Thư viện đối tác Education Hugo: kiểm key do admin cấp (services/eduPartner.js).
-  { id: "edu-partner", prefix: "/api/edu-partner", module: "./routes/eduPartnerRoutes.js" },
   { id: "persona", prefix: "/api/persona", module: "./routes/personaRoutes.js" },
   { id: "today", prefix: "/api/today", module: "./routes/todayRoutes.js" },
 

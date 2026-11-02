@@ -2,7 +2,7 @@ import { useState } from "react";
 import HugoLogo from "../HugoLogo";
 import { ADMIN_GROUPS, destinationsForPermissions } from "./adminDestinations";
 
-const MOBILE_IDS = ["dashboard", "queue", "users", "hugoteam"];
+const MOBILE_IDS = ["dashboard", "queue", "users", "support"];
 
 export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, handleLogout, session }) {
   const [mobileOpen, setMobileOpen] = useState(false);

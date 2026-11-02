@@ -76,7 +76,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       defaultPresetTest: defaultPsychologyPresetTest, setFormData, handleSave, sleepAutoDetect,
     },
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
-    team: sharedProps,
     arcade: sharedProps,
     nom: { onBack: close, ...routeProps },
     aura: { ...sharedProps, ...routeProps },

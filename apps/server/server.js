@@ -26,7 +26,7 @@ import { reportSpecialistIncident } from './services/aiIncidentResponseService.j
 import mongoose from 'mongoose';
 import {
   connectDatabase,
-  oauthCorsOptions, partnerCorsOptions,
+  oauthCorsOptions,
   appCorsOptions,
   globalLimiter,
   heavyLimiter,
@@ -51,11 +51,6 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 8099;
 // CORS — cấu hình tập trung trong config/cors.js (Quy tắc 4)
 app.use('/api/oauth', cors(oauthCorsOptions));
-// Thư viện đối tác Education Hugo gọi từ tên miền của đối tác (config/cors.js).
-const partnerCors = cors(partnerCorsOptions);
-const wantsPartnerCors = (req) => Boolean(req.get('x-edu-partner-key'))
-  || (req.method === 'OPTIONS' && /x-edu-partner-key/i.test(req.get('access-control-request-headers') || ''));
-app.use(['/api/coder-lessons', '/api/edu-partner'], (req, res, next) => (wantsPartnerCors(req) ? partnerCors(req, res, next) : next()));
 app.use(cors(appCorsOptions));
 
 app.use(cookieParser());
@@ -104,7 +99,7 @@ app.get('/api/pwa-manifest', (req, res) => {
 // Body 10mb chỉ cho những route thật sự nhận ảnh base64 (ảnh quảng cáo, ảnh
 // sản phẩm, selfie kháng nghị, avatar trong hồ sơ, admin). Mọi route khác 1mb:
 // parse JSON là đồng bộ, một body 10mb chặn cả event loop của 0,1 CPU.
-const BIG_BODY_PREFIXES = ['/api/bios', '/api/data', '/api/security', '/api/utility-store', '/api/hugoteam', '/api/admin'];
+const BIG_BODY_PREFIXES = ['/api/bios', '/api/data', '/api/security', '/api/utility-store', '/api/admin'];
 const bodyLimit = (req) => (BIG_BODY_PREFIXES.some((p) => req.path.startsWith(p)) ? '10mb' : '1mb');
 // Sentry signs the exact webhook bytes. Preserve them only for this small
 // endpoint instead of retaining a second copy of every JSON request.
@@ -342,8 +337,6 @@ server.listen(PORT, () => {
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
-  // Cửa hàng Edu: chèn sản phẩm mẫu chưa có (không ghi đè sản phẩm admin đã sửa).
-  import('./services/eduStore.js').then((m) => m.seedEduProducts()).catch((error) => console.error('[edu store seed]', error.message));
 
   // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
   initCompanionMemoryCron();

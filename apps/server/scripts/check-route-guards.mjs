@@ -31,7 +31,6 @@ const { SERVICES } = await import(path.join(serverDir, "services.manifest.js"));
 const PUBLIC_ROUTES = {
   "emailRoutes.js GET /unsubscribe": "liên kết huỷ nhận thư trong email: người nhận bấm từ hộp thư, không thể đang có phiên đăng nhập. Xác thực bằng TOKEN ĐÃ KÝ trong query (verifyUnsubscribeToken), token hỏng hoặc hết hạn thì từ chối",
   "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
-  "eduPartnerRoutes.js POST /verify": "kiểm key đối tác Education Hugo: chính key là thứ xác thực (băm SHA-256, có hạn, khoá theo tên miền), chỉ trả email đã che; giới hạn 20 lần/10 phút",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
   "customerRoutes.js POST /auth": "cửa đăng nhập cổng khách hàng",
 
@@ -55,7 +54,6 @@ const PUBLIC_ROUTES = {
   "profileRoutes.js GET /public/:slug": "hồ sơ công khai theo slug",
   "presenceRoutes.js GET /status-by-slug": "chấm online trên trang Bio công khai; tra bằng slug nên không lộ email",
   "partnerRoutes.js GET /:id/access": "kiểm quyền truy cập trình sửa Bio đối tác",
-  "hugoTeamRoutes.js GET /developers": "danh sách đội ngũ, hiện trên trang giới thiệu",
   "contactRoutes.js GET /zalo": "liên kết Zalo công khai",
   "dataRoutes.js GET /": "cấu hình trang công khai (đã bật cache CDN)",
   "bioThemeRoutes.js GET /": "danh mục giao diện Bio, đọc từ hằng số BIO_THEMES — không có dữ liệu người dùng",
@@ -64,9 +62,6 @@ const PUBLIC_ROUTES = {
   "legalDocRoutes.js GET /:docId": "toàn văn một văn bản pháp lý, đọc từ hằng số LEGAL_DOCUMENTS",
   "packageRoutes.js GET /": "danh mục gói dịch vụ — bảng giá công khai",
   "todayRoutes.js GET /feed": "bảng tin công khai",
-  "coderLessonRoutes.js GET /": "danh mục 26 step — trang /study công khai cần xem trước",
-  "coderLessonRoutes.js GET /:lessonId": "nội dung step; ngoài 6 step học thử thì controller đòi đăng nhập + quyền",
-  "coderLessonRoutes.js POST /:lessonId/grade": "chấm trắc nghiệm cho khách — chỉ 6 step học thử, không lưu gì, có rate limit",
   "utilityStoreRoutes.js GET /products": "danh mục sản phẩm công khai",
   "payosRoutes.js GET /supporters": "danh sách người ủng hộ, cố ý hiện công khai",
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",

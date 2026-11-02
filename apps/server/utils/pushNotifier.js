@@ -5,9 +5,6 @@ import { notificationLanguage } from '../../../packages/shared/notificationText.
 import { renderNotification } from '../../../packages/shared/pushText.js';
 import { denomKey } from '../../../packages/shared/joyCurrency.js';
 import Bio from '../models/Bio.js';
-import InAppNotification from '../models/InAppNotification.js';
-import { streakPush } from '../../../packages/shared/eduStreak.js';
-import { sendEduMail } from '../services/eduMail.js';
 
 // Setup VAPID details
 const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
@@ -32,35 +29,6 @@ if (vapidKeys && vapidKeys.publicKey && vapidKeys.privateKey) {
  */
 export async function sendPushNotification(email, title, body, url = '/member/today') {
   return deliver(email, () => ({ title, body }), url);
-}
-
-/**
- * Push của Education Hugo: chỉ tới máy đăng ký từ tên miền Edu (site 'edu'),
- * chạm vào thì mở trong app Edu. Truyền `text(lang)` để chữ theo ngôn ngữ từng máy.
- */
-// Khoá push Edu → nhóm trong hộp thông báo.
-const EDU_CATEGORY = { account: 'package', security: 'security', milestone: 'joy', purchase: 'joy' };
-
-export async function sendEduPush(email, { title, body, text: textFn, key, vars = {}, url = '/learn', tag }) {
-  // `key` + `vars`: chữ trong packages/shared/eduStreak.js (STREAK_PUSH) — vừa push theo ngôn ngữ
-  // TỪNG máy, vừa lưu khoá vào hộp thông báo để Edu dựng lại đúng ngôn ngữ người đọc.
-  const text = key ? (lang) => streakPush(lang, key, vars) : textFn;
-  if (key) {
-    const vi = streakPush('vi', key, vars);
-    await InAppNotification.create({
-      email, appId: 'edu', category: EDU_CATEGORY[key] || 'general', title: vi.title, message: vi.body,
-      i18nKey: `edu.${key}`, i18nParams: vars, actionUrl: url,
-    }).catch((error) => console.error('[edu inbox]', error.message));
-    // Tin đáng giữ (chào mừng, tài khoản, đăng nhập lạ, mốc lửa…) đi cả thư; nhắc học chỉ push.
-    sendEduMail(email, { key, vars, url }).catch((error) => console.error('[edu mail]', error.message));
-  }
-  // `text(lang)` → { title, body } theo ngôn ngữ của TỪNG máy (vi/en/zh, còn lại rơi về vi).
-  const pick = (sub) => {
-    if (!text) return { title, body };
-    const lang = notificationLanguage(sub.device?.locale);
-    return text(['vi', 'en', 'zh'].includes(lang) ? lang : 'vi');
-  };
-  return deliver(email, pick, url, { site: 'edu', ...(tag ? { tag } : {}) });
 }
 
 /**
@@ -125,13 +93,13 @@ const maskEmail = (email) => String(email).replace(/^(.{2}).*(@.*)$/, '$1***$2')
 
 /** Phần chung: tìm thiết bị, gửi, dọn đăng ký chết. */
 async function deliver(email, textFor, url, extra = {}) {
-  const { urgency = 'normal', site = 'www', ...shown } = extra;
+  const { urgency = 'normal', ...shown } = extra;
   try {
     if (!email) return;
 
     // Tìm tất cả các subscription (thiết bị đăng ký) của email này
     // Máy Edu chỉ nhận push của Edu (đường dẫn www mở trong app Edu là trang trắng).
-    const subscriptions = await NotificationSubscription.find({ email, site: site === 'edu' ? 'edu' : { $ne: 'edu' } });
+    const subscriptions = await NotificationSubscription.find({ email, site: { $ne: 'edu' } });
     if (!subscriptions || subscriptions.length === 0) {
       return;
     }
@@ -149,7 +117,7 @@ async function deliver(email, textFor, url, extra = {}) {
         const payload = JSON.stringify({
           title: text.title,
           body: text.body || '',
-          icon: site === 'edu' ? '/edu/icon-192.png' : '/image/avt7.png',
+          icon: '/image/avt7.png',
           url: url || '/member/today',
           ...shown,
         });

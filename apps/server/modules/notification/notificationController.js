@@ -8,7 +8,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import NotificationSubscription from '../../models/NotificationSubscription.js';
-import { isEduHost } from '../../../../packages/shared/eduSite.js';
 import NativePushDevice from '../../models/NativePushDevice.js';
 import Bio from '../../models/Bio.js';
 import InAppNotification, { pruneNotifications } from '../../models/InAppNotification.js';
@@ -85,15 +84,6 @@ export async function getVapidPublicKey(req, res) {
   return res.json({ publicKey: vapidKeys.publicKey });
 }
 
-/** Máy đăng ký từ tên miền Edu thì nhận push của Edu, không nhận push Hugo Studio. */
-function siteOf(req) {
-  try {
-    return isEduHost(new URL(req.get('origin') || '').hostname) ? 'edu' : 'www';
-  } catch {
-    return 'www';
-  }
-}
-
 /**
  * Đăng ký nhận thông báo Web Push
  */
@@ -118,7 +108,7 @@ export async function subscribeWebPush(req, res) {
         $set: {
           email,
           subscription,
-          site: siteOf(req),
+          site: 'www',
           device: {
             locale: String(device.locale || '').slice(0, 32),
             timezone: String(device.timezone || '').slice(0, 64),

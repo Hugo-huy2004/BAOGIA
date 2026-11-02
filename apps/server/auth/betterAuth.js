@@ -139,9 +139,6 @@ async function alertNewDevice(session, ctx) {
     email, key: 'event.newSignIn', params: { device },
     type: 'warning', category: 'security', actionUrl: '/member/account', push: true,
   });
-  // Máy cài Education Hugo không nhận push Hugo Studio — báo riêng sang đó.
-  const { eduSecurityPush } = await import('../services/eduLearner.js');
-  await eduSecurityPush(email, device);
 }
 
 const buildMemberAuth = (base) => betterAuth({

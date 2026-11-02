@@ -40,12 +40,9 @@ import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
 import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../../../packages/shared/partnerCampaigns";
-import { isEduHost } from "../../../packages/shared/eduSite";
 import { isPartnerWelcomed, markPartnerWelcomed } from "./utils/partnerWelcome";
 import { redeemInstallHandoff } from "./utils/appHandoff";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
-
-const EDU_SITE = typeof window !== "undefined" && isEduHost(window.location.hostname);
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
 // is fetched per language (see i18n/config.js). Every screen below lives
@@ -68,7 +65,6 @@ const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
 const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
-const EducationApp = lazyRoute(() => import("./education/EducationApp"));
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
@@ -487,11 +483,6 @@ export default function App() {
         root.classList.remove("dark");
         return;
       }
-      // Education Hugo cho chọn Sáng/Tối cố định (useEduPrefs đặt data-theme).
-      if (root.dataset.theme === "light" || root.dataset.theme === "dark") {
-        root.classList.toggle("dark", root.dataset.theme === "dark");
-        return;
-      }
       if (e.matches) {
         root.classList.add("dark");
       } else {
@@ -534,24 +525,16 @@ export default function App() {
         <DataProvider>
           <BrowserRouter basename={langPrefix || undefined} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
-              {/* Education Hugo: cùng bản build, tên miền riêng, vỏ riêng — không
-                  kéo banner cài app, quyên góp hay SEO của Hugo Studio vào. */}
-              {/* Ví JOY/thông báo thời gian thực — chạy cả ở Education Hugo (cùng tài khoản). */}
+              {/* Ví JOY/thông báo thời gian thực. */}
               <Suspense fallback={null}><PWARealtimeBridge /></Suspense>
-              {EDU_SITE ? (
-                <Suspense fallback={<StatusScreen kind="loading" />}><EducationApp /></Suspense>
-              ) : (
-                <>
-                  <RouteSeoPolicy />
-                  <NativeShell />
-                  {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
-                  <PWAQuickLogin />
-                  <AppContent />
-                  <PWAInstallBanner />
-                  <PWAInstallModal />
-                  <Suspense fallback={null}><DonationModal /></Suspense>
-                </>
-              )}
+              <RouteSeoPolicy />
+              <NativeShell />
+              {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
+              <PWAQuickLogin />
+              <AppContent />
+              <PWAInstallBanner />
+              <PWAInstallModal />
+              <Suspense fallback={null}><DonationModal /></Suspense>
               <PWAUpdatePrompt />
               <ServerStatusBanner />
               <Toaster

@@ -5,8 +5,6 @@
  */
 import fs from 'fs/promises';
 import path from 'path';
-import AdminAuditLog from '../../models/AdminAuditLog.js';
-import { CODER_STAGE_SEQUENCE } from '../../../../packages/shared/coderProgression.js';
 import { fileURLToPath } from 'url';
 
 
@@ -32,7 +30,6 @@ export async function getDirSize(dirPath) {
   return size;
 }
 
-export const CODER_STEP_COUNT = CODER_STAGE_SEQUENCE.at(-1).to;
 
 /**
  * Ghi một dòng nhật ký kiểm toán quản trị.

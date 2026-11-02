@@ -1,5 +1,4 @@
 import Persona from '../../models/Persona.js';
-import EduLearner from '../../models/EduLearner.js';
 import { checkAvatar } from '../../../../packages/persona/avatar.js';
 import { checkNickname } from '../../../../packages/persona/nickname.js';
 import { checkIntro } from '../../../../packages/persona/intro.js';
@@ -18,12 +17,7 @@ const view = (doc) => {
 export class PersonaService {
   static async get(email) {
     const doc = await Persona.findOne({ email }).lean();
-    if (doc) return view(doc);
-    // ponytail: biệt danh cũ đặt ở Edu trước khi có Persona — chuyển một lần khi đọc. Xoá khi hết người cũ.
-    const legacy = await EduLearner.findOne({ email, nickname: { $gt: '' } }).select('nickname').lean();
-    if (!legacy) return view(null);
-    await Persona.updateOne({ email }, { $setOnInsert: { nickname: legacy.nickname } }, { upsert: true });
-    return view(legacy);
+    return view(doc);
   }
 
   /** Lưu phần được gửi; máy chủ kiểm lại cùng luật với client. */

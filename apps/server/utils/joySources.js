@@ -111,19 +111,6 @@ export const JOY_SOURCE_APP = {
   aura_theme_rent: 'aura',
 
   // Học lập trình — Coding nằm trong Hugo Team
-  ide_learning: 'team',
-  ide_course_completion: 'team',
-  coder_exam_retake: 'team',
-  lifetime_unlock: 'team',
-  lifetime_unlock_all: 'team',
-  ide_phase_1_completion: 'team',
-  ide_phase_2_completion: 'team',
-  ide_phase_3_completion: 'team',
-  ide_phase_4_completion: 'team',
-  ide_phase_5_completion: 'team',
-  ide_phase_6_completion: 'team',
-  ide_phase_7_completion: 'team',
-  hugoso_course: 'team',
 
   // Chợ tiện ích
   store_purchase: 'store',

@@ -66,7 +66,7 @@ function DaysCalculator({ campaign, ui, lang }) {
 }
 
 function ServicePicker({ ui }) {
-  const services = ui.features.filter((feature) => feature.id !== "joy" && feature.id !== "team");
+  const services = ui.features.filter((feature) => feature.id !== "joy");
   const [active, setActive] = useState(services[0].id);
   const current = services.find((service) => service.id === active);
   return (

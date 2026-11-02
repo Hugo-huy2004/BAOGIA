@@ -1,21 +1,8 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
-import HugoTeamDev from '../models/HugoTeamDev.js';
-import UserProfile from '../models/UserProfile.js';
 import { requireMember } from '../middleware/authMiddleware.js';
-import { STEP_IDS } from '../../../packages/courses/coding/stages.js';
-import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
-import {
-  deletePrivateEvidence,
-  listPrivateEvidence,
-} from '../services/learningEvidenceService.js';
 
 const router = express.Router();
-
-// Tổng số bài của bộ Phát triển Web — dùng để ra tỉ lệ "x/100", không phải để
-// khoe con số tròn.
-// Đếm theo khoá Coding (26 step); id bài của khoá Web cũ không tính nữa.
-const CODER_STEP_IDS = new Set(STEP_IDS);
 
 const findMemberBio = (email) => Bio.findOne({
   $or: [{ email }, { contactEmail: email }],
@@ -30,11 +17,6 @@ const findMemberBio = (email) => Bio.findOne({
  * KHÔNG có trường nào ở đây nhận dữ liệu do người dùng tự nhập.
  */
 async function buildProfile(bio) {
-  const dev = await HugoTeamDev.findOne({ email: bio.email, status: 'approved' });
-
-  const lessonsDone = (bio.completedLessons || []).filter((id) => CODER_STEP_IDS.has(id)).length;
-  const tasksDone = (dev?.tasks || []).filter((task) => task.status === 'done').length;
-
   return {
     displayName: bio.displayName,
     slug: bio.slug,
@@ -47,16 +29,6 @@ async function buildProfile(bio) {
       level: bio.verificationRequest?.schoolLevel || '',
       school: bio.verificationRequest?.schoolName || '',
     },
-    learning: {
-      lessonsDone,
-      lessonsTotal: CODER_STEP_IDS.size,
-      certificate: bio.hugoCoderProjectStatus === 'approved' || lessonsDone >= CODER_STEP_IDS.size,
-    },
-    // Chỉ đếm giờ ĐÃ DUYỆT. Giờ đang chờ duyệt không được lên hồ sơ, nếu không
-    // thì bất kỳ ai cũng tự nâng số của mình bằng cách khai thêm.
-    team: dev
-      ? { member: true, approvedHours: dev.approvedHours(), tasksDone, since: dev.approvedAt }
-      : { member: false, approvedHours: 0, tasksDone: 0, since: null },
     referrals: bio.referralCount || 0,
     starVip: Boolean(bio.starVip),
     generatedAt: new Date(),
@@ -73,9 +45,6 @@ router.get('/me', requireMember, async (req, res) => {
       profile: await buildProfile(bio),
       // Công bố miễn phí từ 25/10/2026 (trước phải thuê gói Hugo Profile).
       publishing: { enabled: Boolean(bio.profilePublic) },
-      capabilities: {
-        learningEvidence: isLearningEvidenceEnabledFor(bio),
-      },
     });
   } catch (error) {
     console.error('GET /profile/me error:', error);
@@ -84,50 +53,6 @@ router.get('/me', requireMember, async (req, res) => {
 });
 
 /** Minh chứng riêng tư của chính thành viên; không có route public tương ứng. */
-router.get('/me/evidence', requireMember, async (req, res) => {
-  try {
-    const bio = await findMemberBio(req.memberEmail);
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    if (!isLearningEvidenceEnabledFor(bio)) {
-      return res.status(404).json({ error: 'FEATURE_NOT_AVAILABLE' });
-    }
-
-    return res.json(await listPrivateEvidence({
-      ownerMemberId: bio._id,
-      cursor: req.query.cursor,
-      limit: req.query.limit,
-    }));
-  } catch (error) {
-    if (error?.statusCode === 400) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error('GET /profile/me/evidence error:', error);
-    return res.status(500).json({ error: 'Failed to load learning evidence' });
-  }
-});
-
-/** Xoá mềm và scrub nội dung; tombstone còn lại để dữ liệu cũ không dựng lại. */
-router.delete('/me/evidence/:id', requireMember, async (req, res) => {
-  try {
-    const bio = await findMemberBio(req.memberEmail);
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    if (!isLearningEvidenceEnabledFor(bio)) {
-      return res.status(404).json({ error: 'FEATURE_NOT_AVAILABLE' });
-    }
-
-    const deleted = await deletePrivateEvidence({
-      ownerMemberId: bio._id,
-      evidenceId: req.params.id,
-    });
-    if (!deleted) return res.status(404).json({ error: 'EVIDENCE_NOT_FOUND' });
-    return res.status(204).end();
-  } catch (error) {
-    console.error('DELETE /profile/me/evidence error:', error);
-    return res.status(500).json({ error: 'Failed to delete learning evidence' });
-  }
-});
-
-/** Bật/tắt hiển thị hồ sơ trên trang Bio công khai. */
 router.patch('/me/publish', requireMember, async (req, res) => {
   try {
     const bio = await findMemberBio(req.memberEmail);

@@ -24,7 +24,6 @@ const MEMBER = path.join(ROOT, "apps/web/src/components/member");
  * sau ai làm hỏng một tiêu chí là bộ này đỏ.
  */
 const CERTIFIED = {
-  team: "20/09/2026 — TeamShell tự dựng lại y hệt AppFrame (IosApp + NavBar + Scroll + mr-11 đoán tay + MutationObserver dò dark mode) → dùng khung chung, giữ hệ màu portal qua paletteVars mới; thêm skeleton vì danh sách rỗng lúc đang tải khiến app hiện SAI \"chưa có lập trình viên nào\"; chữ lên sàn 13px",
   hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
   hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   arcade: "20/09/2026 — LazyBoundary cho chunk game (một game hỏng từng làm trắng CẢ portal), 🔥/⚡ trong Game2048 → Material Symbols, 29 chỗ chữ <13px ở bảng xếp hạng và pinball. Giữ hình thái game toàn màn + quân cờ Unicode (ngoại lệ có lý do)",
@@ -71,7 +70,6 @@ const EXCEPTIONS = {
   "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
   "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
 
-  "address@team": "một màn duy nhất; nhánh hiển thị do TRẠNG THÁI TỪ SERVER (userStatus) quyết định, không phải màn người dùng tự chuyển",
 
 };
 
@@ -82,7 +80,6 @@ const APPS = {
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
   arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   banhocduong: { entry: "banhocduong/BanhocduongTab.jsx", dir: "banhocduong" },
-  team: { entry: "HugoTeamTab.jsx" },
   aura: { entry: "MemberAuraTab.jsx" },
   bio: { entry: "BioPreviewTab.jsx" },
 };

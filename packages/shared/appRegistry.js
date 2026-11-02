@@ -40,7 +40,6 @@ const manifest = ({
 
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
-  manifest({ id: "team", icon: "groups", tint: "teal", category: "edu", badge: "new", storageMb: 8.1, version: "2.0.0" }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
   manifest({
     id: "handle", icon: "handyman", tint: "indigo", category: "tools", badge: "utility", storageMb: 1.6, version: "2.0.0", store: true, storeOrder: 5,
@@ -71,7 +70,6 @@ export const APP_STORE_MANIFESTS = Object.freeze(
 export const REQUIRED_APP_IDS = Object.freeze([
   "store",
   "bio",
-  "team",
   // "vocab" (Hoa Ngữ) đã gỡ 21/09/2026 — nếu để lại đây thì `normalizeInstalled`
   // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
   // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
@@ -84,7 +82,8 @@ export const REQUIRED_APP_IDS = Object.freeze([
 ]);
 
 export const RETIRED_APP_IDS = Object.freeze([
-  // Coding đã gộp hoàn toàn vào Hugo Team 30/10/2026.
+  // Hugo Team + Coding chuyển sang Education Hugo (repo riêng) 02/11/2026.
+  "team",
   "study",
   "vocab",
   "deco",
@@ -137,14 +136,10 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "arcade",
   "store",
   "handle",
-  "team",
   "nom",
   // HugoPSY dựng trên AppFrame (app chat toàn màn) từ 03/10.
   "psychology",
   // Id đã nghỉ hưu nhưng vẫn mở app kế nhiệm; bookmark cũ phải ra đúng vỏ.
-  "study",
-  "ide",
-  "hugoso",
   "helpdesk",
 ]);
 

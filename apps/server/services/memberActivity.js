@@ -72,7 +72,6 @@ const AREA_URL = {
   companion: '/member/utilities/psychology',
   checkin: '/member/utilities/psychology',
   sleep: '/member/utilities/psychology',
-  hugoteam: '/member/utilities/team',
   bios: '/member/utilities/bio',
   profile: '/member/utilities/bio',
   joy: '/member/utilities/joy_wallet',

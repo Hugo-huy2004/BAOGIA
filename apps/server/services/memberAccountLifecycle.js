@@ -13,7 +13,6 @@ import CompanionHistory from '../models/CompanionHistory.js';
 import SleepLog from '../models/SleepLog.js';
 import ReadingSession from '../models/ReadingSession.js';
 import SurveyResponse from '../models/SurveyResponse.js';
-import LessonFeedback from '../models/LessonFeedback.js';
 import CheckinRecord from '../models/CheckinRecord.js';
 import ChessGame from '../models/ChessGame.js';
 import ChessRating from '../models/ChessRating.js';
@@ -37,9 +36,7 @@ import { deleteAvatar, getPublicIdFromUrl } from '../utils/cloudinary.js';
 import { clearCache } from '../utils/cacheHelper.js';
 import slugIndex from './slugIndex.js';
 import { broadcastToEmail } from '../utils/realtime.js';
-import EduLearner from '../models/EduLearner.js';
 import Persona from '../models/Persona.js';
-import EduFeedback from '../models/EduFeedback.js';
 import UserReport from '../models/UserReport.js';
 import TodayPost from '../models/TodayPost.js';
 
@@ -94,17 +91,11 @@ const removeSecurityAppeals = async (email) => {
   await SecurityAppeal.deleteMany({ email });
 };
 
-// Education Hugo: tiến độ/chuỗi/bạn bè, Persona, báo cáo, bài Cộng đồng + lượt thích.
-// Gỡ mã bạn của người này khỏi danh sách bạn/lời mời của người khác để không còn hàng "ma".
+// Persona, báo cáo, bài Today + lượt thích.
 const removeEduData = async (email) => {
-  const learner = await EduLearner.findOne({ email }).select('friendCode').lean();
-  const code = learner?.friendCode;
   await Promise.all([
-    code ? EduLearner.updateMany({ $or: [{ friends: code }, { requestsIn: code }, { requestsOut: code }, { following: code }] }, { $pull: { friends: code, requestsIn: code, requestsOut: code, following: code } }) : null,
-    EduLearner.deleteOne({ email }),
     Persona.deleteOne({ email }),
     UserReport.deleteMany({ $or: [{ reporterEmail: email }, { targetEmail: email }] }),
-    EduFeedback.deleteMany({ email }),
     TodayPost.deleteMany({ authorEmail: email }),
     TodayPost.updateMany({ likes: email }, { $pull: { likes: email }, $inc: { likeCount: -1 } }),
   ]);
@@ -129,7 +120,6 @@ const removeMemberData = async (bio) => {
     SleepLog.deleteMany(emailFilter),
     ReadingSession.deleteMany(memberEmailFilter),
     SurveyResponse.deleteMany(emailFilter),
-    LessonFeedback.deleteMany(memberEmailFilter),
     CheckinRecord.deleteMany(emailFilter),
     ChessGame.deleteMany({ $or: [{ 'white.email': email }, { 'black.email': email }] }),
     ChessRating.deleteMany(emailFilter),

@@ -7,11 +7,8 @@ import { languageCode } from "../../i18n/languages";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/api/core/authSession";
 import { todayPostsApi } from "../../services/api/modules/todayFeedApi";
-import { apiFetch } from "../../services/api/core/apiClient";
 import ThreadPost, { Avatar } from "./today/ThreadPost";
 import ThreadComposer from "./today/ThreadComposer";
-import { CODER_TOTAL_STEPS, completedCoderSteps } from "../../../../../packages/shared/coderProgression";
-import { OUTLINE } from "../../../../../packages/courses/coding/stages";
 
 /**
  * Today làm lại 100% theo kiểu Threads (26/10/2026): một dòng bài duy nhất,
@@ -108,8 +105,7 @@ export default function MemberTodayTab({ bio, onNavigate }) {
       {postKey ? (
         <ThreadDetail postKey={postKey} language={language} articles={articles} actions={actions} onNavigate={onNavigate} />
       ) : (
-        <ThreadFeed articles={articles} fetchedAt={dataUpdatedAt} me={me} actions={actions} onCompose={() => setComposer({})} onRefresh={pullRefresh}
-          resume={<CodingResume completedLessons={bio?.completedLessons} onOpen={() => onNavigate("/member/utilities/team")} />} />
+        <ThreadFeed articles={articles} fetchedAt={dataUpdatedAt} me={me} actions={actions} onCompose={() => setComposer({})} onRefresh={pullRefresh} />
       )}
 
       {composer && (
@@ -160,48 +156,7 @@ function usePullToRefresh(onRefresh) {
   return { pull, busy, run, handlers };
 }
 
-// Hugo Team là lý do chính để quay lại mỗi ngày, nên bảng tin mở đầu bằng bài
-// học kế tiếp. Cùng nguồn tiến độ với Hugo Team (bio.completedLessons); học xong
-// đủ step thì thẻ tự biến mất.
-function CodingResume({ completedLessons, onOpen }) {
-  const { t } = useTranslation();
-  const done = completedCoderSteps(completedLessons).length;
-  const { data: learners } = useQuery({
-    queryKey: ["hugoteam-learners"],
-    queryFn: () => apiFetch("/hugoteam/learners", { credentials: "include" }),
-    enabled: done < CODER_TOTAL_STEPS,
-    staleTime: 10 * 60 * 1000,
-  });
-  if (done >= CODER_TOTAL_STEPS) return null;
-  // Số nhỏ phản tác dụng ("3 bạn đang học" = chỗ vắng) nên chỉ hiện từ 10 trở lên.
-  const learnerCount = learners?.count >= 10 ? learners.count : 0;
-  const n = done + 1;
-  return (
-    <button type="button" onClick={onOpen} className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left">
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted text-foreground">
-        <span className="material-symbols-outlined text-[22px]" aria-hidden="true">code</span>
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold text-foreground">
-          {done ? t("memberPortal.threads.codingContinue", { n, total: CODER_TOTAL_STEPS }) : t("memberPortal.threads.codingStart", { total: CODER_TOTAL_STEPS })}
-        </span>
-        <span className="block truncate text-[15px] text-muted-foreground">{OUTLINE[n - 1]?.[1]}</span>
-        {learnerCount > 0 && (
-          <span className="block text-[13px] text-muted-foreground">{t("memberPortal.threads.codingLearners", { count: learnerCount })}</span>
-        )}
-        {/* Gradient mục tiêu: thấy vạch đích gần lại là động lực đi tiếp. */}
-        {done > 0 && (
-          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={CODER_TOTAL_STEPS} aria-valuenow={done}>
-            <span className="block h-full rounded-full bg-foreground" style={{ width: `${(done / CODER_TOTAL_STEPS) * 100}%` }} />
-          </span>
-        )}
-      </span>
-      <span className="material-symbols-outlined shrink-0 text-[22px] text-muted-foreground" aria-hidden="true">chevron_right</span>
-    </button>
-  );
-}
-
-function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh, resume }) {
+function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh }) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
   const [visible, setVisible] = useState(PAGE);
@@ -292,7 +247,6 @@ function ThreadFeed({ articles, fetchedAt, me, actions, onCompose, onRefresh, re
         ))}
       </div>
 
-      {resume}
 
       <button type="button" onClick={onCompose} className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left">
         <Avatar author={me} />

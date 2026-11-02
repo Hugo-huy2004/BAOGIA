@@ -50,7 +50,7 @@ for (const src of SYSTEM_SOURCES) {
 // ── 4. Nguồn của một app CỤ THỂ thì phải có nhãn ─────────────────────────────
 // Bắt trường hợp thêm tính năng mới cho app cũ mà quên khai: người dùng nhận JOY
 // từ app đó nhưng hộp thư không nói được nó đến từ đâu.
-const MUST_HAVE_APP = ['arcade_score', 'companion', 'focus_session', 'ide_learning'];
+const MUST_HAVE_APP = ['arcade_score', 'companion', 'focus_session'];
 
 // ── NGUỒN CỦA APP ĐÃ NGHỈ HƯU ────────────────────────────────────────────────
 // Nhãn nguồn trong sổ cái JOY là VĨNH VIỄN: dòng tiền của năm ngoái vẫn phải

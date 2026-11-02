@@ -5,8 +5,6 @@ export const ADMIN_PERMISSIONS = [
   "support",
   "projects",
   "commerce",
-  "learning",
-  "hugoteam",
   "security",
   "system",
   "audit",
@@ -21,8 +19,8 @@ export const ADMIN_ROLES = {
   },
   operator: {
     label: "Điều hành",
-    description: "Vận hành thành viên, dự án, hỗ trợ và các chương trình cộng đồng.",
-    permissions: ["overview", "queue", "users", "support", "projects", "commerce", "learning", "hugoteam"],
+    description: "Vận hành thành viên, dự án, và hỗ trợ.",
+    permissions: ["overview", "queue", "users", "support", "projects", "commerce"],
   },
   support: {
     label: "Hỗ trợ",
@@ -33,11 +31,6 @@ export const ADMIN_ROLES = {
     label: "Tài chính",
     description: "Theo dõi thành viên, dự án, cửa hàng và nghiệp vụ JOY.",
     permissions: ["overview", "queue", "users", "projects", "commerce", "audit"],
-  },
-  learning: {
-    label: "Đào tạo",
-    description: "Quản lý Hugo Coding, HugoTeam và tiến độ người học.",
-    permissions: ["overview", "users", "learning", "hugoteam"],
   },
   security: {
     label: "An ninh",
