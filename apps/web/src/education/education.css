@@ -496,9 +496,12 @@
 
 /* Nhân vật to gấp 3 và sống động hơn: nhảy, nghiêng, nhún bẹp khi chạm đất. */
 .edu .cmap-mascot {
-  width: 288px;
+  /* Đặt trong lề bên ngoài đường đi (nút xa nhất ±110px quanh tâm), tính từ TÂM
+     đường chứ không từ nút (−var(--x) bù phần nút bị đẩy ngang) — không bao giờ đè nút. */
+  --mw: 288px;
+  width: var(--mw);
   max-width: none; /* preflight img{max-width:100%} bó theo bề rộng ô step */
-  translate: calc(-50% + var(--side) * 250px) -50%;
+  translate: calc(-50% - var(--x, 0px) + var(--side) * (124px + var(--mw) / 2)) -50%;
   transform-origin: 50% 100%;
   animation: edu-mascot 2.2s cubic-bezier(.45, 0, .55, 1) infinite;
 }
@@ -511,7 +514,7 @@
 }
 @media (max-width: 767px) {
   /* Màn hẹp: 2x để còn chỗ cho đường đi (khung zone tự cắt phần tràn). */
-  .edu .cmap-mascot { width: 190px; translate: calc(-50% + var(--side) * 150px) -50%; }
+  .edu .cmap-mascot { --mw: clamp(84px, calc(50vw - 136px), 190px); }
   .edu .cmap-deco { width: 48px; height: 48px; }
   .edu .cmap-deco.is-tree { width: 68px; height: 68px; }
 }
