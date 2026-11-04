@@ -191,7 +191,10 @@
   overflow: clip;
 }
 
-.portal-fullscreen-shell {
+/* Browser: fixed inset-0 reaches the real bottom edge (under Safari's toolbar);
+   a dvh height stopped above it and left a black strip. Installed iOS keeps the
+   vh height because inset-0 there misses the status-bar inset (see above). */
+html.standalone-pwa .portal-fullscreen-shell {
   height: var(--app-viewport-height);
   bottom: auto;
 }
