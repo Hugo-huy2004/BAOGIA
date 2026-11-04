@@ -180,9 +180,6 @@ router.post('/extend-account', requireMemberSession, extendLimiter, async (req, 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-    if (bio.isEduVerified) {
-      return res.status(400).json({ code: 'EDU_VERIFIED', error: 'Tài khoản đã xác minh giáo dục, đang được duy trì miễn phí.' });
-    }
 
     const { days, priceJoy } = ACCOUNT_EXTENSION;
     const { tax, total } = calcExchangeTotal(priceJoy);
@@ -255,47 +252,6 @@ router.post('/subscribe-bio-theme', requireMember, async (req, res) => {
     await bio.save();
 
     res.json({ success: true, balance: bio.joyBalance, expiresAt: bio.bioThemeRental.expiresAt, bio });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// POST /api/joy/exchange-chat-tokens
-router.post('/exchange-chat-tokens', requireMember, async (req, res) => {
-  try {
-    const { tokenAmount } = req.body;
-    const email = req.memberEmail;
-    if (!email || !tokenAmount) return res.status(400).json({ error: 'Thiếu thông tin người dùng hoặc số token.' });
-
-    const tokens = Number(tokenAmount);
-    if (!Number.isFinite(tokens) || !Number.isInteger(tokens) || tokens < 5 || tokens > 50) {
-      return res.status(400).json({ error: 'Số lượng Token quy đổi phải từ 5 đến 50.' });
-    }
-
-    const cost = tokens * 25;
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    if (bio.joyBalance < cost) {
-      return res.status(400).json({ error: `Số dư JOY không đủ. Bạn cần ${cost} JOY để đổi ${tokens} Token.` });
-    }
-
-    // Award/deduct JOY
-    const result = await awardJoy(
-      bio.email,
-      -cost,
-      'chat_tokens_exchange',
-      `Đổi ${cost} JOY lấy ${tokens} Token AI`,
-      { bioDoc: bio, skipSave: true }
-    );
-
-    // Add bonusChatTokens
-    bio.bonusChatTokens = (bio.bonusChatTokens || 0) + tokens;
-    await bio.save();
-
-    res.json({ success: true, balance: result.balance, bonusChatTokens: bio.bonusChatTokens });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

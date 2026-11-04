@@ -50,14 +50,14 @@ for (const src of SYSTEM_SOURCES) {
 // ── 4. Nguồn của một app CỤ THỂ thì phải có nhãn ─────────────────────────────
 // Bắt trường hợp thêm tính năng mới cho app cũ mà quên khai: người dùng nhận JOY
 // từ app đó nhưng hộp thư không nói được nó đến từ đâu.
-const MUST_HAVE_APP = ['arcade_score', 'companion', 'focus_session'];
+const MUST_HAVE_APP = ['arcade_score', 'focus_session'];
 
 // ── NGUỒN CỦA APP ĐÃ NGHỈ HƯU ────────────────────────────────────────────────
 // Nhãn nguồn trong sổ cái JOY là VĨNH VIỄN: dòng tiền của năm ngoái vẫn phải
 // đọc được tên nguồn của nó, dù app sinh ra nó đã bị gỡ. Nhưng ánh xạ sang app
 // thì PHẢI trống — trỏ vào một app không còn tồn tại là nói dối người đọc về
 // nơi họ có thể mở lại.
-const RETIRED_SOURCES = ['vocab_daily_goal', 'vocab_mission', 'vocab_essay_retake'];
+const RETIRED_SOURCES = ['vocab_daily_goal', 'vocab_mission', 'vocab_essay_retake', 'companion', 'companion_unlock', 'chat_tokens_exchange'];
 for (const src of RETIRED_SOURCES) {
   if (!JOY_SOURCE_KEYS.includes(src)) continue;
   check(JOY_SOURCES[src] && appOfJoySource(src) === '',

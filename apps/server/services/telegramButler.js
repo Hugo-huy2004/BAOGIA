@@ -21,7 +21,6 @@ const compactBio = (b) => ({
   donVi: b.joyDenom || 'JOY',
   viKhoa: Boolean(b.isJoyWalletFrozen),
   taiKhoan: b.status === 'suspended' ? 'đình chỉ' : 'hoạt động',
-  edu: Boolean(b.isEduVerified),
 });
 
 const TOOL_IMPL = {

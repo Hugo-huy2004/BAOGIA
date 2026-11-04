@@ -30,7 +30,6 @@ const vi = JSON.parse(fs.readFileSync(path.join(ROOT, 'apps/web/src/i18n/locales
  * chưa hỏi — đó là giọng văn cá nhân, không phải chuỗi giao diện.
  */
 const EXEMPT = new Set([
-  'hugoPsy', 'companion', 'therapy', 'crisis', 'banhocduong',
   'intro', 'servicesPage', 'servicePkg', 'studentPricing', 'projectsPage',
 ]);
 

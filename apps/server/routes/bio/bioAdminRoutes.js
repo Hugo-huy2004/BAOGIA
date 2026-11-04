@@ -3,10 +3,9 @@ import express from 'express';
 import Bio from '../../models/Bio.js';
 import { requireAdmin, invalidateMemberGate } from '../../middleware/authMiddleware.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
-import VerificationEvidence from '../../models/VerificationEvidence.js';
 import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
 import { fetchTelegramFile } from '../../services/telegramService.js';
-import { clearPublicBioCache, TWELVE_MONTHS_MS, removeDuplicateIdentityAccounts } from './bioShared.js';
+import { clearPublicBioCache } from './bioShared.js';
 
 const router = express.Router();
 
@@ -33,7 +32,7 @@ router.get('/', requireAdmin, async (req, res) => {
       ];
     }
 
-    if (status && ['active', 'locked', 'pending', 'rejected'].includes(status)) {
+    if (status && ['active', 'locked'].includes(status)) {
       query.status = status;
     }
 
@@ -110,123 +109,20 @@ router.patch('/:id/vip', requireAdmin, async (req, res) => {
   }
 });
 
-router.get('/:id/verification-evidence/:kind', requireAdmin, async (req, res) => {
-  try {
-    const evidenceIndex = /^\d+$/.test(req.params.kind) ? Number(req.params.kind) : -1;
-    const fileField = req.params.kind === 'schedule'
-      ? 'verificationRequest.scheduleFileId'
-      : req.params.kind === 'selfie'
-        ? 'verificationRequest.selfieFileId'
-        : evidenceIndex >= 0 && evidenceIndex < 2
-          ? `verificationRequest.evidenceFileIds.${evidenceIndex}`
-        : null;
-    if (!fileField) return res.status(404).json({ error: 'Không tìm thấy ảnh xác minh.' });
-
-    const bio = await Bio.findById(req.params.id).select(fileField).lean();
-    const fileId = fileField.split('.').reduce((value, key) => value?.[key], bio);
-    if (!fileId) return res.status(404).json({ error: 'Yêu cầu này chưa có ảnh xác minh.' });
-
-    const storedEvidence = /^[a-f\d]{24}$/i.test(String(fileId))
-      ? await VerificationEvidence.findOne({ _id: fileId, memberId: bio._id }).lean()
-      : null;
-    if (storedEvidence) {
-      res.set('Cache-Control', 'private, no-store');
-      return res.type(storedEvidence.mime).send(storedEvidence.data);
-    }
-
-    const file = await fetchTelegramFile(fileId, 4 * 1024 * 1024);
-    if (!file) return res.status(502).json({ error: 'Không thể tải ảnh xác minh từ Telegram.' });
-
-    res.set('Cache-Control', 'private, no-store');
-    res.type(file.mime).send(Buffer.from(file.base64, 'base64'));
-  } catch (error) {
-    console.error('GET verification evidence error:', error.message || error);
-    res.status(500).json({ error: 'Không thể tải ảnh xác minh.' });
-  }
-});
-
-// PATCH: Lock/Unlock/Approve/Reject bio
 router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
-    const { id } = req.params;
     const { status } = req.body;
-
-    if (!['active', 'locked', 'pending', 'rejected'].includes(status)) {
+    if (!['active', 'locked'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status value' });
     }
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
 
-    const bio = await Bio.findById(id);
-    if (!bio) {
-      return res.status(404).json({ error: 'Bio not found' });
-    }
-    const reviewedEvidenceIds = [...(bio.verificationRequest?.evidenceFileIds || [])];
-
-    // Auto-fill profile fields + extend to a full year when approving a
-    // submitted verification request — covers both the legacy pending→active
-    // gate and the new flow where non-edu trial members are already 'active'
-    // and just need their submitted request approved.
-    const isApprovingVerification = status === 'active' && bio.verificationRequest?.submitted && !bio.isEduVerified;
-    const isRejectingVerification = status === 'rejected' && bio.verificationRequest?.submitted;
-    if (isApprovingVerification) {
-      const hasEvidence = bio.verificationRequest.evidenceFileIds?.length
-        || (bio.verificationRequest.scheduleFileId && bio.verificationRequest.selfieFileId);
-      if (!hasEvidence) {
-        return res.status(422).json({ error: 'Hồ sơ xác minh chưa có ảnh bằng chứng.' });
-      }
-      bio.verificationRequest.submitted = false;
-      bio.displayName = bio.verificationRequest.fullName || bio.displayName;
-      bio.birthday = bio.verificationRequest.birthday || bio.birthday;
-      bio.phone = bio.verificationRequest.phoneZalo || bio.phone;
-      if (bio.verificationRequest.schoolName) {
-        bio.education = `${bio.verificationRequest.schoolLevel || ''} - ${bio.verificationRequest.schoolName}`.trim().replace(/^- /, '');
-      }
-      bio.verificationRequest.notifiedStatus = 'approved';
-      bio.isEduVerified = true;
-      // A manual review grants a full year from the approval date.
-      bio.expiresAt = new Date(Date.now() + TWELVE_MONTHS_MS);
-      bio.trialExpiresAt = null;
-      bio.verificationRequest.evidenceFileIds = [];
-      bio.verificationRequest.scheduleFileId = '';
-      bio.verificationRequest.selfieFileId = '';
-    } else if (status === 'rejected') {
-      if (bio.verificationRequest) {
-        bio.verificationRequest.notifiedStatus = 'rejected';
-        bio.verificationRequest.submitted = false;
-        bio.verificationRequest.evidenceFileIds = [];
-        bio.verificationRequest.scheduleFileId = '';
-        bio.verificationRequest.selfieFileId = '';
-      }
-    }
-
-    // A verification rejection declines only the upgrade. The member keeps
-    // normal access until the existing trial deadline and may submit once more.
-    if (isRejectingVerification) {
-      bio.status = 'active';
-      if (!bio.isEduVerified && bio.trialExpiresAt) bio.expiresAt = bio.trialExpiresAt;
-    } else {
-      bio.status = status;
-    }
+    bio.status = status;
     await bio.save();
     invalidateMemberGate(bio.email);
-    if (reviewedEvidenceIds.length && (isApprovingVerification || isRejectingVerification)) {
-      await VerificationEvidence.deleteMany({ memberId: bio._id, _id: { $in: reviewedEvidenceIds } });
-    }
-    if (isApprovingVerification) await removeDuplicateIdentityAccounts(bio);
-
-    // Invalidate origin cache; CDN copies expire according to their HTTP TTL
     await clearPublicBioCache(bio);
-    if (isApprovingVerification || status === 'rejected') {
-      broadcastToEmail(bio.email, {
-        type: 'bio_status_update',
-        status: bio.status,
-        isEduVerified: bio.isEduVerified,
-        expiresAt: bio.expiresAt,
-        trialExpiresAt: bio.trialExpiresAt,
-        verificationStatus: bio.verificationRequest?.notifiedStatus,
-        verificationSubmissionCount: bio.verificationRequest?.submissionCount || 0,
-      });
-    }
-
+    broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, expiresAt: bio.expiresAt });
     res.json({ bio });
   } catch (error) {
     res.status(500).json({ error: error.message });

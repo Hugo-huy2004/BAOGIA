@@ -750,21 +750,21 @@ const partnerRewrites = [];
 const PARTNER_PERKS = {
   vi: (c) => [
     "Đăng ký tài khoản chỉ với một nút Google.",
-    `Tặng ${c.bioDays} ngày duy trì tài khoản & trang Bio; thêm ${c.eduBonusDays} ngày nếu đã xác minh giáo dục.`,
+    `Tặng ${c.bioDays} ngày duy trì tài khoản & trang Bio.`,
     "Trải nghiệm các dịch vụ thành viên hoàn toàn miễn phí.",
     `Ví JOY được tặng ${c.joy.toLocaleString("vi-VN")} JOY và có thể tham gia các dự án phi lợi nhuận tại Hugo Team.`,
     "Số lượng có hạn, mỗi người nhận một lần.",
   ],
   en: (c) => [
     "Sign up with a single Google button.",
-    `${c.bioDays} days of account & Bio page; ${c.eduBonusDays} more days with education verification.`,
+    `${c.bioDays} days of account & Bio page.`,
     "Member services, completely free to try.",
     `${c.joy.toLocaleString("en-US")} JOY in your wallet and a seat in Hugo Team's non-profit projects.`,
     "Limited spots, one claim per person.",
   ],
   zh: (c) => [
     "只需一个 Google 按钮即可注册。",
-    `赠送 ${c.bioDays} 天账户与 Bio 页面使用期；完成教育认证再加 ${c.eduBonusDays} 天。`,
+    `赠送 ${c.bioDays} 天账户与 Bio 页面使用期。`,
     "会员服务完全免费体验。",
     `JOY 钱包获赠 ${c.joy.toLocaleString("zh-CN")} JOY，并可加入 Hugo Team 的非营利项目。`,
     "名额有限，每人限领一次。",

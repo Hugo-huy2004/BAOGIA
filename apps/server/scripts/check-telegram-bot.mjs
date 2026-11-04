@@ -27,7 +27,7 @@ for (const c of COMMANDS) {
 }
 
 // 2. Việc có ghi dữ liệu BẮT BUỘC phải đánh dấu cần duyệt.
-const MUST_CONFIRM = ['joy', 'wallet_lock', 'account_lock', 'logout', 'rename', 'reslug', 'edu', 'notify', 'maintenance'];
+const MUST_CONFIRM = ['joy', 'wallet_lock', 'account_lock', 'logout', 'rename', 'reslug', 'notify', 'maintenance'];
 for (const id of MUST_CONFIRM) {
   check(COMMANDS.find((c) => c.id === id)?.danger === true, `lệnh "${id}" bắt buộc Boss duyệt`);
 }
@@ -66,7 +66,6 @@ for (const [cmd, before, want] of [
   ['Trừ 500 joy cho an@gmail.com', {}, 'Cộng'],
   ['Khóa ví an@gmail.com', {}, 'Mở khóa ví'],
   ['Khóa tài khoản an@gmail.com', {}, 'Mở tài khoản'],
-  ['Bật edu an@gmail.com', {}, 'Tắt edu'],
   ['Đổi tên an@gmail.com thành X', { displayName: 'Tên Cũ' }, 'Tên Cũ'],
   ['Bật bảo trì', {}, 'Tắt bảo trì'],
 ]) {

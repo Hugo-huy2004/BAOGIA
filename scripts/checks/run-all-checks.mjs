@@ -23,7 +23,6 @@ const CHECKS = [
   { name: 'check:han-viet', cmd: 'npm', args: ['run', 'check:han-viet'] },
   { name: 'check:sino', cmd: 'npm', args: ['run', 'check:sino'] },
   { name: 'check:nom', cmd: 'npm', args: ['run', 'check:nom'] },
-  { name: 'check:psy', cmd: 'npm', args: ['run', 'check:psy'] },
   { name: 'check:project', cmd: 'npm', args: ['run', 'check:project'] },
   { name: 'check:today', cmd: 'npm', args: ['run', 'check:today'] },
   { name: 'build', cmd: 'npm', args: ['run', 'build'] },

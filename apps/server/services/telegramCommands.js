@@ -73,12 +73,6 @@ export const COMMANDS = [
     pattern: new RegExp(`^(?:đổi slug|doi slug|change slug)\\s+${EMAIL}\\s+(?:thành|thanh|to|=|:)?\\s*[a-zA-Z0-9_-]+$`, 'i'),
   },
   {
-    id: 'edu', danger: true, group: 'Thành viên',
-    syntax: 'Bật edu|Tắt edu <email>', example: 'Bật edu an@gmail.com',
-    desc: 'Duyệt hoặc huỷ xác minh sinh viên',
-    pattern: new RegExp(`^(?:bật edu|bat edu|duyệt edu|duyet edu|xác minh edu|xac minh edu|tắt edu|tat edu)\\s+${EMAIL}$`, 'i'),
-  },
-  {
     id: 'notify', danger: true, group: 'Thành viên',
     syntax: 'Gửi thông báo <email> nội dung <lời nhắn>', example: 'Gửi thông báo an@gmail.com nội dung Chúc mừng bạn',
     desc: 'Đẩy một thông báo tới đúng một người',
@@ -224,9 +218,6 @@ export function inverseCommand(command, before = {}) {
 
   const acc = m(/^(khóa tài khoản|khoa tai khoan|mở tài khoản|mo tai khoan)\s+(\S+)$/i);
   if (acc) return `${/^(khóa tài khoản|khoa tai khoan)$/i.test(acc[1]) ? 'Mở tài khoản' : 'Khóa tài khoản'} ${acc[2]}`;
-
-  const edu = m(/^(bật edu|bat edu|duyệt edu|duyet edu|xác minh edu|xac minh edu|tắt edu|tat edu)\s+(\S+)$/i);
-  if (edu) return `${/tắt|tat/i.test(edu[1]) ? 'Bật edu' : 'Tắt edu'} ${edu[2]}`;
 
   // Tên và slug cũ phải chụp lại TRƯỚC khi đổi, nếu không thì không biết trả về đâu.
   const rename = m(/^(?:đổi tên|doi ten|change name)\s+(\S+@\S+)\s+/i);

@@ -163,7 +163,6 @@ async function memberScreen(bioDoc) {
     `🪪 Kiểm tra thông tin: <b>${ic.failStreak ? `đã trượt ${ic.failStreak} đợt` : due ? 'đang chờ trả lời' : 'bình thường'}</b>`
       + (ic.nextDueAt ? ` · đợt kế ${new Date(ic.nextDueAt).toLocaleDateString('vi-VN')}` : '')
       + (ic.lastVerifiedAt ? `\n     ✓ xác minh gần nhất ${new Date(ic.lastVerifiedAt).toLocaleDateString('vi-VN')} (${ic.lastField || '—'})` : '\n     <i>chưa từng xác minh</i>'),
-    `🎓 EDU: <b>${bio.isEduVerified ? 'đã xác minh' : 'chưa'}</b>`,
     `⏳ Hạn dùng: <b>${hsd ? hsd.toLocaleDateString('vi-VN') : '—'}</b>${hsdLeft !== null ? ` (còn ${hsdLeft} ngày)` : ''}`,
     `🎫 Ticket chờ: <b>${tickets}</b>`,
     `🔗 Mã giới thiệu: <code>${bio.referralCode || '—'}</code>`,
@@ -190,9 +189,7 @@ async function memberScreen(bioDoc) {
           { text: '✉️ Gửi email', callback_data: `k:mail:${id}` },
           { text: '⏳ Gia hạn 30 ngày', callback_data: `k:extend:${id}` },
         ],
-        block
-          ? [{ text: '🔓 Gỡ khoá tài khoản', callback_data: `k:unlock:${id}` }]
-          : [{ text: '🎓 ' + (bio.isEduVerified ? 'Gỡ xác minh EDU' : 'Xác minh EDU'), callback_data: `k:edu:${id}` }],
+        ...(block ? [[{ text: '🔓 Gỡ khoá tài khoản', callback_data: `k:unlock:${id}` }]] : []),
         [
           { text: '🔄 Làm mới', callback_data: `k:m:${id}` },
           { text: '🔍 Tra người khác', callback_data: 'k:find' },
@@ -427,19 +424,6 @@ export async function handleConsoleCallback({ chatId, messageId, data }) {
         adminId: 'TELEGRAM_BOT_ADMIN', adminUsername: 'SuperAdmin_Telegram',
         action: 'extend_expiry', targetEmail: bio.email,
         details: { days: 30, newExpiry: bio.expiresAt },
-      });
-      await show(await memberScreen(bio));
-      return true;
-    }
-
-    case 'edu': {
-      const bio = await byId(arg);
-      if (!bio) { await show({ text: '❌ Không còn hồ sơ này.', markup: backOnly() }); return true; }
-      bio.isEduVerified = !bio.isEduVerified;
-      await bio.save();
-      await AdminAuditLog.create({
-        adminId: 'TELEGRAM_BOT_ADMIN', adminUsername: 'SuperAdmin_Telegram',
-        action: bio.isEduVerified ? 'verify_edu' : 'unverify_edu', targetEmail: bio.email,
       });
       await show(await memberScreen(bio));
       return true;

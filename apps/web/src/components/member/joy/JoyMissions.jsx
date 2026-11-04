@@ -11,13 +11,9 @@ import { useJoy } from "../../../lib/joyDisplay";
  * Bản trước nút "Thực Hiện" chỉ bắn một toast "Khởi động nhiệm vụ…" rồi thôi:
  * người dùng bấm bảy nút, không nút nào đi đâu, và không chỗ nào nói nhiệm vụ
  * ấy làm ở app nào. Đây là bảng tra chỗ làm — id nhiệm vụ do máy chủ đặt
- * (apps/server/routes/companionRoutes.js · DAILY_CHALLENGES), đừng đổi.
+ * (apps/server/routes/joy/joyMissionRoutes.js · DAILY_MISSIONS), đừng đổi.
  */
 const MISSION_TARGETS = {
-  breath: { icon: "air", utility: "psychology" },
-  chat: { icon: "forum", utility: "psychology" },
-  assessment: { icon: "assignment", utility: "psychology" },
-  sleep: { icon: "bedtime", utility: "psychology" },
   arcade: { icon: "sports_esports", utility: "arcade" },
   focus: { icon: "timer", utility: "aura" },
   // Điểm danh nằm ngay trong ví, tab Tổng quan — không phải một app riêng.

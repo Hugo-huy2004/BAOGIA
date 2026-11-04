@@ -14,8 +14,8 @@ import { logAdminAuditAction } from './adminShared.js';
 const RESOURCES = {
   bios: {
     model: 'Bio', label: 'Thành viên', permission: 'users', ops: 'ru', search: ['email', 'displayName', 'phone'],
-    list: ['email', 'displayName', 'phone', 'joyBalance', 'isEduVerified', 'createdAt'],
-    edit: ['displayName', 'phone', 'headline', 'status', 'starVip', 'isEduVerified', 'isJoyWalletFrozen', 'profilePublic', 'trialExpiresAt', 'expiresAt'],
+    list: ['email', 'displayName', 'phone', 'joyBalance', 'createdAt'],
+    edit: ['displayName', 'phone', 'headline', 'status', 'starVip', 'isJoyWalletFrozen', 'profilePublic', 'expiresAt'],
   },
   'support-tickets': {
     model: 'SupportTicket', label: 'Yêu cầu hỗ trợ', permission: 'support', ops: 'rud', search: ['email', 'fullName', 'issue'],
@@ -97,7 +97,7 @@ const modelOf = async (name) => (models[name] ||= (await import(`../../models/${
 // Chủ hệ thống: mọi model còn lại tự thành bảng, cột suy từ schema. Trường bí
 // mật không bao giờ ra ngoài; sổ tiền chỉ xem (đổi số dư phải qua joyService);
 // trò chuyện trị liệu không mở cho ai đọc.
-const HIDDEN_MODELS = new Set(['OAuthToken', 'OAuthAuthorizationCode', 'OAuthClient', 'TelegramState', 'Counter', 'CompanionHistory', 'Data']);
+const HIDDEN_MODELS = new Set(['OAuthToken', 'OAuthAuthorizationCode', 'OAuthClient', 'TelegramState', 'Counter', 'Data']);
 const MONEY_MODELS = new Set(['PendingTransfer', 'StockPosition', 'StockTrade', 'PaymentLink']);
 const SECRET_FIELD = /pass|secret|token|hash|otp|pin|cipher|encrypt|salt|(^|\.)iv$|key$|(^|\.)keys?(\.|$)|auth$|account(number|holder)|bank/i;
 const SCALAR = new Set(['String', 'Number', 'Boolean', 'Date', 'ObjectId']);

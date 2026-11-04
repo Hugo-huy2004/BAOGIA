@@ -128,11 +128,6 @@ export const SECTIONS_VI = [
               "Dynamic Canvas Rendering, Nonce biến thiên 60 giây tự hủy (Anti-replay), SHA-256 Client Salted Hash và Append-Only Ledger Database (Kleppmann, 2017).",
             ],
             [
-              "HugoPSY Sức Khỏe Tinh Thần",
-              "Trung tâm phục hồi năng lượng tâm trí: Bài tập thở điều hòa 4-7-8, theo dõi nhịp sinh học giấc ngủ và âm thanh sóng não thư giãn.",
-              "Canvas Waveform phản hồi nhịp thở sinh học, LocalStorage mã hóa nhật ký ngủ và Web Audio API tổng hợp tần số Binaural Beats.",
-            ],
-            [
               "Bàn Học Đường (Study Desk)",
               "Không gian mô phỏng môi trường học tập chuyên sâu: Âm thanh quán cà phê, tiếng mưa rơi bên cửa sổ kết hợp đồng hồ Pomodoro 25/5.",
               "Audio Multi-track Mixer (chỉnh âm lượng từng kênh), Web Worker chạy đồng hồ đếm ngược chính xác ngay cả khi chuyển tab.",
@@ -175,20 +170,6 @@ export const SECTIONS_VI = [
               icon: "wallet",
               href: "/member",
               badge: "Thành viên",
-            },
-            {
-              title: "HugoPSY Sức Khỏe",
-              desc: "Nhật ký giấc ngủ, nhịp sinh học, bài tập thở 4-7-8 với đồ họa lượn sóng thư giãn.",
-              icon: "psychology",
-              href: "/therapy",
-              badge: "Trị liệu",
-            },
-            {
-              title: "Bàn Học Đường",
-              desc: "Âm thanh môi trường quán cà phê, tiếng mưa rơi, lật sách kết hợp đồng hồ Pomodoro 25/5.",
-              icon: "local_cafe",
-              href: "/banhocduong",
-              badge: "Tập trung",
             },
             {
               title: "Lofi Radio",
@@ -872,7 +853,7 @@ spec:
             [
               "Mất kết nối Internet hoàn toàn (Offline)",
               "Service Worker phục vụ Bundle tĩnh từ Cache Storage; API ghi lưu vào IndexedDB.",
-              "Vẫn nghe Lofi Radio đệm sẵn, dùng Bàn Học Đường, luyện thở HugoPSY, đọc Điều khoản bình thường.",
+              "Vẫn nghe Lofi Radio đệm sẵn, dùng Bàn Học Đường, đọc Điều khoản bình thường.",
             ],
             [
               "Loãng mạng, trễ cao, rớt gói tin (Packet Loss > 30%)",
@@ -957,12 +938,12 @@ spec:
           rows: [
             [
               "Khách vãng lai (Guest)",
-              "Tự do trải nghiệm tất cả tiện ích công cộng: Lofi Radio, Bàn Học Đường, Bài tập thở HugoPSY, mini game HugoArcade, xem biểu phí dịch vụ.",
+              "Tự do trải nghiệm tất cả tiện ích công cộng: Lofi Radio, Bàn Học Đường, mini game HugoArcade, xem biểu phí dịch vụ.",
               "Không yêu cầu tạo tài khoản, hệ thống không thu thập cookie cá nhân hay lưu vết hành vi duyệt web.",
             ],
             [
               "Thành viên chính thức (Member)",
-              "Sở hữu trang cá nhân Hugo Bio (@slug), tích lũy và chuyển điểm JOY, lưu trữ nhật ký giấc ngủ, bảo vệ tài khoản bằng Passkey sinh trắc học.",
+              "Sở hữu trang cá nhân Hugo Bio (@slug), tích lũy và chuyển điểm JOY, bảo vệ tài khoản bằng Passkey sinh trắc học.",
               "Tự quản lý thiết bị đăng nhập, có quyền xuất toàn bộ dữ liệu hoặc xóa vĩnh viễn tài khoản trong trang Cài đặt.",
             ],
             [
@@ -976,7 +957,7 @@ spec:
           type: "note",
           tone: "info",
           title: "Tuyên ngôn Triết lý: Tại sao Thành Viên luôn được Hưởng Miễn phí 100% Toàn bộ Tính năng?",
-          text: "Đối với tác giả Lê Gia Huy, mỗi Thành Viên không phải là 'khách hàng để kinh doanh dữ liệu', mà chính là một Tester siêu thực tế và là một người đồng sáng tạo vô giá.\n\nTrong phòng thí nghiệm hay các bài kiểm thử tự động (Unit Test / Synthetic Benchmark), mã nguồn có thể đạt 100% chỉ số xanh. Nhưng chỉ khi bước ra đời thực — khi một Quý thành viên sinh viên mở ứng dụng trên chiếc điện thoại cũ trong giảng đường chập chờn sóng mạng, khi một người đi làm bật bài tập thở HugoPSY lúc nửa đêm để xoa dịu âu lo, hay khi một Quý thành viên trẻ tự hào chia sẻ trang Hugo Bio đầu tiên của mình — đó mới là phép thử chân thực và khắc nghiệt nhất cho một kiến trúc phần mềm.\n\nTác giả cần biết Thành Viên thực sự cần gì, trải nghiệm thực tế ra sao, giao diện còn cấn ở đâu và hệ thống cần cải tiến điều gì. Những phản hồi trung thực, những lần phát hiện lỗi phần cứng hay những đóng góp ý tưởng từ Quý thành viên chính là nguồn tài nguyên quý báu nhất giúp Hugo Studio liên tục tôi luyện và hoàn thiện mỗi ngày.",
+          text: "Đối với tác giả Lê Gia Huy, mỗi Thành Viên không phải là 'khách hàng để kinh doanh dữ liệu', mà chính là một Tester siêu thực tế và là một người đồng sáng tạo vô giá.\n\nTrong phòng thí nghiệm hay các bài kiểm thử tự động (Unit Test / Synthetic Benchmark), mã nguồn có thể đạt 100% chỉ số xanh. Nhưng chỉ khi bước ra đời thực — khi một Quý thành viên sinh viên mở ứng dụng trên chiếc điện thoại cũ trong giảng đường chập chờn sóng mạng, hay khi một Quý thành viên trẻ tự hào chia sẻ trang Hugo Bio đầu tiên của mình — đó mới là phép thử chân thực và khắc nghiệt nhất cho một kiến trúc phần mềm.\n\nTác giả cần biết Thành Viên thực sự cần gì, trải nghiệm thực tế ra sao, giao diện còn cấn ở đâu và hệ thống cần cải tiến điều gì. Những phản hồi trung thực, những lần phát hiện lỗi phần cứng hay những đóng góp ý tưởng từ Quý thành viên chính là nguồn tài nguyên quý báu nhất giúp Hugo Studio liên tục tôi luyện và hoàn thiện mỗi ngày.",
         },
         {
           type: "table",

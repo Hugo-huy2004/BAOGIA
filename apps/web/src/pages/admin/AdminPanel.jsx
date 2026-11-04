@@ -9,7 +9,7 @@ import { getAdminSession, logoutAuth } from "../../services/api/core/authSession
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminHeader from "../../components/admin/AdminHeader";
 import AdminCommandPalette from "../../components/admin/AdminCommandPalette";
-import AdminDashboard, { SosOverlay } from "../../components/admin/AdminDashboard";
+import AdminDashboard from "../../components/admin/AdminDashboard";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import AdminWorkQueueTab from "../../components/admin/AdminWorkQueueTab";
 import { ADMIN_DESTINATIONS, DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, destinationsForPermissions, isValidDestination } from "../../components/admin/adminDestinations";
@@ -110,26 +110,6 @@ export default function AdminPanel() {
   });
 
 
-  // Crisis Alerts
-  const [crisisAlerts, setCrisisAlerts] = useState([]);
-  // Cảnh báo khủng hoảng là tính năng AN TOÀN — vẫn giữ nhịp 15 giây, chỉ bỏ
-  // phần chạy lúc tab bị ẩn (admin có nhìn đâu mà cảnh báo). Quay lại tab là
-  // nạp ngay, nên thời gian admin thực sự biết tin không chậm đi chút nào.
-  const fetchCrisisAlerts = useCallback(() => {
-    const apiBase = import.meta.env.VITE_API_URL || "/api";
-    const headers = {};
-    const session = getAdminSession();
-    if (session && session.token) {
-      headers["Authorization"] = `Bearer ${session.token}`;
-    }
-    fetch(`${apiBase}/companion/admin/crisis-alerts`, { headers, credentials: "include" })
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
-      .catch(() => {});
-  }, []);
-
-  useVisiblePoll(fetchCrisisAlerts, 15000, hasAdminPermission(adminSession.permissions, "security"));
-
   // Admin Super Security Armor: F12 / DevTools Inspection Trap
   useEffect(() => {
     if (import.meta.env.DEV) return;
@@ -146,23 +126,6 @@ export default function AdminPanel() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const handleResolveCrisisAlert = (alert) => {
-    const apiBase = import.meta.env.VITE_API_URL || "/api";
-    const headers = { "Content-Type": "application/json" };
-    const session = getAdminSession();
-    if (session && session.token) {
-      headers["Authorization"] = `Bearer ${session.token}`;
-    }
-    fetch(`${apiBase}/companion/crisis/resolve`, {
-      method: "POST",
-      headers,
-      credentials: "include",
-      body: JSON.stringify({ email: alert.email, flagId: alert.flagId })
-    })
-      .then(() => setCrisisAlerts(prev => prev.filter(a => a.flagId !== alert.flagId)))
-      .catch(() => {});
-  };
 
   // AI Support Proactive Briefing State
   const [aiBriefingModalOpen, setAiBriefingModalOpen] = useState(false);
@@ -473,8 +436,6 @@ export default function AdminPanel() {
           <AdminDashboard
             permissions={adminSession.permissions}
             onNavigate={setActiveTab}
-            crisisAlerts={crisisAlerts}
-            onResolveCrisisAlert={handleResolveCrisisAlert}
           />
         );
       case "users":
@@ -529,7 +490,6 @@ export default function AdminPanel() {
       className="admin-ui h-[100dvh] min-h-[100dvh] bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      <SosOverlay alerts={crisisAlerts} />
       <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} zIndex={150} />
 
       {/* CONFIRM MODAL */}

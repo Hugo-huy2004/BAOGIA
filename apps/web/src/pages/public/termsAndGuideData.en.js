@@ -102,7 +102,7 @@ export const SECTIONS_EN = [
         type: "note",
         tone: "info",
         title: "JOY Ledger Specification (Just Our Yield — Decentralized Utility Counter)",
-        text: "• Etymology & Conceptual Meaning: JOY stands for 'Just Our Yield' — a quantitative metric reflecting focused study, positive mental health adherence, and community collaboration.\n• Monetary Nature: JOY is strictly an internal utility voucher with ZERO fiat speculation, zero cryptocurrency volatility, and zero cash redemption value.\n• Accumulation Mechanics: Earned via verified Pomodoro study cycles (+25 JOY/session), sleep logs (+15 JOY/day), and technical community bug bounties (+100 JOY/verified report).\n• Ledger Architecture: Implements double-entry cryptographic bookkeeping in the JoyLedger collection with strict non-negative integrity constraints ($balance >= 0).",
+        text: "• Etymology & Conceptual Meaning: JOY stands for 'Just Our Yield' — a quantitative metric reflecting focused study and community collaboration.\n• Monetary Nature: JOY is strictly an internal utility voucher with ZERO fiat speculation, zero cryptocurrency volatility, and zero cash redemption value.\n• Accumulation Mechanics: Earned via verified Pomodoro study cycles (+25 JOY/session) and technical community bug bounties (+100 JOY/verified report).\n• Ledger Architecture: Implements double-entry cryptographic bookkeeping in the JoyLedger collection with strict non-negative integrity constraints ($balance >= 0).",
       },
       {
         type: "table",
@@ -119,12 +119,6 @@ export const SECTIONS_EN = [
             "Productivity Accelerator",
             "Web Audio API synthesized pink/binaural noise, Web Workers precise timestamp counters immune to tab throttling.",
             "Zero CPU drift, sub-millisecond timer resolution.",
-          ],
-          [
-            "HugoPSY Breathing Coach",
-            "Digital Mental Wellness",
-            "Harmonic easing CSS transforms mimicking parasympathetic 4-7-8 and Box breathing lung expansion intervals.",
-            "60 FPS smooth vector animation, Zero GPU thermal spike.",
           ],
           [
             "Lofi Focus Radio",
@@ -170,25 +164,11 @@ export const SECTIONS_EN = [
             href: "/student-desk",
           },
           {
-            title: "HugoPSY Coach",
-            desc: "Clinical Box and 4-7-8 breathing exercises with harmonic vagus nerve calming rhythm.",
-            icon: "spa",
-            badge: "Clinical Standard",
-            href: "/breathing",
-          },
-          {
             title: "Lofi Focus Radio",
             desc: "Curated ambient study tracks with background MediaSession streaming.",
             icon: "radio",
             badge: "Buffered Audio",
             href: "/radio",
-          },
-          {
-            title: "Sleep Health Tracker",
-            desc: "Circadian rhythm tracking and REM phase analysis with offline IndexedDB backup.",
-            icon: "bedtime",
-            badge: "Health Metrics",
-            href: "/sleep-tracker",
           },
           {
             title: "HugoArcade Arena",
@@ -781,7 +761,7 @@ spec:
           [
             "Total Internet Outage (Offline)",
             "Service Worker serves shell from Cache Storage; API writes stored in IndexedDB.",
-            "Lofi Radio (pre-cached), Classroom Desk, HugoPSY Breathing, and Terms Manual remain 100% operational.",
+            "Lofi Radio (pre-cached), Classroom Desk, and Terms Manual remain 100% operational.",
           ],
           [
             "High Packet Loss & Latency (> 30%)",
@@ -839,12 +819,12 @@ spec:
         rows: [
           [
             "Guest User",
-            "Free access to all public utilities: Lofi Radio, Classroom Desk, HugoPSY Breathing, HugoArcade, and Service Catalog.",
+            "Free access to all public utilities: Lofi Radio, Classroom Desk, HugoArcade, and Service Catalog.",
             "No account creation required; zero tracking cookies, zero persistent tracking.",
           ],
           [
             "Verified Member",
-            "Owns a personalized Hugo Bio (@slug), earns and transfers JOY points, sleep logs, and biometric Passkey authentication.",
+            "Owns a personalized Hugo Bio (@slug), earns and transfers JOY points, and biometric Passkey authentication.",
             "Autonomous device management; full rights to export personal data or execute account deletion.",
           ],
           [
@@ -923,7 +903,7 @@ spec:
         type: "note",
         tone: "danger",
         title: "Disclaimer of Liability & Operational Limitations",
-        text: "1. Educational & Productive Use: Hugo Studio is engineered for study, focus, and digital presentation. The author is not liable for indirect damages resulting from user misuse.\n2. Mental Health Advisory: HugoPSY breathing exercises are wellness aids and do not constitute clinical psychiatric treatment.\n3. Zero Financial Liability: JOY points represent internal utility counters and possess zero fiat value.",
+        text: "1. Educational & Productive Use: Hugo Studio is engineered for study, focus, and digital presentation. The author is not liable for indirect damages resulting from user misuse.\n2. Health Advisory: Hugo Studio does not provide medical or psychological services.\n3. Zero Financial Liability: JOY points represent internal utility counters and possess zero fiat value.",
       },
     ],
   },

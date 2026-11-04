@@ -93,7 +93,6 @@ export const loginMember = (member) => {
     displayName: member.displayName || member.email,
     provider: member.provider || "google",
     avatarUrl: member.avatarUrl || "",
-    isEduVerified: member.isEduVerified === true,
     // Same-origin web uses the HttpOnly cookie; only native/cross-origin
     // clients need a JavaScript-readable Bearer fallback.
     token: isCrossOriginApi ? (member.token || "") : "",

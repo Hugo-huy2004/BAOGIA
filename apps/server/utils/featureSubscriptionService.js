@@ -64,7 +64,7 @@ export function grantFeatureMonths(bioDoc, featureKey, months = 1) {
 }
 
 // Charges JOY and extends/starts a monthly subscription. Mirrors the
-// charge-then-mutate-then-single-save shape of companionRoutes.js's
+// charge-then-mutate-then-single-save shape of the old companion routes'
 // unlock-feature and joyRoutes.js's rent-theme (stacks remaining time on
 // renewal instead of wasting it).
 export async function chargeFeatureSubscription(email, featureKey, months = 1) {

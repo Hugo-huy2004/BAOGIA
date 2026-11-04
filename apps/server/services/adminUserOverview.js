@@ -62,14 +62,14 @@ export async function buildUserOverview(email, memberId) {
     Booking, SupportTicket, CustomerProject, UtilityOrder,
     SecurityEvent, SecurityBlock, SecurityAppeal,
     NativePushDevice, NotificationSubscription, InAppNotification,
-    SurveyResponse, SleepLog, ReadingSession, LearningEvidence,
+    SurveyResponse, ReadingSession, LearningEvidence,
     StockPosition, StockTrade, ArcadeScore, ChessRating, CheckinRecord,
   ] = await Promise.all([
     'JoyLedger', 'PendingTransfer', 'JoyGiftCard',
     'Booking', 'SupportTicket', 'CustomerProject', 'UtilityOrder',
     'SecurityEvent', 'SecurityBlock', 'SecurityAppeal',
     'NativePushDevice', 'NotificationSubscription', 'InAppNotification',
-    'SurveyResponse', 'SleepLog', 'ReadingSession', 'LearningEvidence',
+    'SurveyResponse', 'ReadingSession', 'LearningEvidence',
     'StockPosition', 'StockTrade', 'ArcadeScore', 'ChessRating', 'CheckinRecord',
   ].map(loadModel));
 
@@ -113,7 +113,6 @@ export async function buildUserOverview(email, memberId) {
         ? await LearningEvidence.find({ ownerMemberId: memberId }).sort({ createdAt: -1 }).limit(20).lean()
         : [],
       reading: await recent(ReadingSession, byEmail, 10),
-      sleep: await recent(SleepLog, byEmail, 14),
       surveys: await recent(SurveyResponse, byEmail, 10),
     })),
 

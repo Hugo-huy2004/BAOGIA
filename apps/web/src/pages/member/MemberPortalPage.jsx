@@ -6,12 +6,10 @@ import { getMemberSession, logoutAuth } from "../../services/api/core/authSessio
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
 import { useNotifications } from "../../hooks/useNotifications";
-import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
 import { useJoyStore } from "../../stores/joyStore";
 import { selectJoyAccount, setJoyDenom } from "../../lib/joyDisplay";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
-import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
 import ConfirmItsYouDialog from "../../components/member/ConfirmItsYouDialog";
@@ -164,10 +162,6 @@ function MobilePortalNav({
 
 // Sub-components
 import CropModal from "../../components/member/CropModal";
-import RejectedVerification from "../../components/member/RejectedVerification";
-import VerificationForm from "../../components/member/VerificationForm";
-import VerificationModal from "../../components/member/VerificationModal";
-import PendingVerification from "../../components/member/PendingVerification";
 // React.lazy, không import tĩnh: MemberSettingsTab đã lazy-load component
 // này, nhưng một import tĩnh ở đây kéo nó (và apple-account.css) vào chunk
 // portal cho MỌI thành viên, kể cả người không bao giờ mở Thông tin cá nhân —
@@ -176,7 +170,6 @@ const PersonalInfoSubTab = React.lazy(() => import("../../components/member/Pers
 import StudentRewardCard from "../../components/member/StudentRewardCard";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
-import { CLOSE_BUTTON_RESERVE } from "../../components/member/shared/BackButton";
 import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
 import StatusScreen from "../../components/system/StatusScreen";
 // Lazy-loaded main tabs
@@ -262,43 +255,6 @@ function MemberPortalPage() {
     window.addEventListener("hugo:fullsheet", h);
     return () => window.removeEventListener("hugo:fullsheet", h);
   }, []);
-  const [verificationForm, setVerificationForm] = useState({
-    fullName: memberSession?.displayName || "", birthday: "", schoolLevel: "",
-    schoolName: "", schoolIdCode: "", phoneZalo: "", acceptTerms: false, acceptContact: false,
-    evidenceFiles: [], supportContact: "", supportMessage: "",
-  });
-  const [verifying, setVerifying] = useState(false);
-  const [appealSubmitting, setAppealSubmitting] = useState(false);
-  const [appealSent, setAppealSent] = useState(false);
-  useEffect(() => {
-    if (!bio?._id) return;
-    const request = bio.verificationRequest || {};
-    setVerificationForm((current) => ({
-      ...current,
-      fullName: current.fullName || request.fullName || bio.displayName || memberSession?.displayName || "",
-      birthday: current.birthday || request.birthday || bio.birthday || "",
-      schoolLevel: current.schoolLevel || request.schoolLevel || "",
-      schoolName: current.schoolName || request.schoolName || "",
-      schoolIdCode: current.schoolIdCode || request.schoolIdCode || "",
-      phoneZalo: current.phoneZalo || request.phoneZalo || bio.phone || "",
-      supportContact: current.supportContact || request.supportContact || "",
-      supportMessage: current.supportMessage || request.supportMessage || "",
-    }));
-  }, [
-    bio?._id,
-    bio?.verificationRequest?.fullName,
-    bio?.verificationRequest?.birthday,
-    bio?.verificationRequest?.schoolLevel,
-    bio?.verificationRequest?.schoolName,
-    bio?.verificationRequest?.schoolIdCode,
-    bio?.verificationRequest?.phoneZalo,
-    bio?.verificationRequest?.supportContact,
-    bio?.verificationRequest?.supportMessage,
-    bio?.displayName,
-    bio?.birthday,
-    bio?.phone,
-    memberSession?.displayName,
-  ]);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
   const triggerConfirm = (message, onConfirm) => setConfirmModal({ isOpen: true, message, onConfirm });
 
@@ -352,12 +308,11 @@ function MemberPortalPage() {
 
   // ── Utilities navigation — synced to the URL so a page refresh keeps the
   // member on the exact same utility/sub-tab instead of bouncing them back to
-  // the utilities dashboard (e.g. /member/utilities/psychology/therapy). ──────
+  // the utilities dashboard (e.g. /member/utilities/qrhugo/guide). ──────
   const retiredUtility = activeTab === "map" || (
     activeTab === "utilities" && ["deco", "hugoskin", "map", "handle", "helpdesk"].includes(subTab)
   );
   const utilitySelection = activeTab === "utilities" && !retiredUtility ? (subTab || null) : null;
-  const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
@@ -404,7 +359,7 @@ function MemberPortalPage() {
   }, [retiredUtility, tab, activeTab, subTab, navigate]);
 
   const { notifications, unreadCount: loadedUnreadCount, toast, setToast,
-    showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshNotifications,
+    showToast, markRead, markAllRead, dismiss, refresh: refreshNotifications,
   } = useNotifications(
     bootstrapData ? (memberSession?.email || null) : null,
     bootstrapData?.notifications?.recent,
@@ -445,29 +400,8 @@ function MemberPortalPage() {
     }
   }, [notifications, activePaymentNotification]);
 
-  // ── Passive sleep auto-detection ─────────────────────────────────────────────
-  // Mounted here (portal-wide) instead of inside SleepTracker so the 8-signal
-  // detection (IdleDetector, DeviceMotion, etc.) keeps listening for as long as
-  // the member has ANY portal page open — not just while they're sitting in the
-  // HugoPSY > Sleep sub-tab, which nobody does while actually asleep.
-  const [pendingSleepCycle, setPendingSleepCycle] = useState(null);
   const [locationAnomaly, setLocationAnomaly] = useState(null);
   const [identityChallenge, setIdentityChallenge] = useIdentityCheck({ email: memberSession?.email });
-  const handleSleepAutoDetect = React.useCallback((cycle) => {
-    setPendingSleepCycle(cycle);
-    showToast(t("memberPortal.toast.sleepDetected"), "success");
-  }, [showToast]);
-  const sleepDetect = useSleepAutoDetect({
-    email: memberSession?.email,
-    onAutoDetect: handleSleepAutoDetect,
-    enabled: !!memberSession?.email,
-  });
-  const sleepAutoDetect = useMemo(() => ({
-    ...sleepDetect,
-    pendingCycle: pendingSleepCycle,
-    clearPendingCycle: () => setPendingSleepCycle(null),
-  }), [sleepDetect, pendingSleepCycle]);
-
   // Anomalous-login guard — forces re-login if the device strays >50km from
   // the member's trusted location. Opt-in via the browser's native
   // geolocation permission prompt; fails open if denied/unavailable.
@@ -479,22 +413,7 @@ function MemberPortalPage() {
     },
   });
 
-  // ── Healing journey hook ──────────────────────────────────────────────────────
   const publicLink  = useMemo(() => bio?.slug ? `${window.location.origin}/bio/${bio.slug}` : "", [bio]);
-
-  const healing = useHealingJourney({
-    email: memberSession?.email || null,
-    onNavigate: (tab, utility, subTab, presetTest) => {
-      setDefaultPsychologyPresetTest(presetTest);
-      const path = utility
-        ? (subTab ? `/member/${tab}/${utility}/${subTab}` : `/member/${tab}/${utility}`)
-        : `/member/${tab}`;
-      navigate(path);
-    },
-    showToast, sendNotification,
-  });
-
-  useEffect(() => { healing.syncFromStorage(); }, [activeTab]); // eslint-disable-line
 
   const registerPortalActions = useTourStore(state => state.registerPortalActions);
   useEffect(() => {
@@ -601,11 +520,6 @@ function MemberPortalPage() {
             ? b.profileMissing.length > 0
             : !b.onboardingCompleted;
           if (hasProfileGaps) setShowOnboarding(true);
-          if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
-            sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
-            memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
-            b.verificationRequest.notifiedStatus = 'done';
-          }
           // Sinh nhật: đúng ngày thì chúc mừng sinh nhật, còn lại trong tháng
           // sinh thì chúc mừng tháng sinh nhật ở lượt đầu tiên của tháng. Đóng
           // lời chúc là mở vòng quay quà (server tự từ chối nếu hết lượt).
@@ -632,36 +546,6 @@ function MemberPortalPage() {
     load();
   }, [memberSession?.email, isGuestMode, bootstrapData, bootstrapLoading, bootstrapError, onboardingSkipKey]); // eslint-disable-line
 
-  // Tối đa hai lượt kiểm tra cho hồ sơ đang chờ, thay vì gọi máy chủ mỗi 5 giây.
-  useEffect(() => {
-    if (!bio || bio.status !== 'pending' || !bio.verificationRequest?.submitted || isGuestMode || !memberSession?.email) return;
-    let stopped = false;
-    const checkVerification = async () => {
-      try {
-        const res = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
-        if (!stopped && res?.bio) {
-          const b = res.bio;
-          if (b.status === 'active' || b.status === 'rejected') {
-            stopped = true;
-            setBio(b);
-            if (b.status === 'active') {
-              setFormData(prev => ({ ...prev, ...b, theme: { ...prev.theme, ...b.theme } }));
-              sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
-              memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
-            } else {
-              sendNotification({ category: 'verification', type: 'error', title: t("memberPortal.toast.verifyRejectedTitle"), message: t("memberPortal.toast.verifyRejectedMsg") });
-            }
-          }
-        }
-      } catch { /* ignore */ }
-    };
-    const timers = [15_000, 45_000].map((delay) => setTimeout(checkVerification, delay));
-    return () => {
-      stopped = true;
-      timers.forEach(clearTimeout);
-    };
-  }, [bio?.status, bio?.verificationRequest?.submitted, isGuestMode, memberSession]); // eslint-disable-line
-
   // Preview iframe sync
   useEffect(() => {
     const post = () => previewIframeRef.current?.contentWindow?.postMessage({ type:"UPDATE_PREVIEW", payload: formData }, "*");
@@ -683,34 +567,12 @@ function MemberPortalPage() {
     if (!isGuestMode && memberSession?.email && bio) setCachedBio(memberSession.email, bio);
   }, [bio, isGuestMode, memberSession?.email]);
 
-  // Realtime: admin approved/rejected a verification request over WS (see
-  // PWARealtimeBridge) — merge straight into state so the portal updates
-  // instantly without the member needing to reload.
+  // Realtime: admin khoá/mở hoặc gia hạn tài khoản (PWARealtimeBridge) — gộp
+  // thẳng vào state để portal cập nhật ngay, không cần tải lại.
   useEffect(() => {
     const handleBioUpdate = (e) => {
-      const { status, isEduVerified, expiresAt, trialExpiresAt, verificationStatus, verificationSubmissionCount } = e.detail || {};
-      setBio(prev => prev ? {
-        ...prev,
-        status,
-        isEduVerified,
-        expiresAt,
-        trialExpiresAt,
-        verificationRequest: {
-          ...prev.verificationRequest,
-          submitted: false,
-          notifiedStatus: verificationStatus || prev.verificationRequest?.notifiedStatus,
-          submissionCount: verificationSubmissionCount ?? prev.verificationRequest?.submissionCount,
-        },
-      } : prev);
-      if (verificationStatus === "rejected") {
-        setShowVerifyModal(true);
-        sendNotification({
-          category: "verification",
-          type: "error",
-          title: t("memberPortal.toast.verifyRejectedTitle"),
-          message: t("memberPortal.toast.verifyRejectedMsg"),
-        });
-      }
+      const { status, expiresAt } = e.detail || {};
+      setBio(prev => prev ? { ...prev, ...(status && { status }), ...(expiresAt !== undefined && { expiresAt }) } : prev);
     };
     window.addEventListener('hugo:bio-update', handleBioUpdate);
     return () => window.removeEventListener('hugo:bio-update', handleBioUpdate);
@@ -755,61 +617,6 @@ function MemberPortalPage() {
     window.addEventListener("hugo:member-account-deleted", handleAccountDeletion);
     return () => window.removeEventListener("hugo:member-account-deleted", handleAccountDeletion);
   }, [memberSession?.email]);
-
-  const handleVerificationSubmit = async (e) => {
-    e.preventDefault();
-    if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast(t("memberPortal.toast.acceptTermsWarning"), "error"); return; }
-    // Mã học sinh: nhiều trường không cấp nên chỉ điền nếu có.
-    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
-    const evidenceFiles = (verificationForm.evidenceFiles || []).filter(Boolean);
-    if (!evidenceFiles.length || evidenceFiles.length > 2) {
-      showToast(t("memberPortal.verify.evidenceRequired"), "error");
-      return;
-    }
-    setVerifying(true);
-    try {
-      const res = await memberService.submitVerification(memberSession.email, {
-        fullName: verificationForm.fullName,
-        birthday: verificationForm.birthday,
-        schoolLevel: verificationForm.schoolLevel,
-        schoolName: verificationForm.schoolName,
-        schoolIdCode: verificationForm.schoolIdCode,
-        phoneZalo: verificationForm.phoneZalo,
-        acceptTerms: verificationForm.acceptTerms,
-        acceptContact: verificationForm.acceptContact,
-        evidenceFiles,
-      });
-      if (res.success) {
-        showToast(res.bio?.isEduVerified ? t("memberPortal.toast.eduVerified") : t("memberPortal.toast.submitSuccess"), "success");
-        setBio(res.bio);
-        setVerificationForm((current) => ({ ...current, evidenceFiles: [], acceptTerms: false, acceptContact: false }));
-        setAppealSent(false);
-      }
-    } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
-    finally { setVerifying(false); }
-  };
-
-  const handleVerificationAppeal = async (e) => {
-    e.preventDefault();
-    if (!verificationForm.supportContact.trim()) {
-      showToast(t("memberPortal.verify.supportContactRequired"), "error");
-      return;
-    }
-    setAppealSubmitting(true);
-    try {
-      const result = await memberService.submitVerificationAppeal(
-        verificationForm.supportContact,
-        verificationForm.supportMessage,
-      );
-      setBio(result.bio);
-      setAppealSent(true);
-      showToast(t("memberPortal.verify.supportSent"), "success");
-    } catch (error) {
-      showToast(error.message || t("memberPortal.verify.supportError"), "error");
-    } finally {
-      setAppealSubmitting(false);
-    }
-  };
 
   const processFile = (file) => {
     if (!file) return;
@@ -934,8 +741,6 @@ function MemberPortalPage() {
   const handleCopyLink = async () => { if (!publicLink) return; await navigator.clipboard.writeText(publicLink); showToast(t("memberPortal.toast.copySuccess"), "success"); };
 
   // ── Tab definitions ───────────────────────────────────────────────────────────
-  const needsEduVerification = !isGuestMode && bio?.status === 'active' && bio?.isEduVerified === false;
-
   const mobileTabs = useMemo(() => {
     return [
       { id: "today", label: t("memberPortal.navigation.today"), icon: "today", path: "/member/today" },
@@ -946,10 +751,9 @@ function MemberPortalPage() {
         label: isGuestMode ? t("navbar.login") : t("memberPortal.navigation.account"),
         icon: isGuestMode ? "login" : "person",
         path: isGuestMode ? "/login" : "/member/account",
-        alert: needsEduVerification && !bio?.verificationRequest?.submitted,
       },
     ];
-  }, [isGuestMode, t, needsEduVerification, bio?.verificationRequest?.submitted]);
+  }, [isGuestMode, t]);
 
   const renderSettings = () => (
     <MemberSettingsTab
@@ -982,45 +786,9 @@ function MemberPortalPage() {
     />
   );
 
-  const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const hasBio = Boolean(bio);
-  const verificationSubmitted = Boolean(bio?.verificationRequest?.submitted);
-  const isVerificationRejection = bio?.verificationRequest?.notifiedStatus === "rejected" && !bio?.isEduVerified;
-  const isHardRejected = bio?.status === "rejected" && !isVerificationRejection;
-  const accountExpiresAt = bio?.isEduVerified ? bio?.expiresAt : (bio?.trialExpiresAt || bio?.expiresAt);
-  const expiryTimestamp = accountExpiresAt ? new Date(accountExpiresAt).getTime() : NaN;
-  const trialDaysRemaining = Number.isFinite(expiryTimestamp)
-    ? Math.max(0, Math.ceil((expiryTimestamp - Date.now()) / 86400000))
-    : 7;
-  const memberEmail = memberSession?.email;
-
+  // /member/verify cũ (xác minh HSSV đã bỏ 04/11/2026) → về Tài khoản.
   useEffect(() => {
-    if (!hasBio || isGuestMode || !memberEmail || bio?.isEduVerified || verificationSubmitted || showVerifyModal) return undefined;
-    const reminderKey = `hugo_edu_verification_reminder_${memberEmail.toLowerCase()}`;
-    const lastReminderAt = Number(localStorage.getItem(reminderKey)) || 0;
-    const reminderIntervalMs = 24 * 60 * 60 * 1000;
-    const delay = Math.max(0, reminderIntervalMs - (Date.now() - lastReminderAt));
-    const timer = setTimeout(() => {
-      localStorage.setItem(reminderKey, String(Date.now()));
-      setShowVerifyModal(true);
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [accountExpiresAt, bio?.isEduVerified, hasBio, isGuestMode, memberEmail, showVerifyModal, verificationSubmitted]);
-
-  useEffect(() => {
-    if (showVerifyModal && memberEmail) {
-      localStorage.setItem(`hugo_edu_verification_reminder_${memberEmail.toLowerCase()}`, String(Date.now()));
-    }
-  }, [memberEmail, showVerifyModal]);
-
-  // Verification is a modal now (opened from the tab click), so /member/verify
-  // has no inline content and rendered blank on direct navigation/bookmark.
-  // Land there → open the modal and fall back to a real tab.
-  useEffect(() => {
-    if (activeTab === "verify") {
-      setShowVerifyModal(true);
-      navigate("/member/account", { replace: true });
-    }
+    if (activeTab === "verify") navigate("/member/account", { replace: true });
   }, [activeTab, navigate]);
 
   // Preserve old bookmarks while keeping Settings inside the four-area
@@ -1031,15 +799,6 @@ function MemberPortalPage() {
     }
   }, [activeTab, navigate]);
 
-  // HugoPSY (or anywhere deep) can ask to open the verification form for a
-  // locked-field change via a global event, since it may run fullscreen and
-  // can't reach this state directly.
-  useEffect(() => {
-    const open = () => setShowVerifyModal(true);
-    window.addEventListener("hugo:open-verification", open);
-    return () => window.removeEventListener("hugo:open-verification", open);
-  }, []);
-
   const onTabClick = (tab) => {
     if (tab.path === "/login") {
       window.location.assign(tab.path);
@@ -1047,12 +806,6 @@ function MemberPortalPage() {
     }
     if (tab.partner) {
       window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
-      return;
-    }
-    // Verification used to be its own tab — now it opens as a popup on top
-    // of whatever tab the member is already on, instead of navigating away.
-    if (tab.id === "verify") {
-      setShowVerifyModal(true);
       return;
     }
     navigate(tab.path || `/member/${tab.id}`);
@@ -1063,22 +816,13 @@ function MemberPortalPage() {
     return <DashboardSkeleton />;
   }
 
-  // HugoPSY gets the same true top-level fullscreen takeover as HugoCoder/
-  // HugoArcade, but mobile-only — nesting a CSS `position: fixed` deep inside
-  // the normal page tree doesn't actually escape the portal header/bottom tab
-  // bar (they're siblings in the SAME stacking context, so it just gets
-  // squeezed between them instead of covering them). This early-return branch
-  // is the only way that's worked elsewhere in this codebase.
-  //
-  // On mobile, ALL of HugoPSY funnels through chat now (Sleep/Evaluation tabs
-  // are gone from the mobile nav, Therapy opens as an in-chat overlay) — so
-  // any psychology sub-tab gets the fullscreen takeover there. Desktop is
-  // unchanged from before — normal sidebar+tabs UI, never fullscreen.
+  // App toàn màn hình (danh sách ở appRegistry) chiếm trọn màn; nhánh return sớm
+  // này là cách duy nhất thoát khỏi header/tab bar của portal.
   const isFullscreenUtility = (activeTab === "utilities" && (
     // Danh sách nằm ở packages/shared/appRegistry.js — MemberUtilitiesTab đọc cùng một
     // bản. Trước đây mỗi file giữ một mảng hardcode và chúng đã lệch nhau.
     (FULLSCREEN_APP_IDS.includes(subTab) && (isMobileView || (typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches))) ||
-    ((subTab === "psychology" || subTab === "joy_wallet" || subTab === "bio") && isMobileView)
+    ((subTab === "joy_wallet" || subTab === "bio") && isMobileView)
   ));
 
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
@@ -1095,7 +839,7 @@ function MemberPortalPage() {
   // bắt buộc (hồ sơ, xác minh, danh tính, vị trí) → sinh nhật → xin quyền PWA
   // → khảo sát. Trước đây ba hộp sau không chờ nhau, người mới vào có thể bị
   // chồng 3–4 tấm trước khi kịp thấy app nào.
-  const startupBusy = showOnboarding || showVerifyModal || Boolean(identityChallenge) || Boolean(locationAnomaly);
+  const startupBusy = showOnboarding || Boolean(identityChallenge) || Boolean(locationAnomaly);
   const birthdayOpen = showBirthdaySurprise || showBirthdayWheel;
   const showMobileNavigation = isMobileView
     && bio?.status !== "pending"
@@ -1133,28 +877,6 @@ function MemberPortalPage() {
           onClose={() => setToast({ message: "", type: "" })}
           zIndex={300}
         />
-        {bio && !isGuestMode && !bio.isEduVerified && (
-          <button
-            type="button"
-            onClick={() => navigate("/member/verify")}
-            className="flex min-h-[44px] w-full items-center gap-2 border-b border-primary/15 bg-primary/5 pb-2 pl-4 text-left text-[13px] text-foreground"
-            // Nút X của app đặt `fixed` ở góc trên-phải, đè lên dải này; dải lại
-            // nằm sát mép trên nên phải tự né tai thỏ. Chữ chỉ một dòng — bản
-            // đầy đủ gãy 4 dòng và đẩy cả đầu app xuống (26/10), đọc ở trang Xác minh.
-            style={{ paddingRight: CLOSE_BUTTON_RESERVE, paddingTop: "max(8px, env(safe-area-inset-top, 0px))" }}
-          >
-            <span className="material-symbols-outlined shrink-0 text-[18px] text-primary" aria-hidden="true">school</span>
-            <span className="min-w-0 flex-1 truncate">{t(
-              bio.verificationRequest?.notifiedStatus === "rejected"
-                ? "memberPortal.verify.reminderRejectedShort"
-                : bio.verificationRequest?.submitted
-                  ? "memberPortal.verify.reminderPendingShort"
-                  : "memberPortal.verify.reminderShort",
-              { days: trialDaysRemaining },
-            )}</span>
-            <span className="shrink-0 font-bold text-primary">{t("memberPortal.verify.reminderAction")}</span>
-          </button>
-        )}
         
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
@@ -1168,8 +890,6 @@ function MemberPortalPage() {
                 handleSave={handleSave}
                 selectedUtility={utilitySelection}
                 onSelectUtility={handleSelectUtility}
-                defaultPsychologyPresetTest={defaultPsychologyPresetTest}
-                sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
                 studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null}
                 appRoute={appRoute}
@@ -1211,28 +931,6 @@ function MemberPortalPage() {
         data-portal-area={portalArea}
         data-aura-theme={activePortalTheme}
       >
-        {bio && !isGuestMode && !bio.isEduVerified && (
-          // Một dòng như dải trong app (bản đầy đủ gãy 4 dòng, chiếm ~170px đầu
-          // mọi tab); lời giải thích dài nằm trong hộp Xác minh mở ra khi bấm.
-          <button
-            type="button"
-            role="status"
-            onClick={() => setShowVerifyModal(true)}
-            className="relative z-30 flex min-h-[40px] w-full items-center gap-2 border-b border-primary/15 bg-primary/5 px-4 text-left text-[13px] text-foreground"
-            style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
-          >
-            <span className="material-symbols-outlined shrink-0 text-[18px] text-primary" aria-hidden="true">school</span>
-            <span className="min-w-0 flex-1 truncate">{t(
-              bio.verificationRequest?.notifiedStatus === "rejected"
-                ? "memberPortal.verify.reminderRejectedShort"
-                : verificationSubmitted
-                  ? "memberPortal.verify.reminderPendingShort"
-                  : "memberPortal.verify.reminderShort",
-              { days: trialDaysRemaining },
-            )}</span>
-            <span className="shrink-0 font-bold text-primary">{t("memberPortal.verify.reminderAction")}</span>
-          </button>
-        )}
         {/* Tài khoản từng bị loại khỏi nền theme vì nó tự vẽ nền tối riêng; từ khi
             dựng lại theo khuôn Today, nó dùng chung nền theme như mọi tab. */}
         <AuraBackground theme={activePortalTheme} area={portalArea} />
@@ -1261,13 +959,7 @@ function MemberPortalPage() {
             <React.Suspense fallback={
               <StatusScreen kind="loading" inline />
             }>
-              {isHardRejected ? (
-                <RejectedVerification handleLogout={handleLogout} />
-              ) : (bio?.status === 'pending' && !bio?.verificationRequest?.submitted) || (bio?.status === 'rejected' && isVerificationRejection) ? (
-                <VerificationForm bio={bio} verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleVerificationAppeal={handleVerificationAppeal} handleLogout={handleLogout} verifying={verifying} appealSubmitting={appealSubmitting} appealSent={appealSent} />
-              ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
-                <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
-              ) : (
+              {(
                 <>
                   {activeTab === "today" && (
                     /* Trang tóm tắt AI độc lập; trang đọc bài; hoặc bảng tin feed */
@@ -1298,7 +990,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1341,13 +1033,7 @@ function MemberPortalPage() {
             <React.Suspense fallback={
               <StatusScreen kind="loading" inline />
             }>
-              {isHardRejected ? (
-                <RejectedVerification handleLogout={handleLogout} />
-              ) : (bio?.status === 'pending' && !bio?.verificationRequest?.submitted) || (bio?.status === 'rejected' && isVerificationRejection) ? (
-                <VerificationForm bio={bio} verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleVerificationAppeal={handleVerificationAppeal} handleLogout={handleLogout} verifying={verifying} appealSubmitting={appealSubmitting} appealSent={appealSent} />
-              ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
-                <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
-              ) : (
+              {(
                 <>
                   {activeTab === "today" && (
                     <div className="px-0.5 sm:px-3 w-full max-w-full min-w-0 overflow-x-hidden box-border">
@@ -1375,7 +1061,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
+                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} appRoute={appRoute} onAppRouteChange={handleAppRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1423,20 +1109,6 @@ function MemberPortalPage() {
         ) : null}
 
         <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
-
-        <VerificationModal
-          open={showVerifyModal}
-          onClose={() => setShowVerifyModal(false)}
-          bio={bio}
-          verificationForm={verificationForm}
-          setVerificationForm={setVerificationForm}
-          handleVerificationSubmit={handleVerificationSubmit}
-          handleVerificationAppeal={handleVerificationAppeal}
-          handleLogout={handleLogout}
-          verifying={verifying}
-          appealSubmitting={appealSubmitting}
-          appealSent={appealSent}
-        />
 
         <PaymentRequestModal
           isOpen={!!activePaymentNotification} 

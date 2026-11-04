@@ -6,7 +6,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 import { oauthMetadata } from './routes/oauthRoutes.js';
-import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -194,20 +193,6 @@ app.get('/.well-known/oauth-authorization-server', oauthMetadata);
 // phút và bot thật câm tiếng (bẫy đã gặp, xem chú thích ở cuối tệp).
 if (process.env.RUN_CRON !== 'false') initTelegramBot();
 
-// Educational Email Validation
-app.get('/api/auth/verify-edu', async (req, res) => {
-  try {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
-    }
-    const isEdu = await isEduEmail(email);
-    res.json({ isEduEmail: isEdu });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Health checks. Render's web-service healthCheckPath uses /health, while the
 // frontend/dev proxy can still call /api/health.
 const healthHandler = (_req, res) => {
@@ -252,12 +237,10 @@ app.use((err, req, res, next) => {
 });
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
-import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initOnboardingReminderService } from './services/onboardingReminderService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
-import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
 // must not crash the whole server — log + alert instead.
 process.on('unhandledRejection', (reason) => {
@@ -324,22 +307,18 @@ server.listen(PORT, () => {
     }
   }, 60000);
 
-  // Initialize companion daily reminder push scheduler (07:30, 15:00, 20:30)
-  initCompanionScheduler();
 
 
   // Nhắc hoàn tất hồ sơ bằng push (10:00) cho tài khoản còn thiếu thông tin
   initOnboardingReminderService();
 
-  // Initialize Duolingo-style smart push (sleep, wellness, streak)
+  // Initialize Duolingo-style smart push (streak, unread, win-back)
   initSmartNotificationService();
 
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
 
-  // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
-  initCompanionMemoryCron();
 
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
 

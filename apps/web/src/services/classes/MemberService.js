@@ -45,32 +45,8 @@ class MemberService {
     }
   }
 
-  // Submit verification request for non-edu members (API Wrapper)
-  async submitVerification(email, verificationData) {
-    try {
-      return await this.api.submitVerification(email, verificationData);
-    } catch (error) {
-      console.error('MemberService: Failed to submit verification request', error);
-      throw error;
-    }
-  }
-
-  async submitVerificationAppeal(contact, message) {
-    return this.api.submitVerificationAppeal(contact, message);
-  }
-
   async reviewStudentReward(type, file) {
     return this.api.reviewStudentReward(type, file);
-  }
-
-  // Dismiss verification notification banner (API Wrapper)
-  async dismissVerificationNotification(email) {
-    try {
-      return await this.api.dismissVerificationNotification(email);
-    } catch (error) {
-      console.error('MemberService: Failed to dismiss notification', error);
-      throw error;
-    }
   }
 
   // Redeem Gift Code (API Wrapper)

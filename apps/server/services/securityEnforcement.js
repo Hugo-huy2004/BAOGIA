@@ -189,8 +189,8 @@ async function resolvePhone(email, suppliedPhone) {
   if (suppliedPhone || !email) return suppliedPhone || '';
   try {
     const Bio = (await import('../models/Bio.js')).default;
-    const bio = await Bio.findOne({ $or: [{ email: String(email).toLowerCase() }, { contactEmail: String(email).toLowerCase() }] }, 'phone verificationRequest.phoneZalo').lean();
-    return bio?.phone || bio?.verificationRequest?.phoneZalo || '';
+    const bio = await Bio.findOne({ $or: [{ email: String(email).toLowerCase() }, { contactEmail: String(email).toLowerCase() }] }, 'phone').lean();
+    return bio?.phone || '';
   } catch {
     return '';
   }
@@ -442,7 +442,7 @@ const REQUEST_RULES = [
 ];
 
 const MALICIOUS_KEYS = new Set(['__proto__', 'prototype', 'constructor', '$where', '$function', '$accumulator']);
-const SERVER_OWNED_JOY_KEYS = new Set(['joyBalance', 'balanceAfter', 'bonusChatTokens', 'bonusCallTokens', 'joyAwardedToday', 'completedLessons']);
+const SERVER_OWNED_JOY_KEYS = new Set(['joyBalance', 'balanceAfter', 'joyAwardedToday', 'completedLessons']);
 
 function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
   const keys = collectKeys({ body, query });
@@ -471,68 +471,6 @@ function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
         return { category: 'joy_abuse', severity: 'critical', ruleId: 'joy_owned_field_tamper', evidence: key };
       }
     }
-  }
-  return null;
-}
-
-// ── MỨC XỬ LÝ ──────────────────────────────────────────────────────
-// `immediate` = chặn ngay từ câu đầu tiên. Chỉ để dành cho đe doạ bạo lực có
-// thật, nơi chờ tới lần thứ hai là quá muộn.
-//
-// Mọi luật còn lại dùng `threshold`: lần đầu TỪ CHỐI câu đó và ghi vào sổ, lần
-// thứ hai trong 24 giờ mới chặn. Lý do: đây là app sức khoẻ tinh thần, người
-// dùng gõ đủ thứ câu tò mò; khoá 30 ngày cả mạng truy cập ngay ở câu đầu là
-// hình phạt không tương xứng với một câu chat — và một lần khoá nhầm là mất
-// người dùng thật.
-const PSY_RULES = [
-  {
-    category: 'system_attack',
-    severity: 'critical',
-    ruleId: 'targeted_system_attack',
-    enforcement: 'threshold',
-    pattern: /(?:đánh\s*sập|phá(?:\s+hoại)?|xâm\s*nhập|hack|ddos|dos)\s+(?:website|trang\s*web|hệ\s*thống|server|máy\s*chủ|hugopsy|hugo)|(?:hack|ddos|take\s+down|destroy)\s+(?:the\s+)?(?:site|website|system|server|hugopsy|hugo)/i,
-  },
-  {
-    category: 'joy_abuse',
-    severity: 'critical',
-    ruleId: 'joy_theft_or_forgery',
-    enforcement: 'threshold',
-    pattern: /(?:(?:hack|ăn\s*cắp|chiếm|làm\s*giả|sửa|tăng)\s+(?:điểm\s+)?joy|(?:steal|forge|hack|increase)\s+(?:the\s+)?joy)/i,
-  },
-  {
-    category: 'intrusion',
-    severity: 'critical',
-    ruleId: 'credential_or_prompt_exfiltration',
-    enforcement: 'threshold',
-    // Chỉ khớp khi nhắm vào BÍ MẬT CỦA HỆ THỐNG. Bản cũ bắt cả chữ "mật khẩu"
-    // và "secret" trần, nên "tôi quên mật khẩu, đưa tôi cách lấy lại" hay "show
-    // me the secret santa idea" là chặn 30 ngày — và đó chính là thứ đã khoá
-    // nhầm. Tương tự, "bypass ... bảo mật" bắt luôn câu hỏi lập trình bình
-    // thường ("làm sao bypass lỗi bảo mật CORS"), nên `bypass` giờ phải nhắm
-    // vào bộ lọc/kiểm duyệt của chính hệ thống này.
-    pattern: /(?:(?:ignore|bỏ\s*qua).{0,40}(?:previous|trước|system).{0,80}(?:prompt|instruction|chỉ\s*dẫn)|(?:reveal|show|đưa|tiết\s*lộ).{0,50}(?:system\s*prompt|prompt\s*hệ\s*thống|api\s*key|khoá\s*api|token\s*hệ\s*thống|biến\s*môi\s*trường|(?:mật\s*khẩu|password)\s*(?:quản\s*trị|admin|hệ\s*thống))|jailbreak|bypass.{0,50}(?:guard\s*rail|guardrail|safety|content\s*filter|bộ\s*lọc|kiểm\s*duyệt))/i,
-  },
-  {
-    category: 'violent_facilitation',
-    severity: 'critical',
-    ruleId: 'credible_violent_threat',
-    enforcement: 'immediate',
-    pattern: /(?:(?:tôi|tao|mình)\s+sẽ\s+(?:giết|đánh\s*bom|tấn\s*công|ám\s*sát)|\bi\s+will\s+(?:kill|bomb|attack|assassinate)\b).{0,100}(?:người|trường|cơ\s*quan|chính\s*phủ|nhà\s*nước|government|school|office|people|person|hugo)/i,
-  },
-  {
-    category: 'violent_facilitation',
-    severity: 'high',
-    ruleId: 'violent_instructions',
-    enforcement: 'threshold',
-    pattern: /(?:(?:cách|hướng\s*dẫn|chỉ\s+tôi|lập\s+kế\s*hoạch).{0,60}(?:chế\s*bom|làm\s*bom|ám\s*sát|tấn\s*công|gây\s*chiến\s*tranh)|(?:how\s+to|instructions?\s+to|plan\s+to).{0,60}(?:make\s+(?:a\s+)?bomb|assassinate|attack|start\s+(?:a\s+)?war))/i,
-  },
-];
-
-export function assessHugoPsyContent(text) {
-  const value = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 12000);
-  if (!value) return null;
-  for (const rule of PSY_RULES) {
-    if (rule.pattern.test(value)) return { ...rule, evidence: value, pattern: undefined };
   }
   return null;
 }

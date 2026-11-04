@@ -151,11 +151,9 @@ export default function PersonalInfoSubTab({
 
   const verifiedSchool =
     cleanVal(formData.education) ||
-    cleanVal(bio?.verificationRequest?.schoolName) ||
     "";
   const verifiedPhone =
     cleanVal(formData.phone) ||
-    cleanVal(bio?.verificationRequest?.phoneZalo) ||
     cleanVal(bio?.phone) ||
     "";
   const profileLanguage = bio?.language || "vi";
@@ -222,14 +220,6 @@ export default function PersonalInfoSubTab({
           </h2>
           <p>{accountEmail || "—"}</p>
           <div className="apple-account-hero-badges">
-            <div className={`apple-account-status ${bio?.isEduVerified ? "is-verified" : ""}`}>
-              <span className="material-symbols-outlined" aria-hidden="true">
-                {bio?.isEduVerified ? "verified" : "schedule"}
-              </span>
-              {bio?.isEduVerified
-                ? t("memberPortal.account.eduVerified")
-                : t("memberPortal.account.verificationPending")}
-            </div>
             <TierBadge tier={memberTier({ ...formData, starVip: bio?.starVip })} />
           </div>
         </div>

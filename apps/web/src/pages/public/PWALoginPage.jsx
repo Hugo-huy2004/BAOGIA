@@ -100,9 +100,6 @@ export default function PWALoginPage() {
           : error || "Đăng nhập Google thất bại. Thử lại nhé.", "error");
         return;
       }
-      if (!session.isEduVerified) {
-        showToast("Tài khoản nên dùng email .edu để mở khóa đầy đủ quyền lợi sinh viên.", "warning");
-      }
       localStorage.setItem(LAST_EMAIL_KEY, session.email);
       navigate(memberRedirectRef.current, { replace: true });
     } catch {

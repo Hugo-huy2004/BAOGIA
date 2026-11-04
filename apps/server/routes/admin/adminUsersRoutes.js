@@ -421,18 +421,10 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     }
     const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion, birthDay, birthMonth, birthYear, language].some((value) => value !== undefined);
 
-    // Hạn dùng HIỆU LỰC: tài khoản chưa xác minh giáo dục đi theo hạn dùng thử
-    // (trialExpiresAt) — cổng thành viên và lịch tự xoá tài khoản đọc hạn đó.
-    // Trước đây chỉ dời expiresAt, nên admin gia hạn xong tài khoản vẫn bị khoá
-    // và xoá đúng hạn cũ. Dời cả hai, giống extendAccess của chiến dịch partner.
-    const followsTrial = !bio.isEduVerified && Boolean(bio.trialExpiresAt);
-    const setAccessUntil = (date) => {
-      bio.expiresAt = date;
-      if (followsTrial) bio.trialExpiresAt = date;
-    };
+    // Gia hạn là quyền của admin (04/11/2026): cổng thành viên chỉ đọc expiresAt.
+    const setAccessUntil = (date) => { bio.expiresAt = date; };
     if (addDays && !isNaN(Number(addDays))) {
-      const effective = followsTrial ? bio.trialExpiresAt : bio.expiresAt;
-      const currentExp = effective ? new Date(effective).getTime() : Date.now();
+      const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
       const baseTime = Math.max(Date.now(), currentExp);
       setAccessUntil(new Date(baseTime + Number(addDays) * 24 * 60 * 60 * 1000));
     } else if (expiresAt) {
@@ -742,37 +734,6 @@ router.post('/users/:id/toggle-wallet-freeze', requireAdmin, async (req, res) =>
     });
   } catch (err) {
     console.error('Error toggling wallet freeze:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /admin/users/:id/toggle-edu-status - Phê duyệt / Thu hồi EDU Status
-router.post('/users/:id/toggle-edu-status', requireAdmin, async (req, res) => {
-  try {
-    const Bio = (await import('../../models/Bio.js')).default;
-    const bio = await Bio.findById(req.params.id);
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
-
-    bio.isEduVerified = !bio.isEduVerified;
-    bio.history.push({
-      type: 'info',
-      icon: 'school',
-      title: bio.isEduVerified ? 'Xác minh Sinh viên EDU thành công' : 'Thu hồi trạng thái EDU',
-      detail: bio.isEduVerified ? 'Admin đã phê duyệt xác minh ưu đãi Sinh viên EDU.' : 'Admin đã thu hồi trạng thái Sinh viên EDU.',
-      timestamp: new Date()
-    });
-    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
-    await bio.save();
-
-    logAdminAuditAction(req, 'TOGGLE_EDU_STATUS', bio._id, bio.email, `${bio.isEduVerified ? 'Xác minh EDU' : 'Thu hồi EDU'} cho ${bio.displayName}`);
-
-    res.json({
-      success: true,
-      isEduVerified: bio.isEduVerified,
-      message: `Đã ${bio.isEduVerified ? 'phê duyệt xác minh EDU' : 'thu hồi trạng thái EDU'} cho ${bio.displayName}`
-    });
-  } catch (err) {
-    console.error('Error toggling EDU status:', err);
     res.status(500).json({ error: err.message });
   }
 });

@@ -55,7 +55,6 @@ export async function buildButlerMemberReport(bioDoc) {
   } catch {}
 
   const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng băng (Frozen)</b>' : '✅ <b>Hoạt động (Active)</b>';
-  const isEdu = bio.isEduVerified ? '🎓 <b>Đã xác minh Sinh viên</b>' : '❌ <b>Chưa xác minh</b>';
   const isVip = bio.starVip ? '⭐ <b>Thành viên VIP</b>' : '👤 <b>Thành viên Thường</b>';
   const accStatus = bio.status === 'suspended' ? '🔴 <b>Tạm đình chỉ (Suspended)</b>' : '🟢 <b>Hoạt động (Active)</b>';
   const activeSessions = bio.securitySessions?.length || 0;
@@ -72,7 +71,6 @@ export async function buildButlerMemberReport(bioDoc) {
 🪙 <b>Đơn vị hiển thị:</b> <b>${formattedCustom}</b>
 
 🛡️ <b>Trạng thái ví:</b> ${isFrozen}
-🎓 <b>Trạng thái Edu:</b> ${isEdu}
 ⭐ <b>Hạng tài khoản:</b> ${isVip}
 🚪 <b>Trạng thái hoạt động:</b> ${accStatus}
 📱 <b>Phiên kết nối:</b> ${activeSessions} thiết bị tin cậy
@@ -86,7 +84,6 @@ export async function buildButlerMemberReport(bioDoc) {
         { text: bio.isJoyWalletFrozen ? '✅ Mở Khóa Ví' : '❄️ Khóa Ví', callback_data: bio.isJoyWalletFrozen ? `cb_unfreeze:${bio.email}` : `cb_freeze:${bio.email}` },
       ],
       [
-        { text: bio.isEduVerified ? '🎓 Hủy Edu' : '🎓 Bật Edu', callback_data: `cb_toggle_edu:${bio.email}` },
         { text: '🔄 Cập nhật thẻ', callback_data: `cb_lookup:${bio.email}` },
       ]
     ]
@@ -113,7 +110,6 @@ export async function executeAutonomousCommand(promptText, options = {}) {
     const totalUsers = await Bio.countDocuments();
     const lockedUsers = await Bio.countDocuments({ status: 'suspended' });
     const frozenWallets = await Bio.countDocuments({ isJoyWalletFrozen: true });
-    const eduUsers = await Bio.countDocuments({ isEduVerified: true });
     const vipUsers = await Bio.countDocuments({ starVip: true });
     const activeBlocks = await SecurityBlock.countDocuments({
       $or: [{ permanent: true }, { expiresAt: { $gt: new Date() } }]
@@ -122,7 +118,7 @@ export async function executeAutonomousCommand(promptText, options = {}) {
     const summaryText = `
 👑 <b>[BÁO CÁO SỨC KHỎE & AN NINH HỆ THỐNG GẦN NHẤT]</b>
 
-👥 <b>Tổng thành viên:</b> <b>${totalUsers}</b> (VIP: ${vipUsers} | Edu: ${eduUsers})
+👥 <b>Tổng thành viên:</b> <b>${totalUsers}</b> (VIP: ${vipUsers})
 🔴 <b>Tài khoản bị khóa:</b> <b>${lockedUsers}</b>
 ❄️ <b>Ví JOY bị đóng băng:</b> <b>${frozenWallets}</b>
 🛡️ <b>Chặn an ninh active:</b> <b>${activeBlocks}</b> IP/Email
@@ -209,12 +205,6 @@ ${!isTelegramBoss ? '\n<i>📌 Để xem luồng camera trực tiếp, vui lòng
     } else if (/ví mở|vi mo|unfrozen/i.test(lowerQuery)) {
       queryObj = { isJoyWalletFrozen: false };
       filterLabel = 'Ví JOY đang mở (isJoyWalletFrozen = false)';
-    } else if (/sinh viên|edu|học đường|hoc duong/i.test(lowerQuery)) {
-      queryObj = { isEduVerified: true };
-      filterLabel = 'Đã xác minh sinh viên Edu (isEduVerified = true)';
-    } else if (/chưa edu|chua edu|no edu/i.test(lowerQuery)) {
-      queryObj = { isEduVerified: false };
-      filterLabel = 'Chưa xác minh sinh viên Edu (isEduVerified = false)';
     } else if (/bị khóa|bị đình chỉ|bi khoa|bi dinh chi|suspended/i.test(lowerQuery)) {
       queryObj = { status: 'suspended' };
       filterLabel = 'Tài khoản bị tạm đình chỉ (status = suspended)';
@@ -256,8 +246,7 @@ ${!isTelegramBoss ? '\n<i>📌 Để xem luồng camera trực tiếp, vui lòng
 
     matchedBios.forEach((u, i) => {
       const isFrozenIcon = u.isJoyWalletFrozen ? '❄️' : '✅';
-      const isEduIcon = u.isEduVerified ? '🎓' : '';
-      filterReport += `${i + 1}. <b>${u.displayName || 'Chưa đặt tên'}</b> (${isFrozenIcon}${isEduIcon})\n   • Email: <code>${u.email}</code> | Slug: <code>/bio/${u.slug || 'demo'}</code>\n   • Ví: <b>${(u.joyBalance || 0).toLocaleString('vi-VN')} JOY</b> (${u.joyDenom || 'JOY'})\n\n`;
+      filterReport += `${i + 1}. <b>${u.displayName || 'Chưa đặt tên'}</b> (${isFrozenIcon})\n   • Email: <code>${u.email}</code> | Slug: <code>/bio/${u.slug || 'demo'}</code>\n   • Ví: <b>${(u.joyBalance || 0).toLocaleString('vi-VN')} JOY</b> (${u.joyDenom || 'JOY'})\n\n`;
 
       if (i < 4) {
         inlineRow.push({ text: `👤 ${u.displayName || u.email.split('@')[0]}`, callback_data: `cb_lookup:${u.email}` });
@@ -419,30 +408,6 @@ ${!isTelegramBoss ? '\n<i>📌 Để xem luồng camera trực tiếp, vui lòng
     });
 
     return { success: true, reply: `✅ <b>ĐÃ MỞ KHÓA VÍ JOY CỦA:</b> <code>${bio.email}</code>`, action: 'unfreeze_wallet', data: bio };
-  }
-
-  // ─── 7. LỆNH: CẤP / TẮT XÁC MINH EDU SINH VIÊN ─────────────────────────────
-  const toggleEduRegex = /(bật edu|bat edu|tắt edu|tat edu|cấp edu|cap edu|hủy edu|huy edu)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
-  const eduMatch = text.match(toggleEduRegex);
-  if (eduMatch) {
-    const actionType = eduMatch[1].toLowerCase();
-    const targetEmail = eduMatch[2].trim().toLowerCase();
-    const bio = await Bio.findOne({ email: targetEmail });
-    if (!bio) return { success: false, reply: `❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>` };
-
-    const shouldEnable = /bật|bat|cấp|cap/i.test(actionType);
-    bio.isEduVerified = shouldEnable;
-    await bio.save();
-
-    await AdminAuditLog.create({
-      adminId: 'AUTONOMOUS_AI_ENGINE',
-      adminUsername,
-      action: 'ai_toggle_edu',
-      targetEmail: bio.email,
-      details: { command: text, isEduVerified: shouldEnable, source }
-    });
-
-    return { success: true, reply: `🎓 <b>ĐÃ ${shouldEnable ? 'CẤP XÁC MINH' : 'HỦY XÁC MINH'} EDU CHO:</b> <code>${bio.email}</code>`, action: 'toggle_edu', data: bio };
   }
 
   // ─── 8. LỆNH: ĐỔI TÊN THÀNH VIÊN ──────────────────────────────────────────

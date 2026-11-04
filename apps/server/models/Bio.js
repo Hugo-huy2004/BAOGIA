@@ -350,25 +350,6 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
-    verificationRequest: {
-      fullName: { type: String, default: '' },
-      birthday: { type: String, default: '' },
-      schoolLevel: { type: String, default: '' },
-      schoolName: { type: String, default: '' },
-      schoolIdCode: { type: String, default: '' },
-      phoneZalo: { type: String, default: '' },
-      avatarUrl: { type: String, default: '' },
-      evidenceFileIds: { type: [String], default: [] },
-      scheduleFileId: { type: String, default: '' },
-      selfieFileId: { type: String, default: '' },
-      submitted: { type: Boolean, default: false },
-      notifiedStatus: { type: String, default: 'none' },
-      submissionCount: { type: Number, default: 0, min: 0, max: 2 },
-      submissionStartedAt: { type: Date, default: null },
-      supportContact: { type: String, default: '', maxlength: 200 },
-      supportMessage: { type: String, default: '', maxlength: 1000 },
-      supportSubmittedAt: { type: Date, default: null }
-    },
     studentRewards: {
       type: [{
         year: { type: Number, required: true },
@@ -377,18 +358,6 @@ const BioSchema = new mongoose.Schema(
         verifiedAt: { type: Date, default: Date.now }
       }],
       default: []
-    },
-    // True for academic-email signups (instant 1-year access). Non-EDU members
-    // have a seven-day access window until their verification request is approved.
-    isEduVerified: {
-      type: Boolean,
-      default: false
-    },
-    // Access deadline for a non-EDU trial. Kept separately so a submitted
-    // review can remain in the admin queue after the 7-day access period.
-    trialExpiresAt: {
-      type: Date,
-      default: null
     },
     expiresAt: {
       type: Date,
@@ -449,25 +418,12 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    // Bonus AI-chat tokens purchased from the Utility Store (Psy-Study products).
-    // Persisted on top of the Python AI server's daily free quota — consumed
-    // there once the daily cap is hit. See rate_limit_service.consume_bonus_token.
-    bonusChatTokens: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-    bonusCallTokens: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
     transactionPin: {
       type: String,
       default: null
     },
     // Cross-job push cooldown gate (see apps/server/services/pushGuard.js) — shared
-    // by every push cron (proactive, smart, scheduled companion) so
+    // by every push cron so
     // a user never gets stacked notifications from unrelated jobs firing close
     // together, regardless of which job sends first.
     lastPushSentAt: {
@@ -485,12 +441,6 @@ const BioSchema = new mongoose.Schema(
     privateMode: {
       type: Boolean,
       default: false
-    },
-    // Bạn Học Đường therapy features unlocked with a one-time 150 JOY spend
-    // each (e.g. 'reading', 'meditation', 'depression') — see companionRoutes.js.
-    unlockedCompanionFeatures: {
-      type: [String],
-      default: []
     },
     // List of completed interactive IDE lessons (IDs) that awarded JOY
     completedLessons: {
@@ -797,27 +747,10 @@ const SENSITIVE_FIELDS = [
   'ethnicity'
 ];
 
-const SENSITIVE_VERIFICATION_FIELDS = [
-  'fullName',
-  'birthday',
-  'schoolLevel',
-  'schoolName',
-  'schoolIdCode',
-  'supportContact',
-  'supportMessage',
-];
-
 BioSchema.pre('save', function (next) {
   for (const field of SENSITIVE_FIELDS) {
     if (this.isModified(field) && typeof this[field] === 'string' && this[field]) {
       this[field] = encryptText(this[field]);
-    }
-  }
-  if (this.verificationRequest) {
-    for (const field of SENSITIVE_VERIFICATION_FIELDS) {
-      if (this.isModified(`verificationRequest.${field}`) && typeof this.verificationRequest[field] === 'string' && this.verificationRequest[field]) {
-        this.verificationRequest[field] = encryptText(this.verificationRequest[field]);
-      }
     }
   }
   next();
@@ -844,18 +777,6 @@ function decryptBioFields(doc) {
       }
     }
   }
-  if (target.verificationRequest) {
-    // phoneZalo không còn mã hoá khi lưu, nhưng bản cũ thì có — vẫn giải khi đọc.
-    for (const field of [...SENSITIVE_VERIFICATION_FIELDS, 'phoneZalo']) {
-      if (typeof target.verificationRequest[field] === 'string' && target.verificationRequest[field]) {
-        if (target.verificationRequest[field].startsWith('$enc$a256gcm$v1$')) {
-          target.verificationRequest[field] = unsealField(target.verificationRequest[field]);
-        } else if (target.verificationRequest[field].startsWith('enc:')) {
-          target.verificationRequest[field] = decryptText(target.verificationRequest[field]);
-        }
-      }
-    }
-  }
 }
 
 BioSchema.post('init', function (doc) {
@@ -864,8 +785,6 @@ BioSchema.post('init', function (doc) {
   // lại, đừng đẩy chuỗi mã hoá ra form.
   const target = doc._doc || doc;
   if (typeof target.phone === 'string' && target.phone.startsWith('$enc$')) target.phone = '';
-  const request = target.verificationRequest;
-  if (request && typeof request.phoneZalo === 'string' && request.phoneZalo.startsWith('enc:')) request.phoneZalo = '';
 });
 
 BioSchema.post('save', function (doc) {

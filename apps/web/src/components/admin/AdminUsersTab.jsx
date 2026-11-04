@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import UserDetailModal from './UserDetailModal';
 import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
 import { toDenom } from '../../../../../packages/shared/joyCurrency';
-import dataApi from '../../services/api/modules/dataApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -40,50 +39,7 @@ const AdminUsersTab = ({
   openUserId, onOpenedUser,
 }) => {
   const { t } = useTranslation();
-  const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
-  const [verificationEvidence, setVerificationEvidence] = useState({});
-  const [verificationEvidenceError, setVerificationEvidenceError] = useState('');
   const [inspectingUser, setInspectingUser] = useState(null);
-
-  useEffect(() => {
-    if (!selectedVerificationUser?._id) {
-      setVerificationEvidence({});
-      setVerificationEvidenceError('');
-      return undefined;
-    }
-
-    let cancelled = false;
-    const objectUrls = [];
-    setVerificationEvidence({});
-    setVerificationEvidenceError('');
-    const evidence = selectedVerificationUser.verificationRequest || {};
-    const evidenceItems = evidence.evidenceFileIds?.length
-      ? evidence.evidenceFileIds.map((fileId, index) => [String(index), fileId])
-      : [['schedule', evidence.scheduleFileId], ['selfie', evidence.selfieFileId]];
-
-    Promise.all(
-      evidenceItems
-        .filter(([, fileId]) => fileId)
-        .map(async ([kind]) => {
-          const blob = await dataApi.getVerificationEvidence(selectedVerificationUser._id, kind);
-          return [kind, URL.createObjectURL(blob)];
-        }),
-    ).then((entries) => {
-      if (cancelled) {
-        entries.forEach(([, url]) => URL.revokeObjectURL(url));
-        return;
-      }
-      objectUrls.push(...entries.map(([, url]) => url));
-      setVerificationEvidence(Object.fromEntries(entries));
-    }).catch((error) => {
-      if (!cancelled) setVerificationEvidenceError(error.message || 'Không thể tải ảnh xác minh.');
-    });
-
-    return () => {
-      cancelled = true;
-      objectUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [selectedVerificationUser]);
 
   // Mở từ hàng đợi việc chờ duyệt: chỉ có _id, modal tự nạp phần còn lại.
   useEffect(() => {
@@ -128,7 +84,7 @@ const AdminUsersTab = ({
   return (
     <div className="space-y-6 animate-fadeIn select-none">
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {/* Card 1: Total */}
         <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
           <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-sm">
@@ -147,26 +103,6 @@ const AdminUsersTab = ({
           <div className="min-w-0">
             <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{t("admin.texts.txt_27")}</div>
             <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
-          </div>
-        </div>
-        {/* Card 3: Pending */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-sm">
-            <span className="material-symbols-outlined text-xl">hourglass_empty</span>
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">Chờ duyệt</div>
-            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
-          </div>
-        </div>
-        {/* Card 4: Rejected */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
-          <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center shrink-0 shadow-sm">
-            <span className="material-symbols-outlined text-xl">cancel</span>
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">Từ chối</div>
-            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 5: Locked */}
@@ -224,7 +160,6 @@ const AdminUsersTab = ({
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
-              <option value="pending">Chờ duyệt</option>
               <option value="locked">{t("admin.texts.txt_32")}</option>
             </select>
 
@@ -353,30 +288,10 @@ const AdminUsersTab = ({
                           {formatExpiration(user.expiresAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {user.verificationRequest?.supportSubmittedAt ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/25 bg-violet-500/10 px-3 py-1 text-[10px] font-extrabold text-violet-500">
-                              <span className="material-symbols-outlined text-xs">support_agent</span>
-                              Yêu cầu hỗ trợ
-                            </span>
-                          ) : user.status === 'locked' ? (
+                          {user.status === 'locked' ? (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                               {t("admin.texts.txt_48")}
-                            </span>
-                          ) : user.status === 'pending' ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              Chờ duyệt
-                            </span>
-                          ) : user.status === 'rejected' ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.15)]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                              Từ chối
-                            </span>
-                          ) : user.verificationRequest?.submitted && !user.isEduVerified ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              Dùng thử 7 ngày · Chờ duyệt
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
@@ -395,31 +310,12 @@ const AdminUsersTab = ({
                               <span className="material-symbols-outlined text-[14px]">visibility</span>
                               <span>Soi chi tiết</span>
                             </button>
-                            {(user.verificationRequest?.submitted || user.verificationRequest?.supportSubmittedAt) && (
-                              <button
-                                onClick={() => setSelectedVerificationUser(user)}
-                                className="px-3.5 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white shadow-[0_4px_16px_rgba(168,85,247,0.35)] hover:shadow-[0_6px_22px_rgba(168,85,247,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                                title={user.verificationRequest?.supportSubmittedAt
-                                  ? "Xem yêu cầu hỗ trợ / hồ sơ xác minh"
-                                  : "Xem hồ sơ yêu cầu xác minh sinh viên"}
-                              >
-                                <span className="material-symbols-outlined text-[14px]">school</span>
-                                <span>{user.verificationRequest?.supportSubmittedAt ? "Hỗ trợ" : "Hồ sơ"}</span>
-                              </button>
-                            )}
-                            {user.status === 'locked' || user.status === 'rejected' ? (
+                            {user.status === 'locked' ? (
                               <button
                                 onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
                                 className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 hover:border-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.15)] transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
                               >
                                 Kích hoạt
-                              </button>
-                            ) : (user.status === 'pending' || (user.status === 'active' && user.verificationRequest?.submitted && !user.isEduVerified)) ? (
-                              <button
-                                onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
-                                className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 hover:border-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.15)] transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
-                              >
-                                Duyệt
                               </button>
                             ) : (
                               <button
@@ -489,11 +385,9 @@ const AdminUsersTab = ({
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border ${
                           user.status === 'locked'
                             ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
-                            : user.status === 'pending'
-                            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
                             : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
                         }`}>
-                          {user.status === 'locked' ? 'Khóa' : user.status === 'pending' ? 'Chờ' : 'Active'}
+                          {user.status === 'locked' ? 'Khóa' : 'Active'}
                         </span>
                       </div>
                     </div>
@@ -534,7 +428,7 @@ const AdminUsersTab = ({
                         <span>Soi</span>
                       </button>
                       
-                      {user.status === 'locked' || user.status === 'rejected' ? (
+                      {user.status === 'locked' ? (
                         <button
                           onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
                           className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
@@ -650,150 +544,6 @@ const AdminUsersTab = ({
         )}
       </div>
       {/* Verification Details Modal */}
-      {selectedVerificationUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md bg-white dark:bg-background rounded-[2rem] border border-slate-200 dark:border-slate-800/80 shadow-2xl overflow-hidden relative space-y-6 p-6 sm:p-8">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-indigo-500 text-2xl">school</span>
-                <h3 className="text-base sm:text-lg font-black text-foreground uppercase tracking-tight">Chi tiết yêu cầu xác minh</h3>
-              </div>
-              <button
-                onClick={() => setSelectedVerificationUser(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
-              >
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Email Google</span>
-                <span className="col-span-2 font-mono text-slate-700 dark:text-slate-200 font-bold truncate">{selectedVerificationUser.email}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Họ và tên</span>
-                <span className="col-span-2 text-foreground font-bold">{selectedVerificationUser.verificationRequest?.fullName}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Sinh nhật</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
-                  {selectedVerificationUser.verificationRequest?.birthday ? new Date(selectedVerificationUser.verificationRequest.birthday).toLocaleDateString('vi-VN') : 'Chưa cung cấp'}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Trường học</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
-                  [{selectedVerificationUser.verificationRequest?.schoolLevel}] {selectedVerificationUser.verificationRequest?.schoolName}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Mã HS/SV</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono font-bold">{selectedVerificationUser.verificationRequest?.schoolIdCode || 'Chưa cung cấp'}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Số điện thoại (Zalo)</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-mono font-bold">{selectedVerificationUser.verificationRequest?.phoneZalo}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Trạng thái hiện tại</span>
-                <span className="col-span-2">
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-extrabold ${
-                    selectedVerificationUser.status === 'pending'
-                      ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
-                      : selectedVerificationUser.status === 'rejected'
-                      ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30'
-                      : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)
-                      ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30'
-                      : 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30'
-                  }`}>
-                    {selectedVerificationUser.status === 'pending' ? 'Chờ duyệt' : selectedVerificationUser.status === 'rejected' ? 'Từ chối' : (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified) ? 'Dùng thử 7 ngày · Chờ duyệt' : 'Đã duyệt'}
-                  </span>
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 py-2 border-b border-slate-100 dark:border-slate-800/50">
-                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider mt-0.5">Số lần gửi</span>
-                <span className="col-span-2 text-slate-800 dark:text-slate-200 font-bold">
-                  {selectedVerificationUser.verificationRequest?.submissionCount || 1}/2
-                </span>
-              </div>
-              {selectedVerificationUser.verificationRequest?.supportContact && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs dark:border-amber-900/40 dark:bg-amber-950/20">
-                  <p className="font-bold text-amber-800 dark:text-amber-300">Yêu cầu hỗ trợ / kháng nghị</p>
-                  <a
-                    href={selectedVerificationUser.verificationRequest.supportContact.includes('@')
-                      ? `mailto:${selectedVerificationUser.verificationRequest.supportContact}`
-                      : `tel:${selectedVerificationUser.verificationRequest.supportContact}`}
-                    className="mt-1 block font-semibold text-primary underline"
-                  >
-                    {selectedVerificationUser.verificationRequest.supportContact}
-                  </a>
-                  {selectedVerificationUser.verificationRequest.supportMessage && (
-                    <p className="mt-2 whitespace-pre-wrap text-slate-700 dark:text-slate-200">
-                      {selectedVerificationUser.verificationRequest.supportMessage}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {(selectedVerificationUser.verificationRequest?.evidenceFileIds?.length
-                ? selectedVerificationUser.verificationRequest.evidenceFileIds.map((_, index) => [String(index), `Ảnh bằng chứng ${index + 1}`])
-                : [['schedule', 'Ảnh thời khóa biểu'], ['selfie', 'Ảnh khuôn mặt']]).map(([kind, label]) => (
-                <div key={kind} className="space-y-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
-                  {verificationEvidence[kind] ? (
-                    <a href={verificationEvidence[kind]} target="_blank" rel="noreferrer">
-                      <img src={verificationEvidence[kind]} alt={label} className="h-40 w-full rounded-lg border border-slate-200 object-contain dark:border-slate-700" />
-                    </a>
-                  ) : (
-                    <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-slate-300 text-[10px] text-slate-400 dark:border-slate-700">
-                      {verificationEvidenceError || 'Chưa có ảnh'}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setSelectedVerificationUser(null)}
-                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground text-xs font-bold rounded-xl transition-all active:scale-95"
-              >
-                Đóng
-              </button>
-
-              {selectedVerificationUser.verificationRequest?.submitted
-                && (selectedVerificationUser.status === 'pending' || (selectedVerificationUser.status === 'active' && !selectedVerificationUser.isEduVerified)) && (
-                <>
-                  <button
-                    onClick={() => {
-                      handleToggleBioStatus(selectedVerificationUser._id, selectedVerificationUser.status, 'rejected');
-                      setSelectedVerificationUser(null);
-                    }}
-                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"
-                  >
-                    Từ chối
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleToggleBioStatus(selectedVerificationUser._id, selectedVerificationUser.status, 'active');
-                      setSelectedVerificationUser(null);
-                    }}
-                    className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all active:scale-95 shadow-md"
-                  >
-                    Phê duyệt
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* User Detail Inspector Modal */}
       {inspectingUser && (
         <UserDetailModal

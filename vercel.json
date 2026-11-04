@@ -228,14 +228,6 @@
       "destination": "/2048/index.html"
     },
     {
-      "source": "/banhocduong",
-      "destination": "/banhocduong/index.html"
-    },
-    {
-      "source": "/therapy",
-      "destination": "/therapy/index.html"
-    },
-    {
       "source": "/radio",
       "destination": "/radio/index.html"
     },

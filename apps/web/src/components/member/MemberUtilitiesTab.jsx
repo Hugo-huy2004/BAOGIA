@@ -1,7 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { changeAppLanguage } from "../../i18n/config";
-import { psychologyGate } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import { trackOpen } from "./os/appUsage";
@@ -14,8 +12,8 @@ import AppLaunchLayer from "./os/AppLaunchLayer";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, appRoute, onAppRouteChange, onOpenParticleModal }) {
-  const { t, i18n } = useTranslation();
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, onBioUpdate, appRoute, onAppRouteChange, onOpenParticleModal }) {
+  const { t } = useTranslation();
   const { data } = useData();
 
   useEffect(() => {
@@ -46,19 +44,10 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
   const isMobile = useIsMobile();
-  // Cùng một nguồn với MemberPortalPage (packages/shared/appRegistry.js). HugoPSY & Bio thêm
+  // Cùng một nguồn với MemberPortalPage (packages/shared/appRegistry.js). Bio thêm
   // vào đây vì trên điện thoại nó cũng dựng vỏ toàn màn hình.
-  const isFullscreenLikeUtility = selectedUtility === "psychology"
-    || (selectedUtility === "bio" && isMobile)
+  const isFullscreenLikeUtility = (selectedUtility === "bio" && isMobile)
     || FULLSCREEN_APP_IDS.includes(selectedUtility);
-
-  // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
-  // icon ngoài Home, Thư viện, Spotlight, Hugo Store, liên kết dán tay, và cả
-  // điều hướng từ `useHealingJourney`. Chặn ở từng chỗ bấm thì thiếu một chỗ là
-  // lọt. Thứ tự hai cửa (ngôn ngữ trước tuổi) nằm trong lib/memberAge.js.
-  const psyGate = selectedUtility === "psychology"
-    ? psychologyGate(i18n.resolvedLanguage || i18n.language, bio)
-    : null;
 
   // Mọi app nạp qua mục lục chung os/appIndex.js; ở đây chỉ còn việc trao
   // props. Phần chung đi cho mọi app, phần riêng theo id.
@@ -68,10 +57,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   const sharedProps = { bio, showToast, onBack: close, onBioUpdate };
   const routeProps = { route: appRoute, onRouteChange: onAppRouteChange };
   const appProps = {
-    psychology: {
-      ...sharedProps, route: appRoute || "chat", onRouteChange: onAppRouteChange,
-      defaultPresetTest: defaultPsychologyPresetTest, setFormData, handleSave, sleepAutoDetect,
-    },
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
     arcade: sharedProps,
     qrhugo: { ...sharedProps, ...routeProps },
@@ -118,66 +103,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {selectedUtility !== null && (
         <LazyBoundary resetKey={selectedUtility} onBack={() => onSelectUtility(null)}>
-          {/* HugoPSY chỉ soạn bằng tiếng Việt (kể cả đường dây nóng là số Việt
-              Nam) và chỉ dành cho thành viên từ 18 tuổi. Màn "minor" để nguyên
-              tiếng Việt là đúng: cổng ngôn ngữ đã lọc trước nó. */}
-          {psyGate === "language" && <VietnameseOnlyNotice onBack={close} />}
-          {psyGate === "minor" && <AdultOnlyNotice onBack={close} />}
-          {ActiveApp && psyGate !== "language" && psyGate !== "minor" && <ActiveApp {...appProps} />}
+          {ActiveApp && <ActiveApp {...appProps} />}
         </LazyBoundary>
       )}
       </Suspense>
 
-    </div>
-  );
-}
-
-// Vào thẳng bằng URL /member/utilities/psychology thì vẫn gặp màn này; API phía
-// sau cũng đã khoá nên đây chỉ là phần giải thích cho người dùng.
-function VietnameseOnlyNotice({ onBack }) {
-  const { t } = useTranslation();
-  return (
-    <div className="mx-auto max-w-md px-4 py-14 text-center">
-      <span className="material-symbols-outlined text-[56px] text-muted-foreground" aria-hidden="true">translate</span>
-      <p className="mt-4 text-lg font-black text-foreground">{t("hugoPsy.vietnameseOnly.title")}</p>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("hugoPsy.vietnameseOnly.body")}</p>
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => changeAppLanguage("vi")}
-          className="min-h-11 rounded-full bg-foreground px-5 text-sm font-bold text-background transition-opacity hover:opacity-90"
-        >
-          {t("hugoPsy.vietnameseOnly.switchToVi")}
-        </button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="min-h-11 rounded-full border border-border px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-        >
-          {t("hugoPsy.vietnameseOnly.back")}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function AdultOnlyNotice({ onBack }) {
-  return (
-    <div className="mx-auto max-w-md px-4 py-14 text-center">
-      <span className="material-symbols-outlined text-[56px] text-muted-foreground" aria-hidden="true">shield_person</span>
-      <p className="mt-4 text-lg font-black text-foreground">HugoPSY dành cho thành viên từ 18 tuổi</p>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Nội dung sức khoẻ tinh thần cần người trưởng thành tự chịu trách nhiệm với lựa chọn của mình.
-        Nếu bạn đang cần giúp đỡ, hãy nói với cha mẹ, người giám hộ, thầy cô hoặc gọi tổng đài
-        bảo vệ trẻ em <a href="tel:111" className="font-bold text-foreground underline">111</a> (miễn phí, 24/7).
-      </p>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mt-6 min-h-11 rounded-full border border-border px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
-      >
-        Quay lại
-      </button>
     </div>
   );
 }

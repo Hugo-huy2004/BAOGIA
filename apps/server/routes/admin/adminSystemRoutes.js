@@ -97,32 +97,6 @@ router.get('/system-overview', requireAdmin, async (req, res) => {
 });
 
 
-// GET /admin/iot/devices (admin) - Danh sách thiết bị IoT
-router.get('/iot/devices', requireAdmin, async (req, res) => {
-  try {
-    const IoTDevice = (await import('../../models/IoTDevice.js')).default;
-    const devices = await IoTDevice.find({}).sort({ lastSeen: -1 });
-    res.json({ success: true, devices });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /admin/iot/toggle (admin) - Bật/tắt hoạt động thiết bị IoT
-router.post('/iot/toggle', requireAdmin, async (req, res) => {
-  try {
-    const { deviceId } = req.body;
-    const IoTDevice = (await import('../../models/IoTDevice.js')).default;
-    const dev = await IoTDevice.findOne({ deviceId });
-    if (!dev) return res.status(404).json({ error: 'Không tìm thấy thiết bị IoT' });
-    dev.isActive = !dev.isActive;
-    await dev.save();
-    res.json({ success: true, message: `Thiết bị ${dev.deviceName} đã được ${dev.isActive ? 'Kích hoạt' : 'Hủy kích hoạt'}`, device: dev });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // GET /admin/brief — bản tin một màn bằng câu thường (services/adminBrief.js).
 router.get('/brief', requireAdmin, async (req, res, next) => {
   try {

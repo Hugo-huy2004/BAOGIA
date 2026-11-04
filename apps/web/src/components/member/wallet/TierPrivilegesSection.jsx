@@ -35,7 +35,6 @@ const TIER_PRIVILEGES_MAP = {
       "Dành riêng cho lứa tuổi thanh niên từ 18 tuổi đến hết tháng sinh nhật năm 23 tuổi. Hưởng trọn vẹn các ưu đãi học tập số, trải nghiệm hệ sinh thái miễn phí hoặc trợ giá sinh viên.",
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Mở khoá miễn phí HugoCoder Basic nền tảng; hỗ trợ giá sinh viên cho toàn bộ chặng chuyên sâu.",
-      "<b>Tâm lý học (HugoPSY):</b> Trị liệu AI 60 phút mỗi ngày miễn phí, nhận thưởng lên đến 180 JOY/ngày.",
       "<b>Tiện ích & Giải trí:</b> Nghe Lofi không quảng cáo, mở khoá toàn bộ game Arcade, sử dụng miễn phí HugoSO Docs & Lịch.",
       financeBenefit("star18"),
       "<b>Đặc quyền sinh nhật:</b> Cộng thêm 30 ngày duy trì tài khoản & Voucher giảm 15% khi thiết kế website."
@@ -52,7 +51,6 @@ const TIER_PRIVILEGES_MAP = {
       nom("Thiết kế riêng cho học sinh trung học (14 đến dưới 18 tuổi). Tối ưu cho việc học tập, giải trí lành mạnh và tuân thủ tuyệt đối quy định bảo vệ dữ liệu trẻ em."),
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí hoàn toàn Chặng 1 Basic để định hướng sớm tư duy lập trình.",
-      "<b>Tâm lý học (HugoPSY):</b> Kênh tâm sự học đường bảo mật và ẩn danh tuyệt đối.",
       "<b>Tiện ích học tập:</b> Không gian Lofi học bài, HugoSO Ghi chú & Thời khoá biểu miễn phí.",
       financeBenefit("star14"),
       "<b>Quà tặng sinh nhật:</b> Cộng thêm 15 ngày gia hạn tài khoản (Tự động nâng cấp Star-18 khi đủ 18 tuổi)."
@@ -69,7 +67,6 @@ const TIER_PRIVILEGES_MAP = {
       nom("Hạng thẻ danh dự trọn đời do Hugo Studio trực tiếp trao tặng cho các đối tác, đóng góp xuất sắc hoặc thành viên danh dự. Mở khoá không giới hạn mọi dịch vụ trên toàn hệ sinh thái."),
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí truy cập trọn đời toàn bộ 6 chặng đào tạo (từ Basic đến DevOps).",
-      "<b>Tâm lý học (HugoPSY):</b> Trị liệu chuyên sâu ưu tiên, không giới hạn thời gian và số lượt.",
       "<b>Tiện ích & Giải trí:</b> Mở khoá trọn bộ HugoSO Bundle, kho âm thanh Premium, toàn bộ Arcade game với x2 thưởng JOY.",
       financeBenefit("starVip"),
       "<b>Đặc quyền VIP:</b> Cộng 90 ngày hạn tài khoản mỗi dịp sinh nhật, Voucher ưu đãi lớn cho dịch vụ Website."
@@ -86,7 +83,6 @@ const TIER_PRIVILEGES_MAP = {
       "Hạng thẻ tiêu chuẩn dành cho người dùng trên 23 tuổi hoặc tài khoản đang dùng thử nghiệm. Chủ động chi dùng tiện ích theo nhu cầu thực tế bằng số JOY tích luỹ từ hoạt động hàng ngày.",
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Thuê hoặc mua bài học linh hoạt bằng JOY (200 - 450 JOY tuỳ chặng).",
-      "<b>Tâm lý học (HugoPSY):</b> Trải nghiệm phiên cơ bản miễn phí; 150 JOY cho mỗi phiên chuyên sâu.",
       "<b>Tiện ích học tập & Giải trí:</b> Trải nghiệm có giới hạn thời gian (ví dụ: nghe 30 phút lofi/ngày) hoặc mua thêm bằng JOY tích luỹ.",
       financeBenefit("eco"),
       "<b>Quà tặng sinh nhật:</b> Cộng 15 ngày duy trì tài khoản (áp dụng khi đã xác minh ngày sinh)."

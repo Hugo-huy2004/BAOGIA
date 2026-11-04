@@ -7,7 +7,7 @@ import { languageCode } from "../../../i18n/languages";
 import { triggerHaptic, hapticSuccess } from "../../../utils/haptics";
 import { sensory } from "../../../lib/sensory";
 import { HugeIcon } from "../../ui/HugeIcon";
-import { AnimulaAvatar } from "../banhocduong/AnimulaAvatar";
+import { AnimulaAvatar } from "../../ui/AnimulaAvatar";
 import { getCategoryMeta, estimateReadingMinutes } from "./categoryStyles";
 
 const BOOKMARKS_KEY = "hugo_today_bookmarks_v1";

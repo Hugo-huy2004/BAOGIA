@@ -270,69 +270,6 @@ export const dataApi = {
     }
   },
 
-  // Submit verification request for non-edu members
-  async submitVerification(email, verificationData) {
-    try {
-      const body = new FormData();
-      body.append('email', email);
-      for (const [key, value] of Object.entries(verificationData)) {
-        if (key === 'evidenceFiles' && Array.isArray(value)) {
-          value.forEach((file) => body.append('evidence', file));
-          continue;
-        }
-        if (value !== undefined && value !== null && typeof value !== 'boolean') {
-          body.append(key, value);
-        } else if (typeof value === 'boolean') {
-          body.append(key, String(value));
-        }
-      }
-      const headers = getAuthHeaders();
-      delete headers['Content-Type'];
-      const response = await safeFetch(`${API_BASE_URL}/bios/me/verification`, {
-        method: 'POST',
-        headers,
-        body
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit verification request');
-      }
-      return data;
-    } catch (error) {
-      console.error('Error submitting verification request:', error);
-      throw error;
-    }
-  },
-
-  async submitVerificationAppeal(contact, message) {
-    const response = await safeFetch(`${API_BASE_URL}/bios/me/verification/appeal`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ contact, message }),
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.error || 'Unable to send verification support request');
-    }
-    return data;
-  },
-
-  async getVerificationEvidence(bioId, kind) {
-    if (!['schedule', 'selfie', '0', '1'].includes(String(kind))) {
-      throw new Error('Invalid verification evidence type');
-    }
-    const response = await safeFetch(
-      `${API_BASE_URL}/bios/${encodeURIComponent(bioId)}/verification-evidence/${encodeURIComponent(kind)}`,
-      { headers: getAuthHeaders() },
-    );
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.error || 'Không thể tải ảnh xác minh.');
-    }
-    return response.blob();
-  },
-
   async reviewStudentReward(type, file) {
     const body = new FormData();
     body.append('type', type);
@@ -344,26 +281,6 @@ export const dataApi = {
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.reason || data.error || 'Không thể xét duyệt hồ sơ.');
     return data;
-  },
-
-  // Dismiss verification notification banner
-  async dismissVerificationNotification(email) {
-    try {
-      const response = await safeFetch(`${API_BASE_URL}/bios/me/dismiss-notification`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ email })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to dismiss notification');
-      }
-      return data;
-    } catch (error) {
-      console.error('Error dismissing notification:', error);
-      throw error;
-    }
   },
 
   // Redeem Gift Code
@@ -596,73 +513,6 @@ export const dataApi = {
       return await response.json();
     } catch (error) {
       console.error('Error uploading image:', error);
-      throw error;
-    }
-  },
-
-  // Fetch companion history from MongoDB
-  async getCompanionHistory(email) {
-    const normalizedEmail = (email || '').trim().toLowerCase();
-    if (!normalizedEmail) {
-      throw new Error('Email is required to fetch companion history');
-    }
-
-    if (companionHistoryRequests.has(normalizedEmail)) {
-      return companionHistoryRequests.get(normalizedEmail);
-    }
-
-    const request = (async () => {
-      const response = await safeFetch(`${API_BASE_URL}/companion/history?email=${encodeURIComponent(normalizedEmail)}`, { headers: getAuthHeaders() });
-      if (!response.ok) {
-        throw await createHttpError(response, 'Failed to fetch companion history');
-      }
-      return await response.json();
-    })();
-
-    companionHistoryRequests.set(normalizedEmail, request);
-
-    try {
-      return await request;
-    } catch (error) {
-      console.error('Error fetching companion history:', error);
-      throw error;
-    } finally {
-      companionHistoryRequests.delete(normalizedEmail);
-    }
-  },
-
-  // Save companion history to MongoDB
-  async saveCompanionHistory(payload) {
-    try {
-      const response = await safeFetch(`${API_BASE_URL}/companion/history`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(payload)
-      });
-      if (!response.ok) {
-        throw await createHttpError(response, 'Failed to save companion history');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error saving companion history:', error);
-      throw error;
-    }
-  },
-
-  // Claim daily challenge reward
-  async claimChallengeReward(email, challengeId) {
-    try {
-      const response = await safeFetch(`${API_BASE_URL}/companion/claim-challenge`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ email, challengeId })
-      });
-      if (!response.ok) {
-        throw await createHttpError(response, 'Failed to claim challenge reward');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error claiming challenge reward:', error);
       throw error;
     }
   },

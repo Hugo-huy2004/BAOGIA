@@ -36,14 +36,14 @@ export default function StudentRewardCard({ bio, onBioUpdate, showToast }) {
     transcriptDesc: `Chỉ xét kết quả năm ${season.year}; điểm của năm cũ được bỏ qua.`,
     choose: "Chọn ảnh hoặc PDF", review: "Xét duyệt ngay", reviewing: "Đang xét duyệt…",
     received: "Đã nhận", closed: "Cổng nhận hồ sơ mở lại vào tháng 07",
-    unverified: "Cần xác minh HSSV trước khi tham gia.", privacy: "Ảnh/file chỉ dùng trong lần xét duyệt này và không được lưu lại.",
+    privacy: "Ảnh/file chỉ dùng trong lần xét duyệt này và không được lưu lại.",
   } : {
     eyebrow: "Annual gift · July–September", title: "Hugo Studio supports students",
     desc: "Submit each evidence type once per year. Both rewards stack, up to +95 account days.",
     achievement: "Award or certificate", achievementDesc: `The document must clearly show ${season.year}.`,
     transcript: "Current transcript", transcriptDesc: `Only ${season.year} results count; older scores are ignored.`,
     choose: "Choose image or PDF", review: "Review now", reviewing: "Reviewing…", received: "Received",
-    closed: "Submissions reopen in July", unverified: "Student verification is required first.",
+    closed: "Submissions reopen in July",
     privacy: "Your image/file is used for this review only and is not stored.",
   };
 
@@ -82,7 +82,7 @@ export default function StudentRewardCard({ bio, onBioUpdate, showToast }) {
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         {OPTIONS.map((option) => {
           const claimed = claims.some((entry) => entry.year === season.year && entry.type === option.type);
-          const disabled = claimed || !season.open || !bio?.isEduVerified || reviewing;
+          const disabled = claimed || !season.open || reviewing;
           return (
             <article key={option.type} className="rounded-3xl border border-border bg-muted/35 p-4">
               <div className="flex items-start gap-3">
@@ -119,7 +119,6 @@ export default function StudentRewardCard({ bio, onBioUpdate, showToast }) {
       </div>
 
       {!season.open && <p className="mt-4 text-[13px] font-semibold text-amber-700 dark:text-amber-300">{copy.closed}</p>}
-      {!bio?.isEduVerified && <p className="mt-4 text-[13px] font-semibold text-amber-700 dark:text-amber-300">{copy.unverified}</p>}
       {result && <p role="status" className={`mt-4 rounded-2xl px-4 py-3 text-[13px] font-semibold ${result.ok ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "bg-destructive/10 text-destructive"}`}>{result.message}</p>}
       <p className="mt-4 flex items-center gap-2 text-[12px] text-muted-foreground"><span className="material-symbols-outlined text-[17px]" aria-hidden="true">shield_lock</span>{copy.privacy}</p>
     </section>

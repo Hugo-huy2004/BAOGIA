@@ -310,11 +310,6 @@ export default React.memo(function UniversalBioView({
               <div className="bio-identity-text">
                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
                   <h1 className="bio-name">{displayName}</h1>
-                  {bio.isEduVerified && (
-                    <span className="text-sky-400 inline-flex items-center" title="Đã xác minh sinh viên">
-                      <GraduationCap className="size-4" />
-                    </span>
-                  )}
                   {bio.status === "active" && (
                     <span className="text-emerald-400 inline-flex items-center" title="Tài khoản chính thức">
                       <ShieldCheck className="size-4" />

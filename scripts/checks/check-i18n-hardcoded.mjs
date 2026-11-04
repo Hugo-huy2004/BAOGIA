@@ -24,7 +24,6 @@ const EXCLUDED = new RegExp([
   "hugoCoder/", "hugoSO", "study/", "ideData",
   // Education Hugo dịch qua bộ chữ riêng (vi/en/zh đặt cạnh nhau) — chính bộ chữ đó chứa tiếng Việt.
   "education/eduCopy",
-  "banhocduong/", "intentClassifier", "clinicalTests",
   "PrivacyPolicyPage", "TermsPage",
   // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối
   // tiếng Việt trong bản điều khoản toàn văn 9 ngôn ngữ.

@@ -20,14 +20,6 @@ export function applyProductGrant(bio, product, quantity = 1) {
     return `+${days} ngày HSD`;
   }
 
-  if (product.productType === 'psy_study_tokens' && product.tokenAmount > 0) {
-    const amount = product.tokenAmount * qty;
-    const isCall = product.tokenType === 'call';
-    if (isCall) bio.bonusCallTokens = (bio.bonusCallTokens || 0) + amount;
-    else bio.bonusChatTokens = (bio.bonusChatTokens || 0) + amount;
-    return `+${amount} token ${isCall ? 'gọi thoại' : 'chat'}`;
-  }
-
   if (product.productType === 'radio_time' && product.radioMinutes > 0) {
     const minutes = product.radioMinutes * qty;
     if (!bio.radioTokens) {

@@ -44,7 +44,6 @@ const PUBLIC_ROUTES = {
   "payosRoutes.js POST /webhook": "PayOS gọi, kiểm chữ ký trong handler",
   "telegramWebhookRoutes.js POST /webhook": "Telegram gọi, kiểm secret token trong handler",
   "opsRoutes.js POST /sentry-hook": "Sentry gọi, kiểm chữ ký trong handler",
-  "iotRoutes.js POST /vitals": "thiết bị IoT gửi số đo, xác thực bằng khoá thiết bị",
 
   // ── Nội dung công khai thật sự ───────────────────────────────────────────
   "partnerCampaignRoutes.js GET /:slug": "chỉ trả số quà công khai của chiến dịch (đã in sẵn trên trang partner) — không dữ liệu người dùng; nhận quà ở POST /:slug/claim có requireMember",

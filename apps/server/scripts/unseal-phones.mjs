@@ -29,7 +29,6 @@ const open = (value) => {
 
 const JOBS = [
   ['bios', 'phone'],
-  ['bios', 'verificationRequest.phoneZalo'],
   ['bookings', 'phone'],
 ];
 

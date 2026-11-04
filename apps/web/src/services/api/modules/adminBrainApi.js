@@ -316,22 +316,6 @@ export const adminBrainApi = {
   },
 
   /**
-   * Phê duyệt / Thu hồi trạng thái Sinh viên EDU
-   */
-  async toggleUserEduStatus(userId) {
-    const res = await fetch(`${API_BASE}/admin/users/${userId}/toggle-edu-status`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include'
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Lỗi cập nhật trạng thái EDU');
-    }
-    return res.json();
-  },
-
-  /**
    * Chỉnh sửa thông tin thành viên và gia hạn thời hạn sử dụng (expiresAt)
    */
   async updateUserProfileAndExpiration(userId, updateData) {

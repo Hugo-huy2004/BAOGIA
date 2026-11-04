@@ -11,30 +11,12 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { resolvePublicTool } from "../../config/publicTools";
 import StatusScreen from "../../components/system/StatusScreen";
 
-const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
-const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
 
 const PUBLIC_TOOL_VISUALS = Object.freeze({
-  banhocduong: {
-    icon: "school",
-    page: "from-sky-500/15 via-cyan-400/8 to-background",
-    glowA: "bg-sky-400/25",
-    glowB: "bg-cyan-300/20",
-    line: "from-sky-500 via-cyan-400 to-blue-600",
-    button: "from-sky-500 to-blue-600 shadow-sky-500/25",
-  },
-  therapy: {
-    icon: "psychology",
-    page: "from-fuchsia-500/14 via-violet-400/8 to-background",
-    glowA: "bg-fuchsia-400/25",
-    glowB: "bg-violet-400/20",
-    line: "from-fuchsia-500 via-violet-500 to-indigo-600",
-    button: "from-fuchsia-500 to-violet-600 shadow-fuchsia-500/25",
-  },
   radio: {
     icon: "radio",
     page: "from-orange-500/15 via-rose-400/8 to-background",
@@ -61,7 +43,7 @@ const PUBLIC_TOOL_VISUALS = Object.freeze({
   },
 });
 
-const DEFAULT_TOOL_VISUAL = PUBLIC_TOOL_VISUALS.banhocduong;
+const DEFAULT_TOOL_VISUAL = PUBLIC_TOOL_VISUALS.radio;
 
 
 export default function UtilityPublicPage() {
@@ -85,11 +67,6 @@ export default function UtilityPublicPage() {
   });
 
   const [bio, setBio] = useState(null);
-  const [therapyState, setTherapyState] = useState({
-    historyLogs: [],
-    chatMessages: [],
-    claimedChallengesToday: [],
-  });
   const [loading, setLoading] = useState(true);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -108,30 +85,6 @@ export default function UtilityPublicPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  useEffect(() => {
-    if (toolConfig?.slug !== "therapy" || !activeSession?.email) {
-      setTherapyState({ historyLogs: [], chatMessages: [], claimedChallengesToday: [] });
-      return undefined;
-    }
-
-    let cancelled = false;
-    dataApi.getCompanionHistory(activeSession.email)
-      .then((snapshot) => {
-        if (!cancelled && snapshot) {
-          setTherapyState({
-            historyLogs: snapshot.historyLogs || [],
-            chatMessages: snapshot.chatMessages || [],
-            claimedChallengesToday: snapshot.claimedChallengesToday || [],
-          });
-        }
-      })
-      .catch((error) => console.error("Public therapy history:", error));
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeSession?.email, toolConfig?.slug]);
 
   // Provide mock bio for guest mode if needed
   const player = useMemo(() => {
@@ -162,29 +115,6 @@ export default function UtilityPublicPage() {
 
   const handleBioUpdate = (updates) => {
     setBio((current) => ({ ...(current || {}), ...(updates || {}) }));
-  };
-
-  const handleTherapyStateUpdate = async (updates) => {
-    if (!handleIntercept()) return;
-
-    setTherapyState((current) => ({ ...current, ...updates }));
-    try {
-      const result = await dataApi.saveCompanionHistory({
-        email: activeSession.email,
-        ...updates,
-      });
-      if (result?.companionHistory) {
-        const snapshot = result.companionHistory;
-        setTherapyState((current) => ({
-          ...current,
-          historyLogs: snapshot.historyLogs || current.historyLogs,
-          chatMessages: snapshot.chatMessages || current.chatMessages,
-          claimedChallengesToday: snapshot.claimedChallengesToday || current.claimedChallengesToday,
-        }));
-      }
-    } catch (error) {
-      console.error("Public therapy save:", error);
-    }
   };
 
   const renderTool = () => {
@@ -218,19 +148,6 @@ export default function UtilityPublicPage() {
     }
 
     switch (tool) {
-      case "banhocduong":
-        return <BanhocduongTab {...commonProps} activeSubTab="chat" onSubTabChange={() => handleIntercept(new Event('click'))} sleepAutoDetect={{}} />;
-      case "therapy":
-      case "psychology":
-        return (
-          <TherapyTab
-            {...commonProps}
-            historyLogs={therapyState.historyLogs}
-            chatMessages={therapyState.chatMessages}
-            claimedChallengesToday={therapyState.claimedChallengesToday}
-            onUpdateCompanionState={handleTherapyStateUpdate}
-          />
-        );
       case "radio":
         return <MemberRadioTab {...commonProps} />;
       case "aura":
@@ -349,7 +266,7 @@ export default function UtilityPublicPage() {
               ) : (
                 <div className="mt-3 flex h-12 items-center justify-center gap-2 rounded-xl border border-success/25 bg-success/10 text-sm font-bold text-success">
                   <span className="material-symbols-outlined text-[18px]">verified</span>
-                  {bio?.isEduVerified ? "Đã xác thực HSSV · 365 ngày" : "Đã đăng nhập · Gói trải nghiệm 30 ngày"}
+                  Đã đăng nhập
                 </div>
               )}
             </div>

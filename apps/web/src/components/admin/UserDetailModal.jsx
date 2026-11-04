@@ -219,17 +219,6 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
     }
   };
 
-  const handleToggleEduStatus = async () => {
-    try {
-      const res = await adminBrainApi.toggleUserEduStatus(user._id);
-      notify.success(res.message || 'Đã cập nhật trạng thái EDU');
-      fetchDetails();
-      if (onRefresh) onRefresh();
-    } catch (err) {
-      notify.error(err.message || 'Lỗi khi cập nhật EDU');
-    }
-  };
-
   const handleCancelAndRefundOrder = async (orderId) => {
     setRefundingOrderId(orderId);
     try {
@@ -289,11 +278,6 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                 {bio.isJoyWalletFrozen && (
                   <span className="px-3 py-0.5 rounded-full bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/40 text-[10px] font-black flex items-center gap-1">
                     <span className="material-symbols-outlined text-xs">ac_unit</span> ĐÓN BĂNG VÍ
-                  </span>
-                )}
-                {bio.isEduVerified && (
-                  <span className="px-3 py-0.5 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/40 text-[10px] font-black flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs">school</span> SINH VIÊN EDU
                   </span>
                 )}
               </div>
@@ -419,7 +403,6 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                   onExtend={handleExtendExpiration}
                   onSetExpiry={handleSetExpiry}
                   onToggleWalletFreeze={handleToggleWalletFreeze}
-                  onToggleEdu={handleToggleEduStatus}
                   onRevokeSession={handleRevokeSession}
                 />
               )}

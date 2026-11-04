@@ -166,7 +166,7 @@ export async function sendTestNotification(req, res) {
       title: title || 'Thông báo đẩy thử nghiệm',
       body: body || 'Xin chào! Đây là thông báo đẩy từ máy chủ của website.',
       icon: '/image/avt7.png',
-      url: url || '/member/utilities/psychology',
+      url: url || '/member/today',
     });
 
     const sendPromises = subscriptions.map((sub) =>

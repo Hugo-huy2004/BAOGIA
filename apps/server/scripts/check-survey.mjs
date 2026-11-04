@@ -57,7 +57,7 @@ const simulateYear = (usedApps, months = 12) => {
   return { asked, rounds };
 };
 
-const heavy = simulateYear(['aura', 'arcade', 'study', 'psychology', 'bio']);
+const heavy = simulateYear(['aura', 'arcade', 'study', 'qrhugo', 'bio']);
 check(new Set(heavy.asked).size === heavy.asked.length,
   `người dùng 5 ứng dụng: ${heavy.asked.length} câu trong 12 tháng, KHÔNG câu nào lặp`);
 check(heavy.rounds.every((r) => r.length === QUESTIONS_PER_ROUND),

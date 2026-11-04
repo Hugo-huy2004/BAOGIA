@@ -1,5 +1,5 @@
 // Client for the JOY wallet's phone-transfer and daily-mission endpoints
-// (apps/server/routes/joyRoutes.js, apps/server/routes/companionRoutes.js).
+// (apps/server/routes/joyRoutes.js).
 const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.startsWith("http")) return envUrl;
@@ -157,7 +157,7 @@ export async function resolveMemberCode(code) {
 
 export async function fetchChallengeStatus(email) {
   try {
-    const res = await fetch(`${getApiUrl()}/companion/challenges-status?email=${encodeURIComponent(email)}`, {
+    const res = await fetch(`${getApiUrl()}/joy/missions`, {
       credentials: "include"
     });
     if (!res.ok) return [];
@@ -169,7 +169,7 @@ export async function fetchChallengeStatus(email) {
 }
 
 export async function claimChallenge(email, challengeId) {
-  const res = await fetch(`${getApiUrl()}/companion/claim-challenge`, {
+  const res = await fetch(`${getApiUrl()}/joy/missions/claim`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, challengeId }),
@@ -180,7 +180,7 @@ export async function claimChallenge(email, challengeId) {
 
 /** Thưởng khi cây nhiệm vụ lớn hết — mỗi ngày một lần, server tự chặn trùng. */
 export async function claimTreeBonus() {
-  const res = await fetch(`${getApiUrl()}/companion/claim-tree-bonus`, {
+  const res = await fetch(`${getApiUrl()}/joy/missions/tree-bonus`, {
     method: "POST",
     credentials: "include",
   });

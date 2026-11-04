@@ -115,12 +115,6 @@ export default function WidgetRenderer({
                 </div>
 
                 <div className="mt-1.5 text-left text-xs">
-                  {app.id === "psychology" && (
-                    <div className="flex items-center gap-2 bg-muted/40 border border-border/30 rounded-xl p-2">
-                      <span className="material-symbols-outlined text-purple-500 text-[14px]">chat_bubble</span>
-                      <span className="text-muted-foreground italic truncate">“{t("utilities.library.widget.listening")}”</span>
-                    </div>
-                  )}
                   {app.id === "ide" && (
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2 font-semibold">
                       <span className="text-muted-foreground">{t("utilities.library.widget.onlineCompiler")}</span>
@@ -172,7 +166,7 @@ export default function WidgetRenderer({
                       <span className="text-warning">1,540 JOY</span>
                     </div>
                   )}
-                  {!["psychology", "ide", "aura", "radio", "arcade"].includes(app.id) && (
+                  {!["ide", "aura", "radio", "arcade"].includes(app.id) && (
                     <p className="text-[11px] text-muted-foreground italic truncate leading-snug">
                       {app.subLabel}
                     </p>
@@ -213,23 +207,6 @@ export default function WidgetRenderer({
                 </div>
 
                 <div className="flex-1 my-3 overflow-hidden flex flex-col justify-center">
-                  {app.id === "psychology" && (
-                    <div className="space-y-3">
-                      <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 space-y-1.5 text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                          <span className="font-bold text-[10.5px] text-foreground tracking-wide">{t("utilities.library.widget.companionOnline")}</span>
-                        </div>
-                        <p className="text-muted-foreground/90 italic leading-relaxed">“{t("utilities.library.widget.companionMessage")}”</p>
-                      </div>
-                      <div className="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-center text-muted-foreground">
-                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.stress")}</div>
-                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.sleep")}</div>
-                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.study")}</div>
-                      </div>
-                    </div>
-                  )}
-
                   {app.id === "ide" && (
                     <div className="bg-[#090d16] border border-white/5 rounded-2xl p-4 font-mono text-[9.5px] text-zinc-400 space-y-1.5 shadow-inner">
                       <div className="flex justify-between items-center pb-1.5 border-b border-white/5">
@@ -357,7 +334,7 @@ export default function WidgetRenderer({
                     </div>
                   )}
 
-                  {!["psychology", "ide", "aura", "radio", "bio"].includes(app.id) && (
+                  {!["ide", "aura", "radio", "bio"].includes(app.id) && (
                     <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 text-xs text-muted-foreground space-y-1">
                       <p className="text-[10px] leading-relaxed italic">"{app.subLabel}"</p>
                       {/* Trước đây là "★ 4.9 · 12k người dùng" gắn cứng trong

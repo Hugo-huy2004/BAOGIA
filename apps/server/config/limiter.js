@@ -93,7 +93,7 @@ export const globalLimiter = rateLimit({
 // mang upload — multipart hoặc JSON to (ảnh base64). globalLimiter chặn LƯỢT, còn
 // đây chặn những lượt đắt, nên ngưỡng thấp hơn nhiều. Hạn mức AI theo ngày vẫn do
 // Python giữ; lớp này chỉ chặn dồn dập trong ngắn hạn.
-const HEAVY_PREFIXES = ['/api/ai', '/api/companion/brain', '/api/sleep/analyze'];
+const HEAVY_PREFIXES = [];
 const HEAVY_BODY_BYTES = 256 * 1024;
 export const isHeavy = (req) => (
   HEAVY_PREFIXES.some((p) => req.originalUrl.startsWith(p))

@@ -32,8 +32,8 @@ const theme = {
 // Tên cột tiếng Việt; trường chưa có ở đây thì hiện tên gốc.
 const LABELS = {
   email: "Email", displayName: "Tên", fullName: "Họ tên", name: "Tên", phone: "Điện thoại", status: "Trạng thái",
-  createdAt: "Tạo lúc", updatedAt: "Cập nhật", expiresAt: "Hết hạn", trialExpiresAt: "Hết dùng thử", joyBalance: "Số dư JOY",
-  isEduVerified: "Đã xác minh HS-SV", starVip: "VIP", isJoyWalletFrozen: "Khoá ví", profilePublic: "Hồ sơ công khai", headline: "Giới thiệu ngắn",
+  createdAt: "Tạo lúc", updatedAt: "Cập nhật", expiresAt: "Hết hạn", joyBalance: "Số dư JOY",
+  starVip: "VIP", isJoyWalletFrozen: "Khoá ví", profilePublic: "Hồ sơ công khai", headline: "Giới thiệu ngắn",
   issue: "Nội dung", adminReply: "Trả lời của admin", resolvedAt: "Xử lý lúc", contacted: "Đã liên hệ", notes: "Ghi chú", message: "Lời nhắn",
   projectType: "Loại dự án", budget: "Ngân sách", timeline: "Thời hạn", voucherCode: "Mã ưu đãi", projectId: "Mã dự án", market: "Thị trường",
   adminNote: "Ghi chú admin", duration: "Thời lượng", durationUnit: "Đơn vị", giftCode: "Mã quà", color: "Màu", description: "Mô tả",

@@ -36,13 +36,6 @@ export const PWA_MANIFEST = {
       icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
     },
     {
-      name: 'Bạn Học Đường',
-      short_name: 'Đồng Hành',
-      description: 'Đồng hành chăm sóc sức khỏe tinh thần',
-      url: '/member/utilities/psychology',
-      icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
-    },
-    {
       name: 'Hồ Sơ Bio',
       short_name: 'Bio',
       description: 'Quản lý thiết kế Bio cá nhân',
@@ -50,6 +43,6 @@ export const PWA_MANIFEST = {
       icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
     }
   ],
-  categories: ['health', 'education', 'productivity'],
+  categories: ['education', 'productivity'],
   lang: 'vi',
 };

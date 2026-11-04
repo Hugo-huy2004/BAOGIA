@@ -228,8 +228,8 @@ export default defineConfig(({ mode }) => {
     // Google Sign-In's cross-origin postMessage between its iframe/popup and
     // the parent page.  See vercel.json for the production decision.
     // Dev phải phản chiếu đúng production: vercel.json rewrite MỌI `/api/*` sang
-    // Node, và chỉ Node mới nói chuyện với Python (aiProxyRoutes/sleepRoutes tự
-    // gắn `X-Internal-Key` từ biến môi trường server). Trước đây dev bắn thẳng
+    // Node, và chỉ Node mới nói chuyện với Python (server tự gắn
+    // `X-Internal-Key` từ biến môi trường). Trước đây dev bắn thẳng
     // `/api/ai`, `/api/iot`, `/api/sleep/analyze` sang Python — trình duyệt không
     // có (và không được phép có) internal key nên luôn ăn 401, còn
     // `/api/iot/devices|vitals` thì 404 vì mấy route đó chỉ có ở Node.
@@ -251,11 +251,8 @@ export default defineConfig(({ mode }) => {
   build: {
     minify: 'oxc',
     cssMinify: 'lightningcss',
-    // Chỉ @mlc-ai/web-llm (AI chạy trên máy của HugoPSY, ~6 MB, nạp lười khi mở
-    // ChatTab + trong brain.worker) vượt 1 MB — một thư viện, cắt nhỏ không
-    // nhanh hơn. Trần 1 MB cho MỌI chunk khác do check:performance chặn
-    // (performance-budgets.json → largeChunks), nên ở đây chỉ tắt tiếng ồn.
-    chunkSizeWarningLimit: 6200,
+    // Trần 1 MB cho mọi chunk do check:performance chặn (performance-budgets.json).
+    chunkSizeWarningLimit: 1024,
     sourcemap: sentryBuildEnabled ? 'hidden' : false,
     rollupOptions: {
       output: {
@@ -280,7 +277,7 @@ export default defineConfig(({ mode }) => {
             // ở bản chữ thô). Gom về một chunk tên trung tính.
             if (/[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils|@emotion[\\/]is-prop-valid)[\\/]/.test(id)) return 'motion';
           }
-          // Do NOT manually chunk app-source folders (demos, banhocduong):
+          // Do NOT manually chunk app-source folders (demos):
           // forcing a whole folder into one named chunk made rolldown hoist it
           // into the ENTRY's static graph, so the landing page preloaded
           // ~600KB of HugoPSY it never needed. Letting Vite auto-split keeps

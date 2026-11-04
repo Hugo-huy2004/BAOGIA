@@ -6,13 +6,12 @@ import { utilityProductPrice } from '../../../../../packages/shared/joyPrices';
 
 const EMPTY_FORM = {
   name: '', description: '', priceJoy: utilityProductPrice('general'), category: 'general', stock: -1, imageUrl: '',
-  productType: 'general', extendDays: '', tokenType: 'chat', tokenAmount: '', radioMinutes: ''
+  productType: 'general', extendDays: '', radioMinutes: ''
 };
 
 const PRODUCT_TYPE_META = {
   general: { icon: 'redeem', label: 'Thông thường', color: 'emerald' },
   system_validity: { icon: 'event_available', label: 'Gia hạn HSD', color: 'amber' },
-  psy_study_tokens: { icon: 'psychology', label: 'Token Psy-Study', color: 'indigo' },
   radio_time: { icon: 'radio', label: 'Phút Radio', color: 'cyan' }
 };
 
@@ -82,8 +81,6 @@ export default function AdminUtilityStoreTab() {
       imageUrl: p.imageUrl || '',
       productType: p.productType || 'general',
       extendDays: p.extendDays || '',
-      tokenType: p.tokenType || 'chat',
-      tokenAmount: p.tokenAmount || '',
       radioMinutes: p.radioMinutes || ''
     });
   };
@@ -250,7 +247,6 @@ export default function AdminUtilityStoreTab() {
                 >
                   <option value="general">Thông thường (Quà tặng/Dịch vụ)</option>
                   <option value="system_validity">Gia hạn HSD Tài khoản (Bio.expiresAt)</option>
-                  <option value="psy_study_tokens">Token Psy-Study (Chat/Call)</option>
                   <option value="radio_time">Phút phát Radio (Member Radio)</option>
                 </select>
               </div>

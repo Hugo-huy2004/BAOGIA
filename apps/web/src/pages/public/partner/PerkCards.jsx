@@ -38,10 +38,8 @@ function SignupSteps({ steps, reduced }) {
 }
 
 function DaysCalculator({ campaign, ui, lang }) {
-  const [edu, setEdu] = useState(false);
-  const total = campaign.bioDays + (edu ? campaign.eduBonusDays : 0);
+  const total = campaign.bioDays;
   const until = new Date(Date.now() + total * 86400000);
-  const share = (campaign.bioDays / (campaign.bioDays + campaign.eduBonusDays)) * 100;
   return (
     <div className="collab-perk__days">
       <div className="collab-perk__total" aria-live="polite">
@@ -53,14 +51,9 @@ function DaysCalculator({ campaign, ui, lang }) {
         <span>{ui.perk.days}</span>
       </div>
       <div className="collab-perk__bar" aria-hidden="true">
-        <span style={{ width: `${share}%` }} />
-        <motion.span className="collab-perk__bar-edu" animate={{ width: edu ? `${100 - share}%` : "0%" }} transition={{ duration: 0.6, ease: EASE }} />
+        <span style={{ width: "100%" }} />
       </div>
       <p className="collab-perk__until">{ui.perk.until(formatDate(until, lang))}</p>
-      <button type="button" role="switch" aria-checked={edu} className="collab-switch" onClick={() => setEdu((value) => !value)}>
-        <span className="collab-switch__track" aria-hidden="true"><span className="collab-switch__thumb" /></span>
-        {ui.perk.eduSwitch}
-      </button>
     </div>
   );
 }

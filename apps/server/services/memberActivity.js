@@ -69,9 +69,6 @@ const AREA_URL = {
   today: '/member/today',
   arcade: '/member/utilities/arcade',
   chess: '/member/utilities/arcade_chess',
-  companion: '/member/utilities/psychology',
-  checkin: '/member/utilities/psychology',
-  sleep: '/member/utilities/psychology',
   bios: '/member/utilities/bio',
   profile: '/member/utilities/bio',
   joy: '/member/utilities/joy_wallet',
@@ -83,14 +80,13 @@ export function favouriteUrl(apps = {}) {
 }
 
 const DEFAULT_SLOT = 3; // 18:30 — người mới chưa có thói quen thì nhắc lúc rảnh nhất
-const SLOT_KEY = ['push.wake', 'push.noon', 'push.checkin', 'push.streak', 'push.sleep'];
 
 /**
  * Quyết định push cho MỘT người ở khung giờ `slot`: trả { key, params, url, tag }
  * hoặc null (không gửi). Mỗi người tối đa một push ngữ cảnh mỗi ngày, vào giờ
  * họ hay dùng app; ai lờ push liên tục thì gửi thưa dần.
  */
-export function planPush(activity, slot, { unread = 0, sleepTracker = false, now = new Date() } = {}) {
+export function planPush(activity, slot, { unread = 0, now = new Date() } = {}) {
   const last = activity?.lastActiveAt ? new Date(activity.lastActiveAt) : null;
   if (last && now - last < 30 * 60 * 1000) return null; // đang mở app rồi
   const ignored = activity?.push?.ignored || 0;
@@ -99,9 +95,6 @@ export function planPush(activity, slot, { unread = 0, sleepTracker = false, now
   if (ignored >= 3 && lastSent < 3 * DAY) return null;
   if (lastSent < 20 * HOUR) return null;
 
-  // Người tự theo dõi giấc ngủ vẫn được nhắc ngủ lúc 21:00 dù giờ quen là giờ khác.
-  const isSleepSlot = slot === PRIME_SLOTS.length - 1;
-  if (sleepTracker && isSleepSlot) return { key: 'push.sleep', url: '/member/utilities/psychology', tag: 'sleep' };
   if (slot !== (favouriteSlot(activity?.hours) ?? DEFAULT_SLOT)) return null;
 
   // Kéo người ta về đúng app họ thích nhất — một cú chạm là vào việc đang dở,
@@ -115,5 +108,5 @@ export function planPush(activity, slot, { unread = 0, sleepTracker = false, now
   const yesterday = vnParts(new Date(now - DAY)).day;
   const days = activity?.days || [];
   if (slot >= 3 && days.includes(yesterday) && !days.includes(day)) return { key: 'push.streak', url: home, tag: 'streak' };
-  return { key: SLOT_KEY[slot], url: '/member/utilities/psychology', tag: 'checkin', ai: true };
+  return null; // không có lý do cụ thể thì không làm phiền
 }

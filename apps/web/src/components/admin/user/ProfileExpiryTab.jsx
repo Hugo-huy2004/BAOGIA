@@ -74,13 +74,12 @@ function changedFields(initial, form) {
   return out;
 }
 
-/** Hạn dùng HIỆU LỰC — đúng luật cổng thành viên (authMiddleware.readMemberGate). */
+/** Hạn dùng — đúng luật cổng thành viên (authMiddleware.readMemberGate): chỉ expiresAt. */
 function accessOf(bio) {
-  const followsTrial = !bio?.isEduVerified && Boolean(bio?.trialExpiresAt);
-  const until = followsTrial ? bio.trialExpiresAt : bio?.expiresAt;
-  if (!until) return { until: null, followsTrial, daysLeft: null };
+  const until = bio?.expiresAt;
+  if (!until) return { until: null, daysLeft: null };
   const daysLeft = Math.ceil((new Date(until).getTime() - Date.now()) / DAY_MS);
-  return { until, followsTrial, daysLeft };
+  return { until, daysLeft };
 }
 
 /**
@@ -148,7 +147,7 @@ function StatusChip({ icon, label, value, tone }) {
   );
 }
 
-export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetExpiry, onToggleWalletFreeze, onToggleEdu, onRevokeSession }) {
+export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetExpiry, onToggleWalletFreeze, onRevokeSession }) {
   const initial = useMemo(() => formFromBio(bio), [bio]);
   const [form, setForm] = useState(initial);
   const [editing, setEditing] = useState(false);
@@ -221,9 +220,7 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
             <p className="text-[11px] font-black uppercase tracking-widest text-blue-800 dark:text-blue-300">Thời hạn sử dụng</p>
             <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">{access.until ? formatDate(access.until) : "Vĩnh viễn"}</p>
             <p className="mt-1 text-[12px] text-slate-600 dark:text-slate-400">
-              {access.followsTrial
-                ? "Tính theo hạn dùng thử (chưa xác minh EDU) — hết hạn là tài khoản bị khoá rồi tự xoá."
-                : bio.isEduVerified ? "Tài khoản EDU — tính theo hạn tài khoản & trang Bio." : "Tính theo hạn tài khoản & trang Bio."}
+              Hết hạn thì tài khoản bị khoá (không xoá) cho tới khi admin gia hạn.
             </p>
           </div>
           <span className={`rounded-full px-3 py-1 text-[12px] font-black ${
@@ -254,11 +251,9 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
       </section>
 
       {/* ── Trạng thái nhanh ── */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatusChip label="Ví JOY" icon={bio.isJoyWalletFrozen ? "ac_unit" : "check_circle"}
           value={bio.isJoyWalletFrozen ? "Đang đóng băng" : "Hoạt động"} tone={bio.isJoyWalletFrozen ? "bad" : "ok"} />
-        <StatusChip label="Giáo dục (EDU)" icon="school"
-          value={bio.isEduVerified ? "Đã xác minh" : "Chưa xác minh"} tone={bio.isEduVerified ? "ok" : "muted"} />
         <StatusChip label="Hồ sơ bắt buộc" icon={bio.onboardingCompleted ? "task_alt" : "pending"}
           value={bio.onboardingCompleted ? "Đã đủ" : "Còn thiếu"} tone={bio.onboardingCompleted ? "ok" : "warn"} />
         <StatusChip label="Kiểm tra định kỳ" icon={icFailed ? "gpp_bad" : icOverdue ? "pending" : "verified_user"}
@@ -416,16 +411,11 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
       {/* ── Thao tác quản trị ── */}
       <section className="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
         <h4 className="text-[12px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">Thao tác quản trị</h4>
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <button type="button" onClick={onToggleWalletFreeze}
             className="flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-3 text-[12px] font-extrabold text-slate-900 hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
             <span className="material-symbols-outlined text-lg" aria-hidden="true">{bio.isJoyWalletFrozen ? "lock_open" : "ac_unit"}</span>
             {bio.isJoyWalletFrozen ? "Mở đóng băng ví" : "Đóng băng ví JOY"}
-          </button>
-          <button type="button" onClick={onToggleEdu}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-3 text-[12px] font-extrabold text-slate-900 hover:bg-slate-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
-            <span className="material-symbols-outlined text-lg" aria-hidden="true">school</span>
-            {bio.isEduVerified ? "Thu hồi xác minh EDU" : "Xác minh EDU"}
           </button>
           <button type="button" onClick={onRevokeSession}
             className="flex items-center justify-center gap-2 rounded-2xl bg-rose-600 px-3 py-3 text-[12px] font-extrabold text-white hover:bg-rose-500">

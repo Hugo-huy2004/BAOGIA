@@ -28,7 +28,7 @@ import { ADMIN_PERMISSIONS, ADMIN_ROLES } from '../../../packages/shared/adminAc
 import { allowedOrigins } from '../config/cors.js';
 import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, JWT_SECRET } from '../utils/secrets.js';
 import { sendMagicLinkOtp } from '../services/emailService.js';
-import { isEduEmail } from '../utils/eduEmail.js';
+import { NEW_ACCOUNT_MS } from '../utils/accountAccess.js';
 import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
 import { findActiveSecurityBlock } from '../services/securityEnforcement.js';
 
@@ -76,8 +76,7 @@ const shared = (db, client) => ({
 async function createBio(user) {
   const Bio = (await import('../models/Bio.js')).default;
   const email = user.email.toLowerCase();
-  const isStudent = await isEduEmail(email);
-  const expiresAt = new Date(Date.now() + (isStudent ? 365 : 7) * DAY * 1000);
+  const expiresAt = new Date(Date.now() + NEW_ACCOUNT_MS);
   const base = (user.name || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'user';
   await Bio.updateOne({ email }, {
     $setOnInsert: {
@@ -87,8 +86,6 @@ async function createBio(user) {
       avatarUrl: user.image || '',
       provider: 'better-auth',
       status: 'active',
-      isEduVerified: isStudent,
-      trialExpiresAt: isStudent ? null : expiresAt,
       joyBalance: 1000,
       expiresAt,
     },

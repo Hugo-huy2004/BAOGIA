@@ -38,21 +38,11 @@ const UtilityProductSchema = new mongoose.Schema(
     // Drives type-specific fulfillment on purchase — see POST /api/utility-store/purchase
     productType: {
       type: String,
-      enum: ['general', 'system_validity', 'psy_study_tokens', 'radio_time'],
+      enum: ['general', 'system_validity', 'radio_time'],
       default: 'general'
     },
     // productType === 'system_validity': days added to Bio.expiresAt on purchase
     extendDays: {
-      type: Number,
-      default: 0
-    },
-    // productType === 'psy_study_tokens': which bonus pool + how much to grant
-    tokenType: {
-      type: String,
-      enum: ['chat', 'call'],
-      default: 'chat'
-    },
-    tokenAmount: {
       type: Number,
       default: 0
     },

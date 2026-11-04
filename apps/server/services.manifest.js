@@ -74,11 +74,7 @@ export const SERVICES = Object.freeze([
   // ── Tiện ích & AI ─────────────────────────────────────────────────────────
   // QR Hugo: thành viên lấy key trong app; máy chủ QR Hugo gọi /connect, /use bằng X-Service-Secret.
   { id: "qr-key", prefix: "/api/qr-key", module: "./routes/qrKeyRoutes.js", public: true },
-  { id: "companion", prefix: "/api/companion", module: "./routes/companionRoutes.js" },
   // Proxy sang apps/ai. `requireAdultMember` chặn ở cổng vào, đừng bỏ.
-  { id: "ai", prefix: "/api/ai", module: "./routes/aiProxyRoutes.js", guard: "requireAdultMember" },
-  { id: "sleep", prefix: "/api/sleep", module: "./routes/sleepRoutes.js" },
-  { id: "iot", prefix: "/api/iot", module: "./routes/iotRoutes.js" },
 
   // ── Thương mại ────────────────────────────────────────────────────────────
   { id: "customer-projects", prefix: "/api/customer-projects", module: "./routes/customerRoutes.js" },

@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useRef, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import { isMinorMember, ADULT_ONLY_APPS } from "../../lib/memberAge";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import memberService from "../../services/classes/MemberService";
@@ -79,16 +78,14 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [activeCategory, setActiveCategory] = useState("all");
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Thành viên dưới 18 không thấy app 18+ trong danh mục (server vẫn là chốt chặn).
-  const minor = isMinorMember(bio);
   const allUtilities = useMemo(
-    () => APP_CATALOG_MANIFESTS.filter(({ id }) => !(minor && ADULT_ONLY_APPS.has(id))).map((app) => ({
+    () => APP_CATALOG_MANIFESTS.map((app) => ({
       ...app,
       badge: t(`utilities.badges.${app.badge}`),
       title: t(`utilities.catalog.${app.id}.title`, app.id),
       subLabel: t(`utilities.catalog.${app.id}.description`, ''),
     })),
-    [t, minor],
+    [t],
   );
 
   // App Ecosystem States

@@ -39,11 +39,8 @@ export const PARTNER_CAMPAIGNS = {
     // ── Quà ───────────────────────────────────────────────────────────────
     // Duy trì tài khoản & trang Bio — cộng NỐI vào hạn hiện có, không ghi đè.
     bioDays: 180,
-    // Thêm khi tài khoản đã xác minh giáo dục (email trường hoặc hồ sơ HSSV
-    // được duyệt). Xác minh SAU khi nhận quà vẫn quay lại nhận phần này được.
-    eduBonusDays: 365,
     joy: 1000,
-    // Tổng số tài khoản được nhận. Phần thưởng giáo dục nhận sau không tốn suất.
+    // Tổng số tài khoản được nhận.
     maxClaims: 250,
     // null = không hạn. Đặt ngày ISO để mở/đóng theo lịch.
     startsAt: null,

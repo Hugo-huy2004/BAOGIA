@@ -104,7 +104,7 @@ async function rawFetch(url, body) {
 
 // Core generate — accepts a full Gemini request (multi-turn contents supported).
 // `lowPriority:true` (bot / bulk jobs) is dropped when quota is saturated, but
-// interactive calls (HugoPSY, support, moderation) always attempt so background
+// interactive calls (support, moderation) always attempt so background
 // work can never starve a user talking to the AI.
 // `tools` + `returnParts`: cần cho quản gia Telegram gọi công cụ. Không có
 // chúng thì mỗi tin nhắn phải nhét sẵn MỌI dữ liệu model có thể cần vào prompt,

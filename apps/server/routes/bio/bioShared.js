@@ -13,15 +13,9 @@ import { sendPushNotification } from '../../utils/pushNotifier.js';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { accountOrIpKey } from '../../config/limiter.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../../services/securityEnforcement.js';
-import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
 
 export function sanitizeBioOutput(bioObj) {
   if (!bioObj || typeof bioObj !== 'object') return bioObj;
-  if (bioObj.verificationRequest) {
-    delete bioObj.verificationRequest.evidenceFileIds;
-    delete bioObj.verificationRequest.scheduleFileId;
-    delete bioObj.verificationRequest.selfieFileId;
-  }
   for (const [key, val] of Object.entries(bioObj)) {
     if (typeof val === 'string' && val) {
       if (val.startsWith('$enc$a256gcm$v1$')) {
@@ -72,36 +66,6 @@ export const studentRewardUpload = multer({
   limits: { files: 1, fileSize: 8 * 1024 * 1024 },
 });
 
-export const studentVerificationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 3,
-  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
-  message: { error: 'Bạn đã gửi yêu cầu xác minh quá nhiều lần. Vui lòng thử lại sau.' },
-});
-
-export const verificationAppealLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 3,
-  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
-  message: { error: 'Bạn đã gửi yêu cầu hỗ trợ quá nhiều lần. Vui lòng thử lại sau.' },
-});
-
-export const studentVerificationUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { files: 2, fileSize: 4 * 1024 * 1024, fields: 12, fieldSize: 16 * 1024 },
-});
-
-export const receiveStudentVerification = (req, res, next) => {
-  studentVerificationUpload.array('evidence', 2)(req, res, (error) => {
-    if (!error) return next();
-    return res.status(400).json({
-      error: error.code === 'LIMIT_FILE_SIZE'
-        ? 'Mỗi ảnh tối đa 4 MB.'
-        : 'Chỉ được gửi tối đa hai ảnh bằng chứng.',
-    });
-  });
-};
-
 export const receiveStudentReward = (req, res, next) => {
   studentRewardUpload.single('evidence')(req, res, (error) => {
     if (!error) return next();
@@ -134,9 +98,6 @@ export const clearPublicBioCache = (bio) => Promise.all([
   bio.customDomain && clearCache(`bio_domain_${bio.customDomain}`),
 ]);
 
-export const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
-
-export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function rejectBlacklistedPhone(res, phone) {
   if (!phone || !String(phone).trim()) return false;
@@ -241,34 +202,6 @@ export const processSecretLinks = async (newLinks, existingLinks = []) => {
   }
   return result;
 };
-
-// A person should only ever hold one verified account. If they previously
-// signed up under a different email (edu + non-edu by mistake, or two
-// trial attempts) and this verification reveals the same identity (same
-// phone or same student ID), the other email's Bio is deleted outright —
-// keeping only the one that just got verified.
-export async function removeDuplicateIdentityAccounts(bio) {
-  const phone = bio.verificationRequest?.phoneZalo;
-  const schoolIdCode = bio.verificationRequest?.schoolIdCode;
-  const identityFilters = [];
-  if (phone) identityFilters.push({ 'verificationRequest.phoneZalo': phone });
-  if (schoolIdCode) identityFilters.push({ 'verificationRequest.schoolIdCode': schoolIdCode });
-  if (!identityFilters.length) return;
-
-  const duplicates = await Bio.find({ _id: { $ne: bio._id }, $or: identityFilters }).select('_id');
-  for (const duplicate of duplicates) {
-    await deleteMemberAccountPermanently(duplicate._id);
-  }
-}
-
-// Strips a leading school-level token (TH/THCS/THPT/ĐH/CĐ and common spellings)
-// from a school name so "THCS Nguyễn Du" becomes "Nguyễn Du" regardless of
-// whether the user typed the level into the name field by habit.
-export const SCHOOL_LEVEL_PREFIX = /^(tiểu học|trung học cơ sở|trung học phổ thông|cao đẳng|đại học|thcs|thpt|cđ|đh|th)[\s.:-]+/i;
-
-export function stripSchoolLevelPrefix(name) {
-  return String(name || '').trim().replace(SCHOOL_LEVEL_PREFIX, '').trim();
-}
 
 export const VIETNAM_ETHNICITIES = [
   'Kinh', 'Tày', 'Thái', 'Mường', 'Khmer', 'Mông', 'Nùng', 'Hoa', 'Dao', 'Gia Rai', 'Ê Đê', 'Ba Na',

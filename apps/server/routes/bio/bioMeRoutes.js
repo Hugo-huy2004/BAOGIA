@@ -2,7 +2,6 @@
 import express from 'express';
 import { createHash } from 'node:crypto';
 import Bio from '../../models/Bio.js';
-import { compressImage, IMAGE_PRESETS } from '../../utils/imageCompress.js';
 import { requireMember, invalidateMemberGate, requireRecentAuth } from '../../middleware/authMiddleware.js';
 import { COUNTRY_CODES, missingProfileFields, applyProfileValues, describeField } from '../../utils/profileRequirements.js';
 import { clearCache } from '../../utils/cacheHelper.js';
@@ -10,15 +9,14 @@ import { decryptText } from '../../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../../utils/birthdayAutomation.js';
 import { ensureReferralCode, applyReferral } from '../../utils/referralService.js';
 import { checkPinAgainstAddress } from '../../utils/reverseGeocode.js';
-import { isEduEmail } from '../../utils/eduEmail.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
 import InAppNotification from '../../models/InAppNotification.js';
 import { appInstallationPolicy } from '../../../../packages/shared/appInstallationPolicy.js';
 import slugIndex from '../../services/slugIndex.js';
-import VerificationEvidence from '../../models/VerificationEvidence.js';
 import { generateRaw } from '../../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../../utils/studentRewards.js';
-import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, pinCheckLimiter, studentRewardLimiter, studentVerificationLimiter, verificationAppealLimiter, receiveStudentVerification, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, TWELVE_MONTHS_MS, SEVEN_DAYS_MS, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, removeDuplicateIdentityAccounts, stripSchoolLevelPrefix, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
+import { NEW_ACCOUNT_MS } from '../../utils/accountAccess.js';
+import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, pinCheckLimiter, studentRewardLimiter, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
 
 const router = express.Router();
 
@@ -39,16 +37,12 @@ router.get('/me', requireMember, async (req, res) => {
 
     // Auto-create a placeholder Bio document if it doesn't exist and we have the Google displayName
     if (!bioDoc && displayName) {
-      const isEdu = await isEduEmail(email);
       const baseSlug = normalizeSlug(displayName);
       const newSlug = await createUniqueSlug(baseSlug);
 
-      // EDU email is verified immediately. Other members get seven days of
-      // access to submit evidence; the review request can remain queued after
-      // access expires.
+      // Ai cũng tạo được tài khoản, cùng một thời hạn. Gia hạn thêm là việc của admin.
       const createdAt = new Date();
-      const expiresAt = new Date(createdAt.getTime() + (isEdu ? TWELVE_MONTHS_MS : SEVEN_DAYS_MS));
-      const trialExpiresAt = isEdu ? null : expiresAt;
+      const expiresAt = new Date(createdAt.getTime() + NEW_ACCOUNT_MS);
 
       const welcomeHistory = [
         {
@@ -66,8 +60,6 @@ router.get('/me', requireMember, async (req, res) => {
         avatarUrl: avatarUrl || '',
         slug: newSlug,
         status: 'active',
-        isEduVerified: isEdu,
-        trialExpiresAt,
         expiresAt,
         history: welcomeHistory,
         createdAt
@@ -78,18 +70,6 @@ router.get('/me', requireMember, async (req, res) => {
       // NOTE: referralCode is intentionally NOT generated here — it's generated
       // lazily after the onboarding modal has a chance to collect the phone
       // number, so phone-derived codes are the common case (see ensureReferralCode).
-    }
-
-    // Self-heal: accounts created while edu emails still went through the
-    // 30-day-trial-then-verify flow are stuck on isEduVerified=false forever
-    // since nothing re-checks them after creation — catch that here on every
-    // portal load instead of needing a one-off migration script.
-    if (bioDoc && bioDoc.status === 'active' && !bioDoc.isEduVerified && (await isEduEmail(bioDoc.email))) {
-      bioDoc.isEduVerified = true;
-      bioDoc.expiresAt = new Date(Date.now() + TWELVE_MONTHS_MS);
-      bioDoc.trialExpiresAt = null;
-      await bioDoc.save();
-      invalidateMemberGate(bioDoc.email);
     }
 
     if (bioDoc) {
@@ -216,234 +196,6 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
   }
 });
 
-// Non-EDU reviews require one or two clear evidence images.
-router.post('/me/verification/appeal', requireMember, verificationAppealLimiter, async (req, res) => {
-  try {
-    const bio = await Bio.findOne({ email: req.memberEmail });
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    if (bio.isEduVerified || bio.verificationRequest?.notifiedStatus !== 'rejected') {
-      return res.status(409).json({ error: 'Chỉ có thể gửi yêu cầu hỗ trợ sau khi hồ sơ bị từ chối.' });
-    }
-
-    const contact = String(req.body?.contact || '').trim();
-    const message = String(req.body?.message || '').trim();
-    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact);
-    const validPhone = /^[+\d().\s-]{7,25}$/.test(contact);
-    if ((!validEmail && !validPhone) || contact.length > 200) {
-      return res.status(400).json({ error: 'Vui lòng nhập email hoặc số điện thoại hợp lệ để được hỗ trợ.' });
-    }
-    if (message.length > 1000) {
-      return res.status(400).json({ error: 'Nội dung yêu cầu tối đa 1.000 ký tự.' });
-    }
-
-    bio.verificationRequest.supportContact = contact;
-    bio.verificationRequest.supportMessage = message;
-    bio.verificationRequest.supportSubmittedAt = new Date();
-    await bio.save();
-    return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
-  } catch (error) {
-    console.error('POST /me/verification/appeal error:', error);
-    return res.status(500).json({ error: 'Không thể gửi yêu cầu hỗ trợ lúc này. Vui lòng thử lại.' });
-  }
-});
-
-router.post('/me/verification', requireMember, studentVerificationLimiter, receiveStudentVerification, async (req, res) => {
-  let createdEvidenceIds = [];
-  let submissionClaim = null;
-  let memberBioId = null;
-  try {
-    const { fullName, birthday, schoolLevel, schoolName, schoolIdCode, phoneZalo, avatarUrl } = req.body;
-    const email = req.memberEmail;
-    if (!email) return res.status(400).json({ error: 'Missing email' });
-    if (await rejectBlacklistedPhone(res, phoneZalo)) return;
-
-    const bio = await Bio.findOne({ email });
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    memberBioId = bio._id;
-
-    const isEdu = await isEduEmail(email);
-    if (isEdu) {
-      bio.displayName = fullName || bio.displayName;
-      bio.birthday = birthday || bio.birthday;
-      bio.phone = phoneZalo || bio.phone;
-      bio.verificationRequest.notifiedStatus = 'approved';
-      bio.verificationRequest.submitted = false;
-      bio.isEduVerified = true;
-      bio.trialExpiresAt = null;
-      bio.expiresAt = new Date((bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now()) + TWELVE_MONTHS_MS);
-      await bio.save();
-      invalidateMemberGate(email);
-      await clearPublicBioCache(bio);
-      await removeDuplicateIdentityAccounts(bio);
-      broadcastToEmail(email, { type: 'bio_status_update', status: bio.status, isEduVerified: true, expiresAt: bio.expiresAt });
-      return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
-    }
-
-    if (bio.isEduVerified) {
-      return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
-    }
-
-    const evidenceFiles = req.files || [];
-    if (evidenceFiles.length < 1 || evidenceFiles.length > 2) {
-      return res.status(400).json({ error: 'Vui lòng gửi một hoặc hai ảnh tài liệu xác minh.' });
-    }
-    const evidence = evidenceFiles.map((file) => ({
-      file,
-      mime: detectedEvidenceMime(file.buffer),
-    }));
-    if (evidence.some(({ mime }) => !mime?.startsWith('image/'))) {
-      return res.status(400).json({ error: 'Chỉ chấp nhận ảnh JPG, PNG hoặc WebP hợp lệ.' });
-    }
-    if (!fullName || !birthday || !schoolLevel || !schoolName || !phoneZalo) {
-      return res.status(400).json({ error: 'Vui lòng điền họ tên, ngày sinh, trường học và số liên hệ.' });
-    }
-    if (!['true', true].includes(req.body.acceptTerms) || !['true', true].includes(req.body.acceptContact)) {
-      return res.status(400).json({ error: 'Vui lòng xác nhận điều khoản và đồng ý liên hệ xét duyệt.' });
-    }
-    if (bio.verificationRequest?.submitted && bio.verificationRequest?.notifiedStatus !== 'rejected') {
-      return res.status(409).json({ error: 'Yêu cầu HSSV của bạn đang chờ xét duyệt.' });
-    }
-    const request = bio.verificationRequest || {};
-    const claimIsStale = request.submissionStartedAt
-      && new Date(request.submissionStartedAt).getTime() <= Date.now() - 15 * 60 * 1000;
-    const previousSubmissionCount = Math.max(
-      0,
-      (Number(request.submissionCount) || 0) - (claimIsStale ? 1 : 0),
-      request.submitted || request.notifiedStatus === 'rejected' ? 1 : 0,
-    );
-    if (previousSubmissionCount >= 2) {
-      return res.status(409).json({ error: 'Bạn đã sử dụng đủ hai lần gửi hồ sơ. Hãy liên hệ hỗ trợ để được xem xét.' });
-    }
-
-    // Nén trước khi ghi: chỉ lưu bản WebP đã bỏ EXIF, ảnh gốc không chạm DB.
-    const compressed = await Promise.all(evidence.map(({ file }) => compressImage(file.buffer, IMAGE_PRESETS.document)));
-    const storedEvidence = await VerificationEvidence.create(compressed.map((data) => ({
-      memberId: bio._id,
-      mime: 'image/webp',
-      data,
-    })));
-    createdEvidenceIds = storedEvidence.map((item) => item._id);
-
-    const claimStartedAt = new Date();
-    const reservation = await Bio.updateOne({
-      _id: bio._id,
-      isEduVerified: { $ne: true },
-      'verificationRequest.submitted': { $ne: true },
-      $and: [
-        {
-          $or: [
-            { 'verificationRequest.submissionCount': { $lt: 2 } },
-            { 'verificationRequest.submissionCount': null },
-          ],
-        },
-        {
-          $or: [
-            { 'verificationRequest.submissionStartedAt': null },
-            { 'verificationRequest.submissionStartedAt': { $exists: false } },
-            { 'verificationRequest.submissionStartedAt': { $lte: new Date(Date.now() - 15 * 60 * 1000) } },
-          ],
-        },
-      ],
-    }, {
-      $set: {
-        'verificationRequest.submissionCount': previousSubmissionCount + 1,
-        'verificationRequest.submissionStartedAt': claimStartedAt,
-      },
-    });
-    if (!reservation.modifiedCount) {
-      await VerificationEvidence.deleteMany({ _id: { $in: createdEvidenceIds } });
-      createdEvidenceIds = [];
-      return res.status(409).json({ error: 'Yêu cầu đang được gửi hoặc bạn đã dùng đủ hai lần nộp hồ sơ.' });
-    }
-    submissionClaim = {
-      startedAt: claimStartedAt,
-      previousCount: previousSubmissionCount,
-      previousStatus: request.notifiedStatus || 'none',
-    };
-
-    const normalizedSchoolName = stripSchoolLevelPrefix(schoolName);
-    bio.verificationRequest = {
-      fullName,
-      birthday,
-      schoolLevel,
-      schoolName: normalizedSchoolName,
-      schoolIdCode: schoolIdCode || '',
-      phoneZalo,
-      // Chỉ nhận URL ảnh đã có; base64 gửi vào đây sẽ nằm thô trong Mongo, không nén.
-      avatarUrl: /^https:\/\//.test(String(avatarUrl || '')) ? String(avatarUrl).slice(0, 2048) : '',
-      evidenceFileIds: createdEvidenceIds.map(String),
-      scheduleFileId: '',
-      selfieFileId: '',
-      submitted: true,
-      notifiedStatus: 'pending',
-      submissionCount: previousSubmissionCount + 1,
-      submissionStartedAt: null,
-      supportContact: bio.verificationRequest?.supportContact || '',
-      supportMessage: bio.verificationRequest?.supportMessage || '',
-      supportSubmittedAt: bio.verificationRequest?.supportSubmittedAt || null,
-    };
-    if (bio.status === 'rejected') bio.status = 'active';
-    bio.trialExpiresAt = bio.trialExpiresAt || bio.expiresAt || new Date(Date.now() + SEVEN_DAYS_MS);
-    bio.phone = phoneZalo;
-    bio.displayName = fullName;
-    bio.birthday = birthday;
-    bio.education = `${schoolLevel} - ${normalizedSchoolName}`.trim().replace(/^- /, '');
-    const parts = String(birthday).trim().split(/[-/]/);
-    if (parts.length === 3) {
-      if (parts[0].length === 4) {
-        bio.birthYear = parseInt(parts[0], 10) || bio.birthYear || 0;
-        bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
-        bio.birthDay = parseInt(parts[2], 10) || bio.birthDay || 0;
-      } else if (parts[2].length === 4) {
-        bio.birthDay = parseInt(parts[0], 10) || bio.birthDay || 0;
-        bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
-        bio.birthYear = parseInt(parts[2], 10) || bio.birthYear || 0;
-      }
-    }
-    if (!bio.slug) {
-      const baseSlug = (bio.displayName || email.split('@')[0])
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '') || `user-${Date.now()}`;
-      bio.slug = `${baseSlug}-${createHash('md5').update(email).digest('hex').slice(0, 6)}`;
-    }
-    await bio.save();
-    submissionClaim = null;
-    createdEvidenceIds = [];
-    await clearPublicBioCache(bio);
-    invalidateMemberGate(email);
-    return res.json({ success: true, bio: sanitizeBioOutput(bio.toObject({ getters: true })) });
-  } catch (error) {
-    if (submissionClaim) {
-      try {
-        await Bio.updateOne(
-          { _id: memberBioId, 'verificationRequest.submissionStartedAt': submissionClaim.startedAt },
-          {
-            $set: {
-              'verificationRequest.submissionCount': submissionClaim.previousCount,
-              'verificationRequest.submissionStartedAt': null,
-              'verificationRequest.submitted': false,
-              'verificationRequest.notifiedStatus': submissionClaim.previousStatus,
-            },
-          },
-        );
-      } catch (cleanupError) {
-        console.error('Verification submission claim rollback failed:', cleanupError);
-      }
-    }
-    if (createdEvidenceIds.length) {
-      try {
-        await VerificationEvidence.deleteMany({ _id: { $in: createdEvidenceIds } });
-      } catch (cleanupError) {
-        console.error('Verification evidence rollback failed:', cleanupError);
-      }
-    }
-    console.error('POST /me/verification error:', error);
-    res.status(error.status || 500).json({ error: error.message });
-  }
-});
-
 // Ảnh/PDF chỉ nằm trong RAM trong lúc Gemini xét duyệt. Không ghi file, URL hay
 // nội dung tài liệu vào MongoDB; DB chỉ giữ dấu đã nhận thưởng để chống nhận lặp.
 router.post('/me/student-rewards/review', requireMember, studentRewardLimiter, receiveStudentReward, async (req, res) => {
@@ -459,7 +211,6 @@ router.post('/me/student-rewards/review', requireMember, studentRewardLimiter, r
 
     const bio = await Bio.findOne({ $or: [{ email: req.memberEmail }, { contactEmail: req.memberEmail }] });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
-    if (!bio.isEduVerified) return res.status(422).json({ error: 'Bạn cần xác minh HSSV trước khi nhận phần thưởng.' });
     if ((bio.studentRewards || []).some((entry) => entry.year === season.year && entry.type === req.body.type)) {
       return res.status(409).json({ error: `Bạn đã nhận phần thưởng này trong năm ${season.year}.` });
     }
@@ -508,7 +259,7 @@ router.post('/me/student-rewards/review', requireMember, studentRewardLimiter, r
     if (!updated) return res.status(409).json({ error: `Bạn đã nhận phần thưởng này trong năm ${season.year}.` });
 
     invalidateMemberGate(updated.email);
-    broadcastToEmail(updated.email, { type: 'bio_status_update', status: updated.status, isEduVerified: updated.isEduVerified, expiresAt: updated.expiresAt });
+    broadcastToEmail(updated.email, { type: 'bio_status_update', status: updated.status, expiresAt: updated.expiresAt });
     return res.json({
       success: true,
       verified: true,
@@ -742,31 +493,6 @@ router.post('/me/revoke-sessions', requireMember, async (req, res) => {
       success: true,
       message: 'Đã hủy tất cả phiên làm việc từ xa khác thành công.',
     });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /me/dismiss-notification - Dismiss approval/rejection banner state
-router.post('/me/dismiss-notification', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-
-    if (!email) {
-      return res.status(400).json({ error: 'Missing email' });
-    }
-
-    const bio = await Bio.findOne({ email });
-    if (!bio) {
-      return res.status(404).json({ error: 'Bio not found' });
-    }
-
-    if (bio.verificationRequest) {
-      bio.verificationRequest.notifiedStatus = 'done';
-      await bio.save();
-    }
-
-    res.json({ success: true, bio });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

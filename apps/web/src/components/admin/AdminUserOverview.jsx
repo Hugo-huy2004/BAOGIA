@@ -256,8 +256,8 @@ export default function AdminUserOverview({ userId, onClose }) {
         </div>
       </Group>
 
-      <Group icon="school" title="Học tập và sức khoẻ"
-             badge={`${count(learning?.evidence)} minh chứng · ${count(learning?.sleep)} bản ghi giấc ngủ · ${count(learning?.surveys)} khảo sát`}>
+      <Group icon="school" title="Học tập"
+             badge={`${count(learning?.evidence)} minh chứng · ${count(learning?.surveys)} khảo sát`}>
         <div className="space-y-5">
           <MiniTable rows={learning?.evidence} empty="Chưa có minh chứng học tập."
             columns={[["createdAt", "Thời điểm"], ["type", "Loại"], ["sourceApp", "Từ app"]]} />

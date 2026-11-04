@@ -22,13 +22,6 @@ async function buildProfile(bio) {
     slug: bio.slug,
     headline: bio.headline || '',
     avatarUrl: bio.avatarUrl || '',
-    // Xác minh HSSV: chỉ báo ĐÃ xác minh hay chưa và cấp trường, không lộ mã số
-    // học sinh hay tên trường nếu thành viên chưa tự công khai trong Bio.
-    student: {
-      verified: bio.status === 'approved' && Boolean(bio.verificationRequest?.schoolName),
-      level: bio.verificationRequest?.schoolLevel || '',
-      school: bio.verificationRequest?.schoolName || '',
-    },
     referrals: bio.referralCount || 0,
     starVip: Boolean(bio.starVip),
     generatedAt: new Date(),

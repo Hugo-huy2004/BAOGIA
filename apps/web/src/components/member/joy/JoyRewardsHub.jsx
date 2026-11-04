@@ -45,15 +45,13 @@ function CodeRow({ code, t }) {
 function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }) {
   const getActionLabel = () => {
     switch(voucher.scope) {
-      case "hugopsy": return t("memberPortal.walletApp.perks.useInPSY", "Dùng tại HugoPSY");
       case "radio": return t("memberPortal.walletApp.perks.useInRadio", "Dùng tại Radio");
       default: return t("memberPortal.walletApp.perks.useNow", "Dùng ngay");
     }
   };
 
   const handleUseNow = () => {
-    if (voucher.scope === "hugopsy") onSelectUtility?.("psychology");
-    else if (voucher.scope === "radio") onSelectUtility?.("radio");
+    if (voucher.scope === "radio") onSelectUtility?.("radio");
     else onSelectUtility?.("store"); // Default to utility store
   };
 

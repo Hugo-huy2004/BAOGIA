@@ -19,7 +19,7 @@ const ArcadeScoreSchema = new mongoose.Schema({
     medium: { wins: { type: Number, default: 0 }, losses: { type: Number, default: 0 } },
     hard:   { wins: { type: Number, default: 0 }, losses: { type: Number, default: 0 } },
   },
-  // Date-keyed daily JOY cap reset, mirrors CompanionHistory's activeSecondsDate pattern.
+  // Date-keyed daily JOY cap reset.
   // joyAwardedToday is now a signed running NET JOY total for today (can go negative),
   // not a count — see ARCADE_DAILY_NET_JOY_CAP in arcadeRoutes.js.
   joyAwardedDate: { type: String, default: '' },

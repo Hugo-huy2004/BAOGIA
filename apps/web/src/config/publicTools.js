@@ -17,25 +17,6 @@
  */
 
 export const PUBLIC_TOOLS = {
-  banhocduong: {
-    gate: "result",
-    title: "Bạn Học Đường — Trợ Lý Học Tập | Hugo Studio",
-    description:
-      "Không gian hỗ trợ học tập của Hugo Studio với công cụ hỏi đáp, gợi ý cách học và tiện ích dành cho học sinh, sinh viên.",
-    heading: "Bạn Học Đường",
-    summary:
-      "Trợ lý học tập: hỏi đáp bài vở, gợi ý cách học và theo dõi tiến độ. Dùng thử ngay, không cần tài khoản.",
-  },
-  therapy: {
-    gate: "result",
-    aliases: ["psychology"],
-    title: "HugoPSY — Phương Pháp Thư Giãn Và Tự Chăm Sóc",
-    description:
-      "Khám phá các bài thở, thư giãn, viết cảm xúc và hoạt động tự chăm sóc tinh thần trong HugoPSY.",
-    heading: "HugoPSY",
-    summary:
-      "Xem danh sách phương pháp tự chăm sóc; đăng nhập tài khoản đã xác minh để mở bài tập và lưu tiến độ.",
-  },
   radio: {
     gate: "open",
     title: "Hugo Radio — Nhạc Lofi Cho Học Tập Và Thư Giãn",

@@ -1,6 +1,6 @@
 /**
  * Service Worker
- * Handles: Web Push Notifications + PeriodicBackgroundSync (sleep monitor)
+ * Handles: Web Push Notifications + Background Sync (arcade scores)
  * Imported by the Workbox-generated /sw.js in production.
  */
 
@@ -50,69 +50,6 @@ self.addEventListener('unhandledrejection', (event) => {
     caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
   }
 });
-
-// ── PeriodicBackgroundSync — sleep monitor heartbeat ──────────────────────
-
-// Runs in background every 30 min (when PWA is installed + permission granted).
-// Reads sleep state written by useSleepAutoDetect hook via CacheStorage.
-
-const SLEEP_CACHE = "hugo-sleep-state-v1";
-const API_ORIGIN  = self.registration.scope.replace(/\/$/, "");
-
-self.addEventListener("periodicsync", (event) => {
-  if (event.tag !== "sleep-monitor") return;
-  event.waitUntil(handleSleepSync());
-});
-
-async function handleSleepSync() {
-  try {
-    const cache   = await caches.open(SLEEP_CACHE);
-    const cached  = await cache.match("sleep-user-state");
-    if (!cached) return;
-
-    const data    = await cached.json();
-    const { email, state, sleepStart, savedAt } = data;
-    if (!email) return;
-
-    const ageMs   = Date.now() - (savedAt || 0);
-    const hour    = new Date().getHours();
-
-    // If stored state is "sleeping" and it's now morning (4–12h), trigger wake detection
-    if (state === "sleeping" && sleepStart && hour >= 4 && hour <= 12 && ageMs > 3 * 3_600_000) {
-      const now      = new Date();
-      const wakeTime = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
-
-      await fetch(`${API_ORIGIN}/api/sleep/passive`, {
-        method:  "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
-          email,
-          event:      "wake_onset",
-          wakeTime,
-          bedtime:    sleepStart.time,
-          date:       sleepStart.date,
-          confidence: 70,
-          signals:    ["sw_periodic_sync"],
-        }),
-      });
-
-      // Update cache to reflect "awake" state
-      await cache.put("sleep-user-state", new Response(
-        JSON.stringify({ email, state: "awake", sleepStart: null, savedAt: Date.now() }),
-        { headers: { "Content-Type": "application/json" } }
-      ));
-    }
-
-    // If monitoring and it's evening, send a heartbeat so server knows user is active
-    if (state === "monitoring" && hour >= 20) {
-      await fetch(`${API_ORIGIN}/api/sleep/passive`, {
-        method:  "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ email, event: "hidden" }),
-      }).catch(() => {});
-    }
-  } catch (_) {}
-}
 
 // ── Background Sync — arcade offline score queue ──────────────────────────
 // When submitScore() fails (network down), the client queues the payload in
@@ -177,7 +114,7 @@ self.addEventListener('push', function (event) {
     // do máy chủ soạn sẵn theo ngôn ngữ của thiết bị (packages/shared/notificationText.js).
     // Vì vậy câu dự phòng ở đây chỉ còn tên thương hiệu — không ngôn ngữ nào cả,
     // thay cho hai câu tiếng Việt cứng trước kia.
-    const FALLBACK_URL = '/member/utilities/psychology';
+    const FALLBACK_URL = '/member/today';
     let payload = {
       title: 'Hugo Studio',
       body: '',

@@ -4,7 +4,6 @@ import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
 import { missingProfileFields } from '../utils/profileRequirements.js';
-import { deleteExpiredMemberAccount } from '../services/memberAccountLifecycle.js';
 import { hasAdminPermission, resolveAdminPermissions } from '../../../packages/shared/adminAccess.js';
 import { memberAuth, adminAuth, readSession, carriesSession } from '../auth/betterAuth.js';
 import { touchActivity } from '../services/memberActivity.js';
@@ -39,7 +38,7 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/(?:customer-projects|customer)(?:\/|$)/, 'projects'],
   [/^\/api\/(?:packages|utility-store|store|promos)(?:\/|$)/, 'commerce'],
   [/^\/api\/(?:bios|profiles)(?:\/|$)/, 'users'],
-  [/^\/api\/(?:security|companion\/admin|ops|presence)(?:\/|$)/, 'security'],
+  [/^\/api\/(?:security|ops|presence)(?:\/|$)/, 'security'],
   [/^\/api\/(?:joy|payos|gift-cards)(?:\/|$)/, 'commerce'],
   [/^\/api\/(?:data|notifications\/admin)(?:\/|$)/, 'system'],
 ];
@@ -175,7 +174,7 @@ async function readMemberGate(email) {
   const [bio, deletedAccount] = await Promise.all([
     Bio.findOne(
     { email },
-      'locationAnomaly language birthDay birthMonth birthYear guardianConsentAt phone countryCode adminArea locality exactAddress isEduVerified trialExpiresAt expiresAt',
+      'locationAnomaly language birthDay birthMonth birthYear guardianConsentAt phone countryCode adminArea locality exactAddress expiresAt',
     ).select('+deletionStartedAt').lean(),
     isDeletedMemberAccount(email),
   ]);
@@ -183,8 +182,7 @@ async function readMemberGate(email) {
     ? { deletedAccount: true }
     : bio ? {
       locationAnomaly: !!bio.locationAnomaly,
-      isEduVerified: !!bio.isEduVerified,
-      accessExpiresAt: bio.isEduVerified || !bio.trialExpiresAt ? bio.expiresAt : bio.trialExpiresAt,
+      accessExpiresAt: bio.expiresAt,
       // CÙNG một luật với form hồ sơ (utils/profileRequirements.js). Bản cũ tự
       // liệt kê và bắt cả toạ độ, tôn giáo, dân tộc — những mục form cho bỏ
       // trống. Kết quả: cổng trả 403, modal hỏi /profile-gaps thấy "không thiếu
@@ -311,38 +309,7 @@ export const requireMember = async (req, res, next) => {
             });
           }
           if (bio?.accessExpiresAt && new Date(bio.accessExpiresAt).getTime() <= Date.now()) {
-            if (!bio.isEduVerified) {
-              let deleted = false;
-              try {
-                deleted = await deleteExpiredMemberAccount(email);
-                invalidateMemberGate(email);
-              } catch (error) {
-                console.error('[member account expiry deletion]', error.message);
-                return res.status(503).json({
-                  code: 'ACCOUNT_CLEANUP_UNAVAILABLE',
-                  error: 'Chưa thể hoàn tất việc xử lý tài khoản. Vui lòng thử lại.',
-                });
-              }
-              if (deleted) {
-                return res.status(410).json({
-                  code: 'ACCOUNT_DELETED',
-                  error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
-                });
-              }
-              bio = await readMemberGate(email);
-              if (!bio || bio.deletedAccount) {
-                return res.status(410).json({
-                  code: 'ACCOUNT_DELETED',
-                  error: 'Tài khoản đã được xóa sau khi hết thời gian dùng thử.',
-                });
-              }
-              if (!bio.isEduVerified && bio.accessExpiresAt && new Date(bio.accessExpiresAt).getTime() <= Date.now()) {
-                return res.status(410).json({
-                  code: 'ACCOUNT_DELETED',
-                  error: 'Tài khoản đã hết thời gian dùng thử.',
-                });
-              }
-            }
+            // Hết hạn: khoá, không xoá. Admin liên hệ và gia hạn (04/11/2026).
             if (!isProfileSetupRoute(req.originalUrl)) {
               return res.status(403).json({
                 code: 'ACCOUNT_EXPIRED',
@@ -363,7 +330,7 @@ export const requireMember = async (req, res, next) => {
           // trên MỌI route member — và onboarding không bao giờ hỏi để thoát ra.
           //
           // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chặn.
-          if (bio?.isEduVerified && bio.profileIncomplete && !isProfileSetupRoute(req.originalUrl)) {
+          if (bio?.profileIncomplete && !isProfileSetupRoute(req.originalUrl)) {
             return res.status(403).json({
               error: 'PROFILE_INCOMPLETE',
               message: 'Bạn cần hoàn tất thông tin hồ sơ bắt buộc trước khi dùng Hugo Studio.'

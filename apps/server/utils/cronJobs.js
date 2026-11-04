@@ -4,25 +4,19 @@ import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
 
 export function initCronJobs() {
-  // Permanently remove non-EDU accounts after their seven-day trial.
-  // The request middleware also checks the deadline so cron delay cannot grant extra access.
+  // Dọn kháng nghị bảo mật hết hạn và làm nốt các lần xoá tài khoản dở dang.
+  // Tài khoản hết hạn chỉ bị khoá, không xoá (04/11/2026).
   cron.schedule('*/15 * * * *', async () => {
     try {
-      const { purgeExpiredUnverifiedMembers, purgeOrphanedVerificationEvidence, purgeExpiringSecurityAppeals } = await import('../services/memberAccountLifecycle.js');
-      const [result, evidenceRemoved, appealsRemoved] = await Promise.all([
-        purgeExpiredUnverifiedMembers({ limit: 20 }),
-        purgeOrphanedVerificationEvidence({ limit: 100 }),
+      const { resumePendingDeletions, purgeExpiringSecurityAppeals } = await import('../services/memberAccountLifecycle.js');
+      const [result, appealsRemoved] = await Promise.all([
+        resumePendingDeletions({ limit: 20 }),
         purgeExpiringSecurityAppeals({ limit: 50 }),
       ]);
       if (appealsRemoved) console.log(`[CRON] Purged ${appealsRemoved} expiring security appeals.`);
-      if (result.deleted) {
-        console.log(`[CRON] Permanently deleted ${result.deleted} of ${result.scanned} expired unverified member accounts.`);
-      }
-      if (evidenceRemoved) {
-        console.log(`[CRON] Removed ${evidenceRemoved} orphaned verification evidence files.`);
-      }
+      if (result.deleted) console.log(`[CRON] Finished ${result.deleted} pending account deletions.`);
     } catch (error) {
-      console.error('[CRON] Expired member account cleanup:', error.message);
+      console.error('[CRON] Account cleanup:', error.message);
     }
   });
 

@@ -12,6 +12,7 @@ import { startBrandColorCycle } from './lib/brandColorCycle'
 import { liquidPress } from './lib/liquidGlass/LiquidPressEngine'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
+import { purgeRetiredData } from './lib/purgeRetiredData'
 
 // Dynamic import 404 auto-healing: when a new build deployment replaces hashed JS chunks,
 // Vite fires 'vite:preload-error'. Automatically reload the window to fetch new manifest.
@@ -24,6 +25,8 @@ window.addEventListener('vite:preload-error', (event) => {
     window.location.reload();
   }
 });
+
+purgeRetiredData();
 
 // Kích hoạt khiên bảo mật chống F12/Hacker
 initSecurityShield();

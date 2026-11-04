@@ -101,11 +101,6 @@ export const JOY_SOURCE_APP = {
   chess_win: 'arcade',
   chess_match: 'arcade',
 
-  // HugoPSY
-  companion: 'psychology',
-  companion_unlock: 'psychology',
-  chat_tokens_exchange: 'psychology',
-
   // Tập trung / Aura
   focus_session: 'aura',
   aura_theme_rent: 'aura',
@@ -167,7 +162,7 @@ export const reconcileJoyTransfers = (pairs) => pairs.reduce((sum, pair) => {
  */
 export const JOY_REWARD_SOURCES = new Set([
   'referral_referrer', 'referral_referee',
-  'chess_win', 'chess_match', 'companion', 'checkin', 'gift_code',
+  'chess_win', 'chess_match', 'checkin', 'gift_code',
   'daily_challenge', 'arcade_score', 'daily_tree_bonus', 'focus_session',
   'ide_learning', 'info_bonus', 'info_read_bonus', 'ide_course_completion',
   'ide_phase_1_completion', 'ide_phase_2_completion', 'ide_phase_3_completion',

@@ -284,7 +284,7 @@ export default function MemberSettingsTab({
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400">
                   <Check className="size-3" strokeWidth={2.5} />
-                  <span>{bio?.isEduVerified ? nom("HSSV đã xác minh") : nom("Thành viên chính thức")}</span>
+                  <span>{nom("Thành viên chính thức")}</span>
                 </span>
               </div>
               <h1
@@ -354,7 +354,7 @@ export default function MemberSettingsTab({
           <Section title={nom("Phần thưởng")}>
             <Row icon="clipboard_list" title={nom("Nhiệm vụ JOY")} value={challengesLoaded ? `${completedMissionsCount}/${challenges.length}` : undefined} onClick={() => openUtility("joy_wallet")} />
             <Row icon="gift" title={nom("Voucher của tôi")} value={String(activeVoucherCount)} onClick={() => openUtility("joy_wallet")} />
-            <Row icon="award" title={nom("Đặc quyền thành viên")} subtitle={bio?.isEduVerified ? nom("Đặc quyền HSSV") : nom("Thành viên chính thức")} onClick={() => openUtility("joy_wallet")} />
+            <Row icon="award" title={nom("Đặc quyền thành viên")} subtitle={nom("Thành viên chính thức")} onClick={() => openUtility("joy_wallet")} />
           </Section>
 
           <Section title={nom("Khác")}>

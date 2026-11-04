@@ -101,13 +101,6 @@ export async function getWalletOverview(req, res) {
           status: 'active',
         },
         {
-          id: 'hugopsy_ai',
-          name: 'HugoPSY AI Companion Unlimited',
-          desc: 'Mở khóa trợ lý AI thấu cảm và phân tích tâm lý độc quyền không giới hạn.',
-          icon: 'psychology',
-          status: 'active',
-        },
-        {
           id: 'pax_runtime',
           name: 'Pax IDE & Cloud Runtime',
           desc: 'Hạ tầng điện toán đám mây cho học tập, biên dịch và chạy ứng dụng tốc độ cao.',

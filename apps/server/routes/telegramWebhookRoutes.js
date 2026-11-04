@@ -104,7 +104,6 @@ async function buildButlerMemberReport(bioDoc) {
   } catch {}
 
   const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng bằng (Frozen)</b>' : '✅ <b>Hoạt động (Active)</b>';
-  const isEdu = bio.isEduVerified ? '🎓 <b>Đã xác minh Sinh viên</b>' : '❌ <b>Chưa xác minh</b>';
   const accStatus = bio.status === 'suspended' ? '🔴 <b>Tạm đình chỉ (Suspended)</b>' : '🟢 <b>Hoạt động (Active)</b>';
   const activeSessions = bio.securitySessions?.length || 0;
   const joinDate = new Date(bio.createdAt || Date.now()).toLocaleDateString('vi-VN');
@@ -120,7 +119,6 @@ async function buildButlerMemberReport(bioDoc) {
 🪙 <b>Đơn vị hiển thị:</b> <b>${formattedCustom}</b>
 
 🛡️ <b>Trạng thái ví:</b> ${isFrozen}
-🎓 <b>Trạng thái Edu:</b> ${isEdu}
 🚪 <b>Trạng thái tài khoản:</b> ${accStatus}
 📱 <b>Phiên kết nối:</b> ${activeSessions} thiết bị tin cậy
 📅 <b>Ngày gia nhập:</b> ${joinDate}
@@ -133,7 +131,6 @@ async function buildButlerMemberReport(bioDoc) {
         { text: bio.isJoyWalletFrozen ? '✅ Mở Khóa Ví' : '❄️ Khóa Ví', callback_data: bio.isJoyWalletFrozen ? `cb_unfreeze:${bio.email}` : `cb_freeze:${bio.email}` },
       ],
       [
-        { text: bio.isEduVerified ? '🎓 Hủy Edu' : '🎓 Bật Edu', callback_data: `cb_toggle_edu:${bio.email}` },
         { text: '🔄 Cập nhật thẻ', callback_data: `cb_lookup:${bio.email}` },
       ]
     ]
@@ -274,18 +271,6 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
         await bio.save();
         const rpt = await buildButlerMemberReport(bio);
         await editTelegramMessage(chatId, cb.message?.message_id, `✅ <b>ĐÃ MỞ KHÓA VÍ JOY CỦA MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
-      }
-      return;
-    }
-
-    if (cbData.startsWith('cb_toggle_edu:')) {
-      const targetEmail = cbData.replace('cb_toggle_edu:', '');
-      const bio = await Bio.findOne({ email: targetEmail });
-      if (bio) {
-        bio.isEduVerified = !bio.isEduVerified;
-        await bio.save();
-        const rpt = await buildButlerMemberReport(bio);
-        await editTelegramMessage(chatId, cb.message?.message_id, `🎓 <b>ĐÃ CẬP NHẬT TRẠNG THÁI EDU CỦA MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
       }
       return;
     }
@@ -628,12 +613,6 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
     } else if (/ví mở|vi mo|unfrozen/i.test(lowerQuery)) {
       queryObj = { isJoyWalletFrozen: false };
       filterLabel = 'Ví JOY đang mở (isJoyWalletFrozen = false)';
-    } else if (/sinh viên|edu|học đường|hoc duong/i.test(lowerQuery)) {
-      queryObj = { isEduVerified: true };
-      filterLabel = 'Đã xác minh sinh viên Edu (isEduVerified = true)';
-    } else if (/chưa edu|chua edu|no edu/i.test(lowerQuery)) {
-      queryObj = { isEduVerified: false };
-      filterLabel = 'Chưa xác minh sinh viên Edu (isEduVerified = false)';
     } else if (/bị khóa|bị đình chỉ|bi khoa|bi dinh chi|suspended/i.test(lowerQuery)) {
       queryObj = { status: 'suspended' };
       filterLabel = 'Tài khoản bị tạm đình chỉ (status = suspended)';
@@ -677,8 +656,7 @@ export async function processTelegramUpdate(update, { allowAi = true } = {}) {
     const inlineRow = [];
     matchedBios.forEach((u, i) => {
       const isFrozenIcon = u.isJoyWalletFrozen ? '❄️' : '✅';
-      const isEduIcon = u.isEduVerified ? '🎓' : '';
-      filterReport += `${i + 1}. <b>${u.displayName || 'Chưa đặt tên'}</b> (${isFrozenIcon}${isEduIcon})\n   • Email: <code>${u.email}</code> | Slug: <code>/bio/${u.slug || 'demo'}</code>\n   • Ví: <b>${(u.joyBalance || 0).toLocaleString('vi-VN')} JOY</b> (${u.joyDenom || 'JOY'})\n\n`;
+      filterReport += `${i + 1}. <b>${u.displayName || 'Chưa đặt tên'}</b> (${isFrozenIcon})\n   • Email: <code>${u.email}</code> | Slug: <code>/bio/${u.slug || 'demo'}</code>\n   • Ví: <b>${(u.joyBalance || 0).toLocaleString('vi-VN')} JOY</b> (${u.joyDenom || 'JOY'})\n\n`;
 
       if (i < 4) {
         inlineRow.push({ text: `👤 ${u.displayName || u.email.split('@')[0]}`, callback_data: `cb_lookup:${u.email}` });
@@ -929,32 +907,6 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
     });
 
     await sendTelegramAlert(`🔗 <b>ĐÃ ĐỔI SLUG BIO THÀNH CÔNG!</b>\n📧 Email: <code>${bio.email}</code>\n📌 Slug cũ: <code>/bio/${oldSlug || 'none'}</code>\n✨ Slug mới: <b>/bio/${newSlug}</b>`);
-    return;
-  }
-
-  // ─── LỆNH 4: BẬT / TẮT XÁC MINH EDU ─────────────────────────────────────────
-  const eduRegex = /(bật edu|bat edu|duyệt edu|duyet edu|xác minh edu|xac minh edu|tắt edu|tat edu)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
-  const eduMatch = text.match(eduRegex);
-  if (eduMatch) {
-    const eduCmd = eduMatch[1].toLowerCase();
-    const targetEmail = eduMatch[2].trim().toLowerCase();
-    const enableEdu = !eduCmd.includes('tắt') && !eduCmd.includes('tat');
-    const bio = await Bio.findOne({ email: targetEmail });
-    if (!bio) {
-      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
-      return;
-    }
-    bio.isEduVerified = enableEdu;
-    await bio.save();
-
-    await AdminAuditLog.create({
-      adminId: 'TELEGRAM_BOT_ADMIN',
-      adminUsername: 'SuperAdmin_Telegram',
-      action: enableEdu ? 'telegram_enable_edu' : 'telegram_disable_edu',
-      targetEmail: bio.email,
-    });
-
-    await sendTelegramAlert(`🎓 <b>ĐÃ CẬP NHẬT XÁC MINH EDU!</b>\n📧 Email: <code>${bio.email}</code>\n🎓 Trạng thái: ${enableEdu ? '✅ <b>ĐÃ XÁC MINH SINH VIÊN</b>' : '❌ <b>HỦY XÁC MINH</b>'}`);
     return;
   }
 

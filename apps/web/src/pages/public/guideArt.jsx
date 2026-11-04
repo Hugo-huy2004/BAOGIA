@@ -286,43 +286,6 @@ const SCENES = {
   ),
 
   /** Nhật ký giấc ngủ và biểu đồ tuần. */
-  sleep: (
-    <>
-      <Phone x={30} y={5} w={140} h={180}>
-        <Txt x={20} y={40} size={10} weight={700}>Đêm qua</Txt>
-        <Box x={14} y={50} w={54} h={34} r={8} stroke={LINE} />
-        <Txt x={22} y={64} size={6} fill={DIM}>NGỦ LÚC</Txt>
-        <Txt x={22} y={77} size={10} weight={700}>23:40</Txt>
-        <Box x={72} y={50} w={54} h={34} r={8} stroke={LINE} />
-        <Txt x={80} y={64} size={6} fill={DIM}>DẬY LÚC</Txt>
-        <Txt x={80} y={77} size={10} weight={700}>06:20</Txt>
-        <Txt x={20} y={102} size={7} fill={DIM}>Chất lượng</Txt>
-        {[0, 1, 2, 3, 4].map((star) => (
-          <path
-            key={star}
-            transform={`translate(${20 + star * 16} 108) scale(0.5)`}
-            d="M10 0l3 6.5 7 1-5 5 1.2 7L10 16l-6.2 3.5L5 12.5l-5-5 7-1z"
-            fill={star < 4 ? AX : LINE}
-          />
-        ))}
-        <Txt x={20} y={140} size={7} fill={DIM}>Tâm trạng</Txt>
-        <Box x={14} y={146} w={112} h={20} r={10} fill={BG} />
-      </Phone>
-      <Pin x={158} y={64} n={1} />
-      <Pin x={158} y={112} n={2} />
-
-      <Window x={210} y={30} w={150} h={140}>
-        <Txt x={14} y={40} size={8} weight={600}>Tuần này</Txt>
-        {[38, 52, 44, 62, 30, 58, 66].map((value, index) => (
-          <g key={index}>
-            <rect x={14 + index * 19} y={116 - value} width="12" height={value} rx="3" fill={AX} opacity={index === 6 ? 1 : 0.35} />
-            <Txt x={20 + index * 19} y={128} anchor="middle" size={6} fill={DIM}>{["2", "3", "4", "5", "6", "7", "CN"][index]}</Txt>
-          </g>
-        ))}
-      </Window>
-      <Pin x={356} y={64} n={3} />
-    </>
-  ),
 
   /** Bốn bước từ xem giá tới thanh toán. */
   booking: (
@@ -402,7 +365,6 @@ const VIEWBOX = {
   joy: "0 0 370 205",
   install: "0 0 370 232",
   notifications: "0 0 370 205",
-  sleep: "0 0 380 195",
   booking: "0 0 380 145",
   tabs: "0 0 380 262",
 };

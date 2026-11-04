@@ -309,7 +309,7 @@ router.post('/reset', requireAdmin, async (req, res) => {
   }
 });
 
-// POST: Psychology Chat
+// POST: gửi thông báo đẩy hàng loạt (admin)
 router.post('/broadcast-notification', requireAdmin, async (req, res) => {
   try {
     const { message, all, status } = req.body;
@@ -336,7 +336,7 @@ router.post('/broadcast-notification', requireAdmin, async (req, res) => {
       title: 'Thông báo từ Ban Giám Hiệu / Admin',
       body: message,
       icon: '/image/avt7.png',
-      url: '/member/utilities/psychology'
+      url: '/member/today'
     });
 
     const sendPromises = subscriptions.map(sub => 

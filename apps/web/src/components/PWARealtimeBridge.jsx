@@ -4,8 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { clearMemberSession, getMemberSession, getMemberToken } from '../services/api/core/authSession';
 import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
-import { playNotificationSound } from '../utils/audio';
-import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -85,10 +83,6 @@ export default function PWARealtimeBridge() {
 
           if (data.type === 'bio_status_update') {
             window.dispatchEvent(new CustomEvent('hugo:bio-update', { detail: data }));
-            if (data.isEduVerified) {
-              if (isNotificationSoundEnabled()) playNotificationSound();
-              notify.success('Tài khoản của bạn đã được xác minh sinh viên! Hạn dùng đã được nâng lên 365 ngày.', { duration: 6000 });
-            }
             return;
           }
 

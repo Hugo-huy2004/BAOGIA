@@ -1,20 +1,18 @@
 import { extendFrom } from '../../../packages/shared/partnerCampaigns.js';
 
 /**
- * Hạn truy cập THẬT của một tài khoản: chưa xác minh giáo dục thì đi theo hạn
- * dùng thử (trialExpiresAt) — cổng thành viên (requireMember) và lịch dọn tài
- * khoản (memberAccountLifecycle.js) đều đọc hạn đó.
+ * Từ 04/11/2026 không còn xác minh HSSV: ai cũng tạo được tài khoản, cùng một
+ * thời hạn. Hết hạn thì tài khoản bị khoá (không xoá); gia hạn do admin quyết.
  */
-export const accessDeadline = (bio) => (bio.isEduVerified || !bio.trialExpiresAt ? bio.expiresAt : bio.trialExpiresAt);
+export const NEW_ACCOUNT_DAYS = 365;
+export const NEW_ACCOUNT_MS = NEW_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
 
-/**
- * Cộng ngày duy trì: nối vào hạn cũ (hết hạn rồi thì tính từ hôm nay), dời CẢ
- * HAI mốc. Chỉ dời expiresAt là lỗi đã có ở Store: người dùng thử mua 10 ngày
- * vẫn bị xoá khi hết 7 ngày thử. Không tự lưu — người gọi save.
- */
+/** Hạn truy cập của một tài khoản — cổng thành viên (requireMember) đọc hạn này. */
+export const accessDeadline = (bio) => bio.expiresAt;
+
+/** Cộng ngày duy trì: nối vào hạn cũ (hết hạn rồi thì tính từ hôm nay). Không tự lưu — người gọi save. */
 export function extendAccess(bio, days) {
   const next = extendFrom(accessDeadline(bio), days);
   bio.expiresAt = next;
-  if (!bio.isEduVerified) bio.trialExpiresAt = next;
   return next;
 }

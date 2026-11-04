@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BotAvatar } from 'bot-avatars';
-import { sensory } from '../../../lib/sensory';
+import { sensory } from '../../lib/sensory';
 
 /**
  * AnimulaAvatar: Latin Mind & Soul AI Companion Avatar

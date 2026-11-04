@@ -79,7 +79,6 @@ const publicCampaign = async (campaign, { fresh = false } = {}) => {
     partnerName: campaign.partnerName,
     partnerUrl: campaign.partnerUrl,
     bioDays: campaign.bioDays,
-    eduBonusDays: campaign.eduBonusDays,
     joy: campaign.joy,
     open: isPartnerCampaignOpen(campaign) && used < campaign.maxClaims,
     endsAt: campaign.endsAt,
@@ -196,8 +195,6 @@ const claimView = (claim, bio) => ({
   rejected: claim?.status === 'rejected',
   rejectReason: claim?.status === 'rejected' ? REJECT_MESSAGE : '',
   claimedAt: claim?.createdAt || null,
-  eduBonusApplied: Boolean(claim?.eduBonusApplied),
-  isEduVerified: Boolean(bio?.isEduVerified),
   expiresAt: bio?.expiresAt || null,
   joyBalance: Number(bio?.joyBalance) || 0,
 });
@@ -219,7 +216,7 @@ router.get('/admin/:slug/claims', requireAdmin, loadCampaign, async (req, res) =
       PartnerClaim.find({ campaign: campaign.slug })
         .sort({ createdAt: -1 })
         .limit(Math.min(500, Number(req.query.limit) || 200))
-        .select('email status reason eduBonusApplied createdAt')
+        .select('email status reason createdAt')
         .lean(),
     ]);
     return res.json({ campaign: await adminCampaign(campaign), granted, rejected, claims: recent });
@@ -347,7 +344,7 @@ router.post('/:slug/claim', requireMember, claimLimiter, loadCampaign, async (re
       if (!claim) return undefined;
     }
 
-    const granted = { bioDays: 0, eduBonusDays: 0, joy: 0 };
+    const granted = { bioDays: 0, joy: 0 };
 
     // Mỗi phần chỉ được cộng bởi yêu cầu lật được cờ của nó — hai lần bấm song
     // song thì lần thua không cộng gì.
@@ -392,32 +389,16 @@ router.post('/:slug/claim', requireMember, claimLimiter, loadCampaign, async (re
       }
     }
 
-    // Phần thưởng giáo dục — có thể đến cùng lúc hoặc ở lần ghé sau.
-    if (bio.isEduVerified && !claim.eduBonusApplied) {
-      const eduLock = await PartnerClaim.findOneAndUpdate(
-        { _id: claim._id, eduBonusApplied: false },
-        { $set: { eduBonusApplied: true, eduBonusDays: campaign.eduBonusDays, eduBonusAt: new Date() } },
-        { new: true },
-      );
-      if (eduLock) {
-        claim = eduLock;
-        extendAccess(bio, campaign.eduBonusDays);
-        granted.eduBonusDays = campaign.eduBonusDays;
-        pushHistory(bio, campaign, `+${campaign.eduBonusDays} ngày nhờ đã xác minh giáo dục`);
-        await bio.save();
-      }
-    }
-
-    if (granted.bioDays || granted.eduBonusDays) {
+    if (granted.bioDays) {
       await PartnerClaim.updateOne({ _id: claim._id }, { $set: { expiresAtAfter: bio.expiresAt } });
       invalidateMemberGate(bio.email);
-      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, isEduVerified: bio.isEduVerified, expiresAt: bio.expiresAt });
+      broadcastToEmail(bio.email, { type: 'bio_status_update', status: bio.status, expiresAt: bio.expiresAt });
     }
 
     const fresh = await findBio(bio.email);
     return res.json({
       success: true,
-      alreadyClaimed: !granted.bioDays && !granted.eduBonusDays && !granted.joy,
+      alreadyClaimed: !granted.bioDays && !granted.joy,
       granted,
       ...claimView(claim, fresh || bio),
     });

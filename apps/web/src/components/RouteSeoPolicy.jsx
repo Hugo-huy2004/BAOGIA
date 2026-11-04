@@ -25,8 +25,6 @@ const PUBLIC_PATHS = new Set([
   "/terms",
   "/user-guide",
   "/terms-and-guide",
-  "/banhocduong",
-  "/therapy",
   "/radio",
   "/aura",
 ]);

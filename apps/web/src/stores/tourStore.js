@@ -56,13 +56,6 @@ export const TOUR_DEFINITIONS = {
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
-      selector: '#utility-card-psychology',
-      title: 'HugoPSY',
-      content: 'Góc tư vấn tâm lý tự động cùng AI, làm trắc nghiệm lâm sàng định kỳ (DASS-42) và thực hành các bài tập giảm stress.',
-      placement: 'top',
-      beforeStep: (actions) => actions.switchTab('utilities')
-    },
-    {
       selector: '#utility-card-chess',
       title: 'HugoChess',
       content: 'Chơi cờ vua thư giãn, đấu với Bot Stockfish hoặc tạo phòng thi đấu cùng bạn bè để tích điểm xếp hạng JOY.',

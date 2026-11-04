@@ -113,16 +113,6 @@ const SCENES = {
     </>
   ),
 
-  // Tâm Trí — trái tim và nhịp đập
-  psychology: (f) => (
-    <>
-      <path d="M24 38c-9.6-6.8-13.6-11.8-13.6-17.2A7.8 7.8 0 0 1 24 15.6a7.8 7.8 0 0 1 13.6 5.2C37.6 26.2 33.6 31.2 24 38Z" fill="#000" opacity="0.18" transform="translate(1 1.4)" />
-      <path d="M24 38c-9.6-6.8-13.6-11.8-13.6-17.2A7.8 7.8 0 0 1 24 15.6a7.8 7.8 0 0 1 13.6 5.2C37.6 26.2 33.6 31.2 24 38Z" fill={f} />
-      <path d="M17.6 18.4a5.4 5.4 0 0 0-4.6 4.4" fill="none" stroke="#fff" strokeOpacity="0.85" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M13.4 24.6h4.2l2-4.4 2.8 8.6 2.2-4.6h9" fill="none" stroke="#f43f5e" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-    </>
-  ),
-
   // Trò Chơi — cần điều khiển và hai nút
   arcade: (f) => (
     <>

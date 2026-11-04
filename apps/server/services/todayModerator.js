@@ -8,10 +8,9 @@
 // Câu có dấu hiệu khủng hoảng không bao giờ bị gỡ hay tính lỗi.
 import TodayPost from '../models/TodayPost.js';
 import SecurityEvent from '../models/SecurityEvent.js';
-import CompanionHistory from '../models/CompanionHistory.js';
-import { hasProfanity, isCrisis } from './companionGuard.js';
+import { hasProfanity, isCrisis } from './textGuard.js';
 import { recordSecurityViolation } from './securityEnforcement.js';
-import { complete } from './companionBrainService.js';
+import { generate } from './aiGateway.js';
 import { notifyMember } from '../utils/notifyMember.js';
 
 export const CATEGORIES = ['sexual', 'profanity', 'harassment', 'divisive', 'provocative', 'sensitive'];
@@ -68,23 +67,12 @@ async function removePost(post, category, req = null) {
   return removed;
 }
 
-// Bài có dấu hiệu khủng hoảng: KHÔNG gỡ, mà đỡ. Gắn cờ vào cùng danh sách
-// khủng hoảng của chat (admin đã có màn gọi lại), gửi lời hỏi thăm kèm đường
-// dây nóng cho tác giả, báo Telegram. Một lần mỗi 24 giờ cho một người.
+// Bài có dấu hiệu khủng hoảng: KHÔNG gỡ, mà đỡ. Gửi lời hỏi thăm kèm đường
+// dây nóng cho tác giả và báo Telegram để admin liên hệ.
 async function careForAuthor(post, content) {
-  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const flagged = await CompanionHistory.updateOne(
-    { email: post.authorEmail, crisisFlags: { $not: { $elemMatch: { trigger: 'today_post', detectedAt: { $gte: since } } } } },
-    { $push: { crisisFlags: { detectedAt: new Date(), severity: 'high', trigger: 'today_post', resolved: false, conversationSummary: content.slice(0, 1000) } } },
-  );
-  if (!flagged.modifiedCount) {
-    // Chưa có lịch sử chat thì tạo mới; đã có cờ trong 24 giờ thì thôi.
-    if (await CompanionHistory.exists({ email: post.authorEmail })) return;
-    await CompanionHistory.create({ email: post.authorEmail, crisisFlags: [{ detectedAt: new Date(), severity: 'high', trigger: 'today_post', resolved: false, conversationSummary: content.slice(0, 1000) }] });
-  }
   await notifyMember({ email: post.authorEmail, key: 'event.todayCare', type: 'info', category: 'wellness', push: true }).catch(() => {});
   import('./telegramService.js').then(({ sendTelegramAlert }) => sendTelegramAlert(
-    `🆘 <b>Today: bài có dấu hiệu khủng hoảng</b> — đã gắn cờ trong danh sách khủng hoảng, bài giữ nguyên.\n\n${escapeHtml(content.slice(0, 600))}`,
+    `🆘 <b>Today: bài có dấu hiệu khủng hoảng</b> — bài giữ nguyên, admin nên liên hệ tác giả.\n\n${escapeHtml(content.slice(0, 600))}`,
   )).catch(() => {});
 }
 
@@ -114,10 +102,8 @@ export async function patrolToday() {
     const body = posts.map((p, i) => `[${i + 1}] ${contentOf(p).slice(0, MAX_CHARS)}`).join('\n\n');
     let violations;
     try {
-      const raw = await complete(
-        [{ role: 'system', content: POLICY }, { role: 'user', content: body }],
-        { max_tokens: 300, temperature: 0 },
-      );
+      const raw = await generate(body, { systemInstruction: { parts: [{ text: POLICY }] }, temperature: 0, lowPriority: true });
+      if (!raw) throw new Error('ai_unavailable');
       violations = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1)).violations;
       if (!Array.isArray(violations)) throw new Error('bad_json');
     } catch (err) {

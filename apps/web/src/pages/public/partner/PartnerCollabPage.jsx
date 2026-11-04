@@ -561,9 +561,6 @@ export default function PartnerCollabPage() {
                 ) : (
                   <ul id="collab-rewards" className="collab-rewards">
                     <li><span className="material-symbols-outlined" aria-hidden="true">check_circle</span>{ui.rewardDays(campaign.bioDays)}</li>
-                    {(result.eduBonusApplied || result.granted?.eduBonusDays > 0) && (
-                      <li><span className="material-symbols-outlined" aria-hidden="true">school</span>{ui.rewardEdu(campaign.eduBonusDays)}</li>
-                    )}
                     <li><span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>{ui.rewardJoy(campaign.joy)}</li>
                     <li><span className="material-symbols-outlined" aria-hidden="true">apps</span>{ui.rewardFree}</li>
                   </ul>
@@ -572,14 +569,6 @@ export default function PartnerCollabPage() {
                   {result.expiresAt && <span>{ui.expiresAt(formatDate(result.expiresAt, lang))}</span>}
                   <span>{ui.joyBalance(result.joyBalance || 0)}</span>
                 </p>
-
-                {!result.isEduVerified && (
-                  <p className="collab-note collab-note--edu">
-                    <span className="material-symbols-outlined" aria-hidden="true">school</span>
-                    {result.soldOut ? ui.soldOutEdu : ui.eduHint(campaign.eduBonusDays)}{" "}
-                    <a className="collab-link" href={`${SERVICES_ORIGIN}/student-pricing`}>{ui.eduCta}</a>
-                  </p>
-                )}
 
                 <div className="collab-welcome__actions">
                   <button type="button" className="collab-btn" onClick={startTour}>

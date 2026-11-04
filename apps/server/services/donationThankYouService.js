@@ -39,7 +39,7 @@ const buildDonationThankYouEmail = (donation) => {
             <ul style="padding-left:20px">
               <li>Bio .edu và hồ sơ số dành cho sinh viên.</li>
               <li>JOY Wallet, phần thưởng và các tiện ích thành viên.</li>
-              <li>HugoPSY, IDE, Radio cùng những công cụ học tập và sáng tạo.</li>
+              <li>IDE, Radio cùng những công cụ học tập và sáng tạo.</li>
               <li>Arcade, portfolio và dịch vụ thiết kế website của Hugo Studio.</li>
             </ul>
 

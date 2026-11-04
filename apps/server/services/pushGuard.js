@@ -4,7 +4,7 @@ import NotificationSubscription from '../models/NotificationSubscription.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import { markPushSent } from './memberActivity.js';
 
-// Shared by every push cron (proactive, smart, scheduled companion)
+// Shared by every push cron (proactive, smart, held queue)
 // so a sleepy/insomniac user never gets woken up by a "mindless" reminder,
 // and doesn't get stacked notifications from unrelated jobs firing close
 // together on the same day.
@@ -23,28 +23,6 @@ const VN_OFFSET_MS = 7 * 60 * 60 * 1000; // Việt Nam không có giờ mùa hè
 // giữa chiều, tan tầm, trước giờ ngủ. Cron trong smart/proactive chạy đúng các
 // mốc này; push bị giữ lại cũng chỉ được gửi lại vào đây.
 export const PRIME_SLOTS = [[7, 30], [12, 15], [15, 30], [18, 30], [21, 0]];
-
-const AI_SERVER_URL = process.env.AI_SERVER_URL || process.env.PYTHON_AI_URL || 'http://localhost:8000';
-
-/**
- * Gọi Python soạn chữ cho push. Python chỉ nhận request có X-Internal-Key và
- * nằm ở AI_SERVER_URL — hai service push cũ đọc PYTHON_AI_URL (không có trên
- * prod) và không gửi khoá, nên trên prod chưa push AI nào từng đi được.
- * Hỏng thì trả null để nơi gọi dùng câu soạn sẵn — push vẫn đi.
- */
-export async function askPushAI(path, body) {
-  try {
-    const res = await fetch(`${AI_SERVER_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Internal-Key': process.env.INTERNAL_API_KEY || '' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(20_000),
-    });
-    return res.ok ? await res.json() : null;
-  } catch {
-    return null;
-  }
-}
 
 function hourInVN(date = new Date()) {
   return new Date(date.getTime() + VN_OFFSET_MS).getUTCHours();

@@ -87,14 +87,6 @@ export default function LoginPage() {
       return;
     }
 
-    const isEdu = session.isEduVerified;
-    if (!isEdu) {
-      showToast(
-        t("loginPage.toast.eduRedirect"),
-        "warning"
-      );
-    }
-
     localStorage.setItem(LAST_EMAIL_KEY, session.email);
     navigate(memberRedirectRef.current, { replace: true });
   };

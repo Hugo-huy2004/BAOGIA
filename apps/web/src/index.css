@@ -778,12 +778,6 @@ html.standalone-pwa .portal-fullscreen-shell {
 }
 .animate-pulse-slow { animation: pulse-slow 2.2s ease-in-out infinite; }
 
-@keyframes sos-flash {
-  0%, 100% { background-color: hsl(var(--destructive)); }
-  50% { background-color: #7f1d1d; }
-}
-.animate-sos-flash { animation: sos-flash 0.8s ease-in-out infinite; }
-
 /* Bounce gentle */
 @keyframes bounce-gentle {
   0%, 100% { transform: translateY(0); }

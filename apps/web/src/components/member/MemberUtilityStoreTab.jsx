@@ -97,9 +97,6 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
     if (product.productType === "system_validity" && product.extendDays > 0) {
       return `+${product.extendDays} ${t("memberPortal.joy.store.daysUnit")}`;
     }
-    if (product.productType === "psy_study_tokens" && product.tokenAmount > 0) {
-      return `+${product.tokenAmount} ${product.tokenType === "call" ? t("memberPortal.joy.store.callTokens") : t("memberPortal.joy.store.chatTokens")}`;
-    }
     if (product.productType === "radio_time" && product.radioMinutes > 0) {
       const hours = Math.floor(product.radioMinutes / 60);
       const days = Math.floor(hours / 24);

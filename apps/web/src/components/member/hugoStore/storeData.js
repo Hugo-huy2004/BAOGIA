@@ -106,19 +106,12 @@ export function perkLabel(p) {
   if (p.productType === "system_validity" && p.extendDays > 0) {
     return i18n.t("utilities.store.packs.perkValidity", { count: p.extendDays });
   }
-  if (p.productType === "psy_study_tokens" && p.tokenAmount > 0) {
-    return i18n.t(
-      p.tokenType === "call" ? "utilities.store.packs.perkCalls" : "utilities.store.packs.perkChats",
-      { count: p.tokenAmount }
-    );
-  }
   return null;
 }
 
 /** Nhóm vật phẩm theo productType để dựng kệ hàng, mỗi nhóm một màu. */
 const GROUP_TYPES = [
   ["radio_time", GRADIENTS.teal],
-  ["psy_study_tokens", GRADIENTS.cyan],
   ["system_validity", GRADIENTS.orange],
   ["general", GRADIENTS.pink],
 ];

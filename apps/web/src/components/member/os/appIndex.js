@@ -14,7 +14,6 @@ import { lazy } from "react";
  * Thêm app mới: một dòng ở APP_LOADERS (và một dòng manifest trong appRegistry).
  */
 const APP_LOADERS = {
-  psychology: () => import("../banhocduong/BanhocduongTab"),
   eduhugo: () => import("../eduHugo/EduHugoApp"),
   qrhugo: () => import("../qrHugo/QrHugoApp"),
   joy_wallet: () => import("../wallet/JoyWalletApp"),
