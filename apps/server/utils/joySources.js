@@ -128,8 +128,6 @@ export const JOY_SOURCE_APP = {
   daily_challenge: 'joy_wallet',
   birthday_spin: 'joy_wallet',
 
-  // HugoKit
-  file_compression: 'handle',
 };
 
 /** App phát sinh một biến động JOY. Rỗng = cấp hệ thống, không thuộc app nào. */

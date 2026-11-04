@@ -20,7 +20,6 @@ const FEATURE_SHOTS = [
   { src: "/image/edu/bio.webp", top: "#e9e5df", colors: ["#f472b6", "#f59e0b"] },
   { src: "/image/edu/focus.webp", top: "#fdfaff", colors: ["#34d399", "#0ea5e9"] },
   { src: "/image/edu/arcade.webp", top: "#cda4f8", colors: ["#8b5cf6", "#ec4899"] },
-  { src: "/image/edu/hugokit.webp", top: "#fafafe", colors: ["#6366f1", "#22d3ee"] },
 ];
 
 // Nền giáo dục: biểu tượng Material Symbols đơn sắc (đúng quy ước trang public)

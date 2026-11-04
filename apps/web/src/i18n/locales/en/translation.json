@@ -3292,20 +3292,12 @@
       "desc": "About Hugo Studio, the current version, and a small reward just for you.",
       "aboutTitle": "About Hugo Studio",
       "aboutBody": "Hugo Studio is a personal Bio-link platform combined with a versatile utility toolkit, built so everyone can find their own corner that fits their personality and pace of life — there's no one-size-fits-all here.",
-      "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
+      "aboutBody2": "Your personal Bio page, daily JOY rewards, HugoPSY, Study with Hugo, HugoRadio, HugoArcade and HugoAura live in one place for work, study and downtime.",
       "featuresTitle": "Key features",
       "features": {
         "bio": {
           "title": "Personal Bio page",
           "desc": "Your own profile, links and services page — customize the design and share it with a single link."
-        },
-        "helpdesk": {
-          "title": "HugoHelpdesk",
-          "desc": "Smart QR/NFC codes and a professional email signature for sharing your contact info quickly."
-        },
-        "handle": {
-          "title": "HugoHandle",
-          "desc": "Password-protected secure links and an online image converter/compressor."
         },
         "psychology": {
           "title": "HugoPSY",
@@ -3344,7 +3336,7 @@
         },
         "step4": {
           "title": "Share your Bio page",
-          "desc": "Use your public link or the QR/NFC code from HugoHelpdesk to share your page with anyone."
+          "desc": "Use your public link to share your page with anyone."
         }
       },
       "versionLabel": "Current version",
@@ -4679,14 +4671,6 @@
         "title": "HugoRadio",
         "description": "News and focus music"
       },
-      "helpdesk": {
-        "title": "HugoHelpdesk",
-        "description": "QR, NFC and email signatures"
-      },
-      "handle": {
-        "title": "HugoHandle",
-        "description": "Image compression and secure links"
-      },
       "arcade": {
         "title": "HugoArcade",
         "description": "Games that reward JOY"
@@ -5117,22 +5101,6 @@
         "toastSuccess": "Compression and download successful!",
         "toastError": "Compression error. Ensure format is supported (jpg, png, webp, mp4)."
       }
-    },
-    "qrCode": {
-      "title": "Create Smart QR Code",
-      "desc": "Set up data for others to scan and perform settings immediately.",
-      "profileUrlDesc": "Scanning will instantly open your Bio page.",
-      "iceContactLabel": "IN CASE OF EMERGENCY (ICE) CONTACT",
-      "vcardDesc": "Scanning will trigger the Add to Contacts popup.",
-      "wifiLabel": "SHARE STUDY GROUP WIFI",
-      "wifiSsidLabel": "SSID (Network Name)",
-      "wifiPasswordLabel": "Password",
-      "wifiDesc": "Scanning will automatically connect your phone to this WiFi network.",
-      "customTextLabel": "GROUP LINK / DOCUMENTS",
-      "customTextDesc": "Scanning will copy or display this content.",
-      "downloadBtn": "Download QR Code",
-      "downloadSuccess": "QR Code downloaded successfully!",
-      "downloadError": "Error downloading QR Code."
     },
     "ide": {
       "backDashboard": "Back to Dashboard",
@@ -8016,7 +7984,6 @@
         ],
         "shots": {
           "study": "Learning — a staged path, graded on work you actually submit.",
-          "hugokit": "The toolkit — zip files, QR codes, image work, all in the browser.",
           "arcade": "Games — hand-written, open and play, nothing to install.",
           "services": "The services page — pricing and the booking flow.",
           "portfolio": "The personal portfolio page."
@@ -8272,16 +8239,6 @@
           "Made exclusively by Hugo Studio",
           "Play the bot or a friend",
           "Seasonal leaderboards"
-        ]
-      },
-      {
-        "app": "HugoKit",
-        "title": "Eight tools, one place.",
-        "body": "Make and scan QR codes, convert images, unzip files, generate passwords. Most of it runs on your device, so files stay with you.",
-        "points": [
-          "QR, images, files, text",
-          "Strong password generator",
-          "Password-locked links"
         ]
       }
     ],

@@ -695,7 +695,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
 const SHARE_PAGES = {
   "/member": {
     title: "Hugo Studio Member — Không gian của thành viên",
-    description: "Một tài khoản cho cả hệ sinh thái Hugo Studio: trang Bio mang tên chính mình, giờ tập trung có nhạc, trò chơi không quảng cáo và bộ công cụ HugoKit. Cài lên màn hình chính như một ứng dụng.",
+    description: "Một tài khoản cho cả hệ sinh thái Hugo Studio: trang Bio mang tên chính mình, giờ tập trung có nhạc và trò chơi không quảng cáo. Cài lên màn hình chính như một ứng dụng.",
   },
   "/login": {
     title: "Đăng nhập Hugo Studio",

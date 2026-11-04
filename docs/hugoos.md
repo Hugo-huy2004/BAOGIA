@@ -9,7 +9,6 @@ Không phải vì thiếu hiệu ứng. Vì mỗi app tự dựng chrome riêng:
 
 | App | Chrome trước khi có HugoOS |
 | --- | --- |
-| HugoKit | iosKit (NavBar + Scroll) |
 | Cinema | tự vẽ tab bar + nav |
 | Supporter | không có gì — một khung chat nền `slate-950` cứng |
 | Radio | `SubUtilityHeader` |
@@ -65,15 +64,10 @@ Thêm tính năng cho app = thêm một ô `QuickGrid` hoặc một tab, không 
 lại điều hướng. Đây mới là chỗ "mỗi app là một hệ sinh thái" trở thành việc làm
 được từng bước thay vì một cuộc viết lại.
 
-**Ngoại lệ có chủ đích:** app dưới 5 màn hình con và không có trạng thái người
-dùng thì đừng thêm trang chủ. HugoKit là ví dụ — bốn công cụ, đã cố ý làm phẳng
-để bỏ ba tầng điều hướng; ép thêm trang chủ là quay lại chỗ cũ.
-
 ## Spotlight tìm được vào bên trong app
 
-`packages/shared/appRegistry.js` giờ có `destinations` cho mỗi manifest, gom lại thành
-`APP_DESTINATIONS`. Gõ "QR" trong Spotlight ra thẳng công cụ QR của HugoKit chứ
-không dừng ở tên app.
+`packages/shared/appRegistry.js` có `destinations` cho mỗi manifest, gom lại thành
+`APP_DESTINATIONS`, để Spotlight mở thẳng màn hình con thay vì dừng ở tên app.
 
 Khai báo ở registry chứ không trong từng app, để tìm kiếm không phải nạp mã giao
 diện của 20 app chỉ để biết bên trong có gì. Nhãn dùng `labelKey` trỏ tới khoá
@@ -119,13 +113,6 @@ Ba lỗi thật sửa kèm:
   tính từ `req.memberEmail`, không bao giờ từ email trong body.
 - `repliedAt` không có trong schema `SupportTicket` nên mongoose lặng lẽ bỏ đi:
   chưa phiếu nào từng có mốc thời gian trả lời. Đổi sang `resolvedAt`.
-- Id cũ `helpdesk` khớp cả nhánh HugoKit lẫn nhánh Supporter trong
-  `MemberUtilitiesTab`, nên mở nó dựng hai app chồng lên nhau. `helpdesk` giờ chỉ
-  còn mở HugoKit, đúng như lần sáp nhập tháng 8.
-
-**HugoKit** cũng đã chuyển sang `AppFrame` — nhưng vẫn không có trang chủ, đúng
-ngoại lệ ở trên.
-
 ## Thứ tự chuyển tiếp
 
 Ưu tiên theo mức yếu, không theo thứ tự bảng chữ cái.
@@ -155,11 +142,11 @@ cần tài khoản; đăng nhập mới bỏ giới hạn. Hạ tầng đã có 
 3. Một rewrite trong `vercel.json` trỏ `/<slug>` sang `/<slug>/index.html`
    (HTML tĩnh do `scripts/generate-seo.mjs` sinh ra từ chính registry trên).
 
-Bốn mức `gate`: `open` (không cần gì), `level` (chơi/dùng ngay, mở thêm thì cần
-tài khoản), `demo` (3 lượt/ngày cho khách), `result` (cần tài khoản đã xác minh
+Ba mức `gate`: `open` (không cần gì), `level` (chơi/dùng ngay, mở thêm thì cần
+tài khoản), `result` (cần tài khoản đã xác minh
 để lưu hoặc xuất kết quả).
 
-Đã mở (14): `banhocduong`, `therapy`, `radio`, `aura`, `arcade`, `hugokit`,
+Đã mở (13): `banhocduong`, `therapy`, `radio`, `aura`, `arcade`,
 `ide`, `support`, `study`, `chess`, `caro`, `snake`, `2048`, `survivor`.
 
 `/study` là trang học đứng riêng: xem trọn lộ trình 100 bài và **học thật 10 bài

@@ -68,15 +68,13 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   const sharedProps = { bio, showToast, onBack: close, onBioUpdate };
   const routeProps = { route: appRoute, onRouteChange: onAppRouteChange };
   const appProps = {
-    // Màn đang mở của HugoKit đọc từ URL (/member/utilities/handle/<toolId>):
-    // tải lại trang, back của máy hay dán link đều về đúng công cụ đó.
-    handle: { ...sharedProps, ...routeProps, publicLink, setFormData, handleSave },
     psychology: {
       ...sharedProps, route: appRoute || "chat", onRouteChange: onAppRouteChange,
       defaultPresetTest: defaultPsychologyPresetTest, setFormData, handleSave, sleepAutoDetect,
     },
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
     arcade: sharedProps,
+    qrhugo: { ...sharedProps, ...routeProps },
     nom: { onBack: close, ...routeProps },
     aura: { ...sharedProps, ...routeProps },
     bio: { ...sharedProps, ...routeProps, publicLink, renderAccountForm, handleSave },

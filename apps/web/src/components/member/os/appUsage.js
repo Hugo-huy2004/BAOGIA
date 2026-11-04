@@ -30,7 +30,7 @@ const write = (value) => {
 };
 
 /**
- * Ghi nhận một lượt mở. `scope` là app ("handle", "supporter"…), `id` là thứ
+ * Ghi nhận một lượt mở. `scope` là app ("arcade", "aura"…), `id` là thứ
  * vừa mở bên trong app đó. Mở chính app thì `id` bỏ trống.
  */
 export function trackOpen(scope, id = "__app__") {

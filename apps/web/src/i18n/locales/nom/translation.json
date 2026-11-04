@@ -3089,18 +3089,12 @@
       "desc": "介紹𧗱 Hugo Studio, 番版現在吧沒分賞𡮈只𠲜朱貴成員.",
       "aboutTitle": "介紹 Hugo Studio",
       "aboutBody": "Hugo Studio 羅𡋂磉 Bio-link 個人結合部工具便益多能, 得𡏦孕底每𠊛調尋得沒角𥢅符合貝個性吧𠿚𤯨𧵑𨉟 — 空固𣟂母終朱畢奇.",
-      "aboutBody2": "慈荘 Bio 個人, 系統 JOY 積累每𣈜, 𦤾各便益如 HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade 吧 HugoAura — 各公惧共𦣰𥪝沒系生態抵貴成員𡏦孕形影個人, 爫役, 學習吧解智麻空勤轉過𡗉應用恪饒.",
+      "aboutBody2": "荘 Bio 個人, 系統 JOY, HugoPSY, Study with Hugo, HugoRadio, HugoArcade 吧 HugoAura 共𦣰𥪝沒系生態抵貴成員爫役, 學習吧解智.",
       "featuresTitle": "性能浮弼",
       "features": {
         "bio": {
           "title": "張 Bio 個人",
           "desc": "張介紹, 連結吧役務𧵑𥢆貴成員, 隨變交面吧𢺺𢩿朋沒塘引鈍."
-        },
-        "helpdesk": {
-          "desc": "碼 QR/NFC 聰明吧𡨸記 email 專業底𢺺𢩿通信聯系𨘱𨄞."
-        },
-        "handle": {
-          "desc": "Link 保密朋密口吧公惧轉𢷮/𢬧影直線."
         },
         "psychology": {
           "desc": "埃同行傳學, 蹺唯職𥄭吧排習書簡感觸."
@@ -3137,7 +3131,7 @@
         },
         "step4": {
           "title": "𢺺𢩿張 Bio",
-          "desc": "用塘 link 公開或碼 QR/NFC 自 HugoHelpdesk 底𢺺𢩿張𧵑貴成員貝每𠊛."
+          "desc": "用塘 link 公開底𢺺𢩿張𧵑貴成員貝每𠊛."
         }
       },
       "versionLabel": "番版現在",
@@ -4343,12 +4337,6 @@
       "radio": {
         "description": "信息吧樂集中"
       },
-      "helpdesk": {
-        "description": "碼 QR, NFC 吧𡨸記 email"
-      },
-      "handle": {
-        "description": "𢬧影吧連結保密"
-      },
       "arcade": {
         "description": "𠻀𨔈解智認 JOY"
       },
@@ -4749,22 +4737,6 @@
         "toastSuccess": "𢬧和載𧗱成功.",
         "toastError": "𤻳欺𢬧 file. 㤥擔保定樣得互助 (jpg, png, webp, mp4)."
       }
-    },
-    "qrCode": {
-      "title": "造碼 QR 聰明",
-      "desc": "設立與料底𠊛恪𢭯吧實現𢭮達𣦍立即.",
-      "profileUrlDesc": "𢭯碼仕美𣦍張 Bio 𧵑貴成員.",
-      "iceContactLabel": "聯係緊急 (ICE)",
-      "vcardDesc": "𢭯碼仕美幔形自動添𠓨名簿.",
-      "wifiLabel": "𢺺𢩿 WIFI 學𡖡",
-      "wifiSsidLabel": "SSID (𠸜𦀴)",
-      "wifiPasswordLabel": "密口",
-      "wifiDesc": "𢭯碼電話𠱊自動結𦀼𦀴 WiFi 尼.",
-      "customTextLabel": "LINK 𡖡 / 材料",
-      "customTextDesc": "𢭯碼𠱊牢劄或顯是內容尼.",
-      "downloadBtn": "載碼 QR 𧗱𣛠",
-      "downloadSuccess": "載碼 QR 成功.",
-      "downloadError": "𤻳欺載碼 QR."
     },
     "ide": {
       "backDashboard": "𢮿吏 Dashboard",

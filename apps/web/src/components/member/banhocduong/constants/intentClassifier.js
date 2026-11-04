@@ -1207,9 +1207,9 @@ export const INTENT_DATABASE = [
     patterns: INTENT_PATTERNS.guide_qr,
     generateResponse: () => {
       return [
-        "Trình tạo QR (trong HugoKit ở thẻ Tiện ích) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard).",
-        "Chỉ cần quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
-        "Cậu có thể tải về file ảnh siêu nét (PNG) hoặc in ra quét offline mượt mà."
+        "QR Hugo tại qr.hugowishpax.studio cho phép cậu tạo và tải mã QR từ đường link mà không cần tài khoản.",
+        "Cậu có thể tùy chỉnh màu sắc, kích thước và mức sửa lỗi ngay trên trình duyệt.",
+        "Mã QR có thể tải về dạng PNG hoặc SVG để chia sẻ và in ấn."
       ];
     }
   },
@@ -1470,7 +1470,7 @@ const INTENT_QUICK_REPLIES = {
   panic_attack:      ["Tớ thở sâu nha", "Cậu ở bên tớ nha", "Bài tập 5-4-3-2-1"],
   guide_bio_link:    ["Chỉnh theme thế nào", "Hướng dẫn đặt lịch", "Vào Bio Editor"],
   guide_booking:     ["Xem lịch ở đâu", "Chỉnh theme thế nào", "Vào Quản lý lịch"],
-  guide_qr:          ["Tạo QR danh bạ", "Tạo QR Wi-Fi", "Vào thẻ Tiện ích"],
+  guide_qr:          ["Mở QR Hugo", "Tạo QR từ liên kết", "Tải QR dạng SVG"],
   guide_signature:   ["Tạo chữ ký thế nào", "Vào HugoSMail"],
   guide_ide:         ["Học lập trình", "Vào Study with Hugo"],
   guide_chess:       ["Đấu với AI", "Vào HugoChess"],
@@ -1523,7 +1523,7 @@ const STATIC_RULES = [
   { id: "lgbtq_confusion",     regex: /(thich con trai|thich con gai|co phai lgbt|hoang mang gioi tinh|come out|so bi ky thi tinh duc|\blgbt\b|\bgay\b|\bles\b|\blesbian\b|comeout)/ },
   { id: "guide_bio_link",      regex: /(tao bio|chinh bio|sua bio|trang ca nhan|thong tin lien he|link bio|bio link|chinh theme|theme editor|giao dien bio|brutalism|glassmorphism|bo goc|do bong|vien nut|mau nen|background bio|chieu cao|can nang|so do|ba vong|vong nguc|vong eo|vong mong|thong so co ban|ky nang|portfolio)/ },
   { id: "guide_booking",       regex: /(dat lich|hen lich|lich hen|hen chup|book|booking|khach dat|khach hen|khach book|quan ly lich|xem lich|zalo khach|email khach)/ },
-  { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|hugokit|nfc)/ },
+  { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr)/ },
   { id: "guide_signature",     regex: /(chu ky|signature|hugosmail|font chu ky|mau chu ky|tao chu ky|outlook|gmail)/ },
   { id: "guide_ide",           regex: /(code|lap trinh|viet code|ide|hugocoder|hoc lap trinh|compiler|chay code|download code|tai code|python|cpp)/ },
   { id: "guide_chess",         regex: /(co vua|chess|hugochess|dau co|choi co|phong co|giao huu|stockfish|dau co vua|choi co vua)/ },

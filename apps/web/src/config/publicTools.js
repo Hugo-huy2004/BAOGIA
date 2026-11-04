@@ -14,9 +14,6 @@
  *   "result" — usable straight away; producing a saved/exportable result needs a
  *              signed-in account whose student verification has been approved
  *              (bio.status is neither "pending" nor "rejected").
- *   "demo"   — guests get 3 demo uses per day (client counter for pure-client
- *              tools, per-IP counter on the server for file endpoints); signing
- *              in lifts the limit.
  */
 
 export const PUBLIC_TOOLS = {
@@ -65,18 +62,6 @@ export const PUBLIC_TOOLS = {
     summary:
       "Game nhẹ chạy thẳng trên trình duyệt, không cài đặt. Chơi ngay được; mở màn mới thì cần tài khoản sinh viên.",
   },
-  hugokit: {
-    gate: "demo",
-    aliases: ["handle"],
-    // 65 ký tự là trần của check-seo; bỏ "Online" giữ đủ từ khoá tính năng.
-    title: "HugoKit — Giải Nén ZIP, Nén Ảnh Video, Tạo QR | Hugo Studio",
-    description:
-      "Bộ công cụ xử lý file trên trình duyệt: giải nén ZIP online, nén ảnh JPG/PNG/WebP, nén video và tạo mã QR, chữ ký email.",
-    heading: "HugoKit",
-    summary:
-      "Giải nén ZIP, nén ảnh/video, tạo mã QR và chữ ký email ngay trên web. Khách được 3 lượt demo mỗi ngày; đăng nhập để dùng không giới hạn.",
-  },
-
   // Từng game một URL. `StandaloneGameShell` vốn đã tự chạy độc lập (Arcade và
   // màn hình chính đều dựng nó trực tiếp), nên đây chỉ là thêm đường vào —
   // `game` cho UtilityPublicPage biết dựng ván nào.

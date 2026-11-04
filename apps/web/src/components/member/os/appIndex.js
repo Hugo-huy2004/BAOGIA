@@ -7,15 +7,16 @@ import { lazy } from "react";
  * được chạm React. File này là nửa còn lại: app nào nạp từ tệp nào. Trước đây
  * nửa này nằm ở HAI chỗ — `lazy()` trong MemberUtilitiesTab và bảng tải trước
  * trong utils/chunkPrefetcher — và đã lệch nhau: bảng tải trước trỏ HugoPSY vào
- * một tệp không phải tệp app mở thật, còn Ví, HugoKit, Cửa Hàng, Danh Thiếp thì
+ * một tệp không phải tệp app mở thật, còn Ví, Cửa Hàng, Danh Thiếp thì
  * không có, nên bấm icon vẫn phải chờ tải dù đã "tải trước". Một bảng thì lazy
  * và tải trước dùng chung đúng một lời hứa, không lệch được nữa.
  *
  * Thêm app mới: một dòng ở APP_LOADERS (và một dòng manifest trong appRegistry).
  */
 const APP_LOADERS = {
-  handle: () => import("../hugoKit/HugoKitApp"),
   psychology: () => import("../banhocduong/BanhocduongTab"),
+  eduhugo: () => import("../eduHugo/EduHugoApp"),
+  qrhugo: () => import("../qrHugo/QrHugoApp"),
   joy_wallet: () => import("../wallet/JoyWalletApp"),
   arcade: () => import("../arcade/HugoArcadeTab"),
   nom: () => import("../nom/MemberNomTab"),
@@ -24,12 +25,7 @@ const APP_LOADERS = {
   store: () => import("../hugoStore/HugoStoreTab"),
 };
 
-// Id đã nghỉ hưu vẫn mở app kế nhiệm: bookmark và icon đã cài không được hỏng.
-const APP_ALIASES = {
-  helpdesk: "handle",
-};
-
-export const resolveAppId = (appId) => APP_ALIASES[appId] || appId;
+export const resolveAppId = (appId) => appId;
 export const hasAppModule = (appId) => Boolean(APP_LOADERS[resolveAppId(appId)]);
 
 const pending = new Map();

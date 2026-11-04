@@ -366,7 +366,6 @@ This code-based first pass guides later live QA; it is not a final Verified scor
 | Profile/Bio | Public bio plus thin verified-profile domain | Weak-to-developing | Private evidence first; later portable Student Builder Passport |
 | Aura | Rich local focus/ambience UI | Weak-to-developing | Server-backed sessions, presets and focus history |
 | App Home/Library | Strong shell and install metaphor | Platform gap | Canonical Registry and multi-device layout |
-| HugoKit/Handle | Useful tools collected together | Incubator | One recurring job or split into focused products |
 | Info | System-information utility | Kernel utility | Treat as Settings/About/Diagnostics |
 
 ## Milestones and Go/No-Go Gates

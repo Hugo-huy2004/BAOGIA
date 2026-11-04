@@ -238,14 +238,10 @@ Theo thứ tự đáng làm tiếp:
    > Ghi chú: `hugostudio.vn` **không có DNS**, không phân giải ra gì. Nó vẫn đang nằm
    > trong `ALLOWED_ORIGINS` trên Render và trong CLAUDE.md như thể là domain chính —
    > dọn đi cho khỏi nhầm. Domain thật đang chạy là `www.hugowishpax.studio`.
-2. **Đẩy file ra khỏi Render.** `routes/fileToolsRoutes.js` chạy ffmpeg rồi
-   `res.download`, `routes/hugoTeamRoutes.js:261` stream PDF — vừa ăn 0.1 vCPU vừa
-   ăn băng thông mỗi lượt tải. Đã có `cloudinary` trong deps: trả signed URL thay
-   vì stream qua server. Hoặc Cloudflare R2 (egress miễn phí).
-3. **Oracle Cloud Always Free** — VM ARM 4 vCPU / 24GB, chạy 24/7 thật, không đếm
+2. **Oracle Cloud Always Free** — VM ARM 4 vCPU / 24GB, chạy 24/7 thật, không đếm
    giờ. Repo đã có sẵn `scripts/deploy/setup-vps.sh`. Đây là lựa chọn free duy nhất thực sự
    always-on.
-4. **Render Starter $7/tháng** — hết giới hạn giờ, hết ngủ. Bước 4 (Cloudflare
+3. **Render Starter $7/tháng** — hết giới hạn giờ, hết ngủ. Bước 4 (Cloudflare
    cache) vẫn nên làm dù có trả tiền.
 
 ## Quay lui

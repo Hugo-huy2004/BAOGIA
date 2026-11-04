@@ -57,7 +57,7 @@ const simulateYear = (usedApps, months = 12) => {
   return { asked, rounds };
 };
 
-const heavy = simulateYear(['handle', 'arcade', 'study', 'psychology', 'bio']);
+const heavy = simulateYear(['aura', 'arcade', 'study', 'psychology', 'bio']);
 check(new Set(heavy.asked).size === heavy.asked.length,
   `người dùng 5 ứng dụng: ${heavy.asked.length} câu trong 12 tháng, KHÔNG câu nào lặp`);
 check(heavy.rounds.every((r) => r.length === QUESTIONS_PER_ROUND),
@@ -80,7 +80,7 @@ const exhausted = buildSurvey({ usedApps: ['bio'], askedIds: ids.flatMap((id) =>
 check(exhausted.length === 0, 'hỏi hết bộ câu → trả về RỖNG, không quay vòng hỏi lại');
 
 // ── 3. KHÔNG HỎI THỨ CHƯA TỪNG DÙNG ──────────────────────────────────────────
-const used = ['handle', 'arcade'];
+const used = ['aura', 'arcade'];
 const everyAppQuestion = simulateYear(used, 24).asked
   .map(parseQuestionId).filter((p) => p.appId);
 check(everyAppQuestion.every((p) => used.includes(p.appId)),

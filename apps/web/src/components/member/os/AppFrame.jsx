@@ -9,8 +9,8 @@ import { trackAppOpen } from "../../../services/api/modules/surveyApi";
 /**
  * HugoOS — khung ứng dụng dùng chung.
  *
- * Trước đây mỗi app trong portal tự dựng chrome riêng: HugoKit dùng iosKit,
- * Cinema tự vẽ tab bar, Supporter thì không có gì cả. Cùng một portal mà mỗi
+ * Trước đây mỗi app trong portal tự dựng chrome riêng: Cinema tự vẽ tab bar,
+ * Supporter thì không có gì cả. Cùng một portal mà mỗi
  * app một cỡ chữ, một kiểu nút quay lại, một cách chừa safe-area — đó là gốc
  * của cảm giác "UI yếu", không phải thiếu hiệu ứng.
  *
@@ -56,8 +56,8 @@ export default function AppFrame({
   /**
    * Tiêu đề lớn kiểu iOS (34px, thu lại khi cuộn) cho MÀN CHÍNH của app.
    *
-   * HugoKit vốn đã truyền `largeTitle` nhưng AppFrame hardcode `large={false}`,
-   * nên prop này chưa bao giờ có tác dụng. Ngoài chuyện mất dáng iOS, chế độ nhỏ
+   * Trước đây AppFrame hardcode `large={false}`, nên prop này chưa bao giờ có
+   * tác dụng. Ngoài chuyện mất dáng iOS, chế độ nhỏ
    * vẽ tiêu đề bằng `<span>` — tức app không có `<h1>` nào, sai cả semantics.
    * Mặc định vẫn `false` để app đang chạy không đổi dáng ngoài ý muốn.
    */

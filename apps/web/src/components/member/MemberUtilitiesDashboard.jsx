@@ -356,8 +356,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     };
   }, []);
 
-  // Spotlight tìm cả màn hình bên trong app, không chỉ tên app: gõ "QR" phải ra
-  // thẳng công cụ QR của HugoKit chứ không bắt người dùng mở HugoKit rồi tự dò.
+  // Spotlight tìm cả màn hình bên trong app, không chỉ tên app.
   const spotlightFilteredApps = useMemo(() => {
     const byId = new Map(allUtilities.map((util) => [util.id, util]));
     const destinations = APP_DESTINATIONS.flatMap((destination) => {

@@ -56,13 +56,6 @@ export const TOUR_DEFINITIONS = {
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
-      selector: '#utility-card-handle',
-      title: 'HugoKit',
-      content: 'Hộp công cụ: tạo mã QR (hồ sơ, danh bạ, WiFi), chữ ký email, link bảo mật có mật khẩu và giải nén/nén tệp.',
-      placement: 'top',
-      beforeStep: (actions) => actions.switchTab('utilities')
-    },
-    {
       selector: '#utility-card-psychology',
       title: 'HugoPSY',
       content: 'Góc tư vấn tâm lý tự động cùng AI, làm trắc nghiệm lâm sàng định kỳ (DASS-42) và thực hành các bài tập giảm stress.',

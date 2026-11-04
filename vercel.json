@@ -248,10 +248,6 @@
       "destination": "/arcade/index.html"
     },
     {
-      "source": "/hugokit",
-      "destination": "/hugokit/index.html"
-    },
-    {
       "source": "/chess",
       "destination": "/chess/index.html"
     },

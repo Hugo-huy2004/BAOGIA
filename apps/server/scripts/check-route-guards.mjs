@@ -95,11 +95,6 @@ const PUBLIC_ROUTES = {
   // tần suất). Đừng thêm lại một dòng miễn cổng cho mã không ký.
   "joyWalletRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
 
-  // ── Công cụ tệp: cổng dùng thử 3 lượt/ngày theo IP (config/publicTools.js)
-  "fileToolsRoutes.js POST /extract/upload": "HugoKit cho khách dùng thử; giới hạn theo IP",
-  "fileToolsRoutes.js POST /compress": "như trên",
-  "fileToolsRoutes.js GET /extract/download/:fileId": "tải về bằng id ngẫu nhiên vừa phát, sống ngắn",
-  "fileToolsRoutes.js DELETE /extract/cleanup/:fileId": "dọn tệp tạm của chính phiên đó",
 
   // ── Robot: cổng riêng, kiểm TRONG thân handler ───────────────────────────
   "robotRoutes.js POST /request-otp": "phát OTP; có rate limit riêng",

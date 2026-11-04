@@ -3293,20 +3293,12 @@
       "desc": "Giới thiệu về Hugo Studio, phiên bản hiện tại và một phần thưởng nhỏ chỉ dành cho Quý thành viên.",
       "aboutTitle": "Giới thiệu Hugo Studio",
       "aboutBody": "Hugo Studio là nền tảng Bio-link cá nhân kết hợp bộ công cụ tiện ích đa năng, được xây dựng để mỗi người đều tìm được một góc riêng phù hợp với cá tính và nhịp sống của mình — không có khuôn mẫu chung cho tất cả.",
-      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade và HugoAura — các công cụ cùng nằm trong một hệ sinh thái để Quý thành viên xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
+      "aboutBody2": "Trang Bio cá nhân, hệ thống JOY, HugoPSY, Study with Hugo, HugoRadio, HugoArcade và HugoAura cùng nằm trong một hệ sinh thái để Quý thành viên làm việc, học tập và giải trí.",
       "featuresTitle": "Tính năng nổi bật",
       "features": {
         "bio": {
           "title": "Trang Bio cá nhân",
           "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng Quý thành viên, tuỳ biến giao diện và chia sẻ bằng một đường dẫn gọn."
-        },
-        "helpdesk": {
-          "title": "HugoHelpdesk",
-          "desc": "Mã QR/NFC thông minh và chữ ký email chuyên nghiệp để chia sẻ thông tin liên hệ nhanh chóng."
-        },
-        "handle": {
-          "title": "HugoHandle",
-          "desc": "Link bảo mật bằng mật khẩu và công cụ chuyển đổi/nén ảnh trực tuyến."
         },
         "psychology": {
           "title": "HugoPSY",
@@ -3349,7 +3341,7 @@
         },
         "step4": {
           "title": "Chia sẻ trang Bio",
-          "desc": "Dùng đường link công khai hoặc mã QR/NFC từ HugoHelpdesk để chia sẻ trang của Quý thành viên với mọi người."
+          "desc": "Dùng đường link công khai để chia sẻ trang của Quý thành viên với mọi người."
         }
       },
       "versionLabel": "Phiên bản hiện tại",
@@ -4721,14 +4713,6 @@
         "title": "HugoRadio",
         "description": "Tin tức và nhạc tập trung"
       },
-      "helpdesk": {
-        "title": "HugoHelpdesk",
-        "description": "Mã QR, NFC và chữ ký email"
-      },
-      "handle": {
-        "title": "HugoHandle",
-        "description": "Nén ảnh và liên kết bảo mật"
-      },
       "arcade": {
         "title": "HugoArcade",
         "description": "Trò chơi giải trí nhận JOY"
@@ -5159,22 +5143,6 @@
         "toastSuccess": "Nén và tải về thành công.",
         "toastError": "Lỗi khi nén file. Hãy đảm bảo định dạng được hỗ trợ (jpg, png, webp, mp4)."
       }
-    },
-    "qrCode": {
-      "title": "Tạo Mã QR Thông Minh",
-      "desc": "Thiết lập dữ liệu để người khác quét và thực hiện cài đặt ngay lập tức.",
-      "profileUrlDesc": "Quét mã sẽ mở ngay trang Bio của Quý thành viên.",
-      "iceContactLabel": "LIÊN HỆ KHẨN CẤP (ICE)",
-      "vcardDesc": "Quét mã sẽ mở màn hình tự động Thêm vào Danh bạ.",
-      "wifiLabel": "CHIA SẺ WIFI HỌC NHÓM",
-      "wifiSsidLabel": "SSID (Tên Mạng)",
-      "wifiPasswordLabel": "Mật Khẩu",
-      "wifiDesc": "Quét mã điện thoại sẽ tự động kết nối mạng WiFi này.",
-      "customTextLabel": "LINK NHÓM / TÀI LIỆU",
-      "customTextDesc": "Quét mã sẽ sao chép hoặc hiển thị nội dung này.",
-      "downloadBtn": "Tải Mã QR Về Máy",
-      "downloadSuccess": "Tải mã QR thành công.",
-      "downloadError": "Lỗi khi tải mã QR."
     },
     "ide": {
       "backDashboard": "Quay Lại Dashboard",
@@ -8314,16 +8282,6 @@
           "Độc quyền bởi Hugo Studio",
           "Đấu máy hoặc hai người",
           "Bảng xếp hạng theo mùa"
-        ]
-      },
-      {
-        "app": "HugoKit",
-        "title": "Tám công cụ, một chỗ.",
-        "body": "Tạo và quét mã QR, đổi ảnh, giải nén, tạo mật khẩu. Phần lớn xử lý ngay trên máy, tệp không phải gửi lên đâu.",
-        "points": [
-          "QR, ảnh, tệp, văn bản",
-          "Tạo mật khẩu mạnh",
-          "Khoá liên kết bằng mật khẩu"
         ]
       }
     ],

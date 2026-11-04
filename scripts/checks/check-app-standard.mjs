@@ -25,7 +25,6 @@ const MEMBER = path.join(ROOT, "apps/web/src/components/member");
  */
 const CERTIFIED = {
   hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
-  hugoKit: "20/09/2026 — địa chỉ riêng cho từng công cụ, hai khung trên màn rộng, ranh giới lỗi, large title",
   arcade: "20/09/2026 — LazyBoundary cho chunk game (một game hỏng từng làm trắng CẢ portal), 🔥/⚡ trong Game2048 → Material Symbols, 29 chỗ chữ <13px ở bảng xếp hạng và pinball. Giữ hình thái game toàn màn + quân cờ Unicode (ngoại lệ có lý do)",
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
@@ -75,8 +74,8 @@ const EXCEPTIONS = {
 
 /** Mỗi app: file vỏ + thư mục (nếu có) để quét cả component con. */
 const APPS = {
-  hugoKit: { entry: "hugoKit/HugoKitApp.jsx", dir: "hugoKit" },
   wallet: { entry: "wallet/JoyWalletApp.jsx", dir: "wallet" },
+  qrHugo: { entry: "qrHugo/QrHugoApp.jsx", dir: "qrHugo" },
   hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
   arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   banhocduong: { entry: "banhocduong/BanhocduongTab.jsx", dir: "banhocduong" },
@@ -124,12 +123,6 @@ const CRITERIA = [
     label: "có bố cục cho màn rộng (khung chung, hoặc grid/breakpoint riêng)",
     /*
      * Đo ở FILE VỎ, không phải bình quân cả thư mục.
-     *
-     * Bản đầu của tiêu chí này lấy số breakpoint chia cho tổng số dòng của mọi
-     * file trong app, và nó chấm HugoKit là trượt dù cái vỏ đã có hai khung:
-     * tám file công cụ không có breakpoint nào làm loãng tỷ lệ. Nhưng bố cục
-     * theo bề ngang màn là việc của cái vỏ — công cụ chỉ đổ nội dung vào khung
-     * đã chia sẵn, chúng KHÔNG cần breakpoint riêng.
      *
      * Đạt khi vỏ có một trong hai: layout chia khung theo breakpoint
      * (lg:grid, md:flex…), hoặc đủ dày breakpoint để coi là đã chăm màn rộng.

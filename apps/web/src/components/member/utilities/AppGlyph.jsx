@@ -123,25 +123,6 @@ const SCENES = {
     </>
   ),
 
-  // Công Cụ — mã QR và tệp
-  handle: (f) => (
-    <>
-      <Slab x={9} y={11} w={24} h={24} r={5} fill={f} />
-      {[[12.5, 14.5], [24, 14.5], [12.5, 26]].map(([x, y]) => (
-        <g key={`${x}-${y}`}>
-          <rect x={x} y={y} width="6.4" height="6.4" rx="1.8" fill="#0f172a" opacity="0.72" />
-          <rect x={x + 2.1} y={y + 2.1} width="2.2" height="2.2" rx="0.6" fill="#fff" />
-        </g>
-      ))}
-      {[[24, 26], [28.4, 30.4], [24, 30.4]].map(([x, y]) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width="2.4" height="2.4" rx="0.6" fill="#0f172a" opacity="0.5" />
-      ))}
-      <Slab x={31} y={19} w={9} h={16} r={2.6} fill={f} />
-      <rect x="33" y="24" width="5" height="1.6" rx="0.8" fill="#0f172a" opacity="0.24" />
-      <rect x="33" y="27.6" width="3.4" height="1.6" rx="0.8" fill="#0f172a" opacity="0.18" />
-    </>
-  ),
-
   // Trò Chơi — cần điều khiển và hai nút
   arcade: (f) => (
     <>
@@ -396,6 +377,9 @@ const FALLBACK = (f) => (
 
 export default function AppGlyph({ appId }) {
   const uid = useId();
+  if (appId === "eduhugo") {
+    return <img src="/brand/edu-hugo-mascot.png" alt="" className="h-full w-full object-contain" />;
+  }
   const face = `${uid}-face`;
   const glass = `${uid}-glass`;
   const scene = SCENES[appId] || FALLBACK;

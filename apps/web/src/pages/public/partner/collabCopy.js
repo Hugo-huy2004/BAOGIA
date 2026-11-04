@@ -14,7 +14,7 @@ export const COLLAB_COPY = {
     frames: (c) => [
       { id: "signup", icon: "login", title: "Đăng ký một chạm", body: "Chỉ một nút Google. Không mật khẩu, không biểu mẫu dài dòng." },
       { id: "days", icon: "badge", title: `${Math.round(c.bioDays / 30)} tháng tài khoản & trang Bio`, body: `Tặng ${c.bioDays} ngày duy trì tài khoản và trang Bio. Đã xác minh giáo dục? Thêm ${c.eduBonusDays} ngày nữa.` },
-      { id: "services", icon: "apps", title: "Dịch vụ hoàn toàn miễn phí", body: "Trải nghiệm trọn bộ: trang Bio, Study with Hugo, HugoKit, giờ tập trung Aura và HugoArcade." },
+      { id: "services", icon: "apps", title: "Dịch vụ hoàn toàn miễn phí", body: "Trải nghiệm trọn bộ: trang Bio, Study with Hugo, giờ tập trung Aura và HugoArcade." },
       { id: "joy", icon: "account_balance_wallet", title: `${c.joy.toLocaleString("vi-VN")} JOY & Hugo Team`, body: `Ví JOY được tặng ${c.joy.toLocaleString("vi-VN")} JOY, và bạn có thể cùng tham gia các dự án phi lợi nhuận tại Hugo Team.` },
     ],
     claimTitle: "Đăng nhập ngay và nhận ưu đãi",
@@ -63,7 +63,6 @@ export const COLLAB_COPY = {
     features: [
       { id: "bio", icon: "badge", title: "Trang Bio", body: "Một trang mang tên bạn: liên kết, dự án, giao diện tự chọn — chia sẻ bằng một đường link.", tour: "Bắt đầu từ đây: điền tên, ảnh, liên kết mạng xã hội và chọn giao diện. Trang Bio có địa chỉ riêng để bạn gắn vào hồ sơ, CV hay mạng xã hội.", path: "/member/utilities/bio" },
       { id: "joy", icon: "account_balance_wallet", title: "Ví JOY", body: "Số JOY bạn vừa nhận nằm ở đây. Dùng để mở giao diện, tính năng và gói ứng dụng.", tour: "JOY là điểm thưởng trong Hugo Studio. Bạn kiếm thêm qua điểm danh, học và chơi; tiêu để mở giao diện Bio, gói ứng dụng hay tặng bạn bè.", path: "/member/utilities/joy_wallet" },
-      { id: "kit", icon: "handyman", title: "HugoKit", body: "Bộ công cụ nhanh: mã QR, chữ ký, liên kết bí mật, nén file.", tour: "Khi cần tạo mã QR, ký tên điện tử, gửi liên kết có mật khẩu hay nén file — HugoKit có sẵn, không quảng cáo.", path: "/member/utilities/handle" },
       { id: "aura", icon: "blur_on", title: "Aura · giờ tập trung", body: "Hẹn giờ tập trung có nhạc nền, nhận JOY khi hoàn thành.", tour: "Đặt một phiên tập trung, bật nhạc nền và để Aura giữ nhịp. Mỗi phiên trọn vẹn được thưởng JOY.", path: "/member/utilities/aura" },
       { id: "arcade", icon: "stadium", title: "HugoArcade", body: "Cờ vua, 2048, caro, rắn săn mồi — giải trí không quảng cáo.", tour: "Nghỉ giải lao với cờ vua trực tuyến, 2048 và nhiều trò khác. Phá kỷ lục cũng được thưởng JOY.", path: "/member/utilities/arcade" },
     ],
@@ -85,7 +84,7 @@ export const COLLAB_COPY = {
     frames: (c) => [
       { id: "signup", icon: "login", title: "One-tap sign-up", body: "Just one Google button. No password, no long forms." },
       { id: "days", icon: "badge", title: `${Math.round(c.bioDays / 30)} months of account & Bio page`, body: `${c.bioDays} days of account and Bio page. Education verified? Get ${c.eduBonusDays} more days.` },
-      { id: "services", icon: "apps", title: "Services, completely free", body: "Try everything: Bio page, Study with Hugo, HugoKit, Aura focus and HugoArcade." },
+      { id: "services", icon: "apps", title: "Services, completely free", body: "Try everything: Bio page, Study with Hugo, Aura focus and HugoArcade." },
       { id: "joy", icon: "account_balance_wallet", title: `${c.joy.toLocaleString("en-US")} JOY & Hugo Team`, body: `${c.joy.toLocaleString("en-US")} JOY in your wallet, and a seat in Hugo Team's non-profit projects.` },
     ],
     claimTitle: "Sign in and claim your offer",
@@ -134,7 +133,6 @@ export const COLLAB_COPY = {
     features: [
       { id: "bio", icon: "badge", title: "Bio page", body: "A page with your name: links, projects, a theme you pick — shared with one link.", tour: "Start here: add your name, photo and social links, then pick a theme. Your Bio has its own address for your profile, CV or socials.", path: "/member/utilities/bio" },
       { id: "joy", icon: "account_balance_wallet", title: "JOY wallet", body: "The JOY you just received lives here. Use it for themes, features and app plans.", tour: "JOY are Hugo Studio reward points. Earn more by checking in, learning and playing; spend them on Bio themes, app plans or gifts for friends.", path: "/member/utilities/joy_wallet" },
-      { id: "kit", icon: "handyman", title: "HugoKit", body: "Quick tools: QR codes, signatures, secret links, file compression.", tour: "Need a QR code, an e-signature, a password-protected link or a smaller file? HugoKit has it, ad-free.", path: "/member/utilities/handle" },
       { id: "aura", icon: "blur_on", title: "Aura · focus time", body: "A focus timer with background music that rewards JOY.", tour: "Start a focus session, turn on music and let Aura keep the rhythm. Every completed session earns JOY.", path: "/member/utilities/aura" },
       { id: "arcade", icon: "stadium", title: "HugoArcade", body: "Chess, 2048, caro, snake — ad-free fun.", tour: "Take a break with online chess, 2048 and more. New records earn JOY too.", path: "/member/utilities/arcade" },
     ],
@@ -156,7 +154,7 @@ export const COLLAB_COPY = {
     frames: (c) => [
       { id: "signup", icon: "login", title: "一键注册", body: "只需一个 Google 按钮。无需密码，无需冗长表单。" },
       { id: "days", icon: "badge", title: `${Math.round(c.bioDays / 30)} 个月账户与 Bio 页面`, body: `赠送 ${c.bioDays} 天账户与 Bio 页面使用期。已完成教育认证？再加 ${c.eduBonusDays} 天。` },
-      { id: "services", icon: "apps", title: "服务完全免费", body: "畅享全部服务：Bio 页面、Study with Hugo、HugoKit、Aura 专注时间与 HugoArcade。" },
+      { id: "services", icon: "apps", title: "服务完全免费", body: "畅享全部服务：Bio 页面、Study with Hugo、Aura 专注时间与 HugoArcade。" },
       { id: "joy", icon: "account_balance_wallet", title: `${c.joy.toLocaleString("zh-CN")} JOY 与 Hugo Team`, body: `JOY 钱包获赠 ${c.joy.toLocaleString("zh-CN")} JOY，并可加入 Hugo Team 的非营利项目。` },
     ],
     claimTitle: "立即登录并领取优惠",
@@ -205,7 +203,6 @@ export const COLLAB_COPY = {
     features: [
       { id: "bio", icon: "badge", title: "Bio 页面", body: "一个属于你的页面：链接、项目、自选主题——一条链接即可分享。", tour: "从这里开始：填写姓名、头像和社交链接，再选择主题。Bio 页面有独立网址，可放在个人资料、简历或社交平台上。", path: "/member/utilities/bio" },
       { id: "joy", icon: "account_balance_wallet", title: "JOY 钱包", body: "你刚领取的 JOY 就在这里，可用于解锁主题、功能和应用套餐。", tour: "JOY 是 Hugo Studio 的奖励积分。通过签到、学习和游戏赚取更多；可用于 Bio 主题、应用套餐或赠送好友。", path: "/member/utilities/joy_wallet" },
-      { id: "kit", icon: "handyman", title: "HugoKit", body: "快捷工具：二维码、电子签名、加密链接、文件压缩。", tour: "需要生成二维码、电子签名、带密码的链接或压缩文件？HugoKit 全都有，且无广告。", path: "/member/utilities/handle" },
       { id: "aura", icon: "blur_on", title: "Aura · 专注时间", body: "带背景音乐的专注计时器，完成即得 JOY。", tour: "开始一段专注时间，打开背景音乐，让 Aura 帮你保持节奏。每完成一次都会奖励 JOY。", path: "/member/utilities/aura" },
       { id: "arcade", icon: "stadium", title: "HugoArcade", body: "国际象棋、2048、五子棋、贪吃蛇——无广告的休闲娱乐。", tour: "用在线国际象棋、2048 等游戏放松一下。打破纪录同样能获得 JOY。", path: "/member/utilities/arcade" },
     ],

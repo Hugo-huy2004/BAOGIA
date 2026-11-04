@@ -41,18 +41,11 @@ const manifest = ({
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
-  manifest({
-    id: "handle", icon: "handyman", tint: "indigo", category: "tools", badge: "utility", storageMb: 1.6, version: "2.0.0", store: true, storeOrder: 5,
-    destinations: [
-      { id: "qr", icon: "qr_code_2", labelKey: "utilities.qrCode.title" },
-      { id: "signature", icon: "draw", labelKey: "utilities.signature.title" },
-      { id: "links", icon: "lock", labelKey: "utilities.secretLink.title" },
-      { id: "files", icon: "folder_zip", labelKey: "utilities.fileTools.title" },
-    ],
-  }),
   manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
   manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0", store: true, storeOrder: 9 }),
+  manifest({ id: "eduhugo", icon: "school", tint: "cyan", category: "edu", badge: "new", storageMb: 0.3, version: "1.0.0" }),
+  manifest({ id: "qrhugo", icon: "qr_code_2", tint: "blue", category: "tools", badge: "new", storageMb: 0.4, version: "1.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
   manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),
@@ -77,8 +70,11 @@ export const REQUIRED_APP_IDS = Object.freeze([
   "psychology",
   // "radio" gộp vào Chuyên Chú 25/10/2026 — Chuyên Chú cài sẵn thay chỗ nó.
   "aura",
-  "handle",
   "joy_wallet",
+  // Cổng chuyển tiếp chính thức từ HugoCoding sang Education Hugo.
+  "eduhugo",
+  // Cài sẵn: người từ qr.hugowishpax.studio đăng nhập là thấy app lấy key ngay.
+  "qrhugo",
 ]);
 
 export const RETIRED_APP_IDS = Object.freeze([
@@ -91,6 +87,8 @@ export const RETIRED_APP_IDS = Object.freeze([
   "hugoskin",
   "ide",
   "hugoso",
+  // HugoKit ngừng hoạt động 04/11/2026; QR đã tách thành website riêng.
+  "handle",
   "helpdesk",
   "cinema",
   "invest",
@@ -135,12 +133,12 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "bio",
   "arcade",
   "store",
-  "handle",
   "nom",
+  "eduhugo",
+  // QR Hugo: cổng nối tài khoản với qr.hugowishpax.studio (04/11/2026).
+  "qrhugo",
   // HugoPSY dựng trên AppFrame (app chat toàn màn) từ 03/10.
   "psychology",
-  // Id đã nghỉ hưu nhưng vẫn mở app kế nhiệm; bookmark cũ phải ra đúng vỏ.
-  "helpdesk",
 ]);
 
 /**

@@ -2071,20 +2071,12 @@
       "desc": "关于Hugo Studio，当前版本以及为你提供的一小笔奖励。",
       "aboutTitle": "关于Hugo Studio",
       "aboutBody": "Hugo Studio是一款结合了个人Bio链接平台和多功能实用工具包的个人化平台。它被设计成每个人都可以找到适合他们个性和生活节奏的独特角落——这里没有一刀切。",
-      "aboutBody2": "从你的个人Bio页面到JOY奖励系统，再到像HugoHelpdesk、HugoHandle、HugoPSY、Study with Hugo、HugoRadio、HugoArcade和HugoAura这样的工具，每项工具都集中在同一个地方，这样你可以构建自己的形象、工作、学习和放松时无需切换不同的应用程序。",
+      "aboutBody2": "个人Bio页面、JOY奖励、HugoPSY、Study with Hugo、HugoRadio、HugoArcade和HugoAura集中在一个生态中，方便工作、学习和放松。",
       "featuresTitle": "关键功能",
       "features": {
         "bio": {
           "title": "个人简介页面",
           "desc": "您的个人资料、链接和服务页面——自定义设计并分享一个单个链接。"
-        },
-        "helpdesk": {
-          "title": "HugoHelpdesk",
-          "desc": "智能二维码/近场通信代码和专业电子邮件签名，快速共享您的联系信息。"
-        },
-        "handle": {
-          "title": "HugoHandle",
-          "desc": "密码保护的可靠链接和在线图像转换/压缩。"
         },
         "psychology": {
           "title": "HugoPSY",
@@ -2123,7 +2115,7 @@
         },
         "step4": {
           "title": "分享您的 Bio 页面",
-          "desc": "使用公共链接或从 HugoHelpdesk 获取的二维码/ NFC 代码与任何人共享页面。"
+          "desc": "使用公共链接与任何人共享页面。"
         }
       },
       "versionLabel": "当前版本",
@@ -3036,14 +3028,6 @@
         "title": "HugoRadio",
         "description": "新闻和焦点音乐"
       },
-      "helpdesk": {
-        "title": "HugoHelpdesk",
-        "description": "二维码、NFC 和电子邮件签名"
-      },
-      "handle": {
-        "title": "HugoHandle",
-        "description": "图片压缩和安全链接"
-      },
       "arcade": {
         "title": "HugoArcade",
         "description": "奖励JOY的游戏"
@@ -3478,22 +3462,6 @@
         "toastSuccess": "压缩错误。确保格式支持（jpg, png, webp, mp4）。",
         "toastError": "Compression error. Ensure format is supported (jpg, png, webp, mp4)."
       }
-    },
-    "qrCode": {
-      "title": "创建智能二维码",
-      "desc": "为他人扫描并立即设置。",
-      "profileUrlDesc": "扫描将立即打开您的Bio页面。",
-      "iceContactLabel": "在紧急情况下（ICE）联系",
-      "vcardDesc": "扫描将触发添加到通讯录弹窗。",
-      "wifiLabel": "共享学习小组Wi-Fi",
-      "wifiSsidLabel": "SSID (网络名称)",
-      "wifiPasswordLabel": "密码",
-      "wifiDesc": "扫描将自动连接您的手机到此WiFi网络。",
-      "customTextLabel": "群组链接 / 文件",
-      "customTextDesc": "扫描将复制或显示此内容。",
-      "downloadBtn": "下载二维码",
-      "downloadSuccess": "二维码已成功下载！",
-      "downloadError": "下载二维码时出错。"
     },
     "ide": {
       "backDashboard": "返回仪表板",
@@ -8211,7 +8179,6 @@
         ],
         "shots": {
           "study": "学习——分阶段的路径，用真正交上来的作业评分。",
-          "hugokit": "工具箱——压缩文件、生成二维码、处理图片，都在浏览器里完成。",
           "arcade": "游戏——手写的，打开就能玩，不用安装。",
           "services": "服务页——价目与预约流程。",
           "portfolio": "个人作品集页面。"
@@ -8467,16 +8434,6 @@
           "Hugo Studio 独家制作",
           "对战电脑或双人对战",
           "赛季排行榜"
-        ]
-      },
-      {
-        "app": "HugoKit",
-        "title": "八个工具，一个地方。",
-        "body": "生成和扫描二维码、转换图片、解压文件、生成密码。大部分在本机处理，文件不必上传。",
-        "points": [
-          "二维码、图片、文件、文本",
-          "强密码生成",
-          "密码保护链接"
         ]
       }
     ],

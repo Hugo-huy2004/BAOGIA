@@ -7,7 +7,6 @@ import { UniversalSessionGuard } from "../../utils/universalSessionGuard";
 import { AISelfHealingEngine } from "../../utils/aiSelfHealingEngine";
 import AISelfHealingBoundary from "../../components/ui/AISelfHealingBoundary";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { notify } from "../../lib/notify";
 
 import { resolvePublicTool } from "../../config/publicTools";
 import StatusScreen from "../../components/system/StatusScreen";
@@ -17,12 +16,7 @@ const TherapyTab = lazy(() => import("../../components/member/banhocduong/Therap
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
-const HugoKitApp = lazy(() => import("../../components/member/hugoKit/HugoKitApp"));
 const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
-
-// Khách chưa đăng nhập được 3 lượt demo HugoKit mỗi ngày. Các tool thuần client
-// (QR, chữ ký) đếm bằng localStorage; endpoint file phía server tự đếm theo IP.
-const HUGOKIT_DEMO_USES_PER_DAY = 3;
 
 const PUBLIC_TOOL_VISUALS = Object.freeze({
   banhocduong: {
@@ -64,14 +58,6 @@ const PUBLIC_TOOL_VISUALS = Object.freeze({
     glowB: "bg-indigo-300/20",
     line: "from-violet-500 via-indigo-500 to-blue-600",
     button: "from-violet-500 to-indigo-600 shadow-violet-500/25",
-  },
-  hugokit: {
-    icon: "folder_zip",
-    page: "from-blue-500/14 via-indigo-400/8 to-background",
-    glowA: "bg-blue-400/25",
-    glowB: "bg-indigo-300/20",
-    line: "from-blue-500 via-indigo-500 to-violet-600",
-    button: "from-blue-500 to-indigo-600 shadow-blue-500/25",
   },
 });
 
@@ -161,20 +147,7 @@ export default function UtilityPublicPage() {
   // "result" tools need an approved student verification, not just a session.
   const isVerified = isAuthenticated && bio?.status !== "pending" && bio?.status !== "rejected";
   const meetsGate =
-    gate === "open" || (gate === "level" || gate === "demo" ? isAuthenticated : isVerified);
-
-  // Lượt demo trong ngày cho tool thuần client của HugoKit (QR, chữ ký).
-  const takeDemoUse = () => {
-    if (isAuthenticated) return true;
-    const key = `hugokit_demo_${new Date().toISOString().slice(0, 10)}`;
-    const used = Number(localStorage.getItem(key) || 0);
-    if (used >= HUGOKIT_DEMO_USES_PER_DAY) {
-      setShowLoginPrompt(true);
-      return false;
-    }
-    localStorage.setItem(key, String(used + 1));
-    return true;
-  };
+    gate === "open" || (gate === "level" ? isAuthenticated : isVerified);
 
   // Only called when a tool reaches a gated action. Browsing and playing stay
   // open — the old blanket onClickCapture blocked every guest click, which
@@ -262,29 +235,6 @@ export default function UtilityPublicPage() {
         return <MemberRadioTab {...commonProps} />;
       case "aura":
         return <MemberAuraTab {...commonProps} />;
-      case "hugokit":
-      case "handle":
-        return (
-          <HugoKitApp
-            bio={player}
-            publicLink=""
-            showToast={(msg, type) =>
-              (notify[type === "error" ? "error" : type === "warning" ? "warning" : "success"])(msg)
-            }
-            onBack={() => navigate("/introduction")}
-            guardTool={(id) => {
-              if (id === "links") {
-                // LinksTool lưu qua chuỗi setFormData/handleSave của portal —
-                // bản public không có, nên đưa thẳng về nơi dùng được.
-                if (isAuthenticated) navigate("/member/utilities/handle");
-                else setShowLoginPrompt(true);
-                return false;
-              }
-              if (id === "files") return true; // server tự đếm 3 lượt/ngày theo IP
-              return takeDemoUse();
-            }}
-          />
-        );
       case "arcade":
         return (
           <HugoArcadeTab
@@ -307,15 +257,7 @@ export default function UtilityPublicPage() {
   // What the visitor is actually being asked for differs per gate, so the prompt
   // says which one and sends them to the step that unblocks it.
   const prompt =
-    gate === "demo"
-      ? {
-          icon: "lock_open",
-          title: "Đăng nhập để tiếp tục",
-          body: `Khách được ${HUGOKIT_DEMO_USES_PER_DAY} lượt demo HugoKit mỗi ngày. Đăng nhập Google miễn phí để dùng không giới hạn và mở đủ 3 mức nén.`,
-          action: "Tiếp tục với Google",
-          to: `/login?redirect=/${tool}`,
-        }
-      : gate === "level"
+    gate === "level"
       ? {
           icon: "videogame_asset",
           title: "Mở màn tiếp theo",
@@ -383,10 +325,10 @@ export default function UtilityPublicPage() {
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="rounded-2xl border border-border/70 bg-card/70 p-3 backdrop-blur">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {toolConfig?.slug === "radio" ? "Radio demo" : toolConfig?.slug === "hugokit" ? "HugoKit demo" : "Tài khoản thường"}
+                    {toolConfig?.slug === "radio" ? "Radio demo" : "Tài khoản thường"}
                   </p>
                   <p className="mt-1 text-base font-black text-foreground">
-                    {toolConfig?.slug === "radio" ? "Nghe thử 15 phút" : toolConfig?.slug === "hugokit" ? "3 lượt mỗi ngày" : "30 ngày miễn phí"}
+                    {toolConfig?.slug === "radio" ? "Nghe thử 15 phút" : "30 ngày miễn phí"}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3 backdrop-blur">

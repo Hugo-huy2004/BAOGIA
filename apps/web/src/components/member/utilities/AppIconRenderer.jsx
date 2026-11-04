@@ -66,7 +66,7 @@ export default function AppIconRenderer({
               />
 
               {/* App Label Underneath */}
-              {/* Two lines max: a brand such as HugoHelpdesk cannot shrink, and
+              {/* Two lines max: a long brand name cannot shrink, and
                   Thai/Spanish names run longer than their English source. */}
               <h3 className="mt-2 text-[12px] font-medium text-foreground text-center w-full leading-tight px-0.5 line-clamp-2 min-h-[2.4em] break-words">
                 {app.title}

@@ -22,7 +22,7 @@ khoản đã đăng nhập Google, đã điền đủ hồ sơ, mỗi người m
    Hết suất (hoặc chiến dịch đã đóng): vẫn đăng nhập và vẫn được chào mừng,
    nhưng không nhận gì từ chiến dịch — chỉ còn JOY khởi tạo của hệ thống, kèm
    lời nhắc xác minh giáo dục để tăng thời hạn dùng. Không bắn pháo hoa.
-5. Tour driver.js tự chạy, dẫn qua Bio, Ví JOY, Hugo Team, Study, HugoKit,
+5. Tour driver.js tự chạy, dẫn qua Bio, Ví JOY, Hugo Team, Study,
    Aura, Arcade rồi nút vào trang thành viên.
 
 ## Thêm / đổi / xoá chiến dịch

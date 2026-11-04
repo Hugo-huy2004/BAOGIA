@@ -354,7 +354,7 @@ function MemberPortalPage() {
   // member on the exact same utility/sub-tab instead of bouncing them back to
   // the utilities dashboard (e.g. /member/utilities/psychology/therapy). ──────
   const retiredUtility = activeTab === "map" || (
-    activeTab === "utilities" && ["deco", "hugoskin", "map"].includes(subTab)
+    activeTab === "utilities" && ["deco", "hugoskin", "map", "handle", "helpdesk"].includes(subTab)
   );
   const utilitySelection = activeTab === "utilities" && !retiredUtility ? (subTab || null) : null;
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
