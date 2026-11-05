@@ -11,8 +11,6 @@ npm run dev:frontend     # chỉ Vite, port 3000
 npm run dev:backend      # chỉ Node backend, port 8099 (needs MongoDB running)
 npm run lint             # ESLint over apps/web/src + apps/server + scripts + apps/workers
 npm run build            # production build → apps/web/dist (KHÔNG commit)
-npm run dev:portfolio    # portfolio độc lập, port 3001, không cần backend
-npm run build:portfolio  # portfolio build riêng → apps/web/dist-portfolio (không commit)
 npm run check:cv         # ba CV chính phải đúng 1 trang A4; kiểm chữ bản Anh
 npm run build:analyze    # build + bundle treemap at apps/web/dist/stats.html
 
@@ -59,7 +57,7 @@ bypasses `requireMember` and needs an internal key the client must not hold.
 Monorepo (npm workspaces, one lockfile at the root):
 
 ```
-apps/web/          React 18 + Vite SPA (+ Capacitor android/ios, portfolio entry)
+apps/web/          React 18 + Vite SPA (+ Capacitor android/ios)
 apps/server/       Express + Mongoose + WebSocket, port 8099
 apps/ai/           FastAPI, port 8000 (own Vercel project, deployed from this folder)
 apps/workers/      Cloudflare Workers: keepalive, media-proxy (wrangler, not workspaces)
@@ -75,7 +73,7 @@ Cross-package imports are plain relative paths (`../../../packages/shared/x.js`)
 package names — Vite, Node and the Vercel functions all resolve them with no build step.
 
 - `apps/web/src/` — Tailwind, Zustand (`apps/web/src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next, locales in `apps/web/src/i18n/locales/`. Vite runs with cwd `apps/web` (its config, `index.html`, `public/`, `.env` live there); root scripts call it through `npm run … --workspace apps/web`.
-- `apps/web/src/portfolio/main.jsx` — entry riêng cho `portfolio.hugowishpax.studio`, dùng `apps/web/vite.portfolio.config.js` và `apps/web/deploy/portfolio.vercel.json`. `www` mở ServicesPage tại `/`; `/introduction` chuyển sang portfolio. Xem `docs/tach-portfolio-services.md`. Xuất lại PDF trong `apps/web/public/` bằng `npm run cv:pdf` trước build khi sửa CV.
+- Portfolio là project độc lập tại `../hugo-portfolio`; Hugo Studio chỉ giữ redirect `/introduction` sang `portfolio.hugowishpax.studio`. Xem `docs/tach-portfolio-services.md`.
 - `apps/web/src/education/` — **Education Hugo** (`education.hugowishpax.studio`): same build, same Vercel project and backend as www, picked by hostname in `App.jsx` (`packages/shared/eduSite.js`; dev: `http://education.localhost:3000`). Own shell, manifest (`public/edu.webmanifest`, swapped at runtime) and clay mascots (`npm run gen:mascots`). Courses are free (6 preview steps without account); the account still follows Hugo Studio rules — 7-day trial, extend with JOY (`POST /api/joy/extend-account`, `ACCOUNT_EXTENSION`), edu verification = 1 year. First pass of a step pays `CODER_JOY_PER_CORRECT` JOY per correct answer. Learning routes use `requireMemberSession` (no profile gate). `/study` redirects here. Push: subscriptions made from the Edu origin get `site: 'edu'` and only receive `sendEduPush` (study reminder at the learner's hour, account expiry 3/1 days, new sign-in); www pushes skip them. Personal settings (`packages/shared/eduPrefs.js`) live in `EduLearner`, ride along on `GET /api/joy/coder-access`, saved with `PUT /api/joy/edu-settings`.
 - `apps/server/` — routes in `apps/server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`. Env in `apps/server/.env`.
 - `apps/ai/` — Reached only through Node: `apps/server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `apps/server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
@@ -108,7 +106,7 @@ Better Auth (`apps/server/auth/betterAuth.js`), two separate instances — never
 - **AI calls**: all Gemini usage on the Node side routes through `apps/server/services/aiGateway.js` (quota, cache, retry, model downgrade, kill-switch). Don't call the Gemini SDK directly from route handlers.
 - **Buttons / Liquid Glass**: every `<button>`/`[role=button]` already gets the iOS press feel (scale + spring + highlight) from `apps/web/src/lib/liquidGlass/LiquidPressEngine.js`, started once in `main.jsx` — don't add per-button `active:scale-*`. Glass surfaces use `.lg-glass`, `.lg-glass--prominent`, `.lg-glass--clear` (`apps/web/src/styles/liquidGlass.css`). Opt a region out (game boards, drag surfaces) with `data-lg-off`. Default framer-motion transition is an iOS spring set by `MotionConfig` in `App.jsx`.
 - **Icons**: monochrome Material Symbols only (`bg-muted`, `text-foreground`) on public pages — no emoji, no colorful icon badges.
-- **Public portfolio pages** (`apps/web/src/pages/public/IntroductionPage.jsx`, `ServicesPage.jsx`): prices and copy are author-written — don't change them without asking; UI-only changes are fine.
+- **Public pages** (`apps/web/src/pages/public/ServicesPage.jsx` và các trang dự án): prices and copy are author-written — don't change them without asking; UI-only changes are fine.
 - **JOY wallet/QR**: QR payloads are opaque server-signed HMAC tokens (`apps/server/utils/joyQrToken.js`); the client never constructs or parses them.
 
 ## gstack

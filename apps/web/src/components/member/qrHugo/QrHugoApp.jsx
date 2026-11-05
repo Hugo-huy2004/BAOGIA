@@ -3,13 +3,19 @@ import { useTranslation } from "react-i18next";
 import AppFrame from "../os/AppFrame";
 
 /**
- * QR Hugo — cổng nối tài khoản Hugo Studio với qr.hugowishpax.studio.
- * Tab "Kết nối": key (mã thành viên + phần bí mật), trạng thái, lượt dùng, log.
+ * API-m — quản lý một key Hugo Studio dùng cho mọi dịch vụ API của Hugo
+ * (QR Hugo qr.hugowishpax.studio, Link Hugo link.hugowishpax.studio).
+ * Tab "Kết nối": key, trạng thái, lượt dùng theo dịch vụ, biểu đồ 30 ngày, link đã tạo, log.
  * Tab "Hướng dẫn": cách kết nối, lợi ích, API, thư viện, hỏi đáp.
  * Server: apps/server/routes/qrKeyRoutes.js.
  */
 const API = import.meta.env.VITE_API_URL || "/api";
 const QR_SITE = "https://qr.hugowishpax.studio";
+const LINK_SITE = "https://link.hugowishpax.studio";
+export const SERVICES = [
+  { id: "qr", name: "QR Hugo", icon: "qr_code_2", site: QR_SITE, text: "Tạo ảnh mã QR qua GET /api/qr", color: "bg-sky-500" },
+  { id: "link", name: "Link Hugo", icon: "link", site: LINK_SITE, text: "Rút gọn link qua POST /api/shorten", color: "bg-violet-500" },
+];
 const card = "rounded-3xl border border-border bg-card/70 p-5 shadow-sm";
 const btn = "inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45";
 const h2 = "text-lg font-extrabold text-foreground";
@@ -21,6 +27,22 @@ async function call(path, init) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Đã có lỗi xảy ra.");
   return data;
+}
+
+/**
+ * Realtime: nghe SSE `${API}/qr-key/<path>`; mỗi tín hiệu thay đổi → gọi lại `reload` (gộp các tín hiệu dồn dập trong 400ms).
+ * EventSource tự nối lại khi mất mạng; quay lại tab cũng tải lại một lần cho chắc.
+ */
+export function useLive(path, reload, onSignal) {
+  useEffect(() => {
+    let timer = 0;
+    const kick = (e) => { if (e?.data) onSignal?.(e.data); clearTimeout(timer); timer = setTimeout(reload, 400); };
+    const es = new EventSource(`${API}/qr-key/${path}`, { withCredentials: true });
+    es.onmessage = kick;
+    const onVisible = () => { if (!document.hidden) kick(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearTimeout(timer); es.close(); document.removeEventListener("visibilitychange", onVisible); };
+  }, [path, reload, onSignal]);
 }
 
 function Icon({ name, className = "" }) {
@@ -38,6 +60,28 @@ function Meter({ label, value, max }) {
       <div className="flex items-baseline justify-between text-sm"><span className="font-semibold text-foreground">{label}</span><span className="tabular-nums text-muted-foreground">{value.toLocaleString("vi-VN")} / {max.toLocaleString("vi-VN")}</span></div>
       <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
         <div className={`h-full rounded-full ${pct >= 90 ? "bg-red-500" : "bg-primary"}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/** Cột chồng 30 ngày, không cần thư viện biểu đồ. */
+export function UsageChart({ daily = [] }) {
+  const max = Math.max(1, ...daily.map((d) => d.qr + d.link));
+  const total = daily.reduce((n, d) => n + d.qr + d.link, 0);
+  return (
+    <div>
+      <div className="flex h-32 items-end gap-[3px]" role="img" aria-label={`${total.toLocaleString("vi-VN")} lượt trong 30 ngày`}>
+        {daily.map((d) => (
+          <div key={d.day} className="group relative flex h-full flex-1 flex-col justify-end" title={`${d.day.split("-").reverse().join("/")}: QR ${d.qr} · Link ${d.link}`}>
+            <div className="w-full rounded-t-sm bg-violet-500" style={{ height: `${(d.link / max) * 100}%` }} />
+            <div className={`w-full bg-sky-500 ${d.link ? "" : "rounded-t-sm"}`} style={{ height: `${(d.qr / max) * 100}%`, minHeight: d.qr + d.link ? 0 : 2, opacity: d.qr + d.link ? 1 : 0.15 }} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        {SERVICES.map((s) => <span key={s.id} className="inline-flex items-center gap-1.5"><i className={`size-2.5 rounded-full ${s.color}`} />{s.name}</span>)}
+        <span className="ml-auto tabular-nums">{total.toLocaleString("vi-VN")} lượt / 30 ngày</span>
       </div>
     </div>
   );
@@ -70,8 +114,8 @@ function Overview({ state, reload, showToast }) {
         <div className="flex items-center gap-3">
           <span className={`flex size-12 items-center justify-center rounded-2xl ${s.connected ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500"}`}><Icon name={s.connected ? "link" : "link_off"} className="text-[26px]" /></span>
           <div>
-            <h2 id="qh-status" className={h2}>{s.connected ? "Đã kết nối với QR Hugo" : s.hasKey ? "Chưa kết nối" : "Chưa có key"}</h2>
-            <p className={muted}>{s.connected ? `Kết nối từ ${fmt(s.connectedAt)} · mã thành viên ${s.code}` : s.hasKey ? "Dán key vào mục API trên qr.hugowishpax.studio để kết nối." : "Tạo key để dùng API và thư viện QR Hugo."}</p>
+            <h2 id="qh-status" className={h2}>{s.disabled ? "Key đang bị tạm khoá" : s.connected ? "Key đang hoạt động" : s.hasKey ? "Chưa kết nối" : "Chưa có key"}</h2>
+            <p className={muted}>{s.disabled ? "Quản trị viên đã tạm khoá key — mọi dịch vụ đang từ chối. Liên hệ contact@hugowishpax.studio." : s.connected ? `Kết nối từ ${fmt(s.connectedAt)} · mã thành viên ${s.code} · một key dùng cho mọi dịch vụ` : s.hasKey ? "Dán key vào mục API trên QR Hugo hoặc Link Hugo để kết nối." : "Tạo một key để dùng API của QR Hugo và Link Hugo."}</p>
           </div>
         </div>
         {s.connected && (out || expired) && (
@@ -91,7 +135,7 @@ function Overview({ state, reload, showToast }) {
             <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">Lưu key này lại ngay — đóng app là không xem lại được.</p>
             <div className="flex flex-wrap gap-2">
               <button type="button" className={`${btn} bg-foreground text-background`} onClick={copy}><Icon name="content_copy" /> Sao chép key</button>
-              <a className={`${btn} border border-border text-foreground`} href={`${QR_SITE}/#api`} target="_blank" rel="noopener noreferrer"><Icon name="open_in_new" /> Dán vào QR Hugo</a>
+              {SERVICES.map((v) => <a key={v.id} className={`${btn} border border-border text-foreground`} href={`${v.site}/#api`} target="_blank" rel="noopener noreferrer"><Icon name="open_in_new" /> Dán vào {v.name}</a>)}
             </div>
           </div>
         ) : (
@@ -121,11 +165,45 @@ function Overview({ state, reload, showToast }) {
         ) : <p className={`${muted} mt-2`}>Chưa có dữ liệu — lượt dùng và thời hạn bắt đầu tính khi QR Hugo xác nhận kết nối.</p>}
       </section>
 
+      {/* Dịch vụ */}
+      <section className={card} aria-labelledby="qh-services">
+        <h2 id="qh-services" className={h2}>Dịch vụ dùng key này</h2>
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+          {SERVICES.map((v) => (
+            <li key={v.id} className="flex items-center gap-3 rounded-2xl bg-muted/50 p-4">
+              <span className={`flex size-11 shrink-0 items-center justify-center rounded-xl text-white ${v.color}`}><Icon name={v.icon} /></span>
+              <div className="min-w-0 flex-1">
+                <a className="font-bold text-foreground hover:underline" href={v.site} target="_blank" rel="noopener noreferrer">{v.name}</a>
+                <p className="truncate text-xs text-muted-foreground">{v.text}</p>
+              </div>
+              <span className="text-right"><b className="block text-lg font-extrabold tabular-nums text-foreground">{(s.usage?.[v.id] || 0).toLocaleString("vi-VN")}</b><small className="text-muted-foreground">lượt</small></span>
+            </li>
+          ))}
+        </ul>
+        {s.connected && <div className="mt-5"><UsageChart daily={s.daily} /></div>}
+      </section>
+
+      {/* Link đã tạo */}
+      {s.items?.length > 0 && (
+        <section className={card} aria-labelledby="qh-items">
+          <h2 id="qh-items" className={h2}>Link ngắn đã tạo qua API</h2>
+          <ol className="mt-2 divide-y divide-border">
+            {s.items.slice(0, 30).map((it) => (
+              <li key={it.ref + it.at} className="flex items-center gap-3 py-2.5 text-sm">
+                <a className="shrink-0 font-mono font-bold text-primary hover:underline" href={`${LINK_SITE}/${it.ref}+`} target="_blank" rel="noopener noreferrer">/{it.ref}</a>
+                <span className="min-w-0 flex-1 truncate text-muted-foreground" title={it.target}>{it.target}</span>
+                <time className="shrink-0 tabular-nums text-muted-foreground" dateTime={it.at}>{new Date(it.at).toLocaleDateString("vi-VN")}</time>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {/* Log */}
       <section className={card} aria-labelledby="qh-log">
         <div className="flex items-center justify-between">
           <h2 id="qh-log" className={h2}>Nhật ký</h2>
-          <button type="button" className={`${btn} px-3 text-muted-foreground`} onClick={reload} aria-label="Tải lại"><Icon name="refresh" /></button>
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600"><i className="size-2 animate-pulse rounded-full bg-emerald-500" /> Trực tiếp</span>
         </div>
         {s.logs.length ? (
           <ol className="mt-2 divide-y divide-border">
@@ -133,6 +211,7 @@ function Overview({ state, reload, showToast }) {
               <li key={i} className="flex gap-3 py-2.5 text-sm">
                 <Icon name={l.level === "error" ? "error" : "check_circle"} className={l.level === "error" ? "text-red-500" : "text-emerald-500"} />
                 <span className="flex-1 text-foreground">{l.msg}</span>
+                {l.service && <span className="shrink-0 rounded-full bg-muted px-2 text-xs font-bold text-muted-foreground">{l.service === "link" ? "Link" : "QR"}</span>}
                 <time className="shrink-0 tabular-nums text-muted-foreground" dateTime={l.at}>{new Date(l.at).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" })}</time>
               </li>
             ))}
@@ -145,9 +224,9 @@ function Overview({ state, reload, showToast }) {
 
 const STEPS = [
   ["key", "Tạo key", "Ở tab Kết nối, bấm Tạo key. Key có dạng HS-<mã thành viên>-<phần bí mật>. Sao chép và cất ở nơi an toàn."],
-  ["link", "Kết nối", "Mở qr.hugowishpax.studio, kéo tới mục API, dán key và bấm Mở khóa. QR Hugo báo ngay về Hugo Studio: trạng thái chuyển sang Đã kết nối, chu kỳ 30 ngày bắt đầu."],
-  ["code", "Gọi API", "Gửi key trong header Authorization: Bearer <key> mỗi lần gọi GET /api/qr. Mỗi lượt gọi thành công trừ một lượt của chu kỳ."],
-  ["monitoring", "Theo dõi", "Quay lại app này để xem lượt còn lại, ngày reset và nhật ký lỗi (key sai, vượt giới hạn, hết lượt)."],
+  ["link", "Kết nối", "Mở QR Hugo hoặc Link Hugo, kéo tới mục API, dán key và bấm Mở khóa. Trạng thái chuyển sang Đã kết nối, chu kỳ 30 ngày bắt đầu. Một key dùng cho cả hai."],
+  ["code", "Gọi API", "Gửi key trong header Authorization: Bearer <key>: GET /api/qr để tạo QR, POST /api/shorten để rút gọn link. Mỗi lượt gọi thành công trừ một lượt của chu kỳ (hai dịch vụ dùng chung)."],
+  ["monitoring", "Theo dõi", "Quay lại app này để xem lượt theo từng dịch vụ, biểu đồ 30 ngày, link đã tạo và nhật ký lỗi."],
 ];
 const BENEFITS = [
   ["palette", "Tùy biến sâu", "12 kiểu chấm, 7 kiểu viền mắt, 13 kiểu nhân mắt, gradient, màu riêng cho mắt, 7 kiểu khung có chữ."],
@@ -167,9 +246,9 @@ function Guide() {
   return (
     <div className="space-y-4 pb-10">
       <section className={card} aria-labelledby="g-what">
-        <h2 id="g-what" className={h2}>QR Hugo là gì?</h2>
-        <p className={`${muted} mt-1`}>QR Hugo (qr.hugowishpax.studio) là studio tạo mã QR của Hugo Studio: link, Wi-Fi, danh thiếp vCard, email, SMS, vị trí — với màu sắc, hình dạng, logo và khung riêng. Trên web dùng trực tiếp; cho lập trình viên có API và thư viện qr-hugo.</p>
-        <a className={`${btn} mt-3 bg-primary text-primary-foreground`} href={QR_SITE} target="_blank" rel="noopener noreferrer"><Icon name="open_in_new" /> Mở QR Hugo</a>
+        <h2 id="g-what" className={h2}>API-m là gì?</h2>
+        <p className={`${muted} mt-1`}>API-m là nơi quản lý mọi API của Hugo Studio bằng một key duy nhất: <b>QR Hugo</b> (qr.hugowishpax.studio) tạo mã QR có màu, logo, khung; <b>Link Hugo</b> (link.hugowishpax.studio) rút gọn link kèm QR, hẹn giờ tự huỷ, mật khẩu. Trên web dùng trực tiếp miễn phí; key chỉ cần khi gọi API từ ứng dụng của bạn.</p>
+        <div className="mt-3 flex flex-wrap gap-2">{SERVICES.map((v) => <a key={v.id} className={`${btn} bg-primary text-primary-foreground`} href={v.site} target="_blank" rel="noopener noreferrer"><Icon name="open_in_new" /> Mở {v.name}</a>)}</div>
       </section>
 
       <section className={card} aria-labelledby="g-steps">
@@ -240,6 +319,24 @@ const svg = await res.text();`}</Code>
         </ul>
       </section>
 
+      <section className={card} aria-labelledby="g-link">
+        <h2 id="g-link" className={h2}>API rút gọn link (Link Hugo)</h2>
+        <p className={`${muted} mt-1`}>Một request POST, trả về JSON có link ngắn và link xem trước an toàn (thêm dấu + ở cuối). Link bị Google Safe Browsing đánh dấu nguy hiểm sẽ bị từ chối.</p>
+        <div className="mt-3 space-y-3">
+          <Code>{`curl -X POST "${LINK_SITE}/api/shorten" \
+  -H "Authorization: Bearer $HUGO_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com/bai-viet-rat-dai","alias":"tailieu-2026","ttl":"7d"}'
+# → {"short":"${LINK_SITE}/tailieu-2026","preview":"${LINK_SITE}/tailieu-2026+",...}`}</Code>
+        </div>
+        <ul className={`${muted} mt-3 space-y-1`}>
+          <li><b className="font-mono text-foreground">url</b> — link gốc http/https (bắt buộc).</li>
+          <li><b className="font-mono text-foreground">alias</b> — đuôi tuỳ chọn, 3–40 ký tự a-z, 0-9, - hoặc _.</li>
+          <li><b className="font-mono text-foreground">ttl</b> — 1h | 24h | 7d | 30d | forever (mặc định forever).</li>
+          <li><b className="font-mono text-foreground">password</b> — mã PIN/mật khẩu 4–64 ký tự, người mở link phải nhập đúng.</li>
+        </ul>
+      </section>
+
       <section className={card} aria-labelledby="g-lib">
         <h2 id="g-lib" className={h2}>Thư viện qr-hugo</h2>
         <p className={`${muted} mt-1`}>Vẽ đúng các mã QR như API ngay trong ứng dụng, chạy offline, không cần key. Có Web Component cho Vue, Angular, Svelte, HTML thuần và component riêng cho React.</p>
@@ -280,12 +377,13 @@ export default function QrHugoApp({ onBack, showToast, route, onRouteChange }) {
     try { setState({ loading: false, error: "", data: await call("me") }); } catch (e) { setState({ loading: false, error: e.message, data: null }); }
   }, []);
   useEffect(() => { reload(); }, [reload]);
+  useLive("me/live", reload);
 
   return (
     <AppFrame
       appId="qrhugo"
-      title={t("memberApps.qrhugo.title", "QR Hugo")}
-      subtitle="qr.hugowishpax.studio"
+      title={t("memberApps.qrhugo.title", "API-m")}
+      subtitle="QR Hugo · Link Hugo"
       largeTitle
       onBack={onBack}
       tabs={[{ id: "overview", icon: "link", label: "Kết nối" }, { id: "guide", icon: "menu_book", label: "Hướng dẫn" }]}

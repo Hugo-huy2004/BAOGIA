@@ -44,7 +44,7 @@ export const APP_REGISTRY = Object.freeze([
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
   manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0", store: true, storeOrder: 9 }),
   manifest({ id: "eduhugo", icon: "school", tint: "cyan", category: "edu", badge: "new", storageMb: 0.3, version: "1.0.0" }),
-  manifest({ id: "qrhugo", icon: "qr_code_2", tint: "blue", category: "tools", badge: "new", storageMb: 0.4, version: "1.0.0" }),
+  manifest({ id: "qrhugo", icon: "api", tint: "blue", category: "tools", badge: "new", storageMb: 0.4, version: "2.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
   manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
   manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),

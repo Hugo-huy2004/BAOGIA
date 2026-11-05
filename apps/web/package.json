@@ -11,10 +11,7 @@
     "build:native": "VITE_BUILD_TARGET=native vite build --outDir dist-native",
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
-    "native:android": "npm run native:sync && npx cap open android",
-    "dev:portfolio": "vite --config vite.portfolio.config.js",
-    "build:portfolio": "vite build --config vite.portfolio.config.js",
-    "preview:portfolio": "vite preview --config vite.portfolio.config.js"
+    "native:android": "npm run native:sync && npx cap open android"
   },
   "dependencies": {
     "@better-auth/core": "1.7.10",

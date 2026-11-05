@@ -17,6 +17,7 @@ import { adminBrainApi } from "../../services/api/modules/adminBrainApi";
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
+const AdminApiTab = lazy(() => import("../../components/admin/AdminApiTab"));
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
@@ -465,6 +466,8 @@ export default function AdminPanel() {
         return <AdminServicesTab triggerConfirm={triggerConfirm} />;
       case "store":
         return <AdminUtilityStoreTab />;
+      case "apis":
+        return <Suspense fallback={<p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>}><AdminApiTab /></Suspense>;
 
       case "control":
         return (

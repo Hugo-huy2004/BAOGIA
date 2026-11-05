@@ -64,11 +64,6 @@
     "check:joy-stability": "node apps/server/scripts/check-joy-stability.mjs",
     "joy:recall": "node apps/server/scripts/joy-recall.mjs",
     "joy:report": "node -e \"import('./apps/server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\"",
-    "dev:portfolio": "npm run --workspace apps/web dev:portfolio",
-    "build:portfolio": "npm run --workspace apps/web build:portfolio && node scripts/generate-portfolio-seo.mjs",
-    "preview:portfolio": "npm run --workspace apps/web preview:portfolio",
-    "check:seo:portfolio": "SITE_TARGET=portfolio node scripts/checks/check-seo.mjs",
-    "deploy:portfolio": "node scripts/deploy-portfolio.mjs",
     "og:partner": "node scripts/generate-partner-og.mjs"
   },
   "devDependencies": {

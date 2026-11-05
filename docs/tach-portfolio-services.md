@@ -1,25 +1,26 @@
 # Portfolio và website dịch vụ
 
-Hai website có entry React và thư mục build riêng, dùng chung dữ liệu dự án và bản dịch.
+Hai website là hai project độc lập. Portfolio nằm ngoài Hugo Studio tại `../hugo-portfolio` và không dùng backend.
 
 | Website | Nội dung | Chạy cục bộ | Build | Kết quả |
 |---|---|---|---|---|
-| `portfolio.hugowishpax.studio` | Giới thiệu, dự án, học vấn, kỹ năng, CV, liên hệ | `npm run dev:portfolio` (3001) | `npm run build:portfolio` | `dist-portfolio/` |
+| `portfolio.hugowishpax.studio` | Giới thiệu, dự án, học vấn, kỹ năng, CV, liên hệ | `cd ../hugo-portfolio && npm run dev` | `npm run build` | `dist/` |
 | `www.hugowishpax.studio` | Trang chủ dịch vụ, bảng giá, đặt lịch và portal hiện có | `npm run dev` (3000) | `npm run build` | `dist/` |
 
-Portfolio không khởi động portal, đăng nhập, ví, quảng cáo hoặc service worker của website dịch vụ. Hồ sơ dùng dữ liệu dự phòng có sẵn nên không cần backend để hiển thị. Trang giới thiệu chính là một trang cuộn; chi tiết dự án vẫn có đường dẫn riêng. Học vấn và kỹ năng hiển thị trực tiếp, không nằm trong hoạt cảnh cuộn dài. Kỹ năng chia ba nhóm, có mô tả cách sử dụng và liên kết dự án; nguồn dùng chung với CV là `apps/web/src/data/profileSkills.js`.
+Portfolio không có portal, đăng nhập, ví, quảng cáo, service worker hay API. Trang giới thiệu chính là một trang cuộn; chi tiết dự án vẫn có đường dẫn riêng. Dữ liệu, bản dịch, ảnh dự án và CV nằm trong chính project portfolio.
 
 ## Triển khai
 
 Website dịch vụ dùng Vercel project **`baogia`** trong team **`hugo-huy2004s-projects`**, kết nối nhánh `main` của repo `BAOGIA` và tự triển khai khi push.
 
-Portfolio dùng project riêng **`hugo-portfolio`**, với tên miền `portfolio.hugowishpax.studio`. Từ gốc repo:
+Portfolio dùng project riêng **`hugo-portfolio`**, với tên miền `portfolio.hugowishpax.studio`. Từ project portfolio:
 
 ```sh
-npm run deploy:portfolio
+npm run build
+vercel --prod
 ```
 
-Lệnh kiểm tra CV, build portfolio, kiểm tra SEO, rồi tải **chỉ bản website đã build** lên project portfolio. Cấu hình redirects, rewrites và headers lấy từ `apps/web/deploy/portfolio.vercel.json`; API và file môi trường của website dịch vụ không được gửi lên project portfolio. Cần Vercel CLI đã đăng nhập đúng team. Khi sửa CV, vẫn phải xuất PDF trước khi triển khai.
+Cấu hình redirects, rewrites và headers nằm trong `../hugo-portfolio/vercel.json`. Project không chứa API hoặc file môi trường của website dịch vụ. Cần Vercel CLI đã đăng nhập đúng team.
 
 DNS nằm ở Cloudflare: CNAME `portfolio` trỏ đến đích được Vercel đề xuất (`cname.vercel-dns.com` cũng được chấp nhận), chế độ DNS only. `www` giữ cấu hình hiện có.
 

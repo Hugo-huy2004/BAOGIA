@@ -29,6 +29,7 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/queue(?:\/|$)/, 'queue'],
   [/^\/api\/admin\/ai-support(?:\/|$)/, 'support'],
   [/^\/api\/admin\/users(?:\/|$)/, 'users'],
+  [/^\/api\/qr-key\/admin(?:\/|$)/, 'users'],
   [/^\/api\/admin\/(?:store|orders)(?:\/|$)/, 'commerce'],
   [/^\/api\/admin\/(?:audit-logs)(?:\/|$)/, 'audit'],
   [/^\/api\/admin\/(?:security|brain\/auto-moderator)(?:\/|$)/, 'security'],
