@@ -1,5 +1,4 @@
 import UserProfile from '../models/UserProfile.js';
-import MemberActivity from '../models/MemberActivity.js';
 
 /**
  * "Đang online" = có nhịp tim trong 90 giây qua (client gửi ~45s/lần khi tab
@@ -38,9 +37,4 @@ export async function isOnline(email) {
 
 export async function getOnlineStatuses(emails) {
   return Object.fromEntries(await Promise.all(emails.map(async (e) => [e, await isOnline(e)])));
-}
-
-/** Số thành viên có mở app trong một ngày (YYYY-MM-DD giờ VN, mặc định hôm nay). */
-export async function getDailyActiveCount(dateStr) {
-  return MemberActivity.countDocuments({ days: dateStr || todayStr() });
 }

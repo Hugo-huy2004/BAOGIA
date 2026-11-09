@@ -107,14 +107,10 @@ Production employees must always:
 
 ## API surface
 
-All endpoints are admin-only under `/api/admin/workforce`:
-
-- `GET /agents` — list the production roster and capabilities.
-- `GET /tasks` — list recent tasks with optional `status` and `agentKey`.
-- `GET /tasks/:id` — inspect one task.
-- `POST /tasks` — create and immediately run one bounded task.
-- `POST /tasks/:id/approve` — approve and execute a proposed action once.
-- `POST /tasks/:id/reject` — reject a pending proposal.
+None. The `/api/admin/workforce` routes and the admin "Đội ngũ AI" tab were
+removed on 2026-11-09. Tasks are created only server-side by
+`aiIncidentResponseService.js`; proposals that reach `awaiting_approval` are
+not executed by anything.
 
 ## Rollout
 

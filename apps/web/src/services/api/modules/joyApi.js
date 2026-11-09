@@ -13,11 +13,6 @@ async function parseOrThrow(res) {
   return data;
 }
 
-export async function resolvePhone(phone) {
-  const res = await fetch(`${getApiUrl()}/joy/resolve-phone?phone=${encodeURIComponent(phone)}`);
-  return parseOrThrow(res);
-}
-
 export async function searchJoyUser(q, email) {
   const res = await fetch(`${getApiUrl()}/joy/search-user?q=${encodeURIComponent(q)}&email=${encodeURIComponent(email || "")}`);
   return parseOrThrow(res);

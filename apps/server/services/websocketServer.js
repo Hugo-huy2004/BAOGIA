@@ -10,10 +10,6 @@ import { originAllowed } from '../middleware/originLock.js';
 import { clientIp as getClientIp } from '../utils/clientIp.js';
 import { allowedOrigins, isDev, localOriginRegex } from '../config/cors.js';
 
-let realtimeWss = null;
-let acceptedConnections = 0;
-let closedConnections = 0;
-let staleConnectionsTerminated = 0;
 const activeConnectionsByIp = new Map();
 const upgradeWindows = new Map();
 const MAX_CONNECTIONS_PER_IP = 12;
@@ -52,24 +48,13 @@ function trackConnection(ws, ip) {
   });
 }
 
-export function getWebSocketStats() {
-  return {
-    activeConnections: realtimeWss?.clients.size || 0,
-    acceptedConnections,
-    closedConnections,
-    staleConnectionsTerminated,
-  };
-}
-
 export function setupWebSocketServers(server) {
   // WebSocket server cho real-time data / notifications (path: /ws)
   const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 * 1024 });
-  realtimeWss = wss;
   const heartbeat = setInterval(() => {
     for (const ws of wss.clients) {
       if (ws.readyState !== 1) continue;
       if (ws.isAlive === false) {
-        staleConnectionsTerminated += 1;
         ws.terminate();
         continue;
       }
@@ -147,7 +132,6 @@ export function setupWebSocketServers(server) {
       global.wsClients[email] = new Set();
     }
     global.wsClients[email].add(ws);
-    acceptedConnections += 1;
 
     ws.isAlive = true;
     let messageCount = 0;
@@ -181,7 +165,6 @@ export function setupWebSocketServers(server) {
     });
 
     ws.on('close', () => {
-      closedConnections += 1;
       if (global.wsClients[email]) {
         global.wsClients[email].delete(ws);
         if (global.wsClients[email].size === 0) {

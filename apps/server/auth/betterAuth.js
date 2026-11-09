@@ -244,13 +244,6 @@ export async function deleteMemberLogin(email) {
   await ctx.internalAdapter.deleteUser(user.user.id);
 }
 
-/** Đăng xuất mọi thiết bị của một thành viên. */
-export async function revokeMemberSessions(email) {
-  const ctx = await memberAuth().$context;
-  const user = await ctx.internalAdapter.findUserByEmail(String(email).toLowerCase());
-  if (user?.user) await ctx.internalAdapter.deleteUserSessions(user.user.id);
-}
-
 /**
  * Có cookie phiên do CHÍNH máy chủ này ký không — kiểm đồng bộ, không chạm DB.
  * Dành cho lớp chạy trên mọi request (khiên tải, cổng IP): chỉ cần biết "người

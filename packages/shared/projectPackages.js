@@ -106,19 +106,6 @@ export function estimateDelivery(packageId, startedAt) {
 }
 
 /**
- * Hạn bảo hành tính từ lúc bàn giao. Gói chính bảo hành TRỌN ĐỜI → trả null
- * (dùng `isLifetimeWarranty` để hiện chữ "Trọn đời" thay cho một ngày).
- */
-export function warrantyUntil(packageId, completedAt) {
-  const facts = getPackageFacts(packageId);
-  if (!facts?.warrantyDays || !completedAt) return null;
-  const end = new Date(completedAt);
-  if (Number.isNaN(end.getTime())) return null;
-  end.setDate(end.getDate() + facts.warrantyDays);
-  return end;
-}
-
-/**
  * In số tiền theo loại tiền của dự án: "1.290.000₫" hoặc "$219". Chỉ dùng lúc
  * in — tính toán luôn trên số (VNĐ nguyên, USD có thể lẻ xu).
  */

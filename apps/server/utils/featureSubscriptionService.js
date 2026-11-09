@@ -14,13 +14,6 @@ import { FEATURE_PRICES } from '../../../packages/shared/joyPrices.js';
 export { FEATURE_PRICES };
 
 const FEATURE_LABELS = {
-  hugoCoder: 'Phí bảo trì bộ Phát triển Web',
-  hugoCoderIntermediate: 'Tư duy Kiến trúc',
-  hugoCoderAdvanced: 'Giải thuật và Mật mã',
-  hugoCoderSecurity: 'Bảo mật và AI (Phần 4)',
-  hugoCoderExam: 'Kiểm tra Năng lực (Phần 5)',
-  hugoCoderOptimize: 'Tối ưu và AI (Phần 6)',
-  hugoCoderUltimate: 'Đồ án Web Nâng cao',
   hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)',
   hugoChess: 'HugoChess'
 };

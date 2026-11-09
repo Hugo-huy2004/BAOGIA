@@ -1,6 +1,6 @@
 import express from 'express';
-import { recordHeartbeat, getOnlineStatuses, isOnline, getDailyActiveCount, todayStr } from '../utils/presenceService.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { recordHeartbeat, getOnlineStatuses, isOnline } from '../utils/presenceService.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 import { tagMember } from '../services/visitorTracker.js';
 
 const router = express.Router();
@@ -52,17 +52,6 @@ router.get('/status-by-slug', async (req, res) => {
     if (!bio?.email) return res.json({ online: false });
     res.set('Cache-Control', 'public, max-age=15, s-maxage=15');
     res.json({ online: await isOnline(bio.email) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /api/presence/dau?date=YYYY-MM-DD  (admin analytics — distinct active members that day)
-router.get('/dau', requireAdmin, async (req, res) => {
-  try {
-    const { date } = req.query;
-    const count = await getDailyActiveCount(date);
-    res.json({ date: date || todayStr(), count });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

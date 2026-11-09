@@ -367,40 +367,6 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
   }
 });
 
-// [Public] Paid donors from the current flow are added automatically.
-router.get('/supporters', async (req, res) => {
-  try {
-    const requestedLimit = Number.parseInt(req.query.limit, 10);
-    const limit = Math.min(Math.max(requestedLimit || 24, 1), 50);
-    const supporters = await PaymentLink.find({
-      kind: 'DONATION',
-      status: 'PAID',
-      publicRecognition: true,
-      donorDisplayName: { $exists: true, $ne: '' },
-    })
-      .sort({ paidAt: -1, createdAt: -1 })
-      .limit(limit)
-      .select({ donorDisplayName: 1, paidAt: 1, _id: 0 })
-      .lean();
-
-    // Danh sách tên người ủng hộ đã tự chọn công khai (publicRecognition), đổi
-    // nhiều lắm vài lần một ngày. 'no-store' ở đây bắt MỌI khách đang mở trang
-    // /introduction nện thẳng vào MongoDB — và client còn poll 30 giây một lần.
-    // Cho phép cache: khách nán lại 1 tiếng đi từ ~120 request xuống 1.
-    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
-    res.json({
-      success: true,
-      data: supporters.map((supporter) => ({
-        name: supporter.donorDisplayName,
-        paidAt: supporter.paidAt,
-      })),
-    });
-  } catch (error) {
-    console.error('Error fetching supporters:', error);
-    res.status(500).json({ error: 'Lỗi server' });
-  }
-});
-
 // [Public] Current VietQR deeplink catalogue for the visitor's mobile OS.
 // The upstream response is normalized and cached so clients never need to
 // contact a third party just to render the payment page.

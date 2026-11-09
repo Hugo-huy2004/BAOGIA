@@ -324,18 +324,6 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    birthdayVoucherYear: {
-      type: Number,
-      default: 0
-    },
-    backedUpContacts: {
-      type: [{
-        name: { type: String, required: true },
-        phone: { type: String, default: '' },
-        email: { type: String, default: '' }
-      }],
-      default: []
-    },
     studentRewards: {
       type: [{
         year: { type: Number, required: true },
@@ -425,40 +413,6 @@ const BioSchema = new mongoose.Schema(
       default: 0 // 0 means Never
     },
     privateMode: {
-      type: Boolean,
-      default: false
-    },
-    // List of completed interactive IDE lessons (IDs) that awarded JOY
-    completedLessons: {
-      type: [String],
-      default: []
-    },
-    // Lifetime HugoSO course entitlements purchased with JOY.
-    // Values are stable curriculum ids: calendar, docs, sheets, ai.
-    // Bản ghi cũ có thể còn 'gemini' (tên trước của học phần AI) — joyRoutes
-    // quy về 'ai' khi kiểm quyền, đừng viết migration xoá nó.
-    hugoSOCourses: {
-      type: [String],
-      default: []
-    },
-    // Đề tài tốt nghiệp học viên đã chọn cho chặng đồ án (bài 71–90).
-    // Giá trị là id trong packages/shared/capstoneTracks.js; rỗng nghĩa là chưa chọn.
-    capstoneTrack: {
-      type: String,
-      default: ''
-    },
-    capstoneTrackChosenAt: {
-      type: Date,
-      default: null
-    },
-    // One-time JOY bonus for opening the Info & Version utility — see joyRoutes.js claim-info-bonus.
-    infoBonusClaimed: {
-      type: Boolean,
-      default: false
-    },
-    // Separate one-time bonus for reading the release notes to the end —
-    // see joyRoutes.js claim-info-read-bonus.
-    infoReadBonusClaimed: {
       type: Boolean,
       default: false
     },
@@ -560,125 +514,9 @@ const BioSchema = new mongoose.Schema(
       of: mongoose.Schema.Types.Mixed,
       default: () => ({})
     },
-    // Paid rental backing theme.template when it's 'brutalism'/'flat'
-    // (150 JOY/month). theme.template is the live/rendered value; this is the
-    // paid entitlement behind it, reverted to 'default' by the nightly cron
-    // sweep once expiresAt passes — even for owners who never log back in,
-    // since other people view the public bio page too.
-    bioThemeRental: {
-      template: { type: String, default: 'default' },
-      expiresAt: { type: Date, default: null }
-    },
-    hugoCoderBasicLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderAll7Lifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderIntermediateLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderAdvancedLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderSecurityLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderExamLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderOptimizeLifetime: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderUltimateLifetime: {
-      type: Boolean,
-      default: false
-    },
-    // Chặng 6 mới (Bài 91-100) tách từ gói Ultimate cũ (71-100)
-    hugoCoderDevopsLifetime: {
-      type: Boolean,
-      default: false
-    },
-    // Số lần đã NỘP mỗi bài thi (lessonId -> count). Lượt 1 nằm trong gói,
-    // từ lượt 2 thu 250 JOY/lần tại coder-exam/start.
-    hugoCoderExamAttempts: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {}
-    },
-    // Kết quả từng bài thi: lessonId -> { best, firstTry, last, attempts, at }.
-    // Chứng chỉ chặng xếp loại theo ĐIỂM chứ không chỉ đạt/không đạt, nên điểm
-    // phải được giữ lại; trước đây submitExam trả điểm rồi vứt đi.
-    hugoCoderExamScores: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {}
-    },
-    courseCompletionAwardClaimed: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderProjectUrl: {
-      type: String,
-      default: ""
-    },
-    hugoCoderProjectStatus: {
-      type: String,
-      enum: ["idle", "pending", "approved", "rejected"],
-      default: "idle"
-    },
-    hugoCoderCertificateUrl: {
-      type: String,
-      default: ""
-    },
-    hugoCoderProjectSubmittedAt: {
-      type: Date,
-      default: null
-    },
-    hugoCoderProjectNote: {
-      type: String,
-      default: ""
-    },
-    hugoCoderProjectAdminNote: {
-      type: String,
-      default: ""
-    },
-    hugoCoderRewardClaimed3: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderRewardClaimed4: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderRewardClaimed5: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderRewardClaimed6: {
-      type: Boolean,
-      default: false
-    },
-    hugoCoderRewardClaimed7: {
-      type: Boolean,
-      default: false
-    },
     locationAnomaly: {
       type: Boolean,
       default: false
-    },
-    lastUserAgentHash: {
-      type: String,
-      default: ''
-    },
-    sessionsValidFrom: {
-      type: Date,
-      default: null
     },
     // HugoRadio time-based token system — replaces monthly subscription.
     // Free pool resets weekly; purchased pool carries over and is consumed

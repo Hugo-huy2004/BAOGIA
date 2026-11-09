@@ -10,8 +10,6 @@ const STAR_18 = 'star18';
 const STAR_VIP = 'starVip';
 export const ECO = 'eco';
 
-export const STAR_MAX_AGE = 23; // Thành viên Star-18 đến hết tháng sinh nhật 23 tuổi
-
 export const TIER_LABELS = {
   [STAR_14]: 'Star-14',
   [STAR_18]: 'Star-18',

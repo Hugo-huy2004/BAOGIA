@@ -9,67 +9,6 @@ import { FOCUS_DAILY_JOY_CAP, todayStr, BIRTHDAY_PRIZES, birthdaySpinStatus } fr
 
 const router = express.Router();
 
-// POST /api/joy/claim-info-bonus — one-time bonus for opening Info & Version
-router.post('/claim-info-bonus', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    if (bio.infoBonusClaimed) {
-      return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
-    }
-
-    const claimed = await Bio.findOneAndUpdate(
-      { _id: bio._id, infoBonusClaimed: { $ne: true } },
-      { $set: { infoBonusClaimed: true } },
-      { new: true },
-    );
-    if (!claimed) return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
-
-    const result = await awardJoy(email, 20, 'info_bonus', 'Khám phá Info & Version (+20 JOY)');
-
-    res.json({ success: true, balance: result.balance });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// POST /api/joy/claim-info-read-bonus — one-time bonus for reading the 2.0
-// release notes to the end. The client only unlocks the button after the last
-// section is on screen; the server still enforces the one-time rule, which is
-// the part that actually protects the balance.
-router.post('/claim-info-read-bonus', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(400).json({ error: 'Email is required' });
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    if (bio.infoReadBonusClaimed) {
-      return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
-    }
-
-    const claimed = await Bio.findOneAndUpdate(
-      { _id: bio._id, infoReadBonusClaimed: { $ne: true } },
-      { $set: { infoReadBonusClaimed: true } },
-      { new: true },
-    );
-    if (!claimed) return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
-
-    const result = await awardJoy(email, 50, 'info_read_bonus', 'Đọc hết bản nâng cấp 2.0 (+50 JOY)');
-
-    res.json({ success: true, balance: result.balance });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 // POST /api/joy/focus-start — stamps the start of a focus block.
 router.post('/focus-start', requireMember, async (req, res) => {
   try {

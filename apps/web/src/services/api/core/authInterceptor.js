@@ -6,7 +6,7 @@
 // HttpOnly cookie still flows on same-origin deployments — the Bearer header
 // is the fallback that also works cross-origin (Vercel frontend + API host).
 import { getMemberToken, getAdminToken, getAdminSession, clearMemberSession, clearAdminSession } from "./authSession";
-import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../../../utils/clientMonitoring";
+import { reportClientEvent, SLOW_API_MS } from "../../../utils/clientMonitoring";
 import { noteServer } from "../../../lib/serverHealth";
 import { authDecision } from "./authHeaders";
 import { SECURITY_BLOCK_STORAGE_KEY } from "../../../components/SecurityBlockScreen";
@@ -186,7 +186,6 @@ export function installApiAuthInterceptor() {
     return response
       .then(async (res) => {
         const durationMs = performance.now() - startedAt;
-        if (shouldTrack) safely(() => recordApiOutcome(res.ok));
         if (shouldTrack) safely(() => noteServer(![502, 503, 504].includes(res.status), res.status));
 
         if (res.status === 401 && (sentAuth || adminSessionMarker)) {
@@ -257,7 +256,6 @@ export function installApiAuthInterceptor() {
         // connectivity, not actionable app bugs — reporting them just fires
         // another doomed request. Optional cosmetic calls receive a regular
         // 503 response; all other callers keep their existing rejection path.
-        if (shouldTrack) safely(() => recordApiOutcome(false));
         if (shouldTrack) safely(() => noteServer(false, 0));
         if (networkFallback) {
           return new Response(JSON.stringify({

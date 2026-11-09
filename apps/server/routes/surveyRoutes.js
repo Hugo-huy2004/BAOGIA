@@ -1,7 +1,7 @@
 import express from 'express';
-import { requireMember, requireAdmin } from '../middleware/authMiddleware.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 import {
-  dueSurvey, saveAnswers, trackOpen, report, monthKey,
+  dueSurvey, saveAnswers, trackOpen,
 } from '../services/surveyService.js';
 
 const router = express.Router();
@@ -57,21 +57,5 @@ router.post('/track', requireMember, async (req, res) => {
   }
   res.status(204).end();
 });
-
-/** Bảng điểm theo ứng dụng — chỉ admin. */
-router.get('/report', requireAdmin, async (req, res) => {
-  try {
-    res.json(await report({
-      months: Math.min(Number(req.query.months) || 12, 36),
-      minSample: Math.max(Number(req.query.minSample) || 3, 1),
-    }));
-  } catch (err) {
-    console.error('[survey] report:', err.message);
-    res.status(500).json({ error: 'Không dựng được báo cáo.' });
-  }
-});
-
-/** Tháng hiện tại theo máy chủ — để máy khách gửi `month` đúng múi giờ server. */
-router.get('/month', requireMember, (_req, res) => res.json({ month: monthKey() }));
 
 export default router;

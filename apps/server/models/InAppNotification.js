@@ -71,17 +71,4 @@ schema.post('save', async function (doc) {
 
 const InAppNotification = mongoose.model('InAppNotification', schema);
 
-// insertMany() (e.g. admin broadcast-all) bypasses document middleware, so
-// call this manually afterward for each affected email.
-export async function pruneNotifications(email) {
-  const count = await InAppNotification.countDocuments({ email });
-  if (count > MAX_PER_ACCOUNT) {
-    const stale = await InAppNotification.find({ email })
-      .sort({ createdAt: 1 })
-      .limit(count - MAX_PER_ACCOUNT)
-      .select('_id');
-    await InAppNotification.deleteMany({ _id: { $in: stale.map(d => d._id) } });
-  }
-}
-
 export default InAppNotification;

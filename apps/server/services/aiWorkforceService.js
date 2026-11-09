@@ -1,6 +1,5 @@
 import { Buffer } from 'node:buffer';
 import AIWorkforceTask from '../models/AIWorkforceTask.js';
-import AISupportKB from '../models/AISupportKB.js';
 import SupportTicket from '../models/SupportTicket.js';
 import { generate } from './aiGateway.js';
 import {
@@ -293,59 +292,6 @@ async function runEngineeringSpecialistTask(task, context, specialty) {
   task.completedAt = new Date();
 }
 
-async function executeApprovedAction(task, decidedBy) {
-  const action = task.proposedAction;
-  if (!action?.type || !action?.payload) {
-    throw new Error('Nhiệm vụ không có hành động hợp lệ để thực thi');
-  }
-
-  if (action.type === 'support.resolve_ticket') {
-    const ticket = await SupportTicket.findByIdAndUpdate(
-      action.payload.ticketId,
-      {
-        $set: {
-          status: 'resolved',
-          adminReply: String(action.payload.reply || '').slice(0, 5000),
-          resolvedAt: new Date(),
-        },
-      },
-      { new: true, runValidators: true }
-    ).lean();
-    if (!ticket) throw new Error('Ticket không còn tồn tại');
-    return { action: action.type, ticketId: String(ticket._id), status: ticket.status };
-  }
-
-  if (action.type === 'knowledge.publish_entry') {
-    const entry = await AISupportKB.create({
-      ...action.payload,
-      learnedFromAdmin: decidedBy,
-      active: true,
-    });
-    return { action: action.type, knowledgeEntryId: String(entry._id) };
-  }
-
-  throw new Error(`Hành động không được cấp quyền: ${action.type}`);
-}
-
-export function listAIEmployees() {
-  return Object.values(EMPLOYEES);
-}
-
-export async function listAIWorkforceTasks({ status, agentKey, limit = 50 } = {}) {
-  const filter = {};
-  if (status) filter.status = status;
-  if (agentKey) {
-    getEmployee(agentKey);
-    filter.agentKey = agentKey;
-  }
-  const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
-  return AIWorkforceTask.find(filter).sort({ createdAt: -1 }).limit(safeLimit).lean();
-}
-
-export function getAIWorkforceTask(taskId) {
-  return AIWorkforceTask.findById(taskId).lean();
-}
-
 export async function createAndRunAIWorkforceTask({
   agentKey,
   objective,
@@ -388,70 +334,4 @@ export async function createAndRunAIWorkforceTask({
   }
 
   return task.toObject();
-}
-
-export async function approveAIWorkforceTask(taskId, { decidedBy, note = '' }) {
-  const task = await AIWorkforceTask.findOneAndUpdate(
-    { _id: taskId, status: 'awaiting_approval' },
-    {
-      $set: {
-        status: 'executing',
-        'decision.status': 'approved',
-        'decision.decidedBy': decidedBy,
-        'decision.decidedAt': new Date(),
-        'decision.note': String(note || '').slice(0, 2000),
-      },
-    },
-    { new: true }
-  );
-
-  if (!task) {
-    const existing = await AIWorkforceTask.findById(taskId).lean();
-    const error = new Error(existing
-      ? `Nhiệm vụ không thể duyệt ở trạng thái ${existing.status}`
-      : 'Nhiệm vụ không tồn tại');
-    error.code = existing ? 'INVALID_STATE' : 'NOT_FOUND';
-    throw error;
-  }
-
-  try {
-    task.executionResult = await executeApprovedAction(task, decidedBy);
-    task.status = 'completed';
-    task.completedAt = new Date();
-    await task.save();
-    return task.toObject();
-  } catch (error) {
-    task.status = 'failed';
-    task.error = String(error.message || error).slice(0, 4000);
-    task.completedAt = new Date();
-    await task.save();
-    throw error;
-  }
-}
-
-export async function rejectAIWorkforceTask(taskId, { decidedBy, note = '' }) {
-  const task = await AIWorkforceTask.findOneAndUpdate(
-    { _id: taskId, status: 'awaiting_approval' },
-    {
-      $set: {
-        status: 'rejected',
-        'decision.status': 'rejected',
-        'decision.decidedBy': decidedBy,
-        'decision.decidedAt': new Date(),
-        'decision.note': String(note || '').slice(0, 2000),
-        completedAt: new Date(),
-      },
-    },
-    { new: true }
-  ).lean();
-
-  if (!task) {
-    const existing = await AIWorkforceTask.findById(taskId).lean();
-    const error = new Error(existing
-      ? `Nhiệm vụ không thể từ chối ở trạng thái ${existing.status}`
-      : 'Nhiệm vụ không tồn tại');
-    error.code = existing ? 'INVALID_STATE' : 'NOT_FOUND';
-    throw error;
-  }
-  return task;
 }

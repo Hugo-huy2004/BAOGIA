@@ -12,7 +12,6 @@ Thiết kế cho 1.000.000 người dùng đồng thời:
 import asyncio
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-from services.user_telemetry_sentinel import telemetry_sentinel
 
 class AdminIntelService:
     def __init__(self):
@@ -31,9 +30,6 @@ class AdminIntelService:
         now = datetime.now().timestamp()
         if self._cached_intel and (now - self._last_computed_at < self._cache_ttl_seconds):
             return self._cached_intel
-
-        # 1. Trích xuất telemetry người dùng từ sentinel
-        telemetry_stats = telemetry_sentinel.get_aggregated_system_telemetry()
 
         # 2. Phân tích các thông số cốt lõi
         total_users = system_metrics.get("totalUsers", 0)
@@ -63,12 +59,6 @@ class AdminIntelService:
             penalty = 10
             health_score -= penalty
             deductions.append(f"-{penalty}đ do số lượng chặn an ninh cao ({active_blocks} blocks)")
-
-        # Thưởng/phạt từ chỉ số sức khoẻ tinh thần cộng đồng
-        comm_score = telemetry_stats.get("community_wellness_score", 85)
-        if comm_score < 60:
-            health_score -= 10
-            deductions.append(f"-10đ do chỉ số tâm lý cộng đồng suy giảm ({comm_score}/100)")
 
         health_score = max(20, min(100, health_score))
 
@@ -101,15 +91,6 @@ class AdminIntelService:
                 "action": "trigger_ai_ticket_draft"
             })
 
-        if telemetry_stats.get("at_risk_wellness_users", 0) > 0:
-            at_risk_cnt = telemetry_stats.get("at_risk_wellness_users", 0)
-            proposals.append({
-                "id": "proactive_wellness_checkin",
-                "label": f"Gửi tin nhắn đồng hành chủ động cho {at_risk_cnt} thành viên có dấu hiệu kiệt sức",
-                "severity": "high",
-                "action": "trigger_proactive_push"
-            })
-
         proposals.append({
             "id": "flush_l1_cache",
             "label": "Tối ưu hóa bộ nhớ đệm RAM L1 đa ngôn ngữ",
@@ -123,7 +104,6 @@ class AdminIntelService:
             "system_grade": system_grade,
             "status_color": status_color,
             "scoring_breakdown": deductions or ["Tất cả chỉ số vận hành đang ở mức tối ưu"],
-            "telemetry_summary": telemetry_stats,
             "joy_economy_overview": {
                 "total_issued_today": total_joy_issued,
                 "transaction_streams": len(joy_stats)

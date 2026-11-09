@@ -6,22 +6,6 @@ import { logAdminAuditAction } from './adminShared.js';
 
 const router = express.Router();
 
-// POST /admin/orders/update-status (admin) - Cập nhật trạng thái đơn hàng Utility Store
-router.post('/orders/update-status', requireAdmin, async (req, res) => {
-  try {
-    const { orderId, status } = req.body;
-    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
-    const order = await UtilityOrder.findById(orderId);
-    if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
-    order.status = status;
-    await order.save();
-    res.json({ success: true, message: `Đơn hàng ${orderId} đã được chuyển sang trạng thái ${status}`, order });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
 // GET /admin/store/products - Lấy toàn bộ sản phẩm Utility Store cho Admin (kèm sản phẩm ẩn)
 router.get('/store/products', requireAdmin, async (req, res) => {
   try {

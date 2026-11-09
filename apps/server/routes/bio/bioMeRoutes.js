@@ -88,15 +88,6 @@ router.get('/me', requireMember, async (req, res) => {
     }
 
     if (bioDoc) {
-      // Check if maintenance is overdue by more than 3 months (90 days)
-      if (bioDoc.completedLessons && bioDoc.completedLessons.length > 0 && !bioDoc.hugoCoderAll7Lifetime) {
-        const expiresAt = bioDoc.featureSubscriptions?.hugoCoder?.expiresAt;
-        if (expiresAt && Date.now() > new Date(expiresAt).getTime() + 90 * 24 * 60 * 60 * 1000) {
-          bioDoc.completedLessons = [];
-          bioDoc.markModified('completedLessons');
-          await bioDoc.save();
-        }
-      }
 
       await cleanupExpiredBirthdayNotifications(bioDoc);
       const bioObj = sanitizeBioOutput(bioDoc.toObject({ getters: true }));
@@ -186,16 +177,7 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
       unreadCount,
       recentNotifications: recentNotifications.map(({ _id, read }) => [_id, read]),
       balance: payload.wallet.balance,
-      installedApps: payload.workspace.installedApps,
-      coderAccess: {
-        all: Boolean(bioDoc.hugoCoderAll7Lifetime),
-        basic: Boolean(bioDoc.hugoCoderBasicLifetime),
-        intermediate: Boolean(bioDoc.hugoCoderIntermediateLifetime),
-        advanced: Boolean(bioDoc.hugoCoderAdvancedLifetime),
-        security: Boolean(bioDoc.hugoCoderSecurityLifetime),
-        project: Boolean(bioDoc.hugoCoderUltimateLifetime),
-        devops: Boolean(bioDoc.hugoCoderDevopsLifetime)
-      }
+      installedApps: payload.workspace.installedApps
     });
     const etag = `W/"${createHash('sha256').update(etagSeed).digest('base64url').slice(0, 32)}"`;
 
@@ -437,55 +419,6 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       return res.status(409).json(PHONE_TAKEN);
     }
     console.error('POST /me/onboarding error:', error.name, error.message, error.errors ? Object.keys(error.errors) : '');
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /me/security-sessions - Danh sách thiết bị & phiên làm việc an ninh
-router.get('/me/security-sessions', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const bio = await Bio.findOne({ email }, 'email lastUserAgentHash locationAnomaly updatedAt createdAt').lean();
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
-
-    res.json({
-      success: true,
-      currentSession: {
-        ip: req.ip || '',
-        userAgent: req.headers['user-agent'] || '',
-        locationAnomaly: !!bio.locationAnomaly,
-        lastActive: bio.updatedAt || bio.createdAt,
-      },
-      hasLocationAnomaly: !!bio.locationAnomaly,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /me/revoke-sessions - Hủy phiên làm việc từ xa
-router.post('/me/revoke-sessions', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const cryptoMod = await import('crypto');
-    const ua = req.headers['user-agent'] || '';
-    const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
-
-    await Bio.updateOne(
-      { email },
-      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } }
-    );
-    const { memberAuth } = await import('../../auth/betterAuth.js');
-    const { fromNodeHeaders } = await import('better-auth/node');
-    await memberAuth().api.revokeOtherSessions({ headers: fromNodeHeaders(req.headers) });
-    // Cache cổng chặn giữ 30s — xoá ngay để lần gọi kế tiếp thấy cờ đã tắt.
-    invalidateMemberGate(req.memberEmail);
-
-    res.json({
-      success: true,
-      message: 'Đã hủy tất cả phiên làm việc từ xa khác thành công.',
-    });
-  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

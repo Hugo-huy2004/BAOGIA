@@ -44,13 +44,10 @@ export const SERVICES = Object.freeze([
   { id: "oauth", prefix: "/api/oauth", module: "./routes/oauthRoutes.js", public: true },
 
   // ── Hồ sơ & nội dung công khai ────────────────────────────────────────────
-  { id: "member-progress", prefix: "/api/member/progress", module: "./routes/memberProgressRoutes.js" },
   { id: "email", prefix: "/api/email", module: "./routes/emailRoutes.js" },
   { id: "contact", prefix: "/api/contact", module: "./routes/contactRoutes.js" },
   { id: "data", prefix: "/api/data", module: "./routes/dataRoutes.js", cacheable: true },
-  { id: "bio-themes", prefix: "/api/bios/themes", module: "./routes/bioThemeRoutes.js", public: true, cacheable: true },
   { id: "bios", prefix: "/api/bios", module: "./routes/bioRoutes.js", cacheable: true },
-  { id: "profile", prefix: "/api/profile", module: "./routes/profileRoutes.js" },
   { id: "bookings", prefix: "/api/bookings", module: "./routes/bookingRoutes.js" },
   { id: "partners", prefix: "/api/partners", module: "./routes/partnerRoutes.js" },
   { id: "packages", prefix: "/api/packages", module: "./routes/packageRoutes.js", cacheable: true },
@@ -63,7 +60,6 @@ export const SERVICES = Object.freeze([
   // nhất. Cả hai đều đúng với thứ tự này — đảo lại thì Express hỏng.
   { id: "admin", prefix: "/api/admin", module: "./routes/adminRoutes.js" },
   { id: "admin-brain", prefix: "/api/admin/brain", module: "./routes/adminBrainRoutes.js" },
-  { id: "admin-workforce", prefix: "/api/admin/workforce", module: "./routes/aiWorkforceRoutes.js" },
 
   // ── Học tập ───────────────────────────────────────────────────────────────
   { id: "persona", prefix: "/api/persona", module: "./routes/personaRoutes.js" },
@@ -83,8 +79,6 @@ export const SERVICES = Object.freeze([
   // Ba router cùng đứng trên /api/store, chia nhau các đường con. Chúng phải
   // cùng `mode`: nginx chỉ trỏ được một prefix tới một nơi. check-gateway.mjs
   // canh đúng chuyện này.
-  { id: "store-cart", prefix: "/api/store", module: "./routes/storeCartRoutes.js" },
-  { id: "store-promo", prefix: "/api/store", module: "./routes/storePromoRoutes.js" },
   { id: "store-plan", prefix: "/api/store", module: "./routes/storePlanRoutes.js" },
   { id: "joy-gift-cards", prefix: "/api/joy-gift-cards", module: "./routes/joyGiftCardRoutes.js" },
   // Quà chiến dịch hợp tác (partner.hugowishpax.studio). Đọc thông tin chiến

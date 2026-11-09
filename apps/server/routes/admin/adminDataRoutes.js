@@ -56,10 +56,6 @@ const RESOURCES = {
     model: 'JoyLedger', label: 'Sổ JOY', permission: 'commerce', ops: 'r', search: ['email', 'refId'],
     list: ['email', 'amount', 'balanceAfter', 'source', 'createdAt'], show: ['description', 'refId'],
   },
-  'cinema-movies': {
-    model: 'CinemaMovie', label: 'Phim', permission: 'system', ops: 'rud', search: ['title'],
-    list: ['title', 'year', 'category', 'views', 'active'], edit: ['title', 'description', 'category', 'year', 'active'],
-  },
   'today-posts': {
     model: 'TodayPost', label: 'Bài Today', permission: 'security', ops: 'rd', search: ['authorEmail', 'text'],
     list: ['authorEmail', 'text', 'likeCount', 'replyCount', 'createdAt'],

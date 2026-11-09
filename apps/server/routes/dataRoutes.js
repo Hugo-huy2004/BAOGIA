@@ -3,8 +3,6 @@ import Data from '../models/Data.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import webpush from 'web-push';
-import NotificationSubscription from '../models/NotificationSubscription.js';
-import Bio from '../models/Bio.js';
 import { vapidKeys } from './notificationRoutes.js';
 
 if (vapidKeys.publicKey && vapidKeys.privateKey) {
@@ -138,47 +136,6 @@ const initialData = {
   }
 };
 
-// GET: Lightweight Metadata & Bootstrap for Web + Mobile Apps (cached in RAM + edge CDN)
-router.get('/bootstrap', async (req, res) => {
-  try {
-    const bootstrapData = await fetchWithCache("app_bootstrap_metadata", 60000, async () => {
-      const data = await Data.findOne({ userId: 'default' }, 'systemSettings');
-      const { APP_REGISTRY, FULLSCREEN_APP_IDS } = await import('../../../packages/shared/appRegistry.js');
-      return {
-        success: true,
-        serverTime: new Date().toISOString(),
-        systemSettings: data?.systemSettings || {},
-        activeApps: APP_REGISTRY.map((app) => ({
-          id: app.id,
-          icon: app.icon,
-          tint: app.tint,
-          category: app.category,
-          badge: app.badge,
-          version: app.version,
-          storageMb: app.storageMb,
-          fullscreen: FULLSCREEN_APP_IDS.includes(app.id),
-        })),
-        cdn: {
-          images: "https://res.cloudinary.com",
-          edgeCached: true,
-        },
-      };
-    });
-
-    res.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
-    res.json(bootstrapData);
-  } catch (error) {
-    console.error('[bootstrap metadata]', error.message);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'METADATA_ERROR',
-        message: 'Không thể tải metadata khởi động hệ thống.',
-      },
-    });
-  }
-});
-
 // GET: Fetch all data
 router.get('/', async (req, res) => {
   try {
@@ -304,53 +261,6 @@ router.post('/reset', requireAdmin, async (req, res) => {
     const data = await Data.create(initialData);
     await clearCache('public_data');
     res.json({ message: 'Data reset to defaults', data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST: gửi thông báo đẩy hàng loạt (admin)
-router.post('/broadcast-notification', requireAdmin, async (req, res) => {
-  try {
-    const { message, all, status } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: 'Nội dung tin nhắn là bắt buộc.' });
-    }
-
-    let subscriptions = [];
-    if (all) {
-      subscriptions = await NotificationSubscription.find({});
-    } else if (status) {
-      const bios = await Bio.find({ status });
-      const emails = bios.map(b => b.email);
-      subscriptions = await NotificationSubscription.find({ email: { $in: emails } });
-    } else {
-      return res.status(400).json({ error: 'Đối tượng nhận thông báo không hợp lệ.' });
-    }
-
-    if (subscriptions.length === 0) {
-      return res.json({ success: true, count: 0, message: 'Không tìm thấy thiết bị đăng ký nhận thông báo nào.' });
-    }
-
-    const payload = JSON.stringify({
-      title: 'Thông báo từ Ban Giám Hiệu / Admin',
-      body: message,
-      icon: '/image/avt7.png',
-      url: '/member/today'
-    });
-
-    const sendPromises = subscriptions.map(sub => 
-      webpush.sendNotification(sub.subscription, payload)
-        .catch(err => {
-          console.error(`Gửi thông báo thất bại cho endpoint: ${sub.subscription.endpoint}`, err);
-          if (err.statusCode === 410 || err.statusCode === 404) {
-            return NotificationSubscription.deleteOne({ _id: sub._id });
-          }
-        })
-    );
-
-    await Promise.all(sendPromises);
-    res.json({ success: true, count: subscriptions.length, message: `Đã phát thông báo hàng loạt tới ${subscriptions.length} thiết bị.` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -39,10 +39,6 @@ export function securityHash(type, value) {
   return crypto.createHmac('sha256', HASH_SECRET).update(`${type}:${normalized}`).digest('hex');
 }
 
-export function serverAiUserId(email) {
-  return securityHash('email', email);
-}
-
 function actorKey(type, hash) {
   return hash ? `${type}:${hash}` : '';
 }
@@ -442,7 +438,7 @@ const REQUEST_RULES = [
 ];
 
 const MALICIOUS_KEYS = new Set(['__proto__', 'prototype', 'constructor', '$where', '$function', '$accumulator']);
-const SERVER_OWNED_JOY_KEYS = new Set(['joyBalance', 'balanceAfter', 'joyAwardedToday', 'completedLessons']);
+const SERVER_OWNED_JOY_KEYS = new Set(['joyBalance', 'balanceAfter', 'joyAwardedToday']);
 
 function assessRequestThreat({ originalUrl = '', body = {}, query = {} } = {}) {
   const keys = collectKeys({ body, query });

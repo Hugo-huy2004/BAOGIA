@@ -50,22 +50,17 @@ const PUBLIC_ROUTES = {
   "bioPublicRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
   "bioPublicRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
   "bioPublicRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
-  "profileRoutes.js GET /public/:slug": "hồ sơ công khai theo slug",
   "presenceRoutes.js GET /status-by-slug": "chấm online trên trang Bio công khai; tra bằng slug nên không lộ email",
   "partnerRoutes.js GET /:id/access": "kiểm quyền truy cập trình sửa Bio đối tác",
   "contactRoutes.js GET /zalo": "liên kết Zalo công khai",
   "dataRoutes.js GET /": "cấu hình trang công khai (đã bật cache CDN)",
-  "bioThemeRoutes.js GET /": "danh mục giao diện Bio, đọc từ hằng số BIO_THEMES — không có dữ liệu người dùng",
-  "bioThemeRoutes.js GET /:themeId": "một giao diện trong danh mục đó, cũng từ hằng số",
   "packageRoutes.js GET /": "danh mục gói dịch vụ — bảng giá công khai",
   "todayRoutes.js GET /feed": "bảng tin công khai",
   "utilityStoreRoutes.js GET /products": "danh mục sản phẩm công khai",
-  "payosRoutes.js GET /supporters": "danh sách người ủng hộ, cố ý hiện công khai",
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",
   "payosRoutes.js GET /info/:customLinkId": "trang thanh toán mở bằng liên kết bí mật",
   "arcadeRoutes.js GET /leaderboard": "bảng xếp hạng công khai",
   "arcadeRoutes.js GET /2048/collection-leaderboard": "bảng xếp hạng bộ sưu tập 2048 công khai — đã lọc bỏ email khỏi payload",
-  "dataRoutes.js GET /bootstrap": "metadata khởi động công khai cho web và mobile app (danh mục app, CDN, cấu hình hiển thị)",
   "chessRoutes.js GET /leaderboard": "bảng xếp hạng công khai — đã lọc bỏ email khỏi payload",
   "notificationRoutes.js GET /vapid-public-key": "khoá CÔNG KHAI của web push, bản chất là để phát",
   "otaRoutes.js GET /check": "bản build ở store gọi trước khi có ai đăng nhập",
@@ -76,10 +71,6 @@ const PUBLIC_ROUTES = {
 
   // ── Gửi form từ khách chưa đăng nhập ─────────────────────────────────────
   "bookingRoutes.js POST /": "khách chưa có tài khoản vẫn phải đặt lịch được",
-  "emailRoutes.js POST /contact": "biểu mẫu liên hệ công khai",
-  "emailRoutes.js POST /support": "biểu mẫu hỗ trợ công khai",
-  "emailRoutes.js POST /education": "biểu mẫu liên hệ giáo dục công khai (cùng khuôn /contact, chịu globalLimiter của /api)",
-  "emailRoutes.js POST /adv": "biểu mẫu liên hệ quảng cáo/đối tác công khai (cùng khuôn /contact, chịu globalLimiter của /api)",
   "supportRoutes.js POST /tickets": "gửi yêu cầu hỗ trợ khi chưa đăng nhập được",
   "opsRoutes.js POST /client-event": "telemetry từ trình duyệt, gồm cả khách vãng lai",
   "opsRoutes.js POST /visit": "lượt xem trang cho bản đồ khách truy cập, gồm cả khách vãng lai",
@@ -90,7 +81,6 @@ const PUBLIC_ROUTES = {
   // trên thẻ, không phải token ký, nên ai cũng dò được "mã → tên + ảnh". Route
   // đó đã bị gỡ; mã thẻ nay đi qua /resolve-member (requireMember + giới hạn
   // tần suất). Đừng thêm lại một dòng miễn cổng cho mã không ký.
-  "joyWalletRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
 
 
 };

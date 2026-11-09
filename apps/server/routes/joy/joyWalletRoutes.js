@@ -11,12 +11,12 @@ import { assessTransferHold } from '../../services/transferHold.js';
 import { transferFeeRateOf, dailyTransferCapOf } from '../../../../packages/shared/tierFinance.js';
 import PendingTransfer from '../../models/PendingTransfer.js';
 import UtilityOrder from '../../models/UtilityOrder.js';
-import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../../utils/joyQrToken.js';
+import { signQrToken, JOY_QR_BUCKET_MS } from '../../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
 import { memberTier } from '../../utils/memberTier.js';
 import { acquireIdempotencyLock, releaseIdempotencyLock } from '../../services/idempotencyService.js';
 import { denomKey, transferBreakdown } from '../../../../packages/shared/joyCurrency.js';
-import { TRANSFER_MIN, TRANSFER_MAX, TRANSFER_MONTHLY_CAP, TRANSFER_MIN_ACCOUNT_AGE_DAYS, todayStr, birthdaySpinStatus, tooManyLookups, isBase64UrlJoyPayload } from './joyShared.js';
+import { TRANSFER_MIN, TRANSFER_MAX, TRANSFER_MONTHLY_CAP, TRANSFER_MIN_ACCOUNT_AGE_DAYS, todayStr, birthdaySpinStatus, tooManyLookups } from './joyShared.js';
 
 const router = express.Router();
 
@@ -72,19 +72,6 @@ router.get('/history', requireMember, async (req, res) => {
     res.json({ transactions, summary });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /api/joy/adjust (admin-only manual correction tool)
-router.post('/adjust', requireAdmin, async (req, res) => {
-  try {
-    const { email, amount, description } = req.body;
-    if (!email || !amount) return res.status(400).json({ error: 'email and amount are required' });
-
-    const result = await awardJoy(email, Number(amount), 'admin_adjustment', description || 'Điều chỉnh JOY bởi quản trị viên');
-    res.json({ success: true, balance: result.balance });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
   }
 });
 
@@ -294,27 +281,6 @@ router.get('/resolve-member', requireMember, async (req, res) => {
   }
 });
 
-// GET /api/joy/resolve-qr?payload= — decode scanned QR to public info.
-router.get('/resolve-qr', async (req, res) => {
-  try {
-    const payload = String(req.query.payload || '').trim();
-    if (!isBase64UrlJoyPayload(payload)) {
-      return res.status(400).json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
-    }
-    // Reject anything not signed by us (forged codes, expired codes, plain
-    // referral strings). Only a token this server minted verifies.
-    const referralCode = verifyQrToken(payload);
-    if (!referralCode) {
-      return res.status(400).json({ success: false, error: 'Mã JOY không hợp lệ hoặc đã hết hạn.' });
-    }
-    const bio = await Bio.findOne({ referralCode }).select('displayName avatarUrl referralCode slug');
-    if (!bio) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng này.' });
-    res.json({ success: true, displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // GET /api/joy/has-pin
 router.get('/has-pin', requireMember, async (req, res) => {
   try {
@@ -347,28 +313,6 @@ router.post('/set-pin', requireMember, async (req, res) => {
     await bio.save();
 
     res.json({ success: true, message: 'Đã thiết lập mã PIN giao dịch thành công.' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST /api/joy/verify-pin
-router.post('/verify-pin', requireMember, async (req, res) => {
-  try {
-    const { pin } = req.body;
-    const email = req.memberEmail;
-    if (!pin) return res.status(400).json({ error: 'Thiếu mã PIN cần xác thực.' });
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    if (!bio.transactionPin) {
-      return res.status(400).json({ error: 'Người dùng chưa thiết lập mã PIN.' });
-    }
-
-    const isValid = await bcrypt.compare(String(pin), bio.transactionPin);
-    res.json({ success: isValid });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -2,100 +2,13 @@
 import express from 'express';
 import { buildWorkQueue } from '../../services/adminWorkQueue.js';
 import { requireAdmin } from '../../middleware/authMiddleware.js';
-import path from 'path';
 import mongoose from 'mongoose';
 import Bio from '../../models/Bio.js';
 import { getQuotaStatus } from '../../services/aiGateway.js';
 import ErrorLog from '../../models/ErrorLog.js';
-import { getDirSize, logAdminAuditAction, __dirname } from './adminShared.js';
+import { logAdminAuditAction } from './adminShared.js';
 
 const router = express.Router();
-
-router.get('/system-storage', requireAdmin, async (req, res) => {
-  try {
-    const publicPath = path.resolve(__dirname, '../../web/public');
-    const publicSize = await getDirSize(publicPath);
-
-    let dbSize = 0;
-    try {
-      if (mongoose.connection && mongoose.connection.db) {
-        const stats = await mongoose.connection.db.stats();
-        dbSize = stats.dataSize + stats.indexSize;
-      }
-    } catch (e) {
-      console.error("MongoDB stats error:", e);
-    }
-
-    res.json({
-      success: true,
-      data: {
-        publicFiles: publicSize,
-        database: dbSize,
-        total: publicSize + dbSize
-      }
-    });
-  } catch (error) {
-    console.error('System storage error:', error);
-    res.status(500).json({ error: 'Lỗi khi tính toán dung lượng' });
-  }
-});
-
-// GET /admin/error-logs?level=&source=&limit= - persisted errors for the dashboard.
-router.get('/error-logs', requireAdmin, async (req, res) => {
-  try {
-    const { level, source } = req.query;
-    const limit = Math.min(Number(req.query.limit) || 100, 500);
-    const q = {};
-    if (level && ['error', 'warn', 'info'].includes(level)) q.level = level;
-    if (source) q.source = source;
-    const logs = await ErrorLog.find(q).sort({ createdAt: -1 }).limit(limit).lean();
-    const counts = await ErrorLog.aggregate([
-      { $match: { createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } } },
-      { $group: { _id: '$level', n: { $sum: 1 } } },
-    ]);
-    const last24h = counts.reduce((a, c) => ({ ...a, [c._id]: c.n }), { error: 0, warn: 0, info: 0 });
-    res.json({ success: true, logs, last24h });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE /admin/error-logs?level= - clear logs (all, or a single level).
-router.delete('/error-logs', requireAdmin, async (req, res) => {
-  try {
-    const { level } = req.query;
-    const q = level && ['error', 'warn', 'info'].includes(level) ? { level } : {};
-    const r = await ErrorLog.deleteMany(q);
-    res.json({ success: true, deleted: r.deletedCount });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /admin/system-overview - one-shot vitals for the System dashboard.
-router.get('/system-overview', requireAdmin, async (req, res) => {
-  try {
-    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const [users, joyAgg, errors24h, newUsers24h] = await Promise.all([
-      Bio.countDocuments({}),
-      Bio.aggregate([{ $group: { _id: null, total: { $sum: '$joyBalance' } } }]),
-      ErrorLog.countDocuments({ level: 'error', createdAt: { $gte: dayAgo } }),
-      Bio.countDocuments({ createdAt: { $gte: dayAgo } }),
-    ]);
-    res.json({
-      success: true,
-      users,
-      newUsers24h,
-      joyCirculating: joyAgg?.[0]?.total || 0,
-      errors24h,
-      quota: getQuotaStatus(),
-      uptimeSec: Math.round(process.uptime()),
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 
 // GET /admin/brief — bản tin một màn bằng câu thường (services/adminBrief.js).
 router.get('/brief', requireAdmin, async (req, res, next) => {

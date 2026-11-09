@@ -133,30 +133,6 @@ export const sendAdminLetter = (to, subject, body, { team = 'Ban Quản trị', 
     reason: 'Bạn nhận thư này vì Ban Quản trị Hugo Studio gửi thông báo liên quan trực tiếp tới tài khoản của bạn.',
   }), null, null, attachments, SUPPORT_EMAIL());
 
-/** Thư theo dõi giai đoạn của một hồ sơ cần phê duyệt — gửi tự động mỗi khi hồ sơ đổi bước. */
-export const sendStageEmail = (to, { subject, title, body, stages, current, stopped = false, cta = null, team = 'Ban Quản trị', office = '' }) =>
-  sendCustomEmail(to, subject, brandEmail({
-    body, title, eyebrow: 'Cập nhật hồ sơ', stages, current, stopped, cta, team, office,
-    reason: 'Bạn nhận thư này vì hồ sơ của bạn tại Hugo Studio vừa chuyển sang giai đoạn mới. Thư được gửi tự động ở mỗi bước.',
-  }));
-
-// Lộ trình Hugo Team — một nguồn cho mọi thư theo dõi giai đoạn của chương trình.
-export const HUGOTEAM_STAGES = ['Nộp hồ sơ', 'Xét duyệt', 'Học Coding (26 step)', 'Lời mời vào đội', 'Đồng hành cùng Mentor 30 ngày', 'Làm việc theo Team', 'Thành viên chính thức'];
-const hugoTeamCta = { label: 'Mở Hugo Team', href: `${SITE_URL}/member/utilities/team` };
-export const sendHugoTeamStage = (email, current, { subject, title, body, stopped = false }) =>
-  sendStageEmail(email, { subject, title, body, stages: HUGOTEAM_STAGES, current, stopped, cta: stopped ? null : hugoTeamCta, team: 'Hugo Team', office: 'Chương trình đào tạo' });
-
-const templates = {
-  contactForm: (name, email, subject, message) => ({
-    subject: `Tin nhắn từ ${String(name).replace(/[\r\n]+/g, ' ')}: ${String(subject).replace(/[\r\n]+/g, ' ')}`,
-    html: brandEmail({
-      eyebrow: 'Biểu mẫu liên hệ', title: String(subject),
-      body: `<p style="margin:0;"><b>Từ:</b> ${e(name)}<br><b>Email:</b> ${e(email)}</p><p style="margin:16px 0 0;padding:14px 16px;background:#f6f7f9;border-radius:10px;">${e(message).replace(/\n/g, '<br>')}</p>`,
-      reason: 'Thư nội bộ: có người gửi biểu mẫu liên hệ trên website Hugo Studio.',
-    }),
-  }),
-};
-
 const normalizeAttachments = (attachments = []) => attachments.map((attachment) => ({
   filename: attachment.filename,
   content: Buffer.isBuffer(attachment.content)
@@ -232,29 +208,6 @@ export const sendCustomEmail = async (
 // Email sending functions — tất cả ủy thác cho sendCustomEmail để dùng chung
 // luật mô phỏng/báo lỗi (trước đây mỗi hàm tự gọi sgMail.send và NÉM lỗi → route
 // trả 500 khi chưa cấu hình khoá).
-export const sendHugoTeamApplyConfirm = (name, email) => sendHugoTeamStage(email, 1, {
-  subject: 'Hugo Team đã nhận hồ sơ của bạn',
-  title: 'Hồ sơ đã được tiếp nhận',
-  body: `<p style="margin:0;">Chào ${e(name)},</p><p>Cảm ơn bạn đã đăng ký tham gia <b>Hugo Team</b>. Hồ sơ và CV của bạn đang được xét duyệt trong <b>3–5 ngày làm việc</b>. Mỗi khi hồ sơ chuyển bước, bạn sẽ nhận được thư cập nhật như thư này.</p>`,
-});
-
-export const sendHugoTeamApproved = (name, email) => sendHugoTeamStage(email, 2, {
-  subject: 'Hồ sơ Hugo Team đã được phê duyệt',
-  title: `Chúc mừng ${name}, bạn đã được phê duyệt`,
-  body: `<p style="margin:0;">Bước tiếp theo là chương trình <b>Coding 26 step</b> ngay trong ứng dụng. Học xong toàn bộ, hệ thống tự gửi lời mời vào đội — không cần chờ ai duyệt thêm.</p>`,
-});
-
-export const sendHugoTeamRejected = (name, email) => sendHugoTeamStage(email, 1, {
-  stopped: true,
-  subject: 'Kết quả xét duyệt hồ sơ Hugo Team',
-  title: 'Hồ sơ chưa được phê duyệt lần này',
-  body: `<p style="margin:0;">Chào ${e(name)},</p><p>Cảm ơn bạn đã quan tâm tới Hugo Team. Sau khi xem xét, hiện tại chúng tôi chưa thể phê duyệt hồ sơ của bạn. Bạn hoàn toàn có thể nộp lại khi đã có thêm kinh nghiệm lập trình.</p>`,
-});
-
-export const sendContactForm = (name, email, subject, message, recipientEmail) => {
-  const template = templates.contactForm(name, email, subject, message);
-  return sendCustomEmail(recipientEmail, template.subject, template.html, null, process.env.EMAIL_CONTACT, null, email);
-};
 
 /** Gửi mã OTP đăng nhập Magic Link 1 lần (hạn 10 phút) */
 export const sendMagicLinkOtp = async (to, code, purpose = 'login') => {
@@ -279,11 +232,6 @@ export const sendMagicLinkOtp = async (to, code, purpose = 'login') => {
 export default {
   brandEmail,
   sendAdminLetter,
-  sendStageEmail,
-  sendHugoTeamApplyConfirm,
-  sendHugoTeamApproved,
-  sendHugoTeamRejected,
-  sendContactForm,
   sendCustomEmail,
   sendMagicLinkOtp,
 };

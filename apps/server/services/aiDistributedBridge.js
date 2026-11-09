@@ -174,16 +174,6 @@ class AiDistributedBridge {
     }, 10 * 60 * 1000); // 10 phút
   }
 
-  // ─── Tác vụ 2: Telemetry Batch Flush ────────────────────────────────────────
-  async flushTelemetryBatch(events = []) {
-    if (!events.length) return { ok: true };
-    try {
-      return await this.callPython('/api/ai/telemetry/batch', { events }, 2500);
-    } catch {
-      return { ok: false, fallback: true };
-    }
-  }
-
   // ─── Tác vụ 4: Admin Executive Intel ────────────────────────────────────────
   async getAdminIntel(metrics = {}) {
     const key = this.hashKey('admin_intel', Object.keys(metrics).join(','));

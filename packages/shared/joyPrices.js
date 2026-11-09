@@ -1,7 +1,3 @@
-// Gói sở hữu và combo vẫn suy từ giá tháng; ba bồn tiêu thường xuyên bên dưới
-// dùng đúng ba mốc 200 / 500 / 1.000 để người dùng không phải học bảng giá.
-export const OWN_EQUIV_MONTHS = 12;
-export const OWN_DISCOUNT = 0.3;
 // Ba mốc giá duy nhất của vòng kinh tế tiện ích:
 // hoạt động có ích → nhận JOY → đổi lấy quyền lợi nhìn thấy được.
 export const JOY_SINK_PRICES = Object.freeze({
@@ -9,9 +5,6 @@ export const JOY_SINK_PRICES = Object.freeze({
   utility: 500,
   timedUpgrade: 1000,
 });
-
-/** Gia hạn tài khoản (Education Hugo bán thẳng, Store bán qua sản phẩm system_validity): cùng một mốc. */
-export const ACCOUNT_EXTENSION = Object.freeze({ days: 10, priceJoy: JOY_SINK_PRICES.timedUpgrade });
 
 /** Giá Utility Store do loại quyền lợi quyết định, không do client/admin tự đặt. */
 export const utilityProductPrice = (productType) => (
@@ -25,36 +18,7 @@ export const utilityProductPrice = (productType) => (
 export const FEATURE_PRICES = {
   hugoChess: JOY_SINK_PRICES.feature,
   hugoArcade: JOY_SINK_PRICES.feature,
-  hugoCoderBasic: JOY_SINK_PRICES.feature,
-  hugoCoder: JOY_SINK_PRICES.feature,
-  hugoCoderExam: JOY_SINK_PRICES.feature,
-  hugoCoderIntermediate: JOY_SINK_PRICES.feature,
-  hugoCoderAdvanced: JOY_SINK_PRICES.feature,
-  hugoCoderSecurity: JOY_SINK_PRICES.feature,
-  hugoCoderOptimize: JOY_SINK_PRICES.feature,
-  hugoCoderUltimate: JOY_SINK_PRICES.feature,
 };
-
-// ── MUA VĨNH VIỄN TỪNG CHẶNG HỌC (R2) ──────────────────────────────
-// Giữ đúng khoảng giá tác giả đã đặt (1.500–4.000 ≈ 3,6–9,6 ngày chơi) nhưng
-// TĂNG DẦN theo chặng. Bản cũ không tăng dần: chặng 1 và chặng 6 cùng 1.500,
-// còn chặng 2/3/4 đều 2.600 — người học không thấy được mình đang lên bậc nào.
-const STUDY_STAGES = [
-  { tier: "basic",        monthlyKey: "hugoCoderBasic",        lifetime: 1500 },
-  { tier: "intermediate", monthlyKey: "hugoCoderIntermediate", lifetime: 2000 },
-  { tier: "advanced",     monthlyKey: "hugoCoderAdvanced",     lifetime: 2500 },
-  { tier: "security",     monthlyKey: "hugoCoderSecurity",     lifetime: 3000 },
-  { tier: "project",      monthlyKey: "hugoCoderUltimate",     lifetime: 3500 },
-  { tier: "devops",       monthlyKey: "hugoCoderUltimate",     lifetime: 4000 },
-];
-
-export const STUDY_LIFETIME = Object.fromEntries(
-  STUDY_STAGES.map(({ tier, lifetime }) => [tier, lifetime]),
-);
-
-// ── Giao diện Bio (thuê) ───────────────────────────────────────────
-// Món trang trí — nửa ngày chơi.
-export const BIO_THEME_RENTAL_PRICE = 200;
 
 // ── Phí và trần giao dịch ──────────────────────────────────────────
 // LỖI CŨ: server thu 10% (`EXCHANGE_TAX_RATE`) nhưng trang Store tính và hiện

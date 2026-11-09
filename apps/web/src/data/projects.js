@@ -332,6 +332,4 @@ export const projects = [
 /** Ảnh nào cũng ở một chỗ, nên đường dẫn dựng bằng công thức. */
 export const shotUrl = (projectId, name) => `/project-screenshots/${projectId}/${name}${name.includes('.') ? '' : '.webp'}`;
 
-export const featuredProjects = projects.filter((p) => p.featured);
-
 export const findProject = (id) => projects.find((p) => p.id === id);

@@ -51,23 +51,3 @@ export function signQrToken(referralCode) {
   const token = Buffer.concat([packed, sig4(referral, bucket)]); // 6 + 4 = 10 bytes
   return token.toString('base64url');
 }
-
-// base64url token -> canonical referral code, or null if forged/expired.
-export function verifyQrToken(b64) {
-  try {
-    const token = Buffer.from(String(b64 || ''), 'base64url');
-    if (token.length !== 10) return null;
-    const referral = unpackReferral(token.subarray(0, 6));
-    const provided = token.subarray(6, 10);
-    const bucket = Math.floor(Date.now() / JOY_QR_BUCKET_MS);
-    for (const b of [bucket, bucket - 1]) {
-      const expected = sig4(referral, b);
-      if (provided.length === expected.length && crypto.timingSafeEqual(provided, expected)) {
-        return referral;
-      }
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}

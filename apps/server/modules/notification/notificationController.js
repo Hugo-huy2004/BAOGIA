@@ -9,8 +9,6 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import NotificationSubscription from '../../models/NotificationSubscription.js';
 import NativePushDevice from '../../models/NativePushDevice.js';
-import Bio from '../../models/Bio.js';
-import InAppNotification, { pruneNotifications } from '../../models/InAppNotification.js';
 import { welcomeInBackground } from '../../services/welcomeService.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -143,129 +141,6 @@ export async function unsubscribeWebPush(req, res) {
     });
     return res.json({ success: true });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-
-/**
- * [Admin] Gửi thông báo đẩy thử nghiệm
- */
-export async function sendTestNotification(req, res) {
-  try {
-    const { email, title, body, url } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Email là bắt buộc.' });
-    }
-
-    const subscriptions = await NotificationSubscription.find({ email, site: { $ne: 'edu' } });
-    if (!subscriptions || subscriptions.length === 0) {
-      return res.status(404).json({ error: 'Không tìm thấy đăng ký thông báo đẩy cho email này.' });
-    }
-
-    const payload = JSON.stringify({
-      title: title || 'Thông báo đẩy thử nghiệm',
-      body: body || 'Xin chào! Đây là thông báo đẩy từ máy chủ của website.',
-      icon: '/image/avt7.png',
-      url: url || '/member/today',
-    });
-
-    const sendPromises = subscriptions.map((sub) =>
-      webpush.sendNotification(sub.subscription, payload).catch((err) => {
-        console.error(`Gửi thông báo thất bại cho endpoint: ${sub.subscription.endpoint}`, err);
-        if (err.statusCode === 410 || err.statusCode === 404) {
-          return NotificationSubscription.deleteOne({ _id: sub._id });
-        }
-      })
-    );
-
-    await Promise.all(sendPromises);
-    return res.json({ success: true, message: `Đã phát thông báo mẫu tới ${subscriptions.length} thiết bị.` });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-}
-
-/**
- * [Admin] Phát sóng thông báo cho toàn bộ hoặc một thành viên cụ thể
- */
-export async function broadcastAllNotifications(req, res) {
-  try {
-    const { title, message, type = 'info', category = 'system', actionUrl = '', targetEmail = '' } = req.body;
-    if (!title) return res.status(400).json({ error: 'Tiêu đề là bắt buộc.' });
-    const normalizedTargetEmail = String(targetEmail || '').trim().toLowerCase();
-    const isBroadcastAll = normalizedTargetEmail === '' || normalizedTargetEmail === 'all';
-
-    const activeUsers = await Bio.find(
-      isBroadcastAll ? { status: 'active' } : { status: 'active', email: normalizedTargetEmail },
-      'email displayName'
-    );
-    if (!activeUsers || activeUsers.length === 0) {
-      return res.status(404).json({
-        error: isBroadcastAll ? 'Không tìm thấy người dùng hoạt động.' : 'Không tìm thấy thành viên active với email này.',
-      });
-    }
-
-    const notifications = activeUsers.map((user) => {
-      const userDisplayName = user.displayName || 'Thành viên';
-      return {
-        email: user.email,
-        type,
-        category,
-        title: title.replace(/{{displayName}}/g, userDisplayName),
-        message: message.replace(/{{displayName}}/g, userDisplayName),
-        actionUrl,
-      };
-    });
-    await InAppNotification.insertMany(notifications);
-    Promise.all(activeUsers.map((u) => pruneNotifications(u.email))).catch((e) =>
-      console.error('[broadcast prune]', e.message)
-    );
-
-    const subscriptions = await NotificationSubscription.find(
-      { ...(isBroadcastAll ? { email: { $in: activeUsers.map((user) => user.email) } } : { email: normalizedTargetEmail }), site: { $ne: 'edu' } }
-    );
-
-    let sentCount = 0;
-    let failedCount = 0;
-
-    if (subscriptions.length > 0) {
-      const sendPromises = subscriptions.map((sub) => {
-        const user = activeUsers.find((u) => u.email === sub.email);
-        const userDisplayName = user ? user.displayName || 'Thành viên' : 'Thành viên';
-        const userTitle = title.replace(/{{displayName}}/g, userDisplayName);
-        const userBody = message.replace(/{{displayName}}/g, userDisplayName);
-
-        const payload = JSON.stringify({
-          title: userTitle,
-          body: userBody,
-          icon: '/image/avt7.png',
-          url: actionUrl || '/',
-        });
-
-        return webpush
-          .sendNotification(sub.subscription, payload)
-          .then(() => sentCount++)
-          .catch((err) => {
-            failedCount++;
-            console.error(`Broadcast: Gửi thông báo thất bại cho endpoint: ${sub.subscription.endpoint}`);
-            if (err.statusCode === 410 || err.statusCode === 404) {
-              return NotificationSubscription.deleteOne({ _id: sub._id });
-            }
-          });
-      });
-
-      await Promise.allSettled(sendPromises);
-    }
-
-    return res.json({
-      success: true,
-      message: isBroadcastAll
-        ? `Đã gửi in-app cho ${activeUsers.length} người. Gửi Push thành công ${sentCount}, thất bại ${failedCount}.`
-        : `Đã gửi thông báo cho ${normalizedTargetEmail}. Push thành công ${sentCount}, thất bại ${failedCount}.`,
-      stats: { inAppSent: activeUsers.length, pushSent: sentCount, pushFailed: failedCount },
-    });
-  } catch (error) {
-    console.error('Lỗi Broadcast Notification:', error);
     return res.status(500).json({ error: error.message });
   }
 }

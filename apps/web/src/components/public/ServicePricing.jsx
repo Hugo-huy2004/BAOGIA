@@ -1,10 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check } from "lucide-react";
-import PackageName from "../brand/PackageName";
-import { servicePackages } from "../../data/servicePackages";
+import { ArrowRight } from "lucide-react";
 import { ADDON_GROUPS, SERVICE_ADDONS, addonPath } from "../../data/serviceAddons";
-import { formatServicePrice } from "../../utils/servicePrice";
 
 /**
  * Bảng giá dùng chung cho /services và trang từng gói.
@@ -15,72 +12,6 @@ import { formatServicePrice } from "../../utils/servicePrice";
  */
 
 const OBJ = { returnObjects: true };
-const PAID = servicePackages;
-// Hàng thẻ: vuốt ngang trên điện thoại, lưới từ lg.
-const RAIL =
-  "-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:grid lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden";
-const CARD = "flex w-[84%] shrink-0 snap-center flex-col rounded-[1.5rem] border border-border bg-card p-6 sm:w-[60%] lg:w-auto";
-
-/** Ba gói trả phí cạnh nhau: giá, ba con số chính, nút xem gói. */
-export function PackagePriceCards({ currentId }) {
-  const { t, i18n } = useTranslation();
-  const cells = t("servicePkg.compare.cells", OBJ);
-  const stats = t("servicePkg.stats", OBJ);
-
-  return (
-    <div className={`${RAIL} lg:grid-cols-3`}>
-      {PAID.map((pkg) => {
-        const base = `servicePkg.items.${pkg.id}`;
-        const price = t(`${base}.price`, OBJ);
-        const facts = [
-          [stats.time, cells.time?.[pkg.id]],
-          [stats.pages, cells.pages?.[pkg.id]],
-          [stats.warranty, stats.warrantyValue?.[pkg.id]],
-        ];
-        const current = pkg.id === currentId;
-        return (
-          <article key={pkg.id} className={`${CARD} ${current || pkg.recommended ? "border-foreground/30 ring-1 ring-foreground/10" : ""}`}>
-            {pkg.recommended ? (
-              <span className="mb-3 self-start rounded-full bg-foreground px-2.5 py-1 text-[0.7rem] font-semibold text-background">{t("servicePkg.page.recommended")}</span>
-            ) : null}
-            <div className="flex items-center justify-between gap-3">
-              <PackageName id={pkg.id} size="md" dot={false} />
-              {pkg.noDeposit ? (
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[0.7rem] font-semibold">{t("servicePkg.policyNoDeposit.title").replace(/[.。]$/, "")}</span>
-              ) : null}
-            </div>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{t(`${base}.title`)}</p>
-            <p className="mt-5 text-xs font-medium text-muted-foreground">
-              {t(price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
-            </p>
-            <p className="mt-1 text-[2rem] leading-none font-semibold tracking-[-.045em]">
-              {formatServicePrice(price, i18n.resolvedLanguage)}
-            </p>
-            {price.note ? <p className="mt-2 text-xs leading-5 text-muted-foreground">{price.note}</p> : null}
-            <dl className="mt-5 space-y-2.5 border-t border-border pt-5 text-sm">
-              {facts.map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-4">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className="text-right font-medium">{value}</dd>
-                </div>
-              ))}
-            </dl>
-            <ul className="mt-5 flex-1 space-y-2 text-sm text-foreground/80">
-              {t(`${base}.features`, OBJ).slice(0, 4).map((f) => (
-                <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0" /> {f}</li>
-              ))}
-            </ul>
-            {current ? null : (
-              <Link to={`/services/${pkg.slug}`} className="btn-secondary mt-6 justify-center">
-                {t("servicePkg.page.detailCta")} <ArrowRight size={16} />
-              </Link>
-            )}
-          </article>
-        );
-      })}
-    </div>
-  );
-}
 
 /**
  * Thẻ gói lẻ trong danh sách: chỉ tên, một câu "cần khi nào", giá và "Xem

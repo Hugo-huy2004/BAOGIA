@@ -1,4 +1,3 @@
-import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 // Dev chỉ chạy mỗi Vite (một cổng), không có backend 8081 để nhận telemetry —
@@ -92,58 +91,6 @@ export function reportClientEvent(event) {
     });
 }
 
-function installWebVitals() {
-  const reportVital = (metric) => {
-    if (!CORE_VITALS.has(metric.name) && !SLOW_VITAL_RATINGS.has(metric.rating)) return;
-    reportClientEvent({
-      type: "web-vital",
-      name: metric.name,
-      value: metric.value,
-      rating: metric.rating,
-    });
-  };
-
-  onCLS(reportVital);
-  onFCP(reportVital);
-  onINP(reportVital);
-  onLCP(reportVital);
-  onTTFB(reportVital);
-}
-
-export function recordApiOutcome(ok) {
-  apiRequestCount += 1;
-  if (!ok) apiErrorCount += 1;
-}
-
-// `final` = lúc rời trang: gửi tổng kết phiên dù không có lỗi, để còn mẫu số
-// tính tỉ lệ. Nhịp 30 giây thì chỉ gửi khi CÓ lỗi.
-//
-// Trước đây cứ 30 giây là gửi một bản "mọi thứ đều ổn": 352/622 bản ghi
-// ClientMetric là loại đó — hơn nửa kho dữ liệu chỉ để nói không có gì xảy ra.
-// Bỏ qua nhưng KHÔNG reset bộ đếm, nên lần gửi sau vẫn có đủ số của cả phiên.
-function flushApiSummary(final = false) {
-  if (!apiRequestCount) return;
-  if (!final && !apiErrorCount) return;
-  reportClientEvent({
-    type: "api-summary",
-    name: "api-error-rate",
-    value: apiErrorCount / apiRequestCount,
-    requestCount: apiRequestCount,
-    errorCount: apiErrorCount,
-  });
-  apiRequestCount = 0;
-  apiErrorCount = 0;
-}
-
-function installApiSummaryReporter() {
-  const interval = window.setInterval(() => flushApiSummary(), API_SUMMARY_INTERVAL_MS);
-  window.addEventListener("pagehide", () => flushApiSummary(true));
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") flushApiSummary(true);
-  });
-  return () => window.clearInterval(interval);
-}
-
 function installGlobalErrorHandlers() {
   window.addEventListener("error", (event) => {
     // "Script error." không kèm file/dòng = lỗi của script KHÁC nguồn (Google
@@ -201,9 +148,7 @@ export function installClientMonitoring() {
   if (installed || typeof window === "undefined") return;
   installed = true;
   installPageViews();
-  installWebVitals();
   installGlobalErrorHandlers();
-  installApiSummaryReporter();
 }
 
 export { SLOW_API_MS };

@@ -5,13 +5,10 @@
  */
 import { FEATURE_PRICES } from '../../utils/featureSubscriptionService.js';
 import {
-  BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
 } from '../../../../packages/shared/joyPrices.js';
 import { ownExchangeItems } from '../../utils/appPlanService.js';
 import { memberTier, tierGifts, TIER_LABELS } from '../../utils/memberTier.js';
-
-export const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 
 export const COMPRESS_CHARGE = 50;
 
@@ -22,8 +19,6 @@ export const COMPRESS_CHARGE = 50;
 export const EXCHANGE_ITEMS = {
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
-  bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
-  bioThemeFlat: { label: 'Giao diện Bio: Flat (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE },
   // Bậc "sở hữu vĩnh viễn" của Hugo Store, sinh từ APP_PLANS nên bảng giá chỉ
   // có một chỗ để sửa (apps/server/utils/appPlanService.js).
@@ -118,5 +113,3 @@ export function tooManyLookups(email) {
   }
   return hits.length > RESOLVE_LOOKUP_MAX;
 }
-
-export const isBase64UrlJoyPayload = (payload) => typeof payload === 'string' && /^[A-Za-z0-9_-]{14}$/.test(payload);

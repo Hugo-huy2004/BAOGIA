@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 
 /**
  * HugoOS — mở thẳng một màn hình bên trong app.
@@ -18,28 +17,4 @@ let pending = null;
 export function openDestination(appId, destination) {
   pending = { appId, destination };
   window.dispatchEvent(new CustomEvent(EVENT, { detail: pending }));
-}
-
-/** App gọi hook này để nhận ý định — cả ý định đã phát trước khi nó kịp mount. */
-export function useAppIntent(appId, onIntent) {
-  // `onIntent` là hàm mới ở mỗi lần render; giữ qua ref để không phải gắn lại
-  // listener liên tục mà vẫn luôn gọi bản mới nhất.
-  const handler = useRef(onIntent);
-  handler.current = onIntent;
-
-  useEffect(() => {
-    if (pending?.appId === appId) {
-      const { destination } = pending;
-      pending = null;
-      handler.current(destination);
-    }
-
-    const handle = (event) => {
-      if (event.detail?.appId !== appId) return;
-      pending = null;
-      handler.current(event.detail.destination);
-    };
-    window.addEventListener(EVENT, handle);
-    return () => window.removeEventListener(EVENT, handle);
-  }, [appId]);
 }

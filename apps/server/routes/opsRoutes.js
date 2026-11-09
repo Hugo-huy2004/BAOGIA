@@ -1,19 +1,14 @@
 import express from 'express';
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import rateLimit from 'express-rate-limit';
-import { requireAdmin } from '../middleware/authMiddleware.js';
-import ClientMetric from '../models/ClientMetric.js';
 import {
   reportSpecialistIncident,
   specialistForClientEvent,
 } from '../services/aiIncidentResponseService.js';
-import { telemetryBuffer } from '../services/telemetryRingBuffer.js';
 import { recordVisit } from '../services/visitorTracker.js';
 import { logError } from '../utils/alert.js';
 
 const router = express.Router();
-const events = [];
-const MAX_EVENTS = 500;
 const ALLOWED_TYPES = new Set([
   'web-vital',
   'route-not-found',
@@ -83,37 +78,13 @@ router.post('/visit', telemetryLimiter, (req, res) => {
 router.post('/client-event', telemetryLimiter, (req, res) => {
   try {
     const event = normalizeEvent(req.body, req);
-    telemetryBuffer.push({ ...event, userId: req.memberEmail || req.ip });
-
-    // Only accumulate events in memory in development mode to prevent RAM exhaustion / DDoS in production
-    if (process.env.NODE_ENV !== 'production') {
-      events.push(event);
-      if (events.length > MAX_EVENTS) events.splice(0, events.length - MAX_EVENTS);
-    }
-
-    if (process.env.NODE_ENV === 'production' && ['web-vital', 'api-summary'].includes(event.type)) {
-      ClientMetric.create({
-        type: event.type,
-        name: event.name,
-        rating: event.rating,
-        value: event.value || 0,
-        requestCount: event.requestCount,
-        errorCount: event.errorCount,
-        device: event.device,
-        network: event.network,
-        page: event.page,
-      }).catch((error) => console.warn('[client-metric-write]', error.message));
-    }
-
-    if ((event.type !== 'web-vital' && event.type !== 'api-summary') || event.rating === 'poor') {
-      console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '', event.name === 'boot-failure'
-        ? `${event.message} · ${event.stack}`
-        // Lỗi giao diện: in luôn nội dung, không thì log chỉ còn "react-error-boundary /"
-        // và phải đi lục Telegram mới biết lỗi gì.
-        : ['runtime-error', 'unhandled-rejection', 'react-error-boundary'].includes(event.type)
-          ? `${event.name}: ${event.message} · ${event.stack.split(' at ').slice(0, 3).join(' at ')}`
-          : '');
-    }
+    console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '', event.name === 'boot-failure'
+      ? `${event.message} · ${event.stack}`
+      // Lỗi giao diện: in luôn nội dung, không thì log chỉ còn "react-error-boundary /"
+      // và phải đi lục Telegram mới biết lỗi gì.
+      : ['runtime-error', 'unhandled-rejection', 'react-error-boundary'].includes(event.type)
+        ? `${event.name}: ${event.message} · ${event.stack.split(' at ').slice(0, 3).join(' at ')}`
+        : '');
     res.status(204).end();
 
     const specialist = specialistForClientEvent(event);
@@ -204,57 +175,6 @@ router.post('/sentry-hook', telemetryLimiter, (req, res) => {
     reportSpecialistIncident(incident)
       .catch((error) => console.warn('[sentry-specialist-incident]', error.message));
   });
-});
-
-router.get('/metrics/summary', requireAdmin, async (req, res) => {
-  const hours = Math.min(24 * 30, Math.max(1, Number(req.query.hours) || 24));
-  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
-  const [vitals, api] = await Promise.all([
-    ClientMetric.aggregate([
-      { $match: { type: 'web-vital', createdAt: { $gte: since } } },
-      {
-        $group: {
-          _id: { name: '$name', device: '$device' },
-          average: { $avg: '$value' },
-          samples: { $sum: 1 },
-          poor: { $sum: { $cond: [{ $eq: ['$rating', 'poor'] }, 1, 0] } },
-        }
-      },
-      { $sort: { '_id.name': 1, '_id.device': 1 } }
-    ]),
-    ClientMetric.aggregate([
-      { $match: { type: 'api-summary', createdAt: { $gte: since } } },
-      {
-        $group: {
-          _id: '$device',
-          requests: { $sum: '$requestCount' },
-          errors: { $sum: '$errorCount' },
-        }
-      }
-    ])
-  ]);
-
-  res.json({
-    since,
-    hours,
-    vitals,
-    api: api.map((item) => ({
-      device: item._id,
-      requests: item.requests,
-      errors: item.errors,
-      errorRate: item.requests ? item.errors / item.requests : 0,
-    })),
-  });
-});
-
-router.get('/client-events', requireAdmin, (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 100, MAX_EVENTS);
-  res.json({ events: events.slice(-limit).reverse() });
-});
-
-router.post('/clean-events', requireAdmin, (req, res) => {
-  events.length = 0;
-  res.json({ success: true });
 });
 
 export default router;

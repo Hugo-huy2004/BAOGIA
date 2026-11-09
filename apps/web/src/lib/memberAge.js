@@ -13,8 +13,3 @@ export function memberAge(bio) {
   const age = now.getFullYear() - year;
   return now.getMonth() + 1 >= month ? age : age - 1;
 }
-
-export const isMinorMember = (bio) => {
-  const age = memberAge(bio);
-  return age !== null && age < ADULT_AGE;
-};

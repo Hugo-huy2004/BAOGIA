@@ -94,7 +94,3 @@ export function persistAppLanguage(language, storage = browserStorage()) {
   }
   return code;
 }
-
-export function isVietnameseLanguage(language) {
-  return languageCode(language) === "vi";
-}

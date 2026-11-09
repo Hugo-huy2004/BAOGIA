@@ -65,23 +65,4 @@ export function AnimulaAvatar({
   );
 }
 
-/**
- * Avatar của một nhân vật đồng hành: hình dáng, màu, mũ, kính lấy từ hồ sơ
- * (constants/companions.js); `motion` (brain/companionMind.avatarMotion) cho nó
- * nhún/chậm/nhạt màu theo cảm xúc vì bot-avatars không có nét mặt biểu cảm.
- */
-export function CompanionAvatar({ companion, size = 32, motion = null, ...rest }) {
-  return (
-    <AnimulaAvatar
-      size={size}
-      type={companion.type}
-      color={companion.color}
-      hat={companion.hat || "none"}
-      glasses={companion.glasses || "none"}
-      {...(motion || {})}
-      {...rest}
-    />
-  );
-}
-
 export default AnimulaAvatar;

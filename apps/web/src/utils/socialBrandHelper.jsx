@@ -2,24 +2,6 @@ import { Globe, ShoppingBag } from "lucide-react";
 import { siInstagram } from "simple-icons";
 
 /**
- * BRAND COLOR CODES CHUẨN XÁC THEO NHẬN DIỆN THƯƠNG HIỆU
- */
-export const BRAND_COLORS = {
-  facebook: "#1877F2",
-  instagram: "#E4405F",
-  x: "#000000",
-  threads: "#101010",
-  zalo: "#0068FF",
-  github: "#24292F",
-  discord: "#5865F2",
-  tiktok: "#000000",
-  linkedin: "#0A66C2",
-  pinterest: "#E60023",
-  shopping: "#EE4D2D",
-  website: "#2563EB",
-};
-
-/**
  * Render logo có màu thương hiệu chính xác (Brand Color Icon Component)
  * Chuẩn nhận diện cao cấp, sắc nét trên mọi tỉ lệ hiển thị.
  */

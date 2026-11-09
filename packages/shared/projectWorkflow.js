@@ -198,14 +198,6 @@ export function canTransition(from, to) {
   return PROJECT_STATUSES[from].next.includes(to);
 }
 
-/** Phần trăm tiến độ để vẽ thanh cho khách. "Đã dừng" không có tiến độ. */
-export function progressPercent(status) {
-  if (status === 'cancelled') return 0;
-  const i = PROJECT_STATUS_ORDER.indexOf(status);
-  if (i === -1) return 0;
-  return Math.round((i / (PROJECT_STATUS_ORDER.length - 1)) * 100);
-}
-
 // ── 3. BỘ CÂU HỎI YÊU CẦU ────────────────────────────────────────────────────
 /**
  * Soạn theo lối thu thập yêu cầu tiêu chuẩn (elicitation), gom thành 8 nhóm đi

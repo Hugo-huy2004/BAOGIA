@@ -19,7 +19,6 @@ import ScheduledPush from '../models/ScheduledPush.js';
 import mongoose from 'mongoose';
 import JoyLedger from '../models/JoyLedger.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
-import StoreCart from '../models/StoreCart.js';
 import PendingTransfer from '../models/PendingTransfer.js';
 import UtilityOrder from '../models/UtilityOrder.js';
 import SupportTicket from '../models/SupportTicket.js';
@@ -111,7 +110,6 @@ const removeMemberData = async (bio) => {
     mongoose.connection.collection('joycreditprofiles').deleteMany(emailFilter),
     JoyLedger.deleteMany(emailFilter),
     JoyGiftCard.deleteMany({ redeemedBy: email }),
-    StoreCart.deleteMany(emailFilter),
     PendingTransfer.deleteMany({ $or: [{ fromEmail: email }, { toEmail: email }] }),
     UtilityOrder.deleteMany(emailFilter),
     SupportTicket.deleteMany(emailFilter),

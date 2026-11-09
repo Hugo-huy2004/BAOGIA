@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { findServicePackage, servicePackages } from "../data/servicePackages";
+import { findServicePackage } from "../data/servicePackages";
 import { PACKAGE_ICONS, SHARED_ICONS } from "../data/serviceIcons";
 
 /**
@@ -66,14 +66,4 @@ export function useSharedServiceCopy() {
     stats: t("servicePkg.stats", OBJ),
     studentDiscount: { ...t("servicePkg.studentDiscount", OBJ), href: "/services#dat-lich" },
   };
-}
-
-/** Danh sách gói kèm tiêu đề đã dịch — cho trang /services và phim cuộn. */
-export function useServicePackageList() {
-  const { t } = useTranslation();
-  return servicePackages.map((pkg) => ({
-    ...pkg,
-    title: t(`servicePkg.items.${pkg.id}.title`),
-    lede: t(`servicePkg.items.${pkg.id}.lede`),
-  }));
 }

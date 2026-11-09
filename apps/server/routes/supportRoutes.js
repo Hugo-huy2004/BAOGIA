@@ -1,6 +1,6 @@
 import express from 'express';
 import SupportTicket from '../models/SupportTicket.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -33,55 +33,6 @@ router.post('/tickets', async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating support ticket:', err);
-    res.status(500).json({ error: err.message || 'Server error' });
-  }
-});
-
-// Yêu cầu hỗ trợ của chính thành viên. Danh tính lấy từ JWT (`req.memberEmail`)
-// chứ không phải email trong body — nếu tin body thì ai cũng đọc được hộp thư
-// hỗ trợ của người khác chỉ bằng cách đổi một chuỗi.
-router.get('/my-tickets', requireMember, async (req, res) => {
-  try {
-    const tickets = await SupportTicket.find({ email: req.memberEmail })
-      .sort({ createdAt: -1 })
-      .limit(20)
-      .select('issue status adminReply phone createdAt resolvedAt')
-      .lean();
-    res.json({
-      tickets,
-      pendingCount: tickets.filter((ticket) => ticket.status === 'pending').length,
-    });
-  } catch (err) {
-    console.error('Error fetching member support tickets:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-router.post('/my-tickets', requireMember, async (req, res) => {
-  try {
-    const { fullName, phone, issue, message } = req.body || {};
-    const text = String(issue || message || '').trim();
-    if (text.length < 10) {
-      return res.status(400).json({ error: 'Nội dung yêu cầu quá ngắn.' });
-    }
-
-    const ticket = await createTicket({
-      fullName,
-      phone,
-      issue: text.slice(0, 4000),
-      email: req.memberEmail,
-    });
-    res.status(201).json({
-      success: true,
-      ticket: {
-        id: ticket._id,
-        issue: ticket.issue,
-        status: ticket.status,
-        createdAt: ticket.createdAt,
-      }
-    });
-  } catch (err) {
-    console.error('Error creating member support ticket:', err);
     res.status(500).json({ error: err.message || 'Server error' });
   }
 });

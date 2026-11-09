@@ -4,7 +4,6 @@ import { memberAge, ADULT_AGE } from "./memberAge";
 // lợi (ngày duy trì, voucher) đều do server cấp, đây không phải nguồn sự thật.
 export const MEMBER_MIN_AGE = 14;
 export { ADULT_AGE } from "./memberAge";
-export const STAR_MAX_AGE = 23; // Star-18 đến hết tháng sinh nhật 23 tuổi
 
 export const TIER_META = {
   star14: { label: "Star-14", icon: "star_half", hint: "Thành viên 14 đến dưới 18 tuổi" },

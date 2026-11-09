@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import Bio from '../models/Bio.js';
 import Counter from '../models/Counter.js';
 import PartnerClaim from '../models/PartnerClaim.js';
-import { requireMember, requireAdmin, invalidateMemberGate } from '../middleware/authMiddleware.js';
+import { requireMember, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { missingProfileFields } from '../utils/profileRequirements.js';
 import { awardJoy } from '../utils/joyService.js';
 import { broadcastToEmail } from '../utils/realtime.js';
@@ -83,12 +83,6 @@ const publicCampaign = async (campaign, { fresh = false } = {}) => {
     open: isPartnerCampaignOpen(campaign) && used < campaign.maxClaims,
     endsAt: campaign.endsAt,
   };
-};
-
-// Riêng cho admin: kèm số suất đã dùng / còn lại.
-const adminCampaign = async (campaign) => {
-  const used = await slotsUsed(campaign.slug);
-  return { ...(await publicCampaign(campaign, { fresh: true })), maxClaims: campaign.maxClaims, used, remaining: Math.max(0, campaign.maxClaims - used) };
 };
 
 const findBio = async (email) => (await Bio.findOne({ email })) || Bio.findOne({ contactEmail: email });
@@ -205,37 +199,6 @@ const loadCampaign = (req, res, next) => {
   req.campaign = campaign;
   return next();
 };
-
-// ── Admin: theo dõi suất, xem lượt bị chặn, gỡ chặn nhầm ──────────────────────
-router.get('/admin/:slug/claims', requireAdmin, loadCampaign, async (req, res) => {
-  try {
-    const { campaign } = req;
-    const [granted, rejected, recent] = await Promise.all([
-      PartnerClaim.countDocuments({ campaign: campaign.slug, status: 'granted' }),
-      PartnerClaim.countDocuments({ campaign: campaign.slug, status: 'rejected' }),
-      PartnerClaim.find({ campaign: campaign.slug })
-        .sort({ createdAt: -1 })
-        .limit(Math.min(500, Number(req.query.limit) || 200))
-        .select('email status reason createdAt')
-        .lean(),
-    ]);
-    return res.json({ campaign: await adminCampaign(campaign), granted, rejected, claims: recent });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
-
-// Gỡ một lượt BỊ TỪ CHỐI (chặn nhầm người thật) để tài khoản đó thử nhận lại.
-// Lượt đã nhận quà thì không gỡ ở đây — quà đã vào ví, gỡ claim chỉ mở đường nhận hai lần.
-router.delete('/admin/:slug/claims/:id', requireAdmin, loadCampaign, async (req, res) => {
-  try {
-    const result = await PartnerClaim.deleteOne({ _id: req.params.id, campaign: req.campaign.slug, status: 'rejected' });
-    if (!result.deletedCount) return res.status(404).json({ error: 'Không tìm thấy lượt bị từ chối này.' });
-    return res.json({ success: true });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-});
 
 // GET /:slug — thông tin công khai của chiến dịch (số quà, còn mở hay không).
 router.get('/:slug', loadCampaign, async (req, res) => {

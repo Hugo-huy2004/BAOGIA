@@ -1,11 +1,9 @@
 import express from 'express';
-import { requireAdmin, requireMember, requireMemberSession } from '../middleware/authMiddleware.js';
+import { requireMember, requireMemberSession } from '../middleware/authMiddleware.js';
 import {
   getVapidPublicKey,
   subscribeWebPush,
   unsubscribeWebPush,
-  sendTestNotification,
-  broadcastAllNotifications,
   subscribeNativeDevice,
   unsubscribeNativeDevice,
   vapidKeys,
@@ -41,15 +39,6 @@ router.post('/native/subscribe', requireMember, async (req, res) => {
 
 router.post('/native/unsubscribe', requireMember, async (req, res) => {
   return unsubscribeNativeDevice(req, res);
-});
-
-// --- 4. Quản trị viên: Gửi thử nghiệm & Tác vụ Push AI ---
-router.post('/send-test', requireAdmin, async (req, res) => {
-  return sendTestNotification(req, res);
-});
-
-router.post('/broadcast-all', requireAdmin, async (req, res) => {
-  return broadcastAllNotifications(req, res);
 });
 
 export { vapidKeys };

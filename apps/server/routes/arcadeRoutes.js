@@ -7,7 +7,6 @@ import {
   postEcoCaro,
   getLeaderboard,
   getProfile,
-  getMyScore,
   buy2048Hammer,
   unlock2048Character,
   get2048Collection,
@@ -49,10 +48,6 @@ router.get('/leaderboard', async (req, res) => {
 
 router.get('/profile', requireMember, async (req, res) => {
   return getProfile(req, res);
-});
-
-router.get('/me', requireMember, async (req, res) => {
-  return getMyScore(req, res);
 });
 
 // --- 3. Phân hệ Game 2048 (Vật phẩm, Nhân vật, Bộ sưu tập) ---

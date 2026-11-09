@@ -66,9 +66,6 @@ try {
   const payLinksCount = await PaymentLink.countDocuments();
   console.log(`✅ PaymentLink Collection (${payLinksCount} docs): 100% valid.`);
 
-  const CinemaMovie = (await import('../models/CinemaMovie.js')).default;
-  const moviesCount = await CinemaMovie.countDocuments();
-  console.log(`✅ CinemaMovie Collection (${moviesCount} docs): 100% valid.`);
 
   console.log('\n=== DATABASE DIAGNOSTICS COMPLETED SUCCESSFULLY (100% HEALTHY) ===');
 } catch (error) {

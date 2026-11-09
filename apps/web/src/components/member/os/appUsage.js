@@ -42,14 +42,6 @@ export function trackOpen(scope, id = "__app__") {
   write(all);
 }
 
-/** Danh sách id đã mở trong một app, mới nhất trước. */
-export function recentIds(scope, limit = LIMIT) {
-  return (read()[scope] || [])
-    .filter((entry) => entry.id !== "__app__")
-    .slice(0, limit)
-    .map((entry) => entry.id);
-}
-
 /** Số lượt mở app, dùng để xếp hạng Spotlight. Mới hơn thì đứng trước. */
 export function appOpenOrder() {
   const all = read();

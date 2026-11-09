@@ -7,5 +7,3 @@ export function noteServer(ok, status = 0) {
   down = !ok;
   window.dispatchEvent(new CustomEvent("hugo:server-health", { detail: { ok, status } }));
 }
-
-export const serverIsDown = () => down;

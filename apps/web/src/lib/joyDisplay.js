@@ -79,7 +79,6 @@ export function setJoyDenom(value, subject = activeSubject) {
 }
 
 export const joyDenom = () => "JOY";
-export const joyCode = () => "JOY";
 /** JOY gốc → SỐ (không kèm mã). Chỉ có 1 đơn vị JOY duy nhất. */
 export const joyValue = (joy) => {
   const parsed = Number(joy);

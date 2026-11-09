@@ -3,8 +3,7 @@ import Bio from '../models/Bio.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
-import cloudinaryUtil from '../utils/cloudinary.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import { notifyMember } from '../utils/notifyMember.js';
 import { applyProductGrant } from '../utils/productGrant.js';
@@ -143,100 +142,5 @@ router.post('/purchase', requireMember, async (req, res) => {
 });
 
 // ── Admin ───────────────────────────────────────────────────────────────────
-
-// GET /api/utility-store/admin/products — all products including inactive
-router.get('/admin/products', requireAdmin, async (req, res) => {
-  try {
-    const products = await UtilityProduct.find().sort({ createdAt: -1 });
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /api/utility-store/admin/orders — all orders, all members
-router.get('/admin/orders', requireAdmin, async (req, res) => {
-  try {
-    const orders = await UtilityOrder.find().sort({ createdAt: -1 }).limit(200);
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /api/utility-store/admin/upload-image  { base64Str, oldUrl }
-router.post('/admin/upload-image', requireAdmin, async (req, res) => {
-  try {
-    const { base64Str, oldUrl } = req.body;
-    if (!base64Str) return res.status(400).json({ error: 'base64Str is required' });
-    const url = await cloudinaryUtil.uploadProductImage(base64Str, oldUrl || '');
-    res.json({ url });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /api/utility-store/admin/products
-router.post('/admin/products', requireAdmin, async (req, res) => {
-  try {
-    const { name, description, icon, category, stock, imageUrl, productType, extendDays, radioMinutes } = req.body;
-    if (!name) return res.status(400).json({ error: 'name is required' });
-
-    const product = await UtilityProduct.create({
-      name,
-      description: description || '',
-      priceJoy: utilityProductPrice(productType),
-      icon: icon || 'redeem',
-      category: category || 'general',
-      stock: stock !== undefined ? Number(stock) : -1,
-      imageUrl: imageUrl || '',
-      productType: productType || 'general',
-      extendDays: Number(extendDays) || 0,
-      radioMinutes: Number(radioMinutes) || 0
-    });
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// PUT /api/utility-store/admin/products/:id
-router.put('/admin/products/:id', requireAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, description, icon, category, active, stock, imageUrl, productType, extendDays, radioMinutes } = req.body;
-
-    const product = await UtilityProduct.findById(id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-
-    if (name !== undefined) product.name = name;
-    if (description !== undefined) product.description = description;
-    product.priceJoy = utilityProductPrice(productType ?? product.productType);
-    if (productType !== undefined) product.productType = productType;
-    if (extendDays !== undefined) product.extendDays = Number(extendDays);
-    if (radioMinutes !== undefined) product.radioMinutes = Number(radioMinutes);
-    if (icon !== undefined) product.icon = icon;
-    if (category !== undefined) product.category = category;
-    if (active !== undefined) product.active = active;
-    if (stock !== undefined) product.stock = Number(stock);
-    if (imageUrl !== undefined) product.imageUrl = imageUrl;
-
-    await product.save();
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE /api/utility-store/admin/products/:id
-router.delete('/admin/products/:id', requireAdmin, async (req, res) => {
-  try {
-    const deleted = await UtilityProduct.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Product not found' });
-    res.json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 export default router;

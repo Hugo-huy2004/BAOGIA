@@ -45,13 +45,6 @@ function nextPrimeSlot(after = new Date()) {
   return new Date(after.getTime() + 24 * 60 * 60 * 1000); // không xảy ra — PRIME_SLOTS khác rỗng
 }
 
-// Rolls a target send time out of quiet hours — used when *scheduling* a
-// future push (e.g. "remind in 24h") so it never lands at 2am in the first
-// place.
-export function nextAllowedSendTime(date = new Date()) {
-  return isQuietHours(date) ? nextPrimeSlot(date) : date;
-}
-
 async function deliver(email, subs, payload) {
   for (const sub of subs) {
     try {

@@ -2,20 +2,14 @@
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import { awardJoy } from '../../utils/joyService.js';
-import rateLimit from 'express-rate-limit';
-import { accountOrIpKey } from '../../config/limiter.js';
-import { invalidateMemberGate, requireMember, requireMemberSession } from '../../middleware/authMiddleware.js';
-import { accessDeadline, extendAccess } from '../../utils/accountAccess.js';
-import { ACCOUNT_EXTENSION } from '../../../../packages/shared/joyPrices.js';
+import { requireMember } from '../../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../../utils/featureSubscriptionService.js';
 import UtilityProduct from '../../models/UtilityProduct.js';
 import { isAuraThemeFree, isAuraThemeId } from '../../../../packages/shared/auraThemes.js';
-import { BIO_THEME_RENTAL_PRICE, EXCHANGE_ITEMS } from './joyShared.js';
+import { EXCHANGE_ITEMS } from './joyShared.js';
 
 const router = express.Router();
 
-// Bấm đúp nút gia hạn không được trừ JOY hai lần ngoài ý muốn.
-const extendLimiter = rateLimit({ keyGenerator: accountOrIpKey, windowMs: 10_000, max: 2, standardHeaders: true, legacyHeaders: false });
 
 // GET /api/joy/exchange-quote?email=&item=  — invoice preview for the
 // confirmation modal shown before any "Trao đổi JOY" action. Returns the
@@ -162,96 +156,9 @@ router.post('/subscribe-feature', requireMember, async (req, res) => {
     if (!email || !featureKey) return res.status(400).json({ error: 'email and featureKey are required' });
     if (!FEATURE_PRICES[featureKey]) return res.status(400).json({ error: 'Tính năng không hợp lệ.' });
 
-    // Khoá Coding miễn phí từ 31/10/2026 (Education Hugo): không còn gì để thu.
-    if (featureKey.startsWith('hugoCoder')) {
-      return res.status(400).json({ error: 'Khoá Coding đã miễn phí, không cần mở khoá.' });
-    }
 
     const { balance, expiresAt } = await chargeFeatureSubscription(email, featureKey, Number(months) || 1);
     res.json({ success: true, balance, expiresAt });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-router.post('/extend-account', requireMemberSession, extendLimiter, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const { days, priceJoy } = ACCOUNT_EXTENSION;
-    const { tax, total } = calcExchangeTotal(priceJoy);
-    // Trừ JOY nguyên tử TRƯỚC (awardJoy chặn số dư âm), rồi mới dời hạn: hết
-    // tiền thì không có gì thay đổi; dời hạn hỏng sau khi trừ thì hoàn lại.
-    const { balance } = await awardJoy(email, -total, 'store_purchase',
-      `Duy trì tài khoản +${days} ngày (giá ${priceJoy} JOY + ${tax} JOY phí sáng tạo)`,
-      { notify: false, bioDoc: bio, skipSave: true });
-    try {
-      extendAccess(bio, days);
-      await bio.save();
-    } catch (error) {
-      await awardJoy(email, total, 'admin_adjustment', `Hoàn JOY: chưa gia hạn được tài khoản (${error.message})`, { rawAmount: true, notify: false });
-      throw error;
-    }
-    invalidateMemberGate(bio.email);
-    return res.json({ success: true, balance, days, total, accessExpiresAt: accessDeadline(bio) });
-  } catch (error) {
-    if (String(error.message).startsWith('INSUFFICIENT_JOY')) {
-      return res.status(400).json({ code: 'INSUFFICIENT_JOY', error: 'Số dư JOY chưa đủ để gia hạn.' });
-    }
-    return res.status(400).json({ error: error.message });
-  }
-});
-
-
-// POST /api/joy/subscribe-bio-theme  { email, template: 'brutalism'|'flat' }
-// 'default' is always free and goes through the normal bio PUT — not this route.
-router.post('/subscribe-bio-theme', requireMember, async (req, res) => {
-  try {
-    const { template } = req.body;
-    const email = req.memberEmail;
-    if (!email || !['brutalism', 'flat'].includes(template)) {
-      return res.status(400).json({ error: 'Giao diện không hợp lệ.' });
-    }
-
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
-
-    const currentExpiry = bio.bioThemeRental?.expiresAt ? new Date(bio.bioThemeRental.expiresAt).getTime() : 0;
-    const alreadyPaidForThisTemplate = bio.bioThemeRental?.template === template && currentExpiry > Date.now();
-
-    // Re-selecting a template already paid-for this period (e.g. switched to
-    // Classic and back) is free — no double charge within the same rental window.
-    if (!alreadyPaidForThisTemplate) {
-      const { tax, total } = calcExchangeTotal(BIO_THEME_RENTAL_PRICE);
-      if (bio.joyBalance < total) {
-        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY (gồm ${tax} JOY phí sáng tạo) để đổi giao diện này.` });
-      }
-
-      const { balance } = await awardJoy(
-        bio.email,
-        -total,
-        'bio_theme_rental',
-        `Trao đổi JOY diện giao diện Bio: ${template} (1 tháng, gồm ${tax} JOY phí sáng tạo)`,
-        { bioDoc: bio, skipSave: true }
-      );
-      bio.bioThemeRental = { template, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) };
-      bio.theme = bio.theme || {};
-      bio.theme.template = template;
-      bio.markModified('theme');
-      await bio.save();
-      return res.json({ success: true, balance, expiresAt: bio.bioThemeRental.expiresAt, bio });
-    }
-
-    bio.theme = bio.theme || {};
-    bio.theme.template = template;
-    bio.markModified('theme');
-    await bio.save();
-
-    res.json({ success: true, balance: bio.joyBalance, expiresAt: bio.bioThemeRental.expiresAt, bio });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

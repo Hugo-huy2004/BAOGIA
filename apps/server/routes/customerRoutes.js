@@ -261,16 +261,6 @@ router.put('/:id/messages/read', requireCustomer, async (req, res) => {
 // ADMIN ROUTES
 // ----------------------------------------------------
 
-// Get total unread count for admin
-router.get('/unread-total', requireAdmin, async (req, res) => {
-  try {
-    const total = await CustomerMessage.countDocuments({ sender: 'customer', isRead: false });
-    res.json({ total });
-  } catch {
-    res.status(500).json({ error: 'Lỗi' });
-  }
-});
-
 // Get all projects with unread counts
 router.get('/', requireAdmin, async (req, res) => {
   try {

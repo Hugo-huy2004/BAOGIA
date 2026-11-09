@@ -14,7 +14,6 @@ from datetime import datetime
 from services.vector_service import vector_service
 from services.film_engine_service import film_engine
 from services.news_intelligence_service import news_intel
-from services.user_telemetry_sentinel import telemetry_sentinel
 from services.admin_intel_service import admin_intel
 from middleware.auth import verify_internal_key
 
@@ -36,7 +35,7 @@ class VectorQueryRequest(BaseModel):
 
 app = FastAPI(
     title="Hugo Studio AI Server",
-    description="Python backend for vector search, news summaries, telemetry and admin intel",
+    description="Python backend for vector search, news summaries, and admin intel",
     version="2.0.0"
 )
 
@@ -91,9 +90,6 @@ class NewsSummarizeRequest(BaseModel):
 class NewsDigestRequest(BaseModel):
     articles: List[Dict[str, Any]]
     language: Optional[str] = "vi"
-
-class TelemetryBatchRequest(BaseModel):
-    events: List[Dict[str, Any]]
 
 class AdminIntelRequest(BaseModel):
     metrics: Dict[str, Any]
@@ -202,34 +198,6 @@ async def summarize_news_digest(request: NewsDigestRequest):
             "categories": {},
             "error": str(e)
         }
-
-# ---------------------------------------------------------------------------
-# User Telemetry & Emotional Anomaly Sentinel Endpoints (Tác vụ 2)
-# ---------------------------------------------------------------------------
-
-@app.post("/api/ai/telemetry/batch")
-async def ingest_telemetry_batch(request: TelemetryBatchRequest):
-    """Tiếp nhận lô sự kiện telemetry trong O(1) memory, không nghẽn disk."""
-    try:
-        return telemetry_sentinel.ingest_batch(request.events)
-    except Exception as e:
-        return {"ok": False, "error": str(e)}
-
-@app.get("/api/ai/telemetry/stats")
-async def get_telemetry_stats():
-    """Thống kê sức khoẻ cộng đồng và telemetry người dùng cho Admin."""
-    try:
-        return telemetry_sentinel.get_aggregated_system_telemetry()
-    except Exception as e:
-        return {"error": str(e)}
-
-@app.get("/api/ai/telemetry/user/{userId}")
-async def get_user_wellness(userId: str):
-    """Tra cứu trạng thái trôi dạt cảm xúc của người dùng."""
-    try:
-        return telemetry_sentinel.check_user_wellness_status(userId)
-    except Exception as e:
-        return {"error": str(e)}
 
 # ---------------------------------------------------------------------------
 # Admin Executive Autonomous Brain Endpoints (Tác vụ 4)

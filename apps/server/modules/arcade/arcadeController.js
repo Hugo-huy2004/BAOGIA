@@ -360,21 +360,6 @@ export async function getProfile(req, res) {
   }
 }
 
-export async function getMyScore(req, res) {
-  try {
-    const { game } = req.query;
-    const email = req.memberEmail;
-    if (!email) return res.status(400).json({ error: 'email is required' });
-    if (!Object.keys(SCORE_CEILINGS).includes(game)) {
-      return res.status(400).json({ error: 'invalid game' });
-    }
-    const doc = await ArcadeScore.findOne({ email, game }).lean();
-    res.json({ bestScore: doc?.bestScore || 0, gamesPlayed: doc?.gamesPlayed || 0 });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}
-
 // ─── API CON: 2048 Mua búa & Mở khóa nhân vật ──────────────────────────────
 export async function buy2048Hammer(req, res) {
   try {
