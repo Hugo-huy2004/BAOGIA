@@ -13,14 +13,9 @@ try {
 } catch { /* ignore */ }
 const EVENT_URL = `${API_BASE}/ops/client-event`;
 const SLOW_API_MS = Number(import.meta.env.VITE_SLOW_API_MS || 3000);
-const SLOW_VITAL_RATINGS = new Set(["needs-improvement", "poor"]);
 const MAX_FIELD_LEN = 500;
-const CORE_VITALS = new Set(["CLS", "INP", "LCP"]);
-const API_SUMMARY_INTERVAL_MS = 30_000;
 
 let installed = false;
-let apiRequestCount = 0;
-let apiErrorCount = 0;
 
 function truncate(value, limit = MAX_FIELD_LEN) {
   const str = String(value || "");

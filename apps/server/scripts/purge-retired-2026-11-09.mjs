@@ -1,6 +1,6 @@
 /**
  * Dọn dữ liệu của các tính năng gỡ ngày 09/11/2026: app phim, giỏ hàng + mã
- * khuyến mãi, và các trường Bio không còn trong schema (Study/HugoCoder, HugoSO,
+ * khuyến mãi, telemetry ClientMetric, và các trường Bio không còn trong schema (Study/HugoCoder, HugoSO,
  * thuê giao diện Bio, thưởng xem thông tin, danh bạ sao lưu…).
  *
  *   node apps/server/scripts/purge-retired-2026-11-09.mjs           # chạy thử: chỉ đếm
@@ -16,12 +16,12 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-const DROP = ['cinemamovies', 'storecarts', 'promocodes'];
+const DROP = ['cinemamovies', 'storecarts', 'promocodes', 'clientmetrics'];
 const BIO_FIELDS = [
   'capstoneTrack', 'capstoneTrackChosenAt',
   'completedLessons', 'hugoSOCourses', 'infoBonusClaimed', 'infoReadBonusClaimed',
   'bioThemeRental', 'backedUpContacts', 'courseCompletionAwardClaimed',
-  'lastUserAgentHash', 'sessionsValidFrom', 'birthdayVoucherYear',
+  'lastUserAgentHash', 'sessionsValidFrom', 'birthdayVoucherYear', 'radioTokens',
   'hugoCoderAdvancedLifetime', 'hugoCoderAll7Lifetime', 'hugoCoderBasicLifetime',
   'hugoCoderCertificateUrl', 'hugoCoderDevopsLifetime', 'hugoCoderExamAttempts',
   'hugoCoderExamLifetime', 'hugoCoderExamScores', 'hugoCoderIntermediateLifetime',

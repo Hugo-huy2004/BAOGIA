@@ -38,16 +38,11 @@ const UtilityProductSchema = new mongoose.Schema(
     // Drives type-specific fulfillment on purchase — see POST /api/utility-store/purchase
     productType: {
       type: String,
-      enum: ['general', 'system_validity', 'radio_time'],
+      enum: ['general', 'system_validity'],
       default: 'general'
     },
     // productType === 'system_validity': days added to Bio.expiresAt on purchase
     extendDays: {
-      type: Number,
-      default: 0
-    },
-    // productType === 'radio_time': minutes added to Bio.radioTokens.purchasedMinutes
-    radioMinutes: {
       type: Number,
       default: 0
     }

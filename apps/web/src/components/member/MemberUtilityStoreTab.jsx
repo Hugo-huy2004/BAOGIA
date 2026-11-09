@@ -97,13 +97,6 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
     if (product.productType === "system_validity" && product.extendDays > 0) {
       return `+${product.extendDays} ${t("memberPortal.joy.store.daysUnit")}`;
     }
-    if (product.productType === "radio_time" && product.radioMinutes > 0) {
-      const hours = Math.floor(product.radioMinutes / 60);
-      const days = Math.floor(hours / 24);
-      return days > 0
-        ? t("memberPortal.joy.store.listeningDays", { count: days })
-        : t("memberPortal.joy.store.listeningHours", { count: hours });
-    }
     return null;
   };
 

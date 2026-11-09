@@ -20,18 +20,6 @@ export function applyProductGrant(bio, product, quantity = 1) {
     return `+${days} ngày HSD`;
   }
 
-  if (product.productType === 'radio_time' && product.radioMinutes > 0) {
-    const minutes = product.radioMinutes * qty;
-    if (!bio.radioTokens) {
-      bio.radioTokens = { weeklyFreeMinutes: 300, weeklyUsedMinutes: 0, weeklyResetAt: null, purchasedMinutes: 0 };
-    }
-    bio.radioTokens.purchasedMinutes = (bio.radioTokens.purchasedMinutes || 0) + minutes;
-    const mins = minutes % 60;
-    const timeStr = mins > 0 ? `${Math.floor(minutes / 60)}h${mins}m` : `${Math.floor(minutes / 60)}h`;
-    pushHistory(bio, 'radio', 'Mua thời lượng HugoRadio', `+${timeStr} nghe radio từ "${product.name}"`);
-    return `+${timeStr} thời lượng radio`;
-  }
-
   return null;
 }
 

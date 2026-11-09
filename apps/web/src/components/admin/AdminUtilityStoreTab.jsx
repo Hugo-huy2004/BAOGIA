@@ -6,13 +6,12 @@ import { utilityProductPrice } from '../../../../../packages/shared/joyPrices';
 
 const EMPTY_FORM = {
   name: '', description: '', priceJoy: utilityProductPrice('general'), category: 'general', stock: -1, imageUrl: '',
-  productType: 'general', extendDays: '', radioMinutes: ''
+  productType: 'general', extendDays: ''
 };
 
 const PRODUCT_TYPE_META = {
   general: { icon: 'redeem', label: 'Thông thường', color: 'emerald' },
-  system_validity: { icon: 'event_available', label: 'Gia hạn HSD', color: 'amber' },
-  radio_time: { icon: 'radio', label: 'Phút Radio', color: 'cyan' }
+  system_validity: { icon: 'event_available', label: 'Gia hạn HSD', color: 'amber' }
 };
 
 export default function AdminUtilityStoreTab() {
@@ -81,7 +80,6 @@ export default function AdminUtilityStoreTab() {
       imageUrl: p.imageUrl || '',
       productType: p.productType || 'general',
       extendDays: p.extendDays || '',
-      radioMinutes: p.radioMinutes || ''
     });
   };
 
@@ -247,7 +245,6 @@ export default function AdminUtilityStoreTab() {
                 >
                   <option value="general">Thông thường (Quà tặng/Dịch vụ)</option>
                   <option value="system_validity">Gia hạn HSD Tài khoản (Bio.expiresAt)</option>
-                  <option value="radio_time">Phút phát Radio (Member Radio)</option>
                 </select>
               </div>
 

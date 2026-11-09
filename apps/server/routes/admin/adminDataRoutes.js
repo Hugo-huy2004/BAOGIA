@@ -37,7 +37,7 @@ const RESOURCES = {
   'utility-products': {
     model: 'UtilityProduct', label: 'Sản phẩm cửa hàng', permission: 'commerce', ops: 'crud', search: ['name', 'category'],
     list: ['name', 'priceJoy', 'category', 'stock', 'active'],
-    edit: ['name', 'description', 'priceJoy', 'category', 'stock', 'active', 'imageUrl', 'productType', 'extendDays', 'tokenType', 'tokenAmount', 'radioMinutes'],
+    edit: ['name', 'description', 'priceJoy', 'category', 'stock', 'active', 'imageUrl', 'productType', 'extendDays'],
   },
   'utility-orders': {
     model: 'UtilityOrder', label: 'Đơn hàng', permission: 'commerce', ops: 'ru', search: ['email', 'productName', 'purchaseCode'],

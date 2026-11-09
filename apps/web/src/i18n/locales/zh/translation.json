@@ -5758,7 +5758,6 @@
       "productTypeLabel": "产品类型",
       "noOrders": "还没有订单。",
       "ordersTitle": "最近订单",
-      "tokenTypeLabel": "代币类型",
       "extendDaysLabel": "延长有效期的天数",
       "typeSystemValidity": "系统有效性",
       "typeRadioTime": "广播时间",
@@ -5768,9 +5767,6 @@
       "imageUpload": "上传图片",
       "imageRemove": "删除图像",
       "imageUploading": "正在上传...",
-      "tokenAmountLabel": "奖励代币金额",
-      "tokenTypeChat": "聊天令牌",
-      "tokenTypeCall": "呼叫令牌",
       "badgeSystemValidity": "高速SD系统",
       "badgeRadioTime": "广播时间"
     }

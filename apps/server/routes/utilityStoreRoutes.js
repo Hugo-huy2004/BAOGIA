@@ -11,10 +11,6 @@ import { utilityProductPrice } from '../../../packages/shared/joyPrices.js';
 
 const router = express.Router();
 
-// Token HugoRadio (`radio_time`) ngừng bán 25/10/2026: nghe đài miễn phí trong
-// app Chuyên Chú. Giữ loại sản phẩm trong schema vì đơn cũ còn tham chiếu.
-const RETIRED_PRODUCT_TYPES = new Set(['radio_time']);
-
 function generatePurchaseCode() {
   return 'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
@@ -24,7 +20,7 @@ function generatePurchaseCode() {
 // GET /api/utility-store/products — active products only
 router.get('/products', async (req, res) => {
   try {
-    const products = await UtilityProduct.find({ active: true, productType: { $nin: [...RETIRED_PRODUCT_TYPES] } }).sort({ createdAt: -1 }).lean();
+    const products = await UtilityProduct.find({ active: true }).sort({ createdAt: -1 }).lean();
     res.json(products.map((product) => ({
       ...product,
       priceJoy: utilityProductPrice(product.productType),
@@ -48,18 +44,14 @@ router.get('/orders', requireMember, async (req, res) => {
 // POST /api/utility-store/purchase  { productId }
 router.post('/purchase', requireMember, async (req, res) => {
   try {
-    const { productId, productType } = req.body;
+    const { productId } = req.body;
     const email = req.memberEmail;
-
-    if (RETIRED_PRODUCT_TYPES.has(productType)) {
-      return res.status(410).json({ error: 'HugoRadio đã miễn phí, không cần mua token nữa.' });
-    }
 
     // ── Standard product purchase ────────────────────────────────────────
     if (!productId) return res.status(400).json({ error: 'productId is required' });
 
     const product = await UtilityProduct.findById(productId);
-    if (!product || !product.active || RETIRED_PRODUCT_TYPES.has(product.productType)) {
+    if (!product || !product.active) {
       return res.status(404).json({ error: 'Sản phẩm không tồn tại hoặc đã bị ẩn.' });
     }
     if (product.stock !== -1 && product.stock <= 0) {
@@ -132,8 +124,7 @@ router.post('/purchase', requireMember, async (req, res) => {
       granted: grant,
       newBalance: balance,
       bio: {
-        expiresAt: bio.expiresAt,
-        radioTokens: bio.radioTokens
+        expiresAt: bio.expiresAt
       }
     });
   } catch (error) {

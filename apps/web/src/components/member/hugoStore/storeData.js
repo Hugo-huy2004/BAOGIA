@@ -96,13 +96,6 @@ export const remainingLabel = (days) => (
 /** Nhãn quyền lợi ngắn của một vật phẩm, hoặc null nếu không có. */
 export function perkLabel(p) {
   if (!p) return null;
-  if (p.productType === "radio_time" && p.radioMinutes > 0) {
-    const hours = Math.floor(p.radioMinutes / 60);
-    const days = Math.floor(hours / 24);
-    return days > 0
-      ? i18n.t("utilities.store.packs.perkListenDays", { count: days })
-      : i18n.t("utilities.store.packs.perkListenHours", { count: hours });
-  }
   if (p.productType === "system_validity" && p.extendDays > 0) {
     return i18n.t("utilities.store.packs.perkValidity", { count: p.extendDays });
   }
@@ -111,7 +104,6 @@ export function perkLabel(p) {
 
 /** Nhóm vật phẩm theo productType để dựng kệ hàng, mỗi nhóm một màu. */
 const GROUP_TYPES = [
-  ["radio_time", GRADIENTS.teal],
   ["system_validity", GRADIENTS.orange],
   ["general", GRADIENTS.pink],
 ];

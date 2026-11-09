@@ -24,7 +24,7 @@ router.get('/store/products', requireAdmin, async (req, res) => {
 // POST /admin/store/products - Tạo mới sản phẩm Utility Store
 router.post('/store/products', requireAdmin, async (req, res) => {
   try {
-    const { name, description, icon, category, active, stock, imageUrl, productType = 'general', extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
+    const { name, description, icon, category, active, stock, imageUrl, productType = 'general', extendDays } = req.body;
     if (!name) {
       return res.status(400).json({ error: 'Tên sản phẩm là bắt buộc' });
     }
@@ -40,9 +40,6 @@ router.post('/store/products', requireAdmin, async (req, res) => {
       imageUrl: imageUrl || '',
       productType,
       extendDays: Number(extendDays) || 0,
-      tokenType: tokenType || 'chat',
-      tokenAmount: Number(tokenAmount) || 0,
-      radioMinutes: Number(radioMinutes) || 0,
     });
 
     logAdminAuditAction(req, 'CREATE_STORE_PRODUCT', '', '', `Tạo sản phẩm "${product.name}" với giá ${product.priceJoy} JOY`);
@@ -61,11 +58,11 @@ router.put('/store/products/:id', requireAdmin, async (req, res) => {
     const product = await UtilityProduct.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
 
-    const fields = ['name', 'description', 'icon', 'category', 'active', 'imageUrl', 'productType', 'tokenType'];
+    const fields = ['name', 'description', 'icon', 'category', 'active', 'imageUrl', 'productType'];
     for (const field of fields) {
       if (req.body[field] !== undefined) product[field] = req.body[field];
     }
-    for (const field of ['stock', 'extendDays', 'tokenAmount', 'radioMinutes']) {
+    for (const field of ['stock', 'extendDays']) {
       if (req.body[field] !== undefined) product[field] = Number(req.body[field]);
     }
     product.priceJoy = utilityProductPrice(product.productType);

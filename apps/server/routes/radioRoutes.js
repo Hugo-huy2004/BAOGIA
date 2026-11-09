@@ -173,7 +173,4 @@ router.post('/click', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Hệ token nghe radio (/token-status, /heartbeat) đã gỡ 25/10/2026: nghe đài
-// miễn phí, token đã mua được hoàn JOY bằng apps/server/scripts/refund-radio-tokens.mjs.
-
 export default router;
