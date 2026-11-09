@@ -144,13 +144,7 @@ export default function WidgetRenderer({
                       </div>
                     </div>
                   )}
-                  {app.id === "arcade" && (
-                    <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <span>{t("utilities.library.widget.highScore")}</span>
-                      <span className="text-warning">1,540 JOY</span>
-                    </div>
-                  )}
-                  {!["ide", "aura", "radio", "arcade"].includes(app.id) && (
+                  {!["ide", "aura", "radio"].includes(app.id) && (
                     <p className="text-[11px] text-muted-foreground italic truncate leading-snug">
                       {app.subLabel}
                     </p>

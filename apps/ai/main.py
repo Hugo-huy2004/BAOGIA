@@ -11,23 +11,9 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from services.vector_service import vector_service
-from services.film_engine_service import film_engine
 from services.news_intelligence_service import news_intel
 from services.admin_intel_service import admin_intel
 from middleware.auth import verify_internal_key
-
-class VectorUpsertRequest(BaseModel):
-    doc_id: str
-    text: str
-    metadata: Optional[Dict[str, Any]] = None
-    namespace: Optional[str] = "default"
-
-class VectorQueryRequest(BaseModel):
-    query_text: str
-    top_k: Optional[int] = 5
-    namespace: Optional[str] = "default"
-    filter_dict: Optional[Dict[str, Any]] = None
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -35,7 +21,7 @@ class VectorQueryRequest(BaseModel):
 
 app = FastAPI(
     title="Hugo Studio AI Server",
-    description="Python backend for vector search, news summaries, and admin intel",
+    description="Python backend for news summaries and admin intel",
     version="2.0.0"
 )
 
@@ -57,15 +43,6 @@ app.add_middleware(
 # Internal API key auth — set INTERNAL_API_KEY in .env to enable
 # All routes except / and /health require X-Internal-Key header when key is set
 app.middleware("http")(verify_internal_key)
-
-@app.on_event("startup")
-async def startup_event():
-    """Auto-seed systemic AI persona and portal knowledge into Vector AI DB on boot."""
-    try:
-        await vector_service.seed_system_knowledge()
-        print("✅ Vector AI system knowledge base seeded successfully!")
-    except Exception as e:
-        print(f"⚠️ Vector AI auto-seed warning: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -114,46 +91,6 @@ def health_check():
 
 
 
-
-@app.post("/api/ai/vector/upsert")
-async def vector_upsert(req: VectorUpsertRequest):
-    """Embeds text using Gemini and upserts into Pinecone Index."""
-    try:
-        result = await vector_service.upsert_text(
-            doc_id=req.doc_id,
-            text=req.text,
-            metadata=req.metadata,
-            namespace=req.namespace or "default"
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/api/ai/vector/query")
-async def vector_query(req: VectorQueryRequest):
-    """Embeds query text and retrieves top-K similar vectors from Pinecone."""
-    try:
-        matches = await vector_service.query_similar(
-            query_text=req.query_text,
-            top_k=req.top_k or 5,
-            namespace=req.namespace or "default",
-            filter_dict=req.filter_dict
-        )
-        return {"matches": matches, "count": len(matches)}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# ---------------------------------------------------------------------------
-# Film Engine Cinematic Soundscape & Cue Manifest
-# ---------------------------------------------------------------------------
-
-@app.get("/api/ai/film/manifest")
-async def get_film_manifest():
-    """Returns cinematic scene cues, harmonic tuning, and frequency maps for scroll audio."""
-    try:
-        return film_engine.get_film_manifest()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 # ---------------------------------------------------------------------------
 # News Intelligence & Fluctuation Digest Endpoints (Tác vụ 1)

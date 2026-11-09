@@ -50,10 +50,6 @@ export default function LibraryCatalog({
   };
 
   const handleOpenApp = (appId) => {
-    if (appId === "store") {
-      setSelectedUtility("store");
-      return;
-    }
     setSelectedUtility(appId);
   };
 
@@ -155,7 +151,7 @@ export default function LibraryCatalog({
         </span>
       </div>
 
-      {/* ── 6. CATALOG APP CARDS GRID (HUGO ARCADE GAMECARD STYLE) ────────────────── */}
+      {/* ── 6. CATALOG APP CARDS GRID ────────────────── */}
       {filteredApps.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 lg-glass rounded-3xl p-6">
           <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">

@@ -29,13 +29,6 @@ export const PWA_MANIFEST = {
   ],
   shortcuts: [
     {
-      name: 'HugoArcade',
-      short_name: 'Arcade',
-      description: 'Chơi game, chinh phục thử thách, nhận JOY',
-      url: '/member/utilities/arcade',
-      icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
-    },
-    {
       name: 'Hồ Sơ Bio',
       short_name: 'Bio',
       description: 'Quản lý thiết kế Bio cá nhân',

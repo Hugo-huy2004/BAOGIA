@@ -232,13 +232,11 @@ export default function AdminUserOverview({ userId, onClose }) {
         <MiniTable rows={wallet?.ledger} columns={[["createdAt", "Thời điểm"], ["type", "Loại"], ["amount", "Số JOY"], ["description", "Diễn giải"]]} />
       </Group>
 
-      <Group icon="storefront" title="Lịch hẹn, dự án và đơn hàng"
-             badge={`${count(commerce?.bookings)} lịch hẹn · ${count(commerce?.orders)} đơn · ${count(commerce?.tickets)} phiếu hỗ trợ`}>
+      <Group icon="storefront" title="Lịch hẹn và hỗ trợ"
+             badge={`${count(commerce?.bookings)} lịch hẹn · ${count(commerce?.tickets)} phiếu hỗ trợ`}>
         <div className="space-y-5">
           <MiniTable rows={commerce?.bookings} empty="Chưa đặt lịch dịch vụ nào."
             columns={[["createdAt", "Gửi lúc"], ["status", "Trạng thái"], ["packageId", "Gói"], ["phone", "Liên hệ"], ["note", "Nội dung"]]} />
-          <MiniTable rows={commerce?.orders} empty="Chưa có đơn hàng."
-            columns={[["createdAt", "Thời điểm"], ["status", "Trạng thái"], ["productName", "Sản phẩm"], ["total", "Tổng"]]} />
           <MiniTable rows={commerce?.tickets} empty="Chưa gửi phiếu hỗ trợ."
             columns={[["createdAt", "Thời điểm"], ["status", "Trạng thái"], ["subject", "Tiêu đề"]]} />
         </div>
@@ -257,22 +255,18 @@ export default function AdminUserOverview({ userId, onClose }) {
       </Group>
 
       <Group icon="school" title="Học tập"
-             badge={`${count(learning?.evidence)} minh chứng · ${count(learning?.surveys)} khảo sát`}>
+             badge={`${count(learning?.evidence)} minh chứng`}>
         <div className="space-y-5">
           <MiniTable rows={learning?.evidence} empty="Chưa có minh chứng học tập."
             columns={[["createdAt", "Thời điểm"], ["type", "Loại"], ["sourceApp", "Từ app"]]} />
-          <MiniTable rows={learning?.surveys} empty="Chưa trả lời khảo sát nào."
-            columns={[["createdAt", "Thời điểm"], ["questionId", "Câu hỏi"], ["answer", "Trả lời"]]} />
         </div>
       </Group>
 
-      <Group icon="sports_esports" title="Trò chơi và sàn ảo"
-             badge={`${count(play?.stockPositions)} vị thế · ${count(play?.arcadeScores)} điểm`}>
+      <Group icon="sports_esports" title="Sàn ảo (đã gỡ)"
+             badge={`${count(play?.stockPositions)} vị thế`}>
         <div className="space-y-5">
           <MiniTable rows={play?.stockPositions} empty="Không giữ vị thế nào."
             columns={[["symbol", "Mã"], ["quantity", "Số lượng"], ["avgPrice", "Giá vốn"]]} />
-          <MiniTable rows={play?.arcadeScores} empty="Chưa chơi game nào."
-            columns={[["gameId", "Trò chơi"], ["score", "Điểm"], ["createdAt", "Thời điểm"]]} />
         </div>
       </Group>
     </div>

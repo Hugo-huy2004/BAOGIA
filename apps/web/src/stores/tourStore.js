@@ -54,13 +54,6 @@ export const TOUR_DEFINITIONS = {
       content: 'Bộ công cụ bổ trợ phong phú giúp phục vụ nhu cầu làm việc, học tập và giải trí của bạn.',
       placement: 'bottom',
       beforeStep: (actions) => actions.switchTab('utilities')
-    },
-    {
-      selector: '#utility-card-chess',
-      title: 'HugoChess',
-      content: 'Chơi cờ vua thư giãn, đấu với Bot Stockfish hoặc tạo phòng thi đấu cùng bạn bè để tích điểm xếp hạng JOY.',
-      placement: 'top',
-      beforeStep: (actions) => actions.switchTab('utilities')
     }
   ]
 };

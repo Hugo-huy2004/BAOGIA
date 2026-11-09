@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect, useRef, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import memberService from "../../services/classes/MemberService";
 
@@ -8,16 +7,11 @@ import memberService from "../../services/classes/MemberService";
 import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
-// Lazy: vỏ game kéo theo game-shell.css (73 KB) + mã game. UtilityPublicPage
-// vốn đã lazy nó; import tĩnh ở đây bắt mọi thành viên chỉ mở thư viện app
-// phải tải hết dù không chơi. Chỗ dùng nằm sau điều kiện nên lazy được.
-const StandaloneGameShell = lazy(() => import("./arcade/StandaloneGameShell"));
 import { appInstallationPolicy } from "../../../../../packages/shared/appInstallationPolicy";
 import {
   INSTALLED_APPS_KEY,
   HOME_SCREEN_APPS_KEY,
   readStoredList,
-  readDownloadedGameAppIds,
   commitInstall,
   commitUninstall,
 } from "../../hooks/useAppInstall";
@@ -40,8 +34,7 @@ import { getMemberSession } from "../../services/api/core/authSession";
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
-// Khoá cài đặt và cách ghi chúng nằm ở apps/web/src/hooks/useAppInstall.js — Thư viện,
-// Arcade và Chợ dùng chung một bản.
+// Khoá cài đặt và cách ghi chúng nằm ở apps/web/src/hooks/useAppInstall.js.
 const UTILITY_SIZES_KEY = "hugo_utility_sizes";
 const USER_WIDGET_SIZES = new Set(["medium", "large"]);
 
@@ -62,7 +55,6 @@ const normalizeUtilitySizes = (sizes = {}) => Object.fromEntries(
 );
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -94,7 +86,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       ...DEFAULT_INSTALLED,
       ...fromBio,
       ...readStoredList(INSTALLED_APPS_KEY),
-      ...readDownloadedGameAppIds(),
     ]);
   });
 
@@ -123,10 +114,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [homeScreenApps, setHomeScreenApps] = useState(() => {
     const fromBio = Array.isArray(bio?.homeScreenUtilities) ? bio.homeScreenUtilities : [];
     const fromDevice = readStoredList(HOME_SCREEN_APPS_KEY);
-    const downloadedGames = readDownloadedGameAppIds();
     const requestedHome = fromBio.length || fromDevice.length
-      ? [...fromBio, ...fromDevice, ...downloadedGames]
-      : [...installedApps, ...downloadedGames];
+      ? [...fromBio, ...fromDevice]
+      : installedApps;
     return appInstallationPolicy.normalizeHomeScreen(requestedHome, installedApps);
   });
 
@@ -159,7 +149,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const longPressTimerRef = useRef(null);
   const isLongPressTriggered = useRef(false);
   const appGestureRef = useRef(null);
-  const legacyArcadeSyncRef = useRef(false);
 
   // Sync state with prop if bio updates asynchronously
   useEffect(() => {
@@ -167,7 +156,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       const appsToSet = appInstallationPolicy.normalizeInstalled([
         ...bio.installedUtilities,
         ...readStoredList(INSTALLED_APPS_KEY),
-        ...readDownloadedGameAppIds(),
       ]);
       setInstalledApps((current) => (
         JSON.stringify(appsToSet) !== JSON.stringify(current) ? appsToSet : current
@@ -188,12 +176,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       const installed = appInstallationPolicy.normalizeInstalled([
         ...(Array.isArray(bio.installedUtilities) ? bio.installedUtilities : []),
         ...readStoredList(INSTALLED_APPS_KEY),
-        ...readDownloadedGameAppIds(),
       ]);
       setHomeScreenApps(appInstallationPolicy.normalizeHomeScreen([
         ...bio.homeScreenUtilities,
         ...readStoredList(HOME_SCREEN_APPS_KEY),
-        ...readDownloadedGameAppIds(),
       ], installed));
     }
   }, [bio]);
@@ -206,19 +192,18 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   }, [homeScreenApps]);
 
   // ── CRITICAL: Re-sync from localStorage when Dashboard becomes visible ──────────
-  // This fires every time user navigates back from Arcade / any sub-utility.
+  // This fires every time user navigates back from any sub-utility.
   useEffect(() => {
     if (!isVisible) return;
     // Update React state from all offline sources when returning from an app.
-    const downloadedGames = readDownloadedGameAppIds();
-    const diskHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
-    const diskInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
+    const diskHome = readStoredList(HOME_SCREEN_APPS_KEY);
+    const diskInst = readStoredList(INSTALLED_APPS_KEY);
     setInstalledApps(prev => {
       const merged = appInstallationPolicy.normalizeInstalled([...prev, ...diskInst]);
       return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
     setHomeScreenApps(prev => {
-      const currentInst = appInstallationPolicy.normalizeInstalled([...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames]);
+      const currentInst = appInstallationPolicy.normalizeInstalled(readStoredList(INSTALLED_APPS_KEY));
       const merged = appInstallationPolicy.normalizeHomeScreen(
         [...prev, ...diskHome],
         currentInst,
@@ -226,42 +211,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
   }, [isVisible]);
-
-  // One-time migration for games downloaded by older builds that only stored
-  // their state on this device. This makes those installs portable via bootstrap.
-  useEffect(() => {
-    if (!isVisible || legacyArcadeSyncRef.current || !bio?._id || bio._id === "guest") return;
-
-    const downloadedGames = readDownloadedGameAppIds();
-    if (downloadedGames.length === 0) return;
-
-    const serverInstalled = Array.isArray(bio.installedUtilities) ? bio.installedUtilities : [];
-    const serverHome = Array.isArray(bio.homeScreenUtilities) ? bio.homeScreenUtilities : [];
-    const appsToSave = appInstallationPolicy.normalizeInstalled([
-      ...serverInstalled,
-      ...readStoredList(INSTALLED_APPS_KEY),
-      ...downloadedGames,
-    ]);
-    const homeToSave = appInstallationPolicy.normalizeHomeScreen([
-      ...serverHome,
-      ...readStoredList(HOME_SCREEN_APPS_KEY),
-      ...downloadedGames,
-    ], appsToSave);
-    const alreadySynced = downloadedGames.every((appId) => (
-      serverInstalled.includes(appId) && serverHome.includes(appId)
-    ));
-    if (alreadySynced) return;
-
-    legacyArcadeSyncRef.current = true;
-    memberService.updateMemberBio(bio._id, {
-      installedUtilities: appsToSave,
-      homeScreenUtilities: homeToSave,
-    }).then((response) => {
-      if (response?.bio) onBioUpdate?.(response.bio);
-    }).catch(() => {
-      legacyArcadeSyncRef.current = false;
-    });
-  }, [bio, isVisible, onBioUpdate]);
 
   // Handle Dynamic Mobile Tab Bar Hiding when editingApp or isSpotlightOpen is active
   useEffect(() => {
@@ -272,7 +221,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     };
   }, [editingApp, isSpotlightOpen]);
 
-  // Listen for game installs from HugoArcadeTab (or any sub-component) → add to home screen instantly
+  // Listen for installs from any sub-component → add to home screen instantly
   useEffect(() => {
     // Sự kiện mang sẵn hai danh sách đã tính (useAppInstall) — dùng thẳng.
     // Bản cũ chỉ nhận id rồi tự ghim lên màn hình chính, nên cài "chỉ vào Thư
@@ -283,7 +232,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       if (Array.isArray(homeScreen)) setHomeScreenApps(homeScreen);
     };
 
-    // Also listen to storage changes (cross-tab or from HugoArcadeTab writing directly)
+    // Also listen to storage changes (cross-tab)
     const handleStorage = (e) => {
       if (e.key === HOME_SCREEN_APPS_KEY && e.newValue) {
         try {
@@ -433,7 +382,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     { id: "edu", label: t("utilities.categories.education"), icon: "school" },
     { id: "wellness", label: t("utilities.categories.wellness"), icon: "favorite" },
     { id: "tools", label: t("utilities.categories.tools"), icon: "handyman" },
-    { id: "arcade", label: t("utilities.categories.entertainment"), icon: "sports_esports" },
   ], [t]);
 
 
@@ -611,12 +559,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Mọi đường mở app trên Trang chủ (icon, widget, hàng Gần đây) đi qua đây để
   // cùng kiểm tra chặn bảo trì và cùng có hiệu ứng phóng từ icon.
   const openApp = (app, iconElement) => {
-    if (app.id.startsWith("arcade_")) {
-      const gameKey = app.id.replace("arcade_", "");
-      navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
-      return;
-    }
-    if (app.id !== "store" && data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
+    if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
       const isBlocked = typeof data.systemSettings.blockUtilities === "boolean"
         ? data.systemSettings.blockUtilities
         : data.systemSettings.blockUtilities === app.id;
@@ -678,8 +621,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     appGestureRef.current = null;
   };
 
-  const [activeArcadeGame, setActiveArcadeGame] = useState(null);
-
   const handleAppTouchEnd = (app, event) => {
     const gesture = appGestureRef.current;
     if (longPressTimerRef.current) {
@@ -711,9 +652,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   const myAppsList = useMemo(() => {
     // Read directly from localStorage so any installs (even from other components) show immediately.
-    const downloadedGames = readDownloadedGameAppIds();
-    const liveHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
-    const liveInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
+    const liveHome = readStoredList(HOME_SCREEN_APPS_KEY);
+    const liveInst = readStoredList(INSTALLED_APPS_KEY);
     // Merge state + localStorage so we capture BOTH sources
     const effectiveInst = appInstallationPolicy.normalizeInstalled([...installedApps, ...liveInst]);
     const effectiveHome = appInstallationPolicy.normalizeHomeScreen(
@@ -726,7 +666,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   const libraryAppsList = useMemo(() => {
     return allUtilities.filter((util) => {
-      if (util.id === "store") return false;
       const matchesSearch = util.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         util.subLabel.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === "all" || util.category === activeCategory;
@@ -760,7 +699,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const recentApps = useMemo(() => {
     if (!isVisible) return [];
     const byId = new Map(myAppsList.map((app) => [app.id, app]));
-    return appOpenOrder().map((id) => byId.get(id)).filter((app) => app && app.id !== "store").slice(0, 4);
+    return appOpenOrder().map((id) => byId.get(id)).filter(Boolean).slice(0, 4);
   }, [myAppsList, isVisible]);
 
   return (
@@ -793,12 +732,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 <p className="text-lg font-semibold text-foreground">{t("utilities.library.emptyTitle")}</p>
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{t("utilities.library.emptyDescription")}</p>
               </div>
-              <button
-                onClick={() => setSelectedUtility("store")}
-                className="px-5 py-2.5 swiftui-btn-prominent font-semibold text-sm rounded-2xl"
-              >
-                {t("utilities.library.openLibrary")}
-              </button>
             </div>
           ) : (
             <div className="space-y-8">
@@ -1009,17 +942,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           </div>
         </div>
       )}
-
-      {/* 🎮 Standalone Arcade Mini-Game Sheet Launcher */}
-      <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
-      {activeArcadeGame && (
-        <StandaloneGameShell
-          gameId={activeArcadeGame.replace("arcade_", "")}
-          bio={bio}
-          onClose={() => setActiveArcadeGame(null)}
-        />
-      )}
-      </Suspense>
 
       {/* 🌌 CSS Keyframe Animations Block */}
       <style>{`

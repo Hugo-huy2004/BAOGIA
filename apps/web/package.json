@@ -38,7 +38,6 @@
     "border-beam": "^1.4.1",
     "bot-avatars": "^0.2.2",
     "canvas-confetti": "^1.9.4",
-    "chess.js": "^1.4.0",
     "clsx": "^2.1.1",
     "driver.js": "1.9.0",
     "framer-motion": "^12.42.2",
@@ -66,7 +65,6 @@
     "swr": "^2.4.2",
     "tailwind-merge": "^3.6.0",
     "tegaki": "^1.1.0",
-    "three": "^0.186.1",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
@@ -79,6 +77,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.2",
+    "patch-package": "^8.0.1",
     "playwright-core": "^1.63.0",
     "postcss": "^8.5.16",
     "rollup-plugin-visualizer": "^7.0.1",

@@ -317,7 +317,6 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
           <Row label="Ngày tạo tài khoản">{formatDate(bio.createdAt) || <Empty />}</Row>
           <Row label="Trang Bio">{bio.slug ? `/bio/${bio.slug}` : <Empty />}</Row>
           <Row label="Mã giới thiệu">{bio.referralCode || <Empty />}</Row>
-          <Row label="Người giới thiệu">{bio.referredBy || <Empty />}</Row>
         </Section>
 
         <Section icon="person" title="Cá nhân">

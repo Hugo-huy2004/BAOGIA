@@ -3,11 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { loginMember, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
-import { useData } from "../../context/DataContext";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { isStandalone } from "../../config/platform";
-import { API_BASE } from "../../config/apiBase";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
 import { getSafeMemberRedirect } from "../../utils/safeRedirect";
 import { useServicesFonts } from "../../hooks/useServicesFonts";
@@ -17,8 +15,6 @@ const LAST_EMAIL_KEY = "hugo_last_member_email";
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const { data } = useData();
-  const allowRegistration = data?.systemSettings?.allowRegistration !== false;
   useServicesFonts();
   useHeadMeta({
     title: "Đăng Nhập | Hugo Studio",
@@ -33,8 +29,6 @@ export default function LoginPage() {
   const memberRedirect = getSafeMemberRedirect(location.search);
   const memberRedirectRef = useRef(memberRedirect);
   memberRedirectRef.current = memberRedirect;
-  const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
-  const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
   const [googleConfigError, setGoogleConfigError] = useState("");
@@ -66,12 +60,6 @@ export default function LoginPage() {
     }, 4500);
     return () => clearTimeout(timer);
   }, [toast.message]);
-
-  useEffect(() => {
-    if (!allowRegistration && activeMode === "member") {
-      setActiveMode("customer");
-    }
-  }, [allowRegistration, activeMode]);
 
   const handleGoogleCredential = async (response) => {
     setToast({ message: "", type: "" });
@@ -115,8 +103,6 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (activeMode !== "member") return;
-
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     setGisReady(false);
     setGoogleConfigError("");
@@ -191,49 +177,15 @@ export default function LoginPage() {
       window.clearInterval(timer);
       window.clearTimeout(timeout);
     };
-  }, [activeMode]);
+  }, []);
 
   const handleMemberLogin = (e) => {
     e.preventDefault();
     showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
-  const handleCustomerLogin = async (e) => {
-    e.preventDefault();
-    setToast({ message: "", type: "" });
-    if (!customerCode || customerCode.trim().length < 6) {
-      showToast(t("loginPage.toast.codeLength"), "error");
-      return;
-    }
-    
-    try {
-      const response = await fetch(`${API_BASE}/customer-projects/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ loginCode: customerCode })
-      });
-      
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Lỗi đăng nhập');
-      
-      // Save project data to session storage for the Quản trị dự án to use
-      sessionStorage.setItem('customerProject', JSON.stringify(data.project));
-      navigate("/customer-portal");
-    } catch (error) {
-      showToast(error.message, "error");
-    }
-  };
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    // Link cũ dạng /login?portalCode=… vẫn mở được; link mới là /customer-portal/<mã>.
-    const code = params.get("portalCode");
-    if (code && code.length >= 6) {
-      setActiveMode("customer");
-      setCustomerCode(code);
-      autoLoginCustomer(code);
-    }
     if (params.get("reason") === "location_anomaly") {
       showToast(t("loginPage.toast.locationAnomaly"), "warning");
     }
@@ -244,33 +196,10 @@ export default function LoginPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const autoLoginCustomer = async (code) => {
-    try {
-      const response = await fetch(`${API_BASE}/customer-projects/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ loginCode: code })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Lỗi đăng nhập portal');
-      
-      sessionStorage.setItem('customerProject', JSON.stringify(data.project));
-      navigate("/customer-portal");
-    } catch {
-      showToast(t("loginPage.toast.invalidLink"), "error");
-    }
-  };
-
-  const tabs = [
-    { id: "customer", icon: "folder_managed", label: t("loginPage.tabs.customer") },
-    ...(allowRegistration ? [{ id: "member", icon: "school", label: t("loginPage.tabs.member") }] : []),
-  ];
-
   // 09/11/2026: cùng chất sticker neon với trang Dịch vụ. Một cột, một thẻ;
-  // màu thẻ đổi theo chế độ (dự án: xanh ngọc · sinh viên: hồng).
+  // thẻ màu hồng.
   return (
-    <div className={`sk-page sk-login sk-login--${activeMode}`}>
+    <div className="sk-page sk-login sk-login--member">
       <HugoNoticeToast
         open={Boolean(toast.message)}
         type={toast.type || "info"}
@@ -281,47 +210,14 @@ export default function LoginPage() {
       <section className="sk-login__col">
         <p className="sk-brand"><b>HUGO</b> Studio</p>
         <h1 className="sk-login__title">
-          {activeMode === "customer" ? t("loginPage.header.titleCustomer") : t("loginPage.header.titleMember")}
+          {t("loginPage.header.titleMember")}
         </h1>
         <p className="sk-login__lede">
-          {activeMode === "customer" ? t("loginPage.header.descCustomer") : t("loginPage.header.descMember")}
+          {t("loginPage.header.descMember")}
         </p>
 
-        {tabs.length > 1 ? (
-          <div className="sk-seg" role="tablist">
-            {tabs.map((tab) => (
-              <button key={tab.id} type="button" role="tab" aria-selected={activeMode === tab.id}
-                onClick={() => setActiveMode(tab.id)} className={activeMode === tab.id ? "is-on" : ""}>
-                <span aria-hidden className="material-symbols-outlined">{tab.icon}</span>{tab.label}
-              </button>
-            ))}
-          </div>
-        ) : null}
 
         <div className="sk-login__card">
-          {activeMode === "customer" ? (
-            <form key="form-customer" onSubmit={handleCustomerLogin}>
-              <label className="sk-field">
-                <span>{t("loginPage.customerForm.codeLabel")}</span>
-                <input
-                  type="text"
-                  maxLength={12}
-                  value={customerCode}
-                  onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
-                  placeholder={t("loginPage.customerForm.codePlaceholder")}
-                  autoComplete="one-time-code"
-                  spellCheck={false}
-                />
-              </label>
-              <button type="submit" className="sk-btn sk-btn--block">
-                {t("loginPage.customerForm.btn")} <span aria-hidden className="material-symbols-outlined">arrow_forward</span>
-              </button>
-              <p className="sk-hint">
-                <span aria-hidden className="material-symbols-outlined">verified_user</span>
-                <span><b>{t("loginPage.customerForm.securityTitle")}.</b> {t("loginPage.customerForm.securityDesc")}</span>
-              </p>
-            </form>
-          ) : (
             <form key="form-member" onSubmit={handleMemberLogin}>
               {showBiometricOption && (
                 <>
@@ -355,7 +251,6 @@ export default function LoginPage() {
                 <span><b>{t("loginPage.memberForm.reqTitle")}.</b> {t("loginPage.memberForm.reqDesc")}</span>
               </p>
             </form>
-          )}
         </div>
       </section>
     </div>

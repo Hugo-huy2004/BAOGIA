@@ -35,36 +35,19 @@
       "permanent": true
     },
     {
-      "source": "/",
+      "source": "/:path*",
       "has": [
         {
           "type": "host",
           "value": "partner.hugowishpax.studio"
         }
       ],
-      "destination": "/collab/hwagfu",
+      "destination": "https://education.hugowishpax.studio/",
       "permanent": false
     },
     {
-      "source": "/sitemap.xml",
-      "has": [
-        {
-          "type": "host",
-          "value": "partner.hugowishpax.studio"
-        }
-      ],
-      "destination": "/partner-sitemap.xml",
-      "permanent": false
-    },
-    {
-      "source": "/robots.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "partner.hugowishpax.studio"
-        }
-      ],
-      "destination": "/partner-robots.txt",
+      "source": "/collab/:path*",
+      "destination": "https://education.hugowishpax.studio/",
       "permanent": false
     },
     {
@@ -153,22 +136,6 @@
       "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
     {
-      "source": "/collab/hwagfu",
-      "destination": "/collab/hwagfu/index.html"
-    },
-    {
-      "source": "/collab/hwagfu/vi",
-      "destination": "/collab/hwagfu/vi/index.html"
-    },
-    {
-      "source": "/collab/hwagfu/en",
-      "destination": "/collab/hwagfu/en/index.html"
-    },
-    {
-      "source": "/collab/hwagfu/zh",
-      "destination": "/collab/hwagfu/zh/index.html"
-    },
-    {
       "source": "/",
       "destination": "/index.html"
     },
@@ -241,36 +208,12 @@
       "destination": "/services/add-ons/support/index.html"
     },
     {
-      "source": "/2048",
-      "destination": "/2048/index.html"
-    },
-    {
       "source": "/radio",
       "destination": "/radio/index.html"
     },
     {
       "source": "/aura",
       "destination": "/aura/index.html"
-    },
-    {
-      "source": "/arcade",
-      "destination": "/arcade/index.html"
-    },
-    {
-      "source": "/chess",
-      "destination": "/chess/index.html"
-    },
-    {
-      "source": "/caro",
-      "destination": "/caro/index.html"
-    },
-    {
-      "source": "/snake",
-      "destination": "/snake/index.html"
-    },
-    {
-      "source": "/survivor",
-      "destination": "/survivor/index.html"
     },
     {
       "source": "/en/",
@@ -417,10 +360,6 @@
       "destination": "/member/index.html"
     },
     {
-      "source": "/chess/:room",
-      "destination": "/chess/index.html"
-    },
-    {
       "source": "/bio/:slug",
       "destination": "/api/bio-og?slug=:slug"
     },
@@ -492,7 +431,7 @@
       ]
     },
     {
-      "source": "/(admin|member|partner|customer-portal|pay|s|certificate|login|oauth|support-request|joy|preview)(.*)",
+      "source": "/(admin|member|partner|pay|s|certificate|login|oauth|support-request|joy|preview)(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

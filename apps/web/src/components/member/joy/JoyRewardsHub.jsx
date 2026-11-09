@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../../lib/notify";
 import { useJoyStore } from "../../../stores/joyStore";
@@ -9,20 +9,13 @@ import { joyText } from "../../../lib/joyDisplay";
 const BirthdayWheel = React.lazy(() => import("../BirthdayWheel"));
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-const REFERRAL_BONUS = 100;
 
 const dateLabel = (iso        , locale        , t     ) => (
   iso ? new Date(iso).toLocaleDateString(locale) : t("memberPortal.accountHub.perksCopy.noExpiry")
 );
 
-function normalizeReferralInput(value) {
-  let next = String(value || "").trim();
-  if (next.includes("?") || next.includes("://")) {
-    try {
-      next = new URL(next, window.location.origin).searchParams.get("ref") || next;
-    } catch { /* ignore */ }
-  }
-  return next.toUpperCase().replace(/\s+/g, "").slice(0, 24);
+function normalizeCodeInput(value) {
+  return String(value || "").trim().toUpperCase().replace(/\s+/g, "").slice(0, 24);
 }
 
 function CodeRow({ code, t }) {
@@ -96,7 +89,7 @@ function VoucherCard({ voucher, dimmed, locale, t, onSelectUtility }) {
   );
 }
 
-export default function JoyRewardsHub({ perks, loading, error, onReload, email, bio, onBioUpdate, onSelectUtility }) {
+export default function JoyRewardsHub({ perks, loading, error, onReload, email, onSelectUtility }) {
   const { t, i18n } = useTranslation();
   const [showWheel, setShowWheel] = useState(false);
   const [showPast, setShowPast] = useState(false);
@@ -108,21 +101,6 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
   const fetchBalance = useJoyStore((s) => s.fetchBalance);
   const setBalance = useJoyStore((s) => s.setBalance);
 
-  const referralCode = useJoyStore((s) => s.referralCode) || bio?.referralCode || "";
-  const referralCount = useJoyStore((s) => s.referralCount);
-  const setReferralCount = useJoyStore((s) => s.setReferralCount);
-
-  useEffect(() => {
-    if (!email) return;
-    fetch(`${apiBase}/referral/me?email=${encodeURIComponent(email)}`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => {
-        setReferralCount(d.referralCount || 0);
-      })
-      .catch(() => {});
-  }, [email, setReferralCount]);
-
-  const orders = perks?.orders || [];
   const spin = perks?.spin;
   const language = i18n.resolvedLanguage || i18n.language || "vi";
   const locale = localeForLanguage(language);
@@ -139,7 +117,7 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
   async function handleSmartRedeem() {
     if (!codeInput.trim() || !email || redeeming) return;
     setRedeeming(true);
-    let code = normalizeReferralInput(codeInput);
+    const code = normalizeCodeInput(codeInput);
 
     try {
       // 1. Thử áp dụng như Gift Code trước
@@ -159,24 +137,6 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
         return;
       }
 
-      // 2. Nếu thất bại, thử áp dụng như Mã Giới Thiệu
-      const r2 = await fetch(`${apiBase}/referral/apply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, referrerCode: code }),
-      });
-      const data2 = await r2.json();
-
-      if (r2.ok) {
-        fetchBalance(email, undefined, { force: true });
-        onBioUpdate?.({ referralApplied: true });
-        notify.success(t("memberPortal.accountHub.redeemCopy.referralSuccess", { amount: data2.amount || REFERRAL_BONUS, defaultValue: `Nhận thành công ${data2.amount || REFERRAL_BONUS} JOY!` }));
-        setCodeInput("");
-        return;
-      }
-
-      // 3. Cả 2 đều thất bại -> Báo lỗi của Gift Code vì đó là mặc định
       throw new Error(data.error || t("memberPortal.accountHub.redeemCopy.giftError", "Mã không hợp lệ hoặc đã hết hạn."));
 
     } catch (err) {
@@ -184,18 +144,6 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
     } finally {
       setRedeeming(false);
     }
-  }
-
-  async function shareOwnCode() {
-    if (!referralCode) return;
-    const link = `${window.location.origin}/?ref=${referralCode}`;
-    try {
-      if (navigator.share) await navigator.share({ title: "Hugo Studio", text: t("memberPortal.accountHub.redeemCopy.shareText", { code: referralCode, defaultValue: `Nhập mã ${referralCode} để nhận ngay ưu đãi!` }), url: link });
-      else {
-        await navigator.clipboard.writeText(link);
-        notify.success(t("memberPortal.accountHub.redeemCopy.linkCopied", { defaultValue: "Đã chép link" }));
-      }
-    } catch { /* người dùng huỷ hộp chia sẻ */ }
   }
 
   if (loading) {
@@ -311,45 +259,6 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
         )}
       </section>
 
-      {/* 4. CHIA SẺ MÃ GIỚI THIỆU */}
-      <section className="rounded-3xl border border-border bg-card p-5">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
-            <span className="material-symbols-outlined text-[20px]">group_add</span>
-          </div>
-          <div>
-            <h3 className="text-[16px] font-bold text-foreground">
-              {t("memberPortal.accountHub.redeemCopy.inviteFriends", "Mời bạn bè")}
-            </h3>
-            <p className="text-[13px] text-muted-foreground">
-              {t("memberPortal.accountHub.redeemCopy.rewardPerFriend", { amount: REFERRAL_BONUS, defaultValue: `Thưởng ${REFERRAL_BONUS} JOY mỗi lượt` })}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col items-center rounded-2xl bg-muted/50 p-4 text-center">
-          <p className="text-[13px] font-medium text-muted-foreground">
-            {t("memberPortal.walletApp.rewards.yourCode", "Mã giới thiệu của bạn")}
-          </p>
-          <p className="mt-1 font-mono text-[24px] font-extrabold tracking-widest text-foreground">
-            {referralCode || "—"}
-          </p>
-          <p className="mt-2 text-[12px] text-muted-foreground">
-            {t("memberPortal.accountHub.redeemCopy.referralCount", { count: referralCount, defaultValue: `Đã mời thành công: ${referralCount} người` })}
-          </p>
-
-          <button
-            type="button"
-            onClick={shareOwnCode}
-            disabled={!referralCode}
-            className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-foreground text-[15px] font-bold text-background transition-transform hover:opacity-90 active:scale-[0.98] disabled:opacity-45"
-          >
-            <span className="material-symbols-outlined text-[20px]">ios_share</span>
-            {t("memberPortal.accountHub.redeemCopy.shareLink", "Chia sẻ ngay")}
-          </button>
-        </div>
-      </section>
-
       {/* VOUCHER ĐÃ DÙNG */}
       {past.length > 0 && (
         <section className="pt-4">
@@ -374,35 +283,6 @@ export default function JoyRewardsHub({ perks, loading, error, onReload, email, 
         </section>
       )}
 
-      {/* LỊCH SỬ MUA BẰNG JOY */}
-      {orders.length > 0 && (
-        <section className="space-y-3 pt-4">
-          <h3 className="px-1 text-[15px] font-bold text-foreground">
-            {t("memberPortal.accountHub.perksCopy.purchasedWithJoy", { count: orders.length, defaultValue: `Đã mua bằng JOY (${orders.length})` })}
-          </h3>
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            {orders.map((o     , i        ) => (
-              <div key={o.id} className={`p-4 ${i > 0 ? "border-t border-border" : ""}`}>
-                <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-[22px] text-muted-foreground">redeem</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-semibold leading-snug text-foreground">{o.name}</p>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString(locale)} · {joyText(o.priceJoy)}
-                      {o.status === "fulfilled"
-                        ? ` · ${t("memberPortal.accountHub.perksCopy.fulfilled", "Hoàn tất")}`
-                        : o.status === "cancelled"
-                          ? ` · ${t("memberPortal.accountHub.perksCopy.cancelled", "Đã huỷ")}`
-                          : ""}
-                    </p>
-                  </div>
-                </div>
-                <CodeRow code={o.code} t={t} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {showWheel && (
         <React.Suspense fallback={null}>

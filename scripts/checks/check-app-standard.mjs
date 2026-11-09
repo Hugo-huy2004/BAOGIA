@@ -24,8 +24,6 @@ const MEMBER = path.join(ROOT, "apps/web/src/components/member");
  * sau ai làm hỏng một tiêu chí là bộ này đỏ.
  */
 const CERTIFIED = {
-  hugoStore: "20/09/2026 — header tự dựng (blur + tiêu đề ẩn/hiện theo cuộn + mr-12 đoán tay + chữ \"Cửa hàng\" viết cứng tiếng Việt dù app có 3 ngôn ngữ) → AppFrame; màn chi tiết app có địa chỉ; 💎 → Material Symbol; nút tặng 34px và nút mua 42px → 44px",
-  arcade: "20/09/2026 — LazyBoundary cho chunk game (một game hỏng từng làm trắng CẢ portal), 🔥/⚡ trong Game2048 → Material Symbols, 29 chỗ chữ <13px ở bảng xếp hạng và pinball. Giữ hình thái game toàn màn + quân cờ Unicode (ngoại lệ có lý do)",
   aura: "20/09/2026 — chuyển SubUtilityHeader → AppFrame (app cuối dùng header đó, nhờ vậy xoá được nó), tên lấy từ catalog \"Tập Trung\" thay chuỗi marketing 2 dòng, nhãn preset bỏ truncate 8,5px, thêm vòng quay báo nhạc đang nạp (bấm phát trên mạng chậm vốn im lặng vài giây)",
   bio: "20/09/2026 — gộp HAI chrome trùng nhau (header desktop + thanh cố định dưới đáy mobile, cùng hiện tên+link+nút chép/mở) về AppFrame; dải segmented tự dựng thành tabs của khung; 3 mục soạn thảo có địa chỉ riêng",
   wallet: "20/09/2026 — dựng phần Giao dịch gần đây (bộ lọc + biên lai vốn không có đường mở), LazyBoundary dùng chung, bỏ emoji, chữ mặt sau thẻ 7,5px → 11px; chuyển sang AppFrame với wideNav=\"segmented\" để GIỮ dải phân đoạn macOS vốn đã đúng",
@@ -48,16 +46,6 @@ const EXCEPTIONS = {
   // App MỘT MÀN: không có màn con nào để đặt địa chỉ. Bản thân app đã có địa chỉ
   // /member/utilities/<id>. Bắt chúng dựng router chỉ để bộ kiểm xanh là thêm
   // code không ai dùng.
-  // GAME: mỗi game chiếm trọn màn (`fixed inset-0`) và cần tỷ lệ khung cố định —
-  // canvas game không co giãn theo cột đọc. Chrome kính iOS đè lên game là sai
-  // hình thái. Ngoại lệ về HÌNH THÁI: arcade vẫn phải đạt 8 tiêu chí còn lại.
-  "frame@arcade": "sảnh + game toàn màn, tỷ lệ khung cố định; chrome kính đè lên game là sai hình thái",
-  "responsive@arcade": "canvas game giữ tỷ lệ cố định, không có cột đọc để bó",
-
-  // Quân cờ ♔♕♖ và glyph vật phẩm ✦◆◇» là KÝ TỰ, không phải emoji trang trí:
-  // Material Symbols không có quân cờ, và thay chúng là phá chính bàn cờ.
-  "noEmoji@arcade": "quân cờ Unicode (GameChess3D) + glyph vật phẩm hình học (survivorBalance) là typography của game, không phải emoji",
-
   "address@aura": "một màn duy nhất (đồng hồ Pomodoro + trình phát trên cùng trang), không có màn con để đặt địa chỉ",
   "emptyState@aura": "playlist là hằng số trong mã, không có danh sách nào có thể rỗng — trạng thái rỗng ở đây là màn không bao giờ hiện",
 
@@ -68,8 +56,6 @@ const EXCEPTIONS = {
 const APPS = {
   wallet: { entry: "wallet/JoyWalletApp.jsx", dir: "wallet" },
   qrHugo: { entry: "qrHugo/QrHugoApp.jsx", dir: "qrHugo" },
-  hugoStore: { entry: "hugoStore/HugoStoreTab.jsx", dir: "hugoStore" },
-  arcade: { entry: "arcade/HugoArcadeTab.jsx", dir: "arcade" },
   aura: { entry: "MemberAuraTab.jsx" },
   bio: { entry: "BioPreviewTab.jsx" },
 };

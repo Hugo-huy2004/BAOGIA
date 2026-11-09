@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { PARTNER_HOST } from "../../../../packages/shared/partnerCampaigns";
 
 const ORIGIN = "https://www.hugowishpax.studio";
 const INDEX_ROBOTS =
@@ -44,8 +43,6 @@ export default function RouteSeoPolicy() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Trang chiến dịch tự đặt canonical về tên miền partner (PartnerCollabPage).
-    if (pathname.startsWith("/collab/") || (window.location.hostname === PARTNER_HOST && pathname === "/")) return;
     const isPublicBio = pathname.startsWith("/bio/");
     const isPublic = pathname === "/" || PUBLIC_PATHS.has(pathname) || pathname.startsWith("/project") || isPublicBio;
     const robots = isPublic ? INDEX_ROBOTS : PRIVATE_ROBOTS;

@@ -17,10 +17,8 @@ const APP_LOADERS = {
   eduhugo: () => import("../eduHugo/EduHugoApp"),
   qrhugo: () => import("../qrHugo/QrHugoApp"),
   joy_wallet: () => import("../wallet/JoyWalletApp"),
-  arcade: () => import("../arcade/HugoArcadeTab"),
   aura: () => import("../MemberAuraTab"),
   bio: () => import("../BioPreviewTab"),
-  store: () => import("../hugoStore/HugoStoreTab"),
 };
 
 export const resolveAppId = (appId) => appId;

@@ -25,7 +25,6 @@ import "./wallet-app.css";
 const JoyMissions = lazy(() => import("../joy/JoyMissions"));
 const JoyHistory = lazy(() => import("../joy/JoyHistory"));
 const JoyRewardsHub = lazy(() => import("../joy/JoyRewardsHub"));
-const MemberUtilityStoreTab = lazy(() => import("../MemberUtilityStoreTab"));
 const JoyTree = lazy(() => import("./JoyTree"));
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
@@ -379,22 +378,6 @@ export default function JoyWalletApp({
             </Panel>
           )}
 
-          {sub === "store" && (
-            <Panel>
-              <MemberUtilityStoreTab
-                bio={bio}
-                balance={activeBalance}
-                onPurchased={(next) => {
-                  setStoreBalance(next);
-                  loadPerks();
-                  mutate();
-                }}
-                onBioUpdate={onBioUpdate}
-                showToast={showToast}
-              />
-            </Panel>
-          )}
-
           {/* ── TAB 1: TỔNG QUAN (OVERVIEW) — BỐ CỤC CHUẨN DESKTOP & MOBILE ── */}
           {!sub && tab === "overview" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -521,11 +504,6 @@ export default function JoyWalletApp({
                       label={t("memberPortal.walletApp.rewards.tile", "Trung tâm Quà tặng")}
                       badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
                       onClick={() => openSub("rewards")}
-                    />
-                    <Tile
-                      icon="storefront"
-                      label={t("memberPortal.walletApp.storeTile", "Chợ tiện ích")}
-                      onClick={() => openSub("store")}
                     />
                   </section>
                 </div>

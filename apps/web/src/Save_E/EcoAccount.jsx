@@ -8,7 +8,6 @@ import memberService from "../services/classes/MemberService";
 // Đuôi .jsx tường minh: macOS không phân biệt hoa/thường nên "./EcoRadio" bắt
 // trúng ecoRadio.js (file helper) trước — build đứt vì file đó không có default export.
 import EcoRadio from "./EcoRadio";
-import EcoGames from "./EcoGames";
 import EcoFold from "./EcoFold";
 import { joyText } from "../lib/joyDisplay";
 
@@ -281,7 +280,6 @@ export default function EcoAccount() {
       </section>
 
       <EcoRadio />
-      <EcoGames onJoyChange={bumpBalance} />
 
       {/* ── Cài đặt cơ bản ── */}
       <section className="save-e-section" aria-labelledby="eco-settings">

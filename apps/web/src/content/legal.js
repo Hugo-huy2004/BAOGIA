@@ -16,7 +16,7 @@ const vi = {
     intro: "Khi tạo tài khoản hoặc dùng Hugo Studio (hugowishpax.studio), bạn đồng ý với các điều khoản dưới đây.",
     sections: [
       { h: "1. Hugo Studio là gì", p: [
-        "Hugo Studio do Hugo Wishpax sáng lập và vận hành theo hướng phi lợi nhuận. Gồm hai phần: các ứng dụng miễn phí cho thành viên (trang Bio, trò chơi, Today, ví điểm JOY…) và dịch vụ thiết kế website theo báo giá.",
+        "Hugo Studio do Hugo Wishpax sáng lập và vận hành theo hướng phi lợi nhuận. Gồm hai phần: các ứng dụng miễn phí cho thành viên (trang Bio, Today, ví điểm JOY…) và dịch vụ thiết kế website theo báo giá.",
       ] },
       { h: "2. Tài khoản và độ tuổi", li: [
         "Bạn phải từ đủ 14 tuổi. Từ 14 đến dưới 16 tuổi cần cha mẹ hoặc người giám hộ đồng ý.",
@@ -58,7 +58,7 @@ const vi = {
         "Đăng nhập: email, tên và ảnh đại diện từ Google; khoá công khai passkey. Vân tay và khuôn mặt chỉ nằm trên máy bạn, chúng tôi không nhận được.",
         "Bắt buộc: ngày sinh, để kiểm tra độ tuổi.",
         "Tuỳ chọn, chỉ khi bạn tự khai: tên hiển thị, ảnh, liên kết, thành tích, số điện thoại, quốc gia, tỉnh/thành, địa chỉ, điểm ghim vị trí.",
-        "Khi bạn dùng ứng dụng: lịch sử JOY, điểm trò chơi, ứng dụng đã mở, câu trả lời khảo sát, bài đăng Today, yêu cầu hỗ trợ.",
+        "Khi bạn dùng ứng dụng: lịch sử JOY, ứng dụng đã mở, bài đăng Today, yêu cầu hỗ trợ.",
         "Kỹ thuật và an ninh: địa chỉ IP, vị trí ước lượng từ IP, loại thiết bị, ngôn ngữ máy, mã nhận thông báo đẩy. Vị trí GPS chỉ được đọc khi bạn cho phép.",
         "Khách hỏi dịch vụ hoặc ủng hộ: tên, email, số điện thoại, nội dung yêu cầu. Tên người ủng hộ chỉ hiện công khai khi bạn chọn.",
       ] },
@@ -116,7 +116,7 @@ const en = {
     intro: "By creating an account or using Hugo Studio (hugowishpax.studio), you agree to these terms.",
     sections: [
       { h: "1. What Hugo Studio is", p: [
-        "Hugo Studio is founded and run on a nonprofit basis by Hugo Wishpax. It has two parts: free member apps (Bio page, games, Today, JOY points…) and website design services on quotation.",
+        "Hugo Studio is founded and run on a nonprofit basis by Hugo Wishpax. It has two parts: free member apps (Bio page, Today, JOY points…) and website design services on quotation.",
       ] },
       { h: "2. Accounts and age", li: [
         "You must be at least 14. If you are 14 or 15, a parent or guardian must consent.",
@@ -158,7 +158,7 @@ const en = {
         "Sign-in: email, name and avatar from Google; passkey public keys. Fingerprints and faces stay on your device; we never receive them.",
         "Required: birth date, to check your age.",
         "Optional, only if you provide it: display name, photo, links, achievements, phone number, country, province/city, address, map pin.",
-        "When you use the apps: JOY history, game scores, apps opened, survey answers, Today posts, support requests.",
+        "When you use the apps: JOY history, apps opened, Today posts, support requests.",
         "Technical and security: IP address, IP-based approximate location, device type, device language, push notification tokens. GPS location is read only with your permission.",
         "Service enquiries and donations: name, email, phone number, message. Donor names are shown publicly only if you choose.",
       ] },
@@ -216,7 +216,7 @@ const zh = {
     intro: "创建账户或使用 Hugo Studio（hugowishpax.studio）即表示您同意以下条款。",
     sections: [
       { h: "1. Hugo Studio 是什么", p: [
-        "Hugo Studio 由 Hugo Wishpax 创立并以非营利方式运营，包括两部分：免费的会员应用（Bio 页面、游戏、Today、JOY 积分等）以及按报价提供的网站设计服务。",
+        "Hugo Studio 由 Hugo Wishpax 创立并以非营利方式运营，包括两部分：免费的会员应用（Bio 页面、Today、JOY 积分等）以及按报价提供的网站设计服务。",
       ] },
       { h: "2. 账户与年龄", li: [
         "您必须年满 14 岁。14 至 15 岁需父母或监护人同意。",
@@ -258,7 +258,7 @@ const zh = {
         "登录：来自 Google 的邮箱、姓名和头像；通行密钥的公钥。指纹和面部信息只保存在您的设备上，我们不会收到。",
         "必填：出生日期，用于核验年龄。",
         "选填，仅在您主动填写时：显示名称、照片、链接、成就、电话号码、国家、省/市、地址、地图定位点。",
-        "使用应用时：JOY 记录、游戏分数、打开过的应用、问卷回答、Today 帖子、支持请求。",
+        "使用应用时：JOY 记录、打开过的应用、Today 帖子、支持请求。",
         "技术与安全：IP 地址、基于 IP 的大致位置、设备类型、设备语言、推送通知令牌。仅在您允许时读取 GPS 位置。",
         "咨询服务或捐助：姓名、邮箱、电话、留言内容。捐助者姓名仅在您选择公开时显示。",
       ] },

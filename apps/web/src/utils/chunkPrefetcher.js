@@ -6,7 +6,6 @@ import { hasAppModule, prefetchApp } from "../components/member/os/appIndex";
  * chỉ còn những màn con nặng mở thẳng từ Trang chủ.
  */
 const EXTRA_CHUNKS = {
-  arcade_chess: () => import("../components/member/arcade/GameChess3D"),
 };
 
 const prefetched = new Set();

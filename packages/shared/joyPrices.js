@@ -6,20 +6,6 @@ export const JOY_SINK_PRICES = Object.freeze({
   timedUpgrade: 1000,
 });
 
-/** Giá Utility Store do loại quyền lợi quyết định, không do client/admin tự đặt. */
-export const utilityProductPrice = (productType) => (
-  productType === "system_validity"
-    ? JOY_SINK_PRICES.timedUpgrade
-    : JOY_SINK_PRICES.utility
-);
-
-// ── MỞ APP / TÍNH NĂNG: 200 JOY ────────────────────────────────────
-// Một mốc duy nhất cho quyền truy cập tháng, không còn 13 mức giá lẻ.
-export const FEATURE_PRICES = {
-  hugoChess: JOY_SINK_PRICES.feature,
-  hugoArcade: JOY_SINK_PRICES.feature,
-};
-
 // ── Phí và trần giao dịch ──────────────────────────────────────────
 // LỖI CŨ: server thu 10% (`EXCHANGE_TAX_RATE`) nhưng trang Store tính và hiện
 // 9% (2%+5%+2%), nên người có đúng số dư bằng tổng hiện trên màn hình vẫn bị
@@ -30,18 +16,6 @@ export const EXCHANGE_TAX_RATE = 0.10;
 export const exchangeTotal = (priceJoy) => {
   const tax = Math.floor(priceJoy * EXCHANGE_TAX_RATE);
   return { priceJoy, tax, total: priceJoy + tax };
-};
-
-/**
- * Ba dòng phí hiện trên màn xác nhận. Dòng cuối là PHẦN CÒN LẠI, nên ba dòng
- * luôn cộng đúng bằng thuế thật — bản cũ ghi cứng 2%+5%+2% = 9% trong khi server
- * thu 10%, người dùng cộng tay ba dòng ra số khác tổng.
- */
-export const exchangeFeeBreakdown = (priceJoy) => {
-  const { tax, total } = exchangeTotal(priceJoy);
-  const fulfillment = Math.floor(priceJoy * 0.02);
-  const support = Math.floor(priceJoy * 0.05);
-  return { fulfillment, support, maintenance: tax - fulfillment - support, tax, total };
 };
 
 /** Trần chuyển JOY cho người khác mỗi ngày. */

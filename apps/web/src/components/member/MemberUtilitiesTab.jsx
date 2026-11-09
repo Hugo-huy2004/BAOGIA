@@ -58,11 +58,9 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, handleS
   const routeProps = { route: appRoute, onRouteChange: onAppRouteChange };
   const appProps = {
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
-    arcade: sharedProps,
     qrhugo: { ...sharedProps, ...routeProps },
     aura: { ...sharedProps, ...routeProps },
     bio: { ...sharedProps, ...routeProps, publicLink, renderAccountForm, handleSave },
-    store: { ...sharedProps, ...routeProps, onOpenUtility: onSelectUtility },
   }[appId] || sharedProps;
 
   return (

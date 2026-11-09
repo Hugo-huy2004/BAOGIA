@@ -62,9 +62,7 @@ apps/server/       Express + Mongoose + WebSocket, port 8099
 apps/ai/           FastAPI, port 8000 (own Vercel project, deployed from this folder)
 apps/workers/      Cloudflare Workers: keepalive, media-proxy (wrangler, not workspaces)
 packages/shared/   pure JS/JSON used by BOTH web and server (app registry, prices, texts…)
-packages/courses/  Education Hugo course content, one folder per course (coding/ …) — see its README
 packages/persona/  account-wide public nickname + pixel avatar for every site/app (/api/persona, PersonaClient) — see its README
-packages/nom-data/ chữ Nôm source tables for scripts/build-nom-*
 scripts/           repo tooling; scripts/checks = every `npm run check:*`
 api/ vercel.json render.yaml start.sh   stay at the root: Vercel and Render read them there
 ```
@@ -74,9 +72,9 @@ package names — Vite, Node and the Vercel functions all resolve them with no b
 
 - `apps/web/src/` — Tailwind, Zustand (`apps/web/src/stores/`), SWR, react-router with lazy route chunks. i18n via i18next, locales in `apps/web/src/i18n/locales/`. Vite runs with cwd `apps/web` (its config, `index.html`, `public/`, `.env` live there); root scripts call it through `npm run … --workspace apps/web`.
 - Portfolio là project độc lập tại `../hugo-portfolio`; Hugo Studio chỉ giữ redirect `/introduction` sang `portfolio.hugowishpax.studio`. Xem `docs/tach-portfolio-services.md`.
-- `apps/web/src/education/` — **Education Hugo** (`education.hugowishpax.studio`): same build, same Vercel project and backend as www, picked by hostname in `App.jsx` (`packages/shared/eduSite.js`; dev: `http://education.localhost:3000`). Own shell, manifest (`public/edu.webmanifest`, swapped at runtime) and clay mascots (`npm run gen:mascots`). Courses are free (6 preview steps without account); the account still follows Hugo Studio rules — 7-day trial, extend with JOY (`POST /api/joy/extend-account`, `ACCOUNT_EXTENSION`), edu verification = 1 year. First pass of a step pays `CODER_JOY_PER_CORRECT` JOY per correct answer. Learning routes use `requireMemberSession` (no profile gate). `/study` redirects here. Push: subscriptions made from the Edu origin get `site: 'edu'` and only receive `sendEduPush` (study reminder at the learner's hour, account expiry 3/1 days, new sign-in); www pushes skip them. Personal settings (`packages/shared/eduPrefs.js`) live in `EduLearner`, ride along on `GET /api/joy/coder-access`, saved with `PUT /api/joy/edu-settings`.
+- **Education Hugo** (`education.hugowishpax.studio`) is the main product and lives in its OWN repo/backend (`../education-hugo`), not here. This repo only keeps redirects to it and the OAuth provider it may use. Hugo Studio App is the developer hub: admin, wallet, Bio, Today, OAuth clients and API keys for third parties (QR Hugo uses `/api/qr-key`).
 - `apps/server/` — routes in `apps/server/routes/`, one file per domain (bio, joy, arcade, chess, companion, payos…). Realtime: `/ws` (wallet/notifications) and `/ws/chess`. Env in `apps/server/.env`.
-- `apps/ai/` — Reached only through Node: `apps/server/routes/aiProxyRoutes.js` (all of `/api/ai/*`) and `apps/server/routes/sleepRoutes.js` (`/analyze`), both injecting `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
+- `apps/ai/` — three endpoints (news summarize/digest, admin intel), reached only from Node via `apps/server/services/aiDistributedBridge.js`, which injects `X-Internal-Key` from `process.env.INTERNAL_API_KEY`. A global FastAPI middleware rejects any request without it, so no browser call can reach it directly.
 - `api/` — Vercel serverless (only `/pay` redirect).
 
 Deploy split (see `docs/tach-tai-render.md`): Render runs **only** Node (it bills by
@@ -94,7 +92,6 @@ Better Auth (`apps/server/auth/betterAuth.js`), two separate instances — never
 
 - **Member**: `/api/auth/*`, cookie `hugo.*`, collections `user/session/account/verification/passkey`. Google ID token (`sign-in/social` with `idToken`) and passkey — **no member email OTP** (it was an open email-bombing endpoint the UI never used); `bearer()` for the Capacitor app; `oneTimeToken` carries the Safari session into a freshly installed iOS PWA via `/api/pwa-manifest?handoff=` (`apps/web/src/utils/appHandoff.js`). Login endpoints have tighter `rateLimit.customRules`. Creating a user creates its Bio (`databaseHooks`). Every member route uses `requireMember` (`apps/server/middleware/authMiddleware.js`) and reads identity from `req.memberEmail` — **never** from a client-supplied `?email=` param.
 - **Admin**: `/api/admin-auth/*`, cookie `hugo-admin.*`, collections `admin_*`. No passwords, no Telegram: a 6-digit code to the admin's own email (`emailOTP`, sign-up disabled). Roles come from `packages/shared/adminAccess.js` through the admin plugin; one admin may hold several (`"support,finance"`), permissions are their union. `requireAdmin` sets `req.admin`. Only owners manage accounts. First owner: set `ADMIN_SEED_EMAIL` and start the server once.
-- Customer portal keeps its own JWT (`customer_jwt`, `requireCustomer`).
 - Hot paths (load shield, IP gate) only check the session cookie's signature (`signedSessionRole`), no DB.
 - Frontend: keep using `apps/web/src/services/api/core/authSession.js`; the Better Auth clients live in `apps/web/src/lib/authClient.js` (import it dynamically).
 - Server refuses to start in production without `JWT_SECRET`, `JOY_QR_SECRET`, `GOOGLE_CLIENT_ID` (`apps/server/utils/secrets.js`). Optional `BETTER_AUTH_SECRET` (falls back to `JWT_SECRET`). Env: `apps/web/.env` (frontend `VITE_*`), `apps/server/.env` (backend).

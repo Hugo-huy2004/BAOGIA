@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { JOY_DENOMS, denomKey } from "../../../../../packages/shared/joyCurrency";
 import { languageLabel, persistAppLanguage, SELECTABLE_LANGUAGES } from "../../i18n/languages";
@@ -10,8 +10,6 @@ const apiBase = import.meta.env.VITE_API_URL || "/api";
 const MAX_PIN_ACCURACY_M = 100;
 
 // Quà khi nhập mã người giới thiệu — khớp với phần server cộng vào.
-const REFERRAL_BONUS = 10;
-const REFERRAL_BIO_DAYS = 15;
 const thisYear = new Date().getFullYear();
 const range = (length, map) => Array.from({ length }, (_, index) => map(index));
 
@@ -39,13 +37,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
   const [missing, setMissing] = useState(null);
   const [values, setValues] = useState({});
   const [stepIndex, setStepIndex] = useState(0);
-  const [referrerCode, setReferrerCode] = useState(() => {
-    try {
-      return (new URLSearchParams(window.location.search).get("ref") || "").toUpperCase();
-    } catch {
-      return "";
-    }
-  });
   const [submitting, setSubmitting] = useState(false);
   const [checkingPhone, setCheckingPhone] = useState(false);
   const [error, setError] = useState("");
@@ -59,20 +50,14 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
         if (!alive) return;
         const gaps = Array.isArray(data.missing) ? data.missing : [];
         setMissing(gaps);
-        // Không thiếu gì và cũng không có mã giới thiệu chờ áp → không việc gì
-        // phải chặn người dùng lại.
-        if (!gaps.length && !referrerCode) onSkip?.();
+        // Không thiếu gì → không việc gì phải chặn người dùng lại.
+        if (!gaps.length) onSkip?.();
       })
       .catch(() => alive && setMissing([]));
     return () => { alive = false; };
-  }, [onSkip, referrerCode, purpose]);
+  }, [onSkip, purpose]);
 
-  // Mã giới thiệu là bước CUỐI và không bắt buộc — gộp nó vào danh sách bước để
-  // thanh tiến độ đếm đúng, thay vì treo thêm một ô ở đáy mọi bước.
-  const steps = useMemo(
-    () => [...(missing || []), { key: "referral", type: "referral" }],
-    [missing],
-  );
+  const steps = missing || [];
   const step = steps[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
 
@@ -148,7 +133,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
 
   const isFilled = (field) => {
     if (!field) return false;
-    if (field.type === "referral") return true;            // không bắt buộc
     if (field.type === "birthDate") return Boolean(values.birthDay && values.birthMonth && values.birthYear);
     if (field.type === "checkbox") return values[field.key] === true;
     if (field.type === "locationVerification") return values.locationConfirmed === true && Number.isFinite(values.verifiedLatitude) && Number.isFinite(values.verifiedLongitude)
@@ -205,7 +189,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
         credentials: "include",
         body: JSON.stringify({
           email,
-          referrerCode,
           ...values,
         }),
       });
@@ -225,7 +208,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
         setSubmitting(false);
         return;
       }
-      if (data.referralError) setError(data.referralError);
       onDone?.(data);
     } catch (err) {
       setError(err.message || t("memberPortal.onboarding.genericError"));
@@ -233,14 +215,10 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     }
   }
 
-  if (missing === null) return null;
+  if (missing === null || !step) return null;
 
-  const label = step.type === "referral"
-    ? t("memberPortal.onboarding.referralLabel")
-    : t(`memberPortal.onboarding.fields.${step.key}.label`, { defaultValue: step.label });
-  const hint = step.type === "referral"
-    ? t("memberPortal.onboarding.referralHint", { amount: REFERRAL_BONUS, days: REFERRAL_BIO_DAYS })
-    : t(`memberPortal.onboarding.fields.${step.key}.hint`, { defaultValue: step.hint || "" });
+  const label = t(`memberPortal.onboarding.fields.${step.key}.label`, { defaultValue: step.label });
+  const hint = t(`memberPortal.onboarding.fields.${step.key}.hint`, { defaultValue: step.hint || "" });
   const fullAddress = formatFullAddress(values, i18n.resolvedLanguage || "vi");
 
   return (
@@ -471,15 +449,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
               />
             )}
 
-            {step.type === "referral" && (
-              <input
-                type="text"
-                value={referrerCode}
-                onChange={(e) => setReferrerCode(e.target.value.toUpperCase())}
-                placeholder={t("memberPortal.onboarding.referralPlaceholder")}
-                className={`${FIELD_CLASS} font-mono tracking-widest`}
-              />
-            )}
           </div>
 
           {error && <p className="mt-3 text-center text-[13px] text-destructive">{error}</p>}

@@ -40,26 +40,16 @@ const manifest = ({
 
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
-  manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
-  manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
+  manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "wellness", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
   manifest({ id: "eduhugo", icon: "school", tint: "cyan", category: "edu", badge: "new", storageMb: 0.3, version: "1.0.0" }),
   manifest({ id: "qrhugo", icon: "api", tint: "blue", category: "tools", badge: "new", storageMb: 0.4, version: "2.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
-  manifest({ id: "store", icon: "store", tint: "blue", category: "tools", badge: "store" }),
-  manifest({ id: "arcade_chess", icon: "castle", tint: "slate", category: "arcade", badge: "game", store: true, game: true, storePlanId: "chess", storeOrder: 11 }),
-  manifest({ id: "arcade_2048", icon: "casino", tint: "orange", category: "arcade", badge: "game", store: true, game: true, storePlanId: null, storeOrder: 15 }),
-  manifest({ id: "arcade_caro", icon: "swords", tint: "blue", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 14 }),
-  manifest({ id: "arcade_snake", icon: "all_inclusive", tint: "teal", category: "arcade", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 13 }),
 ]);
 
 const APP_REGISTRY_BY_ID = new Map(APP_REGISTRY.map((app) => [app.id, app]));
 export const APP_CATALOG_MANIFESTS = Object.freeze(APP_REGISTRY.filter((app) => app.surfaces.catalog));
-export const APP_STORE_MANIFESTS = Object.freeze(
-  APP_REGISTRY.filter((app) => app.surfaces.store).sort((a, b) => a.storeOrder - b.storeOrder),
-);
 
 export const REQUIRED_APP_IDS = Object.freeze([
-  "store",
   "bio",
   // "vocab" (Hoa Ngữ) đã gỡ 21/09/2026 — nếu để lại đây thì `normalizeInstalled`
   // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
@@ -76,6 +66,13 @@ export const REQUIRED_APP_IDS = Object.freeze([
 ]);
 
 export const RETIRED_APP_IDS = Object.freeze([
+  // Trò chơi, Cờ vua và Cửa Hàng gỡ 09/11/2026: Hugo Studio App thu về lõi.
+  "arcade",
+  "arcade_chess",
+  "arcade_2048",
+  "arcade_caro",
+  "arcade_snake",
+  "store",
   // Hugo Team + Coding chuyển sang Education Hugo (repo riêng) 02/11/2026.
   "team",
   "study",

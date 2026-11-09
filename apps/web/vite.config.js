@@ -240,8 +240,6 @@ export default defineConfig(({ mode }) => {
     // (Trước đây mặc định là ngược lại, nên sửa xong code server ở máy mà trình
     //  duyệt vẫn nói chuyện với Render — code cũ trả 400, trông như lỗi mình.)
     proxy: {
-      // Chess WebSocket → Node.js backend
-      '/ws/chess': { target: DEV_WS, ws: true, changeOrigin: true, secure: false, configure: configureWsProxy },
       // Member wallet/notification realtime channel → Node.js backend
       '/ws': { target: DEV_WS, ws: true, changeOrigin: true, secure: false, configure: configureWsProxy },
       // Everything else → Node.js backend

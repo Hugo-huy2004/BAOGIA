@@ -133,7 +133,7 @@ pending(json401('AUTH_SESSION_INVALID')); await request;
 assert.equal(currentToken, null, 'URL inputs and wallet routes expire rejected sessions');
 
 adminSession = {loginAt: 'admin-login-1'};
-request = win.fetch('/api/customer-projects');
+request = win.fetch('/api/today');
 pending(json401('AUTH_SESSION_INVALID', 'admin')); await request;
 assert.equal(adminCleared, true, 'server authRole clears admin sessions outside /api/admin');
 

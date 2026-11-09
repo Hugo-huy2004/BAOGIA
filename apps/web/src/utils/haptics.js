@@ -35,15 +35,7 @@ export function triggerHaptic(durationMs = 10) {
   } catch { /* ignore */ }
 }
 
-// Game-interaction haptics — paired 1:1 with the playGameX() sound effects in
-// audio.js so every swipe/tap/placement in HugoArcade also buzzes the phone,
-// not just real <button> taps (the board/grid itself isn't a <button>, so the
-// delegated listener below never sees it).
-export const hapticMove = () => triggerHaptic(8);
 export const hapticSelect = () => triggerHaptic(10);
-export const hapticMerge = () => triggerHaptic(16);
-export const hapticWin = () => triggerHaptic([20, 40, 20, 40, 30]);
-export const hapticLose = () => triggerHaptic(60);
 export const hapticSuccess = () => triggerHaptic([15, 30, 25, 45, 10]);
 // Delegated, app-wide tap haptic — fires once on pointerdown for any element
 // that is or sits inside a clickable control, instead of having to wire

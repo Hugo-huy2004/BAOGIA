@@ -15,9 +15,7 @@ import { ADMIN_DESTINATIONS, DEFAULT_DESTINATION, LEGACY_TAB_ALIASES, destinatio
 import { adminBrainApi } from "../../services/api/modules/adminBrainApi";
 import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
-import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 const AdminApiTab = lazy(() => import("../../components/admin/AdminApiTab"));
-import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 import AdminAccessTab from "../../components/admin/AdminAccessTab";
 const AdminDataTab = lazy(() => import("../../components/admin/AdminDataTab"));
@@ -101,10 +99,7 @@ export default function AdminPanel() {
   const [counts, setCounts] = useState({
     users: 0,
     contactSupport: 0,
-    utilityStore: 0,
-    projects: 0,
     openTickets: 0,
-    totalProjects: 0,
     packages: 0,
     queue: 0
   });
@@ -254,15 +249,13 @@ export default function AdminPanel() {
   const fetchOverviewCounts = async () => {
     try {
       const apiBase = import.meta.env.VITE_API_URL || "/api";
-      const [ticketsRes, packagesRes, projectsRes] = await Promise.allSettled([
+      const [ticketsRes, packagesRes] = await Promise.allSettled([
         fetch(`${apiBase}/support/tickets?status=pending`, { credentials: "include" }).then(r => r.ok ? r.json() : {}),
-        fetch(`${apiBase}/packages`, { credentials: "include" }).then(r => r.ok ? r.json() : []),
-        fetch(`${apiBase}/customer-projects`, { credentials: "include" }).then(r => r.ok ? r.json() : [])
+        fetch(`${apiBase}/packages`, { credentials: "include" }).then(r => r.ok ? r.json() : [])
       ]);
 
       const openTickets = ticketsRes.status === "fulfilled" ? (ticketsRes.value?.pendingCount ?? ticketsRes.value?.pagination?.total ?? 0) : 0;
       const packagesCount = packagesRes.status === "fulfilled" && Array.isArray(packagesRes.value) ? packagesRes.value.length : 0;
-      const projectsCount = projectsRes.status === "fulfilled" && Array.isArray(projectsRes.value) ? projectsRes.value.length : 0;
 
       // Số việc chờ duyệt đi kèm luôn: nhãn ở thanh bên phải nói được còn bao
       // nhiêu việc treo, nếu không thì phải bấm vào mới biết.
@@ -276,8 +269,6 @@ export default function AdminPanel() {
         openTickets,
         contactSupport: openTickets,
         packages: packagesCount,
-        totalProjects: projectsCount,
-        projects: projectsCount,
         queue: queueTotal
       }));
     } catch {}
@@ -459,12 +450,8 @@ export default function AdminPanel() {
       case "support":
         return <AdminContactSupportTab showNotification={showNotification} triggerConfirm={triggerConfirm} />;
 
-      case "projects":
-        return <AdminProjectsTab />;
       case "services":
         return <AdminServicesTab triggerConfirm={triggerConfirm} />;
-      case "store":
-        return <AdminUtilityStoreTab />;
       case "apis":
         return <Suspense fallback={<p className="p-10 text-center text-sm text-muted-foreground">Đang tải…</p>}><AdminApiTab /></Suspense>;
 

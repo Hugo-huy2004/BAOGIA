@@ -79,20 +79,6 @@ const SCENES = {
     </>
   ),
 
-  // Trò Chơi — cần điều khiển và hai nút
-  arcade: (f) => (
-    <>
-      <Slab x={9} y={22} w={30} h={13} r={6} fill={f} />
-      <ellipse cx="17.5" cy="26" rx="5.4" ry="2.6" fill="#000" opacity="0.2" />
-      <rect x="16.2" y="14" width="2.6" height="12" rx="1.3" fill="#fff" opacity="0.78" />
-      <circle cx="17.5" cy="12.6" r="4.6" fill="#f43f5e" />
-      <circle cx="16" cy="11.2" r="1.5" fill="#fff" opacity="0.6" />
-      <circle cx="29" cy="26.5" r="3.6" fill="#38bdf8" />
-      <circle cx="27.9" cy="25.4" r="1.1" fill="#fff" opacity="0.65" />
-      <circle cx="35" cy="30.5" r="2.7" fill="#fbbf24" />
-      <circle cx="34.2" cy="29.7" r="0.9" fill="#fff" opacity="0.65" />
-    </>
-  ),
 
   // Tập Trung — vòng thở quanh quả cầu
   aura: (f, g) => (
@@ -208,93 +194,11 @@ const SCENES = {
     </>
   ),
 
-  // Cờ Vua — bàn cờ nghiêng và quân vua
-  arcade_chess: (f) => (
-    <>
-      <g transform="translate(24 31) scale(1 0.5) rotate(45) translate(-24 -31)">
-        <rect x="12" y="19" width="24" height="24" fill="#fff" opacity="0.9" />
-        {[0, 1, 2, 3].flatMap((r) => [0, 1, 2, 3].map((c) => ((r + c) % 2 === 0 ? (
-          <rect key={`${r}-${c}`} x={12 + c * 6} y={19 + r * 6} width="6" height="6" fill="#0f172a" opacity="0.66" />
-        ) : null)))}
-      </g>
-      <ellipse cx="24" cy="29.6" rx="5.6" ry="1.9" fill="#000" opacity="0.2" />
-      <path d="M20.6 28.6h6.8l-1.3-8h-4.2Z" fill={f} />
-      <ellipse cx="24" cy="28.6" rx="4.2" ry="1.6" fill="#fff" />
-      <circle cx="24" cy="18" r="3.4" fill={f} />
-      <rect x="22.8" y="10.6" width="2.4" height="6" rx="1" fill="#fff" />
-      <rect x="21.2" y="12.4" width="5.6" height="2.1" rx="1" fill="#fff" />
-    </>
-  ),
 
-  // 2048 — các ô số xếp bậc thang
-  arcade_2048: (f) => (
-    <>
-      <Slab x={8} y={24} w={15} h={14} r={3.2} fill={f} />
-      <Slab x={17} y={17} w={15} h={14} r={3.2} fill={f} />
-      <Slab x={26} y={10} w={15} h={14} r={3.2} fill={f} />
-      <text x="15.5" y="34.6" textAnchor="middle" fontSize="9" fontWeight="800" fill="#0f172a" opacity="0.55">2</text>
-      <text x="24.5" y="27.6" textAnchor="middle" fontSize="9" fontWeight="800" fill="#0f172a" opacity="0.55">4</text>
-      <text x="33.5" y="20.6" textAnchor="middle" fontSize="9" fontWeight="800" fill="#0f172a" opacity="0.6">8</text>
-    </>
-  ),
 
-  // Cờ Caro — lưới với X và O
-  arcade_caro: (f) => (
-    <>
-      <Slab x={10} y={12} w={28} h={24} r={5} fill={f} />
-      {[1, 2].map((i) => (
-        <g key={i}>
-          <rect x={10 + i * 9.3} y="14" width="1.1" height="20" rx="0.5" fill="#0f172a" opacity="0.2" />
-          <rect x="12" y={12 + i * 8} width="24" height="1.1" rx="0.5" fill="#0f172a" opacity="0.2" />
-        </g>
-      ))}
-      <path d="m14.6 15.6 4 4m0-4-4 4" stroke="#f43f5e" strokeWidth="2.1" strokeLinecap="round" />
-      <circle cx="24" cy="24" r="3.2" fill="none" stroke="#38bdf8" strokeWidth="2.1" />
-      <path d="m29.6 28.6 4 4m0-4-4 4" stroke="#f43f5e" strokeWidth="2.1" strokeLinecap="round" />
-    </>
-  ),
 
-  // Rắn — thân uốn theo phối cảnh và quả mồi
-  arcade_snake: (f) => (
-    <>
-      <path d="M12 33h7a3.4 3.4 0 0 0 3.4-3.4v-5a3.4 3.4 0 0 1 3.4-3.4h5.2" fill="none" stroke="#000" strokeOpacity="0.18" strokeWidth="7" strokeLinecap="round" transform="translate(1 1.4)" />
-      <path d="M12 33h7a3.4 3.4 0 0 0 3.4-3.4v-5a3.4 3.4 0 0 1 3.4-3.4h5.2" fill="none" stroke={f} strokeWidth="6.2" strokeLinecap="round" />
-      <circle cx="32.6" cy="21.2" r="4.6" fill={f} />
-      <circle cx="34.2" cy="19.6" r="1.1" fill="#0f172a" />
-      <circle cx="31" cy="19.6" r="1.1" fill="#0f172a" />
-      <circle cx="36" cy="32" r="3.4" fill="#f43f5e" />
-      <path d="M36 28.6q1.6-2.2 3.2-1.8" fill="none" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" />
-    </>
-  ),
 
-  // Bắn Bi — bàn nghiêng, cọc nảy, viên bi và hai cần gạt
-  arcade_pinball: (f) => (
-    <>
-      <Slab x={11} y={8} w={26} h={32} r={6} fill={f} />
-      <circle cx="18.4" cy="17" r="3.2" fill="#a855f7" />
-      <circle cx="29.6" cy="17" r="3.2" fill="#38bdf8" />
-      <circle cx="24" cy="23.4" r="3.2" fill="#f43f5e" />
-      <circle cx="26.6" cy="29" r="2.2" fill="#0f172a" opacity="0.7" />
-      <path d="m15 33.6 6 2.4m12-2.4-6 2.4" stroke="#0f172a" strokeOpacity="0.55" strokeWidth="2.2" strokeLinecap="round" />
-    </>
-  ),
 
-  // Sinh Tồn — phi thuyền, hành tinh có vành
-  arcade_survivor: (f) => (
-    <>
-      <circle cx="36" cy="13" r="6.4" fill="#fff" opacity="0.22" />
-      <ellipse cx="36" cy="13" rx="9.6" ry="2.6" fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth="1.3" />
-      <ellipse cx="21" cy="37" rx="6" ry="2" fill="#000" opacity="0.2" />
-      <path d="M21 9c5 4.4 7.2 11 7.2 16.8H13.8C13.8 20 16 13.4 21 9Z" fill={f} />
-      <path d="M21 9c-5 4.4-7.2 11-7.2 16.8h4.4C18.2 20 19 13.4 21 9Z" fill="#fff" opacity="0.34" />
-      <circle cx="21" cy="19.4" r="3" fill="#38bdf8" />
-      <circle cx="19.9" cy="18.3" r="1" fill="#fff" opacity="0.8" />
-      <path d="m13.8 25.8-4.2 5.2h5.8Zm14.4 0 4.2 5.2h-5.8Z" fill="#f43f5e" />
-      <path d="M17.8 31.4q2.2 6 4.4 0-2.2 3.2-4.4 0Z" fill="#fbbf24" />
-      <circle cx="10" cy="14" r="1.2" fill="#fff" opacity="0.55" />
-      <circle cx="40" cy="37" r="1" fill="#fff" opacity="0.5" />
-    </>
-  ),
 
   // Học Tập — hai lớp cửa sổ mã
   ide: (f) => (

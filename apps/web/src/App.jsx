@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState, Suspense, lazy } from "react";
 import i18n from "./i18n/config";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
-import { isPublicGamePath, isPublicToolPath } from "./config/publicTools";
+import { isPublicToolPath } from "./config/publicTools";
 import { detectInstallTarget, isStandalone, subscribeDisplayMode } from "./config/platform";
 import { useStandalone } from "./hooks/usePWA";
 import { ensureTranslations } from "./i18n/config";
@@ -39,8 +39,6 @@ import TraceWatermark from "./components/security/TraceWatermark";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
-import { PARTNER_HOST, PARTNER_HOST_CAMPAIGN } from "../../../packages/shared/partnerCampaigns";
-import { isPartnerWelcomed, markPartnerWelcomed } from "./utils/partnerWelcome";
 import { redeemInstallHandoff } from "./utils/appHandoff";
 import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 
@@ -72,17 +70,13 @@ const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPa
 const TermsPage = lazyRoute(() => import("./pages/public/TermsPage"));
 const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
-const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
-const AdminProjectDetailPage = lazyRoute(() => import("./pages/admin/AdminProjectDetailPage"));
 const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
-const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 // Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
 const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
 const IntroPage = lazyRoute(() => import("./pages/public/portfolio/IntroductionPage"));
-const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/PartnerCollabPage"));
 
 // Không cần cho khung hình đầu: chân trang nằm cuối, hộp ủng hộ chỉ mở khi bấm,
 // cổng cài app chỉ dành cho điện thoại chưa cài. Tách khỏi gói index (~15 KB gz).
@@ -150,15 +144,9 @@ function AppContent() {
     !hostname.endsWith("hugowishpax.studio") &&
     !hostname.endsWith("vercel.app")
   );
-  // Trang chiến dịch hợp tác: /collab/<slug> trên mọi tên miền, và trang gốc
-  // của partner.hugowishpax.studio. Các đường khác trên tên miền partner vẫn là
-  // app bình thường — nhờ vậy liên kết /member/... sau khi nhận quà giữ nguyên phiên.
-  const isPartnerHost = hostname === PARTNER_HOST;
-  const isCollabRoute = location.pathname.startsWith("/collab/") || (isPartnerHost && location.pathname === "/");
   const isBioRoute = location.pathname.startsWith('/bio/') || location.pathname.startsWith('/b/') || isCustomDomainHost;
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
-  const isPublicGameRoute = isPublicGamePath(location.pathname);
   const showFooter =
     !isIntroductionRoute &&
     !isBioRoute &&
@@ -166,7 +154,6 @@ function AppContent() {
     !isPreviewRoute &&
     !location.pathname.startsWith("/member") &&
     !location.pathname.startsWith("/admin") &&
-    !isPublicGameRoute &&
     // Login is a focused, form-only screen (esp. as an installed PWA) — the full
     // marketing footer below it is noise, like every major sign-in page.
     !location.pathname.startsWith("/login") &&
@@ -176,18 +163,9 @@ function AppContent() {
   const isVacationMode = data?.systemSettings?.vacationMode === true;
   const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login') || location.pathname.startsWith('/oauth');
 
-  const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
-  // `/chess` giờ là trang game công khai của riêng nó (config/publicTools.ts):
-  // vào là chơi được ngay. Chỉ liên kết PHÒNG `/chess/<id>` mới cần đi đường cũ
-  // vào Arcade của thành viên, nên đừng bắt cả tiền tố nữa.
-  const isChessRoute = /^\/chess\/[^/]+/.test(location.pathname);
-  // /arcade is now a standalone public page (see config/publicTools.ts), so it
-  // must not be captured here — that branch redirects guests to /login, which
-  // is exactly what the "play first, sign in to unlock levels" rule forbids.
-  const isArcadeRoute = location.pathname.startsWith("/member/utilities/arcade");
   // Allowed standalone-app paths come from the registry so this can no longer
   // drift out of sync with the tools UtilityPublicPage actually renders.
   const isPublicUtilityRoute = isPublicToolPath(location.pathname);
@@ -214,23 +192,10 @@ function AppContent() {
   useEffect(() => {
     if (!handoffPending) return;
     redeemInstallHandoff()
-      .then((ok) => { if (ok && isPartnerHost) markPartnerWelcomed(PARTNER_HOST_CAMPAIGN); })
       .finally(() => { refreshSession(); setHandoffPending(false); });
-  }, [handoffPending, isPartnerHost]);
+  }, [handoffPending]);
   if (handoffPending) {
     return <StatusScreen kind="loading" />;
-  }
-
-  // App cài từ tên miền partner mở ở start_url /member/today. Chưa qua màn
-  // chào mừng của chiến dịch trên máy này → đưa về trang nhận quà trước.
-  if (
-    isPartnerHost &&
-    isPWA &&
-    location.pathname.startsWith("/member") &&
-    new URLSearchParams(location.search).get("source") === "pwa" &&
-    !isPartnerWelcomed(PARTNER_HOST_CAMPAIGN)
-  ) {
-    return <Navigate to="/" replace />;
   }
 
   // Trên điện thoại, khu vực thành viên ưu tiên chạy trong app đã cài:
@@ -247,7 +212,7 @@ function AppContent() {
     return <Suspense fallback={null}><MobileInstallGate onBypass={() => setBypassMobileGate(true)} /></Suspense>;
   }
 
-  if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
+  if (isMaintenanceMode && !isAdminOrLoginRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute) {
     return <MaintenancePage />;
   }
 
@@ -259,19 +224,7 @@ function AppContent() {
     );
   }
 
-  if (isCollabRoute) {
-    return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-[#0d0b1a]"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div></div>}>
-        <Routes>
-          <Route path="/" element={<PartnerCollabPage />} />
-          <Route path="/collab/:slug" element={<PartnerCollabPage />} />
-          <Route path="/collab/:slug/:lang" element={<PartnerCollabPage />} />
-        </Routes>
-      </Suspense>
-    );
-  }
-
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
+  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isSecretLinkRoute || isPayRoute || isIdeRoute) {
     return (
       <Suspense fallback={<StatusScreen kind="loading" />}>
         <Routes>
@@ -280,21 +233,15 @@ function AppContent() {
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
-          <Route path="/customer-portal" element={<CustomerPortalPage />} />
-          <Route path="/customer-portal/:code" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
-          {/* Liên kết phòng cũ vẫn mở đúng ván trong Arcade của thành viên. Bản
-              `/chess` trần đã thành trang game công khai, không còn ở đây. */}
-          <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/arcade?game=chess&room=${window.location.pathname.split("/").pop()}`} replace />} />
-          <Route path="/member/utilities/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
         </Routes>
       </Suspense>
     );
   }
 
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
-  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade") || isPublicGameRoute;
+  const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide");
   // In standalone PWA mode without an active session, show only the login screen —
   // no marketing navbar, no HBot, no footer. The native build is always in this
   // mode: the store app is the member app, never the marketing site.
@@ -405,15 +352,8 @@ function AppContent() {
             <Route path="/user-guide" element={<Navigate to="/faq" replace />} />
             <Route path="/terms-and-guide" element={<Navigate to="/terms" replace />} />
             {/* Địa chỉ bảng điều khiển đi theo ĐƯỜNG DẪN, không phải `?tab=`.
-                `/admin/queue`, `/admin/projects`, `/admin/users`… — mỗi màn hình
-                một địa chỉ, chia sẻ được, mở tab mới được, nút Lùi chạy đúng.
-                Một bản ghi cụ thể là một đoạn nữa: `/admin/projects/HG-2609-007`
-                — dùng mã người-đọc chứ không phải _id của cơ sở dữ liệu. */}
-            <Route path="/admin/projects/:projectId" element={
-              <AdminProtectedRoute>
-                <AdminProjectDetailPage />
-              </AdminProtectedRoute>
-            } />
+                `/admin/queue`, `/admin/users`… — mỗi màn hình
+                một địa chỉ, chia sẻ được, mở tab mới được, nút Lùi chạy đúng. */}
             {/* Khai báo riêng: không có dòng này thì `/:tool/:page/:sub` bên dưới thắng
                 `/admin/*` với `/admin/data/bios` (3 đoạn) và đẩy về trang chủ. */}
             {["/admin/data/*", "/admin/*"].map((path) => (
@@ -427,7 +367,7 @@ function AppContent() {
             
             {/* Dynamic Public Utility Route */}
             <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />
-            {/* Đường thứ hai bên trong một app công khai — ví dụ /chess/<phòng>.
+            {/* Đường thứ hai bên trong một app công khai.
                 Không có nhánh này thì mở app rồi tải lại trang là văng ra
                 /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
             <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <NotFoundPage />} />

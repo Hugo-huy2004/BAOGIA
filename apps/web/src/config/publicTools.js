@@ -8,9 +8,6 @@
  *
  * gate:
  *   "open"   — no account needed at all.
- *   "level"  — playable straight away; unlocking further levels needs a signed-in
- *              student account. Games keep their first levels free so the page
- *              still works as a landing page for someone arriving from search.
  *   "result" — usable straight away; producing a saved/exportable result needs a
  *              signed-in account whose student verification has been approved
  *              (bio.status is neither "pending" nor "rejected").
@@ -34,63 +31,6 @@ export const PUBLIC_TOOLS = {
     summary:
       "Bắt đầu phiên Pomodoro miễn phí. Xác thực hoặc đăng ký để lưu nhịp tập trung, đồng bộ thiết bị và trải nghiệm đầy đủ.",
   },
-  arcade: {
-    gate: "level",
-    title: "Hugo Arcade — Game Nhẹ Chơi Ngay Trên Trình Duyệt",
-    description:
-      "Kho game nhẹ của Hugo Studio: cờ vua 3D, 2048, Snake, xếp hình và nhiều thử thách khác, chơi trực tiếp trên trình duyệt.",
-    heading: "Hugo Arcade",
-    summary:
-      "Game nhẹ chạy thẳng trên trình duyệt, không cài đặt. Chơi ngay được; mở màn mới thì cần tài khoản sinh viên.",
-  },
-  // Từng game một URL. `StandaloneGameShell` vốn đã tự chạy độc lập (Arcade và
-  // màn hình chính đều dựng nó trực tiếp), nên đây chỉ là thêm đường vào —
-  // `game` cho UtilityPublicPage biết dựng ván nào.
-  chess: {
-    gate: "level",
-    game: "chess",
-    title: "Cờ Vua 3D Online — Đấu Với Máy | Hugo Studio",
-    description:
-      "Chơi cờ vua 3D ngay trên trình duyệt với máy nhiều cấp độ, không cần cài đặt. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-    heading: "Cờ Vua 3D",
-    summary: "Vào ván ngay, không cần tài khoản. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-  },
-  caro: {
-    gate: "level",
-    game: "caro",
-    title: "Cờ Caro Online — Thắng 5 Quân | Hugo Studio",
-    description:
-      "Cờ caro 10×10 thắng 5 quân, đấu với máy nhiều cấp độ ngay trên trình duyệt, không cần cài đặt.",
-    heading: "Cờ Caro",
-    summary: "Vào ván ngay, không cần tài khoản. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-  },
-  snake: {
-    gate: "level",
-    game: "snake",
-    title: "Rắn Săn Mồi 3D Online | Hugo Studio",
-    description:
-      "Trò chơi rắn săn mồi bản 3D, độ khó tự tăng theo điểm, chơi thẳng trên trình duyệt không cần cài đặt.",
-    heading: "Rắn 3D",
-    summary: "Chơi ngay, không cần tài khoản. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-  },
-  2048: {
-    gate: "level",
-    game: "2048",
-    title: "2048 Online — Trò Chơi Ghép Số | Hugo Studio",
-    description:
-      "Bản 2048 mở rộng của Hugo Studio: ghép số, giữ chuỗi combo và phá kỷ lục, chơi ngay trên trình duyệt.",
-    heading: "2048",
-    summary: "Chơi ngay, không cần tài khoản. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-  },
-  survivor: {
-    gate: "level",
-    game: "survivor",
-    title: "Sinh Tồn Không Gian — Game Bắn Sống Sót | Hugo Studio",
-    description:
-      "Sống sót giữa không gian sâu: né, bắn và nâng cấp qua từng đợt, chơi thẳng trên trình duyệt không cần cài đặt.",
-    heading: "Sinh Tồn Không Gian",
-    summary: "Chơi ngay, không cần tài khoản. Đăng nhập để lưu kỷ lục và nhận thưởng JOY.",
-  },
 };
 
 /** Canonical slugs, plus the aliases that resolve to the same tool. */
@@ -110,18 +50,12 @@ export function resolvePublicTool(slug) {
  * True when `pathname` is one of the standalone app URLs.
  *
  * Only the FIRST segment decides. Apps that navigate inside themselves need a
- * second segment to survive a reload (`/chess/room7` is a real address, not a
+ * second segment to survive a reload (`/radio/<đài>` is a real address, not a
  * typo) — matching the whole path sent those straight to /introduction.
  */
 export function isPublicToolPath(pathname) {
   const [slug] = String(pathname).replace(/^\/+|\/+$/g, "").split("/");
   return PUBLIC_TOOL_SLUGS.includes(slug);
-}
-
-/** Public game pages own the whole viewport; site chrome only wastes frames. */
-export function isPublicGamePath(pathname) {
-  const [slug] = String(pathname).replace(/^\/+|\/+$/g, "").split("/");
-  return Boolean(resolvePublicTool(slug)?.game);
 }
 
 // ponytail: a plain object beats a schema here — the list changes when a tool

@@ -64,7 +64,7 @@ export const servicePackages = [
  * quảng cáo giá bằng ngoại tệ (phạt 30–50 triệu, điểm n khoản 4 Điều 23 NĐ
  * 88/2019). Bản en/zh có giá riêng cho khách nước ngoài, ghi bằng VNĐ kèm
  * "≈ $…" chỉ để tham khảo (tỷ giá ~26.000₫/US$1, ghi ở priceNotice). Hợp đồng
- * với khách nước ngoài vẫn có thể tính USD (packages/shared/projectPackages.js MARKETS).
+ * với khách nước ngoài vẫn có thể tính USD.
  * Giữ tham số `lang` để chỗ gọi không phải đổi.
  */
 // eslint-disable-next-line no-unused-vars
@@ -74,4 +74,3 @@ export function findServicePackage(slug) {
   return servicePackages.find((pkg) => pkg.slug === slug || pkg.id === slug);
 }
 
-export { findServicePackage as getServicePackage };

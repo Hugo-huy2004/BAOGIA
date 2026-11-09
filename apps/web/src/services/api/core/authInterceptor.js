@@ -22,9 +22,6 @@ let cachedTargets = null;
 // chung, còn chi tiết bài trả phí phải mang token để máy chủ kiểm quyền.
 const SHARED_CACHE_PATHS = [
   "/api/today/feed",
-  "/api/arcade/leaderboard",
-  "/api/arcade/2048/collection-leaderboard",
-  "/api/chess/leaderboard",
   "/api/presence/status-by-slug",
   "/api/coder-lessons$",
 ];

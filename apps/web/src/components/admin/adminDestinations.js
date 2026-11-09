@@ -11,17 +11,15 @@ export const ADMIN_DESTINATIONS = [
   { id: "queue", group: "operate", label: "Việc cần xử lý", sub: "Ưu tiên theo thời hạn", icon: "inbox", permission: "queue", countKey: "queue" },
   { id: "users", group: "operate", label: "Thành viên", sub: "Hồ sơ, ví và xác minh", icon: "group", permission: "users", countKey: "users" },
   { id: "support", group: "operate", label: "Hỗ trợ", sub: "Yêu cầu từ người dùng", icon: "support_agent", permission: "support", countKey: "openTickets" },
-  { id: "projects", group: "business", label: "Dự án", sub: "Tiến độ và khách hàng", icon: "work", permission: "projects", countKey: "totalProjects" },
   { id: "services", group: "business", label: "Gói dịch vụ", sub: "Bảng giá đang bán", icon: "sell", permission: "commerce", countKey: "packages" },
   { id: "apis", group: "business", label: "API-m", sub: "Key, lượt gọi, link đã tạo", icon: "api", permission: "users" },
-  { id: "store", group: "business", label: "Cửa hàng", sub: "Sản phẩm và đơn hàng", icon: "storefront", permission: "commerce" },
   { id: "control", group: "control", label: "Điều khiển", sub: "Khách thật, an ninh, công tắc", icon: "radar", permission: "system" },
   { id: "data", group: "control", label: "Dữ liệu", sub: "Thêm, sửa, xoá mọi bảng", icon: "table_view", permission: "overview" },
   { id: "access", group: "control", label: "Quyền quản trị", sub: "Tài khoản và vai trò", icon: "admin_panel_settings", permission: "access" },
 ];
 
 export const DEFAULT_DESTINATION = "dashboard";
-export const LEGACY_TAB_ALIASES = { ai_sentinel: "control", sentinel: "control", monitor: "control", audit: "control", settings: "control", ecosystem: "store", system: "control" };
+export const LEGACY_TAB_ALIASES = { ai_sentinel: "control", sentinel: "control", monitor: "control", audit: "control", settings: "control", system: "control" };
 
 export const destinationsForPermissions = (permissions = ["*"]) =>
   ADMIN_DESTINATIONS.filter((destination) => hasAdminPermission(permissions, destination.permission));

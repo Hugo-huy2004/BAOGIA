@@ -45,21 +45,18 @@
     "cv:pdf:zh": "node scripts/export-cv-pdfs.mjs zh",
     "cv:pdf:ats-en": "node scripts/export-cv-pdfs.mjs ats-en",
     "check:cv": "python3 scripts/checks/check-cv-ats.py",
-    "check:project": "node scripts/checks/check-project-workflow.mjs",
     "check:wallet-auth": "node apps/server/scripts/check-wallet-auth.mjs",
     "check:app-standard": "node scripts/checks/check-app-standard.mjs",
     "joy:audit": "node apps/server/scripts/joy-audit.mjs",
     "check:transfer-caps": "node apps/server/scripts/check-transfer-caps.mjs",
     "check:notification-source": "node apps/server/scripts/check-notification-source.mjs",
     "check:notification-tone": "node apps/server/scripts/check-notification-tone.mjs",
-    "check:survey": "node apps/server/scripts/check-survey.mjs",
     "check:tier-finance": "node apps/server/scripts/check-tier-finance.mjs",
     "check:han-viet": "node scripts/checks/check-han-viet.mjs",
     "check:sino": "node apps/server/scripts/check-sino-numerals.mjs",
     "check:joy-stability": "node apps/server/scripts/check-joy-stability.mjs",
     "joy:recall": "node apps/server/scripts/joy-recall.mjs",
-    "joy:report": "node -e \"import('./apps/server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\"",
-    "og:partner": "node scripts/generate-partner-og.mjs"
+    "joy:report": "node -e \"import('./apps/server/services/joyStabilityService.js').then(m=>m.sendWeeklyReport({force:true}).then(r=>console.log(r)))\""
   },
   "devDependencies": {
     "eslint": "^9.15.0",

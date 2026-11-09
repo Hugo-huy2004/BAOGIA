@@ -13,17 +13,15 @@ const readPersisted = (email) => {
   try { return JSON.parse(localStorage.getItem(LS_KEY(email)) || 'null'); } catch { return null; }
 };
 const writePersisted = (email, state) => {
-  try { localStorage.setItem(LS_KEY(email), JSON.stringify({ balance: state.balance, referralCode: state.referralCode, referralCount: state.referralCount })); } catch { /* ignore quota */ }
+  try { localStorage.setItem(LS_KEY(email), JSON.stringify({ balance: state.balance, referralCode: state.referralCode })); } catch { /* ignore quota */ }
 };
 
 export const useJoyStore = create((set, get) => ({
   balance: 0,
   referralCode: '',
-  referralCount: 0,
   loaded: false,
 
   setBalance: (balance) => set({ balance: Math.round(Number(balance)) || 0 }),
-  setReferralCount: (referralCount) => set({ referralCount: Math.max(0, Number(referralCount) || 0) }),
 
   hydrateWallet: (email, wallet = {}) => {
     if (!email) return;
@@ -31,7 +29,6 @@ export const useJoyStore = create((set, get) => ({
     const nextState = {
       balance: Math.round(Number(wallet.balance)) || 0,
       referralCode: wallet.referralCode || '',
-      referralCount: Math.max(0, Number(wallet.referralCount) || 0),
       loaded: true,
     };
     set(nextState);
@@ -71,7 +68,6 @@ export const useJoyStore = create((set, get) => ({
       if (persisted) set({
         balance: Math.round(Number(persisted.balance)) || 0,
         referralCode: persisted.referralCode || '',
-        referralCount: Math.max(0, Number(persisted.referralCount) || 0),
         loaded: true,
       });
     }
@@ -92,7 +88,7 @@ export const useJoyStore = create((set, get) => ({
       if (!r.ok) {
         if (r.status === 401) {
           balanceCache.set(normalizedEmail, {
-            balance: 0, referralCode: '', referralCount: 0, loaded: true,
+            balance: 0, referralCode: '', loaded: true,
             expiresAt: Date.now() + 60000,
           });
         }
@@ -102,7 +98,6 @@ export const useJoyStore = create((set, get) => ({
       const nextState = {
         balance: Math.round(Number(data.balance)) || 0,
         referralCode: data.referralCode || '',
-        referralCount: get().referralCount,
         loaded: true,
       };
       set(nextState);

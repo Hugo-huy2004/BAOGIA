@@ -13,7 +13,6 @@ import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
 import ConfirmItsYouDialog from "../../components/member/ConfirmItsYouDialog";
-import SurveySheet from "../../components/member/SurveySheet";
 import { useIdentityCheck, confirmIdentityCheck } from "../../hooks/useIdentityCheck";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
@@ -199,7 +198,6 @@ function MemberPortalPage() {
   const [birthdayMode, setBirthdayMode] = useState("day");
   const [showBirthdayWheel, setShowBirthdayWheel] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [permissionPrimerOpen, setPermissionPrimerOpen] = useState(false);
   const handleSkipOnboarding = useCallback(() => {
     if (onboardingSkipKey) sessionStorage.setItem(onboardingSkipKey, "true");
     setShowOnboarding(false);
@@ -813,10 +811,6 @@ function MemberPortalPage() {
       window.location.assign(tab.path);
       return;
     }
-    if (tab.partner) {
-      window.open("https://hwagfu.dev", "_blank", "noopener,noreferrer");
-      return;
-    }
     navigate(tab.path || `/member/${tab.id}`);
   };
 
@@ -1112,7 +1106,6 @@ function MemberPortalPage() {
             <PWAPermissionOnboarding
               email={memberSession.email}
               enabled={!loading && !startupBusy && !birthdayOpen}
-              onVisibleChange={setPermissionPrimerOpen}
             />
           </React.Suspense>
         ) : null}
@@ -1228,7 +1221,6 @@ function MemberPortalPage() {
         chúng đã xong: xác minh danh tính và cảnh báo vị trí là việc phải làm,
         còn khảo sát thì không — xếp chồng lên nhau chỉ khiến người ta bấm bừa
         cho khuất mắt. */}
-    {!startupBusy && !birthdayOpen && !permissionPrimerOpen && <SurveySheet />}
     </>
   );
 }

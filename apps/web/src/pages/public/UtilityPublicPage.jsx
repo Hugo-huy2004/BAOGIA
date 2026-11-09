@@ -13,8 +13,6 @@ import StatusScreen from "../../components/system/StatusScreen";
 
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
-const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
-const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
 
 const PUBLIC_TOOL_VISUALS = Object.freeze({
   radio: {
@@ -32,14 +30,6 @@ const PUBLIC_TOOL_VISUALS = Object.freeze({
     glowB: "bg-teal-300/20",
     line: "from-emerald-500 via-teal-400 to-cyan-600",
     button: "from-emerald-500 to-teal-600 shadow-emerald-500/25",
-  },
-  arcade: {
-    icon: "sports_esports",
-    page: "from-violet-500/15 via-indigo-400/8 to-background",
-    glowA: "bg-violet-400/25",
-    glowB: "bg-indigo-300/20",
-    line: "from-violet-500 via-indigo-500 to-blue-600",
-    button: "from-violet-500 to-indigo-600 shadow-violet-500/25",
   },
 });
 
@@ -100,7 +90,7 @@ export default function UtilityPublicPage() {
   // "result" tools need an approved student verification, not just a session.
   const isVerified = isAuthenticated && bio?.status !== "pending" && bio?.status !== "rejected";
   const meetsGate =
-    gate === "open" || (gate === "level" ? isAuthenticated : isVerified);
+    gate === "open" || isVerified;
 
   // Only called when a tool reaches a gated action. Browsing and playing stay
   // open — the old blanket onClickCapture blocked every guest click, which
@@ -135,32 +125,11 @@ export default function UtilityPublicPage() {
       onBioUpdate: handleBioUpdate,
     };
 
-    // Game một-URL: mọi mục có `game` dùng chung một nhánh, thêm game mới chỉ
-    // là thêm một mục trong publicTools.ts chứ không phải một `case` nữa.
-    if (toolConfig?.game) {
-      return (
-        <StandaloneGameShell
-          gameId={toolConfig.game}
-          bio={player}
-          onClose={() => navigate("/arcade")}
-        />
-      );
-    }
-
     switch (tool) {
       case "radio":
         return <MemberRadioTab {...commonProps} />;
       case "aura":
         return <MemberAuraTab {...commonProps} />;
-      case "arcade":
-        return (
-          <HugoArcadeTab
-            bio={player}
-            showToast={commonProps.showToast}
-            onBioUpdate={handleIntercept}
-            onBack={() => navigate("/introduction")}
-          />
-        );
       default:
         return (
           <div className="text-center py-20">
@@ -174,15 +143,7 @@ export default function UtilityPublicPage() {
   // What the visitor is actually being asked for differs per gate, so the prompt
   // says which one and sends them to the step that unblocks it.
   const prompt =
-    gate === "level"
-      ? {
-          icon: "videogame_asset",
-          title: "Mở màn tiếp theo",
-          body: "Những màn đầu chơi tự do. Để mở màn mới và giữ lại tiến độ, bạn cần tài khoản sinh viên Hugo Studio.",
-          action: "Tạo tài khoản sinh viên",
-          to: `/login?redirect=/${tool}`,
-        }
-      : isAuthenticated
+    isAuthenticated
         ? {
             icon: "verified_user",
             title: "Tài khoản chưa được xác minh",
@@ -209,10 +170,6 @@ export default function UtilityPublicPage() {
       </AISelfHealingBoundary>
     </Suspense>
   );
-
-  // Standalone games already provide their own full-screen shell. Mounting the
-  // marketing hero behind that fixed layer keeps its blur effects composited.
-  if (toolConfig?.game) return renderToolContent();
 
   return (
     <div className={`relative min-h-screen overflow-hidden bg-gradient-to-b ${visual.page} pt-24 pb-20 px-4 md:px-8`}>
