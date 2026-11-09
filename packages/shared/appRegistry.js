@@ -42,7 +42,6 @@ export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
   manifest({ id: "arcade", icon: "stadium", tint: "orange", category: "arcade", badge: "games", storageMb: 5.1, version: "3.5.0", store: true, storeOrder: 7 }),
   manifest({ id: "aura", icon: "blur_on", tint: "purple", category: "arcade", badge: "focus", storageMb: 1.8, version: "2.1.0", store: true, storeOrder: 8 }),
-  manifest({ id: "nom", icon: "history_edu", tint: "rose", category: "edu", badge: "new", storageMb: 1.2, version: "1.0.0", store: true, storeOrder: 9 }),
   manifest({ id: "eduhugo", icon: "school", tint: "cyan", category: "edu", badge: "new", storageMb: 0.3, version: "1.0.0" }),
   manifest({ id: "qrhugo", icon: "api", tint: "blue", category: "tools", badge: "new", storageMb: 0.4, version: "2.0.0" }),
   manifest({ id: "joy_wallet", icon: "account_balance_wallet", tint: "orange", category: "tools", badge: "utility", storageMb: 1.4 }),
@@ -65,7 +64,7 @@ export const REQUIRED_APP_IDS = Object.freeze([
   // "vocab" (Hoa Ngữ) đã gỡ 21/09/2026 — nếu để lại đây thì `normalizeInstalled`
   // vẫn nhồi nó vào danh sách đã cài của MỌI người, và một icon trỏ vào app
   // không còn tồn tại sẽ quay lại sau mỗi lần đồng bộ.
-  // "nom" thôi cài sẵn 25/10/2026: kén người dùng, giờ tải trong Cửa Hàng.
+  // "nom" (chữ Nôm) đã gỡ hẳn 08/11/2026.
   // "psychology" (HugoPSY / Bạn Học Đường) đã gỡ hẳn 04/11/2026.
   // "radio" gộp vào Chuyên Chú 25/10/2026 — Chuyên Chú cài sẵn thay chỗ nó.
   "aura",
@@ -129,7 +128,6 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "bio",
   "arcade",
   "store",
-  "nom",
   "eduhugo",
   // QR Hugo: cổng nối tài khoản với qr.hugowishpax.studio (04/11/2026).
   "qrhugo",

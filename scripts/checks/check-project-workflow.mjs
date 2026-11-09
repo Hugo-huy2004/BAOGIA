@@ -144,7 +144,7 @@ check('mọi dịch vụ kèm đều có giá trong danh mục (VNĐ và USD)',
     check(`hợp đồng ${lang}: phiên bản mới chưa xác nhận thì đòi xác nhận`, c.needsAcceptance === true);
     check(`hợp đồng ${lang}: bảng kê ghi đủ mọi dòng sổ`, c.schedules[1].rows.length === p.ledger.length);
   }
-  check('người đọc tiếng Trung xem hợp đồng tiếng Anh', contractLangFor('zh') === 'en' && contractLangFor('nom') === 'vi');
+  check('người đọc tiếng Trung xem hợp đồng tiếng Anh', contractLangFor('zh') === 'en' && contractLangFor('vi') === 'vi');
   const intl = ledgerTotals({ ...p, market: 'international', ledger: [{ kind: 'package', amount: 449 }] });
   check('dự án quốc tế tính bằng USD', intl.currency === 'usd' && intl.total === 449);
 }

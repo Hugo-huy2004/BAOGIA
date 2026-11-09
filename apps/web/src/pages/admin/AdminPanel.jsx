@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import useVisiblePoll from "../../hooks/useVisiblePoll";
 import { useTranslation } from "react-i18next";
 import { userApi } from "../../services/api/modules/userApi";
 import { useData } from "../../context/DataContext";

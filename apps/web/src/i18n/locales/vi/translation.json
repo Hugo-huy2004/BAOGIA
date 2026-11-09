@@ -2535,7 +2535,7 @@
       "cancel": "HỦY BỎ",
       "confirm": "XÁC NHẬN",
       "deletePartner": "Xác nhận xóa hoàn toàn thiết kế Bio đối tác hiện tại?",
-      "deletePersonal": "Xác nhận xóa hoàn toàn Bio cá nhân? Thao tác này không thể hoàn tác."
+      "deletePersonal": "Xoá vĩnh viễn tài khoản cùng toàn bộ dữ liệu (Bio, JOY, lịch sử)? Không thể hoàn tác."
     },
     "guest": {
       "headline": "THIẾT KẾ BIO PHONG CÁCH BENTO",
@@ -2565,8 +2565,8 @@
       "activateSuccess": "Hồ sơ Hugo Bio đã được kích hoạt.",
       "saveError": "Không thể lưu thay đổi.",
       "deleteLocalSuccess": "Đã xoá Bio đối tác trên thiết bị.",
-      "deletePersonalSuccess": "Đã xoá Bio cá nhân.",
-      "deletePersonalError": "Không thể xoá Bio cá nhân.",
+      "deletePersonalSuccess": "Đã xoá tài khoản.",
+      "deletePersonalError": "Không thể xoá tài khoản.",
       "copySuccess": "Đã sao chép liên kết công khai."
     },
     "headlineEmpty": "Chưa thiết lập tiêu đề tiểu sử",
@@ -5768,49 +5768,6 @@
       }
     }
   },
-  "studentBenefitsPage": {
-    "metaTitle": "Hugo Edu+ — Trang Bio miễn phí cho người học | Hugo Studio",
-    "metaDesc": "Xác minh email trường để nhận trang Bio riêng, miễn phí 365 ngày. Ba giao diện có sẵn, đổi lúc nào cũng được, và mức giảm riêng nếu Quý khách cần một gói website đầy đủ.",
-    "backToServices": "Quay lại dịch vụ",
-    "giftSpark": "Tôi Tặng Quý khách Lửa — 12 Tháng",
-    "title": "Trang Bio Của Riêng Quý khách",
-    "desc": "Quý khách là một sinh viên công nghệ, một nghệ sĩ, một chuyên gia mà thế giới chưa biết tới. Bio Link này là cửa sổ để nói: “Đây là tôi.” Miễn phí 12 tháng, thiết kế riêng, không quảng cáo — chỉ có Quý khách, tự nói lên chính mình.",
-    "marketValue": "Giá thị trường",
-    "perYear": "/năm",
-    "marketPrice": "500.000đ",
-    "giftToYou": "Tôi Tặng Quý khách",
-    "giftPrice": "0đ",
-    "priceless": "— Vô Giá",
-    "orManual": "hoặc nếu không tự hiện",
-    "clickSelect": "Bấm để chọn tài khoản Google",
-    "warningClientId": "Cảnh báo: Thiếu Google Client ID",
-    "originError": "Authorized JavaScript origins cần chứa origin hiện tại và domain production.",
-    "blockedByOauth": "Google Sign-In đang bị chặn bởi cấu hình OAuth.",
-    "ready": "Google Sign-In đã sẵn sàng.",
-    "loading": "Đang tải Google Sign-In...",
-    "securityDesc": "Hệ thống bảo mật bằng Google OAuth 2.0. Tự động gợi ý tài khoản edu đang đăng nhập trên trình duyệt của Quý khách.",
-    "toastFail": "Không thể xác thực với Google.",
-    "toastNetwork": "Không kết nối được máy chủ. Thử lại.",
-    "toastPending": "Tài khoản của Quý khách sẽ ở trạng thái chờ duyệt vì đây không phải email.edu. Đang chuyển hướng...",
-    "benefits": {
-      "free": {
-        "title": "Không Một Đồng",
-        "desc": "Tôi tặng 12 tháng cho Quý khách — không phí ẩn, không quảng cáo. Đó là một lời hứa, không phải một giao dịch."
-      },
-      "creative": {
-        "title": "Cánh Cửa Sáng Tạo",
-        "desc": "Mỗi sắc thái, mỗi hình ảnh, mỗi liên kết — đều thuộc về Quý khách. Trang Bio không chỉ đẹp; nó là bức tranh của riêng mình."
-      },
-      "fast": {
-        "title": "Nhanh Như Thở",
-        "desc": "Trang Quý khách tải nhanh như suy nghĩ. Mượt như hơi thở trên tuyết — không lag, không chờ, chỉ có cảm giác."
-      },
-      "yours": {
-        "title": "Chỉ Là Của Quý khách",
-        "desc": "Bio Link riêng biệt — tên riêng, thiết kế riêng, không theo khuôn mẫu, không theo công thức. Chỉ có Quý khách."
-      }
-    }
-  },
   "common": {
     "regionVietnamOnly": {
       "title": "Chỉ phục vụ Việt Nam.",
@@ -6192,7 +6149,7 @@
   "servicePkg": {
     "compare": {
       "kicker": "So sánh",
-      "title": "Bốn gói, nhìn cạnh nhau.",
+      "title": "Ba gói, nhìn cạnh nhau.",
       "lede": "Không phải danh sách tính năng. Đây là thứ bạn cầm về được.",
       "current": "Bạn đang xem",
       "yes": "Có",
@@ -6586,107 +6543,6 @@
           "description": "Website đặt lịch, nhận đơn online với trang quản trị riêng, trả tiền bằng mã QR chuyển khoản. Từ 4.990.000₫, giao trong 3–5 tuần, sửa lỗi trọn đời.",
           "keywords": "website đặt lịch online, website nhận đơn, web bán hàng có trang quản trị, website đặt chỗ spa salon, thanh toán QR trên website, Hugo Flow+"
         }
-      },
-      "hugo-edu-plus": {
-        "title": "Trang Bio. Dành riêng cho người học.",
-        "lede": "Một đường dẫn gọn để giới thiệu bản thân, dự án và mọi liên kết quan trọng. Miễn phí 365 ngày sau khi xác minh tư cách người học.",
-        "intro": [
-          "Người đi học thường chưa cần một website, họ cần một chỗ đứng: một đường dẫn gửi kèm hồ sơ, gửi cho thầy cô, dán vào trang cá nhân. Bạn tự điền, tự sửa, tự đổi giao diện trong tài khoản, không cần biết lập trình."
-        ],
-        "audience": [
-          "Học sinh, sinh viên cần một trang giới thiệu bản thân và dự án.",
-          "Người học đang xây hồ sơ xin thực tập.",
-          "Câu lạc bộ, nhóm đồ án cần một đường dẫn chung."
-        ],
-        "includes": [
-          {
-            "title": "Miễn phí 365 ngày.",
-            "body": "Tính từ ngày xác minh. Không cần thẻ ngân hàng, không tự động gia hạn có phí."
-          },
-          {
-            "title": "Đường dẫn riêng trên tên miền chung.",
-            "body": "Một đường dẫn theo tên bạn trên tên miền chung của Hugo Studio. Miễn phí — bạn không phải mua tên miền."
-          },
-          {
-            "title": "Ảnh đại diện và giới thiệu.",
-            "body": "Ảnh, tiêu đề nghề nghiệp, phần giới thiệu và thông tin liên hệ."
-          },
-          {
-            "title": "Dự án và liên kết cá nhân.",
-            "body": "Danh sách dự án kèm ảnh và mô tả, cùng mọi liên kết bạn muốn dẫn tới."
-          },
-          {
-            "title": "Tự cập nhật trong tài khoản.",
-            "body": "Sửa lúc nào cũng được, hiện ra ngay, không cần gửi yêu cầu cho ai."
-          },
-          {
-            "title": "Hiển thị tốt trên mọi thiết bị.",
-            "body": "Nhiều giao diện dựng sẵn, đổi được bất cứ lúc nào."
-          }
-        ],
-        "warranty": [
-          {
-            "title": "Hỗ trợ trong suốt 365 ngày.",
-            "body": "Lỗi hiển thị hoặc lỗi tài khoản được xử lý trong phạm vi Hugo Studio hỗ trợ được."
-          },
-          {
-            "title": "Dữ liệu là của bạn.",
-            "body": "Hết hạn thì trang tạm ẩn, dữ liệu vẫn còn trong tài khoản để bạn tải về hoặc mở lại."
-          }
-        ],
-        "policyExtra": [
-          {
-            "title": "Xác minh một lần.",
-            "body": "Email trường, hoặc giấy tờ người học còn hiệu lực nếu email của bạn không thuộc tên miền trường."
-          },
-          {
-            "title": "Dùng cho cá nhân người học.",
-            "body": "Không dùng làm trang bán hàng hay trang chính thức của doanh nghiệp. Trường hợp đó thuộc Hugo One trở lên."
-          },
-          {
-            "title": "Một tài khoản, một trang Bio.",
-            "body": "Cần thêm trang cho câu lạc bộ hay nhóm thì trao đổi riêng."
-          },
-          {
-            "title": "Chương trình có thể thay đổi.",
-            "body": "Hugo Studio có thể điều chỉnh hoặc ngừng nhận đăng ký mới. Quyền lợi đã cấp vẫn giữ đến hết thời hạn."
-          }
-        ],
-        "price": {
-          "from": "Miễn phí",
-          "to": "365 ngày",
-          "note": "Miễn phí hoàn toàn sau khi xác minh, gồm cả đường dẫn trên tên miền chung của Hugo Studio. Cần trang riêng ngoài mẫu Bio thì dùng Hugo One, được giảm 15%.",
-          "factors": [
-            "Hết 365 ngày: gia hạn hoặc chuyển sang một gói trả phí, không tự động trừ tiền.",
-            "Thiết kế riêng theo yêu cầu nằm ngoài gói này."
-          ]
-        },
-        "faq": [
-          {
-            "question": "Ai được dùng Hugo Edu+ miễn phí?",
-            "answer": "Học sinh, sinh viên hoặc người học, xác minh bằng email trường hoặc giấy tờ người học còn hiệu lực."
-          },
-          {
-            "question": "365 ngày được tính từ thời điểm nào?",
-            "answer": "Từ lúc tư cách người học được xác minh và quyền lợi được mở, không phải từ ngày bạn tạo tài khoản."
-          },
-          {
-            "question": "Hết 365 ngày thì dữ liệu có bị mất không?",
-            "answer": "Không. Trang có thể tạm ẩn, dữ liệu vẫn trong tài khoản để bạn tải về, gia hạn hoặc chuyển gói."
-          },
-          {
-            "question": "Em là học sinh, sinh viên, muốn đặt một gói trả phí thì có được giảm không?",
-            "answer": "Có, giảm 15% giá thiết kế Hugo One, Hugo Story và Hugo Flow+. Áp cho dự án cá nhân, đồ án hoặc câu lạc bộ, mỗi người một dự án mỗi năm học; không áp lên chi phí bên thứ ba."
-          }
-        ],
-        "features": [
-          "Miễn phí 365 ngày",
-          "Đường dẫn Bio riêng",
-          "Ảnh đại diện & giới thiệu",
-          "Dự án & liên kết cá nhân",
-          "Tự cập nhật trong tài khoản",
-          "Hiển thị tốt trên mọi thiết bị"
-        ]
       }
     },
     "detail": {
@@ -6781,11 +6637,9 @@
         }
       ],
       "filmLabel": "Dịch vụ",
-      "filmHeading": "Bốn gói. Một tiêu chuẩn.",
+      "filmHeading": "Ba gói. Một tiêu chuẩn.",
       "filmCta": "Kể nhu cầu của bạn",
       "detailCta": "Xem chi tiết gói",
-      "demoCta": "Mở Bio của bạn",
-      "eduAction": "Xem quyền lợi Hugo Edu+",
       "landingKicker": "Landing page",
       "landingTitle1": "Không cần nói mọi thứ.",
       "landingTitle2": "Chỉ cần nói đúng điều.",
@@ -7342,114 +7196,6 @@
       "body": "Mình gửi bảng giá tên miền, hosting, email trước; bạn mua bằng tài khoản của bạn, mình nối ngay trong lúc làm. Bàn giao mã nguồn (.ZIP) và link website đã chạy."
     }
   },
-  "studentPage": {
-    "meta": {
-      "title": "Hugo Edu+ · Đặc quyền cho người học | Hugo Studio",
-      "description": "Xác minh một lần bằng email giáo dục. Mở trang Bio miễn phí 365 ngày và bộ công cụ học tập của Hugo Studio.",
-      "keywords": "đặc quyền sinh viên, quyền lợi HSSV, Bio miễn phí 365 ngày, email edu, công cụ học tập"
-    },
-    "heroEyebrow": "Hugo Edu+ · dành cho người học đã xác minh",
-    "heroTitle1": "Một nơi để học.",
-    "heroTitle2": "Một năm để lớn lên.",
-    "heroLede": "Xác minh một lần. Mở trang Bio của riêng Quý khách trong 365 ngày, bộ công cụ học tập và mọi quyền lợi dành cho người học trong Hugo Studio.",
-    "heroCta": "Xác minh ngay",
-    "heroCtaAlt": "Xem giao diện",
-    "startKicker": "Bắt đầu ở đây",
-    "daysUnit": "ngày",
-    "daysFree": "miễn phí",
-    "startTitle": "Trang Bio của Quý khách. Câu chuyện của riêng mình. Tự cập nhật mỗi ngày.",
-    "startLede": "Không thẻ ngân hàng. Không chọn gói. Chỉ một email trường, hoặc giấy tờ người học tương đương. Thứ Quý khách nhận về không phải một mã giảm giá, mà là một chỗ đứng trên mạng, mang tên chính mình.",
-    "verifyTitle": "Xác minh người học",
-    "verifySub": "Tự động, nếu email của Quý khách là email trường.",
-    "step1": "Đăng nhập bằng Google",
-    "step1Desc": "Dùng tài khoản Google của trường Quý khách.",
-    "step2": "Kiểm tra tư cách người học",
-    "step2Ok": "Email giáo dục hợp lệ.",
-    "step2Pending": "Có thể chuyển sang duyệt bằng hình thức tương đương.",
-    "step2Todo": "Chạy tự động sau khi đăng nhập.",
-    "step3": "Mở quyền lợi",
-    "step3Desc": "Trang Bio 365 ngày và bộ công cụ học tập trong Hugo Studio.",
-    "pickAccount": "Bấm để chọn tài khoản Google",
-    "gisReady": "Google Sign-In đã sẵn sàng.",
-    "gisLoading": "Đang chuẩn bị xác minh…",
-    "openBenefits": "Mở quyền lợi Hugo Edu+",
-    "pendingNote": "Email chưa thuộc tên miền trường. Quý khách có thể gửi giấy tờ người học còn hiệu lực để mình duyệt theo hình thức tương đương.",
-    "pendingCta": "Gửi thông tin để duyệt",
-    "themeKicker": "Giao diện",
-    "themeTitle1": "Một trang.",
-    "themeTitle2": "Ba cách để ra dáng Quý khách.",
-    "themeNote": "Đổi giao diện bất cứ lúc nào trong tài khoản. Nội dung giữ nguyên, chỉ lớp áo thay đổi.",
-    "themes": {
-      "default": {
-        "name": "Mặc định",
-        "note": "Ảnh chiếm trọn màn hình, tên nổi lên trên. Người mở ra nhìn thấy Quý khách trước, đọc sau."
-      },
-      "flat": {
-        "name": "Phẳng",
-        "note": "Sáng, vuông vắn, không màu mè. Kiểu người ta đọc hết trang mà không kịp nhận ra mình đang đọc."
-      },
-      "brutalism": {
-        "name": "Khối",
-        "note": "Viền dày, màu gắt, chữ máy đánh. Lướt qua một lần là nhớ mặt."
-      }
-    },
-    "blocksKicker": "Trong một trang Bio",
-    "blocksTitle": "Quý khách điền gì vào đó.",
-    "blocks": [
-      {
-        "title": "Ảnh và giới thiệu",
-        "desc": "Ảnh đại diện, tên hiển thị, một dòng nghề nghiệp và đoạn giới thiệu bằng giọng của Quý khách."
-      },
-      {
-        "title": "Dự án",
-        "desc": "Mỗi dự án một ảnh, một mô tả ngắn và một đường dẫn tới bản chạy thật."
-      },
-      {
-        "title": "Liên kết",
-        "desc": "Portfolio, GitHub, Behance, trang mạng xã hội — gom về một chỗ, một đường dẫn gửi đi."
-      },
-      {
-        "title": "Học tập",
-        "desc": "Trường, ngành, năm học và những gì Quý khách đang theo đuổi trong năm nay."
-      },
-      {
-        "title": "Kỹ năng và dịch vụ",
-        "desc": "Việc Quý khách làm được, công cụ đang dùng, và phần nhận làm thêm nếu có."
-      },
-      {
-        "title": "Chia sẻ",
-        "desc": "Một đường dẫn theo tên, mở nhanh trên điện thoại, gửi kèm hồ sơ hay dán vào trang cá nhân."
-      }
-    ],
-    "insideKicker": "Bên trong Hugo Studio",
-    "insideTitle": "Không chỉ là một trang Bio.",
-    "benefits": [
-      {
-        "title": "Trang Bio, miễn phí 365 ngày.",
-        "desc": "Bản thân Quý khách, dự án của Quý khách, mọi liên kết quan trọng — trên một đường dẫn. Sửa lúc nào cũng được, ngay trong tài khoản."
-      },
-      {
-        "title": "Bộ công cụ học tập.",
-        "desc": "Web IDE, ghi chú, tài liệu, từ vựng. Học, thử và hoàn thiện sản phẩm mà không rời trình duyệt."
-      },
-      {
-        "title": "Trợ lý học tập.",
-        "desc": "Mắc ở đâu thì hỏi ở đó. Gợi ý hướng đi, giải thích khái niệm, chỉ ra bước tiếp theo."
-      },
-      {
-        "title": "Chỗ để cùng tiến bộ.",
-        "desc": "Hỏi đáp, khoe dự án, nhận định hướng — trong phạm vi Hugo Studio hỗ trợ được."
-      }
-    ],
-    "faqKicker": "Hỏi đáp",
-    "faqTitle": "Hỏi trước cho nhanh.",
-    "closingKicker": "Chính sách Hugo Edu+",
-    "closingTitle1": "365 ngày để bắt đầu.",
-    "closingTitle2": "Hỗ trợ riêng khi Quý khách cần.",
-    "closingLede": "Xác minh xong là mở, không mất phí. Cần làm riêng cho portfolio, đồ án hay phần kỹ thuật thì nhắn mình. Chốt phạm vi trước, rồi mới nói đến tiền.",
-    "closingCta": "Trao đổi với Hugo",
-    "themePickerLabel": "Chọn giao diện trang Bio"
-  },
   "projectsPage": {
     "navLabel": "Dự Án",
     "backLink": "Về trang giới thiệu",
@@ -7669,110 +7415,6 @@
   },
   "pwa": {
     "installApp": "Tải app"
-  },
-  "nom": {
-    "intro": "Chữ Nôm phần lớn là chữ HÌNH-THANH: một nửa báo nghĩa, một nửa báo âm. Học luật ghép rồi thì đọc được cả chữ chưa từng gặp. Mỗi bài một bộ thủ, lấy từ chính giao diện Quý thành viên đang dùng.",
-    "loading": "Đang tải học liệu…",
-    "loadFailed": "Chưa tải được học liệu chữ Nôm.",
-    "lessonN": "Bài {{n}}",
-    "radicalIs": "Bộ {{name}} — {{meaning}}",
-    "lessonMeta": "{{teach}} chữ mẫu · {{quiz}} chữ thi",
-    "howItWorks": "Mỗi chữ dưới đây tách làm hai phần: BỘ THỦ báo nghĩa, phần còn lại báo âm. Hãy để ý âm của phần thứ hai gần với âm của cả chữ thế nào.",
-    "plus": "+",
-    "soundsLike": "(đọc gần “{{sound}}”)",
-    "startExam": "Thi qua môn · {{count}} chữ chưa học",
-    "examOf": "Thi bộ",
-    "unseenChar": "Chữ này CHƯA được dạy trong bài",
-    "next": "Tiếp",
-    "passed": "Đã qua môn",
-    "failed": "Chưa đạt — cần đúng từ {{mark}}% trở lên",
-    "examNote": "Đề thi toàn chữ chưa từng dạy. Đọc được chúng nghĩa là Quý thành viên đã nắm quy luật ghép, không phải thuộc lòng mặt chữ.",
-    "retry": "Thi lại",
-    "backToLessons": "Về danh sách bài",
-    "passedOf": "Đã qua {{done}} trên {{total}} bộ thủ",
-    "reset": "Xoá tiến độ học",
-    "resetTitle": "Xoá toàn bộ tiến độ?",
-    "resetBody": "Mọi bài đã qua sẽ được tính lại từ đầu."
-  },
-  "eduPage": {
-    "heroEyebrow": "Hugo Studio Member · dành cho người học",
-    "heroLede": "Một tài khoản mở ra cả một góc nhỏ cho người học: trang Bio mang tên Quý học viên, giờ tập trung có nhạc, vài ván cờ lúc nghỉ tay, bộ công cụ cho bài tập nhóm. Cài lên màn hình chính, mở ra như một ứng dụng.",
-    "heroCta": "Xem điều kiện",
-    "memberKicker": "Hugo Studio Member",
-    "memberTitle1": "Một tài khoản.",
-    "memberTitle2": "Mọi ứng dụng để học.",
-    "memberBody": "Đăng nhập một lần bằng Google. Trang Bio, phiên tập trung, điểm trò chơi và ngân khố JOY đi theo tài khoản, sang máy khác vẫn còn nguyên. Không quảng cáo, không bán dữ liệu.",
-    "facts": [
-      {
-        "value": "1",
-        "label": "tài khoản cho mọi ứng dụng"
-      },
-      {
-        "value": "3",
-        "label": "ngôn ngữ: Việt, Anh, Trung"
-      },
-      {
-        "value": "0",
-        "label": "quảng cáo trong ứng dụng"
-      }
-    ],
-    "featuresKicker": "Bên trong",
-    "featuresTitle1": "Bốn thứ đáng mở.",
-    "featuresTitle2": "Mỗi ngày.",
-    "features": [
-      {
-        "app": "Trang Bio",
-        "title": "Một trang mang tên chính mình.",
-        "body": "Ảnh, dự án, kỹ năng và mọi liên kết gom về một đường dẫn. Sửa ngay trong tài khoản, đổi giao diện lúc nào cũng được.",
-        "points": [
-          "Miễn phí 365 ngày khi đã xác minh",
-          "Ba giao diện: Mặc định, Phẳng, Khối",
-          "Một đường dẫn để gửi kèm hồ sơ"
-        ]
-      },
-      {
-        "app": "Chuyên Chú",
-        "title": "Tập trung, có nhạc nền.",
-        "body": "Đồng hồ Pomodoro ba cấp độ và đài nhạc ngay bên cạnh. Mỗi phiên hoàn thành được ghi nhận bằng JOY.",
-        "points": [
-          "Ba cấp: nhẹ, sâu, bậc thầy",
-          "Đài nhạc miễn phí trong cùng ứng dụng",
-          "Thưởng JOY sau mỗi phiên"
-        ]
-      },
-      {
-        "app": "Trò Chơi",
-        "title": "Nghỉ tay cho đáng.",
-        "body": "Bốn trò chơi do Hugo Studio tự làm, từ cờ vua 3D tới rắn săn mồi. Chơi ngay trong trình duyệt, không cài đặt.",
-        "points": [
-          "Độc quyền bởi Hugo Studio",
-          "Đấu máy hoặc hai người",
-          "Bảng xếp hạng theo mùa"
-        ]
-      }
-    ],
-    "termsKicker": "Điều kiện",
-    "termsTitle1": "Bốn điều.",
-    "termsTitle2": "Rồi mọi thứ mở ra.",
-    "terms": [
-      {
-        "title": "Từ 14 tuổi trở lên",
-        "body": "Từ 14 đến dưới 18 tuổi cần có cha mẹ hoặc người giám hộ đồng ý và đồng hành."
-      },
-      {
-        "title": "Đăng nhập bằng Google",
-        "body": "Một tài khoản Google là đủ. Tốt nhất là tài khoản do trường cấp."
-      },
-      {
-        "title": "Xác minh là người học",
-        "body": "Email trường được duyệt tự động. Chưa có thì gửi giấy tờ người học còn hiệu lực để duyệt tay."
-      },
-      {
-        "title": "365 ngày kể từ khi xác minh",
-        "body": "Hết hạn thì gia hạn nếu vẫn đang học. Không tự động trừ tiền, dữ liệu vẫn giữ nguyên."
-      }
-    ],
-    "closingCta": "Trao đổi với Hugo"
   },
   "bioStudio": {
     "links": {

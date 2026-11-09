@@ -1,5 +1,4 @@
 import { Suspense, lazy, useState, useCallback, useTransition, useEffect, useMemo } from "react";
-import { nom } from "../../../lib/nomText";
 import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -33,9 +32,9 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 // 4 Tab chuẩn App rõ ràng, không trùng lặp (Thẻ 3D 2 mặt nằm ngay trong Tổng quan)
 const TABS = [
-  { id: "overview", icon: "account_balance_wallet", labelKey: "memberPortal.walletApp.tabOverview", fallback: nom("Tổng quan") },
-  { id: "missions", icon: "task_alt", labelKey: "memberPortal.walletApp.tabMissions", fallback: nom("Nhiệm vụ") },
-  { id: "history", icon: "receipt_long", labelKey: "memberPortal.walletApp.tabHistory", fallback: nom("Sổ ví") },
+  { id: "overview", icon: "account_balance_wallet", labelKey: "memberPortal.walletApp.tabOverview", fallback: "Tổng quan" },
+  { id: "missions", icon: "task_alt", labelKey: "memberPortal.walletApp.tabMissions", fallback: "Nhiệm vụ" },
+  { id: "history", icon: "receipt_long", labelKey: "memberPortal.walletApp.tabHistory", fallback: "Sổ ví" },
 ];
 
 /**
@@ -52,7 +51,7 @@ const Panel = ({ children }) => {
       <Suspense
         fallback={(
           <p className="wal-loading text-center py-8 text-muted-foreground font-medium animate-pulse">
-            {t("memberPortal.walletApp.loadingPanel", nom("Đang tải nội dung…"))}
+            {t("memberPortal.walletApp.loadingPanel", "Đang tải nội dung…")}
           </p>
         )}
       >
@@ -145,9 +144,9 @@ export default function JoyWalletApp({
   const activeBalance = overview?.balance ?? storeBalance ?? bio?.joyBalance ?? 0;
   const card = overview?.card;
   const perks = overview?.perks;
-  const transactions = overview?.recentTransactions || [];
+  const transactions = useMemo(() => overview?.recentTransactions || [], [overview]);
   const referralCode = card?.referralCode || bio?.referralCode || "JOY-MEMBER";
-  const cardholderName = card?.cardholderName || bio?.displayName || nom("Quý thành viên Hugo Studio");
+  const cardholderName = card?.cardholderName || bio?.displayName || "Quý thành viên Hugo Studio";
 
   // State hỗ trợ tính năng cũ tích hợp 100%
   const [challenges, setChallenges] = useState([]);
@@ -194,7 +193,7 @@ export default function JoyWalletApp({
     setPerksLoading(true);
     fetchJoyPerks(bio)
       .then(setPerksData)
-      .catch((error) => setPerksError(error.message || t("memberPortal.accountHub.perksLoadError", nom("Lỗi tải ưu đãi"))))
+      .catch((error) => setPerksError(error.message || t("memberPortal.accountHub.perksLoadError", "Lỗi tải ưu đãi")))
       .finally(() => setPerksLoading(false));
   }, [bio, email, t]);
 
@@ -247,7 +246,7 @@ export default function JoyWalletApp({
       showToast?.(`Đã sao chép mã thẻ: ${referralCode}`, "success");
       setTimeout(() => setCopiedId(false), 2000);
     } catch {
-      showToast?.(nom("Không thể sao chép mã"), "error");
+      showToast?.("Không thể sao chép mã", "error");
     }
   }, [referralCode, showToast]);
 
@@ -265,7 +264,7 @@ export default function JoyWalletApp({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || nom("Không thể điểm danh hôm nay."));
+        throw new Error(data.error || "Không thể điểm danh hôm nay.");
       }
 
       hapticSuccess();
@@ -286,7 +285,7 @@ export default function JoyWalletApp({
         loadChallenges();
       });
     } catch (err) {
-      showToast?.(err.message || nom("Lỗi điểm danh"), "error");
+      showToast?.(err.message || "Lỗi điểm danh", "error");
     } finally {
       setClaiming(false);
     }
@@ -305,7 +304,7 @@ export default function JoyWalletApp({
       showToast?.(t("memberPortal.walletApp.tree.bonusTaken", { amount: result.awarded || 50 }), "success");
     } catch (error) {
       if (/đã nhận/i.test(error.message)) setTreeBonusTaken(true);
-      showToast?.(error.message || nom("Lỗi nhận thưởng cây"), "error");
+      showToast?.(error.message || "Lỗi nhận thưởng cây", "error");
     } finally {
       setTreeBusy(false);
     }
@@ -333,7 +332,7 @@ export default function JoyWalletApp({
      */
     <AppFrame
       appId="joy_wallet"
-      title={t("memberPortal.walletApp.title", nom("Ví JOY"))}
+      title={t("memberPortal.walletApp.title", "Ví JOY")}
       subtitle="Hugo Studio"
       /* KHÔNG dùng tiêu đề lớn ở ví: nhân vật chính của màn này là tấm thẻ JOY
          ngay bên dưới, mà bản thân nó đã in "Hugo Studio" và số dư. Thêm một
@@ -355,8 +354,8 @@ export default function JoyWalletApp({
           <span className={`h-1.5 w-1.5 rounded-full ${isValidating ? "bg-amber-400" : "bg-emerald-400"}`} />
           <span className="hidden sm:inline">
             {isValidating
-              ? t("memberPortal.walletApp.syncing", nom("Đồng bộ…"))
-              : t("memberPortal.walletApp.online", nom("Trực tuyến"))}
+              ? t("memberPortal.walletApp.syncing", "Đồng bộ…")
+              : t("memberPortal.walletApp.online", "Trực tuyến")}
           </span>
         </span>
       )}
@@ -434,7 +433,7 @@ export default function JoyWalletApp({
                       </span>
                     </div>
                     <span className="text-[13px] font-bold">
-                      {perks?.canCheckin ? nom("Điểm danh") : nom("Đã nhận")}
+                      {perks?.canCheckin ? "Điểm danh" : "Đã nhận"}
                     </span>
                   </button>
                   <button
@@ -448,8 +447,8 @@ export default function JoyWalletApp({
                     <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1 bg-muted text-foreground">
                       <span className="material-symbols-outlined text-xl">barcode_scanner</span>
                     </div>
-                    <span className="text-[13px] font-bold">{nom("Chuyển JOY")}</span>
-                    <span className="text-[13px] text-muted-foreground">{nom("Quét thẻ")}</span>
+                    <span className="text-[13px] font-bold">{"Chuyển JOY"}</span>
+                    <span className="text-[13px] text-muted-foreground">{"Quét thẻ"}</span>
                   </button>
                 </section>
 
@@ -457,21 +456,21 @@ export default function JoyWalletApp({
                 {overview?.summary && (
                   <section className="p-3.5 sm:p-4 rounded-2xl bg-card/70 border border-border/40 backdrop-blur-xl flex items-center justify-around text-center">
                     <div>
-                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{nom(nom("Nhận vào (30d)"))}</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{"Nhận vào (30d)"}</p>
                       <p className="text-sm sm:text-base font-extrabold text-emerald-500 font-mono mt-0.5">
                         +{joy.number(overview.summary.earned)} JOY
                       </p>
                     </div>
                     <div className="h-7 w-px bg-border/40" />
                     <div>
-                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{nom(nom("Chi dùng (30d)"))}</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{"Chi dùng (30d)"}</p>
                       <p className="text-sm sm:text-base font-extrabold text-foreground/80 font-mono mt-0.5">
                         −{joy.number(overview.summary.spent)} JOY
                       </p>
                     </div>
                     <div className="h-7 w-px bg-border/40" />
                     <div>
-                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{nom(nom("Chuỗi Streak"))}</p>
+                      <p className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide">{"Chuỗi Streak"}</p>
                       <p className="text-sm sm:text-base font-extrabold text-amber-500 font-mono mt-0.5 flex items-center justify-center gap-1">
                         <span className="material-symbols-outlined text-sm">local_fire_department</span>
                         {perks?.streakDays || 0} ngày
@@ -485,11 +484,11 @@ export default function JoyWalletApp({
               <div className="lg:col-span-7 space-y-5">
                 {/* VIỆC ĐANG CHỜ (NEEDS-YOU ALERTS) */}
                 {(pendingJoy > 0 || hasPin === false) && (
-                  <section className="wal-group" aria-label={nom("Việc đang chờ")}>
+                  <section className="wal-group" aria-label={"Việc đang chờ"}>
                     {pendingJoy > 0 && (
                       <Row
                         icon="redeem"
-                        title={nom("Sẵn sàng nhận thưởng nhiệm vụ")}
+                        title={"Sẵn sàng nhận thưởng nhiệm vụ"}
                         detail={`${pendingMissions.length} nhiệm vụ đã hoàn tất`}
                         value={`+${joy.number(pendingJoy)} JOY`}
                         valueTone="in"
@@ -502,8 +501,8 @@ export default function JoyWalletApp({
                     {hasPin === false && (
                       <Row
                         icon="lock_open"
-                        title={nom("Chưa kích hoạt mã PIN ví")}
-                        detail={nom("Bảo vệ tài sản và giao dịch của bạn")}
+                        title={"Chưa kích hoạt mã PIN ví"}
+                        detail={"Bảo vệ tài sản và giao dịch của bạn"}
                         onClick={() => {
                           hapticSelect();
                           onOpenParticleModal?.("setup-pin");
@@ -515,17 +514,17 @@ export default function JoyWalletApp({
 
                 {/* LỐI TẮT DỊCH VỤ: KHO ƯU ĐÃI, CHỢ TIỆN ÍCH */}
                 <div className="pt-0.5">
-                  <h2 className="wal-title">{t("memberPortal.walletApp.more", nom("Khám phá & Tiện ích"))}</h2>
+                  <h2 className="wal-title">{t("memberPortal.walletApp.more", "Khám phá & Tiện ích")}</h2>
                   <section className="wal-grid">
                     <Tile
                       icon="featured_seasonal_and_gifts"
-                      label={t("memberPortal.walletApp.rewards.tile", nom("Trung tâm Quà tặng"))}
+                      label={t("memberPortal.walletApp.rewards.tile", "Trung tâm Quà tặng")}
                       badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
                       onClick={() => openSub("rewards")}
                     />
                     <Tile
                       icon="storefront"
-                      label={t("memberPortal.walletApp.storeTile", nom("Chợ tiện ích"))}
+                      label={t("memberPortal.walletApp.storeTile", "Chợ tiện ích")}
                       onClick={() => openSub("store")}
                     />
                   </section>
@@ -542,24 +541,24 @@ export default function JoyWalletApp({
                     lượt gọi mạng nào. */}
                 <div className="pt-0.5">
                   <div className="flex items-baseline justify-between gap-2">
-                    <h2 className="wal-title">{t("memberPortal.walletApp.recent", nom("Giao dịch gần đây"))}</h2>
+                    <h2 className="wal-title">{t("memberPortal.walletApp.recent", "Giao dịch gần đây")}</h2>
                     {transactions.length > 0 && (
                       <button
                         type="button"
                         className="text-[13px] font-semibold text-primary min-h-[44px] px-1"
                         onClick={() => { hapticSelect(); setTab("history"); }}
                       >
-                        {t("memberPortal.walletApp.seeAll", nom("Xem tất cả"))}
+                        {t("memberPortal.walletApp.seeAll", "Xem tất cả")}
                       </button>
                     )}
                   </div>
 
                   {transactions.length > 0 && (
-                    <div className="flex items-center gap-1.5 pb-2" role="group" aria-label={t("memberPortal.walletApp.filter", nom("Lọc giao dịch"))}>
+                    <div className="flex items-center gap-1.5 pb-2" role="group" aria-label={t("memberPortal.walletApp.filter", "Lọc giao dịch")}>
                       {[
-                        { id: "all", label: t("memberPortal.walletApp.filterAll", nom("Tất cả")) },
-                        { id: "in", label: t("memberPortal.walletApp.filterIn", nom("Nhận vào")) },
-                        { id: "out", label: t("memberPortal.walletApp.filterOut", nom("Chi dùng")) },
+                        { id: "all", label: t("memberPortal.walletApp.filterAll", "Tất cả") },
+                        { id: "in", label: t("memberPortal.walletApp.filterIn", "Nhận vào") },
+                        { id: "out", label: t("memberPortal.walletApp.filterOut", "Chi dùng") },
                       ].map((chip) => (
                         <button
                           key={chip.id}
@@ -588,17 +587,17 @@ export default function JoyWalletApp({
                         receipt_long
                       </span>
                       <p className="text-[15px] text-muted-foreground m-0">
-                        {t("memberPortal.walletApp.noTx", nom("Ví chưa có giao dịch nào. Nhận JOY từ nhiệm vụ hoặc điểm danh để bắt đầu."))}
+                        {t("memberPortal.walletApp.noTx", "Ví chưa có giao dịch nào. Nhận JOY từ nhiệm vụ hoặc điểm danh để bắt đầu.")}
                       </p>
                     </section>
                   ) : filteredTransactions.length === 0 ? (
                     <section className="wal-group px-6 py-8 text-center">
                       <p className="text-[15px] text-muted-foreground m-0">
-                        {t("memberPortal.walletApp.noTxInFilter", nom("Không có giao dịch nào trong mục này."))}
+                        {t("memberPortal.walletApp.noTxInFilter", "Không có giao dịch nào trong mục này.")}
                       </p>
                     </section>
                   ) : (
-                    <section className="wal-group" aria-label={t("memberPortal.walletApp.recent", nom("Giao dịch gần đây"))}>
+                    <section className="wal-group" aria-label={t("memberPortal.walletApp.recent", "Giao dịch gần đây")}>
                       {filteredTransactions.slice(0, 5).map((tx) => (
                         <Row
                           key={tx.id}

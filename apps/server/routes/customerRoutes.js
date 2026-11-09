@@ -170,7 +170,7 @@ router.post('/me/addons', requireCustomer, customerOnly, projectAction((project,
 // project; admins act on the project named by :id.
 router.put('/:id/profile', requireCustomer, async (req, res) => {
   try {
-    const { fullName, phone, birthday, email, address } = req.body;
+    const { fullName, phone, email } = req.body;
 
     const project = await CustomerProject.findById(req.projectId);
     if (!project) return res.status(404).json({ error: 'Không tìm thấy dự án' });

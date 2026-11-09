@@ -1,5 +1,5 @@
-import TermsAndGuidePage from "./TermsAndGuidePage";
+import LegalPage from "./LegalPage";
 
 export default function PrivacyPolicyPage() {
-  return <TermsAndGuidePage defaultPillar="privacy" />;
+  return <LegalPage kind="privacy" />;
 }

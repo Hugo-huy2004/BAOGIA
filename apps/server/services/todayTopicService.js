@@ -92,7 +92,6 @@ function extractPhrases(title = '', description = '', lang = 'vi') {
   for (let i = 0; i < tokens.length; i += 1) {
     const word = tokens[i];
     const next = tokens[i + 1];
-    const next2 = tokens[i + 2];
 
     // Từ đơn hợp lệ (dài hơn 2 ký tự, không phải từ dừng hay số thuần túy)
     if (word.length > 2 && !stopwords.has(word) && !/^\d+$/.test(word)) {

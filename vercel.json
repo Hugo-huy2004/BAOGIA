@@ -5,6 +5,16 @@
   "outputDirectory": "apps/web/dist",
   "redirects": [
     {
+      "source": "/user-guide",
+      "destination": "/faq",
+      "permanent": true
+    },
+    {
+      "source": "/terms-and-guide",
+      "destination": "/terms",
+      "permanent": true
+    },
+    {
       "source": "/study",
       "destination": "https://education.hugowishpax.studio/",
       "permanent": true
@@ -112,6 +122,21 @@
       "source": "/zh/services",
       "destination": "/zh/",
       "permanent": true
+    },
+    {
+      "source": "/student-pricing",
+      "destination": "/services",
+      "permanent": true
+    },
+    {
+      "source": "/en/student-pricing",
+      "destination": "/en/services",
+      "permanent": true
+    },
+    {
+      "source": "/zh/student-pricing",
+      "destination": "/zh/services",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -152,20 +177,12 @@
       "destination": "/faq/index.html"
     },
     {
-      "source": "/student-pricing",
-      "destination": "/student-pricing/index.html"
-    },
-    {
       "source": "/privacy-policy",
       "destination": "/privacy-policy/index.html"
     },
     {
       "source": "/terms",
       "destination": "/terms/index.html"
-    },
-    {
-      "source": "/user-guide",
-      "destination": "/user-guide/index.html"
     },
     {
       "source": "/project",
@@ -264,10 +281,6 @@
       "destination": "/en/faq/index.html"
     },
     {
-      "source": "/en/student-pricing",
-      "destination": "/en/student-pricing/index.html"
-    },
-    {
       "source": "/en/project",
       "destination": "/en/project/index.html"
     },
@@ -330,10 +343,6 @@
     {
       "source": "/zh/faq",
       "destination": "/zh/faq/index.html"
-    },
-    {
-      "source": "/zh/student-pricing",
-      "destination": "/zh/student-pricing/index.html"
     },
     {
       "source": "/zh/project",

@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState, Suspense, lazy } from "react";
 import i18n from "./i18n/config";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicGamePath, isPublicToolPath } from "./config/publicTools";
 import { detectInstallTarget, isStandalone, subscribeDisplayMode } from "./config/platform";
@@ -68,11 +68,8 @@ const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
-const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricingPage"));
 const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
 const TermsPage = lazyRoute(() => import("./pages/public/TermsPage"));
-const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
-const TermsAndGuidePage = lazyRoute(() => import("./pages/public/TermsAndGuidePage"));
 const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
 const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
@@ -84,6 +81,7 @@ const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
 const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
+const IntroPage = lazyRoute(() => import("./pages/public/portfolio/IntroductionPage"));
 const PartnerCollabPage = lazyRoute(() => import("./pages/public/partner/PartnerCollabPage"));
 
 // Không cần cho khung hình đầu: chân trang nằm cuối, hộp ủng hộ chỉ mở khi bấm,
@@ -344,7 +342,7 @@ function AppContent() {
             <Route path="/" element={
               isPWA
                 ? (isAuthenticated ? <Navigate to="/member" replace /> : <Navigate to="/login" replace />)
-                : <ServicesPage />
+                : <IntroPage />
             } />
             <Route path="/introduction" element={
               isPWA && !isAuthenticated
@@ -361,8 +359,8 @@ function AppContent() {
             <Route path="/joy" element={<Navigate to="/member/account" replace />} />
             <Route path="/member/joy" element={<Navigate to="/member/account" replace />} />
             {/* Quyền lợi HSSV + bảng giá HSSV đã gộp thành một trang. */}
-            <Route path="/student-benefits" element={<Navigate to="/student-pricing" replace />} />
-            <Route path="/student-pricing" element={<StudentPricingPage />} />
+            <Route path="/student-benefits" element={<Navigate to="/services" replace />} />
+            <Route path="/student-pricing" element={<Navigate to="/services" replace />} />
             <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
             <Route path="/faq" element={<FAQPage />} />
             {/* Form đặt lịch đã gộp vào cuối trang Dịch vụ (25/10/2026). Giữ
@@ -404,8 +402,8 @@ function AppContent() {
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
-            <Route path="/user-guide" element={<UserGuidePage />} />
-            <Route path="/terms-and-guide" element={<TermsAndGuidePage />} />
+            <Route path="/user-guide" element={<Navigate to="/faq" replace />} />
+            <Route path="/terms-and-guide" element={<Navigate to="/terms" replace />} />
             {/* Địa chỉ bảng điều khiển đi theo ĐƯỜNG DẪN, không phải `?tab=`.
                 `/admin/queue`, `/admin/projects`, `/admin/users`… — mỗi màn hình
                 một địa chỉ, chia sẻ được, mở tab mới được, nút Lùi chạy đúng.
@@ -481,6 +479,13 @@ export default function App() {
       // Khu quản trị luôn sáng (AdminPanel) — đổi chế độ tối của máy không lật nó.
       if (window.location.pathname.startsWith("/admin")) {
         root.classList.remove("dark");
+        return;
+      }
+      // Người dùng đã tự chọn bằng nút trên header (Navbar) thì lựa chọn đó thắng máy.
+      let saved = null;
+      try { saved = localStorage.getItem("hugo-theme"); } catch { /* chỉ là tiện ích */ }
+      if (saved) {
+        root.classList.toggle("dark", saved === "dark");
         return;
       }
       if (e.matches) {

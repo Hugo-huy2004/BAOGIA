@@ -28,7 +28,6 @@ import { ensureLanguageFont } from './languageFont';
 
 const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
-  nom: () => import('./locales/nom/translation.json'),
   en: () => import('./locales/en/translation.json'),
   zh: () => import('./locales/zh/translation.json'),
 };
@@ -51,10 +50,7 @@ i18n
   .init({
     resources,
     ...(storedLanguage ? { lng: storedLanguage } : {}),
-    // Chữ Nôm rơi về QUỐC NGỮ, không rơi về tiếng Anh: bản Nôm còn đang dựng
-    // dần, và người chọn nó là người Việt — thấy tiếng Việt thì vẫn đọc được,
-    // thấy tiếng Anh thì không liên quan gì.
-    fallbackLng: { nom: ['vi', 'en'], default: ['en', 'vi'] },
+    fallbackLng: ['en', 'vi'],
     supportedLngs: SUPPORTED_LANGUAGES.map(({ code }) => code),
     nonExplicitSupportedLngs: true,
     load: 'languageOnly',
@@ -79,18 +75,6 @@ i18n
 // Đăng ký sau init vì bộ định dạng chỉ tồn tại khi i18next đã dựng xong service.
 registerJoyFormat(i18n);
 
-/** Phủ `own` lên `base`: khoá nào `own` thiếu thì lấy của `base` (mảng ghép theo chỉ số). */
-function fillMissing(base, own) {
-  if (own === undefined || own === null) return base;
-  if (Array.isArray(base) && Array.isArray(own)) return base.map((item, i) => fillMissing(item, own[i]));
-  if (base && typeof base === 'object' && own && typeof own === 'object' && !Array.isArray(base)) {
-    const out = { ...base };
-    for (const key of Object.keys(own)) out[key] = fillMissing(base[key], own[key]);
-    return out;
-  }
-  return own;
-}
-
 const inFlight = new Map();
 
 /**
@@ -113,13 +97,9 @@ export function ensureTranslations(language = i18n.language) {
       ? Promise.resolve()
       : ensureTranslations('en');
     const p = fallbackReady
-      // Bản Nôm đánh rơi chuỗi không dịch được (giá, số, tên riêng). t() thường
-      // tự rơi về quốc ngữ, nhưng t(..., { returnObjects: true }) trả NGUYÊN đối
-      // tượng Nôm, thiếu khoá là trang gọi .map() lên undefined và sập. Nên lấp
-      // chỗ trống bằng bản quốc ngữ ngay lúc nạp.
-      .then(() => Promise.all([FULL_LOCALES[load](), load === 'nom' ? FULL_LOCALES.vi() : null]))
-      .then(([mod, viMod]) => {
-        const own = viMod ? fillMissing(viMod.default, mod.default) : mod.default;
+      .then(() => FULL_LOCALES[load]())
+      .then((mod) => {
+        const own = mod.default;
         const appCopy = MEMBER_APP_TRANSLATIONS[load];
         const todayCopy = MEMBER_TODAY_TRANSLATIONS[load];
         const dictionary = {
@@ -129,7 +109,6 @@ export function ensureTranslations(language = i18n.language) {
               ...(own.utilities || {}),
               categories: appCopy.categories,
               badges: appCopy.badges,
-              // Bản Nôm chưa có lời chào riêng: dùng bản quốc ngữ thay vì đoán chữ.
               home: appCopy.home || MEMBER_APP_TRANSLATIONS.vi.home,
               catalog: {
                 ...(own.utilities?.catalog || {}),

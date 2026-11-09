@@ -173,7 +173,7 @@ export default function MemberAuraTab({
       setTimerMode("focus");
       setTimeLeft(selectedMinutes * 60);
     }
-  }, [timerMode, bio, showToast, fetchJoyBalance, selectedMinutes]);
+  }, [timerMode, bio, showToast, fetchJoyBalance, selectedMinutes, t]);
 
   // Pomodoro Interval Tick Effect using Delta Time
   useEffect(() => {

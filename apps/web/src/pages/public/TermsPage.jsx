@@ -1,5 +1,5 @@
-import TermsAndGuidePage from "./TermsAndGuidePage";
+import LegalPage from "./LegalPage";
 
 export default function TermsPage() {
-  return <TermsAndGuidePage defaultPillar="terms" />;
+  return <LegalPage kind="terms" />;
 }

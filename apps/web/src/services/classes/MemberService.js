@@ -36,9 +36,9 @@ class MemberService {
   }
 
   // Delete member bio (API Wrapper)
-  async deleteMemberBio(id) {
+  async deleteMemberBio() {
     try {
-      return await this.api.deleteMemberBio(id);
+      return await this.api.deleteMemberBio();
     } catch (error) {
       console.error('MemberService: Failed to delete member bio', error);
       throw error;
@@ -83,9 +83,6 @@ class MemberService {
         birthday: "19/05/2026",
         phone: "0999.888.777",
         hobbies: "Design, Code, Coffee, Music",
-        height: "1m75",
-        weight: "65kg",
-        measurements: "90-60-90",
         address: t("memberPortal.guest.address"),
         education: t("memberPortal.guest.education"),
         skills: "Figma, React, UI/UX",

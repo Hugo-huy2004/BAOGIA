@@ -4,7 +4,6 @@ import Bio from '../../models/Bio.js';
 import { requireAdmin, invalidateMemberGate } from '../../middleware/authMiddleware.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
 import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
-import { fetchTelegramFile } from '../../services/telegramService.js';
 import { clearPublicBioCache } from './bioShared.js';
 
 const router = express.Router();

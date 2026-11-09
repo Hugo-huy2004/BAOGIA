@@ -18,7 +18,6 @@ const APP_LOADERS = {
   qrhugo: () => import("../qrHugo/QrHugoApp"),
   joy_wallet: () => import("../wallet/JoyWalletApp"),
   arcade: () => import("../arcade/HugoArcadeTab"),
-  nom: () => import("../nom/MemberNomTab"),
   aura: () => import("../MemberAuraTab"),
   bio: () => import("../BioPreviewTab"),
   store: () => import("../hugoStore/HugoStoreTab"),

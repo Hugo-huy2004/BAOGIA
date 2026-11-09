@@ -1,0 +1,147 @@
+/* Hỏi đáp (/faq) và Đăng nhập (/login) — 09/11/2026: cùng chất sticker neon
+   của trang Dịch vụ: viền mực dày, bóng khối, màu chói, chữ Bricolage + Nunito.
+   CSS thường (không Tailwind) để khỏi đội ngân sách global-css. */
+
+.sk-page {
+  --ink: #0c1230;
+  min-height: 100vh; padding: 5rem 1rem 6rem;
+  font-family: "Nunito", sans-serif;
+}
+
+/* Hộp trắng kiểu sticker giữ bảng màu sáng cả ở chế độ tối. */
+.sk-faq details, .sk-login__card, .sk-seg {
+  --foreground: 240 16% 12%; --muted-foreground: 240 10% 42%; --border: 240 14% 88%;
+}
+
+/* ── Đầu trang Hỏi đáp ───────────────────────────────────── */
+.sk-head { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
+.sk-kicker {
+  display: inline-block; padding: .3rem .85rem; border: 2.5px solid var(--ink); border-radius: 999px;
+  background: #c6ff00; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); rotate: -3deg;
+  font-weight: 900; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+}
+.sk-title {
+  margin-top: 1rem;
+  font: 800 clamp(2.5rem, 1.6rem + 4.5vw, 4.8rem)/.98 "Bricolage Grotesque", sans-serif; letter-spacing: -.05em;
+}
+.sk-title em {
+  display: inline-block; margin-top: .3rem; padding: 0 .3em .06em; border: 3px solid var(--ink); border-radius: .4em;
+  background: #ff2e93; color: #fff; font-style: normal; box-shadow: 5px 5px 0 var(--ink); rotate: -1.5deg;
+}
+.sk-lede { max-width: 34rem; margin: 1.3rem auto 0; font-size: 1rem; line-height: 1.6; font-weight: 600; opacity: .7; }
+
+/* ── Câu hỏi ─────────────────────────────────────────────── */
+.sk-faq { display: grid; gap: .85rem; max-width: 46rem; margin: 0 auto; }
+.sk-faq details {
+  border: 2.5px solid var(--ink); border-radius: 1.3rem; background: #fff; color: var(--ink);
+  box-shadow: 5px 5px 0 var(--ink); transition: translate .15s, box-shadow .15s;
+}
+.sk-faq details:hover { translate: -1px -1px; box-shadow: 6px 6px 0 var(--ink); }
+.sk-faq summary { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.1rem; cursor: pointer; list-style: none; }
+.sk-faq summary::-webkit-details-marker { display: none; }
+.sk-faq summary b { flex: 1; font: 800 1.05rem/1.3 "Bricolage Grotesque", sans-serif; letter-spacing: -.02em; }
+.sk-faq__icon {
+  display: grid; place-items: center; flex: none; width: 2.6rem; height: 2.6rem; border: 2.5px solid var(--ink);
+  border-radius: .85rem; background: var(--tone); color: var(--ink); font-size: 21px; rotate: -4deg;
+}
+.sk-faq details:nth-child(2) .sk-faq__icon, .sk-faq details:nth-child(5) .sk-faq__icon { color: #fff; }
+.sk-faq__plus { flex: none; font-size: 1.7rem; line-height: 1; transition: rotate .2s; }
+.sk-faq details[open] .sk-faq__plus { rotate: 45deg; }
+.sk-faq details p { padding: 0 1.1rem 1.15rem 4.6rem; font-size: .95rem; line-height: 1.65; font-weight: 600; opacity: .75; }
+@media (max-width: 480px) { .sk-faq details p { padding-left: 1.1rem; } }
+.sk-faq__more { display: inline-flex; align-items: center; gap: .3rem; margin: 0 1.1rem 1.1rem 4.6rem; font-weight: 900; text-decoration: underline; }
+
+/* ── Khối liên hệ ────────────────────────────────────────── */
+.sk-contact {
+  max-width: 46rem; margin: 3rem auto 0; padding: 1.75rem 1.4rem; text-align: center;
+  border: 3px solid var(--ink); border-radius: 2rem; color: var(--ink); box-shadow: 8px 8px 0 var(--ink);
+  background:
+    radial-gradient(circle at 85% 10%, rgb(255 255 255 / .4), transparent 45%),
+    linear-gradient(150deg, #b14bff, #ff4fc3);
+}
+.dark .sk-contact { border-color: transparent; box-shadow: none; }
+.sk-contact h2 { font: 800 clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem)/1.05 "Bricolage Grotesque", sans-serif; letter-spacing: -.04em; }
+.sk-contact > p { max-width: 30rem; margin: .7rem auto 0; font-weight: 700; line-height: 1.55; opacity: .85; }
+.sk-contact__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: 1.3rem; }
+.sk-mails { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; margin-top: 1.2rem; }
+.sk-mails a {
+  display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .7rem; border: 2px solid var(--ink);
+  border-radius: 999px; background: rgb(255 255 255 / .85); font-size: .78rem; font-weight: 800;
+}
+.sk-mails .material-symbols-outlined { font-size: 16px; }
+
+/* ── Nút chung ───────────────────────────────────────────── */
+.sk-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .85rem 1.3rem;
+  border: 2.5px solid var(--ink); border-radius: 999px; background: var(--ink); color: #fff;
+  font: 900 .95rem/1 "Nunito", sans-serif; cursor: pointer; transition: translate .15s;
+}
+.sk-btn:hover { translate: 0 -2px; }
+.sk-btn:disabled { opacity: .5; translate: none; }
+.sk-btn--light { background: #fff; color: var(--ink); }
+.sk-btn--block { width: 100%; padding-block: 1rem; }
+.sk-btn .material-symbols-outlined { font-size: 20px; }
+
+/* ── Đăng nhập ───────────────────────────────────────────── */
+.sk-login { display: grid; justify-items: center; align-content: start; padding-top: 6rem; }
+.sk-login--customer { --tone-a: #00f5d4; --tone-b: #00bbf9; }
+.sk-login--member { --tone-a: #ff2e93; --tone-b: #ff8a5b; }
+.sk-login__col { width: 100%; max-width: 27rem; text-align: center; }
+
+/* HUGO đứng đầu, to và đậm nhất (user 09/11). */
+.sk-brand {
+  display: inline-flex; align-items: baseline; gap: .3rem; padding: .3rem .95rem .35rem;
+  border: 3px solid var(--ink); border-radius: 999px; background: #c6ff00; color: var(--ink);
+  box-shadow: 0 0 0 4px #fff, 5px 5px 0 4px var(--ink); rotate: -3deg;
+  font: 900 1.6rem/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.03em;
+}
+.sk-brand { font-size: 1rem; font-weight: 800; }
+.sk-brand b { font-size: 1.75rem; font-weight: 900; }
+.sk-login__title { margin-top: 1.4rem; font: 800 clamp(2rem, 1.6rem + 2vw, 2.8rem)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -.045em; }
+.sk-login__lede { margin: .6rem auto 0; max-width: 22rem; font-weight: 700; line-height: 1.5; opacity: .7; }
+
+.sk-seg {
+  display: flex; gap: .3rem; margin: 1.5rem auto 0; padding: .3rem; border: 2.5px solid var(--ink); border-radius: 999px;
+  background: #fff; color: var(--ink); box-shadow: 4px 4px 0 var(--ink);
+}
+.sk-seg button {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; padding: .6rem .5rem;
+  border-radius: 999px; font-weight: 900; font-size: .85rem; color: var(--ink); opacity: .55; transition: background .2s, opacity .2s;
+}
+.sk-seg button.is-on { opacity: 1; background: linear-gradient(150deg, var(--tone-a), var(--tone-b)); box-shadow: inset 0 0 0 2px var(--ink); }
+.sk-seg .material-symbols-outlined { font-size: 18px; }
+
+.sk-login__card {
+  position: relative; margin-top: 1.4rem; padding: 1.5rem 1.25rem 1.35rem; overflow: hidden; text-align: left;
+  border: 3px solid var(--ink); border-radius: 1.75rem; background: #fff; color: var(--ink); box-shadow: 8px 8px 0 var(--ink);
+}
+.sk-login__card::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: .55rem;
+  background: linear-gradient(90deg, var(--tone-a), var(--tone-b)); border-bottom: 2.5px solid var(--ink);
+}
+.sk-login__card form { display: grid; gap: 1rem; padding-top: .4rem; }
+
+.sk-field { display: grid; gap: .45rem; }
+.sk-field span { font-size: .75rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; opacity: .6; }
+.sk-field input {
+  width: 100%; padding: 1rem; border: 2.5px solid var(--ink); border-radius: 1rem; background: #f4f7ff; color: var(--ink);
+  font: 800 1.35rem/1 ui-monospace, "SF Mono", monospace; letter-spacing: .35em; text-align: center; text-transform: uppercase;
+  outline: none; transition: box-shadow .15s;
+}
+.sk-field input::placeholder { color: rgb(12 18 48 / .3); letter-spacing: .12em; font-size: 1rem; }
+.sk-field input:focus { box-shadow: 0 0 0 4px var(--tone-a); }
+
+.sk-hint {
+  display: flex; gap: .6rem; padding: .8rem .9rem; border: 2px dashed rgb(12 18 48 / .25); border-radius: 1rem;
+  font-size: .8rem; line-height: 1.5; font-weight: 600;
+}
+.sk-hint > span:last-child { opacity: .75; }
+.sk-hint .material-symbols-outlined { flex: none; font-size: 20px; }
+
+.sk-or { display: flex; align-items: center; gap: .6rem; font-size: .75rem; font-weight: 800; opacity: .55; }
+.sk-or::before, .sk-or::after { content: ""; flex: 1; border-top: 2px dashed rgb(12 18 48 / .25); }
+.sk-google { display: flex; justify-content: center; min-height: 44px; }
+.sk-status { font-size: .78rem; font-weight: 700; text-align: center; opacity: .6; }
+.sk-error { font-size: .78rem; font-weight: 800; text-align: center; color: #d6204f; }
+.sk-warn { display: grid; gap: .3rem; padding: .8rem .9rem; border: 2px solid #f59e0b; border-radius: 1rem; background: #fff8e6; font-size: .78rem; line-height: 1.5; }
+.sk-warn code { padding: .05rem .3rem; border-radius: .3rem; background: rgb(12 18 48 / .08); font-family: ui-monospace, monospace; }

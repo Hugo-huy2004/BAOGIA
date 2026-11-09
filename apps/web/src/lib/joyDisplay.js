@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import {
-  JOY_DENOMS, DEFAULT_DENOM, denomKey,
+  JOY_DENOMS, denomKey,
 } from "../../../../packages/shared/joyCurrency";
 import { localeForLanguage } from "../i18n/languages";
 
@@ -78,9 +78,6 @@ export function setJoyDenom(value, subject = activeSubject) {
   publish();
 }
 
-/** Đơn vị dùng để ĐỊNH DẠNG; chưa chọn thì tạm lấy mặc định cho khỏi vỡ. */
-const formatting = () => active || DEFAULT_DENOM;
-
 export const joyDenom = () => "JOY";
 export const joyCode = () => "JOY";
 /** JOY gốc → SỐ (không kèm mã). Chỉ có 1 đơn vị JOY duy nhất. */
@@ -146,8 +143,7 @@ const currentLang = () => String(i18nRef?.resolvedLanguage || i18nRef?.language 
 /** SỐ đã định dạng: vi/zh đếm theo vạn, en theo nghìn. */
 export const joyNumber = (joy) => {
   const lang = currentLang();
-  // Chữ Nôm là lối viết của tiếng Việt nên đếm y hệt: "19 vạn 895".
-  if (lang.startsWith("vi") || lang.startsWith("nom")) return toVan(joyValue(joy), currentLocale());
+  if (lang.startsWith("vi")) return toVan(joyValue(joy), currentLocale());
   if (lang.startsWith("zh")) return toVan(joyValue(joy), currentLocale(), "zh");
   return joyValue(joy).toLocaleString(currentLocale());
 };

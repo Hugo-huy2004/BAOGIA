@@ -27,7 +27,6 @@ const EXCLUDED = new RegExp([
   "PrivacyPolicyPage", "TermsPage",
   // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối
   // tiếng Việt trong bản điều khoản toàn văn 9 ngôn ngữ.
-  "memberDocs.js",
 ].join("|"));
 
 function sourceFiles(directory) {

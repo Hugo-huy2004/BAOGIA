@@ -52,15 +52,15 @@ const planList = (tr) =>
       price: price.to ? `${price.from} – ${price.to}` : price.from,
       // Gói miễn phí có `to` là thời hạn ("365 ngày"), không phải tiền — đọc nó
       // như một con số sẽ kéo sập khoảng giá của cả trang.
-      free: !!pkg.freeTier,
+      free: false,
       // Một dòng phạm vi cho llms.txt: thời gian · số trang · bảo hành.
       scope: [
         tr.servicePkg.compare.cells.time?.[pkg.id],
         tr.servicePkg.compare.cells.pages?.[pkg.id],
         tr.servicePkg.stats.warrantyValue?.[pkg.id],
       ].filter(Boolean).join(" · "),
-      min: pkg.freeTier ? 0 : digitsOf(price.from),
-      max: pkg.freeTier ? 0 : digitsOf(price.to) || digitsOf(price.from),
+      min: digitsOf(price.from),
+      max: digitsOf(price.to) || digitsOf(price.from),
     };
   });
 
@@ -125,7 +125,7 @@ const OG = {
 };
 function ogImageFor(base) {
   if (!isPortfolio && (base === "/" || base === "/services" || base.startsWith("/services/"))) return OG.services;
-  if (["/student-pricing", "/member", "/login"].includes(base)) return OG.edu;
+  if (["/member", "/login"].includes(base)) return OG.edu;
   const project = base.startsWith("/project/") && projects.find((p) => `/project/${p.id}` === base);
   const shot = project && (project.cover || project.shots?.[0]?.src);
   if (shot) return { url: `${ORIGIN}/project-screenshots/${project.id}/${shot}.webp`, type: "image/webp", width: 1600, height: 1000 };
@@ -164,13 +164,6 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
   const plans = planList(t);
 
   const faqs = (t.faqPage.faqs || []).map(({ question, answer }) => ({ question, answer }));
-  // Gói người học nay MIỄN PHÍ, cộng ưu đãi 15% cho ba gói trả phí — không còn
-  // bảng giá coursework riêng.
-  const edu = t.servicePkg.items["hugo-edu-plus"];
-  const studentPlans = [
-    { name: `Hugo Edu+ — ${edu.title}`, price: edu.price.from },
-    { name: t.servicePkg.studentDiscount.title, price: t.servicePkg.studentDiscount.body },
-  ];
 
   // ── Routes ────────────────────────────────────────────────────────────────────
   // `body` returns the static block injected into #root. Keep it to real copy the
@@ -279,23 +272,10 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
       }),
     },
     {
-      // Quyền lợi HSSV (/student-benefits cũ) đã gộp vào trang này.
-      path: "/student-pricing",
-      title: t.studentBenefitsPage.metaTitle,
-      description: t.studentBenefitsPage.metaDesc,
-      keywords:
-        "bảng giá sinh viên, quyền lợi HSSV, trang Bio sinh viên, email edu, liêm chính học thuật",
-      body: () =>
-        `<h1>${esc(h1of(t.studentBenefitsPage.metaTitle))}</h1>` +
-        `<p>${esc(t.studentBenefitsPage.desc)}</p>` +
-        `<p>${esc("Các gói dịch vụ được trình bày cùng điều kiện xác minh và phạm vi hỗ trợ rõ ràng.")}</p>` +
-        `<ul>${studentPlans.map((p) => `<li>${esc(p.name)} — ${esc(p.price)}</li>`).join("")}</ul>`,
-    },
-    {
       path: "/privacy-policy",
       title: "Chính Sách Bảo Mật | Hugo Studio",
       description:
-        "Tìm hiểu cách Hugo Studio thu thập, xử lý và bảo vệ dữ liệu cá nhân, cùng ranh giới trách nhiệm với các dịch vụ bên thứ ba.",
+        "Hugo Studio thu dữ liệu nào, để làm gì, chia sẻ với ai và quyền của bạn theo Nghị định 13/2023.",
       body: () =>
         `<h1>Chính sách bảo mật</h1>` +
         `<p>${esc("Tài liệu trình bày dữ liệu được xử lý, quyền của người dùng và các biện pháp bảo vệ tài khoản.")}</p>`,
@@ -304,19 +284,10 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
       path: "/terms",
       title: "Điều Khoản Sử Dụng | Hugo Studio",
       description:
-        "Điều kiện sử dụng Hugo Studio: tài khoản và độ tuổi, nội dung bạn đăng, quy trình gỡ nội dung vi phạm bản quyền, điểm JOY, dịch vụ trả phí và giới hạn trách nhiệm.",
+        "Điều kiện sử dụng Hugo Studio: tài khoản và độ tuổi, điểm JOY, nội dung bạn đăng, ủng hộ, dịch vụ trả phí và giới hạn trách nhiệm.",
       body: () =>
         `<h1>Điều khoản sử dụng</h1>` +
         `<p>${esc("Phạm vi dịch vụ, quyền với nội dung người dùng đăng tải, quy trình báo cáo vi phạm bản quyền, quy định về JOY và thanh toán.")}</p>`,
-    },
-    {
-      path: "/user-guide",
-      title: "Hướng Dẫn Sử Dụng Hugo Studio | Bio, JOY Và Tiện Ích",
-      description:
-        "Tài liệu sử dụng Hugo Studio: tạo trang Bio, quản lý tài khoản, dùng JOY, đặt lịch, bảo mật dữ liệu và xử lý các sự cố thường gặp.",
-      body: () =>
-        `<h1>Hướng dẫn sử dụng Hugo Studio</h1>` +
-        `<p>${esc("Tìm hiểu cách tạo trang Bio, quản lý tài khoản, dùng JOY, đặt lịch và xử lý các tình huống thường gặp.")}</p>`,
     },
   ];
 
@@ -399,7 +370,7 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
 
   // Trang từng gói trả phí: trước đây chỉ có bản SPA, nên Google và bot AI đọc
   // được đúng cái khung rỗng. Chữ lấy từ cùng servicePkg.* mà trang thật render.
-  for (const pkg of servicePackages.filter((p) => !p.freeTier)) {
+  for (const pkg of servicePackages) {
     const it = t.servicePkg.items[pkg.id];
     const cells = t.servicePkg.compare.cells;
     const price = it.price.to ? `${it.price.from} – ${it.price.to}` : it.price.from;
@@ -529,13 +500,13 @@ function buildLocale(lang, prefix, { emit = true, only = null } = {}) {
 
   // ── Per-route static HTML ─────────────────────────────────────────────────────
   const navLabels = {
-    vi: ["Giới thiệu", "Dịch vụ & báo giá", "Câu hỏi thường gặp", "Đặt lịch", "Quyền lợi sinh viên", "Hướng dẫn"],
-    en: ["About", "Services & pricing", "FAQ", "Start a conversation", "Student benefits", "User guide"],
-    zh: ["介绍", "服务与价格", "常见问题", "开始沟通", "学生权益", "使用指南"],
+    vi: ["Giới thiệu", "Dịch vụ & báo giá", "Câu hỏi thường gặp", "Đặt lịch", "Quyền lợi sinh viên", "Bảo mật"],
+    en: ["About", "Services & pricing", "FAQ", "Start a conversation", "Student benefits", "Privacy"],
+    zh: ["介绍", "服务与价格", "常见问题", "开始沟通", "学生权益", "隐私"],
   }[lang];
   const NAV = isPortfolio
     ? `<nav><a href="${prefix}/">Hugo Wishpax</a> · <a href="${prefix}/project">${esc(t.projectsPage.title)}</a> · <a href="/cv/index.html">CV</a> · <a href="https://www.hugowishpax.studio/">${navLabels[1]}</a></nav>`
-    : `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="https://portfolio.hugowishpax.studio${prefix}/">${navLabels[0]}</a><a href="${prefix}/">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/services#dat-lich">${navLabels[3]}</a><a href="${prefix}/student-pricing">${navLabels[4]}</a><a href="${prefix}/user-guide">${navLabels[5]}</a></nav>`;
+    : `<nav style="margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:1rem;font-size:0.9rem"><a href="https://portfolio.hugowishpax.studio${prefix}/">${navLabels[0]}</a><a href="${prefix}/">${navLabels[1]}</a><a href="${prefix}/faq">${navLabels[2]}</a><a href="${prefix}/services#dat-lich">${navLabels[3]}</a><a href="${prefix}/privacy-policy">${navLabels[5]}</a></nav>`;
 
   // Scoped so it cannot leak into the React tree that replaces this block.
   const BLOCK_CSS =
@@ -927,7 +898,7 @@ const faqs = (tVI.faqPage.faqs || []).map(({ question, answer }) => ({ question,
 const tEN = JSON.parse(fs.readFileSync(path.join(ROOT, "apps/web/src/i18n/locales/en/translation.json"), "utf8"));
 const enPricing =
   `## Pricing in English (for clients outside Vietnam; prices in VND, US$ figures approximate)\n\n` +
-  servicePackages.filter((p) => !p.freeTier).map((p) => {
+  servicePackages.map((p) => {
     const it = tEN.servicePkg.items[p.id];
     const price = it.price.to ? `${it.price.from} – ${it.price.to}` : it.price.from;
     return `- [${p.name}](${ORIGIN}/en/services/${p.slug}): ${price} — ${it.seo?.description || it.lede}`;

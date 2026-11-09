@@ -76,7 +76,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
-  const [isEditMode, setIsEditMode] = useState(false);
 
   const allUtilities = useMemo(
     () => APP_CATALOG_MANIFESTS.map((app) => ({
@@ -136,7 +135,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [editingApp, setEditingApp] = useState(null);
 
   // Advanced UI States
-  const [flyingApp, setFlyingApp] = useState(null);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
   const [spotlightQuery, setSpotlightQuery] = useState("");
   const [spotlightSelectedIndex, setSpotlightSelectedIndex] = useState(0);
@@ -176,24 +174,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       ));
     }
   }, [bio]);
-
-  // Sync to database and localStorage helper
-  const syncInstalledApps = async (updatedApps) => {
-    const appsToSave = appInstallationPolicy.normalizeInstalled(updatedApps);
-    setInstalledApps(appsToSave);
-    localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(appsToSave));
-    
-    if (bio?._id && bio._id !== 'guest') {
-      try {
-        const res = await memberService.updateMemberBio(bio._id, { installedUtilities: appsToSave });
-        if (res?.bio && onBioUpdate) {
-          onBioUpdate(res.bio);
-        }
-      } catch {
-        // Soft fail open — local storage maintains installed apps state
-      }
-    }
-  };
 
   // Keep localStorage synced cleanly with installedApps
   useEffect(() => {
@@ -440,6 +420,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
     window.addEventListener("keydown", handleSpotlightKeys);
     return () => window.removeEventListener("keydown", handleSpotlightKeys);
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSpotlightOpen, spotlightSelectedIndex, spotlightFilteredApps]);
 
   useEffect(() => {
@@ -531,39 +513,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           onBioUpdate(res.bio);
         }
       } catch { /* soft fail open */ }
-    }
-  };
-
-  // Drag and Drop
-  const handleDragStart = (e, index, type) => {
-    if (!isEditMode) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData("text/plain", index);
-    e.dataTransfer.setData("type", type);
-  };
-
-  const handleDrop = (e, targetIndex, type) => {
-    e.preventDefault();
-    const sourceIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    const sourceType = e.dataTransfer.getData("type");
-
-    if (sourceType !== type) return;
-
-    const listToModify = type === "widget" ? myWidgets : myIcons;
-    const sourceItem = listToModify[sourceIndex];
-    const targetItem = listToModify[targetIndex];
-
-    const actualSourceIdx = installedApps.indexOf(sourceItem.id);
-    const actualTargetIdx = installedApps.indexOf(targetItem.id);
-
-    if (actualSourceIdx !== -1 && actualTargetIdx !== -1) {
-      const updated = [...installedApps];
-      updated[actualSourceIdx] = targetItem.id;
-      updated[actualTargetIdx] = sourceItem.id;
-      syncInstalledApps(updated);
-      showToast?.(t("utilities.library.positionUpdated"), "success");
     }
   };
 
@@ -754,10 +703,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     appGestureRef.current = null;
 
     if (isTap && !isLongPressTriggered.current) {
-      if (isEditMode) {
-        setEditingApp(app);
-        return;
-      }
       openApp(app, event?.currentTarget?.querySelector?.(".utility-app-icon"));
     }
   };
@@ -863,9 +808,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               <WidgetRenderer
                 myWidgets={myWidgets}
                 utilitySizes={utilitySizes}
-                isEditMode={isEditMode}
-                handleDragStart={handleDragStart}
-                handleDrop={handleDrop}
                 handleAppTouchStart={handleAppTouchStart}
                 handleAppTouchMove={handleAppTouchMove}
                 handleAppTouchCancel={handleAppTouchCancel}
@@ -885,9 +827,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               {/* SECTION B: APP ICONS GRID Component */}
               <AppIconRenderer
                 myIcons={myIcons}
-                isEditMode={isEditMode}
-                handleDragStart={handleDragStart}
-                handleDrop={handleDrop}
                 handleAppTouchStart={handleAppTouchStart}
                 handleAppTouchMove={handleAppTouchMove}
                 handleAppTouchCancel={handleAppTouchCancel}
@@ -1071,39 +1010,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         </div>
       )}
 
-      {/* 🚀 FLYING APP ICON INSTALLATION EFFECT */}
-      {flyingApp && (
-        <div 
-          className="fixed pointer-events-none z-[999] flex flex-col items-center justify-center transition-all"
-          style={{
-            left: 0,
-            top: 0,
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <div 
-            className="flex flex-col items-center justify-center"
-            style={{
-              position: "absolute",
-              left: `${flyingApp.start.x}px`,
-              top: `${flyingApp.start.y}px`,
-              transform: "translate(-50%, -50%)",
-              "--fly-start-x": "0px",
-              "--fly-start-y": "0px",
-              "--fly-end-x": `${flyingApp.end.x - flyingApp.start.x}px`,
-              "--fly-end-y": `${flyingApp.end.y - flyingApp.start.y}px`,
-              animation: "flyToHome 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards"
-            }}
-          >
-            <UtilityAppIcon app={flyingApp} gradient={GRADIENTS[flyingApp.tint] || GRADIENTS.indigo} size="large" className="shadow-2xl" />
-            <span className="text-[10px] font-black text-white bg-black/75 px-2.5 py-0.5 rounded-lg mt-2 tracking-wider shadow pointer-events-none z-10">
-              {flyingApp.title}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* 🎮 Standalone Arcade Mini-Game Sheet Launcher */}
       <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
       {activeArcadeGame && (
@@ -1125,20 +1031,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           0% { width: 10%; }
           50% { width: 85%; }
           100% { width: 10%; }
-        }
-        @keyframes flyToHome {
-          0% {
-            transform: translate3d(var(--fly-start-x), var(--fly-start-y), 0) scale(1.2);
-            opacity: 1;
-          }
-          70% {
-            transform: translate3d(var(--fly-mid-x), var(--fly-mid-y), 0) scale(0.6);
-            opacity: 0.8;
-          }
-          100% {
-            transform: translate3d(var(--fly-end-x), var(--fly-end-y), 0) scale(0.1);
-            opacity: 0;
-          }
         }
       `}</style>
     </div>

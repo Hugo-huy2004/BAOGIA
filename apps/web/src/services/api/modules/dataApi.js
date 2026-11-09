@@ -55,7 +55,6 @@ const safeFetch = async (url, options = {}) => {
   }
 };
 
-const companionHistoryRequests = new Map();
 const inflightGetRequests = new Map();
 const cachedGetResponses = new Map();
 const GET_CACHE_TTL_MS = 5000;
@@ -101,21 +100,6 @@ const fetchJsonWithDedup = async (url, options = {}, { cacheTtlMs = GET_CACHE_TT
   } finally {
     inflightGetRequests.delete(cacheKey);
   }
-};
-
-const createHttpError = async (response, fallbackMessage) => {
-  let responseBody = '';
-  try {
-    responseBody = await response.text();
-  } catch (error) {
-    responseBody = error?.message || '';
-  }
-
-  const bodyPreview = responseBody ? ` Body: ${responseBody.slice(0, 500)}` : '';
-  const error = new Error(`${fallbackMessage}. Status: ${response.status} ${response.statusText}.${bodyPreview}`);
-  error.status = response.status;
-  error.responseBody = responseBody;
-  return error;
 };
 
 export const dataApi = {
@@ -324,21 +308,16 @@ export const dataApi = {
   },
 
   // Delete member bio
-  async deleteMemberBio(id) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/bios/${id}`, { credentials: 'include',
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.error || 'Failed to delete bio');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('Error deleting member bio:', error);
+  // Xoá cả tài khoản. Server trả 428 (REAUTH_REQUIRED) khi cần xác nhận lại danh tính.
+  async deleteMemberBio() {
+    const response = await fetch(`${API_BASE_URL}/bios/me/account`, { credentials: 'include', method: 'DELETE' });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(payload.error || 'Failed to delete account');
+      error.code = payload.code;
       throw error;
     }
+    return payload;
   },
 
   // Validate public partner access for embedded partner bio editor
@@ -354,20 +333,6 @@ export const dataApi = {
       return await response.json();
     } catch (error) {
       console.error('Error fetching partner:', error);
-      throw error;
-    }
-  },
-
-  // Search bios with pagination (Admin only, requires token)
-  async getBios(params) {
-    try {
-      const query = new URLSearchParams(params).toString();
-      const response = await fetchJsonWithDedup(`${API_BASE_URL}/bio?${query}`, { credentials: 'include', headers: getAuthHeaders() });
-
-      if (!response.ok) throw new Error('Failed to fetch bios');
-      return await response.json();
-    } catch (error) {
-      console.error('Error fetching bios:', error);
       throw error;
     }
   },

@@ -67,7 +67,7 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   const routed = typeof onRouteChange === "function";
   const [localDetailId, setLocalDetailId] = useState(null);
   const detailId = routed ? (route || null) : localDetailId;
-  const setDetailId = (id) => (routed ? onRouteChange(id || "home") : setLocalDetailId(id));
+  const setDetailId = useCallback((id) => (routed ? onRouteChange(id || "home") : setLocalDetailId(id)), [routed, onRouteChange]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [exchange, setExchange] = useState(null);
@@ -198,12 +198,12 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
   const openDetail = useCallback((appId) => {
     setDetailId(appId);
     scrollRef.current?.scrollTo({ top: 0 });
-  }, []);
+  }, [setDetailId]);
 
   const leaveDetail = useCallback(() => {
     setDetailId(null);
     scrollRef.current?.scrollTo({ top: 0 });
-  }, []);
+  }, [setDetailId]);
 
   return (
     /*

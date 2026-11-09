@@ -448,7 +448,6 @@ export const PACKAGE_BASE_DAYS = {
   'hugo-one': 5,
   'hugo-story': 10,
   'hugo-flow-plus': 18,
-  'hugo-edu-plus': 1,
 };
 
 const ESTIMATE_RULES = [

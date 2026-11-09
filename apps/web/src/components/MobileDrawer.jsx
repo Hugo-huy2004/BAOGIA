@@ -17,8 +17,8 @@ export default function MobileDrawer() {
   const session = getMemberSession();
 
   const mainMenuItems = [
-    { label: t("navbar.services", "Dịch Vụ"), path: "/" },
-    { label: "Hugo Edu+", path: "/student-pricing" },
+    { label: t("footer.introduction", "Giới thiệu"), path: "/" },
+    { label: t("navbar.services", "Dịch Vụ"), path: "/services" },
     { label: t("navbar.faq", "Hỏi Đáp"), path: "/faq" },
   ];
 

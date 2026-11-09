@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { getAdminSession } from '../../services/api/core/authSession';
 import { notify } from '../../lib/notify';
 import { packageApi } from '../../services/api/modules/packageApi';
@@ -8,8 +7,7 @@ import SmartUserSearch from './SmartUserSearch';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-export default function AdminServicesTab({ showNotification, triggerConfirm }) {
-  const { t } = useTranslation();
+export default function AdminServicesTab({ triggerConfirm }) {
   const [activeSegment, setActiveSegment] = useState('packages'); // 'packages' | 'joy'
   
   // PayOS States
@@ -21,7 +19,6 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
 
   // Joy States
   const [cards, setCards] = useState([]);
-  const [joyLoading, setJoyLoading] = useState(true);
   const [joyForm, setJoyForm] = useState({ amount: '', note: '', count: 1 });
   const [joyMode, setJoyMode] = useState('voucher'); // 'voucher' | 'direct'
   const [joyUser, setJoyUser] = useState(null);
@@ -34,7 +31,6 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
   const [assignUser, setAssignUser] = useState(null);
   const [memberPkgSearchEmail, setMemberPkgSearchEmail] = useState("");
   const [searchedMemberBio, setSearchedMemberBio] = useState(null);
-  const [pkgLoading, setPkgLoading] = useState(false);
 
   const getHeaders = () => {
     const session = getAdminSession();
@@ -58,23 +54,20 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
   };
 
   const fetchCards = async () => {
-    setJoyLoading(true);
     try {
       const r = await fetch(`${API_BASE_URL}/joy-gift-cards`, { headers: getHeaders(), credentials: 'include' });
       const data = await r.json();
       setCards(Array.isArray(data) ? data : []);
-    } catch {} finally { setJoyLoading(false); }
+    } catch {}
   };
 
   const fetchPackageTemplates = async () => {
-    setPkgLoading(true);
     try {
       const data = await packageApi.getPackages();
       setPackageTemplates(data || []);
     } catch (e) {
       console.error(e);
     } finally {
-      setPkgLoading(false);
     }
   };
 
@@ -84,6 +77,8 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
     fetchLinks();
     fetchCards();
     fetchPackageTemplates();
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // PayOS Handlers

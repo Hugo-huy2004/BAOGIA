@@ -6,15 +6,10 @@
    + nhánh trong FULL_LOCALES của config.js. */
 export const SUPPORTED_LANGUAGES = [
   { code: "vi", label: "Tiếng Việt", locale: "vi-VN" },
-  // Chữ Nôm KHÔNG phải một ngôn ngữ khác — nó là lối VIẾT khác của chính tiếng
-  // Việt. Vì vậy `locale` vẫn là vi-VN (ngày tháng, số, thứ tự sắp xếp đều theo
-  // tiếng Việt), và khoá nào chưa dịch sẽ rơi về quốc ngữ chứ không rơi về
-  // tiếng Anh. Nhãn ghi cả hai lối viết để người chưa đọc được Nôm vẫn tìm thấy.
-  { code: "nom", label: "𡨸喃 · Chữ Nôm", locale: "vi-VN" },
   { code: "en", label: "English", locale: "en-US" },
   { code: "zh", label: "简体中文", locale: "zh-CN" },
 ];
-export const SELECTABLE_LANGUAGES = SUPPORTED_LANGUAGES.filter(({ code }) => code !== "nom");
+export const SELECTABLE_LANGUAGES = SUPPORTED_LANGUAGES;
 
 // One app-owned key is the source of truth. `i18nextLng` and `ui-store` are
 // kept as migration targets because older releases wrote the preference there.
@@ -27,12 +22,13 @@ const LANGUAGE_BY_CODE = new Map(SUPPORTED_LANGUAGES.map((language) => [language
 
 function supportedLanguageCode(language) {
   const code = String(language || "").trim().toLowerCase().split("-")[0];
+  // "nom" (chữ Nôm, gỡ 08/11/2026): máy cũ còn lưu mã này — đó là người Việt.
+  if (code === "nom") return "vi";
   return LANGUAGE_BY_CODE.has(code) ? code : null;
 }
 
 export function languageCode(language = "en") {
-  const code = String(language || "en").toLowerCase().split("-")[0];
-  return LANGUAGE_BY_CODE.has(code) ? code : "en";
+  return supportedLanguageCode(language) || "en";
 }
 
 export function localeForLanguage(language = "en") {

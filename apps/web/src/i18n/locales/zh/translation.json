@@ -1326,7 +1326,7 @@
       "cancel": "取消",
       "confirm": "确认完全删除当前合作伙伴生物设计？",
       "deletePartner": "确认完全删除当前会员端口界面？",
-      "deletePersonal": "确认彻底删除个人简介？此操作无法撤销。"
+      "deletePersonal": "永久删除您的账户及全部数据（简介、JOY、记录）？此操作无法撤销。"
     },
     "guest": {
       "headline": "BENTO风格生物设计",
@@ -1356,8 +1356,8 @@
       "activateSuccess": "您的 Hugo Bio 帐户现已激活。",
       "saveError": "无法保存更改。",
       "deleteLocalSuccess": "本地合作伙伴简介删除。",
-      "deletePersonalSuccess": "您的个人简介已删除。",
-      "deletePersonalError": "无法删除您的个人简介。",
+      "deletePersonalSuccess": "您的账户已删除。",
+      "deletePersonalError": "无法删除您的账户。",
       "copySuccess": "公共链接复制成功。"
     },
     "headlineEmpty": "未设置标题",
@@ -5211,49 +5211,6 @@
     "invalidBody": "链接可能有误或已过期。请联系 Hugo Studio 获取新链接。",
     "invalidTitle": "项目链接无法打开"
   },
-  "studentBenefitsPage": {
-    "metaTitle": "Hugo Edu+ —— 面向学生的免费 Bio 页面 | Hugo Studio",
-    "metaDesc": "用学校邮箱完成验证，即可获得专属 Bio 页面，免费 365 天。三套现成主题随时切换；若需要完整网站套餐，另有学生优惠。",
-    "backToServices": "返回服务",
-    "giftSpark": "Spark 的 12 个月 —— 免费提供！",
-    "title": "你的梦想简介页面",
-    "desc": "你是 IT 学生，艺术家还是等待被发现的创作者吗？请领取你美丽的无广告便当型简介页面。这是你在网络上的家，用来展示你自己！",
-    "marketValue": "正常价格",
-    "perYear": "/年",
-    "marketPrice": "₫550,000（约 $20.99）",
-    "giftToYou": "Hugo 的礼物",
-    "giftPrice": "₫26,000（约 $0.99）",
-    "priceless": " — 无价！",
-    "orManual": "或者点击下方如果未提示",
-    "clickSelect": "选择 Google 账户",
-    "warningClientId": "警告：缺少 Google 客户端 ID",
-    "originError": "授权的 JavaScript 原点必须包含当前原点和生产域。",
-    "blockedByOauth": "Google 登入因 OAuth 配置被阻止！",
-    "ready": "OAuth 机器人已就绪！",
-    "loading": "唤醒 OAuth 机器人…",
-    "securityDesc": "使用 Google OAuth 2.0. 自动提示您浏览器中已登录的 edu 身份验证信息。”",
-    "toastFail": "哎呀！Google 验证失败了。”",
-    "toastNetwork": "服务器连接丢失。稍后重试吧！”",
-    "toastPending": "没有 .edu 邮箱？没问题，您的账户正在排队等待定制审核！跳转中…",
-    "benefits": {
-      "free": {
-        "title": "免费使用",
-        "desc": "12 个月的高级功能。无隐藏费用，无广告。只有一份来自我的承诺给您！”"
-      },
-      "creative": {
-        "title": "创意乐园",
-        "desc": "每一种颜色、每一幅图片和每一个链接都可以完全自定义。展现真实的自我！”"
-      },
-      "fast": {
-        "title": "闪电般快速",
-        "desc": "瞬间加载，无任何延迟。流畅如初雪——体验纯粹的速度！"
-      },
-      "yours": {
-        "title": "真正属于你",
-        "desc": "专属子域名链接。没有模板化的样式，没有通用的盒子。脱颖而出！"
-      }
-    }
-  },
   "common": {
     "regionVietnamOnly": {
       "title": "仅面向越南地区。",
@@ -6351,7 +6308,7 @@
   "servicePkg": {
     "compare": {
       "kicker": "对比",
-      "title": "四个套餐，并排来看。",
+      "title": "三个套餐，并排来看。",
       "lede": "不是功能清单。这是你真正带走的东西。",
       "current": "当前查看",
       "yes": "包含",
@@ -6745,107 +6702,6 @@
           "description": "带在线预约或接单、专属管理后台、扫码或付款链接收款的网站。₫1947万（约 $749）起，3–5 周交付，终身免费修复错误。",
           "keywords": "预约网站, 在线接单网站, 带后台的网站, 预约系统网站, 小企业订单系统, Hugo Flow+"
         }
-      },
-      "hugo-edu-plus": {
-        "title": "Bio 页面。专为学生而做。",
-        "lede": "用一个简洁的链接，介绍你自己、你的项目和所有重要链接。完成学生身份验证后，365 天免费。",
-        "intro": [
-          "在读的人往往还不需要网站，他们需要一个立足点：一个能附在申请里、发给老师、贴进个人主页的网址。内容自己填、自己改，样式在账号里自己换，不必会编程。"
-        ],
-        "audience": [
-          "需要一个页面来介绍自己和作品的中学生、大学生。",
-          "正在准备实习申请材料的学习者。",
-          "需要一个共用链接的社团与课题小组。"
-        ],
-        "includes": [
-          {
-            "title": "365 天免费。",
-            "body": "自通过验证当天起算。无需银行卡，不会自动续费扣款。"
-          },
-          {
-            "title": "公共域名下的专属网址。",
-            "body": "在 Hugo Studio 公共域名下、以你名字命名的网址。免费——你无需购买域名。"
-          },
-          {
-            "title": "头像与自我介绍。",
-            "body": "照片、职业头衔、自我介绍与联系方式。"
-          },
-          {
-            "title": "项目与个人链接。",
-            "body": "带图片与说明的项目列表，以及你想指向的所有链接。"
-          },
-          {
-            "title": "在账户里自行更新。",
-            "body": "随时修改，即时生效，不必向任何人提申请。"
-          },
-          {
-            "title": "各种屏幕都好看。",
-            "body": "多套现成样式，随时更换。"
-          }
-        ],
-        "warranty": [
-          {
-            "title": "365 天全程支持。",
-            "body": "显示或账户方面的问题，在 Hugo Studio 能够支持的范围内处理。"
-          },
-          {
-            "title": "数据归你所有。",
-            "body": "到期后页面暂时隐藏，数据仍保留在账户中，可随时导出或重新开启。"
-          }
-        ],
-        "policyExtra": [
-          {
-            "title": "验证一次即可。",
-            "body": "学校邮箱；若你的邮箱不属于学校域名，则需在有效期内的学生证件。"
-          },
-          {
-            "title": "供学生个人使用。",
-            "body": "不得用作销售页或企业官网。那种情况属于 Hugo One 及以上。"
-          },
-          {
-            "title": "一个账户，一个 Bio 页面。",
-            "body": "社团或小组需要另一个页面，请单独沟通。"
-          },
-          {
-            "title": "计划可能调整。",
-            "body": "Hugo Studio 可能调整方案或停止接受新注册。已授予你的权益维持到期满为止。"
-          }
-        ],
-        "price": {
-          "from": "免费",
-          "to": "365 天",
-          "note": "通过验证后完全免费，含 Hugo Studio 公共域名下的网址。需要 Bio 模板之外的独立页面，可选 Hugo One，享 85 折。",
-          "factors": [
-            "365 天到期后：可续期或转为付费套餐，不会自动扣款。",
-            "按需定制的设计不在本套餐范围内。"
-          ]
-        },
-        "faq": [
-          {
-            "question": "谁可以免费使用 Hugo Edu+？",
-            "answer": "中小学生、大学生或在读者，通过学校邮箱或有效期内的学生证件验证。"
-          },
-          {
-            "question": "365 天从什么时候开始算？",
-            "answer": "自学生身份通过验证、权益开通之时起算，而不是你创建账号那天。"
-          },
-          {
-            "question": "365 天之后数据会丢失吗？",
-            "answer": "不会。页面可能暂时隐藏，数据仍留在账号里，供你下载、续期或转到其他套餐。"
-          },
-          {
-            "question": "我是学生，选购付费套餐有优惠吗？",
-            "answer": "可以，Hugo One、Hugo Story 与 Hugo Flow+ 的设计费减 15%。适用于个人项目、课业或社团，每人每学年一个项目；不适用于第三方费用。"
-          }
-        ],
-        "features": [
-          "365 天免费",
-          "专属 Bio 链接",
-          "头像与自我介绍",
-          "项目与个人链接",
-          "在账户里自行更新",
-          "各种屏幕都好看"
-        ]
       }
     },
     "detail": {
@@ -6940,11 +6796,9 @@
         }
       ],
       "filmLabel": "服务",
-      "filmHeading": "四个套餐。一个标准。",
+      "filmHeading": "三个套餐。一个标准。",
       "filmCta": "说说你的需求",
       "detailCta": "查看套餐详情",
-      "demoCta": "打开你的 Bio",
-      "eduAction": "查看 Hugo Edu+ 权益",
       "landingKicker": "落地页",
       "landingTitle1": "不必把所有话都说完。",
       "landingTitle2": "说对那一句就够。",
@@ -7501,114 +7355,6 @@
       "body": "我先发域名、主机、邮箱价格；你用自己的账户购买，我在制作过程中完成接入。交付源代码（.ZIP）和已上线的网站链接。"
     }
   },
-  "studentPage": {
-    "meta": {
-      "title": "Hugo Edu+ · 学生专属权益 | Hugo Studio",
-      "description": "用学校邮箱验证一次，即可开通 365 天免费 Bio 页面以及 Hugo Studio 的学习工具。",
-      "keywords": "学生权益, 免费学生 Bio 页面, 学校邮箱验证, 学习工具, Hugo Edu+"
-    },
-    "heroEyebrow": "Hugo Edu+ · 面向已验证的学习者",
-    "heroTitle1": "一个学习的地方。",
-    "heroTitle2": "一年成长的时间。",
-    "heroLede": "验证一次，就能开通属于你的 Bio 页面 365 天，以及 Hugo Studio 里的学习工具和全部学生权益。",
-    "heroCta": "立即验证",
-    "heroCtaAlt": "看看界面",
-    "startKicker": "从这里开始",
-    "daysUnit": "天",
-    "daysFree": "免费",
-    "startTitle": "你的 Bio。你的故事。随时自己更新。",
-    "startLede": "不用银行卡，不用挑套餐。只需要一个学校邮箱，或者同等效力的学生证明。你拿到的不是优惠码，而是网络上一个写着你名字的位置。",
-    "verifyTitle": "学生身份验证",
-    "verifySub": "如果你用的是学校邮箱，会自动完成。",
-    "step1": "用 Google 登录",
-    "step1Desc": "使用你学校的 Google 账户。",
-    "step2": "核验学生身份",
-    "step2Ok": "学校邮箱有效。",
-    "step2Pending": "可改为提交同等证明进行人工审核。",
-    "step2Todo": "登录后自动进行。",
-    "step3": "开通权益",
-    "step3Desc": "365 天的 Bio 页面，以及 Hugo Studio 里的学习工具。",
-    "pickAccount": "点击选择 Google 账户",
-    "gisReady": "Google 登录已就绪。",
-    "gisLoading": "正在准备验证…",
-    "openBenefits": "开通 Hugo Edu+ 权益",
-    "pendingNote": "这个邮箱不属于学校域名。你可以提交在有效期内的学生证明，按同等方式审核。",
-    "pendingCta": "提交审核",
-    "themeKicker": "界面",
-    "themeTitle1": "一个页面。",
-    "themeTitle2": "三种像你的样子。",
-    "themeNote": "随时在账户里更换界面。内容不变，换的只是外衣。",
-    "themes": {
-      "default": {
-        "name": "默认",
-        "note": "照片铺满整屏，名字浮在上方。人们先看见你，再开始读。"
-      },
-      "flat": {
-        "name": "简洁",
-        "note": "明亮、方正、不花哨。那种一路读到底、却没意识到自己在阅读的排版。"
-      },
-      "brutalism": {
-        "name": "块面",
-        "note": "粗边框、重色块、打字机字体。扫一眼就记住你。"
-      }
-    },
-    "blocksKicker": "Bio 页面里有什么",
-    "blocksTitle": "你往里面放什么。",
-    "blocks": [
-      {
-        "title": "照片与自我介绍",
-        "desc": "头像、显示名称、一行职业标签，以及用你自己的语气写的介绍。"
-      },
-      {
-        "title": "项目",
-        "desc": "每个项目一张图、一段简短说明，以及一个指向实际成品的链接。"
-      },
-      {
-        "title": "链接",
-        "desc": "作品集、GitHub、Behance、社交主页——收在一处，用一个链接发出去。"
-      },
-      {
-        "title": "学习经历",
-        "desc": "学校、专业、年级，以及你今年正在追的东西。"
-      },
-      {
-        "title": "技能与服务",
-        "desc": "你会做什么、用什么工具，以及你是否接单。"
-      },
-      {
-        "title": "分享",
-        "desc": "一个带你名字的链接，手机上打开快，附在简历里或贴到个人主页都合适。"
-      }
-    ],
-    "insideKicker": "Hugo Studio 里面",
-    "insideTitle": "不只是一个 Bio 页面。",
-    "benefits": [
-      {
-        "title": "Bio 页面，365 天免费。",
-        "desc": "你本人、你的项目、所有重要链接——都在一个地址上。随时在账户里修改。"
-      },
-      {
-        "title": "学习工具。",
-        "desc": "Web IDE、笔记、资料、词汇。学习、尝试、把作品做完，都不用离开浏览器。"
-      },
-      {
-        "title": "学习助手。",
-        "desc": "卡在哪就问哪。给出方向、解释概念、指出下一步。"
-      },
-      {
-        "title": "一起进步的地方。",
-        "desc": "提问、展示项目、获得指点——在 Hugo Studio 能支持的范围内。"
-      }
-    ],
-    "faqKicker": "常见问题",
-    "faqTitle": "先问清楚，更省事。",
-    "closingKicker": "Hugo Edu+ 条款",
-    "closingTitle1": "365 天，够你起步。",
-    "closingTitle2": "需要时，还有单独的支持。",
-    "closingLede": "验证通过即开通，不收费用。如果需要为作品集、课程作业或技术部分单独定制，直接找我。先定范围，再谈价格。",
-    "closingCta": "联系 Hugo",
-    "themePickerLabel": "选择 Bio 页面的界面"
-  },
   "projectsPage": {
     "navLabel": "项目",
     "backLink": "返回介绍页",
@@ -7827,110 +7573,6 @@
   },
   "pwa": {
     "installApp": "安装应用"
-  },
-  "nom": {
-    "intro": "喃字多為形聲：一半表義，一半表聲。明其法則，未見之字亦可讀。每課一部首，取自閣下正在使用之介面。",
-    "loading": "載入教材中…",
-    "loadFailed": "未能載入喃字教材。",
-    "lessonN": "第 {{n}} 課",
-    "radicalIs": "{{name}} 部 — {{meaning}}",
-    "lessonMeta": "教 {{teach}} 字 · 考 {{quiz}} 字",
-    "howItWorks": "下列每字皆可析為二：部首表義，其餘表聲。請留意後半之音與全字之音何其相近。",
-    "plus": "+",
-    "soundsLike": "（音近「{{sound}}」）",
-    "startExam": "應試 · {{count}} 個未教之字",
-    "examOf": "考",
-    "unseenChar": "此字本課未曾教授",
-    "next": "下一題",
-    "passed": "已及第",
-    "failed": "未達 — 須 {{mark}}% 以上",
-    "examNote": "試題皆為未教之字。能讀者，乃明其構字之法，非記其形也。",
-    "retry": "再試",
-    "backToLessons": "返回課目",
-    "passedOf": "已通過 {{done}} / {{total}} 部首",
-    "reset": "清除進度",
-    "resetTitle": "清除全部進度？",
-    "resetBody": "所有已通過之課將重新計算。"
-  },
-  "eduPage": {
-    "heroEyebrow": "Hugo Studio Member · 为学习者而设",
-    "heroLede": "一个账号，打开一个为学习者准备的小角落：写着你名字的 Bio 页面、带音乐的专注时段、休息时的小游戏，以及做小组作业的工具箱。添加到主屏幕，像应用一样打开。",
-    "heroCta": "查看加入条件",
-    "memberKicker": "Hugo Studio Member",
-    "memberTitle1": "一个账号。",
-    "memberTitle2": "学习所需的每个应用。",
-    "memberBody": "用 Google 登录一次。Bio 页面、专注记录、游戏分数和 JOY 钱包都跟着账号走，换一台设备也能接着用。没有广告，不出售数据。",
-    "facts": [
-      {
-        "value": "1",
-        "label": "个账号通用所有应用"
-      },
-      {
-        "value": "3",
-        "label": "种语言：越南语、英语、中文"
-      },
-      {
-        "value": "0",
-        "label": "条应用内广告"
-      }
-    ],
-    "featuresKicker": "里面有什么",
-    "featuresTitle1": "四个值得打开的应用。",
-    "featuresTitle2": "每一天。",
-    "features": [
-      {
-        "app": "Bio 页面",
-        "title": "一个写着你名字的页面。",
-        "body": "照片、项目、技能和所有链接汇集在一个地址。在账号里直接编辑，随时更换外观。",
-        "points": [
-          "验证后免费 365 天",
-          "三种外观：默认、扁平、方块",
-          "一个链接，附在任何申请里"
-        ]
-      },
-      {
-        "app": "专注",
-        "title": "专注，配上音乐。",
-        "body": "三档番茄钟，电台就在旁边。每完成一次专注都会获得 JOY。",
-        "points": [
-          "轻度、深度、大师三档",
-          "同一应用内免费电台",
-          "每次专注后获得 JOY"
-        ]
-      },
-      {
-        "app": "游戏",
-        "title": "值得的休息。",
-        "body": "四款 Hugo Studio 自制游戏，从 3D 国际象棋到贪吃蛇。直接在浏览器中玩，无需安装。",
-        "points": [
-          "Hugo Studio 独家制作",
-          "对战电脑或双人对战",
-          "赛季排行榜"
-        ]
-      }
-    ],
-    "termsKicker": "加入条件",
-    "termsTitle1": "四个条件。",
-    "termsTitle2": "然后一切都会打开。",
-    "terms": [
-      {
-        "title": "年满 14 岁",
-        "body": "14 至未满 18 岁需要父母或监护人同意并陪同使用。"
-      },
-      {
-        "title": "使用 Google 登录",
-        "body": "任何 Google 账号都可以，学校发放的账号最好。"
-      },
-      {
-        "title": "通过学习者验证",
-        "body": "学校邮箱自动通过。没有的话，可提交有效的学生证件人工审核。"
-      },
-      {
-        "title": "验证后 365 天",
-        "body": "到期后如仍在读可续期。不会自动扣费，数据保持不变。"
-      }
-    ],
-    "closingCta": "与 Hugo 联系"
   },
   "bioStudio": {
     "links": {

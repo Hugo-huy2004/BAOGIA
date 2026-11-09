@@ -15,7 +15,7 @@ import { formatServicePrice } from "../../utils/servicePrice";
  */
 
 const OBJ = { returnObjects: true };
-const PAID = servicePackages.filter((p) => !p.freeTier);
+const PAID = servicePackages;
 // Hàng thẻ: vuốt ngang trên điện thoại, lưới từ lg.
 const RAIL =
   "-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:grid lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden";

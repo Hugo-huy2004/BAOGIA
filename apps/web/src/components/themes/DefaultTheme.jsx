@@ -138,7 +138,7 @@ export default React.memo(function DefaultTheme({ bio, isPreview = false, isOnli
       </section>
 
       {/* SLIDE 2: INFO (Thông tin) */}
-      {(bio.bio || bio.height || bio.weight || bio.measurements || bio.birthday || bio.address || bio.hobbies || bio.phone) && (
+      {(bio.bio || bio.birthday || bio.address || bio.hobbies || bio.phone) && (
         <section className={`${isPreview ? 'min-h-full' : 'min-h-[100dvh]'} w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20`}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-lg pointer-events-none" />
           
@@ -172,32 +172,6 @@ export default React.memo(function DefaultTheme({ bio, isPreview = false, isOnli
             )}
 
             <div className="w-full space-y-4">
-              {/* Info Banner */}
-              {(bio.height || bio.weight || bio.measurements) && (
-                <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2.5 w-full">
-                  {bio.height && (
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/10 hover:scale-105">
-                      <span className="material-symbols-outlined text-white/70 mb-1 text-base">height</span>
-                      <span className="text-[7px] uppercase tracking-[0.15em] text-white/40 mb-0.5">Chiều cao</span>
-                      <p className="text-[10px] sm:text-xs font-serif font-bold tracking-widest text-white/95">{bio.height}</p>
-                    </div>
-                  )}
-                  {bio.weight && (
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/10 hover:scale-105">
-                      <span className="material-symbols-outlined text-white/70 mb-1 text-base">monitor_weight</span>
-                      <span className="text-[7px] uppercase tracking-[0.15em] text-white/40 mb-0.5">Cân nặng</span>
-                      <p className="text-[10px] sm:text-xs font-serif font-bold tracking-widest text-white/95">{bio.weight}</p>
-                    </div>
-                  )}
-                  {bio.measurements && (
-                    <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all hover:bg-white/10 hover:scale-105">
-                      <span className="material-symbols-outlined text-white/70 mb-1 text-base">straighten</span>
-                      <span className="text-[7px] uppercase tracking-[0.15em] text-white/40 mb-0.5">Số đo</span>
-                      <p className="text-[10px] sm:text-xs font-serif font-bold tracking-widest text-white/95">{bio.measurements}</p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
 
               {/* Other details */}
               {(bio.birthday || bio.address || bio.hobbies || bio.phone) && (

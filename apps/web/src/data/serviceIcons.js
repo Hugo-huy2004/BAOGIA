@@ -6,8 +6,7 @@
  * gói vốn là một bức tường chữ; icon riêng cho mỗi thẻ là thứ giúp mắt bám vào
  * và đoán được nội dung trước khi đọc.
  *
- * Tên icon là chuỗi Material Symbols, KHÔNG nằm trong tệp dịch: máy sinh chữ
- * Nôm sẽ dịch mất chúng (xem `apps/web/src/data/serviceCompare.js`). Phông nạp đầy bộ
+ * Tên icon là chuỗi Material Symbols, KHÔNG nằm trong tệp dịch. Phông nạp đầy bộ
  * từ Google Fonts nên tên nào cũng vẽ được.
  *
  * Thứ tự PHẢI khớp thứ tự mục trong `servicePkg.*`. Thêm hay bớt một mục thì
@@ -41,11 +40,5 @@ export const PACKAGE_ICONS = {
     includes: ["web", "touch_app", "table_chart", "qr_code_2", "edit_note"],
     warranty: ["all_inclusive", "edit", "smart_display"],
     policyExtra: ["admin_panel_settings"],
-  },
-  "hugo-edu-plus": {
-    audience: ["school", "work", "groups"],
-    includes: ["card_giftcard", "link", "person", "folder_open", "edit_note", "devices"],
-    warranty: ["support_agent", "folder_shared"],
-    policyExtra: ["verified", "person", "account_circle", "update"],
   },
 };

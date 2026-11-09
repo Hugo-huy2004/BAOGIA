@@ -128,53 +128,6 @@ export async function executeAutonomousCommand(promptText, options = {}) {
     return { success: true, reply: summaryText, action: 'system_health' };
   }
 
-  // ─── 1B. LỆNH: KIỂM TRA & ĐIỀU KHIỂN ROBOT / CAMERA FEED ─────────────────────
-  if (['robot', 'cam robot', 'camera robot', 'kiểm tra robot', 'kiem tra robot', 'robot status', 'robot link'].includes(lowerText)) {
-    let rawTunnelUrl = process.env.ROBOT_STREAM_URL || '';
-    try {
-      const RobotConfig = (await import('../models/RobotConfig.js')).default;
-      const { decryptTriple } = await import('../utils/tripleCrypto.js');
-      const doc = await RobotConfig.findOne({ key: 'ROBOT_STREAM_CONFIG' });
-      if (doc) {
-        const decrypted = decryptTriple(doc);
-        if (decrypted) rawTunnelUrl = decrypted;
-      }
-    } catch (e) {
-      console.warn('Dynamic RobotConfig fetch warning:', e.message);
-    }
-
-    const isTelegramBoss = source === 'telegram';
-    const displayUrl = isTelegramBoss 
-      ? (rawTunnelUrl || 'https://cloud-tunnel.internal/control') 
-      : 'https://cloud-tunnel.internal/masked-feed/#control (Khóa An Ninh Master PIN)';
-
-    const robotReport = `
-🤖 <b>[TRUNG TÂM GIÁM SÁT ROBOT & CAMERA FPV GIA ĐÌNH]</b>
-
-🤖 <b>Thiết bị:</b> <code>HUGO-ROBOT-01</code>
-⚡ <b>Trạng thái:</b> 🟢 <b>LIVE STREAM CONNECTED (Mã hóa 2 lớp)</b>
-📡 <b>Đường truyền:</b> Cloudflare WebRTC Secure Tunnel (18ms)
-🔋 <b>Pin Robot:</b> <b>94%</b> (Sạc AC)
-🎥 <b>Camera FPV:</b> HD 60fps Audio 2-Way (Tư Gia)
-🛡️ <b>Mã khóa Master PIN:</b> Đang bật bảo mật 6 số
-
-🌐 <b>Link điều khiển:</b>
-<code>${displayUrl}</code>
-${!isTelegramBoss ? '\n<i>📌 Để xem luồng camera trực tiếp, vui lòng mở Tab "Điều khiển Robot" trên Admin Panel và nhập Mã Master PIN.</i>' : ''}
-    `.trim();
-
-    const inlineMarkup = isTelegramBoss ? {
-      inline_keyboard: [
-        [
-          { text: '🎮 Mở Camera Stream', url: rawTunnelUrl },
-          { text: '🧠 AI Xiaozhi', url: `${rawTunnelUrl.replace('#control', '#xiaozhi')}` }
-        ]
-      ]
-    } : null;
-
-    return { success: true, reply: robotReport, markup: inlineMarkup, action: 'robot_status' };
-  }
-
   // ─── 2. LỆNH: TRA CỨU HỒ SƠ THÀNH VIÊN ──────────────────────────────────────
   const checkUserRegex = /(kiểm tra|kiem tra|info|tra cứu|tra cuu|xem user|user)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
   const checkMatch = text.match(checkUserRegex);

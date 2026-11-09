@@ -404,8 +404,8 @@ export function warrantyActive(project) {
   return ledgerTotals(project).due <= 0;
 }
 
-/** Ngôn ngữ hợp đồng cho người xem: vi (cả chữ Nôm) → vi, còn lại → en. */
-export const contractLangFor = (uiLang) => (['vi', 'nom'].includes(String(uiLang || '').split('-')[0]) ? 'vi' : 'en');
+/** Ngôn ngữ hợp đồng cho người xem: vi → vi, còn lại → en. */
+export const contractLangFor = (uiLang) => (String(uiLang || '').split('-')[0] === 'vi' ? 'vi' : 'en');
 
 /**
  * Dựng toàn bộ hợp đồng. Trả dữ liệu có cấu trúc (không phải HTML) để trang

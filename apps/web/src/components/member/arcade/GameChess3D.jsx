@@ -359,7 +359,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
     }
     setResult(nextResult);
     return true;
-  }, []);
+  }, [t]);
 
   // Smash & Striding Attack Execution
   const makeMove = useCallback((from, to, promotion = "q") => {

@@ -19,12 +19,9 @@ const MEMBER_TITLES = {
 const PUBLIC_PATHS = new Set([
   "/introduction",
   "/services",
-  "/student-pricing",
   "/faq",
   "/privacy-policy",
   "/terms",
-  "/user-guide",
-  "/terms-and-guide",
   "/radio",
   "/aura",
 ]);

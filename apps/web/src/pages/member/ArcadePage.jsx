@@ -22,6 +22,8 @@ export default function ArcadePage() {
     memberService.getMemberBio(session.email, session.displayName || session.name, session.avatarUrl)
       .then((res) => { if (res?.bio) setBio(res.bio); })
       .catch(console.error);
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.email]);
 
   return (

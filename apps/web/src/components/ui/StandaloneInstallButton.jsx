@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 import { isStandalone as isAppMode } from "../../config/platform";
 
-export default function StandaloneInstallButton({ appTitle, appId, className = "" }) {
+export default function StandaloneInstallButton({ className = "" }) {
   const { t } = useTranslation();
   const [isStandalone, setIsStandalone] = useState(false);
 

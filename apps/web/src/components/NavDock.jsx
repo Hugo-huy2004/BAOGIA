@@ -35,7 +35,6 @@ export function LanguageSwitch({ className = "" }) {
       className={`relative grid grid-cols-3 rounded-full p-0.5 ${className}`}
       style={{ "--i": Math.max(index, 0) }}
     >
-      {/* Chữ Nôm không nằm trong công tắc: đang dùng Nôm thì không tô ô nào. */}
       <span
         aria-hidden="true"
         className={`absolute inset-y-0.5 left-0.5 w-[calc((100%-0.25rem)/3)] translate-x-[calc(var(--i)*100%)] rounded-full bg-background shadow-[0_1px_4px_rgb(0_0_0/0.14)] transition-transform duration-300 [transition-timing-function:cubic-bezier(.3,1.4,.5,1)] ${index < 0 ? "opacity-0" : ""}`}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { JOY_DENOMS, denomKey } from "../../../../../packages/shared/joyCurrency";
 import { languageLabel, persistAppLanguage, SELECTABLE_LANGUAGES } from "../../i18n/languages";
-import { countryDisplayName, formatFullAddress, RELIGION_LABELS } from "../../lib/profileDisplay";
+import { countryDisplayName, formatFullAddress } from "../../lib/profileDisplay";
 import { getPreciseLocation } from "../../utils/geoCache";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -49,8 +49,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
   const [submitting, setSubmitting] = useState(false);
   const [checkingPhone, setCheckingPhone] = useState(false);
   const [error, setError] = useState("");
-  const [ethnicityOptions, setEthnicityOptions] = useState([]);
-  const [loadingEthnicities, setLoadingEthnicities] = useState(false);
   const [locating, setLocating] = useState(false);
 
   useEffect(() => {
@@ -78,18 +76,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
   const step = steps[stepIndex];
   const isLastStep = stepIndex === steps.length - 1;
 
-  useEffect(() => {
-    if (step?.type !== "ethnicity" || !values.countryCode) return;
-    let alive = true;
-    setLoadingEthnicities(true);
-    fetch(`${apiBase}/bios/me/profile-options/ethnicities?country=${encodeURIComponent(values.countryCode)}`, { credentials: "include" })
-      .then((response) => response.json())
-      .then((data) => alive && setEthnicityOptions(Array.isArray(data.options) ? data.options : []))
-      .catch(() => alive && setEthnicityOptions([]))
-      .finally(() => alive && setLoadingEthnicities(false));
-    return () => { alive = false; };
-  }, [step?.type, values.countryCode]);
-
   const setValue = (key, value) => setValues((current) => ({ ...current, [key]: value }));
 
   // Nhãn của các lựa chọn do CLIENT dựng: tên ngôn ngữ viết bằng chính tiếng đó
@@ -97,10 +83,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
   // xuống, nên không có chuỗi giao diện nào nằm ở backend.
   const optionLabel = (fieldKey, value) => {
     if (fieldKey === "language") return languageLabel(value);
-    if (fieldKey === "religion") {
-      const labels = i18n.language?.startsWith("vi") ? RELIGION_LABELS.vi : RELIGION_LABELS.en;
-      return labels[value] || value;
-    }
     const denom = JOY_DENOMS[value];
     return denom ? `${denom.code} — ${denom.name} · ${languageLabel(value)}` : value;
   };
@@ -171,8 +153,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
     if (field.type === "checkbox") return values[field.key] === true;
     if (field.type === "locationVerification") return values.locationConfirmed === true && Number.isFinite(values.verifiedLatitude) && Number.isFinite(values.verifiedLongitude)
       && values.locationAccuracy <= MAX_PIN_ACCURACY_M && pinCheck?.status !== "country";
-    if (field.key === "religion" && values.religion === "self_describe") return Boolean(String(values.religionDetail || "").trim());
-    if (field.key === "ethnicity" && values.ethnicity === "self_describe") return Boolean(String(values.ethnicityDetail || "").trim());
     return Boolean(String(values[field.key] || "").trim());
   };
 
@@ -227,8 +207,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
           email,
           referrerCode,
           ...values,
-          religion: values.religion === "self_describe" ? `self:${String(values.religionDetail || "").trim()}` : values.religion,
-          ethnicity: values.ethnicity === "self_describe" ? `self:${String(values.ethnicityDetail || "").trim()}` : values.ethnicity,
         }),
       });
       const data = await r.json();
@@ -462,40 +440,6 @@ export default function OnboardingProfileModal({ email, onDone, onSkip, blocking
                     </label>
                   </>
                 )}
-              </div>
-            )}
-
-            {step.type === "ethnicity" && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-muted/55 px-4 py-3">
-                  <span className="material-symbols-outlined text-[24px] text-muted-foreground" aria-hidden="true">diversity_3</span>
-                  <span className="text-[14px] font-semibold text-foreground">
-                    {loadingEthnicities
-                      ? (i18n.language?.startsWith("vi") ? "Đang lọc theo quốc gia…" : "Filtering by country…")
-                      : `${countryName(values.countryCode)} · ${ethnicityOptions.length} ${i18n.language?.startsWith("vi") ? "gợi ý" : "suggestions"}`}
-                  </span>
-                </div>
-                <select className={SELECT_CLASS} value={values.ethnicity || ""} onChange={(event) => setValue("ethnicity", event.target.value)}>
-                  <option value="">{i18n.language?.startsWith("vi") ? "Chọn dân tộc / bản sắc sắc tộc" : "Choose ethnicity"}</option>
-                  {ethnicityOptions.map((name) => <option key={name} value={name}>{name}</option>)}
-                  <option value="self_describe">{i18n.language?.startsWith("vi") ? "Tự ghi tên chính xác" : "Enter the exact name"}</option>
-                  <option value="prefer_not_to_say">{i18n.language?.startsWith("vi") ? "Không muốn tiết lộ" : "Prefer not to say"}</option>
-                </select>
-                {values.ethnicity === "self_describe" && <input type="text" value={values.ethnicityDetail || ""} onChange={(event) => setValue("ethnicityDetail", event.target.value)} maxLength={115} className={FIELD_CLASS} autoFocus />}
-              </div>
-            )}
-
-            {step.type === "religion" && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-muted/55 px-4 py-3">
-                  <span className="material-symbols-outlined text-[24px] text-muted-foreground" aria-hidden="true">account_balance</span>
-                  <span className="text-[14px] font-semibold text-foreground">{i18n.language?.startsWith("vi") ? "Tên truyền thống và hệ phái được ghi riêng" : "Traditions and denominations are listed separately"}</span>
-                </div>
-                <select className={SELECT_CLASS} value={values.religion || ""} onChange={(event) => setValue("religion", event.target.value)}>
-                  <option value="">{i18n.language?.startsWith("vi") ? "Chọn tôn giáo / hệ phái" : "Choose a religion / denomination"}</option>
-                  {(step.options || []).map((option) => <option key={option.value} value={option.value}>{optionLabel("religion", option.value)}</option>)}
-                </select>
-                {values.religion === "self_describe" && <input type="text" value={values.religionDetail || ""} onChange={(event) => setValue("religionDetail", event.target.value)} maxLength={150} className={FIELD_CLASS} autoFocus />}
               </div>
             )}
 

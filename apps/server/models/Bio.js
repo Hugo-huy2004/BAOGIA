@@ -192,18 +192,6 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    height: {
-      type: String,
-      default: ''
-    },
-    weight: {
-      type: String,
-      default: ''
-    },
-    measurements: {
-      type: String,
-      default: ''
-    },
     address: {
       type: String,
       default: ''
@@ -222,8 +210,6 @@ const BioSchema = new mongoose.Schema(
     locationAccuracy: { type: Number, default: 0 },
     locationGeocode: { type: String, default: '' },
     locationMatch: { type: String, default: '' },
-    religion: { type: String, default: '' },
-    ethnicity: { type: String, default: '' },
     education: {
       type: String,
       default: ''
@@ -742,9 +728,7 @@ const SENSITIVE_FIELDS = [
   'locality',
   'verifiedLatitude',
   'verifiedLongitude',
-  'locationGeocode',
-  'religion',
-  'ethnicity'
+  'locationGeocode'
 ];
 
 BioSchema.pre('save', function (next) {

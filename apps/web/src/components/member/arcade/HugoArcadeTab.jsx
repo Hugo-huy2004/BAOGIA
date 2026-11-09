@@ -223,7 +223,7 @@ export default function HugoArcadeTab({ bio, onBioUpdate, showToast, onBack }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || t("arcadeGame.exchangeError"));
     return data;
-  }, [bio?.email]);
+  }, [bio?.email, t]);
 
   const handleSuccess = React.useCallback((data) => {
     useJoyStore.getState().setBalance(data.balance);

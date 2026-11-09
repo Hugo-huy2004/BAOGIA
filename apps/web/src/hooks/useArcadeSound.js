@@ -13,24 +13,6 @@ export function useArcadeSound() {
     return audioCtxRef.current;
   };
 
-  const playTone = (freq, type, duration, vol = 0.1) => {
-    try {
-      const ctx = initCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(vol, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + duration);
-    } catch {
-      // Ignore audio errors if context is blocked
-    }
-  };
-
   const playWin = useCallback(() => {
     try {
       const ctx = initCtx();

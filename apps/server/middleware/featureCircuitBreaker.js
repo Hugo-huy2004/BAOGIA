@@ -61,9 +61,6 @@ export function createFeatureIsolation(featureName, featureLabel = featureName) 
     }
 
     // 2. Bắt lỗi đồng bộ & bất đồng bộ của riêng nhánh này
-    const originalJson = res.json.bind(res);
-    const originalStatus = res.status.bind(res);
-
     // Gắn handler bắt lỗi nếu handler tiếp theo throw uncaught exception
     try {
       res.on('finish', () => {

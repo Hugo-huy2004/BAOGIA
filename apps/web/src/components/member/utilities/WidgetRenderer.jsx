@@ -6,9 +6,6 @@ import { getAppStorageMb } from "../../../../../../packages/shared/appRegistry";
 export default function WidgetRenderer({
   myWidgets,
   utilitySizes,
-  isEditMode,
-  handleDragStart,
-  handleDrop,
   handleAppTouchStart,
   handleAppTouchMove,
   handleAppTouchCancel,
@@ -55,7 +52,7 @@ export default function WidgetRenderer({
     <div className="space-y-4 text-left">
       {myWidgets.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-        {myWidgets.map((app, index) => {
+        {myWidgets.map((app) => {
           const size = utilitySizes[app.id] || "small";
           const gradient = gradients[app.tint] || gradients.indigo;
 
@@ -69,10 +66,6 @@ export default function WidgetRenderer({
               if (event.pointerType === "mouse") handleAppTouchCancel();
             },
             style: { touchAction: "pan-y" },
-            draggable: isEditMode,
-            onDragStart: (e) => handleDragStart(e, index, "widget"),
-            onDragOver: (e) => e.preventDefault(),
-            onDrop: (e) => handleDrop(e, index, "widget"),
           };
 
           // 📐 CASE 1: MEDIUM WIDGET (2x1 Glass Card)
@@ -81,15 +74,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[136px] ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
-                }`}
+                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[136px]`}
               >
-                {isEditMode && (
-                  <div className="absolute top-2 right-2 w-5.5 h-5.5 rounded-full bg-primary/20 text-primary flex items-center justify-center animate-bounce">
-                    <span className="material-symbols-outlined text-xs font-black">drag_indicator</span>
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3.5 min-w-0">
@@ -104,14 +90,12 @@ export default function WidgetRenderer({
                     </div>
                   </div>
 
-                  {!isEditMode && (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="relative flex h-1.5 w-1.5">
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                      </span>
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{t("utilities.library.open")}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{t("utilities.library.open")}</span>
+                  </div>
                 </div>
 
                 <div className="mt-1.5 text-left text-xs">
@@ -182,15 +166,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[260px] text-left ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : ""
-                }`}
+                className={`relative group flex flex-col justify-between p-5 lg-glass rounded-3xl cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] overflow-hidden h-[260px] text-left`}
               >
-                {isEditMode && (
-                  <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center animate-bounce">
-                    <span className="material-symbols-outlined text-sm font-black">drag_indicator</span>
-                  </div>
-                )}
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">

@@ -134,7 +134,7 @@ export default function AdminUserOverview({ userId, onClose }) {
   if (loading) return <p className="p-6 text-sm text-muted-foreground">Đang dựng hồ sơ…</p>;
   if (!data) return null;
 
-  const { bio, wallet, commerce, security, devices, learning, play, social, failed } = data;
+  const { bio, wallet, commerce, security, devices, learning, play, failed } = data;
 
   return (
     <div className="space-y-4">

@@ -21,10 +21,10 @@ import { usePWA } from "../../hooks/usePWA";
 import { prepareInstallHandoff, withHandoff } from "../../utils/appHandoff";
 
 // Video hướng dẫn có ba bản (render từ artifacts/pwa-install-guide/source).
-// Chữ Nôm dùng bản Việt; ngôn ngữ khác chưa có bản riêng thì xem bản Anh.
+// Ngôn ngữ chưa có bản riêng thì xem bản Anh.
 function installLang(language = "") {
   const base = language.slice(0, 2);
-  if (base === "vi" || language.startsWith("nom")) return "vi";
+  if (base === "vi") return "vi";
   return base === "zh" ? "zh" : "en";
 }
 

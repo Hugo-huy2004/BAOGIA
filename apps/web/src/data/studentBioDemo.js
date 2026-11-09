@@ -22,7 +22,7 @@ export const studentBioDemo = {
   ],
   links: [
     { label: "Xem portfolio", url: "https://www.hugowishpax.studio/project" },
-    { label: "Dự án tiêu biểu", url: "https://www.hugowishpax.studio/student-pricing" },
+    { label: "Dự án tiêu biểu", url: "https://www.hugowishpax.studio/services" },
     { label: "Không gian học tập", url: "https://www.hugowishpax.studio/member" },
   ],
   tabs: [

@@ -158,7 +158,7 @@ export default React.memo(function BrutalismTheme({ bio, isPreview = false, isOn
       </section>
 
       {/* SLIDE 2: INFO (Thông tin) */}
-      {(bio.bio || bio.height || bio.weight || bio.measurements || bio.birthday || bio.address || bio.hobbies || bio.phone) && (
+      {(bio.bio || bio.birthday || bio.address || bio.hobbies || bio.phone) && (
         <section className={`${isPreview ? 'min-h-full' : 'min-h-[100dvh]'} w-full snap-start relative z-10 flex flex-col items-center justify-center p-6 py-20`}>
           <div className="absolute inset-0 bg-black/30 backdrop-blur-md pointer-events-none" />
           
@@ -182,29 +182,6 @@ export default React.memo(function BrutalismTheme({ bio, isPreview = false, isOn
             )}
 
             <div className="w-full space-y-4">
-              {/* Info Banner */}
-              {(bio.height || bio.weight || bio.measurements) && (
-                <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3 w-full">
-                  {bio.height && (
-                    <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center hover:bg-black hover:text-white transition-colors cursor-default">
-                      <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Chiều cao</span>
-                      <p className="text-xs font-black mt-1">{bio.height}</p>
-                    </div>
-                  )}
-                  {bio.weight && (
-                    <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center hover:bg-black hover:text-white transition-colors cursor-default">
-                      <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Cân nặng</span>
-                      <p className="text-xs font-black mt-1">{bio.weight}</p>
-                    </div>
-                  )}
-                  {bio.measurements && (
-                    <div style={brutalCardStyle} className="p-3 flex flex-col items-center justify-center hover:bg-black hover:text-white transition-colors cursor-default">
-                      <span className="text-[7px] uppercase tracking-wider font-bold opacity-60">Số đo</span>
-                      <p className="text-xs font-black mt-1 truncate w-full text-center">{bio.measurements}</p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
 
               {/* Other details */}
               {(bio.birthday || bio.address || bio.hobbies || bio.phone) && (

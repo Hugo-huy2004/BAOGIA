@@ -109,12 +109,6 @@ export const COMMANDS = [
     pattern: /^(?:nhật ký|nhat ky|audit log)$/i,
   },
   {
-    id: 'robot', danger: false, group: 'Hệ thống',
-    syntax: 'Mở camera', example: 'Mở camera',
-    desc: 'Link điều khiển robot/camera, hiệu lực ngắn',
-    pattern: /^(?:mở vector|mo vector|open robot|mở robot|mo robot|mở cam|mở camera|open cam)$/i,
-  },
-  {
     id: 'geoblock', danger: true, group: 'An ninh',
     syntax: 'Chặn quốc gia <MÃ> | Chặn ASN <AS####>', example: 'Chặn quốc gia CN',
     desc: 'Chặn cả quốc gia (mã ISO 2 chữ) hoặc một nhà mạng (ASN) ở tường lửa Cloudflare',

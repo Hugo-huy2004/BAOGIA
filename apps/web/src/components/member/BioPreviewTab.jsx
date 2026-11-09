@@ -1,14 +1,10 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AppFrame from "./os/AppFrame";
-import LazyBoundary from "./os/LazyBoundary";
 import { localeForLanguage } from "../../i18n/languages";
 import { getMemberSession } from "../../services/api/core/authSession";
 import "../../styles/bioStudio.css";
 import { BioRow, BioSection } from "./bioEditorKit";
-
-// Hồ sơ năng lực: từng là app "Hồ Sơ" riêng, gộp vào đây 25/10/2026.
-const ProfileProofPanel = lazy(() => import("./ProfileProofPanel"));
 
 function getBasePackageDetails(serviceLabel, t) {
   const label = serviceLabel || "Student Bio";
@@ -106,7 +102,6 @@ const EDITOR_SECTIONS = Object.freeze([
   { id: "design", labelKey: "designLabel", icon: "palette" },
   { id: "links", labelKey: "linkCardsLabel", icon: "link" },
   { id: "achievements", labelKey: "achievementsLabel", icon: "workspace_premium" },
-  { id: "proof", labelKey: "proofLabel", icon: "verified_user" },
 ]);
 
 export default function BioPreviewTab({
@@ -217,9 +212,7 @@ export default function BioPreviewTab({
       <div className="bio-studio-workspace">
         <main className="bio-studio-editor">
           <section className="bio-studio-editor-content" role="tabpanel">
-            {activeSection === "proof" ? (
-              <LazyBoundary><Suspense fallback={null}><ProfileProofPanel publicLink={publicLink} /></Suspense></LazyBoundary>
-            ) : renderAccountForm?.(activeSection)}
+            {renderAccountForm?.(activeSection)}
           </section>
 
           {/* Gói & hạn dùng là thông tin của cả trang Bio, nhưng chỉ cần thấy một

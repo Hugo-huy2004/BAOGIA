@@ -63,16 +63,11 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
     phone: cleanDecryptedValue(b.phone||""),
     hobbies: cleanDecryptedValue(b.hobbies||""),
     birthYear: b.birthYear||0, birthMonth: b.birthMonth||0, birthDay: b.birthDay||0,
-    height: cleanDecryptedValue(b.height||""),
-    weight: cleanDecryptedValue(b.weight||""),
-    measurements: cleanDecryptedValue(b.measurements||""),
     address: cleanDecryptedValue(b.address||""),
     exactAddress: cleanDecryptedValue(b.exactAddress||""),
     locality: cleanDecryptedValue(b.locality||""),
     adminArea: cleanDecryptedValue(b.adminArea||""),
     countryCode: cleanDecryptedValue(b.countryCode||""),
-    religion: cleanDecryptedValue(b.religion||""),
-    ethnicity: cleanDecryptedValue(b.ethnicity||""),
     education: cleanDecryptedValue(b.education||""),
     skills: cleanDecryptedValue(b.skills||""),
     jobTitle: cleanDecryptedValue(b.jobTitle||""),
@@ -378,7 +373,7 @@ function MemberPortalPage() {
       ? bioToFormData(cachedBioRef.current, memberSession?.displayName, emptyTheme)
       : {
           displayName: memberSession?.displayName || "", headline:"", bio:"", birthday:"", phone:"",
-          hobbies:"", height:"", weight:"", measurements:"", address:"", education:"", skills:"",
+          hobbies:"", address:"", education:"", skills:"",
           jobTitle:"", contactEmail:"", avatarUrl:"", links:[], theme: emptyTheme, tabs:[], projects:[], services:[],
         }
   );
@@ -402,6 +397,7 @@ function MemberPortalPage() {
 
   const [locationAnomaly, setLocationAnomaly] = useState(null);
   const [identityChallenge, setIdentityChallenge] = useIdentityCheck({ email: memberSession?.email });
+  const [deleteReauth, setDeleteReauth] = useState(false);
   // Anomalous-login guard — forces re-login if the device strays >50km from
   // the member's trusted location. Opt-in via the browser's native
   // geolocation permission prompt; fails open if denied/unavailable.
@@ -602,6 +598,8 @@ function MemberPortalPage() {
       clearTimeout(timeoutId);
       events.forEach(event => window.removeEventListener(event, resetTimer));
     };
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bio?.autoLogoutMinutes, isGuestMode]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
@@ -716,7 +714,7 @@ function MemberPortalPage() {
 
   const emptyFormReset = (guest=false) => ({
     displayName: guest ? "HUGO STUDIO PARTNER GUEST" : (memberSession?.displayName||""),
-    headline:"", bio:"", birthday:"", phone:"", hobbies:"", height:"", weight:"", measurements:"", address:"",
+    headline:"", bio:"", birthday:"", phone:"", hobbies:"", address:"",
     education:"", skills:"", jobTitle:"", contactEmail:"", avatarUrl:"", links:[],
     theme: guest ? { ...emptyTheme, bgColor:"#0f172a", textColor:"#f8fafc" } : emptyTheme, tabs:[],
     antiDeepfakeLock: false,
@@ -730,13 +728,24 @@ function MemberPortalPage() {
       return;
     }
     if (!bio?._id) return;
-    triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
-      setSaving(true);
-      try { await memberService.deleteMemberBio(bio._id); if (memberSession?.email) clearCachedBio(memberSession.email); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); navigate("/member/account"); }
-      catch { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
-      finally { setSaving(false); }
-    });
+    triggerConfirm(t("memberPortal.confirm.deletePersonal"), deleteAccount);
   };
+
+  // Xoá xong thì tài khoản đăng nhập cũng mất → dọn phiên, về trang chủ.
+  // 428 = cần xác nhận lại danh tính (Face ID / Google) rồi thử lại.
+  async function deleteAccount() {
+    setSaving(true);
+    try {
+      await memberService.deleteMemberBio();
+      if (memberSession?.email) clearCachedBio(memberSession.email);
+      showToast(t("memberPortal.toast.deletePersonalSuccess"), "success");
+      await logoutAuth().catch(() => {});
+      window.location.assign("/");
+    } catch (error) {
+      if (error?.code === "REAUTH_REQUIRED") setDeleteReauth(true);
+      else showToast(t("memberPortal.toast.deletePersonalError"), "error");
+    } finally { setSaving(false); }
+  }
 
   const handleCopyLink = async () => { if (!publicLink) return; await navigator.clipboard.writeText(publicLink); showToast(t("memberPortal.toast.copySuccess"), "success"); };
 
@@ -1193,6 +1202,14 @@ function MemberPortalPage() {
       <ConfirmItsYouDialog
         reason={t("memberPortal.confirmItsYou.reasonPeriodic")}
         onConfirmed={async () => { await confirmIdentityCheck(); setIdentityChallenge(null); }}
+      />
+    )}
+
+    {deleteReauth && (
+      <ConfirmItsYouDialog
+        reason={t("memberPortal.confirm.deletePersonal")}
+        onConfirmed={() => { setDeleteReauth(false); deleteAccount(); }}
+        onCancel={() => setDeleteReauth(false)}
       />
     )}
 

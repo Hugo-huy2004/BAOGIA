@@ -18,14 +18,14 @@ export default function JoyAmount({ value, className = "", unitClassName = "" })
       {joyParts(value).map((part, index) => (
         part.unit ? (
           <span
-            // eslint-disable-next-line react/no-array-index-key
+             
             key={index}
             className={`text-[0.62em] font-medium opacity-70 ${unitClassName}`}
           >
             {part.text}
           </span>
         ) : (
-          // eslint-disable-next-line react/no-array-index-key
+           
           <span key={index}>{part.text}</span>
         )
       ))}

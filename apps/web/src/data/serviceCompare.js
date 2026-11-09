@@ -9,10 +9,7 @@
  * tick: dấu tick nói "có", câu chữ nói "có cái gì".
  *
  * Icon và các ô "có / không" là SỰ THẬT VỀ SẢN PHẨM, không phải câu chữ, nên
- * chúng nằm ở đây chứ không nằm trong translation.json. Lý do rất cụ thể: bản
- * chữ Nôm được sinh tự động từ tiếng Việt (`npm run build:nom`), và nó đã từng
- * dịch luôn từ khoá "yes" thành 𩛂 rồi đánh rơi khoá `icon` — bảng mất sạch
- * icon và dấu tick ở ngôn ngữ đó.
+ * chúng nằm ở đây chứ không nằm trong translation.json: bản dịch chỉ chứa câu chữ.
  *
  * Mỗi ô có hai phần: một KÝ HIỆU trạng thái (`marks[gói]`) và một câu chữ
  * (`servicePkg.compare.cells.<id>.<gói>`). Ký hiệu có ba trạng thái, để khách
@@ -38,11 +35,11 @@ export const COMPARE_ROWS = [
   // Phí thêm trang và vòng chỉnh ba gói trả phí như nhau, nên chúng nằm ở bảng
   // phí trong trang chứ không chiếm hàng ở đây (2026-09-28).
   { id: "pages", icon: "description" },
-  { id: "live", icon: "public", marks: { "hugo-one": "extra", "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
-  { id: "found", icon: "search", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": false } },
-  { id: "contact", icon: "mail", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
-  { id: "selling", icon: "shopping_cart", marks: { "hugo-one": false, "hugo-story": false, "hugo-flow-plus": true, "hugo-edu-plus": false } },
-  { id: "selfEdit", icon: "edit_note", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
+  { id: "live", icon: "public", marks: { "hugo-one": "extra", "hugo-story": true, "hugo-flow-plus": true } },
+  { id: "found", icon: "search", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true } },
+  { id: "contact", icon: "mail", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true } },
+  { id: "selling", icon: "shopping_cart", marks: { "hugo-one": false, "hugo-story": false, "hugo-flow-plus": true } },
+  { id: "selfEdit", icon: "edit_note", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true } },
   { id: "monthly", icon: "event_repeat" },
-  { id: "warranty", icon: "build", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true, "hugo-edu-plus": true } },
+  { id: "warranty", icon: "build", marks: { "hugo-one": true, "hugo-story": true, "hugo-flow-plus": true } },
 ];

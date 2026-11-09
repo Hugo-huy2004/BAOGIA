@@ -94,7 +94,7 @@ export default function TodayArticleSummary({
   showToast,
   companionType = "clover",
 }) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const language = languageCode(i18n.resolvedLanguage || i18n.language);
   const category = new URLSearchParams(window.location.search).get("c") || "all";
   const { data, isLoading, refetch } = useTodayArticle(articleId, language, category);

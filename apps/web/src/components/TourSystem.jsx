@@ -8,7 +8,6 @@ export default function TourSystem() {
   const [rect, setRect] = useState(null);
   const [vw, setVw] = useState(window.innerWidth);
   const [vh, setVh] = useState(window.innerHeight);
-  const [elementFound, setElementFound] = useState(false);
   
   const steps = activeTour ? TOUR_DEFINITIONS[activeTour] : [];
   const activeStep = steps[stepIndex];
@@ -36,9 +35,6 @@ export default function TourSystem() {
         width: r.width,
         height: r.height
       });
-      setElementFound(true);
-    } else {
-      setElementFound(false);
     }
     setVw(window.innerWidth);
     setVh(window.innerHeight);
@@ -63,6 +59,8 @@ export default function TourSystem() {
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect);
     };
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStep, stepIndex]);
 
   // Confetti on graduation
@@ -71,6 +69,8 @@ export default function TourSystem() {
       // Trigger small confetti upon reaching the last step
       confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
     }
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepIndex, activeTour]);
 
   if (!activeTour || !activeStep) return null;

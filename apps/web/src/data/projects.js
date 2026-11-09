@@ -14,6 +14,10 @@
  * `cover` chọn tấm ảnh làm bìa trên trang /project; bỏ trống thì lấy tấm đầu
  * trong `shots`.
  *
+ * `phone` (tên một tấm trong `shots`) đánh dấu dự án có ảnh chụp màn hình
+ * ĐIỆN THOẠI (dọc): tấm đó đứng trong khung điện thoại đè lên bìa, và mọi ảnh
+ * trong `shots` được dựng trong khung điện thoại thay vì cửa sổ trình duyệt.
+ *
  * `startedAt` ("YYYY-MM") là MỐC XẾP DÒNG THỜI GIAN của trang /project —
  * triển lãm chạy từ dự án đầu tiên tới nay, nên dự án mới chỉ cần ghi đúng mốc
  * này là tự vào đúng chỗ. Nó không hiển thị; chữ hiển thị vẫn là `period`.
@@ -30,6 +34,7 @@ export const projects = [
     id: "hugo-studio",
     title: "Hugo Studio",
     cover: "cover",
+    phone: "apps",
     tagline: "Một cổng vào duy nhất, cài về máy như một ứng dụng.",
     kind: "personal",
     startedAt: "2026-04",
@@ -273,6 +278,7 @@ export const projects = [
     id: "m-hike",
     title: "M-Hike",
     cover: "cover",
+    phone: "home",
     tagline: "Ứng dụng đi bộ đường dài cho iOS và Android: đi được cả khi mất sóng.",
     kind: "personal",
     startedAt: "2026-06",

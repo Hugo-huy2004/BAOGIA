@@ -109,7 +109,6 @@ const email = req.query.email;             // ❌ ai cũng đổi được thàn
 | `chessRoutes.js /history`, `/stats` | đọc lịch sử ván cờ của email bất kỳ |
 | `chessRoutes.js /leaderboard` | `.select('-__v')` phát **email mọi người chơi** ra bảng công khai |
 | `presenceRoutes.js /status` | dò email tồn tại + theo dõi giờ online |
-| `robotRoutes.js /kill-switch` | ngắt camera robot + bắn cảnh báo Telegram cho chủ nhà |
 | `coderLessonRoutes.js /ai-mentor-debug` | đốt quota Gemini, không xác thực |
 | `dataRoutes.js /psychology-chat` | như trên, lại còn đi vòng qua `aiGateway` |
 

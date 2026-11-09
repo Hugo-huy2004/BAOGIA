@@ -239,7 +239,6 @@ app.use((err, req, res, next) => {
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
 import { initOnboardingReminderService } from './services/onboardingReminderService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
-import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
 // must not crash the whole server — log + alert instead.

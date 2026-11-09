@@ -2534,7 +2534,7 @@
       "cancel": "CANCEL",
       "confirm": "CONFIRM",
       "deletePartner": "Confirm completely deleting the current Partner Bio design?",
-      "deletePersonal": "Confirm completely deleting the Personal Bio? This action cannot be undone."
+      "deletePersonal": "Permanently delete your account and all its data (Bio, JOY, history)? This cannot be undone."
     },
     "guest": {
       "headline": "BENTO STYLE BIO DESIGN",
@@ -2564,8 +2564,8 @@
       "activateSuccess": "Your Hugo Bio profile is now active.",
       "saveError": "Unable to save your changes.",
       "deleteLocalSuccess": "Local Partner Bio deleted.",
-      "deletePersonalSuccess": "Your personal Bio has been deleted.",
-      "deletePersonalError": "Unable to delete your personal Bio.",
+      "deletePersonalSuccess": "Your account has been deleted.",
+      "deletePersonalError": "Unable to delete your account.",
       "copySuccess": "Public link copied."
     },
     "headlineEmpty": "No headline set",
@@ -5726,49 +5726,6 @@
       }
     }
   },
-  "studentBenefitsPage": {
-    "metaTitle": "Hugo Edu+ — A free Bio page for students | Hugo Studio",
-    "metaDesc": "Verify a school email and get your own Bio page, free for 365 days. Three ready themes you can switch any time, plus a student rate if you need a full website package.",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
-    "marketPrice": "₫550,000 (≈ $20.99)",
-    "giftToYou": "Hugo's Gift",
-    "giftPrice": "₫26,000 (≈ $0.99)",
-    "priceless": " — Priceless!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
-    "benefits": {
-      "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
-      },
-      "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
-      },
-      "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
-      },
-      "yours": {
-        "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
-      }
-    }
-  },
   "common": {
     "regionVietnamOnly": {
       "title": "Available in Vietnam only.",
@@ -6150,7 +6107,7 @@
   "servicePkg": {
     "compare": {
       "kicker": "Compare",
-      "title": "Four packages, side by side.",
+      "title": "Three packages, side by side.",
       "lede": "Not a feature list. This is what you actually take away.",
       "current": "You are here",
       "yes": "Included",
@@ -6544,107 +6501,6 @@
           "description": "A website with online booking or ordering, your own admin panel and QR or payment-link checkout. From ₫19.47M (≈ $749), delivered in 3–5 weeks, lifetime bug fixes.",
           "keywords": "booking website design, online ordering website, website with admin panel, appointment booking website, small business ordering system, Hugo Flow+"
         }
-      },
-      "hugo-edu-plus": {
-        "title": "A Bio page. Built for students.",
-        "lede": "One tidy link for your introduction, your projects and every link that matters. Free for 365 days once your student status is verified.",
-        "intro": [
-          "A student rarely needs a website, they need a place to stand: one address to attach to an application, send to a teacher, paste into a profile. You fill it in, edit it and change its look inside your account, with no coding."
-        ],
-        "audience": [
-          "School and university students who need a page for themselves and their projects.",
-          "Learners building an internship application.",
-          "Clubs and project teams that need one shared link."
-        ],
-        "includes": [
-          {
-            "title": "Free for 365 days.",
-            "body": "Counted from the day you are verified. No card, no paid auto-renewal."
-          },
-          {
-            "title": "Your own address on a shared domain.",
-            "body": "An address in your name on Hugo Studio's shared domain. Free — you do not have to buy a domain."
-          },
-          {
-            "title": "Photo and introduction.",
-            "body": "Photo, job title, an introduction and contact details."
-          },
-          {
-            "title": "Projects and personal links.",
-            "body": "A list of projects with images and descriptions, plus any links you want to point to."
-          },
-          {
-            "title": "Edit it yourself, in your account.",
-            "body": "Edit any time, live immediately, no request to anyone."
-          },
-          {
-            "title": "Right on every screen.",
-            "body": "Several ready-made styles, switchable any time."
-          }
-        ],
-        "warranty": [
-          {
-            "title": "Support for the full 365 days.",
-            "body": "Display or account problems are handled within what Hugo Studio can support."
-          },
-          {
-            "title": "The data stays yours.",
-            "body": "When the term ends the page is hidden, and your data stays in your account to download or reopen."
-          }
-        ],
-        "policyExtra": [
-          {
-            "title": "Verify once.",
-            "body": "A school email, or valid student documents if your email is not on the school's domain."
-          },
-          {
-            "title": "For individual students.",
-            "body": "Not for a shop or a company's official site. That belongs to Hugo One and up."
-          },
-          {
-            "title": "One account, one Bio page.",
-            "body": "Need another page for a club or a group? Let's talk about it separately."
-          },
-          {
-            "title": "The programme can change.",
-            "body": "Hugo Studio may adjust the programme or stop taking new sign-ups. What you already have runs to the end of its term."
-          }
-        ],
-        "price": {
-          "from": "Free",
-          "to": "365 days",
-          "note": "Completely free once verified, including an address on Hugo Studio's shared domain. Need your own page beyond the Bio templates? Use Hugo One at 15% off.",
-          "factors": [
-            "After 365 days: renew or move to a paid package. Nothing is charged automatically.",
-            "Bespoke design on request sits outside this package."
-          ]
-        },
-        "faq": [
-          {
-            "question": "Who can use Hugo Edu+ for free?",
-            "answer": "Pupils, students or learners, verified by a school email or valid student documents."
-          },
-          {
-            "question": "When do the 365 days start?",
-            "answer": "From the moment your student status is verified and access is opened, not from the day you created the account."
-          },
-          {
-            "question": "Do I lose my data after 365 days?",
-            "answer": "No. The page may be hidden, but the data stays in your account to download, renew or move to another package."
-          },
-          {
-            "question": "I am a student. Do I get a discount on a paid package?",
-            "answer": "Yes, 15% off the design fee of Hugo One, Hugo Story and Hugo Flow+. For a personal project, coursework or a club, one project per person per school year; it does not apply to third-party costs."
-          }
-        ],
-        "features": [
-          "Free for 365 days",
-          "Your own Bio link",
-          "Photo & introduction",
-          "Projects & personal links",
-          "Edit it in your account",
-          "Right on every screen"
-        ]
       }
     },
     "detail": {
@@ -6742,8 +6598,6 @@
       "filmHeading": "Independent work. One standard.",
       "filmCta": "Tell me what you need",
       "detailCta": "See the package",
-      "demoCta": "Open your Bio",
-      "eduAction": "See Hugo Edu+ benefits",
       "landingKicker": "Landing page",
       "landingTitle1": "You don't have to say everything.",
       "landingTitle2": "Just the right thing.",
@@ -7300,114 +7154,6 @@
       "body": "I send domain, hosting and email prices first; you buy with your own accounts and I connect them during the build. You get the source code (.ZIP) and the live website link."
     }
   },
-  "studentPage": {
-    "meta": {
-      "title": "Hugo Edu+ · Student benefits | Hugo Studio",
-      "description": "Verify once with a school email. Open a free Bio page for 365 days and Hugo Studio's learning tools.",
-      "keywords": "student benefits, free student Bio page, .edu email verification, learning tools, Hugo Edu+"
-    },
-    "heroEyebrow": "Hugo Edu+ · for verified students",
-    "heroTitle1": "A place to learn.",
-    "heroTitle2": "A year to grow.",
-    "heroLede": "Verify once. Open a Bio page of your own for 365 days, the learning tools, and every student benefit inside Hugo Studio.",
-    "heroCta": "Verify now",
-    "heroCtaAlt": "See the looks",
-    "startKicker": "Start here",
-    "daysUnit": "days",
-    "daysFree": "free",
-    "startTitle": "Your Bio. Your story. Updated whenever you like.",
-    "startLede": "No bank card. No plan to choose. Just a school email, or equivalent student documentation. What you get is not a discount code. It is a place on the web with your name on it.",
-    "verifyTitle": "Student verification",
-    "verifySub": "Automatic, if your email is a school address.",
-    "step1": "Sign in with Google",
-    "step1Desc": "Use your school Google account.",
-    "step2": "Check your student status",
-    "step2Ok": "Valid school email.",
-    "step2Pending": "Can be reviewed through equivalent documentation.",
-    "step2Todo": "Runs automatically after you sign in.",
-    "step3": "Open your benefits",
-    "step3Desc": "A Bio page for 365 days and the learning tools inside Hugo Studio.",
-    "pickAccount": "Choose a Google account",
-    "gisReady": "Google Sign-In is ready.",
-    "gisLoading": "Preparing verification…",
-    "openBenefits": "Open Hugo Edu+ benefits",
-    "pendingNote": "That email is not on a school domain. Send valid student documentation and it can be reviewed as an equivalent.",
-    "pendingCta": "Submit for review",
-    "themeKicker": "Looks",
-    "themeTitle1": "One page.",
-    "themeTitle2": "Three ways to look like you.",
-    "themeNote": "Change the look whenever you like, inside your account. The content stays; only the surface changes.",
-    "themes": {
-      "default": {
-        "name": "Default",
-        "note": "Your photo fills the screen and your name rises over it. People see you first and read second."
-      },
-      "flat": {
-        "name": "Flat",
-        "note": "Bright, square, no flourish. The kind people read to the end without noticing they were reading."
-      },
-      "brutalism": {
-        "name": "Block",
-        "note": "Thick borders, loud colour, typewriter letters. One glance and they remember your face."
-      }
-    },
-    "blocksKicker": "Inside a Bio page",
-    "blocksTitle": "What you put in it.",
-    "blocks": [
-      {
-        "title": "Photo and introduction",
-        "desc": "Your photo, display name, a one-line job title and an introduction in your own voice."
-      },
-      {
-        "title": "Projects",
-        "desc": "One image, one short description and one link to the running version, per project."
-      },
-      {
-        "title": "Links",
-        "desc": "Portfolio, GitHub, Behance, social profiles — gathered in one place, sent as one link."
-      },
-      {
-        "title": "Education",
-        "desc": "School, major, year, and what you are chasing this year."
-      },
-      {
-        "title": "Skills and services",
-        "desc": "What you can do, what you work with, and what you take on if anything."
-      },
-      {
-        "title": "Sharing",
-        "desc": "A link with your name in it, quick to open on a phone, easy to attach or paste anywhere."
-      }
-    ],
-    "insideKicker": "Inside Hugo Studio",
-    "insideTitle": "More than a Bio page.",
-    "benefits": [
-      {
-        "title": "A Bio page, free for 365 days.",
-        "desc": "You, your projects, every link that matters — on one address. Edit it whenever you like, right in your account."
-      },
-      {
-        "title": "Learning tools.",
-        "desc": "Web IDE, notes, documents, vocabulary. Learn, try and finish things without leaving the browser."
-      },
-      {
-        "title": "A study assistant.",
-        "desc": "Ask where you are stuck. It suggests a direction, explains the concept and points at the next step."
-      },
-      {
-        "title": "Somewhere to grow together.",
-        "desc": "Questions, shared projects and guidance — within what Hugo Studio can support."
-      }
-    ],
-    "faqKicker": "Questions",
-    "faqTitle": "Ask first, it is quicker.",
-    "closingKicker": "Hugo Edu+ terms",
-    "closingTitle1": "365 days to get started.",
-    "closingTitle2": "Help of your own when you need it.",
-    "closingLede": "Verified means opened, at no cost. Need something built for a portfolio, coursework or a technical piece? Message me. Scope first, money after.",
-    "closingCta": "Talk to Hugo",
-    "themePickerLabel": "Choose a look for your Bio page"
-  },
   "projectsPage": {
     "navLabel": "Projects",
     "backLink": "Back to the introduction",
@@ -7626,110 +7372,6 @@
   },
   "pwa": {
     "installApp": "Install app"
-  },
-  "nom": {
-    "intro": "Most Nôm characters are phono-semantic: one half signals meaning, the other signals sound. Learn the rule and you can read characters you have never seen. One radical per lesson, drawn from the interface you already use.",
-    "loading": "Loading lessons…",
-    "loadFailed": "Could not load the Nôm lessons.",
-    "lessonN": "Lesson {{n}}",
-    "radicalIs": "Radical {{name}} — {{meaning}}",
-    "lessonMeta": "{{teach}} taught · {{quiz}} in the exam",
-    "howItWorks": "Each character below splits in two: the RADICAL carries the meaning, the rest carries the sound. Notice how the second part's reading approaches the whole character's reading.",
-    "plus": "+",
-    "soundsLike": "(sounds near “{{sound}}”)",
-    "startExam": "Take the exam · {{count}} unseen characters",
-    "examOf": "Exam:",
-    "unseenChar": "This character was NOT taught in the lesson",
-    "next": "Next",
-    "passed": "Passed",
-    "failed": "Not yet — {{mark}}% or above is needed",
-    "examNote": "Every character in this exam is one you were never taught. Reading them means you have the composition rule, not a memorised shape.",
-    "retry": "Try again",
-    "backToLessons": "Back to lessons",
-    "passedOf": "{{done}} of {{total}} radicals passed",
-    "reset": "Clear progress",
-    "resetTitle": "Clear all progress?",
-    "resetBody": "Every passed lesson will be counted from zero again."
-  },
-  "eduPage": {
-    "heroEyebrow": "Hugo Studio Member · for learners",
-    "heroLede": "One account opens a small corner made for learners: a Bio page with your name on it, focus sessions with music, a quick game between tasks, a toolkit for group projects. Add it to your home screen and it opens like an app.",
-    "heroCta": "See who can join",
-    "memberKicker": "Hugo Studio Member",
-    "memberTitle1": "One account.",
-    "memberTitle2": "Every app you need to learn.",
-    "memberBody": "Sign in once with Google. Your Bio page, focus sessions, game scores and JOY wallet follow the account, so another device picks up right where you left off. No ads. No selling your data.",
-    "facts": [
-      {
-        "value": "1",
-        "label": "account for every app"
-      },
-      {
-        "value": "3",
-        "label": "languages: Vietnamese, English, Chinese"
-      },
-      {
-        "value": "0",
-        "label": "ads inside the apps"
-      }
-    ],
-    "featuresKicker": "Inside",
-    "featuresTitle1": "Four things worth opening.",
-    "featuresTitle2": "Every day.",
-    "features": [
-      {
-        "app": "Bio page",
-        "title": "A page with your name on it.",
-        "body": "Photo, projects, skills and every link in one address. Edit it from your account and switch the look whenever you like.",
-        "points": [
-          "Free for 365 days once verified",
-          "Three looks: Default, Flat, Block",
-          "One link to attach to any application"
-        ]
-      },
-      {
-        "app": "Focus",
-        "title": "Focus, with music.",
-        "body": "A three-level Pomodoro timer with the radio right beside it. Every finished session earns JOY.",
-        "points": [
-          "Light, deep and master levels",
-          "Free radio in the same app",
-          "JOY after every session"
-        ]
-      },
-      {
-        "app": "Games",
-        "title": "Breaks worth taking.",
-        "body": "Four games made by Hugo Studio, from 3D chess to snake. Play in the browser, nothing to install.",
-        "points": [
-          "Made exclusively by Hugo Studio",
-          "Play the bot or a friend",
-          "Seasonal leaderboards"
-        ]
-      }
-    ],
-    "termsKicker": "Who can join",
-    "termsTitle1": "Four things.",
-    "termsTitle2": "Then everything opens.",
-    "terms": [
-      {
-        "title": "Aged 14 or over",
-        "body": "From 14 to under 18, a parent or guardian needs to agree and stay involved."
-      },
-      {
-        "title": "Sign in with Google",
-        "body": "Any Google account works. One issued by your school is best."
-      },
-      {
-        "title": "Verified as a learner",
-        "body": "A school email is approved automatically. Otherwise, send a valid student document for manual review."
-      },
-      {
-        "title": "365 days from verification",
-        "body": "Renew when it ends if you're still studying. Nothing is charged automatically and your data stays."
-      }
-    ],
-    "closingCta": "Talk to Hugo"
   },
   "bioStudio": {
     "links": {

@@ -42,28 +42,13 @@ function getDisplayServiceTitle(title) {
       const path = url.pathname.replace(/^\/|\/$/g, "");
       if (!path || path === "services" || path === "dich-vu") return "Dịch Vụ & Hợp Tác";
       return path.split("/").pop().replace(/[-_]/g, " ").toUpperCase();
-    } catch (_) {
+    } catch {
       return "Dịch Vụ & Hợp Tác";
     }
   }
   return str;
 }
 
-/**
- * Hàm làm sạch và rút gọn URL thông minh chuẩn Apple:
- * Loại bỏ https://, www, và các chuỗi tracking query param dài dòng (?_r=1&_t=...)
- */
-function formatCleanUrl(url) {
-  if (!url) return "";
-  try {
-    const raw = String(url).trim();
-    let cleaned = raw.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
-    cleaned = cleaned.split("?")[0].split("#")[0].replace(/\/$/, "");
-    return cleaned;
-  } catch (_) {
-    return String(url);
-  }
-}
 
 /**
  * UNIVERSAL BIO VIEW (STUDIO PRODUCT PROFILE FLOW - LIQUID GLASS EDITION)
@@ -135,32 +120,11 @@ export default React.memo(function UniversalBioView({
   const services = useMemo(() => (Array.isArray(bio.services) ? bio.services : []), [bio.services]);
 
   // Tự động cung cấp giới thiệu thông minh & đẹp mắt nếu chưa có
-  const resolvedBio = useMemo(() => {
-    if (profileBio && profileBio.trim().length > 0) return profileBio;
-    const highlights = [];
-    if (bio.jobTitle) highlights.push(bio.jobTitle);
-    if (bio.education) highlights.push(`học tại ${bio.education}`);
-    if (bio.skills) {
-      const s = Array.isArray(bio.skills) ? bio.skills.slice(0, 3).join(", ") : bio.skills;
-      highlights.push(`chuyên sâu về ${s}`);
-    }
-    if (highlights.length > 0) {
-      return `Xin chào! Tôi là ${displayName}, hiện là ${highlights.join(" • ")}. Tận tâm kiến tạo các giá trị số và trải nghiệm tinh tế, chuẩn mực.`;
-    }
-    return `Chào mừng bạn đến với không gian số của ${displayName}. Rất vui được kết nối, hợp tác và đồng hành cùng bạn!`;
-  }, [profileBio, bio.jobTitle, bio.education, bio.skills, displayName]);
+  // Chỉ hiện điều chính người dùng viết — không tự bịa lời giới thiệu hay sở thích.
+  const resolvedBio = profileBio?.trim() || "";
+  const resolvedHobbies = bio.hobbies?.trim() || "";
 
-  // Tự động cung cấp sở thích nếu chưa có
-  const resolvedHobbies = useMemo(() => {
-    if (bio.hobbies && bio.hobbies.trim().length > 0) return bio.hobbies;
-    return "Sáng tạo công nghệ, nhiếp ảnh, đọc sách, trải nghiệm không gian mới";
-  }, [bio.hobbies]);
-
-  const hasStats = Boolean(bio.height || bio.weight || bio.measurements);
-  const hasMeta = Boolean(
-    bio.birthday || bio.address || bio.phone || resolvedHobbies || bio.jobTitle || bio.education || bio.skills
-  );
-  const hasNarrative = Boolean(resolvedBio || hasStats || bio.birthday || bio.address || resolvedHobbies);
+  const hasNarrative = Boolean(resolvedBio || bio.birthday || bio.address || resolvedHobbies);
   const skillList = useMemo(() => {
     if (Array.isArray(bio.skills)) return bio.skills;
     if (typeof bio.skills === "string") return bio.skills.split(",").map(s => s.trim()).filter(Boolean);
@@ -382,30 +346,6 @@ export default React.memo(function UniversalBioView({
                   <span className="bio-statement-mark left font-serif select-none">“</span>
                   <p className="bio-statement-text font-serif italic tracking-wide">{resolvedBio}</p>
                   <span className="bio-statement-mark right font-serif select-none">”</span>
-                </div>
-              )}
-
-              {/* Chỉ số thể chất / Số đo */}
-              {hasStats && (
-                <div className="bio-metrics-grid">
-                  {bio.height && (
-                    <div className="bio-metric-cell">
-                      <span className="bio-metric-lbl">CHIỀU CAO</span>
-                      <span className="bio-metric-num">{bio.height}</span>
-                    </div>
-                  )}
-                  {bio.weight && (
-                    <div className="bio-metric-cell">
-                      <span className="bio-metric-lbl">CÂN NẶNG</span>
-                      <span className="bio-metric-num">{bio.weight}</span>
-                    </div>
-                  )}
-                  {bio.measurements && (
-                    <div className="bio-metric-cell">
-                      <span className="bio-metric-lbl">SỐ ĐO</span>
-                      <span className="bio-metric-num">{bio.measurements}</span>
-                    </div>
-                  )}
                 </div>
               )}
 

@@ -57,8 +57,6 @@ const PUBLIC_ROUTES = {
   "dataRoutes.js GET /": "cấu hình trang công khai (đã bật cache CDN)",
   "bioThemeRoutes.js GET /": "danh mục giao diện Bio, đọc từ hằng số BIO_THEMES — không có dữ liệu người dùng",
   "bioThemeRoutes.js GET /:themeId": "một giao diện trong danh mục đó, cũng từ hằng số",
-  "legalDocRoutes.js GET /": "danh mục văn bản pháp lý — bản chất là phải ai cũng đọc được",
-  "legalDocRoutes.js GET /:docId": "toàn văn một văn bản pháp lý, đọc từ hằng số LEGAL_DOCUMENTS",
   "packageRoutes.js GET /": "danh mục gói dịch vụ — bảng giá công khai",
   "todayRoutes.js GET /feed": "bảng tin công khai",
   "utilityStoreRoutes.js GET /products": "danh mục sản phẩm công khai",
@@ -95,13 +93,9 @@ const PUBLIC_ROUTES = {
   "joyWalletRoutes.js GET /resolve-qr": "mã QR là token HMAC do máy chủ ký; giải mã không lộ gì thêm",
 
 
-  // ── Robot: cổng riêng, kiểm TRONG thân handler ───────────────────────────
-  "robotRoutes.js POST /request-otp": "phát OTP; có rate limit riêng",
-  "robotRoutes.js POST /verify-otp": "đổi OTP lấy session token của robot",
-  "robotRoutes.js GET /stream-frame": "kiểm token phát sống-ngắn trong handler (ACTIVE_STREAM_TOKENS)",
 };
 
-const KNOWN_GUARDS = /require[A-Z]\w+|rejectMinorActor|verifyRobotAuth/;
+const KNOWN_GUARDS = /require[A-Z]\w+|rejectMinorActor/;
 
 const problems = [];
 const routesDir = path.join(serverDir, "routes");
@@ -127,13 +121,11 @@ for (let file of files) {
     // Từ dấu mở ngoặc tới đầu hàm xử lý: chứa đường dẫn + mọi middleware, kể cả
     // khi khai báo trải nhiều dòng (hugoTeamRoutes viết kiểu đó và từng bị báo
     // nhầm là không có cổng).
-    const [head, ...rest] = tail.split(/=>\s*\{|,\s*async\s*\(|function\s*\(/);
-    const body = rest.join("").slice(0, 700);
+    const [head] = tail.split(/=>\s*\{|,\s*async\s*\(|function\s*\(/);
     const route = (head.match(/(['"`])([^'"`]*)\1/) || [])[2] ?? "?";
     const key = `${file} ${match[1].toUpperCase()} ${route}`;
 
-    // Cổng gọi trong thân handler cũng tính (robotRoutes làm vậy).
-    if (blanket || KNOWN_GUARDS.test(head) || /verifyRobotAuth\s*\(/.test(body)) continue;
+    if (blanket || KNOWN_GUARDS.test(head)) continue;
 
     seen.add(key);
     if (!(key in PUBLIC_ROUTES)) {

@@ -13,16 +13,6 @@ async function parseOrThrow(res) {
   return data;
 }
 
-function validateJoyQrPayload(payload) {
-  if (!payload || typeof payload !== "string") {
-    throw new Error("Mã JOY không hợp lệ.");
-  }
-  // JOY QR tokens are always 10 bytes encoded as 14 base64url chars.
-  if (!/^[A-Za-z0-9_-]{14}$/.test(payload)) {
-    throw new Error("Mã JOY không hợp lệ hoặc đã hết hạn.");
-  }
-}
-
 export async function resolvePhone(phone) {
   const res = await fetch(`${getApiUrl()}/joy/resolve-phone?phone=${encodeURIComponent(phone)}`);
   return parseOrThrow(res);
@@ -155,7 +145,7 @@ export async function resolveMemberCode(code) {
   return parseOrThrow(res);
 }
 
-export async function fetchChallengeStatus(email) {
+export async function fetchChallengeStatus() {
   try {
     const res = await fetch(`${getApiUrl()}/joy/missions`, {
       credentials: "include"

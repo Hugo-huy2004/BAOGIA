@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { nom } from "../../lib/nomText";
 import { memberDisplayName } from "../../lib/memberDisplayName";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -29,36 +28,26 @@ const SheetFallback = () => {
   return (
     <div className="py-12 flex flex-col items-center justify-center gap-2 text-muted-foreground">
       <div className="size-5 border-2 border-primary/40 border-t-primary rounded-full animate-spin" />
-      <p className="text-xs font-medium">{t("memberPortal.accountHub.opening", nom("Đang tải..."))}</p>
+      <p className="text-xs font-medium">{t("memberPortal.accountHub.opening", "Đang tải...")}</p>
     </div>
   );
 };
 
+// Văn bản pháp lý: nội dung ở content/legal.js (chung với trang công khai).
 const STANDARDIZED_DOCS = {
-  "terms-manifest": {
-    id: "terms-manifest",
-    titleKey: "memberPortal.accountHub.documents.termsManifestTitle",
-    defaultTitle: nom("Điều khoản dịch vụ & Tuyên ngôn hệ thống"),
-    subtitle: "Cam kết vận hành bền vững, quyền lợi thành viên và nguyên tắc tương hỗ",
-    badge: nom("Bản hiện hành"),
-    icon: "gavel",
-  },
-  "database-policy": {
-    id: "database-policy",
-    titleKey: "memberPortal.accountHub.documents.databasePolicyTitle",
-    defaultTitle: nom("Quy ước CSDL & Chính sách thành viên"),
-    subtitle: nom("Kiến trúc CSDL Zero-Trust, quy chế ví JOY/JOY Gối Đầu và đặc quyền"),
-    badge: nom("Quy ước hệ thống"),
-    icon: "policy",
-  },
+  terms: { id: "terms", title: "Điều khoản sử dụng", icon: "file_check" },
+  privacy: { id: "privacy", title: "Chính sách bảo mật", icon: "shield_check" },
 };
 
+// Đường dẫn cũ /member/account/<id> vẫn mở đúng văn bản.
 const LEGACY_DOC_MAPPING = {
-  "conditions": "terms-manifest",
-  "rights-access": "terms-manifest",
-  "full-text": "terms-manifest",
-  "joy-rules": "database-policy",
-  "privileges": "database-policy",
+  "terms-manifest": "terms",
+  "conditions": "terms",
+  "rights-access": "terms",
+  "full-text": "terms",
+  "database-policy": "privacy",
+  "joy-rules": "terms",
+  "privileges": "terms",
 };
 
 // Màn Tài khoản dùng CÙNG ngôn ngữ thiết kế với trang Today: thẻ kính trắng
@@ -150,7 +139,7 @@ export default function MemberSettingsTab({
   const email = memberSession?.email || bio?.email || "—";
   const displayName =
     memberDisplayName({ formData, bio, session: memberSession }) ||
-    t("memberPortal.navigation.memberFallback", nom("Thành viên Hugo"));
+    t("memberPortal.navigation.memberFallback", "Thành viên Hugo");
 
   // Lấy màu nền theme Aura hiện hành cho vùng avatar
   const activeThemeKey = resolveActivePortalTheme(bio);
@@ -225,17 +214,17 @@ export default function MemberSettingsTab({
       if (pushEnabled) {
         await pushService.unsubscribe();
         setPushEnabled(false);
-        showToast?.(t("memberPortal.settings.pushDisabledToast", nom("Đã tắt thông báo đẩy")), "success");
+        showToast?.(t("memberPortal.settings.pushDisabledToast", "Đã tắt thông báo đẩy"), "success");
         window.dispatchEvent(new Event("hugo:show-permission-primer"));
       } else {
         const result = await pushService.subscribe(email);
         if (result === "granted") {
           setPushEnabled(true);
-          showToast?.(t("memberPortal.settings.pushEnabledToast", nom("Đã bật thông báo đẩy")), "success");
+          showToast?.(t("memberPortal.settings.pushEnabledToast", "Đã bật thông báo đẩy"), "success");
         }
       }
     } catch {
-      showToast?.(t("memberPortal.settings.pushErrorToast", nom("Không thể cài đặt thông báo")), "error");
+      showToast?.(t("memberPortal.settings.pushErrorToast", "Không thể cài đặt thông báo"), "error");
     } finally {
       setPushBusy(false);
     }
@@ -260,7 +249,7 @@ export default function MemberSettingsTab({
             <button
               type="button"
               onClick={() => avatarInputRef?.current?.click()}
-              aria-label={nom("Đổi ảnh đại diện")}
+              aria-label={"Đổi ảnh đại diện"}
               className="group relative shrink-0 transition-transform active:scale-95"
             >
               <span className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-xl sm:text-2xl font-black text-white ring-2 ring-white/90 shadow-md transition-all group-hover:ring-blue-400 dark:ring-white/15">
@@ -279,12 +268,12 @@ export default function MemberSettingsTab({
               role="button"
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openSheet("personal"); }}
-              aria-label={nom("Xem và sửa thông tin cá nhân")}
+              aria-label={"Xem và sửa thông tin cá nhân"}
             >
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-[11px] font-bold text-blue-600 dark:text-blue-400">
                   <Check className="size-3" strokeWidth={2.5} />
-                  <span>{nom("Thành viên chính thức")}</span>
+                  <span>{"Thành viên chính thức"}</span>
                 </span>
               </div>
               <h1
@@ -302,9 +291,9 @@ export default function MemberSettingsTab({
             <button
               type="button"
               onClick={() => openSheet("personal")}
-              aria-label={nom("Chỉnh sửa thông tin cá nhân")}
+              aria-label={"Chỉnh sửa thông tin cá nhân"}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/40 text-muted-foreground transition-all hover:bg-white hover:text-foreground active:scale-95 dark:border-white/10 dark:bg-white/[0.06] dark:hover:bg-white/[0.15]"
-              title={nom("Chỉnh sửa hồ sơ")}
+              title={"Chỉnh sửa hồ sơ"}
             >
               <HugeIcon name="edit" size={15} />
             </button>
@@ -329,7 +318,7 @@ export default function MemberSettingsTab({
                     </span>
                   </div>
                   <div className="truncate text-[11px] sm:text-[11.5px] text-muted-foreground">
-                    {activeVoucherCount} {nom("voucher")} · {challengesLoaded ? `${completedMissionsCount}/${challenges.length} ${nom("nhiệm vụ")}` : nom("đang đồng bộ")}
+                    {activeVoucherCount} {"voucher"} · {challengesLoaded ? `${completedMissionsCount}/${challenges.length} ${"nhiệm vụ"}` : "đang đồng bộ"}
                   </div>
                 </div>
               </div>
@@ -345,25 +334,25 @@ export default function MemberSettingsTab({
       {/* ── 3. NỘI DUNG ──────────────────────────────────────────────────── */}
       {currentView === "account" && (
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2 md:items-start">
-          <Section title={nom("Hồ sơ")}>
-            <Row icon="person" title={nom("Thông tin cá nhân")} subtitle={nom("Tên, liên hệ, học vấn")} onClick={() => openSheet("personal")} />
-            <Row icon="link" title={nom("Trang Hugo Bio")} subtitle={publicLink ? nom("Xem và tuỳ biến trang của bạn") : nom("Tạo trang Bio cá nhân")} onClick={() => openUtility("bio")} />
-            <Row icon="activity" title={nom("Nhật ký hoạt động")} subtitle={nom("Bảo mật, quà tặng, lịch sử")} onClick={() => navigate("/member/activity")} />
+          <Section title={"Hồ sơ"}>
+            <Row icon="person" title={"Thông tin cá nhân"} subtitle={"Tên, liên hệ, học vấn"} onClick={() => openSheet("personal")} />
+            <Row icon="link" title={"Trang Hugo Bio"} subtitle={publicLink ? "Xem và tuỳ biến trang của bạn" : "Tạo trang Bio cá nhân"} onClick={() => openUtility("bio")} />
+            <Row icon="activity" title={"Nhật ký hoạt động"} subtitle={"Bảo mật, quà tặng, lịch sử"} onClick={() => navigate("/member/activity")} />
           </Section>
 
-          <Section title={nom("Phần thưởng")}>
-            <Row icon="clipboard_list" title={nom("Nhiệm vụ JOY")} value={challengesLoaded ? `${completedMissionsCount}/${challenges.length}` : undefined} onClick={() => openUtility("joy_wallet")} />
-            <Row icon="gift" title={nom("Voucher của tôi")} value={String(activeVoucherCount)} onClick={() => openUtility("joy_wallet")} />
-            <Row icon="award" title={nom("Đặc quyền thành viên")} subtitle={nom("Thành viên chính thức")} onClick={() => openUtility("joy_wallet")} />
+          <Section title={"Phần thưởng"}>
+            <Row icon="clipboard_list" title={"Nhiệm vụ JOY"} value={challengesLoaded ? `${completedMissionsCount}/${challenges.length}` : undefined} onClick={() => openUtility("joy_wallet")} />
+            <Row icon="gift" title={"Voucher của tôi"} value={String(activeVoucherCount)} onClick={() => openUtility("joy_wallet")} />
+            <Row icon="award" title={"Đặc quyền thành viên"} subtitle={"Thành viên chính thức"} onClick={() => openUtility("joy_wallet")} />
           </Section>
 
-          <Section title={nom("Khác")}>
-            <Row icon="settings" title={nom("Cài đặt")} subtitle={nom("Giao diện, ngôn ngữ, thông báo, bảo mật")} onClick={() => navigate("/member/account/setting")} />
-            <Row icon="file_check" title={nom("Điều khoản & chính sách")} onClick={() => navigate("/member/account/terms-manifest")} />
+          <Section title={"Khác"}>
+            <Row icon="settings" title={"Cài đặt"} subtitle={"Giao diện, ngôn ngữ, thông báo, bảo mật"} onClick={() => navigate("/member/account/setting")} />
+            <Row icon="file_check" title={"Điều khoản & chính sách"} onClick={() => navigate("/member/account/terms-manifest")} />
           </Section>
 
           <Section>
-            <Row icon="logout" title={nom("Đăng xuất")} subtitle={nom("Đăng xuất khỏi thiết bị này")} danger onClick={handleLogout} />
+            <Row icon="logout" title={"Đăng xuất"} subtitle={"Đăng xuất khỏi thiết bị này"} danger onClick={handleLogout} />
           </Section>
         </div>
       )}
@@ -379,42 +368,41 @@ export default function MemberSettingsTab({
             className="inline-flex min-h-[44px] items-center gap-0.5 rounded-full pr-3 text-[16px] font-semibold text-primary"
           >
             <span className="material-symbols-outlined text-[26px]" aria-hidden="true">chevron_left</span>
-            {t("memberPortal.navigation.account", nom("Tài khoản"))}
+            {t("memberPortal.navigation.account", "Tài khoản")}
           </button>
-          <h2 className="ml-auto pr-2 text-[17px] font-extrabold text-foreground">{nom("Cài đặt")}</h2>
+          <h2 className="ml-auto pr-2 text-[17px] font-extrabold text-foreground">{"Cài đặt"}</h2>
         </div>
       )}
 
       {currentView === "setting" && (
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2 md:items-start">
-          <Section title={nom("Giao diện")}>
-            <Row icon="palette" title={nom("Nền & Theme Aura")} value={themeConfig?.name || nom("Mặc định")} onClick={() => openSheet("themes")} />
-            <Row icon="globe" title={nom("Ngôn ngữ")} value={languageLabel(currentLang)} onClick={() => openSheet("language")} />
+          <Section title={"Giao diện"}>
+            <Row icon="palette" title={"Nền & Theme Aura"} value={themeConfig?.name || "Mặc định"} onClick={() => openSheet("themes")} />
+            <Row icon="globe" title={"Ngôn ngữ"} value={languageLabel(currentLang)} onClick={() => openSheet("language")} />
           </Section>
 
           {/* EcoToggle là cả một thẻ giải thích (tự ẩn trên máy không đủ điều kiện),
               không phải công tắc — bản cũ nhét nó vào cuối một dòng nên bị bóp méo. */}
           <div className="min-w-0 md:row-span-2"><EcoToggle /></div>
 
-          <Section title={nom("Bảo mật")}>
-            <Row icon="shield_check" title={nom("Sinh trắc học & PIN")} value={biometricSupported ? nom("Đã bật") : nom("Chưa bật")} onClick={() => openSheet("security")} />
-            <Row icon="lock" title={nom("Quyền truy cập thiết bị")} subtitle={nom("Camera, micro, thông báo")} onClick={() => { hapticSelect(); window.dispatchEvent(new Event("hugo:show-permission-primer")); }} />
+          <Section title={"Bảo mật"}>
+            <Row icon="shield_check" title={"Sinh trắc học & PIN"} value={biometricSupported ? "Đã bật" : "Chưa bật"} onClick={() => openSheet("security")} />
+            <Row icon="lock" title={"Quyền truy cập thiết bị"} subtitle={"Camera, micro, thông báo"} onClick={() => { hapticSelect(); window.dispatchEvent(new Event("hugo:show-permission-primer")); }} />
           </Section>
 
-          <Section title={nom("Thông báo")}>
-            <Row icon="bell" title={nom("Thông báo ứng dụng")} subtitle={nom("Bảo mật và biến động số dư")} trailing={<ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={nom("Thông báo ứng dụng")} />} />
+          <Section title={"Thông báo"}>
+            <Row icon="bell" title={"Thông báo ứng dụng"} subtitle={"Bảo mật và biến động số dư"} trailing={<ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={"Thông báo ứng dụng"} />} />
           </Section>
 
-          <Section title={nom("Văn bản & quy ước")}>
+          <Section title={"Văn bản & quy ước"}>
             {Object.values(STANDARDIZED_DOCS).map((doc) => (
-              <Row key={doc.id} icon={doc.icon === "gavel" ? "file_check" : "shield_check"} title={doc.defaultTitle} subtitle={doc.badge} onClick={() => navigate(`/member/account/${doc.id}`)} />
+              <Row key={doc.id} icon={doc.icon} title={doc.title} onClick={() => navigate(`/member/account/${doc.id}`)} />
             ))}
-            <Row icon="book_open" title={nom("Cẩm nang quy ước toàn diện")} external onClick={() => window.open("/terms-and-guide", "_blank", "noopener")} />
           </Section>
 
           {bio?._id && (
-            <Section footer={nom("Gỡ bỏ hoàn toàn dữ liệu trang Bio cá nhân. Không thể hoàn tác.")}>
-              <Row icon="delete" title={nom("Gỡ bỏ dịch vụ Bio")} danger onClick={handleDeleteBio} />
+            <Section footer={"Xoá vĩnh viễn tài khoản và toàn bộ dữ liệu. Không thể hoàn tác."}>
+              <Row icon="delete" title={"Xoá tài khoản"} danger onClick={handleDeleteBio} />
             </Section>
           )}
         </div>
@@ -426,8 +414,8 @@ export default function MemberSettingsTab({
       {activeSheet === "personal" && (
         <React.Suspense fallback={<SheetFallback />}>
           <AccountSheet
-            title={t("memberPortal.account.personalInformation", nom("Thông tin cá nhân"))}
-            subtitle={t("memberPortal.account.personalInformationDescription", nom("Cập nhật thông tin chi tiết"))}
+            title={t("memberPortal.account.personalInformation", "Thông tin cá nhân")}
+            subtitle={t("memberPortal.account.personalInformationDescription", "Cập nhật thông tin chi tiết")}
             onClose={closeSheet}
             wide
           >
@@ -458,8 +446,8 @@ export default function MemberSettingsTab({
       {activeSheet === "themes" && (
         <React.Suspense fallback={<SheetFallback />}>
           <AccountSheet
-            title={t("memberPortal.accountProfile.personalTheme", nom("Nền & Theme Aura"))}
-            subtitle={t("memberPortal.settings.customizeThemeDesc", nom("Tùy chỉnh giao diện portal"))}
+            title={t("memberPortal.accountProfile.personalTheme", "Nền & Theme Aura")}
+            subtitle={t("memberPortal.settings.customizeThemeDesc", "Tùy chỉnh giao diện portal")}
             onClose={closeSheet}
             wide
           >
@@ -471,7 +459,7 @@ export default function MemberSettingsTab({
       {activeSheet?.startsWith("doc:") && (
         <AccountSheet
           // Tên tài liệu đã là tiêu đề lớn trong MemberDocReader; đầu sheet chỉ nói loại.
-          title={t("memberPortal.accountProfile.memberDocuments", nom("Tài liệu quy chuẩn"))}
+          title={"Văn bản pháp lý"}
           onClose={closeSheet}
           wide
         >
@@ -484,7 +472,7 @@ export default function MemberSettingsTab({
       {activeSheet === "security" && (
         <React.Suspense fallback={<SheetFallback />}>
           <AccountSheet
-            title={t("memberPortal.accountProfile.security", nom("Bảo mật tài khoản"))}
+            title={t("memberPortal.accountProfile.security", "Bảo mật tài khoản")}
             onClose={closeSheet}
           >
             <div className="space-y-5">
@@ -494,7 +482,7 @@ export default function MemberSettingsTab({
                   <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
                 ) : (
                   <p className="text-[13px] text-muted-foreground">
-                    {t("memberPortal.settings.biometricNotSupported", nom("Thiết bị không hỗ trợ đăng nhập sinh trắc học"))}
+                    {t("memberPortal.settings.biometricNotSupported", "Thiết bị không hỗ trợ đăng nhập sinh trắc học")}
                   </p>
                 )}
               </div>
@@ -505,7 +493,7 @@ export default function MemberSettingsTab({
 
       {activeSheet === "language" && (
         <AccountSheet
-          title={t("memberPortal.accountProfile.systemLanguage", nom("Chọn ngôn ngữ"))}
+          title={t("memberPortal.accountProfile.systemLanguage", "Chọn ngôn ngữ")}
           onClose={closeSheet}
         >
           <div className="space-y-2">

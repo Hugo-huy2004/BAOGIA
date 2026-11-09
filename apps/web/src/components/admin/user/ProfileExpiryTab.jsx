@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { notify } from "../../../lib/notify";
 import { maskPhone } from "../../../utils/phoneSecurity";
-import { countryDisplayName, profileAnswerDisplayName, religionDisplayName, RELIGION_LABELS } from "../../../lib/profileDisplay";
+import { countryDisplayName } from "../../../lib/profileDisplay";
 
 /**
  * Tab "Hồ sơ & HSD" trong cửa sổ chi tiết thành viên (admin).
@@ -52,8 +52,6 @@ const formFromBio = (bio) => ({
   exactAddress: bio?.exactAddress || "",
   verifiedLatitude: bio?.verifiedLatitude || "",
   verifiedLongitude: bio?.verifiedLongitude || "",
-  ethnicity: bio?.ethnicity || "",
-  religion: bio?.religion || "",
 });
 
 /** Ô đã đổi → payload cho PUT update-profile (ngày sinh tách 3 số như server cần). */
@@ -394,18 +392,6 @@ export default function ProfileExpiryTab({ bio, saving, onSave, onExtend, onSetE
           )}
         </Section>
 
-        <Section icon="shield_person" title="Thông tin nhạy cảm (tuỳ chọn)">
-          <Row label="Dân tộc">{editing ? text("ethnicity") : profileAnswerDisplayName(form.ethnicity, "vi") || <Empty />}</Row>
-          <Row label="Tôn giáo">
-            {editing ? (
-              <select id="admin-profile-religion" className={inputClass} value={form.religion} onChange={set("religion")}>
-                <option value="">Chưa khai</option>
-                {form.religion && !RELIGION_LABELS.vi[form.religion] && <option value={form.religion}>{religionDisplayName(form.religion, "vi")}</option>}
-                {Object.entries(RELIGION_LABELS.vi).filter(([code]) => code !== "self_describe").map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-              </select>
-            ) : religionDisplayName(form.religion, "vi") || <Empty />}
-          </Row>
-        </Section>
       </form>
 
       {/* ── Thao tác quản trị ── */}

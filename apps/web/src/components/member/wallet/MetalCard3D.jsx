@@ -1,7 +1,5 @@
-import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
-import { nom } from "../../../lib/nomText";
+import { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
 import JsBarcode from "jsbarcode";
-import { useJoy } from "../../../lib/joyDisplay";
 import { hapticSelect } from "../../../utils/haptics";
 import JoyAmount from "../shared/JoyAmount";
 import { memberTier } from "../../../lib/memberTier";
@@ -176,14 +174,11 @@ export default function MetalCard3D({
   cardholderName,
   referralCode,
   bio,
-  onCopyCode,
-  copied,
   activeTier,
   onTierChange,
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [boxRef, scale] = useCardScale();
-  const joy = useJoy();
   const barcodeRef = useRef(null);
 
   // Suy ra hạng từ chính sách hệ thống (Star-18, Star-14, Star-VIP hoặc Eco)
@@ -221,7 +216,7 @@ export default function MetalCard3D({
   const tierExp = useMemo(() => {
     // 1. Star-VIP: Hạng danh dự do admin cấp -> Vô hạn / Vĩnh viễn
     if (selectedThemeId === "starVip" || bio?.starVip) {
-      return { text: nom("VĨNH VIỄN"), hint: nom("Hạng danh dự trọn đời do Hugo Studio cấp") };
+      return { text: "VĨNH VIỄN", hint: "Hạng danh dự trọn đời do Hugo Studio cấp" };
     }
 
     // 2. Star-14: Từ 14 đến đúng ngày sinh nhật năm 18 tuổi
@@ -242,7 +237,7 @@ export default function MetalCard3D({
       const now = new Date();
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const yy = String(now.getFullYear() + 3).slice(-2);
-      return { text: `${mm}/${yy}`, hint: nom("Hết hạn khi đủ 18 tuổi") };
+      return { text: `${mm}/${yy}`, hint: "Hết hạn khi đủ 18 tuổi" };
     }
 
     // 3. Star-18: Từ 18 đến hết tháng sinh nhật năm 23 tuổi
@@ -261,7 +256,7 @@ export default function MetalCard3D({
       const now = new Date();
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const yy = String(now.getFullYear() + 4).slice(-2);
-      return { text: `${mm}/${yy}`, hint: nom("Hết hạn khi hết tháng sinh nhật 23 tuổi") };
+      return { text: `${mm}/${yy}`, hint: "Hết hạn khi hết tháng sinh nhật 23 tuổi" };
     }
 
     // 4. Eco: Dành cho trên 23 tuổi hoặc dùng thử nghiệm
@@ -398,9 +393,9 @@ export default function MetalCard3D({
                 <h4 className="text-base font-black font-mono tracking-wider uppercase m-0 text-center text-white">
                   {currentTheme.name}
                 </h4>
-                <span className="text-[12px] font-bold text-amber-300 mt-0.5 tracking-wider uppercase text-center">{nom(nom("Hạng chưa mở khóa"))}</span>
+                <span className="text-[12px] font-bold text-amber-300 mt-0.5 tracking-wider uppercase text-center">{"Hạng chưa mở khóa"}</span>
                 <span className="text-[13px] text-white/75 mt-0.5 text-center leading-snug">
-                  {nom(currentTheme.lockHint)}
+                  {currentTheme.lockHint}
                 </span>
               </div>
             ) : (
@@ -415,7 +410,7 @@ export default function MetalCard3D({
                   className="text-sm font-bold opacity-80 uppercase tracking-wider mt-1.5 m-0"
                   style={{ color: currentTheme.subtextColor }}
                 >
-                  {nom(currentTheme.subLabel)}
+                  {currentTheme.subLabel}
                 </p>
               </div>
             )}
@@ -427,12 +422,12 @@ export default function MetalCard3D({
                 <span
                   className="text-[12px] font-semibold block mb-0.5 tracking-wide uppercase"
                   style={{ color: currentTheme.subtextColor }}
-                >{nom(nom("Tạp bài chi chủ"))}</span>
+                >{"Tạp bài chi chủ"}</span>
                 <span
                   className="text-sm font-bold font-mono tracking-wider block uppercase"
                   style={{ color: currentTheme.textColor }}
                 >
-                  {cardholderName || nom("QUÝ THÀNH VIÊN")}
+                  {cardholderName || "QUÝ THÀNH VIÊN"}
                 </span>
                 <div className="flex items-center gap-2.5 mt-0.5">
                   <span
@@ -453,7 +448,7 @@ export default function MetalCard3D({
                     color: currentTheme.balanceSubtextColor || currentTheme.subtextColor,
                     textShadow: currentTheme.id === "star18" ? "0 1px 2px rgba(0,0,0,0.8)" : "none",
                   }}
-                >{nom(nom("Số dư JOY"))}</span>
+                >{"Số dư JOY"}</span>
                 <div className="flex items-baseline justify-end gap-1 font-mono">
                   <span
                     className="text-3xl font-black tracking-tight"
@@ -534,8 +529,8 @@ export default function MetalCard3D({
                 className="space-y-1 text-[12px] leading-relaxed select-none"
                 style={{ color: currentTheme.backTextColor || currentTheme.textColor }}
               >
-                <p className="m-0 font-medium opacity-85">{nom(nom("Thẻ thành viên số thuộc quyền sở hữu của Hugo Studio. Mã vạch tích hợp định danh tài khoản, tra cứu hệ thống và thực hiện giao dịch chuyển nhận JOY bảo chứng."))}</p>
-                <p className="m-0 font-medium opacity-75">{nom(nom("Quy định sử dụng tuân thủ Điều khoản dịch vụ Hugo Studio. Thẻ gắn liền tài khoản chính chủ, không chuyển nhượng."))}</p>
+                <p className="m-0 font-medium opacity-85">{"Thẻ thành viên số thuộc quyền sở hữu của Hugo Studio. Mã vạch tích hợp định danh tài khoản, tra cứu hệ thống và thực hiện giao dịch chuyển nhận JOY bảo chứng."}</p>
+                <p className="m-0 font-medium opacity-75">{"Quy định sử dụng tuân thủ Điều khoản dịch vụ Hugo Studio. Thẻ gắn liền tài khoản chính chủ, không chuyển nhượng."}</p>
               </div>
             </div>
           </div>
@@ -561,7 +556,7 @@ export default function MetalCard3D({
                   ? "bg-foreground text-background border-foreground shadow-sm scale-105"
                   : "bg-muted/50 text-muted-foreground border-transparent hover:text-foreground hover:bg-muted"
               }`}
-              title={`${nom(t.subLabel)} (${nom(isOwned ? "Hạng của bạn" : "Chưa mở khoá")})`}
+              title={`${t.subLabel} (${(isOwned ? "Hạng của bạn" : "Chưa mở khoá")})`}
             >
               <span
                 className="w-2.5 h-2.5 rounded-full shadow-inner border border-black/10"
@@ -572,7 +567,7 @@ export default function MetalCard3D({
                 <span className="material-symbols-outlined text-[13px] opacity-70">lock</span>
               )}
               {isOwned && (
-                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-extrabold">{nom(nom("Hiện tại"))}</span>
+                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-extrabold">{"Hiện tại"}</span>
               )}
             </button>
           );

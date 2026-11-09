@@ -10,7 +10,7 @@ import { prefetchChunk } from "../../../utils/chunkPrefetcher";
  * không thêm nguồn dữ liệu nào. Ẩn hẳn khi chưa mở app nào: một hàng rỗng chỉ
  * là khoảng trống có tiêu đề.
  */
-const LOCALES = { vi: "vi-VN", en: "en-US", zh: "zh-CN", nom: "vi-VN" };
+const LOCALES = { vi: "vi-VN", en: "en-US", zh: "zh-CN" };
 
 // Bản dịch đầy đủ nạp sau bản lõi; trong khoảnh khắc đó vẫn phải ra chữ, không ra khoá.
 const GREETING_FALLBACK = { morning: "Chào buổi sáng", afternoon: "Chào buổi chiều", evening: "Chào buổi tối", night: "Khuya rồi" };
@@ -44,7 +44,7 @@ export default function HomeHeader({ name }) {
   );
   // Tên Việt gọi bằng chữ cuối (Nguyễn Văn An → An), tên Tây bằng chữ đầu.
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
-  const vietnamese = ["vi", "nom"].includes(i18n.resolvedLanguage || i18n.language);
+  const vietnamese = (i18n.resolvedLanguage || i18n.language) === "vi";
   const firstName = vietnamese ? parts.at(-1) : parts[0];
   const greeting = t(`utilities.home.greeting.${partOfDay(now.getHours())}`, GREETING_FALLBACK[partOfDay(now.getHours())]);
 

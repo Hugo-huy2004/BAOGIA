@@ -123,9 +123,6 @@ export const HISTORY_LABELS = {
   phone:        'Số điện thoại',
   contactEmail: 'Email liên hệ',
   hobbies:      'Sở thích',
-  height:       'Chiều cao',
-  weight:       'Cân nặng',
-  measurements: 'Số đo',
   address:      'Địa chỉ',
   education:    'Học vấn',
   skills:       'Kỹ năng',
@@ -203,14 +200,6 @@ export const processSecretLinks = async (newLinks, existingLinks = []) => {
   return result;
 };
 
-export const VIETNAM_ETHNICITIES = [
-  'Kinh', 'Tày', 'Thái', 'Mường', 'Khmer', 'Mông', 'Nùng', 'Hoa', 'Dao', 'Gia Rai', 'Ê Đê', 'Ba Na',
-  'Sán Chay', 'Chăm', 'Cơ Ho', 'Xơ Đăng', 'Sán Dìu', 'Hrê', 'Ra Glai', 'Mnông', 'Thổ', 'Xtiêng',
-  'Khơ Mú', 'Bru - Vân Kiều', 'Cơ Tu', 'Giáy', 'Tà Ôi', 'Mạ', 'Giẻ Triêng', 'Co', 'Chơ Ro',
-  'Xinh Mun', 'Hà Nhì', 'Chu Ru', 'Lào', 'La Chí', 'Kháng', 'Phù Lá', 'La Hủ', 'La Ha', 'Pà Thẻn',
-  'Chứt', 'Lự', 'Lô Lô', 'Mảng', 'Cơ Lao', 'Bố Y', 'Cống', 'Ngái', 'Si La', 'Pu Péo', 'Rơ Măm', 'Brâu', 'Ơ Đu',
-];
-
 // Haversine distance in kilometers between two lat/lng points.
 export function distanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -228,14 +217,14 @@ export function distanceKm(lat1, lng1, lat2, lng2) {
 export const PUBLIC_BIO_FIELDS = [
   'slug', 'customDomain', 'displayName', 'name', 'avatarUrl', 'headline', 'bio', 'status', 'theme',
   'links', 'projects', 'services', 'tabs', 'hobbies', 'jobTitle',
-  'skills', 'education', 'birthday', 'height', 'weight', 'measurements',
+  'skills', 'education', 'birthday',
   'address', 'phone', 'contactEmail', 'secretLinks',
 ];
 
 // Vị thành niên: cắt thêm mọi trường có thể dùng để tìm ra người thật ngoài
 // đời. Đây là khoá cứng theo chính sách, không phải tuỳ chọn người dùng tắt/bật.
 export const MINOR_HIDDEN_FIELDS = [
-  'phone', 'address', 'measurements', 'height', 'weight', 'birthday',
+  'phone', 'address', 'birthday',
   'education', 'contactEmail',
 ];
 

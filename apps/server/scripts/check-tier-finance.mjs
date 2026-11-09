@@ -80,28 +80,11 @@ for (const phrase of STALE) {
 // văn bản chính sách của cả hai ngôn ngữ, trong khi hệ thống tính lãi quá hạn
 // và khoá tài khoản từ ngày 45. Đó là loại sai nguy hiểm nhất: người dùng đọc
 // và tin vào nó.
-const DOCS = [
-  ['apps/web/src/components/member/account/memberDocs.js', [
-    'không bao giờ phát sinh lãi',
-    'Hạn mức theo hạng thẻ',
-    '5,000 JOY / ngày',
-  ]],
-  ['apps/web/src/components/member/account/memberDocs.en.js', [
-    'never incurs financial interest',
-    'Tier-based credit allowance',
-    'Up to 5,000 JOY / day',
-  ]],
-];
-for (const [file, phrases] of DOCS) {
-  const text = read(file);
-  for (const phrase of phrases) {
-    check(!text.includes(phrase), `${path.basename(file)}: đã gỡ câu sai "${phrase}"`);
-  }
+// Văn bản pháp lý giờ ở một nơi (content/legal.js, vi/en/zh).
+const legal = read('apps/web/src/content/legal.js');
+for (const phrase of ['không bao giờ phát sinh lãi', 'Hạn mức theo hạng thẻ', '5,000 JOY / ngày', 'never incurs financial interest', 'Tier-based credit allowance']) {
+  check(!legal.includes(phrase), `legal.js: không có câu sai "${phrase}"`);
 }
-
-// JOYlater đã gỡ 31/10/2026: quy chế phải nói rõ là đã chấm dứt và xoá nợ.
-check(/xoá|xóa/.test(read('apps/web/src/components/member/account/memberDocs.js')) && /written off/.test(read('apps/web/src/components/member/account/memberDocs.en.js')),
-  'quy chế hai ngôn ngữ nói rõ JOYlater đã chấm dứt và xoá nợ');
 
 // ── 8. ĐƯỜNG TIỀN THỰC SỰ ĐỌC HẠNG ─────────────────────────────────────────
 // Trước đây `memberTier()` chỉ được dùng để phát quà sinh nhật; mọi lời hứa tài

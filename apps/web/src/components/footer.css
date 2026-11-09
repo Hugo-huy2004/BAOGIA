@@ -1,0 +1,64 @@
+/* Footer theo portfolio.hugowishpax.studio — luôn tối, độc lập với theme trang. */
+.hs-footer {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-top: 1px solid rgb(255 255 255 / .08);
+  background: #090a10;
+  color: #8f9aa7;
+  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  padding: clamp(4rem, 8vw, 6rem) 0 max(1.5rem, env(safe-area-inset-bottom, 0px));
+}
+.hs-footer__inner {
+  container-type: inline-size;
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 3.5rem);
+}
+.hs-footer__grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.4fr) repeat(4, minmax(130px, 1fr));
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: start;
+}
+.hs-footer__brand-col { display: flex; flex-direction: column; gap: 1.1rem; }
+.hs-footer__brand { display: inline-flex; align-items: center; gap: 10px; color: #f4f6fb; font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em; }
+.hs-footer__bio { max-width: 32ch; margin: 0; font-size: .92rem; line-height: 1.6; }
+.hs-footer__socials { display: flex; gap: 10px; margin-top: .4rem; }
+.hs-footer__socials a {
+  display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / .12); background: rgb(255 255 255 / .08); color: #f4f6fb;
+  transition: transform .2s, background .2s, border-color .2s;
+}
+.hs-footer__socials a:hover { transform: translateY(-2px); background: rgb(255 255 255 / .16); border-color: rgb(255 255 255 / .3); }
+.hs-footer__col h4 { margin: 0 0 1.25rem; color: #f4f6fb; font-size: .95rem; font-weight: 700; }
+.hs-footer__col ul { display: flex; flex-direction: column; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.hs-footer__col a, .hs-footer__col button {
+  display: inline-flex; min-height: 32px; align-items: center; padding: 0; border: 0; background: none;
+  color: #8f9aa7; font: inherit; font-size: .88rem; font-weight: 500; text-align: left; cursor: pointer; transition: color .2s;
+}
+.hs-footer__col a:hover, .hs-footer__col button:hover { color: #fff; }
+.hs-footer a:focus-visible, .hs-footer button:focus-visible { outline: 2px solid #08a0ef; outline-offset: 3px; border-radius: 4px; }
+.hs-footer__copyright { margin-top: clamp(3rem, 6vw, 4.5rem); padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / .08); }
+.hs-footer__copyright p { margin: 0; color: #697380; font-size: .85rem; line-height: 1.5; }
+.hs-footer__watermark {
+  margin-top: 2rem;
+  color: rgb(255 255 255 / .035);
+  font-family: "Bricolage Grotesque", "Nunito", sans-serif;
+  font-size: 15.6cqi; /* "HUGO STUDIO" ~6.3em rộng: luôn vừa cột */
+  font-weight: 900;
+  letter-spacing: -.04em;
+  line-height: .85;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+@media (max-width: 960px) {
+  .hs-footer__grid { grid-template-columns: repeat(2, 1fr); row-gap: 2.5rem; }
+  .hs-footer__brand-col { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) { .hs-footer__grid { grid-template-columns: 1fr; gap: 2rem; } }
+/* Chừa chỗ cho tab bar nổi ở đáy trên điện thoại/máy tính bảng. */
+@media (max-width: 899px) { .hs-footer { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); } }

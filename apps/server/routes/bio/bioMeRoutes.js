@@ -3,7 +3,7 @@ import express from 'express';
 import { createHash } from 'node:crypto';
 import Bio from '../../models/Bio.js';
 import { requireMember, invalidateMemberGate, requireRecentAuth } from '../../middleware/authMiddleware.js';
-import { COUNTRY_CODES, missingProfileFields, applyProfileValues, describeField } from '../../utils/profileRequirements.js';
+import { missingProfileFields, applyProfileValues, describeField } from '../../utils/profileRequirements.js';
 import { clearCache } from '../../utils/cacheHelper.js';
 import { decryptText } from '../../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../../utils/birthdayAutomation.js';
@@ -16,9 +16,24 @@ import slugIndex from '../../services/slugIndex.js';
 import { generateRaw } from '../../services/aiGateway.js';
 import { STUDENT_REWARD_TYPES, studentRewardSeason } from '../../utils/studentRewards.js';
 import { NEW_ACCOUNT_MS } from '../../utils/accountAccess.js';
-import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, pinCheckLimiter, studentRewardLimiter, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, VIETNAM_ETHNICITIES, distanceKm } from './bioShared.js';
+import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
+import { sanitizeBioOutput, checkLocationLimiter, phoneCheckLimiter, pinCheckLimiter, studentRewardLimiter, receiveStudentReward, detectedEvidenceMime, parseReviewResult, clearPublicBioCache, rejectBlacklistedPhone, normalizeSlug, createUniqueSlug, distanceKm } from './bioShared.js';
 
 const router = express.Router();
+
+// DELETE /me/account — thành viên tự xoá tài khoản + toàn bộ dữ liệu (quyền xoá, NĐ 13/2023).
+// Hai đoạn đường dẫn để không lọt vào DELETE /:id (chỉ admin) mount trước.
+router.delete('/me/account', requireMember, requireRecentAuth(), async (req, res) => {
+  try {
+    const bio = await Bio.findOne({ email: req.memberEmail }).select('_id email').lean();
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    await deleteMemberAccountPermanently(bio._id);
+    invalidateMemberGate(bio.email);
+    return res.json({ success: true });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 router.get('/me', requireMember, async (req, res) => {
   try {
@@ -292,27 +307,6 @@ router.get('/me/profile-gaps', requireMember, async (req, res) => {
   }
 });
 
-router.get('/me/profile-options/ethnicities', requireMember, async (req, res) => {
-  try {
-    const country = String(req.query.country || '').toUpperCase();
-    if (!COUNTRY_CODES.includes(country)) return res.status(400).json({ error: 'Quốc gia không hợp lệ.' });
-    if (country === 'VN') return res.json({ options: VIETNAM_ETHNICITIES });
-
-    const text = await generateRaw({
-      systemInstruction: 'Bạn tạo dữ liệu gợi ý cho biểu mẫu toàn cầu. Không suy đoán danh tính của người dùng, không gộp thành màu da/chủng tộc, không thêm mô tả định kiến.',
-      contents: [{ role: 'user', parts: [{ text: `Liệt kê tối đa 30 tên chính xác của các dân tộc hoặc cộng đồng sắc tộc được biết đến tại quốc gia mã ISO ${country}. Trả về duy nhất JSON là mảng chuỗi tên, ưu tiên tên tự gọi phổ biến. Không thêm "khác" hay "không muốn tiết lộ".` }] }],
-      generationConfig: { temperature: 0, responseMimeType: 'application/json' },
-      cacheKey: `profile-ethnicities:${country}`,
-      cacheTtlMs: 30 * 24 * 60 * 60 * 1000,
-    });
-    const parsed = JSON.parse(String(text || '').match(/\[[\s\S]*\]/)?.[0] || '[]');
-    const options = [...new Set(parsed.filter((item) => typeof item === 'string').map((item) => item.trim()).filter(Boolean))].slice(0, 30);
-    return res.json({ options });
-  } catch {
-    return res.json({ options: [] });
-  }
-});
-
 const PIN_COUNTRY_ERROR = 'Điểm ghim trên bản đồ nằm ở quốc gia khác với quốc gia bạn đã khai. Hãy định vị lại tại nơi ở hoặc sửa lại quốc gia.';
 
 // GET /me/location-check?lat=&lng=&country=&area= — modal hỏi ngay sau khi
@@ -433,8 +427,6 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
         locality: bio.locality || '',
         exactAddress: bio.exactAddress || '',
         locationVerifiedAt: bio.locationVerifiedAt || null,
-        religion: bio.religion || '',
-        ethnicity: bio.ethnicity || '',
       },
     });
   } catch (error) {

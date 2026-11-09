@@ -43,10 +43,9 @@ export default [
       'react-hooks/preserve-manual-memoization': 'off',
       'no-empty': 'off',
       'react/jsx-no-target-blank': 'off',
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      // Chỉ là gợi ý cho hot-reload lúc dev; tách 88 file chỉ để chiều nó không
+      // đem lại gì cho người dùng. Tắt hẳn để cảnh báo thật không bị chìm.
+      'react-refresh/only-export-components': 'off',
       'no-unused-vars': 'warn',
       // no-unused-vars only reports; this one is auto-fixable, so `eslint --fix`
       // keeps dead imports from piling back up (201 of them had accumulated).

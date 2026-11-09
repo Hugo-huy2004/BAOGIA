@@ -1,7 +1,7 @@
 import "./apple-account.css";
 import { memberTier, TierBadge } from "../../lib/memberTier";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
-import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from "../../lib/profileDisplay";
+import { formatFullAddress } from "../../lib/profileDisplay";
 import OptimizedInput from "../common/OptimizedInput";
 
 const FIELD_CLASS =
@@ -330,20 +330,6 @@ export default function PersonalInfoSubTab({
           lockLabel={identityLockLabel}
         />
 
-        <VerifiedRow
-          icon="diversity_3"
-          label={isVietnamese ? "Dân tộc" : "Ethnicity"}
-          value={profileAnswerDisplayName(formData.ethnicity, profileLanguage)}
-          lockLabel={identityLockLabel}
-          multiline
-        />
-        <VerifiedRow
-          icon="account_balance"
-          label={isVietnamese ? "Tôn giáo / hệ phái" : "Religion / denomination"}
-          value={religionDisplayName(formData.religion, profileLanguage)}
-          lockLabel={identityLockLabel}
-          multiline
-        />
         <div className="apple-account-security-note">
           <span className="material-symbols-outlined" aria-hidden="true">lock</span>
           <p>{identityLockLabel}. {isVietnamese ? "Các thông tin này không hiển thị trên Bio công khai." : "This information is never shown on your public Bio."}</p>
@@ -381,9 +367,6 @@ export default function PersonalInfoSubTab({
         optional
       >
         <EditableRow icon="palette" label="Sở thích & Thói quen" name="hobbies" value={formData.hobbies} onChange={handleFieldChange} placeholder="Ví dụ: Đọc sách, Chơi cờ, Lập trình..." />
-        <EditableRow icon="height" label={t("memberPortal.physical.height")} name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} />
-        <EditableRow icon="monitor_weight" label={t("memberPortal.physical.weight")} name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} />
-        <EditableRow icon="straighten" label={t("memberPortal.physical.measurements")} name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} />
         <EditableRow icon="location_on" label={isVietnamese ? "Địa điểm hiển thị công khai" : "Public display location"} name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} />
       </AccountGroup>
 

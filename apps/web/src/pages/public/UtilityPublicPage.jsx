@@ -47,7 +47,7 @@ const DEFAULT_TOOL_VISUAL = PUBLIC_TOOL_VISUALS.radio;
 
 
 export default function UtilityPublicPage() {
-  const { tool, page, sub } = useParams();
+  const { tool } = useParams();
   const navigate = useNavigate();
   const [activeSession, setActiveSession] = useState(() => getMemberSession());
   const isAuthenticated = !!activeSession?.email;

@@ -131,7 +131,7 @@ export default function ArcadeLeaderboard({ active = true }) {
       }
     }
     return result.slice(0, 10);
-  }, [lb]);
+  }, [lb, memberFallback]);
 
   const top1 = uniqueRoster[0];
   const top2 = uniqueRoster[1];

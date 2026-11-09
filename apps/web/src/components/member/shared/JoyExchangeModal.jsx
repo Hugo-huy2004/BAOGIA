@@ -408,7 +408,7 @@ function TicketDivider() {
   );
 }
 
-function Row({ label, value, total = false, muted = false }) {
+function Row({ label, value, total = false }) {
   return (
     <div className={`joy-ticket-row ${total ? "total" : ""}`}>
       <span className="joy-ticket-row-label">{label}</span>
@@ -446,9 +446,12 @@ export default function JoyExchangeModal({ open, bio, item, onClose, onConfirm, 
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
+  // Cố ý: mỗi lần mở / đổi món là một hoá đơn mới (giờ + mã mới).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const now = useMemo(() => new Date(), [open, quote?.label]);
   const dateStr = useMemo(() => now.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }), [now]);
   const timeStr = useMemo(() => now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }), [now]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const txId = useMemo(() => `JOY${Math.random().toString(36).slice(2, 10).toUpperCase()}`, [open, quote?.label]);
   const insufficientBalance = quote && quote.balance < quote.total;
 

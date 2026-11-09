@@ -1,6 +1,5 @@
 import { signedJoy, timeAgo, tintOf } from "./notificationModel";
 import { useTranslation } from "react-i18next";
-import { localeForLanguage } from "../../../i18n/languages";
 
 const DIRECTION_ICON = { in: "arrow_downward", out: "arrow_upward" };
 
@@ -21,7 +20,6 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
   const { t, i18n } = useTranslation();
   const hasBalance = typeof item.balanceAfter === "number" && Number.isFinite(item.balanceAfter);
   const language = i18n.resolvedLanguage || i18n.language || "vi";
-  const locale = localeForLanguage(language);
   const isMoney = item.direction !== "none";
   const tint = tintOf(item);
   const icon = DIRECTION_ICON[item.direction] || item.icon || "notifications";

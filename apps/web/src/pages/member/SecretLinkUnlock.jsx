@@ -9,7 +9,6 @@ export default function SecretLinkUnlock() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [linkData, setLinkData] = useState(null);
   
   const [passwordInput, setPasswordInput] = useState("");
   const [checking, setChecking] = useState(false);
@@ -29,11 +28,7 @@ export default function SecretLinkUnlock() {
         const secretLinks = res.bio.secretLinks || [];
         const found = secretLinks.find(l => l.id === linkId);
         
-        if (!found) {
-          setError("Liên kết không tồn tại hoặc đã bị xóa.");
-        } else {
-          setLinkData(found);
-        }
+        if (!found) setError("Liên kết không tồn tại hoặc đã bị xóa.");
       } catch (err) {
         console.error(err);
         setError("Có lỗi xảy ra khi tải dữ liệu.");

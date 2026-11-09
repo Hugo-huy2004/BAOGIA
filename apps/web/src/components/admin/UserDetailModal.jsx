@@ -114,6 +114,8 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
 
   useEffect(() => {
     fetchDetails();
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   /** Chỉ nhận những ô đã đổi (ProfileExpiryTab tự so). Trả true khi lưu xong. */

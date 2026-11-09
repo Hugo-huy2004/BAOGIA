@@ -11,9 +11,7 @@ import { PACKAGE_ICONS, SHARED_ICONS } from "../data/serviceIcons";
  *
  * Hai phép ghép nằm ở đây thay vì rải trong trang:
  *   • "Mã nguồn viết tay 100%" luôn đứng đầu mục Gói bao gồm của mọi gói;
- *   • gói trả phí dùng 4 điều chính sách chung rồi mới tới điều riêng, còn gói
- *     miễn phí (`freeTier`) chỉ có điều riêng — dán điều khoản đặt cọc vào một
- *     gói không mất tiền là sai và mất tin.
+ *   • gói trả phí dùng 4 điều chính sách chung rồi mới tới điều riêng, .
  */
 
 const OBJ = { returnObjects: true };
@@ -26,7 +24,7 @@ export function useServiceCopy(idOrSlug) {
   const base = `servicePkg.items.${pkg.id}`;
   const policyExtra = t(`${base}.policyExtra`, OBJ) || [];
   const icons = PACKAGE_ICONS[pkg.id] || { audience: [], includes: [], warranty: [], policyExtra: [] };
-  const paid = !pkg.freeTier;
+  const paid = true; // ponytail: mọi gói còn lại đều trả phí
   // Gói miễn cọc thay điều số 2 ("Cọc 50%") bằng "Không cần cọc".
   const policy = t("servicePkg.policy", OBJ).map((item, i) => (i === 1 && pkg.noDeposit ? t("servicePkg.policyNoDeposit", OBJ) : item));
   const tail = paid ? t("servicePkg.includesTail", OBJ) : [];
@@ -42,7 +40,7 @@ export function useServiceCopy(idOrSlug) {
     warranty: t(`${base}.warranty`, OBJ),
     policy: paid ? [...policy, ...policyExtra] : policyExtra,
     price: t(`${base}.price`, OBJ),
-    // Câu hỏi "nhích lên tí" chỉ dành cho gói trả phí; /student-pricing đọc chung nguồn này.
+    // Câu hỏi "nhích lên tí" chỉ dành cho gói trả phí.
     faq: [...t(`${base}.faq`, OBJ), ...(paid ? t("servicePkg.faqShared", OBJ) : [])],
     // Icon ghép theo chỉ số, đúng thứ tự đã ghép chữ ở trên.
     icons: {
@@ -66,7 +64,7 @@ export function useSharedServiceCopy() {
     feedback: t("servicePkg.feedback", OBJ),
     compare: t("servicePkg.compare", OBJ),
     stats: t("servicePkg.stats", OBJ),
-    studentDiscount: { ...t("servicePkg.studentDiscount", OBJ), href: "/student-pricing" },
+    studentDiscount: { ...t("servicePkg.studentDiscount", OBJ), href: "/services#dat-lich" },
   };
 }
 

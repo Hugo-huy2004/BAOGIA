@@ -29,14 +29,6 @@ export const PROJECT_PACKAGE_GROUPS = [
     ],
   },
   {
-    id: 'edu',
-    label: 'Người học',
-    options: [
-      { id: 'hugo-edu-plus', label: 'Hugo Edu+', aliases: ['Hugo Edu+'], hint: 'Trang Bio miễn phí 365 ngày',
-        price: { vnd: 0, usd: 0 }, durationDays: [1, 3], warrantyDays: 365, payments: null, free: true },
-    ],
-  },
-  {
     id: 'addon',
     label: 'Gói lẻ',
     options: [

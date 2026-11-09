@@ -1,0 +1,212 @@
+/* Trang Dịch vụ (/services) — bảng màu portfolio.hugowishpax.studio.
+   Cố định, không theo theme sáng/tối. */
+.hs-land.hs-land {
+  --cobalt: #283db7; --cobalt-hi: #3550d4; --sun: #b4452a; --brick: #a33c22; --brick-hi: #b8472b;
+  --gold: #ffbf08; --cyan: #08a0ef; --night: #070910; --navy: #0c1230; --cream: #f6f4ef; --ink: #f4f6fb;
+  /* token cho form đặt lịch + lọ thẻ (services-editorial.css) */
+  --svc-bg: var(--night); --svc-surface: #0e1222; --svc-surface-2: #0a0d1a;
+  --svc-text: var(--ink); --svc-soft: #c5cbd0; --svc-muted: #aab2bd; --svc-faint: #8f969e; --svc-ink-rgb: 255 255 255;
+  overflow-x: clip;
+  background: var(--night);
+  color: var(--ink);
+  font-family: "Nunito", ui-sans-serif, system-ui, sans-serif;
+}
+.hs-land h1, .hs-land h2, .hs-land h3, .hs-land p { margin: 0; }
+.hs-land h2 { font-family: "Bricolage Grotesque", "Nunito", sans-serif; font-variation-settings: "opsz" 96; font-weight: 800; letter-spacing: -.045em; line-height: .95; }
+.hs-shell { width: min(100% - 2.5rem, 1180px); margin-inline: auto; }
+.hs-kicker { color: var(--cyan); font-size: .9rem; font-weight: 700; }
+.hs-link { display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; color: inherit; font-weight: 700; text-decoration: underline; text-decoration-color: var(--sun); text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.hs-link svg { width: 1.1rem; transition: transform .25s; }
+.hs-link:hover svg { transform: translate(3px, -1px); }
+.hs-land a:focus-visible, .hs-land button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* ── Mở đầu: gọn, đi thẳng vào dịch vụ ─────────────────── */
+.hs-top { padding-block: clamp(5rem, 10vw, 8rem) clamp(3rem, 6vw, 5rem); background: radial-gradient(55% 70% at 85% 10%, rgb(40 61 183 / .55), transparent 70%), var(--night); }
+.hs-top h1 { max-width: 14ch; margin-top: 1rem; font-family: "Bricolage Grotesque", "Nunito", sans-serif; font-variation-settings: "opsz" 96; font-size: clamp(3rem, 7.5vw, 7rem); font-weight: 800; letter-spacing: -.045em; line-height: .95; }
+.hs-top h1 em { font-style: normal; color: var(--gold); }
+.hs-top__lede { max-width: 58ch; margin-top: 1.5rem !important; color: #c5cbd0; font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.65; }
+.hs-top__actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 2rem; }
+.hs-cta { display: inline-flex; min-height: 48px; padding: 0 1.35rem; align-items: center; justify-content: center; border-radius: 999px; background: var(--brick); color: #fff; font-size: .92rem; font-weight: 700; white-space: nowrap; transition: background-color .2s; }
+.hs-cta:hover { background: var(--brick-hi); }
+.hs-cta--quiet { background: rgb(255 255 255 / .1); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .3); }
+.hs-cta--quiet:hover { background: rgb(255 255 255 / .2); }
+
+/* ── 03 Ba gói (ngang trên màn rộng) ───────────────────── */
+.hs-packs { position: relative; overflow: hidden; background: var(--navy); }
+.hs-packs__track { display: flex; width: max-content; height: 100svh; align-items: center; gap: 3vw; padding-inline: 6vw; will-change: transform; }
+.hs-packs__intro { width: 38vw; flex: none; }
+.hs-packs__intro h2 { margin-top: 1.25rem; font-size: clamp(3rem, 6.5vw, 7rem); }
+.hs-packs__intro em, .hs-closing em { font-style: normal; color: var(--gold); }
+.hs-packs__hint { display: flex; align-items: center; gap: .5rem; margin-top: 2rem; color: #8f969e; font-weight: 600; }
+.hs-packs__hint svg { width: 1.1rem; rotate: -90deg; }
+.hs-pack {
+  display: grid; width: min(78vw, 1200px); height: min(78svh, 720px); flex: none; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: center;
+  gap: clamp(1.5rem, 3vw, 3rem); padding: clamp(1.5rem, 3vw, 3rem); overflow: hidden; border: 1px solid rgb(255 255 255 / .1); border-radius: 2.25rem;
+  background: radial-gradient(70% 90% at 90% 20%, color-mix(in srgb, var(--a) 30%, transparent), transparent 70%), linear-gradient(160deg, color-mix(in srgb, var(--b) 22%, var(--navy)), var(--navy) 65%);
+}
+.hs-pack__copy { display: grid; gap: 1rem; align-content: center; }
+.hs-pack__count { color: var(--a); font-family: ui-monospace, Menlo, monospace; font-size: .8rem; font-weight: 700; letter-spacing: .15em; }
+.hs-pack h3 { font-size: clamp(1.3rem, 2vw, 1.9rem); font-weight: 800; line-height: 1.2; letter-spacing: -.02em; }
+.hs-pack__lede { color: #c5cbd0; line-height: 1.6; }
+.hs-pack ul { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.hs-pack li { display: flex; gap: .6rem; color: #dfe4ea; font-size: .95rem; line-height: 1.45; }
+.hs-pack li svg { width: 1.1rem; flex: none; margin-top: .15rem; color: var(--a); }
+.hs-pack__foot { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid rgb(255 255 255 / .12); }
+/* Giá để nhỏ, không dẫn mắt (user 08/11): một dòng mờ "Chỉ từ …". */
+.hs-pack__price { color: #8f969e; font-size: .88rem; font-weight: 600; }
+.hs-pack__price b { color: #c5cbd0; font-weight: 700; }
+.hs-pack__foot { align-items: center; }
+.hs-pack__art { perspective: 1400px; transform-style: preserve-3d; }
+.hs-packs__bar { position: absolute; inset: auto 6vw 2.5rem; height: 2px; background: rgb(255 255 255 / .12); }
+.hs-packs__bar i { display: block; height: 100%; transform: scaleX(0); transform-origin: 0 50%; background: linear-gradient(90deg, var(--gold), #f0445d, #f02eaa, var(--cyan)); }
+
+/* ── 04 Quy trình (kem, bo góc trên như portfolio) ─────── */
+.hs-process { position: relative; z-index: 1; padding-block: clamp(6rem, 10vw, 10rem); border-radius: clamp(2.5rem, 5vw, 4.5rem) clamp(2.5rem, 5vw, 4.5rem) 0 0; background: var(--cream); color: var(--navy); }
+.hs-process .hs-kicker { color: var(--cobalt); }
+.hs-process h2 { max-width: 14ch; margin-top: 1rem; font-size: clamp(2.8rem, 7vw, 7rem); }
+.hs-process__body { position: relative; margin-top: clamp(3rem, 7vw, 6rem); padding-left: clamp(3rem, 8vw, 7rem); }
+.hs-process__thread { position: absolute; left: 0; top: 0; width: 40px; height: 100%; overflow: visible; }
+.hs-process__thread path { fill: none; stroke: var(--sun); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; vector-effect: non-scaling-stroke; }
+.hs-process ol { display: grid; gap: clamp(3rem, 7vw, 6rem); margin: 0; padding: 0; list-style: none; }
+.hs-step { display: grid; grid-template-columns: auto 1fr; gap: clamp(1rem, 4vw, 3.5rem); align-items: start; max-width: 900px; }
+.hs-step__n { color: transparent; -webkit-text-stroke: 2px var(--sun); font-family: "Bricolage Grotesque", sans-serif; font-size: clamp(3.5rem, 9vw, 8rem); font-weight: 800; line-height: .8; letter-spacing: -.05em; }
+.hs-step h3 { font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; }
+.hs-step p { margin-top: .75rem; color: #4a5068; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.65; }
+
+/* ── 06 Lời kết ────────────────────────────────────────── */
+.hs-closing { padding-block: clamp(6rem, 10vw, 9rem); background: radial-gradient(60% 45% at 50% 100%, rgb(180 69 42 / .25), transparent 70%), var(--night); }
+.hs-closing__grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+.hs-closing h2 { margin-top: 1rem; font-size: clamp(2.8rem, 5.5vw, 5.8rem); }
+.hs-closing h2 > * { display: block; }
+.hs-closing__lede { max-width: 46ch; margin-block: 1.75rem 1rem !important; color: #c5cbd0; font-size: 1.08rem; line-height: 1.7; }
+.hs-land .svc-btn { background: var(--brick); box-shadow: 0 14px 40px -12px rgb(163 60 34 / .8); }
+.hs-land .svc-btn:hover { background: var(--brick-hi); box-shadow: 0 18px 46px -10px rgb(163 60 34 / .9); }
+.hs-land .svc-book { box-shadow: 0 40px 90px -40px rgb(40 61 183 / .7); }
+.hs-land .svc-book__chip input:checked + span { background: var(--cobalt); }
+.hs-land .svc-book__field input:focus, .hs-land .svc-book__field textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 4px rgb(8 160 239 / .2); }
+/* ── Điện thoại & máy tính bảng: cuộn tự nhiên, không ghim ── */
+@media (max-width: 899px) {
+  .hs-packs__track { width: auto; height: auto; flex-direction: column; align-items: stretch; gap: 1.25rem; padding: clamp(4rem, 10vw, 6rem) 1.25rem; }
+  .hs-packs__intro { width: auto; }
+  .hs-packs__hint, .hs-packs__bar { display: none; }
+  .hs-pack { width: auto; height: auto; grid-template-columns: 1fr; border-radius: 1.75rem; }
+  .hs-closing__grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .hs-step { grid-template-columns: 1fr; gap: .5rem; }
+  .hs-process__body { padding-left: 2.75rem; }
+}
+
+/* ── Đồng bộ phong cách với trang Giới thiệu (portfolio), 09/11/2026 ──────
+   Mở đầu cobalt bo đáy (như hero) · ba gói trên tấm sáng bo trên (như "Bạn
+   cần gì") · quy trình nền tối, nhãn cyan (như cảnh Hugo Studio) · lời kết
+   cobalt (như phần kết). */
+.hs-land.hs-land { margin-top: calc(-60px - env(safe-area-inset-top, 0px)); }
+.hs-top {
+  position: relative; overflow: hidden; isolation: isolate;
+  /* Đáy hero không bo: tấm ba gói (bo trên) trượt đè lên đáy hero một khoảng
+     bằng bán kính bo, nên góc bo của tấm nằm trên màu hero — không lộ khe đen. */
+  --seam: clamp(2.5rem, 5vw, 4.5rem);
+  padding-block: calc(60px + env(safe-area-inset-top, 0px) + clamp(4rem, 9vw, 7rem)) calc(clamp(4rem, 8vw, 6rem) + var(--seam));
+  background: radial-gradient(55% 60% at 70% 70%, var(--cobalt-hi), transparent 72%), var(--cobalt);
+}
+.hs-top::after { content: ""; position: absolute; z-index: -1; right: clamp(-6rem, -4vw, -2rem); bottom: clamp(-8rem, -8vw, -4rem); width: min(48vw, 520px); aspect-ratio: 1; border-radius: 50%; background: var(--sun); }
+.hs-top .hs-kicker { color: rgb(244 246 251 / .8); }
+.hs-top__lede { color: rgb(244 246 251 / .85); }
+.hs-top .hs-cta--quiet { background: rgb(255 255 255 / .12); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .3); }
+
+/* Nền + bo đặt ở khung đứng yên (không phải dải trượt ngang) để hai góc luôn nằm trong màn. */
+.hs-packs { z-index: 1; margin-top: calc(-1 * clamp(2.5rem, 5vw, 4.5rem)); background: #eef4ff; border-radius: clamp(2.5rem, 5vw, 4.5rem) clamp(2.5rem, 5vw, 4.5rem) 0 0; }
+.hs-packs__track { color: #0c1230; }
+.hs-packs__intro .hs-kicker { color: var(--cobalt); }
+.hs-packs__intro h2 { color: #0c0c0c; }
+.hs-packs__intro em { color: var(--cobalt); }
+.hs-packs__hint { color: #656565; }
+.hs-packs__bar { background: rgb(12 18 48 / .12); }
+.hs-packs__bar i { background: var(--cobalt); }
+.hs-pack { color: var(--ink); }
+
+.hs-process { border-radius: 0; background: var(--night); color: var(--ink); }
+.hs-process .hs-kicker { color: var(--cyan); }
+.hs-process h2 { color: var(--ink); }
+.hs-step p { color: #c5cbd0; }
+
+.hs-closing { border-radius: clamp(2.5rem, 5vw, 4.5rem) clamp(2.5rem, 5vw, 4.5rem) 0 0; background: radial-gradient(55% 60% at 50% 100%, var(--cobalt-hi), transparent 72%), var(--cobalt); }
+.hs-closing .hs-kicker { color: var(--gold); }
+.hs-closing__lede { color: rgb(244 246 251 / .85); }
+.hs-closing .hs-link { text-decoration-color: var(--gold); }
+/* Thẻ gói dính màn trên điện thoại: khung cha không được overflow:hidden (giết position:sticky). */
+@media (max-width: 899px) { .hs-packs { overflow: visible; } .hs-pack { will-change: transform; } }
+/* Điện thoại: ít chữ, nhiều hình (user 09/11/2026). */
+@media (max-width: 899px) {
+  .hs-top__lede { display: none; }
+  .hs-top h1 { font-size: clamp(2.8rem, 13vw, 4.2rem); }
+  .hs-pack ul, .hs-pack__count { display: none; }
+  /* Thẻ gói (user 09/11: đơn giản, đa màu, phá cách, nhìn hình hiểu gói):
+     mỗi thẻ một khối màu của gói, hình sticker nói nội dung ở trên, tên gói
+     to như logo, chữ mực đậm. Bỏ mockup iPhone và đoạn mô tả trên điện thoại. */
+  .hs-pack { gap: 1.1rem; color: #0c1230; border: 3px solid #0c1230; box-shadow: 6px 6px 0 #0c1230; background: linear-gradient(150deg, var(--neon-a), var(--neon-b)); }
+  .hs-pack:nth-child(odd) { rotate: -1.2deg; }
+  .hs-pack:nth-child(even) { rotate: 1.2deg; }
+  .hs-pack__art, .hs-pack__lede { display: none; }
+  .hs-pack__glyph { display: block; order: -1; width: 100%; height: auto; margin-bottom: -.5rem; }
+  .hs-pack .hs-pack__copy > :nth-child(2), .hs-pack .hs-pack__copy > :nth-child(2) * { font-size: 2.3rem; }
+  .hs-pack h3 { color: #0c1230; font-size: 1.35rem; }
+  .hs-pack__foot { border-top: 2px dashed rgb(12 18 48 / .35); }
+  .hs-pack__price, .hs-pack__price b { color: #0c1230; }
+  .hs-pack .hs-link { text-decoration-color: #0c1230; }
+  .hs-step p { display: none; }
+  .hs-process ol { gap: 2.25rem; }
+  .hs-closing__lede { display: none; }
+}
+
+/* Hình sticker của gói chỉ dùng trên điện thoại. */
+@media (min-width: 900px) { .hs-pack__glyph { display: none; } }
+
+/* ── Tên gói = logo sticker (user 09/11): khối neon chói, viền mực, vành trắng
+   cắt-dán, bóng khối, nghiêng nhẹ. Mỗi gói một cặp màu tương phản gắt:
+   One hồng điện trên thẻ xanh ngọc · Story chanh neon trên thẻ tím-hồng ·
+   Flow+ xanh điện trên thẻ vàng-cam. Dùng cả desktop lẫn điện thoại. */
+.hs-pack:nth-of-type(1) { --neon-a: #00f5d4; --neon-b: #00bbf9; --sticker: #ff2e93; --sticker-ink: #fff; }
+.hs-pack:nth-of-type(2) { --neon-a: #b14bff; --neon-b: #ff4fc3; --sticker: #c6ff00; --sticker-ink: #0c1230; }
+.hs-pack:nth-of-type(3) { --neon-a: #ffe53b; --neon-b: #ff6a00; --sticker: #2f6bff; --sticker-ink: #fff; }
+.hs-pack .hs-pack__copy > :nth-child(2) {
+  justify-self: start; display: inline-flex; align-items: baseline; gap: .1em;
+  padding: .3em .7em .38em; border: 3px solid #0c1230; border-radius: 999px; background: var(--sticker);
+  box-shadow: 0 0 0 5px #fff, 7px 7px 0 5px #0c1230; rotate: -4deg; margin: .4rem 0 .6rem .3rem;
+  font-family: "Bricolage Grotesque", "Nunito", sans-serif; font-weight: 900; letter-spacing: -.035em; line-height: 1;
+}
+.hs-pack .hs-pack__copy > :nth-child(2) > span:not(.bg-clip-text) { color: var(--sticker-ink); font-size: 1em; font-weight: 900; text-transform: uppercase; letter-spacing: -.02em; } /* HUGO dẫn đầu (user 09/11) */
+.hs-pack .hs-pack__copy > :nth-child(2) .bg-clip-text { background: none !important; color: var(--sticker-ink); font-weight: 800; font-size: .72em; }
+.hs-pack:nth-of-type(2) .hs-pack__copy > :nth-child(2) { rotate: 3deg; }
+@media (min-width: 900px) { .hs-pack .hs-pack__copy > :nth-child(2), .hs-pack .hs-pack__copy > :nth-child(2) * { font-size: 1.9rem; } }
+
+/* ── Form đặt lịch: cùng phong cách trang Giới thiệu (09/11/2026) ────── */
+.hs-land .svc-book { background: #0c1230; border-color: rgb(255 255 255 / .1); box-shadow: 0 30px 70px -30px rgb(5 10 50 / .7); font-family: "Nunito", sans-serif; }
+.hs-land .svc-book__count { font-family: "Nunito", sans-serif; font-weight: 800; font-size: .75rem; letter-spacing: .18em; color: var(--gold); }
+.hs-land .svc-book__bar { background: rgb(255 255 255 / .1); }
+.hs-land .svc-book__bar i { background: var(--gold); }
+.hs-land .svc-book__q { font-family: "Bricolage Grotesque", "Nunito", sans-serif; font-variation-settings: "opsz" 96; letter-spacing: -.035em; }
+.hs-land .svc-book__chip span { border-color: rgb(255 255 255 / .16); font-family: "Nunito", sans-serif; }
+.hs-land .svc-book__chip input:checked + span { background: var(--ink); border-color: transparent; color: var(--navy); scale: 1; }
+.hs-land .svc-book__chip input:focus-visible + span { outline-color: var(--gold); }
+.hs-land .svc-book__field input, .hs-land .svc-book__field textarea { font-family: "Nunito", sans-serif; border-radius: 1rem; }
+.hs-land .svc-book__field input:focus, .hs-land .svc-book__field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgb(255 191 8 / .18); }
+.hs-land .svc-book__back { font-family: "Nunito", sans-serif; }
+.hs-land .svc-book .svc-btn { box-shadow: none; font-family: "Nunito", sans-serif; }
+
+/* Điện thoại: không khung cố định (hết khoảng trống), lựa chọn thành hàng
+   rộng hết khung, nút tiếp tục rộng hết khung. */
+@media (max-width: 899px) {
+  .hs-land .svc-book { height: auto; gap: 1.1rem; padding: 1.25rem; border-radius: 1.5rem; }
+  .hs-land .svc-book__body { flex: none; overflow: visible; }
+  .hs-land .svc-book__q { font-size: 1.45rem; }
+  .hs-land .svc-book__chips { display: grid; gap: .5rem; }
+  .hs-land .svc-book__chip span { display: flex; width: 100%; min-height: 3.25rem; padding: 0 1.1rem; border-radius: 1rem; font-size: 1rem; }
+  .hs-land .svc-book__chip input:checked + span::after { content: "✓"; margin-left: auto; font-weight: 900; }
+  .hs-land .svc-book__field--grow textarea { min-height: 7rem; }
+  .hs-land .svc-book__nav { flex-wrap: wrap; }
+  .hs-land .svc-book .svc-btn { flex: 1 1 100%; justify-content: center; order: 2; }
+  .hs-land .svc-book__back { order: 1; }
+  .hs-closing { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+}

@@ -14,8 +14,6 @@ import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore
 // Đài hỏng thì tự nhảy sang đài khác, nhưng có trần: mỗi lần nhảy là một lượt
 // dò trên máy chủ, mất sóng cả cụm thì đừng biến thành vòng lặp gọi mạng.
 const MAX_AUTO_SKIP = 3;
-const GUEST_DEMO_LIMIT_SECONDS = 15 * 60;
-const GUEST_DEMO_STORAGE_KEY = "hugo_radio_demo_seconds_v1";
 
 const FOUND_CATEGORY = "found";
 const STATUS_DOT = {
@@ -97,29 +95,9 @@ const FALLBACK_STATIONS = {
 };
 
 const SLEEP_STEPS = [15, 30, 60];
-const readGuestDemoSeconds = () => {
-  try {
-    const value = Number(localStorage.getItem(GUEST_DEMO_STORAGE_KEY) || 0);
-    return Number.isFinite(value) ? Math.min(GUEST_DEMO_LIMIT_SECONDS, Math.max(0, value)) : 0;
-  } catch {
-    return 0;
-  }
-};
-
-const writeGuestDemoSeconds = (seconds) => {
-  try {
-    localStorage.setItem(GUEST_DEMO_STORAGE_KEY, String(Math.round(seconds)));
-  } catch { /* Storage can be unavailable in private browsing. */ }
-};
-
-const formatDemoTime = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
-
 export default function MemberRadioTab({
   onBack,
   showToast,
-  bio,
-  isGuestMode = false,
-  requireAccount,
   // Nằm trong tab "Đài" của app Chuyên Chú: khung do Aura lo, ở đây chỉ trả nội dung.
   embedded = false,
 }) {
@@ -138,10 +116,6 @@ export default function MemberRadioTab({
   const setIsPlaying = useRadioStore((s) => s.setPlaying);
   const setIsBuffering = useRadioStore((s) => s.setBuffering);
   const setVolume = useRadioStore((s) => s.setVolume);
-  const guestMode = Boolean(isGuestMode || !bio?.email);
-  const [guestDemoSeconds, setGuestDemoSeconds] = useState(readGuestDemoSeconds);
-  const guestDemoRemaining = Math.max(0, GUEST_DEMO_LIMIT_SECONDS - guestDemoSeconds);
-  const guestDemoExpired = guestMode && guestDemoRemaining <= 0;
 
   const [sleepTimer, setSleepTimer] = useState(null);
   const [sleepTimeLeft, setSleepTimeLeft] = useState(0);

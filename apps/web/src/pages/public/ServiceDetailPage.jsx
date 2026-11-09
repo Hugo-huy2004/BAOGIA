@@ -12,10 +12,29 @@ import { SHARED_ICONS } from "../../data/serviceIcons";
 import { formatServicePrice } from "../../utils/servicePrice";
 import PackageName from "../../components/brand/PackageName";
 import Aura from "../../components/public/hwagfu/Aura";
-import { PackageStill } from "../../components/public/hwagfu/ServicesStory";
+import { PackageStill, PhoneFrame } from "../../components/public/hwagfu/ServicesStory";
 import "../../components/public/hwagfu/hwagfu.css";
+import "./service-detail.css";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
+import { useServicesFonts } from "../../hooks/useServicesFonts";
+
+/** Màu màn hình cho dải điện thoại "Bao gồm": xoay vòng bảng neon của trang Dịch vụ. */
+const SCREENS = ["#00f5d4", "#ff2e93", "#c6ff00", "#2f6bff", "#ffe53b", "#b14bff", "#ff6a00"];
+
+/** Mục điều khoản gập lại: tiêu đề + một dòng tóm tắt, mở ra mới thấy chữ. */
+function Fold({ id, icon, label, hint, children }) {
+  return (
+    <details id={id} className="sd-fold scroll-mt-32">
+      <summary>
+        <span aria-hidden className="material-symbols-outlined sd-fold__icon">{icon}</span>
+        <span className="min-w-0"><b>{label}</b><small>{hint}</small></span>
+        <span aria-hidden className="material-symbols-outlined sd-fold__chev">expand_more</span>
+      </summary>
+      <div className="sd-fold__body">{children}</div>
+    </details>
+  );
+}
 
 /**
  * /services/:slug — một gói, một trang.
@@ -77,7 +96,6 @@ function CompareTable({ copy, currentId }) {
   const priceInfo = (pkgId) => t(`servicePkg.items.${pkgId}.price`, { returnObjects: true });
   const priceOf = (pkgId) => formatServicePrice(priceInfo(pkgId), i18n.resolvedLanguage);
   const priceLabelOf = (pkgId) => {
-    if (servicePackages.find((pkg) => pkg.id === pkgId)?.freeTier) return "";
     return t(priceInfo(pkgId).factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel");
   };
 
@@ -213,6 +231,7 @@ export default function ServiceDetailPage() {
   const pkg = useServiceCopy(slug);
   const { priceNotice, studentDiscount, compare, stats, warrantyTerms, warrantyExclusions, feedback, addons } = useSharedServiceCopy();
   const index = servicePackages.findIndex((item) => item.slug === slug);
+  useServicesFonts();
 
   useHeadMeta({
     // Tiêu đề/mô tả SEO viết riêng từng gói (servicePkg.items.<id>.seo), khớp bản HTML tĩnh.
@@ -249,8 +268,6 @@ export default function ServiceDetailPage() {
   } : null), [pkg, i18n.resolvedLanguage, i18n.language]));
 
   if (!pkg) return <Navigate to="/services" replace />;
-  // Gói miễn phí được bán ở /student-pricing, không dựng lại một trang gói nữa.
-  if (pkg.freeTier) return <Navigate to={pkg.verifyHref || "/student-pricing"} replace />;
 
   const next = servicePackages[(index + 1) % servicePackages.length];
   const facts = [
@@ -260,46 +277,31 @@ export default function ServiceDetailPage() {
   ];
 
   return (
-    <div className="hwagfu-copy text-foreground">
-      {/* ── Đầu trang: tên gói + thẻ giá. Ảnh máy chỉ hiện từ lg — trên điện
-          thoại nó đẩy giá xuống dưới màn hình đầu. ─────────────────────── */}
-      <section className="relative isolate overflow-hidden px-5 pb-10 pt-24 sm:px-8 sm:pb-16 sm:pt-32">
-        <Aura />
-        <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-[1.02fr_.98fr]">
+    <div className="sd hwagfu-copy text-foreground" data-pkg={pkg.id}>
+      {/* ── Đầu trang: một tấm thẻ neon — sticker tên gói, một câu, điện thoại
+          mẫu, giá dán đè lên máy như nhãn giá. Lời dẫn dài chỉ hiện từ sm. ── */}
+      <section className="sd-hero">
+        <div className="sd-hero__card">
           <div className="min-w-0">
-            <Link to="/services" className="link-more inline-flex items-center gap-2 text-sm">
-              <ArrowLeft size={16} /> {c("backToAll")}
-            </Link>
-            <PackageName id={pkg.id} variant="lockup" as="h1" className="mt-6 block text-[clamp(2.6rem,7vw,5.5rem)]" />
-            <p className="mt-4 max-w-xl text-[clamp(1.15rem,.95rem+.8vw,1.6rem)] leading-[1.2] font-medium tracking-[-.03em] text-foreground/85">
-              {pkg.title}
-            </p>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">{pkg.lede}</p>
-
-            <div className="mt-7 max-w-xl rounded-[1.5rem] border border-border bg-card/90 p-5 backdrop-blur-md sm:p-6">
-              <p className="text-xs text-muted-foreground">
-                {t(pkg.price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}
+            <Link to="/services" className="sd-back"><ArrowLeft size={16} /> {c("backToAll")}</Link>
+            <PackageName id={pkg.id} as="h1" dot={false} className="sd-sticker" />
+            <p className="sd-hero__title">{pkg.title}</p>
+            <p className="sd-hero__lede">{pkg.lede}</p>
+            <ul className="sd-facts">
+              {facts.map(([label, value]) => (
+                <li key={label}><small>{label}</small><b>{value}</b></li>
+              ))}
+            </ul>
+            <div className="sd-buy">
+              <p className="sd-price">
+                <small>{t(pkg.price.factors?.length ? "servicePkg.page.startingPriceLabel" : "servicePkg.page.fixedPriceLabel")}</small>
+                <b>{formatServicePrice(pkg.price, i18n.resolvedLanguage)}</b>
+                {pkg.noDeposit ? <span>{pkg.policy[1]?.title?.replace(/[.。]$/, "")}</span> : null}
               </p>
-              <p className="mt-1 text-[clamp(2rem,1.6rem+1.6vw,2.8rem)] leading-none font-semibold tracking-[-.05em]">              {formatServicePrice(pkg.price, i18n.resolvedLanguage)}</p>
-              {pkg.price.note ? <p className="mt-3 text-sm leading-6 text-muted-foreground">{pkg.price.note}</p> : null}
-              {pkg.noDeposit ? (
-                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold">
-                  <span aria-hidden className="material-symbols-outlined text-[16px]">verified</span>
-                  {pkg.policy[1]?.title?.replace(/[.。]$/, "")}
-                </p>
-              ) : null}
-              <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-border pt-4">
-                {facts.map(([label, value]) => (
-                  <div key={label} className="min-w-0">
-                    <dt className="text-[0.7rem] text-muted-foreground">{label}</dt>
-                    <dd className="mt-0.5 text-sm leading-5 font-semibold">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-              <Link to="/booking" className="btn-primary mt-5 w-full justify-center sm:w-auto">{c("discussCta")} <CalendarCheck size={17} /></Link>
+              <Link to="/booking" className="sd-cta">{c("discussCta")} <CalendarCheck size={18} /></Link>
             </div>
           </div>
-          <div aria-hidden className="hidden lg:block">
+          <div className="sd-hero__art">
             <PackageStill index={index} label={`${c("sampleAlt")} ${pkg.name}`} />
           </div>
         </div>
@@ -310,119 +312,112 @@ export default function ServiceDetailPage() {
         <ul className="mx-auto flex max-w-6xl gap-6 overflow-x-auto py-3.5 text-sm text-muted-foreground [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {NAV.map(([anchor, key]) => (
             <li key={anchor} className="shrink-0">
-              <a href={`#${anchor}`} className="transition-colors hover:text-foreground">{c(`nav.${key}`)}</a>
+              <a href={`#${anchor}`} onClick={() => document.getElementById(anchor)?.setAttribute("open", "")} className="transition-colors hover:text-foreground">{c(`nav.${key}`)}</a>
             </li>
           ))}
         </ul>
       </nav>
 
-      {/* ── Dành cho ai ────────────────────────────────────── */}
+      {/* ── Dành cho ai: ba nhãn dán, không đoạn văn ─────────── */}
       <Section id="audience" kicker={c("audienceKicker")} title={c("audienceTitle")} muted>
-        <ul className="grid gap-3 sm:grid-cols-3">
+        <ul className="sd-who">
           {pkg.audience.map((item, i) => (
-            <li key={item} className="flex items-center gap-3 rounded-[1.25rem] border border-border bg-card p-4 text-sm leading-6 text-foreground/80">
-              <span aria-hidden className="material-symbols-outlined grid size-9 shrink-0 place-items-center rounded-full bg-muted text-[19px] text-foreground">
-                {pkg.icons.audience[i] || "person"}
-              </span>
+            <li key={item}>
+              <span aria-hidden className="material-symbols-outlined">{pkg.icons.audience[i] || "person"}</span>
               {item}
             </li>
           ))}
         </ul>
       </Section>
 
-      {/* ── Bao gồm ────────────────────────────────────────── */}
-      <Section id="included" kicker={c("includesKicker")} title={c("includesTitle")} lede={c("includesLede")}>
-        <IconList items={pkg.includes} icons={pkg.icons.includes} />
+      {/* ── Bao gồm: mỗi thứ khách nhận là một màn hình điện thoại. Vuốt ngang
+          trên điện thoại, xếp lưới trên máy tính. Chữ trên màn là tên mục,
+          lời giải thích nằm nhỏ dưới máy. ─────────────────────────────── */}
+      <Section id="included" kicker={c("includesKicker")} title={c("includesTitle")}>
+        <ol className="sd-rail">
+          {pkg.includes.map((item, i) => (
+            <li key={item.title} className="sd-shot">
+              <PhoneFrame label={item.title}>
+                <div className="sd-screen" style={{ "--screen": SCREENS[i % SCREENS.length] }}>
+                  <span className="sd-screen__bar"><i />HUGO<em>{String(i + 1).padStart(2, "0")}</em></span>
+                  <span aria-hidden className="material-symbols-outlined sd-screen__icon">{pkg.icons.includes[i] || "check"}</span>
+                  <b className="sd-screen__title">{item.title}</b>
+                </div>
+              </PhoneFrame>
+              <p>{item.body}</p>
+            </li>
+          ))}
+        </ol>
       </Section>
 
-      {/* ── Chưa bao gồm: dịch vụ bên thứ ba khách tự trang bị + Gói Liên kết ── */}
-      <Section id="not-included" kicker={c("excludesKicker")} title={c("excludesTitle")} lede={c("excludesLede")} muted>
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-          <ul className="grid gap-x-8 border-t border-border sm:grid-cols-2">
-            {pkg.excludes.map((item, i) => (
-              <li key={item.title} className="flex gap-3 border-b border-border py-4">
-                <span aria-hidden className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-muted-foreground">
-                  {pkg.icons.excludes[i] || "remove"}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[0.95rem] font-semibold tracking-[-.01em]">{item.title}</span>
-                  <span className="mt-0.5 block text-sm leading-6 text-muted-foreground">{item.body}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-          {findAddon("link").appliesTo.includes(pkg.id) ? (
-            <AddonTile addon={findAddon("link")} />
-          ) : (
-            <div className="rounded-[1.25rem] border border-border bg-card p-5">
-              <p className="flex items-center gap-2 text-[0.95rem] font-semibold">
-                <span aria-hidden className="material-symbols-outlined text-[20px]">link</span>
-                {t("servicePkg.linkIncludedNote.title")}
-              </p>
-              <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{t("servicePkg.linkIncludedNote.body")}</p>
-            </div>
-          )}
-        </div>
-      </Section>
-
-      {/* ── Bảo hành trọn đời: điều kiện + miễn trừ ───────── */}
-      <Section id="warranty" kicker={c("warrantyKicker")} title={c("warrantyTitle")}>
-        <IconList items={pkg.warranty} icons={pkg.icons.warranty} />
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <div className="rounded-[1.25rem] border border-border bg-card p-5 sm:p-6">
-            <h3 className="flex items-center gap-2 text-sm font-semibold">
-              <span aria-hidden className="material-symbols-outlined text-[19px]">verified_user</span>
-              {warrantyTerms.title}
-            </h3>
-            <ol className="mt-3 space-y-2.5">
-              {warrantyTerms.lines.map((line, i) => (
-                <li key={line} className="flex gap-3 text-sm leading-6 text-muted-foreground">
-                  <span className="w-4 shrink-0 font-semibold text-foreground">{i + 1}.</span>
-                  {line}
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div className="rounded-[1.25rem] border border-border bg-card p-5 sm:p-6">
-            <h3 className="flex items-center gap-2 text-sm font-semibold">
-              <span aria-hidden className="material-symbols-outlined text-[19px]">block</span>
-              {warrantyExclusions.title}
-            </h3>
-            <ul className="mt-3 space-y-2.5">
-              {warrantyExclusions.lines.map((line) => (
-                <li key={line} className="flex gap-3 text-sm leading-6 text-muted-foreground">
-                  <span aria-hidden className="material-symbols-outlined mt-0.5 shrink-0 text-[18px] text-muted-foreground/70">close</span>
-                  {line}
+      {/* ── Luật chơi: chưa bao gồm, bảo hành, góp ý, cách làm việc — gập lại,
+          mỗi mục một dòng tóm tắt. Ai cần mới mở. ─────────────────────── */}
+      <Section kicker={c("policyKicker")} title={c("policyTitle")} muted>
+        <div className="sd-folds">
+          <Fold id="not-included" icon="do_not_disturb_on" label={c("nav.excludes")} hint={c("excludesTitle")}>
+            <ul className="grid gap-x-8 sm:grid-cols-2">
+              {pkg.excludes.map((item, i) => (
+                <li key={item.title} className="flex gap-3 border-b border-border py-3.5 last:border-b-0">
+                  <span aria-hidden className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-muted-foreground">{pkg.icons.excludes[i] || "remove"}</span>
+                  <span className="min-w-0">
+                    <span className="block text-[0.95rem] font-semibold">{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-6 text-muted-foreground">{item.body}</span>
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
+            <div className="mt-4">
+              {findAddon("link").appliesTo.includes(pkg.id) ? (
+                <AddonTile addon={findAddon("link")} />
+              ) : (
+                <p className="text-sm leading-6 text-muted-foreground"><b className="text-foreground">{t("servicePkg.linkIncludedNote.title")}</b> {t("servicePkg.linkIncludedNote.body")}</p>
+              )}
+            </div>
+          </Fold>
+
+          <Fold id="warranty" icon="verified_user" label={c("nav.warranty")} hint={c("warrantyTitle")}>
+            <IconList items={pkg.warranty} icons={pkg.icons.warranty} />
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-semibold">{warrantyTerms.title}</h3>
+                <ol className="mt-2 space-y-2">
+                  {warrantyTerms.lines.map((line, i) => (
+                    <li key={line} className="flex gap-3 text-sm leading-6 text-muted-foreground"><span className="w-4 shrink-0 font-semibold text-foreground">{i + 1}.</span>{line}</li>
+                  ))}
+                </ol>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold">{warrantyExclusions.title}</h3>
+                <ul className="mt-2 space-y-2">
+                  {warrantyExclusions.lines.map((line) => (
+                    <li key={line} className="flex gap-3 text-sm leading-6 text-muted-foreground"><span aria-hidden className="material-symbols-outlined mt-0.5 shrink-0 text-[18px]">close</span>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            {SERVICE_ADDONS.some((a) => a.group === "care" && a.appliesTo.includes(pkg.id)) ? (
+              <div className="mt-6">
+                <h3 className="text-sm font-semibold">{t("servicePkg.addonPage.careTitle")}</h3>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {SERVICE_ADDONS.filter((a) => a.group === "care" && a.appliesTo.includes(pkg.id)).map((a) => <AddonTile key={a.id} addon={a} />)}
+                </div>
+              </div>
+            ) : null}
+          </Fold>
+
+          <Fold id="feedback" icon="rate_review" label={c("nav.feedback")} hint={feedback.title}>
+            <IconList items={feedback.rules} icons={SHARED_ICONS.feedback} />
+          </Fold>
+
+          <Fold id="policy" icon="handshake" label={c("policyKicker")} hint={pkg.policy.map((p) => p.title.replace(/[.。]$/, "")).slice(0, 2).join(" · ")}>
+            <IconList items={pkg.policy} icons={pkg.icons.policy} fallbackIcon="gavel" />
+          </Fold>
         </div>
       </Section>
 
-      {SERVICE_ADDONS.some((a) => a.group === "care" && a.appliesTo.includes(pkg.id)) ? (
-        <section className="bg-background px-5 pb-12 sm:px-8 sm:pb-20">
-          <div className="mx-auto max-w-6xl">
-            <h3 className="text-sm font-semibold">{t("servicePkg.addonPage.careTitle")}</h3>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {SERVICE_ADDONS.filter((a) => a.group === "care" && a.appliesTo.includes(pkg.id)).map((a) => <AddonTile key={a.id} addon={a} />)}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* ── Góp ý và chỉnh sửa: luật nói trước để không phải từ chối lúc làm ── */}
-      <Section id="feedback" kicker={feedback.kicker} title={feedback.title} lede={feedback.lede} muted>
-        <IconList items={feedback.rules} icons={SHARED_ICONS.feedback} />
-      </Section>
-
-      {/* ── Cách làm việc ──────────────────────────────────── */}
-      <Section kicker={c("policyKicker")} title={c("policyTitle")}>
-        <IconList items={pkg.policy} icons={pkg.icons.policy} fallbackIcon="gavel" />
-      </Section>
-
       {/* ── Gói đính kèm + đơn giá lẻ ──────────────────────── */}
-      <Section id="add-ons" kicker={c("priceKicker")} title={c("priceTitle")} lede={addons.lede} muted>
+      <Section id="add-ons" kicker={c("priceKicker")} title={c("priceTitle")} lede={addons.lede}>
+        {pkg.price.note ? <p className="mb-6 max-w-3xl text-sm leading-6 text-muted-foreground">{pkg.price.note}</p> : null}
         {pkg.price.factors?.length ? (
           <div className="mb-8 rounded-[1.25rem] border border-border bg-card p-5 sm:p-6">
             <p className="mt-4 text-sm font-semibold">{c("priceFactors")}</p>

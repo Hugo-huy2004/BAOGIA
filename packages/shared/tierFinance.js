@@ -4,7 +4,7 @@
  *
  * ── VÌ SAO TỆP NÀY TỒN TẠI ──────────────────────────────────────────────────
  * Trước 20/09/2026, đặc quyền tài chính của từng hạng sống trong CHỮ: một mảng
- * chuỗi HTML ở `TierPrivilegesSection.jsx` và một bảng ở `memberDocs.js`. Không
+ * chuỗi HTML ở `TierPrivilegesSection.jsx` (trước đây còn một bảng ở memberDocs.js, đã gỡ). Không
  * dòng nào trong hai nơi đó được mã nguồn đọc — `memberTier()` chỉ được dùng để
  * phát quà sinh nhật. Kết quả là mười lời hứa sai cùng một lúc:
  *

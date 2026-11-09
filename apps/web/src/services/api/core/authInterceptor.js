@@ -26,7 +26,6 @@ const SHARED_CACHE_PATHS = [
   "/api/arcade/2048/collection-leaderboard",
   "/api/chess/leaderboard",
   "/api/presence/status-by-slug",
-  "/api/legal-docs",
   "/api/coder-lessons$",
 ];
 

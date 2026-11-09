@@ -342,7 +342,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     const {
       displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom,
       countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude,
-      locationVerifiedAt, ethnicity, religion,
+      locationVerifiedAt,
       birthDay, birthMonth, birthYear, birthday, language, contactEmail, bio: bioText, avatarUrl,
     } = req.body;
     const Bio = (await import('../../models/Bio.js')).default;
@@ -370,8 +370,6 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       bio.locationAccuracy = 0;
       bio.locationGeocode = '';
     }
-    if (ethnicity !== undefined) bio.ethnicity = ethnicity;
-    if (religion !== undefined) bio.religion = religion;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;
     // Ảnh đại diện: data:image → tải lên Cloudinary (thay ảnh cũ), '' → xoá.
     // Admin được vượt khoá chống giả mạo (antiDeepfakeLock) — khoá đó chặn kẻ
@@ -419,7 +417,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (bio.isModified('phone') && bio.phone && await Bio.exists({ phone: bio.phone, _id: { $ne: bio._id } })) {
       return res.status(409).json({ error: 'Số điện thoại này đã thuộc một tài khoản khác.' });
     }
-    const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion, birthDay, birthMonth, birthYear, language].some((value) => value !== undefined);
+    const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, birthDay, birthMonth, birthYear, language].some((value) => value !== undefined);
 
     // Gia hạn là quyền của admin (04/11/2026): cổng thành viên chỉ đọc expiresAt.
     const setAccessUntil = (date) => { bio.expiresAt = date; };

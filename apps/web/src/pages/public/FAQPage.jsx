@@ -3,16 +3,17 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import "../../components/public/hwagfu/hwagfu.css";
+import "./sticker-pages.css";
+import { useServicesFonts } from "../../hooks/useServicesFonts";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { API_BASE } from "../../config/apiBase";
 import { createMailtoUrl } from "../../../../../packages/shared/emailChannels";
 
 /**
- * /faq — một câu hỏi, một câu trả lời, không có gì khác trên đường đi.
- *
- * Trang này cố tình trơn: một nền, không quầng sáng, không chữ đổ màu, không
- * dải nền đổi tông. Thứ duy nhất được phép nổi lên là câu hỏi và nút đặt lịch.
+ * /faq — một câu hỏi, một câu trả lời. 09/11/2026: cùng chất sticker neon với
+ * trang Dịch vụ — mỗi câu hỏi là một nhãn dán có icon màu, mở ra mới đọc; khối
+ * liên hệ là một thẻ màu với đúng một nút chính (đặt lịch).
  *
  * Toàn bộ chữ nằm trong i18n (`faqPage.*`, 9 ngôn ngữ) nên trang này chỉ dựng
  * hình; thêm câu hỏi thì thêm một phần tử vào `FAQS` và một khoá dịch cùng chỉ
@@ -20,15 +21,16 @@ import { createMailtoUrl } from "../../../../../packages/shared/emailChannels";
  */
 
 const FAQS = [
-  { icon: "schedule" },
-  { icon: "group" },
-  { icon: "featured_seasonal_and_gifts", actionLink: "/student-pricing" },
-  { icon: "payments" },
-  { icon: "flight_takeoff" },
+  { icon: "schedule", tone: "#00f5d4" },
+  { icon: "group", tone: "#ff2e93" },
+  { icon: "featured_seasonal_and_gifts", tone: "#c6ff00" },
+  { icon: "payments", tone: "#ffe53b" },
+  { icon: "flight_takeoff", tone: "#2f6bff" },
 ];
 
 export default function FAQPage() {
   const { t, i18n } = useTranslation();
+  useServicesFonts();
 
   useHeadMeta({
     title: t("faqPage.meta.title"),
@@ -54,81 +56,57 @@ export default function FAQPage() {
     ),
   );
 
+  // Chỉ in TÊN kênh, không in địa chỉ email lên trang (user 09/11: bảo mật
+  // thông tin) — địa chỉ chỉ nằm trong liên kết mailto do emailChannels dựng.
+  const mails = [
+    ["support", "support_agent", t("faqPage.contact.mailSupport", "Hỗ trợ")],
+    ["education", "school", t("faqPage.contact.mailEducation", "Học tập")],
+    ["contact", "work", t("faqPage.contact.mailProject", "Dự án")],
+  ];
+
   return (
-    <div className="hwagfu-copy text-foreground">
-      {/* ── Đầu trang ──────────────────────────────────────── */}
-      <section className="bg-background px-5 pb-12 pt-28 sm:px-8 sm:pb-16 sm:pt-32">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-medium text-muted-foreground">{t("faqPage.header.badge")}</p>
-          <h1 className="mt-4 text-[clamp(2.6rem,1.9rem+2.6vw,4rem)] font-semibold leading-[1.05] tracking-[-.04em]">
-            {t("faqPage.header.title1")} {t("faqPage.header.title2")}
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-[1.05rem] leading-8 text-muted-foreground">
-            {t("faqPage.header.desc")}
-          </p>
-        </div>
-      </section>
+    <div className="hwagfu-copy sk-page">
+      <header className="sk-head">
+        <p className="sk-kicker">{t("faqPage.header.badge")}</p>
+        <h1 className="sk-title">{t("faqPage.header.title1")} <em>{t("faqPage.header.title2")}</em></h1>
+        <p className="sk-lede">{t("faqPage.header.desc")}</p>
+      </header>
 
-      {/* ── Danh sách câu hỏi ──────────────────────────────── */}
-      <section className="bg-background px-5 pb-16 sm:px-8 sm:pb-24">
-        <div className="mx-auto max-w-3xl border-t border-border">
-          {FAQS.map((faq, idx) => (
-            <details key={faq.icon} className="group border-b border-border py-5" open={idx === 0}>
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-1 text-[1.05rem] font-medium leading-snug tracking-[-.015em]">
-                {t(`faqPage.faqs.${idx}.question`)}
-                <span className="shrink-0 text-2xl font-light text-muted-foreground transition-transform group-open:rotate-45" aria-hidden>
-                  +
-                </span>
-              </summary>
-              <div className="mt-3">
-                <p className="max-w-2xl text-[0.98rem] leading-8 text-muted-foreground">
-                  {t(`faqPage.faqs.${idx}.answer`)}
-                </p>
-                {faq.actionLink ? (
-                  <Link to={faq.actionLink} className="link-more mt-4 inline-flex items-center gap-1.5 text-sm">
-                    {t(`faqPage.faqs.${idx}.actionText`)} <ArrowRight size={14} />
-                  </Link>
-                ) : null}
-              </div>
-            </details>
+      <div className="sk-faq">
+        {FAQS.map((faq, idx) => (
+          <details key={faq.icon} open={idx === 0} style={{ "--tone": faq.tone }}>
+            <summary>
+              <span aria-hidden className="material-symbols-outlined sk-faq__icon">{faq.icon}</span>
+              <b>{t(`faqPage.faqs.${idx}.question`)}</b>
+              <span aria-hidden className="sk-faq__plus">+</span>
+            </summary>
+            <p>{t(`faqPage.faqs.${idx}.answer`)}</p>
+            {faq.actionLink ? (
+              <Link to={faq.actionLink} className="sk-faq__more">
+                {t(`faqPage.faqs.${idx}.actionText`)} <ArrowRight size={14} />
+              </Link>
+            ) : null}
+          </details>
+        ))}
+      </div>
+
+      {/* Một lối đi chính: đặt lịch. Nhắn tin và email tụt xuống thành nhãn nhỏ. */}
+      <section className="sk-contact">
+        <h2>{t("faqPage.contact.title")}</h2>
+        <p>{t("faqPage.contact.desc")}</p>
+        <div className="sk-contact__actions">
+          <Link to="/booking" className="sk-btn">{t("navbar.booking", "Đặt lịch")} <CalendarCheck size={18} /></Link>
+          <a href={`${API_BASE}/contact/zalo`} target="_blank" rel="noreferrer" className="sk-btn sk-btn--light">{t("faqPage.contact.chatBtn")}</a>
+        </div>
+        <ul className="sk-mails">
+          {mails.map(([channel, icon, label]) => (
+            <li key={channel}>
+              <a href={createMailtoUrl(channel, { lang: i18n.language })} aria-label={`Email · ${label}`}>
+                <span aria-hidden className="material-symbols-outlined">{icon}</span>{label}
+              </a>
+            </li>
           ))}
-        </div>
-      </section>
-
-      {/* ── Vẫn còn thắc mắc ───────────────────────────────── */}
-      <section className="border-t border-border bg-background px-5 py-20 text-center sm:px-8 sm:py-24">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="text-[clamp(1.9rem,1.5rem+1.4vw,2.6rem)] font-semibold leading-tight tracking-[-.035em]">
-            {t("faqPage.contact.title")}
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-[1.02rem] leading-8 text-muted-foreground">
-            {t("faqPage.contact.desc")}
-          </p>
-          {/* Một lối đi chính: đặt lịch. Hai kênh còn lại tụt xuống thành chữ,
-              vì ba cái nút ngang hàng nhau là ba lần bắt người ta phải chọn. */}
-          <div className="mt-8 flex justify-center">
-            <Link to="/booking" className="btn-primary">
-              {t("navbar.booking", "Đặt lịch")} <CalendarCheck size={17} />
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-            <a href={`${API_BASE}/contact/zalo`} target="_blank" rel="noreferrer" className="link-more font-semibold">
-              {t("faqPage.contact.chatBtn")}
-            </a>
-            <span aria-hidden className="opacity-40">·</span>
-            <a href={createMailtoUrl("support", { lang: i18n.language })} className="link-more font-medium">
-              Hỗ trợ: support@hugowishpax.studio
-            </a>
-            <span aria-hidden className="opacity-40">·</span>
-            <a href={createMailtoUrl("education", { lang: i18n.language })} className="link-more font-medium">
-              Học tập: education@hugowishpax.studio
-            </a>
-            <span aria-hidden className="opacity-40">·</span>
-            <a href={createMailtoUrl("contact", { lang: i18n.language })} className="link-more font-medium">
-              Dự án: contact@hugowishpax.studio
-            </a>
-          </p>
-        </div>
+        </ul>
       </section>
     </div>
   );

@@ -2,12 +2,11 @@
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import { uploadAvatar, deleteAvatar } from '../../utils/cloudinary.js';
-import { requireAdmin, requireMember, invalidateMemberGate } from '../../middleware/authMiddleware.js';
+import { requireMember } from '../../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../../utils/memberAge.js';
 import { clearCache } from '../../utils/cacheHelper.js';
 import { appInstallationPolicy } from '../../../../packages/shared/appInstallationPolicy.js';
 import slugIndex from '../../services/slugIndex.js';
-import { deleteMemberAccountPermanently } from '../../services/memberAccountLifecycle.js';
 import { clearPublicBioCache, rejectBlacklistedPhone, ownsBio, HISTORY_LABELS, pushHistory, normalizeSlug, createUniqueSlug, processSecretLinks } from './bioShared.js';
 
 const router = express.Router();
@@ -22,9 +21,6 @@ router.post('/', requireMember, async (req, res) => {
       birthday = '',
       phone = '',
       hobbies = '',
-      height = '',
-      weight = '',
-      measurements = '',
       address = '',
       education = '',
       skills = '',
@@ -72,9 +68,6 @@ router.post('/', requireMember, async (req, res) => {
       birthday,
       phone,
       hobbies,
-      height,
-      weight,
-      measurements,
       address,
       education,
       skills,
@@ -138,7 +131,7 @@ router.put('/:id', requireMember, async (req, res) => {
     // đời, và mọi liên kết bí mật phải có mật khẩu. Chặn tại đây thay vì ở giao
     // diện vì PUT này gọi thẳng được.
     if (isMinorAge(bioAge(existing))) {
-      for (const field of ['address', 'measurements', 'height', 'weight']) {
+      for (const field of ['address']) {
         if (field in req.body) req.body[field] = '';
       }
       if (Array.isArray(req.body.secretLinks)) {
@@ -152,16 +145,10 @@ router.put('/:id', requireMember, async (req, res) => {
       headline,
       bio,
       birthday,
-      phone,
       hobbies,
-      height,
-      weight,
-      measurements,
       address,
-      education,
       skills,
       jobTitle,
-      contactEmail,
       avatarUrl,
       links,
       theme,
@@ -248,9 +235,6 @@ router.put('/:id', requireMember, async (req, res) => {
     const nextHeadline = preserve(headline, existing.headline);
     const nextBio = preserve(bio, existing.bio);
     const nextHobbies = preserve(hobbies, existing.hobbies);
-    const nextHeight = preserve(height, existing.height);
-    const nextWeight = preserve(weight, existing.weight);
-    const nextMeasurements = preserve(measurements, existing.measurements);
     const nextAddress = preserve(address, existing.address);
     const nextSkills = preserve(skills, existing.skills);
     const nextJobTitle = preserve(jobTitle, existing.jobTitle);
@@ -260,7 +244,7 @@ router.put('/:id', requireMember, async (req, res) => {
     const nextServices = preserve(services, existing.services);
 
     // ── Track field changes for history ──────────────────────────────────────
-    const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','height','weight','measurements','address','education','skills','jobTitle'];
+    const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','address','education','skills','jobTitle'];
     const fieldValues = {
       displayName: nextDisplayName,
       headline: nextHeadline,
@@ -269,9 +253,6 @@ router.put('/:id', requireMember, async (req, res) => {
       phone: lockedPhone,
       contactEmail: lockedContactEmail,
       hobbies: nextHobbies,
-      height: nextHeight,
-      weight: nextWeight,
-      measurements: nextMeasurements,
       address: nextAddress,
       education: lockedEducation,
       skills: nextSkills,
@@ -335,9 +316,6 @@ router.put('/:id', requireMember, async (req, res) => {
     existing.birthday = nextEditableBirthday;
     existing.phone = lockedPhone;
     existing.hobbies = nextHobbies;
-    existing.height = nextHeight;
-    existing.weight = nextWeight;
-    existing.measurements = nextMeasurements;
     existing.address = nextAddress;
     existing.education = lockedEducation;
     existing.skills = nextSkills;
@@ -386,22 +364,6 @@ router.put('/:id', requireMember, async (req, res) => {
     return res.json({ bio: existing });
   } catch (error) {
     return res.status(500).json({ error: error.message });
-  }
-});
-
-router.delete('/:id', requireAdmin, async (req, res) => {
-  try {
-    const existing = await Bio.findById(req.params.id);
-    if (!existing) {
-      return res.status(404).json({ error: 'Bio not found' });
-    }
-
-    const deleted = await deleteMemberAccountPermanently(existing._id);
-    if (!deleted) return res.status(404).json({ error: 'Bio not found' });
-    invalidateMemberGate(existing.email);
-    return res.json({ success: true, message: 'Bio deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 

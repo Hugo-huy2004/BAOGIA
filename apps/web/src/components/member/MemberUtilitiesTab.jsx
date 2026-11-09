@@ -12,7 +12,7 @@ import AppLaunchLayer from "./os/AppLaunchLayer";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, onBioUpdate, appRoute, onAppRouteChange, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, handleSave, renderAccountForm, selectedUtility, onSelectUtility, onBioUpdate, appRoute, onAppRouteChange, onOpenParticleModal }) {
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -60,7 +60,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     joy_wallet: { ...sharedProps, publicLink, onOpenParticleModal, onSelectUtility },
     arcade: sharedProps,
     qrhugo: { ...sharedProps, ...routeProps },
-    nom: { onBack: close, ...routeProps },
     aura: { ...sharedProps, ...routeProps },
     bio: { ...sharedProps, ...routeProps, publicLink, renderAccountForm, handleSave },
     store: { ...sharedProps, ...routeProps, onOpenUtility: onSelectUtility },

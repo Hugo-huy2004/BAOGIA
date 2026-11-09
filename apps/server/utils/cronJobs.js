@@ -113,7 +113,7 @@ export function initCronJobs() {
 
       // 2. Dọn lịch sử hiển thị trong Bio.history cũ hơn 90 ngày (đây KHÔNG phải
       // sao kê tiền — sao kê nằm ở JoyLedger).
-      const bioResult = await Bio.updateMany(
+      await Bio.updateMany(
         {},
         { $pull: { history: { timestamp: { $lt: ninetyDaysAgo } } } }
       );

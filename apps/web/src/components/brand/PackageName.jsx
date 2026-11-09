@@ -7,7 +7,7 @@ import "./packageName.css";
  *   <PackageName id="hugo-one" />                       → Hugo One
  *   <PackageName id="hugo-flow-plus" variant="badge" /> → viên thuốc nền màu nhạt
  *   <PackageName id="hugo-story" prefix />              → 01 · Hugo Story
- *   <PackageName id="hugo-edu-plus" variant="plain" />  → chỉ chữ, không màu
+ *   <PackageName id="hugo-one" variant="plain" />  → chỉ chữ, không màu
  *   <PackageName id="hugo-one" size="inherit" />        → mượn cỡ chữ của tiêu đề
  *   <PackageName id="hugo-one" variant="lockup" caption="là gì." />
  *                                                       → "Hugo One" nổi khối

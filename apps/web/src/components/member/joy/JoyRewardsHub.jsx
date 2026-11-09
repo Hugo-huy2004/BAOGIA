@@ -11,7 +11,6 @@ const BirthdayWheel = React.lazy(() => import("../BirthdayWheel"));
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 const REFERRAL_BONUS = 100;
 
-const fmt = (n        , locale        ) => Number(n || 0).toLocaleString(locale);
 const dateLabel = (iso        , locale        , t     ) => (
   iso ? new Date(iso).toLocaleDateString(locale) : t("memberPortal.accountHub.perksCopy.noExpiry")
 );

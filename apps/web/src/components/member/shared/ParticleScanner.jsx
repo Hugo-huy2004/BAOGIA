@@ -26,25 +26,11 @@ import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/part
 //   facingMode                    optional — default "environment" (rear camera)
 //   scanBoxSize                   optional — offscreen decode resolution (px)
 
-// Liveness / agreement tuning. The generator spins ~0.9°/frame (~54°/s), so a
-// live code sweeps well past ROT_MIN_DEG within the time window, while camera
-// angle noise on a static photo stays near zero net displacement.
-// CRC-16 makes a single decoded frame already trustworthy (~1/65536 false
-// positive), so we accept fast: just 2 agreeing frames over a short window with
-// a hint of rotation (proves it's a live spinning code, not a still photo).
-const AGREE_MIN_FRAMES = 1;    // Instant 1-frame decode for ultra-fast scanning
-const AGREE_MIN_MS = 0;       // Zero delay requirement
-const ROT_MIN_DEG = 0;       // Zero rotation requirement
-
+// Nhận ngay khung đầu tiên giải được: CRC-16 đủ chống đọc nhầm (~1/65536).
+// KHÔNG có kiểm tra "mã đang xoay" — ảnh chụp mã vẫn quét được. Mã chỉ là
+// token người nhận do server ký, nên quét ảnh không lấy được tiền của ai.
 // Blob-detection tuning passed to the decoder.
 const DECODE_OPTS = { minDotArea: 2, maxDotArea: 3500, matchToleranceFrac: 0.6 };
-
-function shortestAngleDelta(from, to) {
-  let d = (to - from) % 360;
-  if (d > 180) d -= 360;
-  if (d <= -180) d += 360;
-  return d;
-}
 
 export default function ParticleScanner({
   onScanSuccess,
@@ -151,8 +137,6 @@ export default function ParticleScanner({
         barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
       } catch {}
     }
-
-    let win = null;
 
     const tick = async () => {
       const video = videoRef.current;

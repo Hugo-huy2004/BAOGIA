@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { loginMember, loginMemberWithGoogle } from "../../services/api/core/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,8 @@ import { isStandalone } from "../../config/platform";
 import { API_BASE } from "../../config/apiBase";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
 import { getSafeMemberRedirect } from "../../utils/safeRedirect";
+import { useServicesFonts } from "../../hooks/useServicesFonts";
+import "./sticker-pages.css";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { data } = useData();
   const allowRegistration = data?.systemSettings?.allowRegistration !== false;
+  useServicesFonts();
   useHeadMeta({
     title: "Đăng Nhập | Hugo Studio",
     description: "Đăng ký Bio Link sinh viên miễn phí với email .edu hoặc đăng nhập trang quản trị viên của Hugo Studio.",
@@ -238,6 +240,8 @@ export default function LoginPage() {
     if (params.get("reason") === "support_login_required") {
       showToast("Vui lòng đăng nhập thành viên để tiếp tục yêu cầu hỗ trợ.", "warning");
     }
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const autoLoginCustomer = async (code) => {
@@ -258,30 +262,15 @@ export default function LoginPage() {
     }
   };
 
+  const tabs = [
+    { id: "customer", icon: "folder_managed", label: t("loginPage.tabs.customer") },
+    ...(allowRegistration ? [{ id: "member", icon: "school", label: t("loginPage.tabs.member") }] : []),
+  ];
+
+  // 09/11/2026: cùng chất sticker neon với trang Dịch vụ. Một cột, một thẻ;
+  // màu thẻ đổi theo chế độ (dự án: xanh ngọc · sinh viên: hồng).
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-12 text-foreground transition-colors duration-300">
-
-      {/* Background glows — đồng bộ Hugo Studio */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[130px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-tr from-info/10 to-primary/10 blur-[130px] pointer-events-none" />
-
-      {/* Ambient orbs — đồng bộ FAQ/Introduction */}
-      <motion.div
-        animate={{ y: [0, -30, 0], x: [0, 20, 0], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-[12%] right-[12%] w-28 h-28 md:w-40 md:h-40 bg-warning/20 rounded-full blur-[60px] pointer-events-none"
-      />
-      <motion.div
-        animate={{ y: [0, 40, 0], x: [0, -30, 0], opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute bottom-[14%] left-[6%] w-36 h-36 md:w-52 md:h-52 bg-primary/20 rounded-full blur-[80px] pointer-events-none"
-      />
-
-      {/* Watermark */}
-      <div className="absolute right-[-2%] top-[4%] text-[8rem] md:text-[13rem] font-black text-foreground/[0.03] dark:text-foreground/[0.02] pointer-events-none select-none tracking-tighter leading-none">
-        LOGIN
-      </div>
-
+    <div className={`sk-page sk-login sk-login--${activeMode}`}>
       <HugoNoticeToast
         open={Boolean(toast.message)}
         type={toast.type || "info"}
@@ -289,162 +278,86 @@ export default function LoginPage() {
         onClose={() => setToast({ message: "", type: "" })}
       />
 
-      <section className="w-full max-w-md space-y-6 relative">
-        <div className="text-center relative z-10 space-y-3">
-          <div className="flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.25em] bg-primary/10 text-primary border border-primary/25 select-none">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Hugo Studio
-            </span>
+      <section className="sk-login__col">
+        <p className="sk-brand"><b>HUGO</b> Studio</p>
+        <h1 className="sk-login__title">
+          {activeMode === "customer" ? t("loginPage.header.titleCustomer") : t("loginPage.header.titleMember")}
+        </h1>
+        <p className="sk-login__lede">
+          {activeMode === "customer" ? t("loginPage.header.descCustomer") : t("loginPage.header.descMember")}
+        </p>
+
+        {tabs.length > 1 ? (
+          <div className="sk-seg" role="tablist">
+            {tabs.map((tab) => (
+              <button key={tab.id} type="button" role="tab" aria-selected={activeMode === tab.id}
+                onClick={() => setActiveMode(tab.id)} className={activeMode === tab.id ? "is-on" : ""}>
+                <span aria-hidden className="material-symbols-outlined">{tab.icon}</span>{tab.label}
+              </button>
+            ))}
           </div>
+        ) : null}
 
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight leading-[1.1] transition-all">
-            <span className="bg-gradient-to-r from-primary via-accent to-warning bg-clip-text text-transparent animate-gradientShift">
-              {activeMode === "customer" ? t("loginPage.header.titleCustomer") : t("loginPage.header.titleMember")}
-            </span>
-          </h1>
-          <p className="text-[13px] text-muted-foreground font-medium leading-relaxed">
-            {activeMode === "customer" ? t("loginPage.header.descCustomer") : t("loginPage.header.descMember")}
-          </p>
-        </div>
-
-        {/* Unified iOS-style Segmented Control */}
-        <div className="relative z-10 bg-muted dark:bg-white/5 p-1 rounded-2xl flex w-full max-w-[340px] mx-auto border border-border/50 dark:border-white/5 overflow-hidden">
-          {(() => {
-            const tabs = [
-              { id: 'customer', label: t("loginPage.tabs.customer") },
-              ...(allowRegistration ? [{ id: 'member', label: t("loginPage.tabs.member") }] : []),
-            ];
-            const activeIndex = tabs.findIndex(t => t.id === activeMode);
-            const tabWidth = 100 / tabs.length;
-
-            return (
-              <>
-                <div 
-                  className="absolute top-1 bottom-1 bg-white dark:bg-card rounded-xl shadow-md transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-                  style={{
-                    left: `calc(${activeIndex * tabWidth}% + 4px)`,
-                    width: `calc(${tabWidth}% - 8px)`
-                  }}
-                />
-                
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveMode(tab.id)}
-                    className={`flex-1 py-2 text-[10px] sm:text-[11px] font-bold rounded-xl relative z-10 transition-colors duration-250 ${
-                      activeMode === tab.id
-                        ? "text-primary"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </>
-            );
-          })()}
-        </div>
-
-        {/* Minimalist Apple Glass Card */}
-        <div className="relative z-10 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-border/50 p-6 sm:p-8 rounded-3xl shadow-xl transition-all">
+        <div className="sk-login__card">
           {activeMode === "customer" ? (
-            <form key="form-customer" onSubmit={handleCustomerLogin} className="space-y-6">
-              <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.customerForm.title")}</h2>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{t("loginPage.customerForm.desc")}</p>
-              </div>
-
-              <div className="space-y-4 pt-2">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1 text-center">{t("loginPage.customerForm.codeLabel")}</label>
-                  <input
-                    type="text"
-                    maxLength={12}
-                    value={customerCode}
-                    onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
-                    placeholder={t("loginPage.customerForm.codePlaceholder")}
-                    className="w-full px-4 py-4 rounded-xl border border-border/50 bg-muted/50 text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-lg uppercase font-mono tracking-[0.5em] font-bold text-center"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-full shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs sm:text-sm flex justify-center items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[18px]">login</span> {t("loginPage.customerForm.btn")}
-                </button>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-primary/10 dark:bg-primary/15 border border-primary/20 text-[11px] text-primary flex gap-3 text-left leading-relaxed mt-4">
-                <span className="material-symbols-outlined text-primary shrink-0 text-lg mt-0.5 select-none">verified_user</span>
-                <div>
-                  <span className="font-bold text-primary block mb-0.5">{t("loginPage.customerForm.securityTitle")}</span>
-                  {t("loginPage.customerForm.securityDesc")}
-                </div>
-              </div>
+            <form key="form-customer" onSubmit={handleCustomerLogin}>
+              <label className="sk-field">
+                <span>{t("loginPage.customerForm.codeLabel")}</span>
+                <input
+                  type="text"
+                  maxLength={12}
+                  value={customerCode}
+                  onChange={(e) => setCustomerCode(e.target.value.toUpperCase())}
+                  placeholder={t("loginPage.customerForm.codePlaceholder")}
+                  autoComplete="one-time-code"
+                  spellCheck={false}
+                />
+              </label>
+              <button type="submit" className="sk-btn sk-btn--block">
+                {t("loginPage.customerForm.btn")} <span aria-hidden className="material-symbols-outlined">arrow_forward</span>
+              </button>
+              <p className="sk-hint">
+                <span aria-hidden className="material-symbols-outlined">verified_user</span>
+                <span><b>{t("loginPage.customerForm.securityTitle")}.</b> {t("loginPage.customerForm.securityDesc")}</span>
+              </p>
             </form>
           ) : (
-            <form key="form-member" onSubmit={handleMemberLogin} className="space-y-6">
-              <div className="text-center space-y-1">
-                <h2 className="font-display text-lg font-bold text-foreground">{t("loginPage.memberForm.title")}</h2>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">{t("loginPage.memberForm.desc")}</p>
-              </div>
-
+            <form key="form-member" onSubmit={handleMemberLogin}>
               {showBiometricOption && (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={handleBiometricLogin}
-                    disabled={biometricBusy}
-                    className="w-full py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
-                  >
-                    <span className="material-symbols-outlined text-lg">fingerprint</span>
+                <>
+                  <button type="button" onClick={handleBiometricLogin} disabled={biometricBusy} className="sk-btn sk-btn--block">
+                    <span aria-hidden className="material-symbols-outlined">fingerprint</span>
                     {biometricBusy ? t("loginPage.biometric.verifying") : t("loginPage.biometric.btn", { email: biometricEmail })}
                   </button>
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <div className="flex-1 h-px bg-border/60" /> {t("loginPage.biometric.or")} <div className="flex-1 h-px bg-border/60" />
-                  </div>
-                </div>
+                  <p className="sk-or"><span>{t("loginPage.biometric.or")}</span></p>
+                </>
               )}
 
-              <div className="py-2 flex flex-col items-center gap-3">
-                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-300 min-h-[44px]" />
-              </div>
+              <div ref={googleButtonRef} className="sk-google" />
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
-                <p className="text-[10px] text-center text-destructive font-medium">{t("loginPage.memberForm.missingClientId")}</p>
+                <p className="sk-error">{t("loginPage.memberForm.missingClientId")}</p>
               )}
 
               {googleConfigError && (
-                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-left text-[11px] text-amber-600 dark:text-amber-300 space-y-1">
-                  <p className="font-bold flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base">info</span>
-                    Google Client ID chưa được cấp quyền cho Domain/Port hiện tại ({window.location.origin})
-                  </p>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Bạn cần thêm <code className="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono">{window.location.origin}</code> vào mục <strong>Authorized JavaScript origins</strong> trên Google Cloud Console.
-                  </p>
+                <div className="sk-warn">
+                  <p><b>Google Client ID chưa được cấp quyền cho Domain/Port hiện tại ({window.location.origin})</b></p>
+                  <p>Bạn cần thêm <code>{window.location.origin}</code> vào mục <strong>Authorized JavaScript origins</strong> trên Google Cloud Console.</p>
                 </div>
               )}
 
-              <p className="text-[10px] text-center text-muted-foreground font-medium">
+              <p className="sk-status">
                 {googleConfigError ? "Google Sign-In đang bị chặn bởi cấu hình OAuth." : gisReady ? t("loginPage.memberForm.gisReady") : t("loginPage.memberForm.gisLoading")}
               </p>
 
-              {/* Apple-style Educational Disclaimer Card */}
-              <div className="p-4 rounded-2xl bg-muted/50 border border-border/50 text-[11px] text-muted-foreground flex gap-3 text-left leading-relaxed mt-2">
-                <span className="material-symbols-outlined text-primary shrink-0 text-lg mt-0.5 select-none">school</span>
-                <div>
-                  <span className="font-bold text-foreground block mb-0.5">{t("loginPage.memberForm.reqTitle")}</span>
-                  {t("loginPage.memberForm.reqDesc")}
-                </div>
-              </div>
+              <p className="sk-hint">
+                <span aria-hidden className="material-symbols-outlined">school</span>
+                <span><b>{t("loginPage.memberForm.reqTitle")}.</b> {t("loginPage.memberForm.reqDesc")}</span>
+              </p>
             </form>
           )}
         </div>
       </section>
-
     </div>
   );
 }

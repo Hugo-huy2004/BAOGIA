@@ -7,6 +7,8 @@
  *
  * Token do authInterceptor.js tự gắn — không tự dựng header ở đây.
  */
+import { isMemberAuthenticated } from "../core/authSession";
+
 const BASE = "/api/survey";
 
 /** Đợt của tháng này, hoặc `null` khi không có gì để hỏi. */
@@ -45,7 +47,8 @@ export async function submitSurvey(month, answers) {
 const sentThisSession = new Set();
 
 export function trackAppOpen(appId) {
-  if (!appId || sentThisSession.has(appId)) return;
+  // Khách chưa đăng nhập mở app công khai (/aura, /radio) thì route trả 401 — đừng gọi.
+  if (!appId || sentThisSession.has(appId) || !isMemberAuthenticated()) return;
   sentThisSession.add(appId);
   fetch(`${BASE}/track`, {
     method: "POST",

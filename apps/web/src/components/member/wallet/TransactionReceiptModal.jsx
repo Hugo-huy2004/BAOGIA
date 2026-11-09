@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { nom } from "../../../lib/nomText";
 import { localeForLanguage } from "../../../i18n/languages";
 import { hapticSelect } from "../../../utils/haptics";
 import { useJoy } from "../../../lib/joyDisplay";
@@ -33,9 +32,9 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
     hapticSelect();
     try {
       await navigator.clipboard.writeText(txCode);
-      showToast?.(nom("Đã sao chép mã giao dịch: ") + txCode, "success");
+      showToast?.("Đã sao chép mã giao dịch: " + txCode, "success");
     } catch {
-      showToast?.(nom("Không thể sao chép"), "error");
+      showToast?.("Không thể sao chép", "error");
     }
   };
 
@@ -76,7 +75,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
               ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
               : "bg-rose-500/15 text-rose-600 dark:text-rose-400"
           }`}>
-            <span>{isCredit ? nom("Hóa Đơn Cộng JOY (Cộng Vui)") : nom("Hóa Đơn Trừ JOY (Chi Dùng)")}</span>
+            <span>{isCredit ? "Hóa Đơn Cộng JOY (Cộng Vui)" : "Hóa Đơn Trừ JOY (Chi Dùng)"}</span>
           </span>
 
           {/* Large Amount Display */}
@@ -91,19 +90,19 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
         <div className="p-5 space-y-3.5 text-[13px]">
           {/* Status Bar */}
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
-            <span className="text-slate-500 font-bold">{nom(nom("Trạng thái giao dịch"))}</span>
+            <span className="text-slate-500 font-bold">{"Trạng thái giao dịch"}</span>
             <span className="inline-flex items-center gap-1 font-extrabold text-emerald-600 dark:text-emerald-400">
               <span className="material-symbols-outlined text-sm">check_circle</span>
-              <span>{nom(nom("Thành công"))}</span>
+              <span>{"Thành công"}</span>
             </span>
           </div>
 
           {/* Details Table */}
           <div className="space-y-2.5 py-1">
             <div className="flex items-center justify-between">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">{nom(nom("Nội dung giao dịch"))}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">{"Nội dung giao dịch"}</span>
               <span className="font-bold text-slate-900 dark:text-slate-100 text-right max-w-[200px] truncate">
-                {tx.title || tx.description || nom("Giao dịch JOY")}
+                {tx.title || tx.description || "Giao dịch JOY"}
               </span>
             </div>
 
@@ -114,14 +113,14 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
             {tx.description && (
               tx.description.includes("\n") || tx.description.length > 90 ? (
                 <div className="border-t border-slate-200 pt-3 dark:border-slate-700">
-                  <span className="mb-1.5 block font-medium text-slate-500 dark:text-slate-400">{nom(nom("Mô tả"))}</span>
+                  <span className="mb-1.5 block font-medium text-slate-500 dark:text-slate-400">{"Mô tả"}</span>
                   <p className="whitespace-pre-line text-left font-medium leading-relaxed text-slate-700 dark:text-slate-300">
                     {tx.description}
                   </p>
                 </div>
               ) : (
                 <div className="flex items-start justify-between">
-                  <span className="text-slate-500 dark:text-slate-400 font-medium">{nom(nom("Mô tả"))}</span>
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">{"Mô tả"}</span>
                   <span className="max-w-[200px] text-right font-semibold text-slate-700 dark:text-slate-300">
                     {tx.description}
                   </span>
@@ -130,14 +129,14 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
             )}
 
             <div className="flex items-center justify-between">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">{nom(nom("Thời gian thực hiện"))}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">{"Thời gian thực hiện"}</span>
               <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
                 {dateFormatted}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">{nom(nom("Mã hóa đơn"))}</span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">{"Mã hóa đơn"}</span>
               <button
                 type="button"
                 onClick={copyCode}
@@ -150,7 +149,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
 
             {tx.balanceAfter !== undefined && (
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 dark:border-slate-800">
-                <span className="text-slate-500 dark:text-slate-400 font-bold">{nom(nom("Số dư JOY còn lại"))}</span>
+                <span className="text-slate-500 dark:text-slate-400 font-bold">{"Số dư JOY còn lại"}</span>
                 <span className="font-mono font-black text-amber-600 dark:text-amber-400 text-sm">
                   {joy.text(tx.balanceAfter)}
                 </span>
@@ -166,14 +165,14 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
               className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-extrabold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-1"
             >
               <span className="material-symbols-outlined text-sm">content_copy</span>
-              <span>{nom(nom("Sao chép mã"))}</span>
+              <span>{"Sao chép mã"}</span>
             </button>
             <button
               type="button"
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-extrabold shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
             >
-              <span>{nom(nom("Đóng hóa đơn"))}</span>
+              <span>{"Đóng hóa đơn"}</span>
             </button>
           </div>
         </div>

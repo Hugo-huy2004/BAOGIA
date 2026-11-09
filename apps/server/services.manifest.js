@@ -48,7 +48,6 @@ export const SERVICES = Object.freeze([
   { id: "email", prefix: "/api/email", module: "./routes/emailRoutes.js" },
   { id: "contact", prefix: "/api/contact", module: "./routes/contactRoutes.js" },
   { id: "data", prefix: "/api/data", module: "./routes/dataRoutes.js", cacheable: true },
-  { id: "legal-docs", prefix: "/api/legal-docs", module: "./routes/legalDocRoutes.js", public: true, cacheable: true },
   { id: "bio-themes", prefix: "/api/bios/themes", module: "./routes/bioThemeRoutes.js", public: true, cacheable: true },
   { id: "bios", prefix: "/api/bios", module: "./routes/bioRoutes.js", cacheable: true },
   { id: "profile", prefix: "/api/profile", module: "./routes/profileRoutes.js" },
@@ -64,7 +63,6 @@ export const SERVICES = Object.freeze([
   // nhất. Cả hai đều đúng với thứ tự này — đảo lại thì Express hỏng.
   { id: "admin", prefix: "/api/admin", module: "./routes/adminRoutes.js" },
   { id: "admin-brain", prefix: "/api/admin/brain", module: "./routes/adminBrainRoutes.js" },
-  { id: "admin-robot", prefix: "/api/admin/robot", module: "./routes/robotRoutes.js" },
   { id: "admin-workforce", prefix: "/api/admin/workforce", module: "./routes/aiWorkforceRoutes.js" },
 
   // ── Học tập ───────────────────────────────────────────────────────────────

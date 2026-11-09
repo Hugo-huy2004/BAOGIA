@@ -65,7 +65,7 @@ export default function BioPublicPage() {
     try {
       const qTheme = new URLSearchParams(window.location.search).get("theme");
       if (qTheme) return qTheme;
-    } catch (_) {}
+    } catch { /* URL lạ: dùng theme mặc định */ }
     return bio?.theme?.template || "workspace";
   }, [bio]);
   const canonicalUrl = isCustomDomainHost

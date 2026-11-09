@@ -3,9 +3,6 @@ import UtilityAppIcon from "./UtilityAppIcon";
 
 export default function AppIconRenderer({
   myIcons,
-  isEditMode,
-  handleDragStart,
-  handleDrop,
   handleAppTouchStart,
   handleAppTouchMove,
   handleAppTouchCancel,
@@ -19,7 +16,7 @@ export default function AppIconRenderer({
     <div className="space-y-4 text-left">
       {/* Continuous iOS grid: installed apps never disappear behind pagination. */}
       <div className="grid grid-cols-4 gap-y-2.5 gap-x-1.5 sm:gap-x-4 justify-items-center min-h-[auto]">
-        {myIcons.map((app, index) => {
+        {myIcons.map((app) => {
           const gradient = gradients[app.tint] || gradients.indigo;
 
           const touchProps = {
@@ -37,25 +34,14 @@ export default function AppIconRenderer({
             onPointerLeave: (event) => {
               if (event.pointerType === "mouse") handleAppTouchCancel();
             },
-            draggable: isEditMode,
-            onDragStart: (e) => handleDragStart(e, index, "icon"),
-            onDragOver: (e) => e.preventDefault(),
-            onDrop: (e) => handleDrop(e, index, "icon"),
           };
 
           return (
             <div
               key={app.id}
               {...touchProps}
-              className={`relative group flex flex-col items-center p-1 rounded-[24px] cursor-pointer touch-pan-y select-none transition-transform duration-300 hover:-translate-y-1.5 active:scale-95 w-full max-w-[84px] ${
-                isEditMode ? "border border-dashed border-primary/45 bg-primary/5 animate-pulse" : ""
-              }`}
+              className={`relative group flex flex-col items-center p-1 rounded-[24px] cursor-pointer touch-pan-y select-none transition-transform duration-300 hover:-translate-y-1.5 active:scale-95 w-full max-w-[84px]`}
             >
-              {isEditMode && (
-                <span className="material-symbols-outlined text-[10px] text-primary absolute -top-1 -right-1 z-25 bg-background shadow rounded-full p-0.5 font-black">
-                  drag_handle
-                </span>
-              )}
 
               {/* iOS Squircle App Icon */}
               <UtilityAppIcon

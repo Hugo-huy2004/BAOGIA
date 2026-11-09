@@ -256,6 +256,7 @@ export async function embed(text) {
       }
     }
   }
+  if (lastErr) console.warn('[aiGateway] embed failed:', lastErr.status || '', lastErr.message);
   return null;
 }
 

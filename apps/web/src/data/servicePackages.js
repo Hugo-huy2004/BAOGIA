@@ -6,7 +6,7 @@
  * và đọc ra bằng `apps/web/src/hooks/useServiceCopy.js`. Ba ngôn ngữ dùng chung khoá,
  * nên sửa lời ở một nơi là cả vi/en/zh cùng đổi cấu trúc.
  *
- * TÊN GÓI KHÔNG DỊCH. Hugo One / Hugo Story / Hugo Flow+ / Hugo Edu+ giữ
+ * TÊN GÓI KHÔNG DỊCH. Hugo One / Hugo Story / Hugo Flow+ giữ
  * nguyên ở mọi ngôn ngữ, như cách Apple giữ iPhone và MacBook Air.
  *
  * `accent`/`accentDark` là màu nhận diện (nền sáng / nền tối), `gradient` là
@@ -56,19 +56,6 @@ export const servicePackages = [
     accent: "#C2571F",
     accentDark: "#FF9B62",
     gradient: ["#FFB05C", "#E3553D"],
-  },
-  {
-    id: "hugo-edu-plus",
-    slug: "hugo-edu-plus",
-    eyebrow: "04 · Hugo Edu+",
-    name: "Hugo Edu+",
-    accent: "#B83A67",
-    accentDark: "#FF8FB4",
-    gradient: ["#FF8FB4", "#C03B8C"],
-    // Không có trang /services/:slug riêng — điều hướng thẳng sang
-    // /student-pricing, và không kế thừa chính sách thương mại của gói trả phí.
-    freeTier: true,
-    verifyHref: "/student-pricing",
   },
 ];
 

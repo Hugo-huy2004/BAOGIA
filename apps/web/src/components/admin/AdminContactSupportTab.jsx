@@ -41,6 +41,8 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
 
   useEffect(() => {
     fetchData();
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Clear selection on tab change

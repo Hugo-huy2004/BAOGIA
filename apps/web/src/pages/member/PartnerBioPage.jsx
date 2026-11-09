@@ -130,6 +130,8 @@ export default function PartnerBioPage() {
     if (accessStatus === "authorized" && email) {
       loadBio(email);
     }
+  // Chạy theo đúng các giá trị liệt kê; thêm hàm (tạo mới mỗi render) vào sẽ gọi lặp vô hạn.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessStatus, email]);
 
   useEffect(() => {
@@ -553,45 +555,12 @@ export default function PartnerBioPage() {
                   {/* Contact Info */}
                   <div className="bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
-                      <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">school</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.hocVan")}</label>
-                      <input
-                        type="text"
-                        name="education"
-                        value={bioData.education || ""}
-                        onChange={handleFieldChange}
-                        className="w-full bg-transparent text-xs focus:outline-none"
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">work</span>
                       <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.ngheNghiep")}</label>
                       <input
                         type="text"
                         name="jobTitle"
                         value={bioData.jobTitle || ""}
-                        onChange={handleFieldChange}
-                        className="w-full bg-transparent text-xs focus:outline-none"
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
-                      <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">call</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.soDienThoai")}</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={bioData.phone || ""}
-                        onChange={handleFieldChange}
-                        className="w-full bg-transparent text-xs focus:outline-none"
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
-                      <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">mail</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.emailLienHe")}</label>
-                      <input
-                        type="text"
-                        name="contactEmail"
-                        value={bioData.contactEmail || ""}
                         onChange={handleFieldChange}
                         className="w-full bg-transparent text-xs focus:outline-none"
                       />

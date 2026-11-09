@@ -978,14 +978,6 @@ function extractBlocks(html = '', baseUrl = '') {
   return trimTrailingImages(textCount(whole) > textCount(scoped) ? whole : scoped);
 }
 
-function splitSentences(text = '', max = 3) {
-  return String(text)
-    .split(/(?<=[.!?…])\s+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 30)
-    .slice(0, max);
-}
-
 const READER_UA = 'HugoWishpaxStudentPortal/1.0 (reader)';
 // Cache kết quả fetchArticleBlocks theo URL: cùng một bài có thể được cả
 // readArticle() lẫn summarizeArticle() gọi — tránh hai lượt fetch trùng lặp.

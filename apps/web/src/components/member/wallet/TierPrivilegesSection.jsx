@@ -1,5 +1,3 @@
-import React from "react";
-import { nom } from "../../../lib/nomText";
 import { TIER_META } from "../../../lib/memberTier";
 import { financeFacts } from "../../../../../../packages/shared/tierFinance";
 
@@ -18,17 +16,17 @@ import { financeFacts } from "../../../../../../packages/shared/tierFinance";
 function financeBenefit(tier) {
   const f = financeFacts(tier);
   const fee = f.feeFree
-    ? nom("miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY")
+    ? "miễn phí hoàn toàn (0%) mọi loại phí chuyển JOY"
     : `phí chuyển JOY ${f.feePercent}%`;
-  return `<b>${nom("Tài chính & Giao dịch:")}</b> ${fee[0].toUpperCase()}${fee.slice(1)}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
+  return `<b>${"Tài chính & Giao dịch:"}</b> ${fee[0].toUpperCase()}${fee.slice(1)}, chuyển tối đa ${f.dailyCap.toLocaleString("vi-VN")} JOY/ngày.`;
 }
 
 const TIER_PRIVILEGES_MAP = {
   star18: {
     tier: "star18",
     title: "Star-18",
-    subtitle: nom("Thành viên 18 đến hết tháng sinh nhật 23 tuổi"),
-    badge: nom("Đặc quyền toàn diện"),
+    subtitle: "Thành viên 18 đến hết tháng sinh nhật 23 tuổi",
+    badge: "Đặc quyền toàn diện",
     accentColor: "#F59E0B",
     bgGradient: "from-amber-500/10 via-amber-500/5 to-transparent",
     policySummary:
@@ -43,12 +41,12 @@ const TIER_PRIVILEGES_MAP = {
   star14: {
     tier: "star14",
     title: "Star-14",
-    subtitle: nom("Thành viên học sinh 14 - 17 tuổi"),
-    badge: nom("Bảo vệ vị thành niên"),
+    subtitle: "Thành viên học sinh 14 - 17 tuổi",
+    badge: "Bảo vệ vị thành niên",
     accentColor: "#F43F5E",
     bgGradient: "from-rose-500/10 via-rose-500/5 to-transparent",
     policySummary:
-      nom("Thiết kế riêng cho học sinh trung học (14 đến dưới 18 tuổi). Tối ưu cho việc học tập, giải trí lành mạnh và tuân thủ tuyệt đối quy định bảo vệ dữ liệu trẻ em."),
+      "Thiết kế riêng cho học sinh trung học (14 đến dưới 18 tuổi). Tối ưu cho việc học tập, giải trí lành mạnh và tuân thủ tuyệt đối quy định bảo vệ dữ liệu trẻ em.",
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí hoàn toàn Chặng 1 Basic để định hướng sớm tư duy lập trình.",
       "<b>Tiện ích học tập:</b> Không gian Lofi học bài, HugoSO Ghi chú & Thời khoá biểu miễn phí.",
@@ -59,12 +57,12 @@ const TIER_PRIVILEGES_MAP = {
   starVip: {
     tier: "starVip",
     title: "Star-VIP",
-    subtitle: nom("Thành viên danh dự Hugo Studio"),
-    badge: nom("Đặc quyền tối thượng"),
+    subtitle: "Thành viên danh dự Hugo Studio",
+    badge: "Đặc quyền tối thượng",
     accentColor: "#0F172A",
     bgGradient: "from-slate-500/10 via-slate-400/5 to-transparent",
     policySummary:
-      nom("Hạng thẻ danh dự trọn đời do Hugo Studio trực tiếp trao tặng cho các đối tác, đóng góp xuất sắc hoặc thành viên danh dự. Mở khoá không giới hạn mọi dịch vụ trên toàn hệ sinh thái."),
+      "Hạng thẻ danh dự trọn đời do Hugo Studio trực tiếp trao tặng cho các đối tác, đóng góp xuất sắc hoặc thành viên danh dự. Mở khoá không giới hạn mọi dịch vụ trên toàn hệ sinh thái.",
     benefits: [
       "<b>Lập trình & Kỹ năng số:</b> Miễn phí truy cập trọn đời toàn bộ 6 chặng đào tạo (từ Basic đến DevOps).",
       "<b>Tiện ích & Giải trí:</b> Mở khoá trọn bộ HugoSO Bundle, kho âm thanh Premium, toàn bộ Arcade game với x2 thưởng JOY.",
@@ -75,8 +73,8 @@ const TIER_PRIVILEGES_MAP = {
   eco: {
     tier: "eco",
     title: "Eco",
-    subtitle: nom("Thành viên trên 23 tuổi hoặc dùng thử nghiệm"),
-    badge: nom("Tiết kiệm & Linh hoạt"),
+    subtitle: "Thành viên trên 23 tuổi hoặc dùng thử nghiệm",
+    badge: "Tiết kiệm & Linh hoạt",
     accentColor: "#2563EB",
     bgGradient: "from-blue-500/10 via-blue-500/5 to-transparent",
     policySummary:
@@ -98,13 +96,6 @@ export default function TierPrivilegesSection({
   const data = TIER_PRIVILEGES_MAP[activeTier] || TIER_PRIVILEGES_MAP.eco;
   const isUserCurrentTier = activeTier === userTier;
 
-  const toneBadgeClasses = {
-    free: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-    discount: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-    vip: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-    standard: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-    locked: "bg-zinc-500/10 text-zinc-500 border-zinc-500/20",
-  };
 
   return (
     <section className="rounded-3xl border border-border/50 bg-card/70 backdrop-blur-xl p-4 sm:p-6 shadow-sm space-y-5">
@@ -117,10 +108,10 @@ export default function TierPrivilegesSection({
             </span>
             {isUserCurrentTier ? (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
-                <span className="material-symbols-outlined text-[13px]">check_circle</span>{nom("Hạng của bạn")}</span>
+                <span className="material-symbols-outlined text-[13px]">check_circle</span>{"Hạng của bạn"}</span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[13px] font-bold bg-zinc-500/15 text-zinc-500 dark:text-zinc-400 border border-zinc-500/30 whitespace-nowrap shrink-0">
-                <span className="material-symbols-outlined text-[13px]">lock</span>{nom("Đang xem trước")}</span>
+                <span className="material-symbols-outlined text-[13px]">lock</span>{"Đang xem trước"}</span>
             )}
           </div>
           <p className="text-[13px] text-muted-foreground mt-0.5">{data.subtitle}</p>
@@ -161,7 +152,7 @@ export default function TierPrivilegesSection({
           <span className="material-symbols-outlined text-base mt-0.5 text-foreground/70 shrink-0">
             verified_user
           </span>
-          <p className="m-0">{nom(data.policySummary)}</p>
+          <p className="m-0">{data.policySummary}</p>
         </div>
       </div>
 
@@ -170,14 +161,14 @@ export default function TierPrivilegesSection({
         <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-[18px]" style={{ color: data.accentColor }}>
             stars
-          </span>{nom("Chi tiết đặc quyền")}</h4>
+          </span>{"Chi tiết đặc quyền"}</h4>
         <ul className="space-y-2.5">
           {data.benefits.map((benefit, idx) => (
             <li key={idx} className="flex items-start gap-2.5 text-[13px] sm:text-[14px] leading-relaxed text-foreground/85">
               <span className="material-symbols-outlined text-[16px] mt-0.5 text-muted-foreground shrink-0">
                 check
               </span>
-              <span dangerouslySetInnerHTML={{ __html: nom(benefit) }} />
+              <span dangerouslySetInnerHTML={{ __html: benefit }} />
             </li>
           ))}
         </ul>
