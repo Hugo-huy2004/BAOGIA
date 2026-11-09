@@ -1,7 +1,6 @@
 import cron from 'node-cron';
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
-import { FEATURE_PRICES } from './featureSubscriptionService.js';
 
 export function initCronJobs() {
   // Dọn kháng nghị bảo mật hết hạn và làm nốt các lần xoá tài khoản dở dang.
@@ -122,36 +121,6 @@ export function initCronJobs() {
       console.log('[CRON] Dọn dẹp hoàn tất.');
     } catch (error) {
       console.error('[CRON] Lỗi khi dọn dẹp lịch sử:', error);
-    }
-  });
-
-  // Quét hết hạn các gói trao đổi JOY (HugoCoder/Aura/Radio/Arcade) và giao
-  // diện Bio thuê theo tháng (Brutalism/Flat). Đăng ký riêng job thứ hai (cùng
-  // giờ 00:00) để lỗi ở job này không ảnh hưởng job dọn dẹp lịch sử bên trên.
-  // `active` chỉ là cache hiển thị — việc khóa tính năng thực tế luôn dựa vào
-  // so sánh `expiresAt` trực tiếp (xem featureSubscriptionService.isFeatureActive),
-  // nên job này không phải là điểm chặn bảo mật duy nhất.
-  cron.schedule('0 0 * * *', async () => {
-    try {
-      console.log('[CRON] Đang quét hết hạn các gói trao đổi JOY...');
-      const now = new Date();
-
-      for (const featureKey of Object.keys(FEATURE_PRICES)) {
-        const result = await Bio.updateMany(
-          { [`featureSubscriptions.${featureKey}.expiresAt`]: { $lt: now }, [`featureSubscriptions.${featureKey}.active`]: true },
-          { $set: { [`featureSubscriptions.${featureKey}.active`]: false } }
-        );
-        if (result.modifiedCount > 0) {
-          console.log(`[CRON] ${featureKey}: đã khóa lại ${result.modifiedCount} tài khoản hết hạn.`);
-        }
-      }
-
-      // Toàn bộ 6 giao diện Bio (Classic, Frost, Graphite, Aurora, Brutalism, Flat)
-      // hiện đã mở khóa miễn phí vĩnh viễn cho tất cả thành viên. Không cần quét thu hồi.
-
-      console.log('[CRON] Quét hết hạn hoàn tất.');
-    } catch (error) {
-      console.error('[CRON] Lỗi khi quét hết hạn:', error);
     }
   });
 

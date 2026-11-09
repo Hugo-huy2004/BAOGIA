@@ -75,7 +75,6 @@ export const JOY_SOURCES = {
   arcade_character_unlock: 'Mở khóa nhân vật Jelly 2048',
   hugoteam_assessment: 'Lệ phí đánh giá năng lực HugoTeam',
   // Quà chiến dịch hợp tác (partner.hugowishpax.studio) — mỗi tài khoản nhận
-  // một lần cho mỗi chiến dịch, khoá bằng chỉ mục duy nhất ở PartnerClaim.
   partner_campaign: 'Quà hợp tác Hugo Studio × đối tác',
 };
 
@@ -94,24 +93,11 @@ export const JOY_SOURCES = {
 export const JOY_SOURCE_APP = {
   // Học từ vựng
 
-  // HugoArcade (gồm cả cờ vua — cùng một app)
-  arcade_score: 'arcade',
-  arcade_hammer: 'arcade',
-  arcade_character_unlock: 'arcade',
-  chess_win: 'arcade',
-  chess_match: 'arcade',
-
   // Tập trung / Aura
   focus_session: 'aura',
   aura_theme_rent: 'aura',
 
   // Học lập trình — Coding nằm trong Hugo Team
-
-  // Chợ tiện ích
-  store_purchase: 'store',
-  app_plan: 'store',
-  app_plan_gift: 'store',
-  feature_subscription: 'store',
 
   // Trang Bio
   bio_theme_rental: 'bio',

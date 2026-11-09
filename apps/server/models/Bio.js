@@ -380,14 +380,6 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    referredBy: {
-      type: String,
-      default: ''
-    },
-    referralCount: {
-      type: Number,
-      default: 0
-    },
     onboardingCompleted: {
       type: Boolean,
       default: false
@@ -451,68 +443,6 @@ const BioSchema = new mongoose.Schema(
         expiresAt: { type: Date, required: true }
       }],
       default: []
-    },
-    // Monthly JOY subscriptions gating HugoCoder / HugoAura (Lofi only —
-    // Pomodoro stays free) / HugoRadio / HugoArcade (Bứt phá + Huyền
-    // thoại tiers). `active` is a cosmetic cache only, written by the nightly
-    // cron sweep (cronJobs.js) — actual gating ALWAYS re-derives from
-    // `expiresAt` live (see featureSubscriptionService.js's isFeatureActive),
-    // so a missed/delayed cron run never grants unpaid access.
-    featureSubscriptions: {
-      hugoCoder: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderIntermediate: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderAdvanced: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderSecurity: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderExam: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderOptimize: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoCoderUltimate: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoAura: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoRadio: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoArcade: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      },
-      hugoChess: {
-        expiresAt: { type: Date, default: null },
-        active: { type: Boolean, default: false }
-      }
-    },
-    // Hai bậc còn lại của thang "Dùng thử → Thuê → Sở hữu" (appPlanService.js).
-    // Bậc THUÊ không nằm ở đây — nó vẫn là `featureSubscriptions` phía trên, để
-    // cổng khoá của HugoRadio/Arcade/Aura/Coder chỉ có đúng một nguồn sự thật.
-    // Khoá là appId ('radio', 'arcade'…), giá trị:
-    //   { trialStartedAt, trialEndsAt, owned, ownedAt, giftedBy }
-    appPlans: {
-      type: Map,
-      of: mongoose.Schema.Types.Mixed,
-      default: () => ({})
     },
     locationAnomaly: {
       type: Boolean,

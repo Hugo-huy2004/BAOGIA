@@ -1,6 +1,7 @@
 /**
  * Dọn dữ liệu của các tính năng gỡ ngày 09/11/2026: app phim, giỏ hàng + mã
- * khuyến mãi, telemetry ClientMetric, và các trường Bio không còn trong schema (Study/HugoCoder, HugoSO,
+ * khuyến mãi, telemetry ClientMetric, trò chơi + cờ vua, Cửa Hàng, cổng khách
+ * hàng dự án, khảo sát định kỳ, chương trình giới thiệu, và các trường Bio không còn trong schema (Study/HugoCoder, HugoSO,
  * thuê giao diện Bio, thưởng xem thông tin, danh bạ sao lưu…).
  *
  *   node apps/server/scripts/purge-retired-2026-11-09.mjs           # chạy thử: chỉ đếm
@@ -16,12 +17,14 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-const DROP = ['cinemamovies', 'storecarts', 'promocodes', 'clientmetrics'];
+const DROP = ['cinemamovies', 'storecarts', 'promocodes', 'clientmetrics', 'utilityproducts', 'utilityorders', 'arcadescores', 'chessgames', 'chessratings',
+  'customerprojects', 'customermessages', 'surveyresponses', 'partnerclaims'];
 const BIO_FIELDS = [
   'capstoneTrack', 'capstoneTrackChosenAt',
   'completedLessons', 'hugoSOCourses', 'infoBonusClaimed', 'infoReadBonusClaimed',
   'bioThemeRental', 'backedUpContacts', 'courseCompletionAwardClaimed',
-  'lastUserAgentHash', 'sessionsValidFrom', 'birthdayVoucherYear', 'radioTokens',
+  'lastUserAgentHash', 'sessionsValidFrom', 'birthdayVoucherYear', 'radioTokens', 'featureSubscriptions', 'appPlans',
+  'referredBy', 'referralCount',
   'hugoCoderAdvancedLifetime', 'hugoCoderAll7Lifetime', 'hugoCoderBasicLifetime',
   'hugoCoderCertificateUrl', 'hugoCoderDevopsLifetime', 'hugoCoderExamAttempts',
   'hugoCoderExamLifetime', 'hugoCoderExamScores', 'hugoCoderIntermediateLifetime',
@@ -50,5 +53,11 @@ if (apply && nBio) {
   await db.collection('bios').updateMany(bioFilter, { $unset: Object.fromEntries(BIO_FIELDS.map((f) => [f, ''])) });
 }
 console.log(`- bios: ${nBio} hồ sơ có trường cũ${apply ? ' → đã gỡ' : ''}`);
+
+// Nhật ký dùng app chỉ phục vụ khảo sát định kỳ (đã gỡ).
+const profileFilter = { $or: [{ appUse: { $exists: true } }, { appUseAt: { $exists: true } }] };
+const nProfile = await db.collection('userprofiles').countDocuments(profileFilter);
+if (apply && nProfile) await db.collection('userprofiles').updateMany(profileFilter, { $unset: { appUse: '', appUseAt: '' } });
+console.log(`- userprofiles: ${nProfile} hồ sơ có nhật ký khảo sát${apply ? ' → đã gỡ' : ''}`);
 
 await mongoose.disconnect();

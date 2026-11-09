@@ -11,7 +11,7 @@
  * Email không còn hồ sơ Bio thì `userId` là null và giao diện chỉ hiện, không
  * cho bấm — thà mất một nút còn hơn bấm nhầm vào người khác.
  *
- * CỐ Ý CHƯA CÓ: lịch hẹn (`Booking`) và dự án khách hàng (`CustomerProject`).
+ * CỐ Ý CHƯA CÓ: lịch hẹn (`Booking`).
  * Chủ dự án sẽ đổi hẳn cấu trúc hai phần đó (chốt 2026-09-23), nên dựng hàng
  * đợi trên schema sắp bỏ là làm công cốc. Thêm lại = thêm một `section()` ở
  * dưới và một khối trong `AdminWorkQueueTab.jsx`.

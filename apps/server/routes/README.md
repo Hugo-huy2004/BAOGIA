@@ -75,7 +75,6 @@ Từ [`../middleware/authMiddleware.js`](../middleware/authMiddleware.js):
 | `attachMemberAge` | cần biết tuổi nhưng **không** chặn | `req.memberAge` (có thể `null`) |
 | `rejectMinorActor` | hành động không cho vị thành niên thực hiện | — |
 | `requireAdmin` | route quản trị (cookie `jwt` riêng) | `req.admin` |
-| `requireCustomer` | cổng khách hàng dự án (cookie `customer_jwt`) | `req.customer` |
 | `requireMemberSession` | chỉ cần phiên, chưa cần hồ sơ đầy đủ | `req.memberEmail` |
 
 `requireMember` làm nhiều hơn là kiểm chữ ký token — nó còn chặn email trong sổ

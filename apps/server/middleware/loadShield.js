@@ -25,7 +25,7 @@ import { setEmergencyChallenge } from '../services/cloudflareFirewall.js';
  */
 const num = (name, def) => (process.env[name] ? Number(process.env[name]) : def);
 const EXEMPT = /^\/(health|api\/health|api\/auth\/member|api\/ops)/;
-const CACHED_READ = /^\/api\/(data(\/bootstrap)?|partner-campaigns\/[\w-]+|bios\/themes|packages)\/?$/;
+const CACHED_READ = /^\/api\/(data|packages)\/?$/;
 
 const lag = monitorEventLoopDelay({ resolution: 20 });
 lag.enable();

@@ -10,7 +10,6 @@ import { checkMoneyStepUp } from '../../services/moneyStepUp.js';
 import { assessTransferHold } from '../../services/transferHold.js';
 import { transferFeeRateOf, dailyTransferCapOf } from '../../../../packages/shared/tierFinance.js';
 import PendingTransfer from '../../models/PendingTransfer.js';
-import UtilityOrder from '../../models/UtilityOrder.js';
 import { signQrToken, JOY_QR_BUCKET_MS } from '../../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
 import { memberTier } from '../../utils/memberTier.js';
@@ -113,13 +112,10 @@ router.post('/reset-to-zero', requireAdmin, async (req, res) => {
 // đóng nhầm là mất lượt xem.
 router.get('/perks', requireMember, async (req, res) => {
   try {
-    const [bio, orders] = await Promise.all([
-      Bio.findOne(
+    const bio = await Bio.findOne(
         { email: req.memberEmail },
         'birthDay birthMonth birthYear starVip birthdaySpinYear birthdaySpinPrize serviceVouchers birthdayVoucherCode birthdayVoucherClaimed',
-      ).lean(),
-      UtilityOrder.find({ email: req.memberEmail }).sort({ createdAt: -1 }).limit(50).lean(),
-    ]);
+      ).lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
 
     const vouchers = (bio.serviceVouchers || []).map((v) => ({
@@ -148,14 +144,6 @@ router.get('/perks', requireMember, async (req, res) => {
 
     res.json({
       vouchers,
-      orders: orders.map((o) => ({
-        id: String(o._id),
-        code: o.purchaseCode,
-        name: o.productName,
-        priceJoy: o.priceJoy,
-        status: o.status,
-        createdAt: o.createdAt,
-      })),
       spin: birthdaySpinStatus(bio),
     });
   } catch (error) {

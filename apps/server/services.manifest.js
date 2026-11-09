@@ -52,7 +52,6 @@ export const SERVICES = Object.freeze([
   { id: "partners", prefix: "/api/partners", module: "./routes/partnerRoutes.js" },
   { id: "packages", prefix: "/api/packages", module: "./routes/packageRoutes.js", cacheable: true },
   { id: "support", prefix: "/api/support", module: "./routes/supportRoutes.js" },
-  { id: "survey", prefix: "/api/survey", module: "./routes/surveyRoutes.js" },
 
   // ── Quản trị ──────────────────────────────────────────────────────────────
   // `/api/admin` đứng TRƯỚC ba prefix con của nó. Express khớp theo thứ tự và
@@ -71,28 +70,21 @@ export const SERVICES = Object.freeze([
   // Proxy sang apps/ai. `requireAdultMember` chặn ở cổng vào, đừng bỏ.
 
   // ── Thương mại ────────────────────────────────────────────────────────────
-  { id: "customer-projects", prefix: "/api/customer-projects", module: "./routes/customerRoutes.js" },
   { id: "payos", prefix: "/api/payos", module: "./routes/payosRoutes.js", public: true },
   { id: "joy", prefix: "/api/joy", module: "./routes/joyRoutes.js" },
-  { id: "referral", prefix: "/api/referral", module: "./routes/referralRoutes.js" },
-  { id: "utility-store", prefix: "/api/utility-store", module: "./routes/utilityStoreRoutes.js" },
   // Ba router cùng đứng trên /api/store, chia nhau các đường con. Chúng phải
   // cùng `mode`: nginx chỉ trỏ được một prefix tới một nơi. check-gateway.mjs
   // canh đúng chuyện này.
-  { id: "store-plan", prefix: "/api/store", module: "./routes/storePlanRoutes.js" },
   { id: "joy-gift-cards", prefix: "/api/joy-gift-cards", module: "./routes/joyGiftCardRoutes.js" },
   // Quà chiến dịch hợp tác (partner.hugowishpax.studio). Đọc thông tin chiến
   // dịch thì công khai; nhận quà đi qua requireMember trong router.
-  { id: "partner-campaigns", prefix: "/api/partner-campaigns", module: "./routes/partnerCampaignRoutes.js", public: true },
 
   // ── Ứng dụng thành viên ───────────────────────────────────────────────────
   { id: "notifications", prefix: "/api/notifications", module: "./routes/notificationRoutes.js" },
   { id: "inbox", prefix: "/api/inbox", module: "./routes/inboxRoutes.js" },
-  { id: "chess", prefix: "/api/chess", module: "./routes/chessRoutes.js" },
   { id: "checkin", prefix: "/api/checkin", module: "./routes/checkinRoutes.js" },
   { id: "presence", prefix: "/api/presence", module: "./routes/presenceRoutes.js" },
   { id: "radio", prefix: "/api/radio", module: "./routes/radioRoutes.js" },
-  { id: "arcade", prefix: "/api/arcade", module: "./routes/arcadeRoutes.js" },
 
   // ── Webhook bên ngoài ─────────────────────────────────────────────────────
   // Telegram gọi vào bằng secret của chính nó, không có JWT thành viên.
@@ -121,7 +113,6 @@ export const UNMOUNTED = Object.freeze({});
  */
 export const WS_CHANNELS = Object.freeze([
   { id: "realtime", path: "/ws", note: "ví + thông báo, xác thực bằng member JWT trong query ?token=" },
-  { id: "chess", path: "/ws/chess", note: "ván cờ realtime" },
 ]);
 
 /** Nơi mọi prefix chưa tách process trỏ về. */

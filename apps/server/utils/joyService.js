@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
-import ChessRating from '../models/ChessRating.js';
 import { notifyMember } from './notifyMember.js';
 import { broadcastToEmail } from './realtime.js';
 import { NOTIFICATION_TEXT } from '../../../packages/shared/notificationText.js';
@@ -125,11 +124,6 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   if (opts.bioDoc && !opts.skipSave) {
     await opts.bioDoc.save({ validateModifiedOnly: true });
   }
-
-  // Keep the chess-displayed "JOY" number perfectly in sync with the real wallet.
-  // updateOne (no upsert) is intentional: only players who've already opened the
-  // chess feature have a ChessRating doc — this never silently creates one.
-  await ChessRating.updateOne({ email: bio.email }, { $set: { rating: bio.joyBalance, updatedAt: new Date() } });
 
   let notification = null;
   if (opts.notify !== false) {
@@ -259,7 +253,6 @@ export async function reconcileJoyBalance(identifier, autoFix = false) {
   if (!isHealthy && autoFix) {
     bio.joyBalance = totalLedgerSum;
     await bio.save();
-    await ChessRating.updateOne({ email: bio.email }, { $set: { rating: totalLedgerSum, updatedAt: new Date() } });
   }
 
   return {

@@ -41,7 +41,6 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
     const JoyLedger = (await import('../../models/JoyLedger.js')).default;
     const SecurityEvent = (await import('../../models/SecurityEvent.js')).default;
     const SupportTicket = (await import('../../models/SupportTicket.js')).default;
-    const UtilityOrder = (await import('../../models/UtilityOrder.js')).default;
 
     const bioDoc = await Bio.findById(req.params.id);
     if (!bioDoc) {
@@ -49,11 +48,10 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
     }
     const bio = bioDoc.toObject({ getters: true });
 
-    const [joyLedger, tickets, securityCount, orders] = await Promise.all([
+    const [joyLedger, tickets, securityCount] = await Promise.all([
       JoyLedger.find({ email: bio.email }).sort({ createdAt: -1 }).limit(20).lean(),
       SupportTicket.find({ email: bio.email }).sort({ createdAt: -1 }).limit(10).lean(),
-      SecurityEvent.countDocuments({ emailHash: crypto.createHash('sha256').update(bio.email).digest('hex') }),
-      UtilityOrder.find({ email: bio.email }).sort({ createdAt: -1 }).limit(20).lean()
+      SecurityEvent.countDocuments({ emailHash: crypto.createHash('sha256').update(bio.email).digest('hex') })
     ]);
 
     res.json({
@@ -61,8 +59,7 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
       bio,
       joyLedger,
       tickets,
-      securityCount,
-      orders
+      securityCount
     });
   } catch (err) {
     console.error('Error fetching user details:', err);

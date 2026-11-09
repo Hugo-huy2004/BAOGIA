@@ -3,27 +3,11 @@
  * joyRoutes.js cũ — mỗi thứ chỉ có MỘT bản ở đây nên các router con dùng chung
  * trạng thái (bộ đếm limiter, cache) như khi còn chung một tệp.
  */
-import { FEATURE_PRICES } from '../../utils/featureSubscriptionService.js';
 import {
   TRANSFER_MONTHLY_CAP as SHARED_TRANSFER_MONTHLY_CAP,
 } from '../../../../packages/shared/joyPrices.js';
-import { ownExchangeItems } from '../../utils/appPlanService.js';
 import { memberTier, tierGifts, TIER_LABELS } from '../../utils/memberTier.js';
 
-export const COMPRESS_CHARGE = 50;
-
-
-// Item labels shown on the invoice modal, keyed the same way the frontend
-// calls /exchange-quote — kept here (not duplicated client-side) so price
-// changes only ever need updating in one place.
-export const EXCHANGE_ITEMS = {
-  hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
-  hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
-  fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE },
-  // Bậc "sở hữu vĩnh viễn" của Hugo Store, sinh từ APP_PLANS nên bảng giá chỉ
-  // có một chỗ để sửa (apps/server/utils/appPlanService.js).
-  ...ownExchangeItems()
-};
 
 // Phone-based P2P JOY transfer — "send JOY by phone like MoMo" without real
 // SMS/OTP infra (none exists in this codebase): Bio.phone is enforced unique

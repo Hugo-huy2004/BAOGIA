@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 import { isDeletedMemberAccount } from '../utils/deletedMemberAccount.js';
@@ -8,7 +7,6 @@ import { hasAdminPermission, resolveAdminPermissions } from '../../../packages/s
 import { memberAuth, adminAuth, readSession, carriesSession } from '../auth/betterAuth.js';
 import { touchActivity } from '../services/memberActivity.js';
 
-const MEMBER_TOKEN_TTL = '14d';
 const invalidSession = (res, authRole = 'member', error = 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.') =>
   res.status(401).json({ code: 'AUTH_SESSION_INVALID', authRole, error });
 
@@ -33,11 +31,10 @@ const ADMIN_PERMISSION_RULES = [
   [/^\/api\/admin\/(?:store|orders)(?:\/|$)/, 'commerce'],
   [/^\/api\/admin\/(?:audit-logs)(?:\/|$)/, 'audit'],
   [/^\/api\/admin\/(?:security|brain\/auto-moderator)(?:\/|$)/, 'security'],
-  [/^\/api\/admin\/(?:system-overview|brief)(?:\/|$)/, 'overview'],
-  [/^\/api\/admin\/(?:system-storage|error-logs|iot|send-ai-notification|control)(?:\/|$)/, 'system'],
+  [/^\/api\/admin\/(?:brief)(?:\/|$)/, 'overview'],
+  [/^\/api\/admin\/(?:iot|control)(?:\/|$)/, 'system'],
   [/^\/api\/(?:support|bookings)(?:\/|$)/, 'support'],
-  [/^\/api\/(?:customer-projects|customer)(?:\/|$)/, 'projects'],
-  [/^\/api\/(?:packages|utility-store|store|promos)(?:\/|$)/, 'commerce'],
+  [/^\/api\/(?:packages)(?:\/|$)/, 'commerce'],
   [/^\/api\/(?:bios|profiles)(?:\/|$)/, 'users'],
   [/^\/api\/(?:security|ops|presence)(?:\/|$)/, 'security'],
   [/^\/api\/(?:joy|payos|gift-cards)(?:\/|$)/, 'commerce'],
@@ -125,17 +122,6 @@ const isProfileSetupRoute = (url = '') => {
   return PROFILE_SETUP_ROUTES.includes(path) || path.startsWith('/api/auth/');
 };
 
-const extractToken = (req, cookieName) => {
-  // Same-origin web sessions use an HttpOnly cookie. Prefer the cookie so a
-  // stale token from another role cannot shadow the valid server session.
-  if (req.cookies?.[cookieName]) return req.cookies[cookieName];
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const headerToken = authHeader.split(' ')[1];
-    if (headerToken) return headerToken;
-  }
-  return null;
-};
 
 /**
  * Bộ nhớ đệm cho hai cổng chặn mà `requireMember` đọc từ Bio.
@@ -233,42 +219,6 @@ export const requireMemberSession = async (req, res, next) => {
     return next();
   } catch (error) {
     return sendAuthFailure(res, error, 'member');
-  }
-};
-
-// Customer portal session — issued only after a valid loginCode exchange.
-// The token pins the holder to exactly one project; identity is the token's
-// projectId, NEVER a client-supplied :id. So knowing another customer's
-// ObjectId grants nothing — that closes the portal's IDOR surface.
-export const signCustomerToken = (projectId) =>
-  jwt.sign({ projectId: String(projectId), role: 'customer' }, JWT_SECRET, { expiresIn: MEMBER_TOKEN_TTL });
-
-// Guards every customer-portal data route. Sets req.projectId (the only id the
-// route may touch) and req.customerRole ('customer' | 'admin'). Studio admins
-// are accepted too and act on the project named in the URL.
-export const requireCustomer = async (req, res, next) => {
-  try {
-    const admin = await adminFromRequest(req);
-    if (admin?.forbidden) {
-      return res.status(403).json({ code: 'ADMIN_PERMISSION_DENIED', error: 'Tài khoản quản trị không có quyền truy cập dự án này.' });
-    }
-    if (admin) {
-      req.customerRole = 'admin';
-      req.admin = admin;
-      req.projectId = req.params.id;
-      return next();
-    }
-    const token = extractToken(req, 'customer_jwt');
-    if (!token) return invalidSession(res, 'customer');
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role === 'customer' && decoded.projectId) {
-      req.customerRole = 'customer';
-      req.projectId = decoded.projectId;
-      return next();
-    }
-    return res.status(403).json({ error: 'Forbidden - Invalid role' });
-  } catch (error) {
-    return sendAuthFailure(res, error, 'customer');
   }
 };
 

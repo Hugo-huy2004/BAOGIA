@@ -45,13 +45,3 @@ export async function getMemberAge(email) {
   const bio = await Bio.findOne({ email: String(email).toLowerCase() }, 'birthYear birthMonth birthDay').lean();
   return bioAge(bio);
 }
-
-/** Email của những tài khoản vị thành niên trong một danh sách — dùng để che
- *  tên trên bảng xếp hạng và loại khỏi kết quả tìm kiếm. */
-export async function minorEmailSet(emails) {
-  const list = [...new Set(emails.map((e) => String(e || '').toLowerCase().trim()).filter(Boolean))];
-  if (!list.length) return new Set();
-  const Bio = (await import('../models/Bio.js')).default;
-  const bios = await Bio.find({ email: { $in: list } }, 'email birthYear birthMonth birthDay').lean();
-  return new Set(bios.filter((b) => isMinorAge(bioAge(b))).map((b) => b.email.toLowerCase()));
-}

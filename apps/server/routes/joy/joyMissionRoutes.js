@@ -6,7 +6,6 @@
 import express from 'express';
 import Bio from '../../models/Bio.js';
 import CheckinRecord from '../../models/CheckinRecord.js';
-import ArcadeScore from '../../models/ArcadeScore.js';
 import JoyMission from '../../models/JoyMission.js';
 import { TREE_BONUS_JOY, TREE_STAGES } from '../../../../packages/shared/joyPrices.js';
 import { awardJoy } from '../../utils/joyService.js';
@@ -16,7 +15,6 @@ import { getVietnamDateString } from '../../utils/timeUtils.js';
 const router = express.Router();
 
 export const DAILY_MISSIONS = {
-  arcade: { amount: 25, name: 'Chơi 1 trận tại HugoArcade' },
   checkin: { amount: 20, name: 'Điểm danh hôm nay' },
   focus: { amount: 30, name: 'Một phiên tập trung' },
 };
@@ -29,9 +27,6 @@ async function isDone(id, email, today) {
   if (id === 'focus') {
     const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] }).select('focusJoyDate').lean();
     return bio?.focusJoyDate === today;
-  }
-  if (id === 'arcade') {
-    return Boolean(await ArcadeScore.exists({ email, lastPlayedAt: { $gte: new Date(`${today}T00:00:00+07:00`) } }));
   }
   return false;
 }

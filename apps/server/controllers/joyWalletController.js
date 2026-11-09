@@ -29,9 +29,9 @@ export async function getWalletOverview(req, res) {
     }
 
     // 1. Tìm thông tin Bio (Dữ liệu thật 100% từ Database)
-    let bio = await Bio.findOne({ email }).select('displayName email avatarUrl referralCode joyBalance joyDenom isJoyWalletFrozen pinHash hasPin referralCount createdAt').lean();
+    let bio = await Bio.findOne({ email }).select('displayName email avatarUrl referralCode joyBalance joyDenom isJoyWalletFrozen pinHash hasPin createdAt').lean();
     if (!bio) {
-      bio = await Bio.findOne({ contactEmail: email }).select('displayName email avatarUrl referralCode joyBalance joyDenom isJoyWalletFrozen pinHash hasPin referralCount createdAt').lean();
+      bio = await Bio.findOne({ contactEmail: email }).select('displayName email avatarUrl referralCode joyBalance joyDenom isJoyWalletFrozen pinHash hasPin createdAt').lean();
     }
     if (!bio) {
       return res.json({
@@ -73,7 +73,6 @@ export async function getWalletOverview(req, res) {
       hasPin: Boolean(bio.hasPin || bio.pinHash),
       isFrozen: Boolean(bio.isJoyWalletFrozen),
       memberSince: bio.createdAt || null,
-      referralCount: bio.referralCount || 0,
       currencyDenom: 'JOY',
     };
 

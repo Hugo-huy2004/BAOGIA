@@ -32,7 +32,6 @@ const PUBLIC_ROUTES = {
   "emailRoutes.js GET /unsubscribe": "liên kết huỷ nhận thư trong email: người nhận bấm từ hộp thư, không thể đang có phiên đăng nhập. Xác thực bằng TOKEN ĐÃ KÝ trong query (verifyUnsubscribeToken), token hỏng hoặc hết hạn thì từ chối",
   "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
-  "customerRoutes.js POST /auth": "cửa đăng nhập cổng khách hàng",
 
   // ── OAuth: chuẩn quy định các endpoint này xác thực bằng client credentials
   "oauthRoutes.js POST /token": "đổi mã PKCE — xác thực bằng client credentials",
@@ -46,7 +45,6 @@ const PUBLIC_ROUTES = {
   "opsRoutes.js POST /sentry-hook": "Sentry gọi, kiểm chữ ký trong handler",
 
   // ── Nội dung công khai thật sự ───────────────────────────────────────────
-  "partnerCampaignRoutes.js GET /:slug": "chỉ trả số quà công khai của chiến dịch (đã in sẵn trên trang partner) — không dữ liệu người dùng; nhận quà ở POST /:slug/claim có requireMember",
   "bioPublicRoutes.js GET /slug/:slug": "trang Bio công khai — mục đích là ai cũng xem được",
   "bioPublicRoutes.js GET /by-domain/:domain": "cùng trang Bio công khai đó, tra bằng tên miền riêng; trả qua toPublicBio() và đã lược mật khẩu secretLink",
   "bioPublicRoutes.js POST /slug/:slug/secret-link/:linkId/unlock": "mở bằng mật khẩu của chính liên kết đó",
@@ -56,12 +54,8 @@ const PUBLIC_ROUTES = {
   "dataRoutes.js GET /": "cấu hình trang công khai (đã bật cache CDN)",
   "packageRoutes.js GET /": "danh mục gói dịch vụ — bảng giá công khai",
   "todayRoutes.js GET /feed": "bảng tin công khai",
-  "utilityStoreRoutes.js GET /products": "danh mục sản phẩm công khai",
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",
   "payosRoutes.js GET /info/:customLinkId": "trang thanh toán mở bằng liên kết bí mật",
-  "arcadeRoutes.js GET /leaderboard": "bảng xếp hạng công khai",
-  "arcadeRoutes.js GET /2048/collection-leaderboard": "bảng xếp hạng bộ sưu tập 2048 công khai — đã lọc bỏ email khỏi payload",
-  "chessRoutes.js GET /leaderboard": "bảng xếp hạng công khai — đã lọc bỏ email khỏi payload",
   "notificationRoutes.js GET /vapid-public-key": "khoá CÔNG KHAI của web push, bản chất là để phát",
   "otaRoutes.js GET /check": "bản build ở store gọi trước khi có ai đăng nhập",
   "otaRoutes.js POST /check": "như trên",

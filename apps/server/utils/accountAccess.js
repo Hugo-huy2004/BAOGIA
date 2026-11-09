@@ -1,4 +1,10 @@
-import { extendFrom } from '../../../packages/shared/partnerCampaigns.js';
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Hạn mới sau khi cộng `days` ngày: nối vào hạn cũ nếu còn, tính từ bây giờ nếu đã qua. */
+const extendFrom = (current, days, now = Date.now()) => {
+  const base = Math.max(now, current ? new Date(current).getTime() || 0 : 0);
+  return new Date(base + days * DAY_MS);
+};
 
 /**
  * Từ 04/11/2026 không còn xác minh HSSV: ai cũng tạo được tài khoản, cùng một

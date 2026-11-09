@@ -7,7 +7,7 @@ import { missingProfileFields, applyProfileValues, describeField } from '../../u
 import { clearCache } from '../../utils/cacheHelper.js';
 import { decryptText } from '../../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../../utils/birthdayAutomation.js';
-import { ensureReferralCode, applyReferral } from '../../utils/referralService.js';
+import { ensureReferralCode } from '../../utils/referralService.js';
 import { checkPinAgainstAddress } from '../../utils/reverseGeocode.js';
 import { broadcastToEmail } from '../../utils/realtime.js';
 import InAppNotification from '../../models/InAppNotification.js';
@@ -154,8 +154,7 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
         balance: bioDoc.joyBalance || 0,
         currency: 'JOY',
         hasPin: !!bioDoc.transactionPin,
-        referralCode: bioDoc.referralCode || '',
-        referralCount: bioDoc.referralCount || 0
+        referralCode: bioDoc.referralCode || ''
       },
       workspace: {
         installedApps: appInstallationPolicy.normalizeInstalled(bioDoc.installedUtilities),
@@ -329,10 +328,9 @@ router.get('/me/phone-available', requireMember, phoneCheckLimiter, async (req, 
 });
 
 // POST /me/onboarding — ghi những thông tin client vừa điền (mục nào gửi thì
-// ghi mục đó), sinh mã giới thiệu và áp mã người giới thiệu nếu có.
+// ghi mục đó) và sinh mã giới thiệu (định danh QR ví).
 router.post('/me/onboarding', requireMember, async (req, res) => {
   try {
-    const { referrerCode } = req.body;
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Missing email' });
     if (await rejectBlacklistedPhone(res, req.body.phone)) return;
@@ -369,17 +367,6 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
 
     const referralCode = await ensureReferralCode(bio);
 
-    // Mã giới thiệu áp được hay không KHÔNG được làm hỏng phần lưu hồ sơ —
-    // trước đây một lỗi ở đây là mất cả hai.
-    let referralResult = null;
-    let referralError = null;
-    if (referrerCode && String(referrerCode).trim()) {
-      try {
-        referralResult = await applyReferral(bio, referrerCode);
-      } catch (err) {
-        referralError = err.message;
-      }
-    }
 
     const stillMissing = missingProfileFields(bio);
     bio.onboardingCompleted = stillMissing.length === 0;
@@ -393,9 +380,6 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
     res.json({
       success: true,
       referralCode,
-      joyAwarded: referralResult?.joyAwarded || 0,
-      bioExtendedDays: referralResult?.bioExtendedDays || 0,
-      referralError,
       missing: stillMissing.map(describeField),
       onboardingCompleted: bio.onboardingCompleted,
       profile: {

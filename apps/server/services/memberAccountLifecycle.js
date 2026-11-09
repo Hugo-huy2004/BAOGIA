@@ -1,5 +1,4 @@
 import Bio from '../models/Bio.js';
-import ArcadeScore from '../models/ArcadeScore.js';
 import LearningEvidence from '../models/LearningEvidence.js';
 import InAppNotification from '../models/InAppNotification.js';
 import NotificationSubscription from '../models/NotificationSubscription.js';
@@ -9,10 +8,7 @@ import OAuthToken from '../models/OAuthToken.js';
 import OAuthAuthorizationCode from '../models/OAuthAuthorizationCode.js';
 import UserProfile from '../models/UserProfile.js';
 import ReadingSession from '../models/ReadingSession.js';
-import SurveyResponse from '../models/SurveyResponse.js';
 import CheckinRecord from '../models/CheckinRecord.js';
-import ChessGame from '../models/ChessGame.js';
-import ChessRating from '../models/ChessRating.js';
 import StockPosition from '../models/StockPosition.js';
 import StockTrade from '../models/StockTrade.js';
 import ScheduledPush from '../models/ScheduledPush.js';
@@ -20,7 +16,6 @@ import mongoose from 'mongoose';
 import JoyLedger from '../models/JoyLedger.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
 import PendingTransfer from '../models/PendingTransfer.js';
-import UtilityOrder from '../models/UtilityOrder.js';
 import SupportTicket from '../models/SupportTicket.js';
 import SecurityAppeal from '../models/SecurityAppeal.js';
 import SecurityModeration from '../models/SecurityModeration.js';
@@ -89,7 +84,6 @@ const removeMemberData = async (bio) => {
   const memberEmailFilter = { memberEmail: email };
   const operations = [
     LearningEvidence.deleteMany({ ownerMemberId: bio._id }),
-    ArcadeScore.deleteMany(emailFilter),
     InAppNotification.deleteMany(emailFilter),
     NotificationSubscription.deleteMany(emailFilter),
     NativePushDevice.deleteMany(emailFilter),
@@ -98,10 +92,7 @@ const removeMemberData = async (bio) => {
     OAuthAuthorizationCode.deleteMany(memberEmailFilter),
     UserProfile.deleteMany(emailFilter),
     ReadingSession.deleteMany(memberEmailFilter),
-    SurveyResponse.deleteMany(emailFilter),
     CheckinRecord.deleteMany(emailFilter),
-    ChessGame.deleteMany({ $or: [{ 'white.email': email }, { 'black.email': email }] }),
-    ChessRating.deleteMany(emailFilter),
     StockPosition.deleteMany(emailFilter),
     StockTrade.deleteMany(emailFilter),
     ScheduledPush.deleteMany(emailFilter),
@@ -111,7 +102,6 @@ const removeMemberData = async (bio) => {
     JoyLedger.deleteMany(emailFilter),
     JoyGiftCard.deleteMany({ redeemedBy: email }),
     PendingTransfer.deleteMany({ $or: [{ fromEmail: email }, { toEmail: email }] }),
-    UtilityOrder.deleteMany(emailFilter),
     SupportTicket.deleteMany(emailFilter),
     removeSecurityAppeals(email),
     SecurityModeration.deleteMany(emailFilter),

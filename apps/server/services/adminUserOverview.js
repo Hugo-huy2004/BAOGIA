@@ -59,18 +59,18 @@ export async function buildUserOverview(email, memberId) {
 
   const [
     JoyLedger, PendingTransfer, JoyGiftCard,
-    Booking, SupportTicket, CustomerProject, UtilityOrder,
+    Booking, SupportTicket,
     SecurityEvent, SecurityBlock, SecurityAppeal,
     NativePushDevice, NotificationSubscription, InAppNotification,
-    SurveyResponse, ReadingSession, LearningEvidence,
-    StockPosition, StockTrade, ArcadeScore, ChessRating, CheckinRecord,
+    ReadingSession, LearningEvidence,
+    StockPosition, StockTrade, CheckinRecord,
   ] = await Promise.all([
     'JoyLedger', 'PendingTransfer', 'JoyGiftCard',
-    'Booking', 'SupportTicket', 'CustomerProject', 'UtilityOrder',
+    'Booking', 'SupportTicket',
     'SecurityEvent', 'SecurityBlock', 'SecurityAppeal',
     'NativePushDevice', 'NotificationSubscription', 'InAppNotification',
-    'SurveyResponse', 'ReadingSession', 'LearningEvidence',
-    'StockPosition', 'StockTrade', 'ArcadeScore', 'ChessRating', 'CheckinRecord',
+    'ReadingSession', 'LearningEvidence',
+    'StockPosition', 'StockTrade', 'CheckinRecord',
   ].map(loadModel));
 
   const sections = await Promise.all([
@@ -88,8 +88,6 @@ export async function buildUserOverview(email, memberId) {
     // ── Thương mại: lịch hẹn, dự án, đơn hàng, hỗ trợ ────────────────────
     section('commerce', async () => ({
       bookings: await recent(Booking, byEmail, 20),
-      projects: await recent(CustomerProject, byEmail, 20),
-      orders: await recent(UtilityOrder, byEmail, 20),
       tickets: await recent(SupportTicket, byEmail, 20),
     })),
 
@@ -113,15 +111,12 @@ export async function buildUserOverview(email, memberId) {
         ? await LearningEvidence.find({ ownerMemberId: memberId }).sort({ createdAt: -1 }).limit(20).lean()
         : [],
       reading: await recent(ReadingSession, byEmail, 10),
-      surveys: await recent(SurveyResponse, byEmail, 10),
     })),
 
     // ── Trò chơi và sàn ảo ───────────────────────────────────────────────
     section('play', async () => ({
       stockPositions: await recent(StockPosition, byEmail, 20),
       stockTrades: await recent(StockTrade, byEmail, 20),
-      arcadeScores: await recent(ArcadeScore, byEmail, 10, { score: -1 }),
-      chess: ChessRating ? await ChessRating.findOne(byEmail).lean() : null,
       checkins: await recent(CheckinRecord, byEmail, 10),
     })),
 

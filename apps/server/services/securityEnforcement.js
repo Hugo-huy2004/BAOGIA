@@ -1,6 +1,5 @@
 import { signedClientIp } from '../utils/clientIp.js';
 import crypto from 'node:crypto';
-import jwt from 'jsonwebtoken';
 import dns from 'node:dns/promises';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SecurityEvent from '../models/SecurityEvent.js';
@@ -496,19 +495,10 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 //   2. Hai tên cookie đó không tồn tại ở đâu trong repo — cookie thật là
 //      khác hẳn. Nhánh cookie chưa từng chạy đúng.
 // Giờ giải mã thật: có chữ ký của mình mới tính là người, và biết luôn là ai.
-// Better Auth: cookie phiên có chữ ký của mình (auth/betterAuth.js). Cổng khách
-// hàng vẫn là JWT riêng `customer_jwt`.
+// Better Auth: cookie phiên có chữ ký của mình (auth/betterAuth.js).
 export function verifiedActor(req) {
   const role = signedSessionRole(req);
-  if (role) return { email: '', role };
-  const token = req.cookies?.customer_jwt;
-  if (!token) return null;
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    return { email: '', role: decoded.role || '' };
-  } catch {
-    return null;
-  }
+  return role ? { email: '', role } : null;
 }
 
 export async function securityIpGate(req, res, next) {

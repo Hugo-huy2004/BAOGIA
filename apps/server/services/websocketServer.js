@@ -4,7 +4,6 @@
  */
 import { WebSocketServer } from 'ws';
 import { memberEmailFromRequest } from '../middleware/authMiddleware.js';
-import { initChessWS } from './chessWS.js';
 import { findActiveSecurityBlock } from './securityEnforcement.js';
 import { originAllowed } from '../middleware/originLock.js';
 import { clientIp as getClientIp } from '../utils/clientIp.js';
@@ -64,9 +63,6 @@ export function setupWebSocketServers(server) {
   }, 30000);
   heartbeat.unref();
 
-  // Chess WebSocket server (path: /ws/chess)
-  const chessWss = initChessWS({ noServer: true, maxPayload: 64 * 1024 });
-
   // global.wsClients maps email -> Set of connected WebSocket clients
   global.wsClients = {};
 
@@ -109,11 +105,6 @@ export function setupWebSocketServers(server) {
       wss.handleUpgrade(request, socket, head, (ws) => {
         trackConnection(ws, subject);
         wss.emit('connection', ws, request);
-      });
-    } else if (pathname === '/ws/chess') {
-      chessWss.handleUpgrade(request, socket, head, (ws) => {
-        trackConnection(ws, subject);
-        chessWss.emit('connection', ws, request);
       });
     } else {
       socket.destroy();
@@ -178,5 +169,5 @@ export function setupWebSocketServers(server) {
     });
   });
 
-  return { wss, chessWss };
+  return { wss };
 }

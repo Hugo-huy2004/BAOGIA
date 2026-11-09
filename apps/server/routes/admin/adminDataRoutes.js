@@ -26,27 +26,9 @@ const RESOURCES = {
     list: ['fullName', 'email', 'projectType', 'contacted', 'createdAt'], edit: ['contacted', 'notes'],
     show: ['phone', 'message', 'budget', 'timeline', 'voucherCode'],
   },
-  'customer-projects': {
-    model: 'CustomerProject', label: 'Dự án khách', permission: 'projects', ops: 'ru', search: ['projectId', 'name'],
-    list: ['projectId', 'name', 'status', 'market', 'updatedAt'], edit: ['name', 'status', 'adminNote'],
-  },
   packages: {
     model: 'Package', label: 'Gói dịch vụ', permission: 'commerce', ops: 'crud', search: ['name'],
     list: ['name', 'duration', 'durationUnit', 'giftCode'], edit: ['name', 'duration', 'durationUnit', 'color', 'giftCode'],
-  },
-  'utility-products': {
-    model: 'UtilityProduct', label: 'Sản phẩm cửa hàng', permission: 'commerce', ops: 'crud', search: ['name', 'category'],
-    list: ['name', 'priceJoy', 'category', 'stock', 'active'],
-    edit: ['name', 'description', 'priceJoy', 'category', 'stock', 'active', 'imageUrl', 'productType', 'extendDays'],
-  },
-  'utility-orders': {
-    model: 'UtilityOrder', label: 'Đơn hàng', permission: 'commerce', ops: 'ru', search: ['email', 'productName', 'purchaseCode'],
-    list: ['email', 'productName', 'priceJoy', 'status', 'createdAt'], edit: ['status'], show: ['purchaseCode'],
-  },
-  'promo-codes': {
-    model: 'PromoCode', label: 'Mã giảm giá', permission: 'commerce', ops: 'crud', search: ['code'],
-    list: ['code', 'discountType', 'discountValue', 'usedCount', 'active', 'expiresAt'],
-    edit: ['code', 'discountType', 'discountValue', 'maxUses', 'minOrderJoy', 'applicableCategory', 'expiresAt', 'active'],
   },
   'gift-cards': {
     model: 'JoyGiftCard', label: 'Thẻ quà JOY', permission: 'commerce', ops: 'r', search: ['code', 'redeemedBy'],

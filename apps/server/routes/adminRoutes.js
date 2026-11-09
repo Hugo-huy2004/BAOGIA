@@ -7,7 +7,6 @@ import express from 'express';
 import adminAuthRoutes from './admin/adminAuthRoutes.js';
 import adminUsersRoutes from './admin/adminUsersRoutes.js';
 import adminSystemRoutes from './admin/adminSystemRoutes.js';
-import adminCommerceRoutes from './admin/adminCommerceRoutes.js';
 import adminDataRoutes from './admin/adminDataRoutes.js';
 
 // Được nơi khác import từ tệp này từ trước khi tách — giữ nguyên lối vào.
@@ -16,7 +15,6 @@ const router = express.Router();
 router.use(adminAuthRoutes);
 router.use(adminUsersRoutes);
 router.use(adminSystemRoutes);
-router.use(adminCommerceRoutes);
 router.use(adminDataRoutes);
 
 export default router;

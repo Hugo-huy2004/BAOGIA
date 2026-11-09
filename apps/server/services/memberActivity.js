@@ -67,8 +67,6 @@ export function favouriteSlot(hours = {}) {
 // tính là "app hay dùng".
 const AREA_URL = {
   today: '/member/today',
-  arcade: '/member/utilities/arcade',
-  chess: '/member/utilities/arcade_chess',
   bios: '/member/utilities/bio',
   profile: '/member/utilities/bio',
   joy: '/member/utilities/joy_wallet',
