@@ -37,7 +37,7 @@ const payos = new PayOS({
   checksumKey: process.env.PAYOS_CHECKSUM_KEY || 'dummy-checksum-key'
 });
 
-const DONATION_MIN_AMOUNT = 5000;
+const DONATION_MIN_AMOUNT = 20000;
 const DONATION_MAX_AMOUNT = 100000000;
 const DONATION_TERMS_VERSION = '2026-08-10';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -297,12 +297,10 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
     if (!Number.isSafeInteger(numericAmount)
       || numericAmount < DONATION_MIN_AMOUNT
       || numericAmount > DONATION_MAX_AMOUNT) {
-      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 5.000 VNĐ.' });
+      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 20.000 VNĐ.' });
     }
-    if (!donorName) {
-      return res.status(400).json({ error: 'Vui lòng nhập tên của bạn.' });
-    }
-    if (!EMAIL_PATTERN.test(donorEmail)) {
+    // Tên và email không bắt buộc: trang /pay/donate chỉ hỏi số tiền.
+    if (donorEmail && !EMAIL_PATTERN.test(donorEmail)) {
       return res.status(400).json({ error: 'Vui lòng nhập email hợp lệ để nhận thư cảm ơn.' });
     }
     if (termsAccepted !== true) {
@@ -322,8 +320,8 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
       orderCode,
       amount: Number(amount),
       description: reason,
-      buyerName: donorName,
-      buyerEmail: donorEmail,
+      ...(donorName && { buyerName: donorName }),
+      ...(donorEmail && { buyerEmail: donorEmail }),
       cancelUrl: `${frontendUrl}/pay/${customLinkId}?status=cancelled`,
       returnUrl: `${frontendUrl}/pay/${customLinkId}?status=success`,
     };
@@ -430,6 +428,7 @@ router.get('/info/:customLinkId', async (req, res) => {
         reason: link.reason,
         kind: link.kind,
         status: link.status,
+        hasEmail: Boolean(link.donorEmail),
         createdAt: link.createdAt,
         bin: link.bin,
         accountNumber: link.accountNumber,

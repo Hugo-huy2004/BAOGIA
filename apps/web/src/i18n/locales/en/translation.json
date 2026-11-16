@@ -2102,6 +2102,13 @@
     "close": "Close"
   },
   "paymentGateway": {
+    "donateTitle": "Support Hugo Studio",
+    "donateAmount": "Other amount (VND)",
+    "donateMin": "Minimum 20,000 VND.",
+    "donateContinue": "Continue to payment",
+    "donateConsent": "By continuing you confirm this is a voluntary contribution.",
+    "donateFailed": "We could not create your contribution. Please try again.",
+    "donateThanks": "Hugo Studio has received your contribution. Thank you very much.",
     "dangChuanBiThong": "Preparing your payment details…",
     "giaoDichKhongHop": "Invalid transaction",
     "lienKetKhongTon": "This link does not exist or has expired.",

@@ -39,6 +39,17 @@
       "has": [
         {
           "type": "host",
+          "value": "donate.hugowishpax.studio"
+        }
+      ],
+      "destination": "https://www.hugowishpax.studio/pay/donate",
+      "permanent": false
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
           "value": "partner.hugowishpax.studio"
         }
       ],

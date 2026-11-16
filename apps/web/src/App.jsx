@@ -72,6 +72,7 @@ const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage")
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
 const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
+const DonatePage = lazyRoute(() => import("./pages/DonatePage"));
 // Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
@@ -233,6 +234,7 @@ function AppContent() {
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
           <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
           <Route path="/preview" element={<LivePreviewPage />} />
+          <Route path="/pay/donate" element={<DonatePage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
         </Routes>

@@ -74,7 +74,9 @@ export default function PaymentGatewayPage() {
   const { id } = useParams();
   const qrRef = useRef(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
-  const [activeTab, setActiveTab] = useState("bank");
+  const mobileBankPlatform = useMemo(() => getMobileBankPlatform(), []);
+  // Điện thoại mở thẳng app ngân hàng; máy tính không mở được app nên hiện QR luôn.
+  const [activeTab, setActiveTab] = useState(mobileBankPlatform ? "bank" : "qr");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
@@ -83,7 +85,6 @@ export default function PaymentGatewayPage() {
   const [bankApps, setBankApps] = useState(FALLBACK_BANK_APPS);
   const [bankAppsSource, setBankAppsSource] = useState("fallback");
   const [bankSearch, setBankSearch] = useState("");
-  const mobileBankPlatform = useMemo(() => getMobileBankPlatform(), []);
 
   // Poll trạng thái giao dịch: 5 giây, nhưng CHỈ khi tab đang hiện, và dừng
   // hẳn khi giao dịch đã chốt (khác PENDING) hoặc gặp lỗi.
@@ -260,7 +261,7 @@ export default function PaymentGatewayPage() {
             <span className="material-symbols-outlined text-6xl text-success">verified</span>
             <h1 className="mt-3 text-2xl font-black sm:text-3xl">{isDonation ? t("paymentGateway.camOnBanDa") : t("paymentGateway.thanhToanThanhCong")}</h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-              {isDonation ? t("paymentGateway.thuCamOnVa") : t("paymentGateway.giaoDichDaDuoc")}
+              {isDonation ? t(paymentInfo.hasEmail ? "paymentGateway.thuCamOnVa" : "paymentGateway.donateThanks") : t("paymentGateway.giaoDichDaDuoc")}
             </p>
             <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-muted/60 p-4 text-left text-sm">
               <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t("paymentGateway.soTien")}</span><strong>{amountLabel}</strong></div>

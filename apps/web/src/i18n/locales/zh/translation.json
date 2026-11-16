@@ -2383,6 +2383,13 @@
     "close": "关闭"
   },
   "paymentGateway": {
+    "donateTitle": "支持 Hugo Studio",
+    "donateAmount": "其他金额（越南盾）",
+    "donateMin": "最低 20,000 越南盾。",
+    "donateContinue": "继续付款",
+    "donateConsent": "继续即表示您确认这是一笔自愿捐款。",
+    "donateFailed": "暂时无法创建捐款请求，请重试。",
+    "donateThanks": "Hugo Studio 已收到您的捐款，衷心感谢。",
     "dangChuanBiThong": "准备您的支付详情…",
     "giaoDichKhongHop": "Invalid transaction",
     "lienKetKhongTon": "这个链接不存在或已过期。",

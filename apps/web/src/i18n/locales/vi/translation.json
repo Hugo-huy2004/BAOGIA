@@ -2117,6 +2117,13 @@
     "close": "Đóng"
   },
   "paymentGateway": {
+    "donateTitle": "Ủng hộ Hugo Studio",
+    "donateAmount": "Số khác (VNĐ)",
+    "donateMin": "Tối thiểu 20.000 VNĐ.",
+    "donateContinue": "Tiếp tục thanh toán",
+    "donateConsent": "Bấm tiếp tục nghĩa là Quý khách xác nhận đây là khoản ủng hộ tự nguyện.",
+    "donateFailed": "Chưa tạo được yêu cầu ủng hộ. Xin Quý khách thử lại.",
+    "donateThanks": "Hugo Studio đã nhận được khoản ủng hộ. Xin chân thành cảm ơn Quý khách.",
     "dangChuanBiThong": "Đang chuẩn bị thông tin thanh toán…",
     "giaoDichKhongHop": "Giao dịch không hợp lệ",
     "lienKetKhongTon": "Liên kết không tồn tại hoặc đã hết hạn.",
