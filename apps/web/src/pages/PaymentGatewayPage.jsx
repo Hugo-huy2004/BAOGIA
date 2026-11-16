@@ -22,6 +22,8 @@ const FALLBACK_BANK_APPS = [
   { appId: "tpb", appName: "TPBank Mobile", bankName: "Ngân hàng TMCP Tiên Phong", autofill: false },
 ];
 
+const REDIRECT_SECONDS = 10;
+
 const TABS = [
   { id: "bank", label: "Ứng dụng ngân hàng", icon: "account_balance" },
   { id: "qr", label: "VietQR", icon: "qr_code_2" },
@@ -135,6 +137,19 @@ export default function PaymentGatewayPage() {
 
     return () => controller.abort();
   }, [mobileBankPlatform]);
+
+  // Ủng hộ xong: đếm ngược rồi tự đưa người ủng hộ về trang chủ.
+  const donationPaid = paymentInfo?.kind === "DONATION" && paymentInfo?.status === "PAID";
+  const [secondsLeft, setSecondsLeft] = useState(REDIRECT_SECONDS);
+  useEffect(() => {
+    if (!donationPaid) return undefined;
+    if (secondsLeft <= 0) {
+      window.location.assign("/");
+      return undefined;
+    }
+    const timer = setTimeout(() => setSecondsLeft((value) => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [donationPaid, secondsLeft]);
 
   const fallbackQrUrl = useMemo(() => {
     if (!paymentInfo?.bin || !paymentInfo?.accountNumber) return "";
@@ -268,6 +283,7 @@ export default function PaymentGatewayPage() {
               <div className="mt-2 flex justify-between gap-4"><span className="text-muted-foreground">{t("paymentGateway.ma")}</span><strong className="font-mono">{paymentInfo.customLinkId.slice(-10)}</strong></div>
             </div>
             <a href="/" className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-primary px-6 text-sm font-bold text-white">{t("paymentGateway.veHugoStudio")}</a>
+            {isDonation && <p className="mt-3 text-[13px] text-muted-foreground" aria-live="off">{t("paymentGateway.donateRedirect", { seconds: Math.max(secondsLeft, 0) })}</p>}
           </section>
         ) : isCancelled ? (
           <section className="rounded-[28px] border border-destructive/25 bg-card p-8 text-center shadow-sm">

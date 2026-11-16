@@ -2117,6 +2117,7 @@
     "close": "Đóng"
   },
   "paymentGateway": {
+    "donateRedirect": "Tự động về trang chủ sau {{seconds}} giây.",
     "donateTitle": "Ủng hộ Hugo Studio",
     "donateAmount": "Số khác (VNĐ)",
     "donateMin": "Tối thiểu 20.000 VNĐ.",

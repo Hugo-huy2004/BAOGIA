@@ -2383,6 +2383,7 @@
     "close": "关闭"
   },
   "paymentGateway": {
+    "donateRedirect": "{{seconds}} 秒后自动返回首页。",
     "donateTitle": "支持 Hugo Studio",
     "donateAmount": "其他金额（越南盾）",
     "donateMin": "最低 20,000 越南盾。",
