@@ -35,6 +35,17 @@
       "permanent": true
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "donate.hugowishpax.studio"
+        }
+      ],
+      "destination": "https://www.hugowishpax.studio/pay/donate",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -43,6 +54,17 @@
         }
       ],
       "destination": "https://www.hugowishpax.studio/pay/donate",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "partner.hugowishpax.studio"
+        }
+      ],
+      "destination": "https://education.hugowishpax.studio/",
       "permanent": false
     },
     {
