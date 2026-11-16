@@ -18,6 +18,7 @@ const SupportTicketSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    ipHash: { type: String, select: false },
     status: {
       type: String,
       enum: ['pending', 'resolved'],
@@ -31,6 +32,7 @@ const SupportTicketSchema = new mongoose.Schema(
 
 SupportTicketSchema.index({ email: 1, createdAt: -1 });
 SupportTicketSchema.index({ status: 1 });
+SupportTicketSchema.index({ ipHash: 1 }, { unique: true, partialFilterExpression: { ipHash: { $type: 'string' } } });
 
 const SupportTicket = mongoose.model('SupportTicket', SupportTicketSchema);
 

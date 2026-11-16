@@ -1,25 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import dataApi from "../services/api/modules/dataApi";
 import useVisiblePoll from "../hooks/useVisiblePoll";
 import HugoLogo from "../components/HugoLogo";
-import { isAdminAuthenticated } from "../services/api/core/authSession";
 import { notify } from "../lib/notify";
 import HugoDrop from "../components/system/HugoDrop";
 
 const FALLBACK_BANK_APPS = [
-  { appId: "mb", appName: "MB Bank", bankName: "Ngân hàng TMCP Quân đội", autofill: true },
-  { appId: "icb", appName: "VietinBank iPay", bankName: "Ngân hàng TMCP Công thương Việt Nam", autofill: true },
-  { appId: "bidv", appName: "BIDV SmartBanking", bankName: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam", autofill: true },
-  { appId: "ocb", appName: "OCB OMNI", bankName: "Ngân hàng TMCP Phương Đông", autofill: true },
-  { appId: "acb", appName: "ACB One", bankName: "Ngân hàng TMCP Á Châu", autofill: true },
-  { appId: "vcb", appName: "Vietcombank", bankName: "Ngân hàng TMCP Ngoại thương Việt Nam", autofill: false },
-  { appId: "tcb", appName: "Techcombank Mobile", bankName: "Ngân hàng TMCP Kỹ thương Việt Nam", autofill: false },
-  { appId: "vpb", appName: "VPBank NEO", bankName: "Ngân hàng TMCP Việt Nam Thịnh Vượng", autofill: false },
-  { appId: "vba", appName: "Agribank E-Mobile Banking", bankName: "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam", autofill: false },
-  { appId: "tpb", appName: "TPBank Mobile", bankName: "Ngân hàng TMCP Tiên Phong", autofill: false },
+  { appId: "mb", appName: "MB Bank", bankName: "Ngân hàng TMCP Quân đội", appLogo: "https://cdn.vietqr.io/bank-app-icon/mb-android.webp", autofill: true },
+  { appId: "icb", appName: "VietinBank iPay", bankName: "Ngân hàng TMCP Công thương Việt Nam", appLogo: "https://cdn.vietqr.io/bank-app-icon/icb-android.webp", autofill: true },
+  { appId: "bidv", appName: "BIDV SmartBanking", bankName: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam", appLogo: "https://cdn.vietqr.io/bank-app-icon/bidv-android.webp", autofill: true },
+  { appId: "ocb", appName: "OCB OMNI", bankName: "Ngân hàng TMCP Phương Đông", appLogo: "https://cdn.vietqr.io/bank-app-icon/ocb-android.webp", autofill: true },
+  { appId: "acb", appName: "ACB One", bankName: "Ngân hàng TMCP Á Châu", appLogo: "https://cdn.vietqr.io/bank-app-icon/acb-android.webp", autofill: true },
+  { appId: "vcb", appName: "Vietcombank", bankName: "Ngân hàng TMCP Ngoại thương Việt Nam", appLogo: "https://cdn.vietqr.io/bank-app-icon/vcb-android.webp", autofill: false },
+  { appId: "tcb", appName: "Techcombank Mobile", bankName: "Ngân hàng TMCP Kỹ thương Việt Nam", appLogo: "https://cdn.vietqr.io/bank-app-icon/tcb-android.webp", autofill: false },
+  { appId: "vpb", appName: "VPBank NEO", bankName: "Ngân hàng TMCP Việt Nam Thịnh Vượng", appLogo: "https://cdn.vietqr.io/bank-app-icon/vpb-android.webp", autofill: false },
+  { appId: "vba", appName: "Agribank E-Mobile Banking", bankName: "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam", appLogo: "https://cdn.vietqr.io/bank-app-icon/vba-android.webp", autofill: false },
+  { appId: "tpb", appName: "TPBank Mobile", bankName: "Ngân hàng TMCP Tiên Phong", appLogo: "https://cdn.vietqr.io/bank-app-icon/tpb-android.webp", autofill: false },
 ];
 
 const REDIRECT_SECONDS = 10;
@@ -74,7 +73,6 @@ function LoadingState() {
 export default function PaymentGatewayPage() {
   const { t } = useTranslation();
   const { id } = useParams();
-  const qrRef = useRef(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
   const mobileBankPlatform = useMemo(() => getMobileBankPlatform(), []);
   // Điện thoại mở thẳng app ngân hàng; máy tính không mở được app nên hiện QR luôn.
@@ -87,6 +85,7 @@ export default function PaymentGatewayPage() {
   const [bankApps, setBankApps] = useState(FALLBACK_BANK_APPS);
   const [bankAppsSource, setBankAppsSource] = useState("fallback");
   const [bankSearch, setBankSearch] = useState("");
+  const [clockNow, setClockNow] = useState(Date.now());
 
   // Poll trạng thái giao dịch: 5 giây, nhưng CHỈ khi tab đang hiện, và dừng
   // hẳn khi giao dịch đã chốt (khác PENDING) hoặc gặp lỗi.
@@ -117,6 +116,12 @@ export default function PaymentGatewayPage() {
   }, [id]);
 
   useVisiblePoll(fetchInfo, 5000, pollActive);
+
+  useEffect(() => {
+    if (paymentInfo?.kind !== "DONATION" || paymentInfo.status !== "PENDING" || !paymentInfo.expiresAt) return undefined;
+    const timer = setInterval(() => setClockNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [paymentInfo?.kind, paymentInfo?.status, paymentInfo?.expiresAt]);
 
   useEffect(() => {
     if (!mobileBankPlatform) return undefined;
@@ -175,7 +180,8 @@ export default function PaymentGatewayPage() {
   const visibleBankApps = useMemo(() => {
     const query = normalizeSearch(bankSearch);
     if (!query) return bankApps;
-    return bankApps.filter((bank) => normalizeSearch(`${bank.appName} ${bank.bankName}`).includes(query));
+    return bankApps.filter((bank) => normalizeSearch(`${bank.appName} ${bank.bankName}`).includes(query))
+      .sort((a, b) => Number(b.autofill) - Number(a.autofill) || b.monthlyInstall - a.monthlyInstall);
   }, [bankApps, bankSearch]);
 
   const openBank = (bank) => {
@@ -198,41 +204,24 @@ export default function PaymentGatewayPage() {
     window.location.assign(deeplinkUrl.toString());
   };
 
-  const downloadQr = () => {
-    if (paymentInfo.qrCode && qrRef.current) {
-      const svg = qrRef.current.querySelector("svg");
-      if (svg) {
-        const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = `hugo-studio-${paymentInfo.customLinkId}.svg`;
-        anchor.click();
-        URL.revokeObjectURL(url);
-        return;
-      }
-    }
-    window.open(fallbackQrUrl, "_blank", "noopener,noreferrer");
-  };
-
   const openWallet = (scheme) => {
-    downloadQr();
-    setTimeout(() => window.location.assign(`${scheme}://`), 350);
+    window.location.assign(`${scheme}://`);
   };
 
   const cancelPayment = async () => {
     const confirmed = await notify.confirm({
-      title: "Hủy giao dịch?",
-      message: "Liên kết sẽ bị xóa khỏi hệ thống nếu giao dịch chưa được thanh toán.",
-      confirmText: "Hủy giao dịch",
+      title: t("paymentGateway.cancelDonationTitle"),
+      message: t("paymentGateway.cancelDonationBody"),
+      confirmText: t("paymentGateway.cancelDonationConfirm"),
       danger: true,
     });
     if (!confirmed) return;
     setCancelling(true);
     try {
-      const response = await dataApi.post(`/api/payos/cancel/${id}`);
+      const response = await dataApi.post(`/api/payos/donation-cancel/${id}`);
       if (!response.data.success) throw new Error(response.data.error);
       setPaymentInfo((current) => ({ ...current, status: "CANCELLED" }));
+      setPollActive(false);
       notify.success("Đã hủy giao dịch.");
     } catch (requestError) {
       notify.error(requestError?.response?.data?.error || requestError?.message || "Không thể hủy giao dịch.");
@@ -259,15 +248,19 @@ export default function PaymentGatewayPage() {
   const isDonation = paymentInfo.kind === "DONATION";
   const isPaid = paymentInfo.status === "PAID";
   const isCancelled = paymentInfo.status === "CANCELLED";
+  const expiresAt = paymentInfo.expiresAt ? new Date(paymentInfo.expiresAt).getTime() : 0;
+  const isExpired = paymentInfo.kind === "DONATION" && paymentInfo.status === "PENDING" && expiresAt > 0 && clockNow >= expiresAt;
+  const secondsLeftToPay = Math.max(0, Math.ceil((expiresAt - clockNow) / 1000));
+  const countdownLabel = `${String(Math.floor(secondsLeftToPay / 60)).padStart(2, "0")}:${String(secondsLeftToPay % 60).padStart(2, "0")}`;
   const amountLabel = `${paymentInfo.amount.toLocaleString("vi-VN")} VNĐ`;
 
   return (
-    <div className="min-h-screen bg-background px-4 py-6 text-foreground sm:py-10">
+    <div className="min-h-screen bg-[#f8f7f2] px-4 py-5 text-[#171914] animate-fadeIn sm:py-10">
       <main className="mx-auto w-full max-w-3xl">
         <header className="mb-5 flex items-center justify-between">
-          <a href="/" aria-label="Hugo Studio"><HugoLogo className="h-8 w-8" /></a>
-          <span className="rounded-full border border-border bg-card px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
-            PayOS API · VietQR
+          <a href="/" aria-label="Hugo Studio" className="flex items-center gap-3"><HugoLogo className="h-9 w-9" /><span className="text-sm font-bold tracking-tight">Hugo Studio</span></a>
+          <span className="rounded-full border border-black/10 bg-white/75 px-3 py-1.5 text-[10px] font-bold tracking-wide text-black/60">
+            {t("paymentGateway.hugoSecureCheckout")}
           </span>
         </header>
 
@@ -285,6 +278,13 @@ export default function PaymentGatewayPage() {
             <a href="/" className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-primary px-6 text-sm font-bold text-white">{t("paymentGateway.veHugoStudio")}</a>
             {isDonation && <p className="mt-3 text-[13px] text-muted-foreground" aria-live="off">{t("paymentGateway.donateRedirect", { seconds: Math.max(secondsLeft, 0) })}</p>}
           </section>
+        ) : isExpired ? (
+          <section className="animate-fadeIn rounded-[28px] border border-[#e9d95a] bg-white p-7 text-center shadow-[0_24px_80px_-48px_rgba(36,33,14,0.45)] sm:p-10">
+            <span className="material-symbols-outlined grid size-16 place-items-center rounded-full bg-[#f3e84e] text-4xl text-[#171914] mx-auto">hourglass_disabled</span>
+            <h1 className="mt-4 text-2xl font-black">{t("paymentGateway.donateExpiredTitle")}</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-black/60">{t("paymentGateway.donateExpiredBody")}</p>
+            <a href="/pay/donate" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#171914] px-6 text-sm font-bold text-white"><span className="material-symbols-outlined" aria-hidden="true">refresh</span>{t("paymentGateway.donateNewPayment")}</a>
+          </section>
         ) : isCancelled ? (
           <section className="rounded-[28px] border border-destructive/25 bg-card p-8 text-center shadow-sm">
             <span className="material-symbols-outlined text-6xl text-destructive">cancel</span>
@@ -294,10 +294,11 @@ export default function PaymentGatewayPage() {
           </section>
         ) : (
           <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
-            <div className="border-b border-border bg-muted/35 px-5 py-6 text-center sm:px-8">
+            <div className="border-b border-border bg-[#fffbe0] px-5 py-6 text-center sm:px-8">
               <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{isDonation ? t("paymentGateway.khoanUngHoTu") : t("paymentGateway.yeuCauThanhToan")}</p>
               <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{amountLabel}</h1>
               <p className="mt-2 text-xs text-muted-foreground">{t("paymentGateway.noiDung")} <strong className="text-foreground">{paymentInfo.reason}</strong></p>
+              {paymentInfo.kind === "DONATION" && paymentInfo.expiresAt && <p className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-[#695e08] shadow-sm"><span className="material-symbols-outlined text-base" aria-hidden="true">schedule</span>{t("paymentGateway.donateExpiryCountdown", { time: countdownLabel })}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-2 border-b border-border p-3 sm:grid-cols-4">
@@ -331,24 +332,25 @@ export default function PaymentGatewayPage() {
 
                   <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {visibleBankApps.map((bank) => (
-                      <button key={bank.appId} type="button" onClick={() => openBank(bank)} className="flex min-h-[68px] items-center gap-3 rounded-2xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground"><span className="material-symbols-outlined text-xl">account_balance</span></span>
+                      <button key={bank.appId} type="button" onClick={() => openBank(bank)} className={`flex min-h-[68px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition hover:-translate-y-0.5 hover:shadow-md ${bank.autofill ? "border-[#c9bc2a] shadow-[0_6px_22px_-18px_#766a08]" : "border-black/10 hover:border-black/25"}`}>
+                        <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-black/5">{bank.appLogo ? <img src={bank.appLogo} alt="" loading="lazy" className="size-full object-cover" onError={(event) => { event.currentTarget.hidden = true; }} /> : <span className="material-symbols-outlined text-xl text-black/45">account_balance</span>}</span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-xs font-black">{bank.appName}</span>
                           <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{bank.bankName}</span>
                         </span>
-                        {bank.autofill && <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black text-primary">{t("paymentGateway.tuDien")}</span>}
+                        {bank.autofill && <span className="shrink-0 rounded-full bg-[#f3e84e] px-2 py-1 text-[9px] font-black text-[#171914]">{t("paymentGateway.autofillBadge")}</span>}
                       </button>
                     ))}
                   </div>
                   {!visibleBankApps.length && <p className="mt-4 text-center text-xs text-muted-foreground">{t("paymentGateway.chuaTimThayApp")}</p>}
+                  <p className="mt-4 flex items-start gap-2 text-[11px] leading-5 text-black/55"><span className="material-symbols-outlined text-base" aria-hidden="true">auto_awesome</span>{t("paymentGateway.autofillHint")}</p>
                   {mobileBankPlatform && bankAppsSource === "fallback" && <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">{t("paymentGateway.danhSachDayDu")}</p>}
                   <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">qr_code_2</span>{t("paymentGateway.khongThayAppDung")}</button>
                 </div>
               )}
 
               {activeTab === "qr" && (
-                <QrPanel paymentInfo={paymentInfo} fallbackQrUrl={fallbackQrUrl} qrRef={qrRef} downloadQr={downloadQr} copy={copy} copied={copied} />
+                <QrPanel paymentInfo={paymentInfo} fallbackQrUrl={fallbackQrUrl} copy={copy} copied={copied} />
               )}
 
               {(activeTab === "momo" || activeTab === "shopeepay") && (
@@ -376,9 +378,7 @@ export default function PaymentGatewayPage() {
 
               <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground"><span className="material-symbols-outlined text-base">verified_user</span><span>{t("paymentGateway.khongDongTrangCho")}</span></p>
 
-              {isAdminAuthenticated() && (
-                <button type="button" disabled={cancelling} onClick={cancelPayment} className="mt-5 min-h-11 w-full rounded-xl border border-destructive/30 text-xs font-bold text-destructive disabled:opacity-50">{cancelling ? t("paymentGateway.dangHuy") : t("paymentGateway.huyVaXoaGiao")}</button>
-              )}
+              {isDonation && paymentInfo.status === "PENDING" && <button type="button" disabled={cancelling} onClick={cancelPayment} className="mt-5 min-h-11 w-full rounded-xl border border-destructive/30 text-xs font-bold text-destructive transition hover:bg-destructive/5 disabled:opacity-50">{cancelling ? t("paymentGateway.dangHuy") : t("paymentGateway.cancelDonation")}</button>}
             </div>
           </section>
         )}
@@ -387,11 +387,11 @@ export default function PaymentGatewayPage() {
   );
 }
 
-function QrPanel({ paymentInfo, fallbackQrUrl, qrRef, downloadQr, copy, copied }) {
+function QrPanel({ paymentInfo, fallbackQrUrl, copy, copied }) {
   const { t } = useTranslation();
   return (
     <div className="grid items-center gap-6 sm:grid-cols-[220px_1fr]">
-      <div ref={qrRef} className="mx-auto grid size-[220px] place-items-center rounded-3xl border border-border bg-white p-4 shadow-sm">
+      <div className="mx-auto grid size-[220px] place-items-center rounded-3xl border border-black/10 bg-white p-4 shadow-sm">
         {paymentInfo.qrCode
           ? <QRCodeSVG value={paymentInfo.qrCode} size={184} level="M" marginSize={1} />
           : <img src={fallbackQrUrl} alt={t("paymentGateway.maVietqrThanhToan")} className="size-full object-contain" />}
@@ -399,8 +399,7 @@ function QrPanel({ paymentInfo, fallbackQrUrl, qrRef, downloadQr, copy, copied }
       <div>
         <h2 className="text-base font-black">{t("paymentGateway.quetVietqr")}</h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("paymentGateway.moUngDungNgan2")}</p>
-        <button type="button" onClick={downloadQr} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background"><span className="material-symbols-outlined text-lg">download</span>{t("paymentGateway.taiMaQr")}</button>
-        <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="ml-2 mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>{t("paymentGateway.saoChepNoiDung")}</button>
+        <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-black/15 px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>{t("paymentGateway.saoChepNoiDung")}</button>
       </div>
     </div>
   );

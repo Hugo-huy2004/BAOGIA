@@ -1,6 +1,8 @@
 import express from 'express';
 import SupportTicket from '../models/SupportTicket.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
+import { securityHash } from '../services/securityEnforcement.js';
+import { signedClientIp } from '../utils/clientIp.js';
 
 const router = express.Router();
 
@@ -13,20 +15,52 @@ const router = express.Router();
  * Kho tri thức (`aiSupportAdminService`) vẫn còn vì webhook Messenger và bản tin
  * tóm tắt cho admin dùng nó; nó không còn dính gì tới app Hỗ trợ nữa.
  */
-async function createTicket({ fullName, email, phone, issue, message }) {
+async function createTicket({ fullName, email, phone, issue, message, ipHash }) {
   return SupportTicket.create({
     fullName: fullName?.trim() || 'Thành viên Hugo Studio',
     email: email || 'guest@hugowishpax.studio',
     phone: phone?.trim() || 'N/A',
     issue: issue || message || 'Cần hỗ trợ',
+    ...(ipHash && { ipHash }),
     status: 'pending'
   });
 }
 
+// One donation follow-up per verified client IP; the unique DB index survives restarts.
+router.post('/donation-requests', async (req, res) => {
+  try {
+    const email = String(req.body?.email || '').trim().toLowerCase().slice(0, 254);
+    const issue = String(req.body?.issue || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !issue || issue.length > 2000) {
+      return res.status(400).json({ error: 'Vui lòng nhập email hợp lệ và nội dung dưới 2.000 ký tự.' });
+    }
+    const ip = signedClientIp(req) || (!req.headers['x-vercel-id'] ? req.ip : '');
+    if (!ip && process.env.NODE_ENV === 'production') {
+      return res.status(503).json({ error: 'Không thể xác minh kết nối. Vui lòng thử lại sau.' });
+    }
+    const ticket = await createTicket({
+      email,
+      issue,
+      ipHash: ip ? securityHash('ip', ip) : '',
+    });
+    res.status(201).json({
+      success: true,
+      ticket: { id: ticket._id, status: ticket.status }
+    });
+  } catch (err) {
+    if (err.code === 11000 && err.keyPattern?.ipHash) {
+      return res.status(429).json({ error: 'Thiết bị mạng này đã gửi yêu cầu hỗ trợ.' });
+    }
+    console.error('Error creating support ticket:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
+  }
+});
+
 // POST: Create a support ticket (khách vãng lai gửi từ trang /support)
 router.post('/tickets', async (req, res) => {
   try {
-    const ticket = await createTicket(req.body || {});
+    const { fullName, email, phone, issue, message } = req.body || {};
+    const ticket = await createTicket({ fullName, email, phone, issue, message });
     res.status(201).json({
       success: true,
       ticket: { id: ticket._id, status: ticket.status }

@@ -135,7 +135,8 @@ app.use(helmet({
       // báo, không proxy qua server để khỏi ăn outbound bandwidth của Render.
       imgSrc: [
         "'self'", "data:",
-        "https://res.cloudinary.com", "https://img.vietqr.io",
+        "https://res.cloudinary.com", "https://img.vietqr.io", "https://cdn.vietqr.io",
+        "https://play-lh.googleusercontent.com",
         "https://eduoka.com", "https://static.topcv.vn",
         "https://*.vnecdn.net", "https://*.tuoitre.vn", "https://*.thanhnien.vn",
         "https://ichef.bbci.co.uk", "https://*.bbci.co.uk",

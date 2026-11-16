@@ -7,26 +7,29 @@
  * Mỗi mục: { h: tiêu đề, p?: [đoạn], li?: [gạch đầu dòng] }.
  */
 
-export const LEGAL_UPDATED = "2026-11-09";
+export const LEGAL_UPDATED = "2026-11-16";
 const CONTACT = "contact@hugowishpax.studio";
 
 const vi = {
   donate: {
-    title: "Quy định ủng hộ và bảo mật",
+    title: "Quy định ủng hộ, hoàn tiền và bảo mật",
     sections: [
       { h: "Quy định ủng hộ", li: [
-        "Ủng hộ là tự nguyện, không đổi lấy hàng hoá, dịch vụ hay quyền lợi nào trong Hugo Studio.",
-        "Về pháp lý, đây là khoản tặng cho tài sản theo Bộ luật Dân sự, không phải khoản đầu tư hay cho vay.",
-        "Hugo Studio không phải quỹ từ thiện và không vận động quyên góp từ thiện. Khoản ủng hộ không được khấu trừ thuế và không kèm biên lai từ thiện.",
-        "Mỗi lần ủng hộ từ 20.000 đến 100.000.000 VNĐ, số tròn nghìn, bằng chuyển khoản ngân hàng qua VietQR.",
-        "Người ủng hộ phải từ đủ 18 tuổi và dùng tiền hợp pháp của chính mình.",
-        `Chuyển nhầm hoặc sai số tiền: liên hệ ${CONTACT} để được xem xét.`,
+        "Ủng hộ là tự nguyện, không mua hàng hoá, dịch vụ hay quyền lợi. Hugo Studio không phải quỹ từ thiện; khoản này không có biên nhận từ thiện và không được khấu trừ thuế.",
+        "Mỗi khoản từ 20.000 đến 100.000.000 VNĐ, theo bước 10.000 VNĐ. Mã PayOS dùng trong 15 phút; hết hạn thì tạo mã mới.",
+        "Từ 10.000.000 VNĐ, cần họ tên, email và số điện thoại để đối soát và rà soát nội bộ. Đây là ngưỡng nội bộ của Hugo Studio.",
+        "Bạn cần từ đủ 18 tuổi và dùng tiền hợp pháp của mình.",
+      ] },
+      { h: "Chính sách hoàn tiền", li: [
+        "Khoản đã chuyển thường không hoàn lại chỉ vì đổi ý.",
+        `Nếu chuyển nhầm, chuyển trùng hoặc sai số tiền, gửi biểu mẫu bên dưới trong 7 ngày từ khi ngân hàng xác nhận. Cần gửi chứng từ? Email ${CONTACT}.`,
+        "Ghi mã PayOS, số tiền, thời gian và lý do. Chúng tôi có thể hỏi thêm để xác minh. Không gửi mật khẩu, OTP hay thông tin đăng nhập ngân hàng.",
+        "Chúng tôi kiểm tra từng yêu cầu và trả lời qua email. Yêu cầu quá hạn hoặc không xác minh được có thể bị từ chối. Nếu duyệt, tiền được hoàn về nguồn thanh toán sau đối soát; thời gian nhận tuỳ ngân hàng.",
       ] },
       { h: "Bảo mật thông tin", li: [
-        "Trang này không yêu cầu tài khoản, tên, email hay số điện thoại.",
-        "Bạn chuyển khoản trong ứng dụng ngân hàng của mình. Hugo Studio không nhận được mật khẩu, mã OTP hay số thẻ của bạn.",
-        "PayOS xử lý việc xác nhận chuyển khoản.",
-        "Chúng tôi lưu số tiền, mã giao dịch, thời điểm và tên chủ tài khoản chuyển tiền do ngân hàng trả về, để đối soát. Tên này không hiện công khai.",
+        "Thanh toán qua PayOS và app ngân hàng. Hugo Studio không nhận mật khẩu, OTP hay số thẻ. PayOS gửi trạng thái để chúng tôi cập nhật giao dịch.",
+        "Chúng tôi lưu số tiền, mã và thời điểm giao dịch cùng tên người chuyển do PayOS cung cấp để đối soát; tên này không công khai. Với khoản từ 10 triệu, lưu thêm họ tên, email và số điện thoại bạn cung cấp.",
+        "Biểu mẫu hỗ trợ cần email và nhận tối đa một yêu cầu mỗi IP. IP được lưu dạng mã hoá một chiều để chặn gửi lặp, không lưu IP gốc.",
       ] },
     ],
   },
@@ -131,21 +134,24 @@ const vi = {
 
 const en = {
   donate: {
-    title: "Donation rules and privacy",
+    title: "Donation, refund and privacy rules",
     sections: [
       { h: "Donation rules", li: [
-        "Donations are voluntary and not in exchange for goods, services or any benefit in Hugo Studio.",
-        "Legally this is a gift of property under the Vietnamese Civil Code, not an investment or a loan.",
-        "Hugo Studio is not a charity fund and does not run charitable fundraising. Donations are not tax-deductible and come with no charity receipt.",
-        "Each donation is between 20,000 and 100,000,000 VND, in whole thousands, by bank transfer through VietQR.",
-        "Donors must be at least 18 years old and use their own lawful money.",
-        `Wrong transfer or wrong amount: contact ${CONTACT} and we will review it.`,
+        "Donations are voluntary and do not buy goods, services or benefits. Hugo Studio is not a charity; donations come with no charity receipt and are not tax-deductible.",
+        "Each donation is 20,000–100,000,000 VND in 10,000 VND steps. PayOS codes last 15 minutes; create a new one if they expire.",
+        "For donations of 10,000,000 VND or more, we ask for your name, email and phone for reconciliation and internal review. This is Hugo Studio's own threshold.",
+        "You must be at least 18 and use your own lawful funds.",
+      ] },
+      { h: "Refund policy", li: [
+        "A completed donation is not refunded just because you changed your mind.",
+        `For a mistaken, duplicate or incorrect payment, use the form below within 7 days of bank confirmation. For documents, email ${CONTACT}.`,
+        "Include the PayOS code, amount, time and reason. We may ask for proof. Never send your password, OTP or bank login.",
+        "We review each request and reply by email. Late or unverifiable requests may be declined. Approved refunds go back to the original payment source after review; bank processing time varies.",
       ] },
       { h: "Privacy", li: [
-        "This page asks for no account, name, email or phone number.",
-        "You make the transfer inside your own banking app. Hugo Studio never receives your password, OTP or card number.",
-        "PayOS handles confirmation of the transfer.",
-        "We keep the amount, transaction code, time and the sending account holder's name returned by the bank, for reconciliation. That name is not shown publicly.",
+        "Payment runs through PayOS and your bank app. Hugo Studio never gets your password, OTP or card number. PayOS sends us the payment status.",
+        "We keep the amount, transaction code and time, plus the sender name PayOS provides, for reconciliation. The name is not public. For donations of 10 million VND or more, we also keep the name, email and phone you provide.",
+        "The support form needs your email and allows one request per IP. We store a one-way IP hash to prevent repeats, not the original IP.",
       ] },
     ],
   },
@@ -250,21 +256,24 @@ const en = {
 
 const zh = {
   donate: {
-    title: "捐助规定与隐私",
+    title: "捐助、退款与隐私规定",
     sections: [
       { h: "捐助规定", li: [
-        "捐助出于自愿，不换取任何商品、服务或 Hugo Studio 内的权益。",
-        "在法律上，这是越南《民法典》规定的财产赠与，不是投资或借款。",
-        "Hugo Studio 不是慈善基金，也不开展慈善募捐。捐助不能抵税，也不提供慈善收据。",
-        "每次捐助金额为 20,000 至 100,000,000 越南盾，须为 1,000 的整数倍，通过 VietQR 银行转账。",
+        "捐助完全自愿，不购买商品、服务或权益。Hugo Studio 不是慈善机构，不提供慈善收据，捐助不能抵税。",
+        "金额为 20,000 至 100,000,000 越南盾，按 10,000 越南盾递增。PayOS 付款码有效 15 分钟，过期后请重新创建。",
+        "捐助达到 10,000,000 越南盾时，我们会要求姓名、邮箱和电话用于对账及内部核查。这是 Hugo Studio 自行设定的门槛。",
         "捐助人须年满 18 岁，并使用本人合法资金。",
-        `转错或金额有误：请联系 ${CONTACT}，我们会核查处理。`,
+      ] },
+      { h: "退款政策", li: [
+        "付款完成后，通常不会仅因改变主意而退款。",
+        `误付、重复付款或金额错误，请在银行确认后的 7 天内提交下方表单。需要附证明时，请发邮件至 ${CONTACT}。`,
+        "请提供 PayOS 编号、金额、时间和原因。我们可能会要求证明。请勿发送密码、验证码或银行登录资料。",
+        "我们会核查并通过邮件回复。逾期或无法核实的申请可能被拒绝。退款获批后会退回原付款来源，到账时间由银行决定。",
       ] },
       { h: "隐私", li: [
-        "本页面不需要账户，也不索取姓名、邮箱或电话。",
-        "您在自己的银行应用内完成转账。Hugo Studio 不会收到您的密码、验证码或卡号。",
-        "转账确认由 PayOS 处理。",
-        "我们保存金额、交易编号、时间以及银行返回的转账账户户名，用于对账。该户名不会公开显示。",
+        "付款通过 PayOS 和您的银行应用完成。Hugo Studio 不会收到密码、验证码或卡号。PayOS 会发送付款状态。",
+        "我们保存金额、交易编号、时间和付款人姓名用于对账，姓名不会公开。达到 1,000 万越南盾时，也保存您提供的姓名、邮箱和电话。",
+        "支持表单需要邮箱，每个 IP 只能提交一次。我们只保存不可还原的 IP 哈希来防止重复提交。",
       ] },
     ],
   },

@@ -647,6 +647,7 @@ export default function AdminServicesTab({ triggerConfirm }) {
                       <th className="p-4">Mã Giao Dịch</th>
                       <th className="p-4">Số Tiền</th>
                       <th className="p-4">Nội Dung</th>
+                      <th className="p-4">Đối Soát</th>
                       <th className="p-4">Trạng Thái</th>
                       <th className="p-4 text-center">Thao Tác</th>
                     </tr>
@@ -657,6 +658,16 @@ export default function AdminServicesTab({ triggerConfirm }) {
                         <td className="p-4 font-mono text-[10px] text-muted-foreground">{link.customLinkId}</td>
                         <td className="p-4 font-bold text-primary">{(link.amount || 0).toLocaleString('vi-VN')} ₫</td>
                         <td className="p-4 text-slate-700 dark:text-slate-300 font-medium">{link.reason}</td>
+                        <td className="p-4">
+                          {link.highValueReview ? (
+                            <div className="min-w-44 rounded-xl bg-amber-50 px-3 py-2 text-[10px] text-amber-950 dark:bg-amber-500/10 dark:text-amber-200">
+                              <span className="font-bold">Cần rà soát · ≥ 10 triệu</span>
+                              <span className="mt-1 block">{link.donorName}</span>
+                              <span className="block">{link.donorEmail}</span>
+                              <span className="block">{link.donorPhone}</span>
+                            </div>
+                          ) : <span className="text-slate-400">—</span>}
+                        </td>
                         <td className="p-4">
                           {link.status === 'PAID' ? (
                             <span className="text-emerald-600 bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold">PAID</span>

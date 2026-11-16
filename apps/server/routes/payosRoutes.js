@@ -39,15 +39,24 @@ const payos = new PayOS({
 
 const DONATION_MIN_AMOUNT = 20000;
 const DONATION_MAX_AMOUNT = 100000000;
-const DONATION_STEP = 1000; // chỉ nhận số tròn nghìn, không lẻ
-const DONATION_TERMS_VERSION = '2026-08-10';
+const DONATION_STEP = 10000;
+const DONATION_REVIEW_AMOUNT = 10000000;
+const DONATION_LINK_TTL_MS = 15 * 60 * 1000;
+const DONATION_TERMS_VERSION = '2026-11-16';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^[0-9+()\-\s]{8,15}$/;
 const donationCreateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 12,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Bạn đã tạo quá nhiều yêu cầu ủng hộ. Vui lòng thử lại sau.' },
+});
+const donationCancelLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 12,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 const VIETQR_BANK_APPS_CACHE_MS = 6 * 60 * 60 * 1000;
@@ -76,6 +85,12 @@ const getVietQrBankApps = async (platform) => {
       .filter((app) => /^[a-z0-9-]{1,50}$/i.test(String(app?.appId || '')))
       .map((app) => ({
         appId: String(app.appId).slice(0, 50),
+        appLogo: (() => {
+          try {
+            const logo = new URL(String(app.appLogo || ''));
+            return logo.protocol === 'https:' ? logo.toString() : '';
+          } catch { return ''; }
+        })(),
         appName: String(app.appName).slice(0, 100),
         bankName: String(app.bankName || app.appName).slice(0, 180),
         autofill: app.autofill === 1 || app.autofill === true,
@@ -290,20 +305,25 @@ router.post('/request-payment', requireAdmin, async (req, res) => {
 // [Public] Create a Donation Link
 router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res) => {
   try {
-    const { amount, name, email, termsAccepted } = req.body;
+    const { amount, name, email, phone, termsAccepted } = req.body;
     const numericAmount = Number(amount);
     const donorName = cleanPersonName(name);
     const donorEmail = String(email || '').trim().toLowerCase().slice(0, 254);
+    const donorPhone = String(phone || '').trim().slice(0, 20);
 
     if (!Number.isSafeInteger(numericAmount)
       || numericAmount < DONATION_MIN_AMOUNT
       || numericAmount > DONATION_MAX_AMOUNT
       || numericAmount % DONATION_STEP !== 0) {
-      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 20.000 VNĐ và là số tròn nghìn.' });
+      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 20.000 VNĐ và là bội số của 10.000 VNĐ.' });
     }
-    // Tên và email không bắt buộc: trang /pay/donate chỉ hỏi số tiền.
+    // Thông tin liên hệ là tùy chọn dưới ngưỡng rà soát nội bộ 10 triệu.
     if (donorEmail && !EMAIL_PATTERN.test(donorEmail)) {
       return res.status(400).json({ error: 'Vui lòng nhập email hợp lệ để nhận thư cảm ơn.' });
+    }
+    if (numericAmount >= DONATION_REVIEW_AMOUNT
+      && (donorName.length < 2 || !EMAIL_PATTERN.test(donorEmail) || !PHONE_PATTERN.test(donorPhone))) {
+      return res.status(400).json({ error: 'Khoản từ 10.000.000 VNĐ cần họ tên, email và số điện thoại hợp lệ để đối soát.' });
     }
     if (termsAccepted !== true) {
       return res.status(400).json({ error: 'Vui lòng xác nhận đây là khoản ủng hộ tự nguyện.' });
@@ -315,6 +335,7 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
     // Generate custom Link ID for frontend
     const customLinkId = createCustomLinkId();
     const reason = `UH${String(orderCode).slice(-7)}`;
+    const expiresAt = new Date(Date.now() + DONATION_LINK_TTL_MS);
     
     const frontendUrl = getFrontendUrl(req);
     
@@ -324,6 +345,8 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
       description: reason,
       ...(donorName && { buyerName: donorName }),
       ...(donorEmail && { buyerEmail: donorEmail }),
+      ...(donorPhone && { buyerPhone: donorPhone }),
+      expiredAt: Math.floor(expiresAt.getTime() / 1000),
       cancelUrl: `${frontendUrl}/pay/${customLinkId}?status=cancelled`,
       returnUrl: `${frontendUrl}/pay/${customLinkId}?status=success`,
     };
@@ -342,6 +365,7 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
       amount: Number(amount),
       reason,
       kind: 'DONATION',
+      expiresAt: paymentData.expiredAt ? new Date(paymentData.expiredAt * 1000) : expiresAt,
       checkoutUrl: paymentData.checkoutUrl,
       status: 'PENDING',
       bin: paymentData.bin,
@@ -350,6 +374,8 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
       qrCode: paymentData.qrCode,
       donorName,
       donorEmail,
+      donorPhone,
+      highValueReview: numericAmount >= DONATION_REVIEW_AMOUNT,
       // Trang ủng hộ không hỏi người ủng hộ có muốn nêu tên hay không → mặc định không.
       publicRecognition: req.body.publicRecognition === true,
       termsVersion: DONATION_TERMS_VERSION,
@@ -432,6 +458,7 @@ router.get('/info/:customLinkId', async (req, res) => {
         kind: link.kind,
         status: link.status,
         hasEmail: Boolean(link.donorEmail),
+        expiresAt: link.expiresAt,
         createdAt: link.createdAt,
         bin: link.bin,
         accountNumber: link.accountNumber,
@@ -443,6 +470,39 @@ router.get('/info/:customLinkId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching link info:', error);
     res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
+// Donors can cancel their own pending donation using its unguessable link ID.
+router.post('/donation-cancel/:customLinkId', donationCancelLimiter, async (req, res) => {
+  try {
+    const link = await PaymentLink.findOne({ customLinkId: req.params.customLinkId, kind: 'DONATION' });
+    if (!link) return res.status(404).json({ error: 'Không tìm thấy giao dịch ủng hộ.' });
+    if (link.status === 'CANCELLED') return res.json({ success: true });
+    if (link.status !== 'PENDING') {
+      return res.status(409).json({ error: 'Giao dịch đã thanh toán hoặc không thể hủy.' });
+    }
+
+    const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
+    if (paymentInfo.status === 'PAID') {
+      await finalizePaidLink(link, paymentInfo.transactions?.[0]);
+      return res.status(409).json({ error: 'Giao dịch đã thanh toán thành công, không thể hủy.' });
+    }
+    if (paymentInfo.status !== 'PENDING') {
+      await PaymentLink.updateOne({ _id: link._id, status: 'PENDING' }, { $set: { status: 'CANCELLED' } });
+      return res.json({ success: true });
+    }
+
+    await payos.paymentRequests.cancel(link.orderCode, 'Người ủng hộ hủy giao dịch');
+    const result = await PaymentLink.updateOne(
+      { _id: link._id, status: 'PENDING' },
+      { $set: { status: 'CANCELLED' } },
+    );
+    if (!result.modifiedCount) return res.status(409).json({ error: 'Trạng thái giao dịch vừa thay đổi. Vui lòng tải lại trang.' });
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Error cancelling donation:', error);
+    return res.status(502).json({ error: 'Chưa thể xác nhận hủy với PayOS. Vui lòng thử lại.' });
   }
 });
 

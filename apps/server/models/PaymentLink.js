@@ -57,6 +57,15 @@ const paymentLinkSchema = new mongoose.Schema({
     lowercase: true,
     maxlength: 254,
   },
+  donorPhone: {
+    type: String,
+    trim: true,
+    maxlength: 20,
+  },
+  highValueReview: {
+    type: Boolean,
+    default: false,
+  },
   donorBankName: {
     type: String,
     trim: true,
@@ -75,6 +84,9 @@ const paymentLinkSchema = new mongoose.Schema({
     type: String,
   },
   paidAt: {
+    type: Date,
+  },
+  expiresAt: {
     type: Date,
   },
   thankYouEmailStatus: {

@@ -5,6 +5,7 @@
 import mongoose from 'mongoose';
 import { slugIndex } from '../services/slugIndex.js';
 import Bio from '../models/Bio.js';
+import SupportTicket from '../models/SupportTicket.js';
 
 export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
@@ -23,6 +24,11 @@ export async function connectDatabase() {
       socketTimeoutMS: 45000,
     });
     console.log('✅ MongoDB connected successfully');
+
+    await SupportTicket.collection.createIndex(
+      { ipHash: 1 },
+      { unique: true, partialFilterExpression: { ipHash: { $type: 'string' } } },
+    );
 
     const bioCollection = mongoose.connection.db.collection(Bio.collection.collectionName);
     const { modifiedCount } = await bioCollection.updateMany(
