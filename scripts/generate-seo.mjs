@@ -671,6 +671,11 @@ const SHARE_PAGES = {
     title: "Đăng nhập Hugo Studio",
     description: "Đăng nhập bằng Google để mở trang Bio, ví JOY, giờ tập trung và các ứng dụng thành viên của Hugo Studio. Người học xác minh email trường được dùng miễn phí 365 ngày.",
   },
+  // Không được liên kết từ đâu; donate.hugowishpax.studio chuyển hướng về đây.
+  "/pay/donate": {
+    title: "Ủng hộ Hugo Studio",
+    description: "Ủng hộ tự nguyện cho Hugo Studio, dự án vận hành theo hướng phi lợi nhuận. Chọn số tiền từ 20.000 VNĐ, chuyển khoản qua VietQR, hệ thống tự xác nhận.",
+  },
   "/support-request": {
     title: "Yêu cầu hỗ trợ | Hugo Studio",
     description: "Gửi yêu cầu hỗ trợ kỹ thuật hoặc báo sự cố cho Hugo Studio. Dành cho thành viên đã đăng nhập; yêu cầu đi thẳng tới Hugo kèm số liên lạc để được gọi lại.",

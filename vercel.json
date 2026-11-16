@@ -363,6 +363,10 @@
       "destination": "/login/index.html"
     },
     {
+      "source": "/pay/donate",
+      "destination": "/pay/donate/index.html"
+    },
+    {
       "source": "/support-request",
       "destination": "/support-request/index.html"
     },
