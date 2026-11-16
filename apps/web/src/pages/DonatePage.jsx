@@ -4,23 +4,26 @@ import { useNavigate } from "react-router-dom";
 import dataApi from "../services/api/modules/dataApi";
 import HugoLogo from "../components/HugoLogo";
 import { notify } from "../lib/notify";
+import { legalDoc } from "../content/legal";
 
-// Khớp DONATION_MIN_AMOUNT / DONATION_MAX_AMOUNT ở apps/server/routes/payosRoutes.js.
+// Khớp DONATION_MIN_AMOUNT / DONATION_MAX_AMOUNT / DONATION_STEP ở apps/server/routes/payosRoutes.js.
 const MIN_AMOUNT = 20000;
 const MAX_AMOUNT = 100000000;
+const STEP = 1000;
 // Bấm một mức là sang thẳng màn trả tiền, khỏi gõ.
 const QUICK_AMOUNTS = [20000, 50000, 100000, 200000];
 
 // Trang không được liên kết từ đâu cả: chỉ ai có đường dẫn /pay/donate mới vào.
 // Việc trả tiền, tự xác nhận và lời cảm ơn do PaymentGatewayPage (/pay/:id) lo.
 export default function DonatePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage || i18n.language;
   const navigate = useNavigate();
   const [digits, setDigits] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const amount = Number(digits);
-  const valid = amount >= MIN_AMOUNT && amount <= MAX_AMOUNT;
+  const valid = amount >= MIN_AMOUNT && amount <= MAX_AMOUNT && amount % STEP === 0;
 
   const pay = async (value) => {
     if (submitting) return;
@@ -75,6 +78,20 @@ export default function DonatePage() {
           </button>
           <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">{t("paymentGateway.donateConsent")}</p>
         </form>
+
+        {legalDoc("donate", lang).sections.map((section) => (
+          <details key={section.h} className="mt-3 rounded-2xl border border-border bg-card px-5">
+            <summary className="flex min-h-12 cursor-pointer items-center text-[15px] font-bold">{section.h}</summary>
+            <ul className="list-disc space-y-2 pb-5 pl-5 text-[15px] leading-relaxed text-muted-foreground">
+              {section.li.map((text) => <li key={text}>{text}</li>)}
+            </ul>
+          </details>
+        ))}
+        <p className="mt-4 text-center text-[13px] text-muted-foreground">
+          <a href="/terms" className="underline">{legalDoc("terms", lang).title}</a>
+          {" · "}
+          <a href="/privacy-policy" className="underline">{legalDoc("privacy", lang).title}</a>
+        </p>
       </main>
     </div>
   );

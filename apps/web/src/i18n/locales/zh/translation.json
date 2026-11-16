@@ -2386,7 +2386,7 @@
     "donateRedirect": "{{seconds}} 秒后自动返回首页。",
     "donateTitle": "支持 Hugo Studio",
     "donateAmount": "其他金额（越南盾）",
-    "donateMin": "最低 20,000 越南盾。",
+    "donateMin": "最低 20,000 越南盾，须为 1,000 的整数倍。",
     "donateContinue": "继续付款",
     "donateConsent": "继续即表示您确认这是一笔自愿捐款。",
     "donateFailed": "暂时无法创建捐款请求，请重试。",

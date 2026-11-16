@@ -11,6 +11,25 @@ export const LEGAL_UPDATED = "2026-11-09";
 const CONTACT = "contact@hugowishpax.studio";
 
 const vi = {
+  donate: {
+    title: "Quy định ủng hộ và bảo mật",
+    sections: [
+      { h: "Quy định ủng hộ", li: [
+        "Ủng hộ là tự nguyện, không đổi lấy hàng hoá, dịch vụ hay quyền lợi nào trong Hugo Studio.",
+        "Về pháp lý, đây là khoản tặng cho tài sản theo Bộ luật Dân sự, không phải khoản đầu tư hay cho vay.",
+        "Hugo Studio không phải quỹ từ thiện và không vận động quyên góp từ thiện. Khoản ủng hộ không được khấu trừ thuế và không kèm biên lai từ thiện.",
+        "Mỗi lần ủng hộ từ 20.000 đến 100.000.000 VNĐ, số tròn nghìn, bằng chuyển khoản ngân hàng qua VietQR.",
+        "Người ủng hộ phải từ đủ 18 tuổi và dùng tiền hợp pháp của chính mình.",
+        `Chuyển nhầm hoặc sai số tiền: liên hệ ${CONTACT} để được xem xét.`,
+      ] },
+      { h: "Bảo mật thông tin", li: [
+        "Trang này không yêu cầu tài khoản, tên, email hay số điện thoại.",
+        "Bạn chuyển khoản trong ứng dụng ngân hàng của mình. Hugo Studio không nhận được mật khẩu, mã OTP hay số thẻ của bạn.",
+        "PayOS xử lý việc xác nhận chuyển khoản.",
+        "Chúng tôi lưu số tiền, mã giao dịch, thời điểm và tên chủ tài khoản chuyển tiền do ngân hàng trả về, để đối soát. Tên này không hiện công khai.",
+      ] },
+    ],
+  },
   terms: {
     title: "Điều khoản sử dụng",
     intro: "Khi tạo tài khoản hoặc dùng Hugo Studio (hugowishpax.studio), bạn đồng ý với các điều khoản dưới đây.",
@@ -111,6 +130,25 @@ const vi = {
 };
 
 const en = {
+  donate: {
+    title: "Donation rules and privacy",
+    sections: [
+      { h: "Donation rules", li: [
+        "Donations are voluntary and not in exchange for goods, services or any benefit in Hugo Studio.",
+        "Legally this is a gift of property under the Vietnamese Civil Code, not an investment or a loan.",
+        "Hugo Studio is not a charity fund and does not run charitable fundraising. Donations are not tax-deductible and come with no charity receipt.",
+        "Each donation is between 20,000 and 100,000,000 VND, in whole thousands, by bank transfer through VietQR.",
+        "Donors must be at least 18 years old and use their own lawful money.",
+        `Wrong transfer or wrong amount: contact ${CONTACT} and we will review it.`,
+      ] },
+      { h: "Privacy", li: [
+        "This page asks for no account, name, email or phone number.",
+        "You make the transfer inside your own banking app. Hugo Studio never receives your password, OTP or card number.",
+        "PayOS handles confirmation of the transfer.",
+        "We keep the amount, transaction code, time and the sending account holder's name returned by the bank, for reconciliation. That name is not shown publicly.",
+      ] },
+    ],
+  },
   terms: {
     title: "Terms of Use",
     intro: "By creating an account or using Hugo Studio (hugowishpax.studio), you agree to these terms.",
@@ -211,6 +249,25 @@ const en = {
 };
 
 const zh = {
+  donate: {
+    title: "捐助规定与隐私",
+    sections: [
+      { h: "捐助规定", li: [
+        "捐助出于自愿，不换取任何商品、服务或 Hugo Studio 内的权益。",
+        "在法律上，这是越南《民法典》规定的财产赠与，不是投资或借款。",
+        "Hugo Studio 不是慈善基金，也不开展慈善募捐。捐助不能抵税，也不提供慈善收据。",
+        "每次捐助金额为 20,000 至 100,000,000 越南盾，须为 1,000 的整数倍，通过 VietQR 银行转账。",
+        "捐助人须年满 18 岁，并使用本人合法资金。",
+        `转错或金额有误：请联系 ${CONTACT}，我们会核查处理。`,
+      ] },
+      { h: "隐私", li: [
+        "本页面不需要账户，也不索取姓名、邮箱或电话。",
+        "您在自己的银行应用内完成转账。Hugo Studio 不会收到您的密码、验证码或卡号。",
+        "转账确认由 PayOS 处理。",
+        "我们保存金额、交易编号、时间以及银行返回的转账账户户名，用于对账。该户名不会公开显示。",
+      ] },
+    ],
+  },
   terms: {
     title: "使用条款",
     intro: "创建账户或使用 Hugo Studio（hugowishpax.studio）即表示您同意以下条款。",
@@ -312,7 +369,7 @@ const zh = {
 
 const DOCS = { vi, en, zh };
 
-/** `kind`: "terms" | "privacy". Ngôn ngữ khác rơi về tiếng Việt. */
+/** `kind`: "terms" | "privacy" | "donate" (hiện ở /pay/donate). Ngôn ngữ khác rơi về tiếng Việt. */
 export function legalDoc(kind, lang = "vi") {
   const code = String(lang || "vi").slice(0, 2);
   return (DOCS[code] || vi)[kind];

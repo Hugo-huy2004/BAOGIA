@@ -39,6 +39,7 @@ const payos = new PayOS({
 
 const DONATION_MIN_AMOUNT = 20000;
 const DONATION_MAX_AMOUNT = 100000000;
+const DONATION_STEP = 1000; // chỉ nhận số tròn nghìn, không lẻ
 const DONATION_TERMS_VERSION = '2026-08-10';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const donationCreateLimiter = rateLimit({
@@ -296,8 +297,9 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
 
     if (!Number.isSafeInteger(numericAmount)
       || numericAmount < DONATION_MIN_AMOUNT
-      || numericAmount > DONATION_MAX_AMOUNT) {
-      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 20.000 VNĐ.' });
+      || numericAmount > DONATION_MAX_AMOUNT
+      || numericAmount % DONATION_STEP !== 0) {
+      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 20.000 VNĐ và là số tròn nghìn.' });
     }
     // Tên và email không bắt buộc: trang /pay/donate chỉ hỏi số tiền.
     if (donorEmail && !EMAIL_PATTERN.test(donorEmail)) {
@@ -348,7 +350,8 @@ router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res)
       qrCode: paymentData.qrCode,
       donorName,
       donorEmail,
-      publicRecognition: true,
+      // Trang ủng hộ không hỏi người ủng hộ có muốn nêu tên hay không → mặc định không.
+      publicRecognition: req.body.publicRecognition === true,
       termsVersion: DONATION_TERMS_VERSION,
     });
 

@@ -2105,7 +2105,7 @@
     "donateRedirect": "Returning to the home page in {{seconds}}s.",
     "donateTitle": "Support Hugo Studio",
     "donateAmount": "Other amount (VND)",
-    "donateMin": "Minimum 20,000 VND.",
+    "donateMin": "Minimum 20,000 VND, in whole thousands.",
     "donateContinue": "Continue to payment",
     "donateConsent": "By continuing you confirm this is a voluntary contribution.",
     "donateFailed": "We could not create your contribution. Please try again.",

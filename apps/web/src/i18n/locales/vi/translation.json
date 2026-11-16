@@ -2120,7 +2120,7 @@
     "donateRedirect": "Tự động về trang chủ sau {{seconds}} giây.",
     "donateTitle": "Ủng hộ Hugo Studio",
     "donateAmount": "Số khác (VNĐ)",
-    "donateMin": "Tối thiểu 20.000 VNĐ.",
+    "donateMin": "Tối thiểu 20.000 VNĐ, số tròn nghìn.",
     "donateContinue": "Tiếp tục thanh toán",
     "donateConsent": "Bấm tiếp tục nghĩa là Quý khách xác nhận đây là khoản ủng hộ tự nguyện.",
     "donateFailed": "Chưa tạo được yêu cầu ủng hộ. Xin Quý khách thử lại.",

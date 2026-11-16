@@ -14,6 +14,12 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
 import { purgeRetiredData } from './lib/purgeRetiredData'
 
+// donate.hugowishpax.studio chỉ là địa chỉ ngắn: API không nhận origin này (CORS),
+// nên luôn đưa về trang ủng hộ trên www. vercel.json cũng chuyển hướng ở tầng CDN.
+if (window.location.hostname === 'donate.hugowishpax.studio') {
+  window.location.replace('https://www.hugowishpax.studio/pay/donate')
+}
+
 // Dynamic import 404 auto-healing: when a new build deployment replaces hashed JS chunks,
 // Vite fires 'vite:preload-error'. Automatically reload the window to fetch new manifest.
 window.addEventListener('vite:preload-error', (event) => {
