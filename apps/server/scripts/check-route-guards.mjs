@@ -56,6 +56,7 @@ const PUBLIC_ROUTES = {
   "todayRoutes.js GET /feed": "bảng tin công khai",
   "payosRoutes.js GET /bank-apps": "danh sách app ngân hàng, dữ liệu tĩnh",
   "payosRoutes.js GET /info/:customLinkId": "trang thanh toán mở bằng liên kết bí mật",
+  "payosRoutes.js POST /donation-cancel/:customLinkId": "người ủng hộ cần tự huỷ giao dịch; chỉ tìm DONATION bằng mã liên kết khó đoán, giới hạn 12 lần/15 phút, xác minh trạng thái trực tiếp với PayOS và chỉ huỷ khi PENDING",
   "notificationRoutes.js GET /vapid-public-key": "khoá CÔNG KHAI của web push, bản chất là để phát",
   "otaRoutes.js GET /check": "bản build ở store gọi trước khi có ai đăng nhập",
   "otaRoutes.js POST /check": "như trên",
@@ -66,6 +67,7 @@ const PUBLIC_ROUTES = {
   // ── Gửi form từ khách chưa đăng nhập ─────────────────────────────────────
   "bookingRoutes.js POST /": "khách chưa có tài khoản vẫn phải đặt lịch được",
   "supportRoutes.js POST /tickets": "gửi yêu cầu hỗ trợ khi chưa đăng nhập được",
+  "supportRoutes.js POST /donation-requests": "khách cần gửi yêu cầu rà soát/hoàn tiền; xác thực email, giới hạn nội dung, lưu hash IP với chỉ mục duy nhất để mỗi IP gửi một lần",
   "opsRoutes.js POST /client-event": "telemetry từ trình duyệt, gồm cả khách vãng lai",
   "opsRoutes.js POST /visit": "lượt xem trang cho bản đồ khách truy cập, gồm cả khách vãng lai",
 
